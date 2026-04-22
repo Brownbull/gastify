@@ -1,0 +1,144 @@
+---
+# Reference Frame for /gabe-scope — gastify rebuild
+# Generated 2026-04-22. Edit via /gabe-scope-change if refs drift.
+
+schema_version: 1
+command_version: v1.0
+created_at: "2026-04-22T00:00:00Z"
+
+references:
+  - id: ref-01
+    path: docs/rebuild/PLAN.md
+    role: Graph-structured rebuild plan — phases B0-B13 + U0-U7 + I1-I4 + C1-C4, dependencies, estimates, resolved decisions
+    weight: authoritative
+    load: full_read
+
+  - id: ref-02
+    path: docs/rebuild/LESSONS.md
+    role: 13 rebuild rules (R1-R13) derived from prototype failures, plus PR review checklist
+    weight: authoritative
+    load: full_read
+
+  - id: ref-03
+    path: docs/rebuild/ADR-2026-04-20-REBUILD-STACK.md
+    role: 18 locked stack decisions with constraint boxes, options considered, revisit triggers
+    weight: authoritative
+    load: full_read
+
+  - id: ref-04
+    path: docs/rebuild/UX-PLAN.md
+    role: 7-phase UX workstream (U0-U7) feeding integration handoff
+    weight: suggestive
+    load: full_read
+
+  - id: ref-05
+    path: docs/rebuild/REFERENCE-SNAPSHOT.md
+    role: Source repo pin (SHA 6842cf30, tag rebuild-reference-2026-04-21) + critical-files list for porting
+    weight: contextual
+    load: full_read
+
+  - id: ref-06
+    path: docs/architecture-patterns.md
+    role: Project-local patterns ledger (auto-appended by /gabe-teach arch)
+    weight: suggestive
+    load: index_only
+
+  - id: ref-07
+    path: ~/.claude/rules/common/coding-style.md
+    role: Immutability, file size <800, error handling, input validation defaults
+    weight: suggestive
+    load: full_read
+
+  - id: ref-08
+    path: ~/.claude/rules/common/testing.md
+    role: 80% coverage minimum, TDD RED/GREEN/REFACTOR, unit + integration + E2E required
+    weight: suggestive
+    load: full_read
+
+  - id: ref-09
+    path: ~/.claude/rules/common/security.md
+    role: No hardcoded secrets, input validation at boundaries, rate limiting, auth/authz verified
+    weight: suggestive
+    load: full_read
+
+conflict_log:
+  - id: conflict-01
+    step: step-1-intake
+    question: Q4
+    user_direction: Anonymized cohort benchmarking — user contrasts own habits vs aggregated similar-household stats
+    conflicting_refs: [ref-01, ref-03]
+    conflicting_passage: |
+      PLAN.md: workstream B0-B13 has no aggregate/telemetry/benchmarking phase.
+      ADR-rebuild-stack: 18 decisions, none on anonymization, cohort stats, or consent-based sharing.
+      REFERENCE-SNAPSHOT: "Active users at rebuild start: 1" — benchmarking needs user base.
+    resolution: override
+    user_rationale: Feature not in source BoletApp nor current rebuild plan; wants it included but sequenced last — after core rebuild complete.
+    sequencing: late-phase / post-rebuild-tail
+    downstream_impact: PLAN.md + ADR need update post-scope-finalize to reflect new late-phase capability
+    recorded_at: "2026-04-22T00:00:00Z"
+
+  - id: conflict-02
+    step: step-2-research-review
+    question: Checkpoint 2 roadmap-sequencing follow-up
+    user_direction: Geography — global from day 1 (Chile + LATAM + EU + US + Canada), with USD shadow value on every transaction/item
+    conflicting_refs: [ref-01, ref-03, ref-05]
+    conflicting_passage: |
+      ADR D17 explicitly frames "Domain Scope Limits (Chilean Market)".
+      PLAN seed currencies = CLP, USD, EUR only.
+      REFERENCE-SNAPSHOT + BEHAVIOR.md describe "Chilean smart expense tracker".
+    resolution: override
+    user_rationale: Receipts don't vary meaningfully across geographies — only currency varies. USD canonical shadow already exists in D6 schema; additional currencies slot in cleanly.
+    recorded_at: "2026-04-22T00:00:00Z"
+
+  - id: conflict-03
+    step: step-2-research-review
+    question: Checkpoint 2 roadmap-sequencing follow-up
+    user_direction: No PWA. Responsive web portal + native Android app + native iOS app, all on shared FastAPI backend.
+    conflicting_refs: [ref-01, ref-03, ref-04]
+    conflicting_passage: |
+      ADR line 604: "PWA-only: single codebase... no native iOS/Android/desktop builds"
+      UX-PLAN line 4: "Scope: PWA only"
+      PLAN line 385: "Service worker for PWA install + static asset cache"
+    resolution: override
+    user_rationale: User wants actual native mobile applications, not installable-web. Responsive web is a portal, not the primary experience. FastAPI backend remains the shared API layer — that is WHY FastAPI was chosen (decouple from web, serve all clients).
+    recorded_at: "2026-04-22T00:00:00Z"
+
+overrides:
+  - id: override-01
+    ref_ids: [ref-01, ref-03]
+    overridden_at: "2026-04-22T00:00:00Z"
+    reason: User explicit scope expansion — add cohort benchmarking as tail-phase capability
+
+  - id: override-02
+    ref_ids: [ref-01, ref-03, ref-05]
+    overridden_at: "2026-04-22T00:00:00Z"
+    reason: |
+      Geography expanded from Chile-only to global-from-day-1 (LATAM + EU + US + Canada).
+      Currency list expands beyond CLP/USD/EUR (need CAD, GBP, MXN, BRL, ARS, PEN, COP — at minimum the major LATAM set).
+      USD shadow-value on every transaction/item is preserved (ADR D6 already accommodates).
+      Compliance posture EXPANDS: Chilean Law 21.719 remains for Chilean users; add GDPR (EU), PIPEDA (Canada), applicable US state laws (CCPA/CPRA baseline).
+      SII / DTE / UF-related concerns become Chile-scoped features, not global constraints.
+    downstream_impact: |
+      - ADR D17 (Domain Scope Limits) should be re-scoped — "Chilean market" framing becomes "first market, not only market"
+      - Compliance phase expands (3 jurisdictions minimum, not 1)
+      - `currencies` seed table grows
+      - UI i18n scope grows (en + es + pt + fr at minimum)
+      - FX pair snapshots grow combinatorially
+
+  - id: override-03
+    ref_ids: [ref-01, ref-03, ref-04]
+    overridden_at: "2026-04-22T00:00:00Z"
+    reason: |
+      PWA posture rejected by user.
+      Deliverable set changes to THREE artifacts on one shared FastAPI backend:
+        (a) Responsive web portal — desktop-first, mobile-responsive. Static SPA. NOT installable, NOT a PWA.
+        (b) Native Android app (own codebase / shared codebase TBD)
+        (c) Native iOS app (own codebase / shared codebase TBD)
+      Service worker / PWA install / offline-first patterns are OUT.
+      Mobile-app-specific patterns (push notifications via APNs/FCM, native auth SDKs, App Store + Play Store release pipelines) are IN.
+    downstream_impact: |
+      - ADR requires new decision "D19: Mobile app stack" (React Native / Flutter / Kotlin Multiplatform / native Swift+Kotlin)
+      - PLAN.md: B-phase cuts service worker; UX-PLAN drops PWA gesture inventory
+      - ROADMAP gains 2 NEW workstreams: (i) Android native, (ii) iOS native — each with own phases
+      - Auth posture shifts: Firebase Auth still viable (has native SDKs); token handling differs per platform
+      - The ~2.6 "PWA sign-out cache leak" pitfall from research SUMMARY becomes partially-moot for web side, but native token-keystore handling replaces it as the equivalent risk

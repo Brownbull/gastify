@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "command_version": "v1.0",
+  "created_at": "2026-04-22T00:00:00Z",
+  "last_updated": "2026-04-22T00:00:00Z",
+  "current_step": "step-7-requirements-roadmap",
+  "completed_steps": ["step-0.5-reference-frame", "step-1-intake", "step-2-research", "step-3-problem-vision", "step-4-users", "step-5-sc-ng", "step-6-constraints-posture"],
+  "reference_frame_loaded": true,
+  "reference_frame_path": ".kdbp/scope-references.yaml",
+  "reference_frame_ref_count": 9,
+  "pending_approval_markers": [
+    {"step": "step-3", "section": "§§1-3", "status": "approved"},
+    {"step": "step-4", "section": "§§4-6", "status": "approved"},
+    {"step": "step-5", "section": "§§7-8", "status": "approved"},
+    {"step": "step-6", "section": "§§9-10", "status": "approved"},
+    {"step": "step-7.1", "section": "SCOPE §12 Requirements", "status": "pending-user-review"},
+    {"step": "step-7.3-7.4", "section": "ROADMAP (all)", "status": "pending-user-review"}
+  ],
+  "prompt_versions_used": {},
+  "cost_estimate": {
+    "tokens_used": 0,
+    "estimated_usd": 0.0
+  },
+  "intake": {
+    "answers": {
+      "Q1_one_liner": "Expense tracker that answers 'where did my money go?' at item + category level — not just 'which store' — so users see spending habits.",
+      "Q2_primary_user": "Individuals and families managing personal finances (breadwinners, earners). Excludes businesses of any size. Today's alternatives: (a) existing apps with slow entry + no item-level scan + poor navigation; (b) Excel with skill barrier.",
+      "Q3_why_now": "Attention economy — short spans paired with info hunger — demands fast, glanceable accountability. 'Gravity-center' detection: surface where spending concentrates within the user's own data.",
+      "Q4_success_shape": "Observable: (1) user can name top item categories hurting spend; (2) user identifies forgotten/surprise recurring charges; (3) [override-01] user contrasts own habits vs anonymized cohort — scheduled as late-phase capability.",
+      "Q5_anti_vision": "Explicitly excluded: income/investment tracking, tax features, business/corporate budgeting, contract-revision recommendations, kitchen/pantry inventory (Gustify). In-scope addition: item-level urgency/special-case flag (non-tax)."
+    },
+    "follow_ups_asked": 1,
+    "follow_up_answers": {
+      "FQ1_sharing_model": "H — single-user MVP, data model designed so shared-household can slot in later."
+    },
+    "brainstorm_cycles": {},
+    "open_questions": [],
+    "signals": {
+      "differentiator_item_level": "Scan receipts → item-level capture beyond store-level (V4 taxonomy 86 categories).",
+      "differentiator_gravity_centers": "Highlight concentration/anomaly in own spend over time.",
+      "differentiator_late_phase_cohort": "Anonymized cohort benchmarking (override-01, tail phase).",
+      "friction_target": "Replace form-filling and Excel with scan + auto-parse.",
+      "privacy_posture": "Non-tax, non-business, personal-context only; benchmarking requires consent + anonymization.",
+      "geography": "Global from day 1 — Chile + LATAM + EU + US + Canada (override-02).",
+      "currency_model": "USD-shadow-minor on every transaction/item (ADR D6 preserved); local currency authoritative, USD for cross-market analytics.",
+      "compliance_footprint": "Chilean Law 21.719 + GDPR (EU) + PIPEDA (Canada) + US state-law baseline (CCPA/CPRA).",
+      "deliverable_surfaces": "THREE clients on shared FastAPI backend — (a) responsive web portal [NOT PWA], (b) native Android app, (c) native iOS app (override-03).",
+      "structured_boleta_shortcut": "QR/CAF parse of Chilean electronic boletas = late-phase nice-to-have, not MVP.",
+      "statement_reconciliation": "Two ingestion modes: receipts + credit card/bank statements. Worker reconciles statement lines against receipt-sourced transactions. Three buckets: matched / statement-only / receipt-only. Coverage metric = % of statement spend with matched receipt.",
+      "card_privacy_posture": "Card aliases ONLY (e.g., 'Santander Visa'). No card numbers, CVV, PAN fragments, expiry. PCI-regulated data never enters the system."
+    }
+  },
+  "research_width": "quick",
+  "research_agents": ["domain", "pitfalls"],
+  "research_summary_path": ".kdbp/research/SUMMARY.md",
+  "coverage_status": {
+    "scs_without_reqs": [],
+    "reqs_without_phase": [],
+    "reqs_duplicated": []
+  },
+  "granularity": "fine",
+  "custom_granularity_count": 9,
+  "finalize_forced_at": null
+}
