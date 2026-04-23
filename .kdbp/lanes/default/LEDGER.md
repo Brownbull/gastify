@@ -27,3 +27,16 @@ PROMOTION: N/A (main is final link in chain)
 DEPLOYMENTS: P1 added to .kdbp/DEPLOYMENTS.md
 SETUP: first run — wrote .kdbp/PUSH.md (remote=origin, strategy=trunk-based, CI=none) + seeded .kdbp/DEPLOYMENTS.md from template
 CLASSIFIER: Trunk-first-push trigger fired → [note] action → DEPLOYMENTS P1.Decisions populated with trunk-based scaffold-phase rationale + revisit triggers
+
+## 2026-04-23 — [c6d6ff2] chore(kdbp): record push bookkeeping for P1
+FINDINGS: 0
+ACTIONS: none (all checks skipped — no source files; structure ✅; deferred ✅; shared-file policy ✅)
+DEFERRED: 0
+NOTE: Auto-commit mop-up of orphan bookkeeping left by prior /gabe-push that never reached Step 8.5. 3 files, +52. Invoked as sub-step of /gabe-push when user picked [commit] at pre-flight. Shared .kdbp/ writes permitted (branch=main).
+
+## 2026-04-23 00:31 — PUSH main -> origin/main
+PR: — (trunk-based; direct-to-main)
+CI: skipped (provider=none)
+PROMOTION: N/A (main is final link)
+DEPLOYMENTS: P2 added to .kdbp/DEPLOYMENTS.md
+CLASSIFIER: no triggers fired (no CI/infra/deploy-config changes; trunk-first already captured in P1)

@@ -17,6 +17,7 @@
 | # | Date | Branch → Target | PR | CI Result | Notes | Decisions |
 |---|------|-----------------|-----|-----------|-------|-----------|
 | P1 | 2026-04-23 00:17 | main → main (direct) | — | — | first push; trunk-based direct-to-main (pre-code-scaffold repo state) | Trunk-based chosen during scaffold phase — revisit when 2nd contributor joins OR CI wires up OR first lane branch opens |
+| P2 | 2026-04-23 00:31 | main → main (direct) | — | — | bookkeeping mop-up push (closes P1 Step 8.5 gap) | — |
 
 <!-- Example rows:
 | P1 | 2026-04-17 14:22 | feature/add-auth → main | #42 | ✅ 3/3 (47s) | promoted main → (none) | — |
