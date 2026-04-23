@@ -1,2 +1,7 @@
 {"ts":"2026-04-22T22:37:46Z","event":"scope_init","scope_version":1,"roadmap_version":1,"reference_frame_refs":9,"overrides":["override-01","override-02","override-03"],"sc_count":11,"ng_count":8,"req_count":27,"phase_count":9,"granularity":"fine","tombstone":".kdbp/archive/tombstones/scope-session-20260422T223746Z.json"}
 {"ts":"2026-04-23T02:40:59Z","event":"legacy_migration","from":".kdbp/{PLAN,PENDING,LEDGER}.md","to":".kdbp/lanes/default/","migrated_by":"/gabe-init update","note":"git history preserves pre-migration state"}
+{"ts":"2026-04-23T04:36:21Z","event":"lane_create","lane":"ux-mockups","phase":null,"stream":"ux-mockups","worktree":null,"branch":null,"from":null,"stream_only":true}
+{"ts":"2026-04-23T04:36:53Z","event":"lane_create","lane":"p1-backend","phase":"p1","stream":"backend","worktree":"../gastify-p1-backend","branch":"gabe/p1-backend","from":"main"}
+{"ts":"2026-04-23T05:42:15Z","event":"plan_create","lane":"p1-backend","phases":6,"tiers":{"mvp":1,"ent":5,"scale":0},"decisions":["D1","D2","D3","D4","D5","D6"],"pending":["P1","P2"]}
+{"ts":"2026-04-23T17:55:00Z","event":"worktree_relocated","lane":"p1-backend","from":"../gastify-p1-backend","to":".worktrees/p1-backend","reason":"v7.4 in-repo worktree convention"}
+{"ts":"2026-04-23T17:55:00Z","event":"lane_scaffold_retrofit","lane":"p1-backend","path":".kdbp/lanes/p1-backend/","source":"gabe/p1-backend","reason":"scaffold was only on lane branch; backfilling main for dashboard visibility per gabe-lane v7.4+ Step C.2.5"}
