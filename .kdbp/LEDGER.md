@@ -69,3 +69,5 @@ NOTE: /gabe-scope v1.0 finalize commit. 18 files added (.kdbp/ + archives).
 ## 2026-04-23 12:15 — [main 4beed22] refactor(kdbp): rollback lane layout — serial single-plan workflow
 
 ## 2026-04-23 13:56 — [main 35a6956] chore(kdbp): retrofit STRUCTURE for UX mockups + document design-first ordering
+
+## 2026-04-23 14:12 — [main b6613e2] chore(kdbp): migrate PUSH.md to env-block shape (staging + production)
