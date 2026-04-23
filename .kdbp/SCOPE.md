@@ -42,6 +42,8 @@ Downstream artifacts (PLAN.md, ADR, UX-PLAN, BEHAVIOR.md) must be updated to ref
 
 **Gastify is a personal expense tracker that answers "where did my money go?" at item + category level — not just "which store" — by scanning both receipts (item detail) and credit card statements (coverage) with a vision LLM, reconciling the two sides so nothing hides, and surfacing concentration patterns, subscription surprises, and spending habits.** It runs as a responsive web portal plus native Android and iOS apps on a single shared backend API, from day 1 across Chile, LATAM, EU, US, and Canada.
 
+> **Design-first execution order.** A full UX mockup plan (13 phases — design tokens → atomic components → molecular components → flows → screens → handoff) runs **before** `ROADMAP.md` P1 (Foundation backend) begins. Mockups are not enumerated in `ROADMAP.md` — they are a pre-roadmap design phase tracked in `.kdbp/PLAN.md` while active. On mockup handoff completion, the queued plan at `.kdbp/archive/queued_backend-p1.md` activates and ROADMAP P1 starts. ROADMAP phases + REQ-coverage are unchanged by this ordering — only the execution cadence shifts.
+
 ## §2 Problem {#problem}
 
 **People don't know where their money goes — not because the data isn't there, but because the tools to see it are too slow, too shallow, or too skilled-up to use.**

@@ -54,6 +54,20 @@
 | `web/package.json` | Frontend deps | MVP |
 | `docker-compose.yml` | Local dev stack | MVP |
 
+### UX Mockups (design-system + HTML prototypes)
+
+<!-- Design-phase artifacts for P1–P13 of the mockups plan. Web + mobile variants land here. -->
+
+| Pattern | Description | Tier |
+|---------|-------------|------|
+| `docs/mockups/**/*.html` | HTML mockups (web + mobile variants) | MVP |
+| `docs/mockups/**/*.json` | design tokens + metadata (tokens.json, etc.) | MVP |
+| `docs/mockups/**/*.css` | stylesheets for prototypes | MVP |
+| `docs/mockups/**/*.js` | interactive prototype JS | MVP |
+| `docs/mockups/**/*.svg` | icons + vector assets | MVP |
+| `docs/mockups/**/*.{png,jpg,jpeg,webp,gif}` | raster assets | MVP |
+| `docs/mockups/**/*.woff2` | self-hosted web fonts | MVP |
+
 <!-- ### Web App (any stack)
 
 | Pattern | Description | Tier |
