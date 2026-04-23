@@ -11,7 +11,7 @@ Produce complete clean-slate mockup surface for gastify — responsive web porta
 - **Maturity:** mvp
 - **Domain:** Smart personal expense tracker — AI receipt scanning, multi-currency, multi-platform (web + mobile), rebuild of BoletApp
 - **Created:** 2026-04-23
-- **Last Updated:** 2026-04-23
+- **Last Updated:** 2026-04-23 (Phase 1 Exec → 🔄)
 - **Platform sets:** 2 (web responsive + mobile unified)
 - **Strategy:** Clean-slate redesign from zero. Legacy boletapp mockups at `/home/khujta/projects/bmad/boletapp/docs/mockups/` = reference only, not port.
 - **Queued next:** Backend P1 Foundation — see `.kdbp/archive/queued_backend-p1.md` (activate after P13 handoff ships).
@@ -20,7 +20,7 @@ Produce complete clean-slate mockup surface for gastify — responsive web porta
 
 | # | Phase | Description | Types | Tier | Complexity | Exec | Review | Commit | Push |
 |---|-------|-------------|-------|------|------------|------|--------|--------|------|
-| 1 | Design language + tokens | Theme exploration (3 legacy + ≥3 new candidates) + lock tokens/type/spacing/motion/icons/wordmark | design-system | mvp | med | ⬜ | ⬜ | ⬜ | ⬜ |
+| 1 | Design language + tokens | Port 3 legacy themes (Normal/Pro/Mono × light/dark) + 3 new candidates as style prompts → 4-screen stress test × 6 themes × 3 platforms (desktop web / mobile web / native mobile) → pick runtime multi-theme set → lock tokens.json + design-system.html | design-system | ent | high | 🔄 | ⬜ | ⬜ | ⬜ |
 | 2 | Atomic components | Buttons, inputs, pills, badges, avatars, chips, skeletons, progress. Web + mobile | design-system, ui-kit | mvp | low | ⬜ | ⬜ | ⬜ | ⬜ |
 | 3 | Molecular components | Cards, modals, toasts, banners, nav (bottom-tab + top-bar + sidebar), FAB, filters, sheets, drawers, forms + COMPONENT-LIBRARY.md. Full state matrix + WCAG AA | design-system, ui-kit | ent | med | ⬜ | ⬜ | ⬜ | ⬜ |
 | 4 | Flow map index + REQ×screen matrix | Enumerate all flows; low-fi skeleton per flow; seed INDEX.md + REQ-COVERAGE.md (living through P5-P12) | flows, index | mvp | med | ⬜ | ⬜ | ⬜ | ⬜ |
@@ -45,7 +45,9 @@ Produce complete clean-slate mockup surface for gastify — responsive web porta
 ```yaml
 phase: 1
 types: [design-system]
-phase_tier: mvp
+phase_tier: ent
+phase_tier_original: mvp
+phase_tier_escalated: 2026-04-23
 prototype: false
 dim_overrides: []
 sections_considered: [Core, design-system]
@@ -54,12 +56,30 @@ decisions_entry: D7
 ```
 
 - **Types:** `design-system`
-- **Tier:** mvp
+- **Tier:** ent (escalated from mvp 2026-04-23 — see DECISIONS.md D7 escalation)
 - **Prototype:** no
 - **Sections considered:** Core, design-system
-- **Suppressed dimensions:** batched tier decision; per-phase matrix not rendered (domain is design, not code production — tier framework mostly moot)
 - **Trade-offs accepted:** See DECISIONS.md D7
-- **Scope:** Render 3 legacy themes (Normal warm/forest, Professional cool/blue, Mono grayscale) + ≥3 new exploratory directions (e.g., Editorial/serif, Neo-retro, Organic/botanical, Playful-geometric, Brutalist, Gradient-soft — pick 3+). User picks winner. Lock `tokens.json` + `design-system.html`.
+- **Scope:**
+  - **Port** 3 legacy themes from `bmad/boletapp/docs/mockups/` (Normal warm/forest, Professional cool/blue, Mono grayscale — each with light + dark mode = 6 variants) as style prompt files
+  - **Author** 3 new exploratory candidates (Editorial/serif, Organic/botanical, Playful-geometric — or user pick) with light+dark = 6 more variants
+  - **4-screen stress test**: dashboard + single-scan idle + history list + insights — covers data-dense + capture + list + mixed-content surface breadth
+  - **3 platform frames**: Desktop Web (1440 responsive), Mobile Web (PWA 390×844 with browser-API limits documented), Native Mobile (iOS+Android React-Native 390×844 with full platform access — haptics, biometrics, camera, push)
+  - **Multi-theme runtime**: user picks subset of 6 themes to ship as in-app runtime-switchable themes (not a single picked winner — multiple themes alive in app per user clarification)
+  - **Tool**: frontend-design skill + style prompts (legacy-proven pattern from `bmad/boletapp/docs/mockups/styles/*.prompt`). Hand-rolled inline HTML prohibited.
+  - **Exit artifacts**: `docs/mockups/tokens.json` (multi-theme token structure), `docs/mockups/design-system.html` (switcher demo across 4 stress screens × 3 platforms), `docs/mockups/styles/*.prompt` (6 style prompts), `docs/mockups/explorations/` (6 themes × 4 screens × 3 platforms = 72 renders or stress subset)
+
+#### Phase 1 Task List
+
+| # | Task | Owner | Output |
+|---|------|-------|--------|
+| T1 | Scaffold `docs/mockups/{explorations,styles,screens,flows,tokens}/` | agent | folders |
+| T2 | Port 6 legacy `styles/*.prompt` files + adapt for gastify domain + add desktop+mobile+native directives + light/dark variants | agent | 6 prompts |
+| T3 | Author 3 new style prompts (editorial / organic / playful-geometric — tentative, user may swap) | agent | 3 prompts |
+| T4 | Define `STRESS-TEST-SPEC.md` — 4 screens × 3 platforms frame conventions + state matrix + interaction-note template | agent | spec doc |
+| T5 | **[EXTERNAL]** User runs frontend-design skill / Claude design on prompts × stress screens, drops renders to `explorations/output/` | user | N HTMLs |
+| T6 | **[USER]** Pick runtime multi-theme set (subset of 6 themes × 2 modes) to ship | user | decision |
+| T7 | Lock `tokens.json` (multi-theme) + `design-system.html` (switcher demo) | agent | 2 files |
 
 ### Phase 2 — Atomic components
 

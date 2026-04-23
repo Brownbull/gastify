@@ -8,7 +8,7 @@
 | D4 | 2026-04-23 | P4 Consent + DSR tier = ent baseline across 4 jurisdictions | Law 21.719 + GDPR + PIPEDA + CCPA/CPRA hard legal constraint, not ergonomics; audit event log required for DSR proof-of-processing | MVP `none` on audit (blocks per red-line); Scale immutable/WORM (overkill pre-launch) | active | New jurisdiction added OR enforcement action |
 | D5 | 2026-04-23 | P5 Observability tier = ent with Core.Obs→Scale (REQ-21 exporter) | REQ-21 + U8 mandate structured logs + metric exporter at P1 exit; phase IS observability, exporter is the deliverable | MVP (TIER_DRIFT against REQ-21); defer to Phase 7 launch-hardening (breaks P1 exit-signal) | active | OTel/Prometheus replaced OR per-scan metric schema changes |
 | D6 | 2026-04-23 | P6 Exit-signal smoke test tier = mvp | Happy-path E2E assertion only; no new infra, no new abstractions; proves P2–P5 integrate correctly per ROADMAP §Phase-1 exit signal | Ent with edge coverage (premature; edges land in per-feature phases later) | active | P1 REQ set expands |
-| D7 | 2026-04-23 | ux-mockups P1 Design language + tokens tier = mvp | Theme exploration — iterative; lock after winner picked | Ent (over-spec before winner chosen) | accepted | Token gaps surface at P3 |
+| D7 | 2026-04-23 | ux-mockups P1 Design language + tokens tier = **ent** (escalated from mvp 2026-04-23) | Multi-theme runtime (not single-winner-lock) + port legacy 3 themes × light/dark + 3 new candidates + 4-screen stress test × 3 platform frames (desktop web / mobile web / native mobile) = load-bearing for every downstream phase; MVP single-winner premise invalidated by user clarification | Stay mvp (invalid premise — user wants runtime multi-theme, not locked winner) | accepted | Stress-test screens expand OR runtime theme count changes |
 | D8 | 2026-04-23 | ux-mockups P2 Atomic components tier = mvp | Atoms simple; happy-path variants enough; state matrix belongs to P3 | Ent full states at atom level (duplicates P3) | accepted | P5-P12 atoms missing |
 | D9 | 2026-04-23 | ux-mockups P3 Molecular components tier = ent | Load-bearing for 9 screen phases; full state matrix + WCAG AA prevents compounded rework | MVP happy-path only (forces P13 re-audit) | accepted | 3rd platform added |
 | D10 | 2026-04-23 | ux-mockups P4 Flow map + REQ matrix tier = mvp | Living doc rewritten P5-P12; over-spec wastes effort | Ent upfront audit (premature) | accepted | P13 audit gaps |
@@ -270,14 +270,30 @@ Load-bearing items deferred:
 
 ---
 
-## D7 — ux-mockups P1 tier: mvp (2026-04-23)
+## D7 — ux-mockups P1 tier: ent (escalated from mvp 2026-04-23)
 
 **Phase:** Design language + tokens
 **Types:** `design-system`
-**Tier:** mvp | **Prototype:** no
-**Reason:** default MVP pick per U2. Theme exploration is iterative; locking early is premature. Tokens refine in P3 feedback loop.
-**Sections:** suppressed (design-domain phase; Core dims moot)
-**Review trigger:** Escalate if P3 component assembly reveals token gaps requiring re-exploration.
+**Tier:** ent | **Prototype:** no
+**Reason (original mvp):** default MVP pick per U2. Theme exploration iterative; locking early premature. Tokens refine in P3 feedback loop.
+
+### Tier escalation — 2026-04-23 (mid-phase, pre-exec)
+
+- **From:** mvp → **To:** ent
+- **Trigger:** user clarification + legacy investigation (mid-Phase-1, before any code shipped)
+- **Root cause of escalation:** original D7 assumed single-theme-locked model (`pick winner → lock tokens`). User clarified + legacy `bmad/boletapp/docs/mockups/` evidence confirmed: gastify ships **runtime multi-theme** (Normal/Pro/Mono × light/dark = 6 variants alive in-app), not locked winner. Plus platform split expanded from 2 surfaces to **3 surfaces** (Desktop Web responsive / Mobile Web PWA limited / Native Mobile iOS+Android RN full). Plus stress-test methodology requires 4 screens × N themes × 3 platforms, not dashboard-only.
+- **Reinstates dimensions:**
+  - `design-system.Token-architecture` → Ent (multi-theme scheme with light/dark variants, not flat single-theme)
+  - `design-system.Platform-frames` → Ent (3 platform conventions documented, not mobile-only)
+  - `design-system.Stress-test-breadth` → Ent (4-screen stress test, not dashboard-only)
+  - `design-system.State-matrix` → Ent (hero + variant states per screen per PLAN convention)
+- **Reason (ent):** load-bearing for all downstream phases (P2 atoms, P3 molecules, P5–P12 screens) — a token-architecture mistake here propagates to 28+ screens. Legacy path proved the pattern works (boletapp `data-theme`+`data-mode` CSS strategy, 6 style prompts, 708-line gallery hub). Porting + extending is lower-risk than clean-slate rebuild.
+- **Alternatives rejected:**
+  - Stay MVP single-winner-lock → invalidated by user: screenshots show runtime multi-theme, not single choice
+  - Clean-slate per original PLAN note → discards 28 legacy screens + 13 flows + 6 style prompts = ~$work already paid
+
+**Sections reinstated:** design-system (was suppressed under MVP rationale, now active at Ent)
+**Review trigger:** Escalate further (scale) only if cohort theme customization per REQ-27 surfaces OR native platforms diverge enough to require per-platform token forks.
 **Status:** accepted
 
 ---

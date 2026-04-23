@@ -71,3 +71,13 @@ NOTE: /gabe-scope v1.0 finalize commit. 18 files added (.kdbp/ + archives).
 ## 2026-04-23 13:56 — [main 35a6956] chore(kdbp): retrofit STRUCTURE for UX mockups + document design-first ordering
 
 ## 2026-04-23 14:12 — [main b6613e2] chore(kdbp): migrate PUSH.md to env-block shape (staging + production)
+
+## 2026-04-23 — TIER ESCALATION: Phase 1 — Design language + tokens
+FROM: mvp → TO: ent
+TRIGGER: user mid-exec intervention — hand-rolled HTML rejected as low-fidelity vs legacy; legacy inspection revealed runtime multi-theme model + 3 platform surfaces + 4-screen stress-test convention not captured in original MVP plan
+ROOT CAUSE: original D7 presumed single-theme-locked model; user + legacy evidence show runtime multi-theme (Normal/Pro/Mono × light/dark = 6 variants in-app) + 3 platform frames (Desktop Web / Mobile Web PWA / Native Mobile RN) + legacy stress-test methodology
+DECISIONS: D7 amended with escalation block
+REINSTATED: design-system.{Token-architecture, Platform-frames, Stress-test-breadth, State-matrix} → Ent
+DISCARDED: 5 hand-rolled theme dashboard HTMLs (uncommitted, zero-cost rollback)
+REPLAN: 7-task list (port 6 legacy prompts + author 3 new + stress-test spec + external render handoff + user pick + lock tokens/design-system)
+EXEC STATE: 🔄 (continues)

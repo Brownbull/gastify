@@ -1,0 +1,274 @@
+<role>
+Senior frontend engineer + visual designer. Render gastify in "Mono" design language across 3 platforms × 2 modes.
+
+Shared scaffolding defined in `styles/normal.prompt`. This file documents the Mono-theme delta.
+
+Rules that override normal.prompt:
+- Zero saturation — every token is on the grayscale axis.
+- Hairline 1px borders replace shadows wherever possible.
+- Radii shrink further (2–8px). FAB + avatar remain full-round as single curve accents.
+- No gradients anywhere. No colored tints on category chips — tints become alpha-on-ink.
+- Type: system fonts (Helvetica / SF / Segoe UI), no Google Fonts load.
+
+</role>
+
+<design-system>
+# Mono — Grayscale
+
+## Design Philosophy
+
+**Mono** strips everything that isn't function. Achromatic, hairline, high-contrast. No color at all — the only differentiation is tonal weight. Reads like well-set text. Accessibility-strong by default. Favored by users who find color noise distracting and by anyone with color-vision differences.
+
+### The Vibe
+**Quiet. Uncompromising. Reading room. Archive ledger.**
+Nothing blinks. Nothing competes for attention. Numbers do the work.
+
+### Visual Signatures
+- **Zero hue** — all color tokens on grayscale axis
+- **Hairline borders** (`#e4e4e7` 1px) replace shadows
+- **System sans** (`-apple-system`, `Helvetica`, `Segoe UI`) — no web fonts
+- **Sharp corners** 2–4px default, single full-round accent (FAB, avatar)
+- **Black ink** (`#18181b`) — near-black, easier on eyes than pure
+- **High contrast ratios** — text-on-bg ≥ 7:1 (AAA) by default
+
+---
+
+## Design Token System
+
+### Colors — Light Mode
+
+```css
+[data-theme="mono"][data-mode="light"] {
+  /* Surfaces */
+  --bg: #fafafa;          /* neutral-50 */
+  --surface: #ffffff;
+  --bg-tertiary: #f4f4f5;
+
+  /* Ink */
+  --text: #18181b;        /* zinc-900 */
+  --secondary: #52525b;   /* zinc-600 */
+
+  /* Primary = deep ink */
+  --primary: #18181b;
+  --primary-rgb: 24, 24, 27;
+  --accent: #52525b;
+
+  /* Borders */
+  --border: #e4e4e7;      /* zinc-200, hairline */
+  --border-medium: #d4d4d8;
+
+  /* Feedback — grayscale (semantic via icon + copy, not color) */
+  --secondary-color: #3f3f46;
+  --success: #52525b;     /* use ✓ icon */
+  --warning: #52525b;     /* use ! icon */
+  --error: #18181b;       /* use bold weight */
+
+  /* Nav */
+  --nav-bg: #ffffff;
+  --nav-border: #e4e4e7;
+
+  /* Shadows — nearly invisible, rely on borders */
+  --shadow: rgba(0, 0, 0, 0.06);
+  --shadow-lg: rgba(0, 0, 0, 0.1);
+
+  /* States */
+  --skeleton-base: #f4f4f5;
+  --skeleton-shine: #fafafa;
+  --progress-track: #e4e4e7;
+  --indicator-inactive: #e4e4e7;
+
+  /* FAB */
+  --fab-gradient-from: #18181b;
+  --fab-gradient-to: #27272a;
+  --recent-indicator: #52525b;
+
+  /* Category chips — alpha on ink */
+  --cat-hogar: #18181b;           --cat-hogar-tint: rgba(24, 24, 27, 0.08);
+  --cat-medicamento: #3f3f46;     --cat-medicamento-tint: rgba(63, 63, 70, 0.08);
+  --cat-cargo: #52525b;           --cat-cargo-tint: rgba(82, 82, 91, 0.08);
+  --cat-otros-green: #71717a;     --cat-otros-green-tint: rgba(113, 113, 122, 0.08);
+  --cat-mascotas: #a1a1aa;        --cat-mascotas-tint: rgba(161, 161, 170, 0.08);
+  --cat-construccion: #18181b;
+  --cat-farmacia: #3f3f46;
+  --cat-vet: #a1a1aa;
+
+  --frame-bg: #18181b;
+  --status-bar-text: #ffffff;
+}
+```
+
+### Colors — Dark Mode
+
+```css
+[data-theme="mono"][data-mode="dark"] {
+  --bg: #09090b;
+  --surface: #18181b;
+  --bg-tertiary: #18181b;
+
+  --text: #fafafa;
+  --secondary: #a1a1aa;
+
+  --primary: #a1a1aa;    /* lifted for readability */
+  --primary-rgb: 63, 63, 70;
+  --accent: #71717a;
+
+  --border: #27272a;
+  --border-medium: #3f3f46;
+
+  --secondary-color: #71717a;
+  --success: #a1a1aa;
+
+  --nav-bg: #09090b;
+  --nav-border: #27272a;
+
+  --shadow: rgba(0,0,0,0.4);
+  --shadow-lg: rgba(0,0,0,0.5);
+
+  --skeleton-base: #18181b;
+  --skeleton-shine: #27272a;
+  --progress-track: #27272a;
+  --indicator-inactive: #27272a;
+
+  --fab-gradient-from: #3f3f46;
+  --fab-gradient-to: #27272a;
+  --recent-indicator: #71717a;
+
+  --cat-hogar: #a1a1aa;           --cat-hogar-tint: rgba(161, 161, 170, 0.12);
+  --cat-medicamento: #71717a;     --cat-medicamento-tint: rgba(113, 113, 122, 0.12);
+  --cat-cargo: #52525b;           --cat-cargo-tint: rgba(82, 82, 91, 0.12);
+  --cat-otros-green: #a1a1aa;     --cat-otros-green-tint: rgba(161, 161, 170, 0.12);
+  --cat-mascotas: #71717a;        --cat-mascotas-tint: rgba(113, 113, 122, 0.12);
+  --cat-construccion: #a1a1aa;
+  --cat-farmacia: #71717a;
+  --cat-vet: #71717a;
+
+  --frame-bg: #000000;
+  --status-bar-text: #fafafa;
+}
+```
+
+### Type (delta)
+
+```css
+--font-display: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+--font-body: same as above;
+--font-mono: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+
+/* Weights: prefer 400 body / 600 emphasis / 800 display. No 500. */
+/* Numeric: tabular-nums always. */
+```
+
+### Radii (delta)
+
+```css
+--r-sm: 2px;
+--r-md: 4px;
+--r-lg: 6px;
+--r-xl: 8px;
+--r-2xl: 8px;
+--r-full: 9999px;  /* FAB + avatar only */
+```
+
+---
+
+## Component deltas
+
+### Balance card — flat ink block
+
+```css
+.balance-card {
+  background: var(--text);
+  color: var(--bg);
+  border-radius: var(--r-md);
+  padding: var(--s-6) var(--s-5);
+  border: none; box-shadow: none;
+}
+.balance-card__amount {
+  font-family: var(--font-mono);
+  font-weight: 700; font-size: var(--fs-3xl);
+  letter-spacing: -0.03em;
+}
+```
+
+### Stat card — hairline only, no shadow
+
+```css
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: var(--s-4);
+  box-shadow: none;
+}
+```
+
+### Category chip (alpha-on-ink, no color hue)
+
+```css
+.chip--cat {
+  background: transparent;
+  color: var(--secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 1px 8px;
+  font-size: 10px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.1em;
+}
+```
+
+### FAB — solid ink, circle breaks the grid
+
+```css
+.fab {
+  background: var(--primary);
+  color: var(--bg);
+  border-radius: var(--r-full);
+  box-shadow: 0 6px 16px var(--shadow-lg);
+  font-family: var(--font-display); font-weight: 400;
+  /* Use "+" glyph instead of 📷 to stay mono */
+}
+```
+
+### Status / anomaly indicator (no color — use iconography + bold)
+
+```css
+.tx--flagged { background: var(--bg-tertiary); }
+.tx--flagged .tx__icon { border: 1px solid var(--text); }
+.tx--flagged .tx__name::after {
+  content: ' †'; font-weight: 700; color: var(--text);
+}
+```
+
+---
+
+## Copy voice (delta)
+
+- Terse, lower-case where grammatically OK: "saldo", "inusual", "ver todo".
+- Skip exclamation. Skip emoji. Category names all lowercase short ("supermercado", "café").
+- Time relative: "hoy", "ayer", "lun 21 abr".
+
+---
+
+## Motion (delta)
+
+- Durations shorter (`--d-1: 100ms; --d-2: 180ms`).
+- No springs. Only `cubic-bezier(.2,.8,.2,1)` ease-out for state changes.
+- No breathing / pulsing / parallax. Full `prefers-reduced-motion` compliance by default.
+
+---
+
+## Accessibility (delta)
+
+- Target AAA contrast (7:1 body, 4.5:1 large text) — mono palette can hit this naturally.
+- All icons have text labels (mono can't rely on color to convey state).
+- Focus ring = 2px outline `var(--text)` + 2px offset.
+
+---
+
+## Output format
+
+Same as normal.prompt:
+- `docs/mockups/explorations/output/mono-{screen}-{platform}.html` × 12 files.
+- Light + dark sections.
+- INTERACTION NOTES block.
+- Reference legacy dashboard CSS for production-proven Mono tokens.

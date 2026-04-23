@@ -67,6 +67,7 @@
 | `docs/mockups/**/*.svg` | icons + vector assets | MVP |
 | `docs/mockups/**/*.{png,jpg,jpeg,webp,gif}` | raster assets | MVP |
 | `docs/mockups/**/*.woff2` | self-hosted web fonts | MVP |
+| `docs/mockups/**/*.prompt` | Claude-input design specs (style prompts for frontend-design skill / external render pass) | MVP |
 
 <!-- ### Web App (any stack)
 

@@ -1,0 +1,243 @@
+<role>
+Senior frontend engineer + visual designer. Render gastify in "Professional" design language across 3 platforms × 2 modes.
+
+Shared scaffolding (role rules, type scale, spacing/radii/motion, component patterns, platform adaptation, stress tests, a11y, output format) is defined in `styles/normal.prompt`. This file documents ONLY the Professional-theme delta.
+
+Rules that override normal.prompt:
+- Typography defaults to tabular-nums across all numeric display (balance, amounts, tx).
+- Lower ornament: no linear gradients on balance card (solid primary with subtle 110° light ray overlay). No breathing animations.
+- Corner radii shrink: `--r-xl` → 12px, `--r-2xl` → 16px.
+- Category chip shape: square `--r-sm` corners, caps + letter-spacing.
+- Section headings use uppercase + letter-spacing 0.04em (banking/fintech register).
+
+</role>
+
+<design-system>
+# Professional — Cool Blue
+
+## Design Philosophy
+
+**Professional** is the sober, data-first, fintech-adjacent face. Ice-white paper, steel-blue primary, navy depth. Sharper corners, hairline borders, tabular numerics. Looks like a private banking dashboard, not a consumer app. Built for users who want the money story without ornament.
+
+### The Vibe
+**Precise. Sober. Tabular. Weekday morning.**
+Favored by power users, business expense use cases, multi-currency analysts.
+
+### Visual Signatures
+- **Ice-white backgrounds** (`#f8fafc`)
+- **Navy + steel primary** (`#2563eb` / `#3b82f6`)
+- **Hairline borders** (`#e2e8f0`) — 1px, low saturation
+- **Tabular numerics everywhere** — `font-variant-numeric: tabular-nums`
+- **Square-ish corners** — 4–12px on everything
+- **Sharp shadows** — blue-tinted but low blur (`rgba(37, 99, 235, 0.08)`)
+- **Inter** for body + display (grotesk, rational, uniform stroke)
+- **SFMono** / ui-monospace for financial values
+
+---
+
+## Design Token System
+
+### Colors — Light Mode (default `:root` when theme=professional)
+
+```css
+[data-theme="professional"][data-mode="light"] {
+  /* Surfaces */
+  --bg: #f8fafc;
+  --surface: #ffffff;
+  --bg-tertiary: #f1f5f9;
+
+  /* Ink */
+  --text: #0f172a;        /* slate-900 */
+  --secondary: #475569;   /* slate-600 */
+
+  /* Primary — steel navy */
+  --primary: #2563eb;
+  --primary-rgb: 37, 99, 235;
+
+  /* Accent — sky (slightly warmer blue) */
+  --accent: #3b82f6;
+
+  /* Borders — hairline */
+  --border: #e2e8f0;
+  --border-medium: #cbd5e1;
+
+  /* Feedback */
+  --secondary-color: #0ea5e9;
+  --success: #16a34a;
+  --warning: #d97706;
+  --error: #dc2626;
+
+  /* Nav */
+  --nav-bg: #ffffff;
+  --nav-border: #e2e8f0;
+
+  /* Shadows — blue-tinted, low spread */
+  --shadow: rgba(37, 99, 235, 0.08);
+  --shadow-lg: rgba(37, 99, 235, 0.12);
+
+  /* States */
+  --skeleton-base: #f1f5f9;
+  --skeleton-shine: #f8fafc;
+  --progress-track: #e2e8f0;
+  --indicator-inactive: #e2e8f0;
+
+  /* FAB */
+  --fab-gradient-from: #2563eb;
+  --fab-gradient-to: #1d4ed8;
+  --recent-indicator: #3b82f6;
+
+  /* Category chips */
+  --cat-hogar: #2563eb;           --cat-hogar-tint: rgba(37, 99, 235, 0.1);
+  --cat-medicamento: #dc2626;     --cat-medicamento-tint: rgba(220, 38, 38, 0.1);
+  --cat-cargo: #d97706;           --cat-cargo-tint: rgba(217, 119, 6, 0.1);
+  --cat-otros-green: #059669;     --cat-otros-green-tint: rgba(5, 150, 105, 0.1);
+  --cat-mascotas: #7c3aed;        --cat-mascotas-tint: rgba(124, 58, 237, 0.1);
+  --cat-construccion: #2563eb;
+  --cat-farmacia: #dc2626;
+  --cat-vet: #7c3aed;
+
+  --frame-bg: #1e293b;
+  --status-bar-text: #ffffff;
+}
+```
+
+### Colors — Dark Mode
+
+```css
+[data-theme="professional"][data-mode="dark"] {
+  --bg: #0f172a;
+  --surface: #1e293b;
+  --bg-tertiary: #1e293b;
+
+  --text: #f1f5f9;
+  --secondary: #94a3b8;
+
+  --primary: #3b82f6;    /* lift to brighter for AA */
+  --primary-rgb: 59, 130, 246;
+  --accent: #60a5fa;
+
+  --border: #334155;
+  --border-medium: #475569;
+
+  --secondary-color: #38bdf8;
+  --success: #22c55e;
+
+  --nav-bg: #0f172a;
+  --nav-border: #334155;
+
+  --shadow: rgba(0,0,0,0.3);
+  --shadow-lg: rgba(0,0,0,0.4);
+
+  --skeleton-base: #1e293b;
+  --skeleton-shine: #334155;
+  --progress-track: #334155;
+  --indicator-inactive: #334155;
+
+  --fab-gradient-from: #3b82f6;
+  --fab-gradient-to: #2563eb;
+  --recent-indicator: #60a5fa;
+
+  --cat-hogar: #3b82f6;           --cat-hogar-tint: rgba(59, 130, 246, 0.15);
+  --cat-medicamento: #f87171;     --cat-medicamento-tint: rgba(248, 113, 113, 0.15);
+  --cat-cargo: #fbbf24;           --cat-cargo-tint: rgba(251, 191, 36, 0.15);
+  --cat-otros-green: #34d399;     --cat-otros-green-tint: rgba(52, 211, 153, 0.15);
+  --cat-mascotas: #a78bfa;        --cat-mascotas-tint: rgba(167, 139, 250, 0.15);
+  --cat-construccion: #3b82f6;
+  --cat-farmacia: #f87171;
+  --cat-vet: #a78bfa;
+
+  --frame-bg: #020617;
+  --status-bar-text: #f1f5f9;
+}
+```
+
+### Type (delta from normal.prompt)
+
+```css
+--font-display: 'Inter', -apple-system, sans-serif;
+--font-body: 'Inter', -apple-system, sans-serif;
+--font-mono: 'SFMono-Regular', ui-monospace, 'Menlo', 'Consolas', monospace;
+
+/* Scale + weights unchanged; numeric display gets tabular-nums + font-mono */
+.num, .tx__amt, .balance-card__amount, .stat-card__value {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+```
+
+### Radii (delta)
+
+```css
+--r-sm: 4px;
+--r-md: 8px;
+--r-lg: 12px;
+--r-xl: 12px;   /* tighter than normal */
+--r-2xl: 16px;  /* balance card sharper */
+--r-full: 9999px;
+```
+
+---
+
+## Component deltas
+
+### Balance card (no gradient, light-ray overlay)
+
+```css
+.balance-card {
+  background: var(--primary);
+  color: #fff; border-radius: var(--r-2xl);
+  padding: var(--s-6) var(--s-5);
+  box-shadow: 0 10px 20px var(--shadow-lg);
+  position: relative; overflow: hidden;
+}
+.balance-card::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(110deg, transparent 0%, transparent 60%, rgba(59,130,246,0.2) 100%);
+  pointer-events: none;
+}
+.balance-card__amount { font-family: var(--font-mono); letter-spacing: -0.02em; }
+```
+
+### Nav (desktop sidebar active indicator = left bar)
+
+Keep same shape but active indicator = left-edge 4px `var(--primary)` bar + `--bg-tertiary` bg. Mobile bottom nav uses top-edge 3px bar above icon for active.
+
+### Category chip (uppercase caps)
+
+```css
+.chip--cat {
+  border-radius: var(--r-sm);
+  padding: 2px 8px;
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  background: var(--cat-hogar-tint); color: var(--cat-hogar);
+}
+```
+
+### Section heading (caps + wide tracking)
+
+```css
+.section-title {
+  font-size: var(--fs-xs); font-weight: 700;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--secondary);
+}
+```
+
+---
+
+## Copy voice (delta)
+
+- Sober, precise: "Saldo · mes en curso", "Movimientos", "Anomalías detectadas".
+- Numbers dominate — sentences are scaffolding: `"Concentración 34% (↑ 4.2 pp vs marzo)"`.
+- No exclamation marks except error states.
+
+---
+
+## Output format
+
+Same shape as normal.prompt:
+- `docs/mockups/explorations/output/professional-{screen}-{platform}.html` × 12 files.
+- Light + dark sections.
+- INTERACTION NOTES at end.
+- Reference legacy gastify-dashboard.html for production-proven Professional tokens.

@@ -1,0 +1,399 @@
+<role>
+You are a senior frontend engineer + visual design specialist + typography expert. Your job: render gastify screens in the "Normal" design language across 3 platform targets (Desktop Web / Mobile Web PWA / Native Mobile React-Native) in both light and dark modes.
+
+Before writing any code, build a clear mental model:
+- gastify = Chilean multi-currency expense tracker with AI receipt scanning. Spanish-CL first. Rebuild of BoletApp.
+- Design tokens below are NON-NEGOTIABLE — extracted from legacy gastify production dashboard, proven in-app.
+- Three platform targets each impose their own conventions (nav shape, touch targets, hover states, safe areas, platform-specific affordances). Do not collapse into one.
+- Both light AND dark mode must render with full token parity — not just color inversion.
+
+Rules:
+- Match existing category chip palette (cat-hogar / cat-medicamento / cat-cargo / cat-otros-green / cat-mascotas) exactly.
+- Preserve visual language across screens — a Normal-theme dashboard and a Normal-theme history must feel like one app.
+- Copy voice: warm, conversational, Spanish-CL ("Saldo del mes", "Últimos escaneados", "Ver todos →"). Peso-first number format (`$42.180` not `$42,180`).
+- Every interactive element: visible focus ring, ≥44×44 touch target on mobile, hover state on desktop.
+- Dark mode is NOT just color-inversion — palette shifts hue + saturation per legacy tokens below.
+
+</role>
+
+<design-system>
+# Normal — Warm Forest
+
+## Design Philosophy
+
+**Normal** is the everyday, approachable, inviting face of gastify. Warm cream paper, forest green primary, soft amber accent. Rounded corners, gentle shadows, generous whitespace. Looks like a well-worn notebook, not a banking app. Feels hospitable, not intimidating.
+
+### The Vibe
+**Warm. Approachable. Hand-kept ledger. Chilean countryside afternoon.**
+Invites daily check-ins. Makes expense tracking feel like journaling.
+
+### Visual Signatures
+- **Warm cream backgrounds** (`#f5f0e8`) — not stark white, not cold gray
+- **Forest green primary** (`#4a7c59`) — grounded, natural, not corporate
+- **Amber accents** (`#e8a87c` light / `#d4a574` dark) — soft, harvest-warm
+- **Soft amber borders** (`#e3bba1`) — visible but not harsh
+- **Rounded corners** — 12–16px on cards, 20–24px on stat cards, full round on pills/FAB
+- **Gentle shadows** — green-tinted, not neutral gray (`rgba(74, 124, 89, 0.12)`)
+- **Outfit** display + body font (rounded, geometric sans)
+- **Baloo 2** for playful accents (wordmark, category emojis)
+
+---
+
+## Design Token System
+
+### Colors — Light Mode (default `:root`)
+
+```css
+:root {
+  /* Surfaces */
+  --bg: #f5f0e8;           /* warm cream paper */
+  --surface: #ffffff;       /* card */
+  --bg-tertiary: #f1dbb6;   /* amber tint surface (stats, skeletons) */
+
+  /* Ink */
+  --text: #2d3a4a;          /* slate-charcoal for reading */
+  --secondary: #4a5568;     /* muted ink for meta */
+
+  /* Primary — forest */
+  --primary: #4a7c59;
+  --primary-rgb: 74, 124, 89;
+
+  /* Accent — harvest amber */
+  --accent: #e8a87c;
+
+  /* Borders */
+  --border: #e3bba1;        /* amber-tint */
+  --border-medium: #d4a574; /* deeper amber */
+
+  /* Feedback */
+  --secondary-color: #5b8fa8;  /* cool blue for info */
+  --success: #7d9b5f;           /* muted forest-sage */
+  --warning: #f59e0b;
+  --error: #ef4444;
+
+  /* Nav */
+  --nav-bg: #ffffff;
+  --nav-border: #e3bba1;
+
+  /* Shadows — green-tinted */
+  --shadow: rgba(74, 124, 89, 0.12);
+  --shadow-lg: rgba(74, 124, 89, 0.18);
+
+  /* States */
+  --skeleton-base: #f1dbb6;
+  --skeleton-shine: #f5f0e8;
+  --progress-track: #e3bba1;
+  --indicator-inactive: #e3bba1;
+
+  /* FAB */
+  --fab-gradient-from: #4a7c59;
+  --fab-gradient-to: #3d6b4b;
+  --recent-indicator: #d4a574;
+
+  /* Category chips (keep exact — used in taxonomy across 86 categories) */
+  --cat-hogar: #4a7c59;            --cat-hogar-tint: rgba(74, 124, 89, 0.15);
+  --cat-medicamento: #dc2626;      --cat-medicamento-tint: rgba(220, 38, 38, 0.12);
+  --cat-cargo: #d97706;            --cat-cargo-tint: rgba(217, 119, 6, 0.12);
+  --cat-otros-green: #2d8659;      --cat-otros-green-tint: rgba(45, 134, 89, 0.12);
+  --cat-mascotas: #5b8fa8;         --cat-mascotas-tint: rgba(91, 143, 168, 0.12);
+  --cat-construccion: #4a7c59;
+  --cat-farmacia: #dc2626;
+  --cat-vet: #5b8fa8;
+
+  /* Frame (used in render shells) */
+  --frame-bg: #1a1a2e;
+  --status-bar-text: #ffffff;
+}
+```
+
+### Colors — Dark Mode (`[data-theme="normal"][data-mode="dark"]`)
+
+```css
+[data-theme="normal"][data-mode="dark"] {
+  --bg: #1a2420;            /* deep forest floor */
+  --surface: #243028;       /* raised moss */
+  --bg-tertiary: #2d3a30;
+
+  --text: #e8e4dc;          /* warm bone */
+  --secondary: #b8c4a8;     /* sage */
+
+  --primary: #6b9e7a;       /* lifted forest — brighter for contrast */
+  --primary-rgb: 107, 158, 122;
+  --accent: #d4a574;         /* deeper amber */
+
+  --border: #3d4d42;
+  --border-medium: #4d5d52;
+
+  --secondary-color: #7ab5cc;
+  --success: #9bbd7f;
+
+  --nav-bg: #1e2a22;
+  --nav-border: #3d4d42;
+
+  --shadow: rgba(0,0,0,0.3);
+  --shadow-lg: rgba(0,0,0,0.4);
+
+  --skeleton-base: #2d3a30;
+  --skeleton-shine: #3d4d42;
+  --progress-track: #3d4d42;
+  --indicator-inactive: #3d4d42;
+
+  --fab-gradient-from: #6b9e7a;
+  --fab-gradient-to: #5a8a68;
+  --recent-indicator: #d4a574;
+
+  --cat-hogar: #6b9e7a;            --cat-hogar-tint: rgba(107, 158, 122, 0.2);
+  --cat-medicamento: #f87171;      --cat-medicamento-tint: rgba(248, 113, 113, 0.15);
+  --cat-cargo: #fbbf24;            --cat-cargo-tint: rgba(251, 191, 36, 0.15);
+  --cat-otros-green: #5a9b6e;      --cat-otros-green-tint: rgba(90, 155, 110, 0.15);
+  --cat-mascotas: #7ab5cc;         --cat-mascotas-tint: rgba(122, 181, 204, 0.15);
+  --cat-construccion: #6b9e7a;
+  --cat-farmacia: #f87171;
+  --cat-vet: #7ab5cc;
+
+  --frame-bg: #0a0f0c;
+  --status-bar-text: #e8e4dc;
+}
+```
+
+### Type
+
+```css
+--font-display: 'Outfit', -apple-system, sans-serif;
+--font-body: 'Outfit', -apple-system, sans-serif;
+--font-playful: 'Baloo 2', 'Outfit', sans-serif; /* wordmark only */
+
+/* Scale */
+--fs-xs: 11px; --fs-sm: 13px; --fs-md: 15px; --fs-lg: 18px;
+--fs-xl: 22px; --fs-2xl: 28px; --fs-3xl: 36px; --fs-4xl: 48px;
+
+/* Weights: 400 body · 500 meta · 600 emphasis · 700 headings · 800 balance/display */
+```
+
+### Spacing + radii + motion
+
+```css
+/* Spacing (8px base) */
+--s-1: 4px; --s-2: 8px; --s-3: 12px; --s-4: 16px;
+--s-5: 20px; --s-6: 24px; --s-8: 32px; --s-10: 40px; --s-12: 48px;
+
+/* Radii */
+--r-sm: 8px;   /* chips, small buttons */
+--r-md: 12px;  /* inputs, tx cards */
+--r-lg: 16px;  /* cards, modals */
+--r-xl: 20px;  /* stat cards */
+--r-2xl: 24px; /* balance card */
+--r-full: 9999px; /* pills, FAB, avatar */
+
+/* Motion */
+--e-out: cubic-bezier(.2,.8,.2,1);   /* snappy exit */
+--e-in: cubic-bezier(.4,0,1,1);
+--e-spring: cubic-bezier(.34,1.56,.64,1);
+--d-1: 120ms; --d-2: 220ms; --d-3: 320ms;
+```
+
+---
+
+## Component Patterns
+
+### Balance card (dashboard hero)
+
+```html
+<article class="balance-card">
+  <header class="balance-card__label">Saldo del mes</header>
+  <div class="balance-card__amount">$847.230</div>
+  <footer class="balance-card__sub">
+    <span class="usd-chip">USD</span> ≈ $892.40 · tasa 949.12
+  </footer>
+</article>
+```
+
+```css
+.balance-card {
+  background: linear-gradient(135deg, var(--primary) 0%, #3d6b4b 100%);
+  color: #fff; border-radius: var(--r-2xl);
+  padding: var(--s-6) var(--s-5);
+  box-shadow: 0 12px 32px var(--shadow-lg);
+  position: relative; overflow: hidden;
+}
+.balance-card::before {
+  content: ''; position: absolute; top: -40px; right: -40px;
+  width: 180px; height: 180px; border-radius: 50%;
+  background: rgba(232, 168, 124, 0.22);
+}
+.balance-card__label {
+  font-size: var(--fs-xs); opacity: 0.82; font-weight: 500;
+  letter-spacing: 0.08em; text-transform: uppercase;
+}
+.balance-card__amount {
+  font-family: var(--font-playful); font-size: var(--fs-4xl);
+  font-weight: 700; line-height: 1.1; letter-spacing: -0.02em;
+  margin-top: var(--s-2);
+}
+```
+
+### Stat card (concentration, anomalies, monthly delta)
+
+```css
+.stat-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r-xl); padding: var(--s-4);
+  box-shadow: 0 2px 6px var(--shadow);
+}
+.stat-card__label {
+  font-size: var(--fs-xs); color: var(--secondary);
+  text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600;
+}
+.stat-card__value {
+  font-size: var(--fs-2xl); font-weight: 700;
+  letter-spacing: -0.01em; margin-top: var(--s-1);
+}
+```
+
+### Transaction row (history list item)
+
+```css
+.tx {
+  display: grid; grid-template-columns: 44px 1fr auto; gap: var(--s-3);
+  align-items: center; padding: var(--s-4);
+  border-bottom: 1px solid var(--border);
+  transition: background var(--d-1) var(--e-out);
+}
+.tx:hover { background: var(--bg-tertiary); }
+.tx__icon {
+  width: 44px; height: 44px; border-radius: var(--r-md);
+  background: var(--cat-hogar-tint); color: var(--cat-hogar);
+  display: grid; place-items: center; font-size: var(--fs-lg);
+}
+.tx__name { font-weight: 600; font-size: var(--fs-md); color: var(--text); }
+.tx__meta { font-size: var(--fs-xs); color: var(--secondary); margin-top: 2px; }
+.tx__amt { font-weight: 700; font-variant-numeric: tabular-nums; text-align: right; }
+```
+
+### FAB (scan)
+
+```css
+.fab {
+  width: 60px; height: 60px; border-radius: var(--r-full);
+  background: linear-gradient(135deg, var(--fab-gradient-from) 0%, var(--fab-gradient-to) 100%);
+  color: #fff; border: none; box-shadow: 0 8px 20px var(--shadow-lg);
+  display: grid; place-items: center; font-size: 24px; cursor: pointer;
+  transition: transform var(--d-2) var(--e-spring);
+}
+.fab:hover { transform: scale(1.06); }
+.fab:active { transform: scale(0.95); }
+```
+
+---
+
+## Platform adaptation
+
+### Desktop Web — 1440px responsive
+
+- **Layout:** left sidebar nav (240px) + main content (min 960px) + optional right rail (360px) for stats/tips. Center content max 1200px at breakpoint.
+- **Nav:** vertical sidebar, logo top, 5 nav items stacked, user avatar bottom. Active item uses left-edge 3px primary bar + `--cat-hogar-tint` bg.
+- **Hover:** all cards `translateY(-2px)` + shadow-lg. All links underline on hover.
+- **Focus:** 2px primary outline + 2px offset, always visible on tab.
+- **Typography:** scale up 1 step (md→lg default body). Line-height 1.55.
+- **FAB:** NOT used. Primary "Escanear" is fixed button in top bar with keyboard shortcut `⌘K`.
+- **Breakpoints:** ≥1440 full 3-column; 1024–1439 2-column (drop right rail); 768–1023 1-column with collapsed sidebar (icons only); <768 → Mobile Web layout.
+
+### Mobile Web (PWA) — 390×844 viewport
+
+- **Layout:** single column, bottom nav 5 slots, FAB floating center-bottom above nav.
+- **Limitations documented:**
+  - Camera via `<input type="file" accept="image/*" capture="environment">` — no custom viewfinder
+  - No haptics (webkit prefers-reduced-motion respected)
+  - No biometric unlock — password or OAuth only
+  - Push via Web Push API, limited on iOS <16.4
+  - Install prompt = `beforeinstallprompt` event; iOS = manual "Add to Home Screen" instruction sheet
+- **Touch targets:** all interactive ≥44×44 (nav items 56px).
+- **Safe area:** `env(safe-area-inset-bottom)` on bottom nav padding.
+- **Scroll:** momentum + pull-to-refresh on home feed (visual indicator only, no haptic).
+
+### Native Mobile (React Native + Expo) — 390×844 shared iOS + Android
+
+- **Layout:** matches Mobile Web structure but with platform-native primitives.
+- **Platform access:**
+  - Full camera viewfinder (`expo-camera`) — custom scan overlay, auto-detect edges
+  - Haptics on primary actions (`expo-haptics` `Haptics.ImpactFeedbackStyle.Medium` on scan success)
+  - Biometric unlock (`expo-local-authentication`) — Face ID / Touch ID / fingerprint
+  - Camera roll save (`expo-media-library`) for receipts
+  - Push notifications (`expo-notifications`) — native alerts
+  - Background tasks (`expo-task-manager`) for sync
+- **Gestures:** swipe-back from left edge (iOS), swipe-to-dismiss modals, long-press on tx for quick actions.
+- **Safe areas:** `SafeAreaView` from `react-native-safe-area-context`.
+- **Platform divergence:** iOS → SF-like spacing, softer shadows. Android → Material-ish elevation, slightly tighter spacing. Document divergences per screen.
+
+---
+
+## Stress-test screen targets
+
+Produce 4 screens × 3 platforms = **12 HTML renders** per style. Each render = single self-contained HTML with light-mode hero + dark-mode section below, separated by labeled divider.
+
+### 1. Dashboard
+- Top bar: wordmark + avatar + notification bell (badge count)
+- Balance card (hero): saldo + USD shadow
+- Stats row: Concentración (34%) + Anomalías (2)
+- Section: "Últimos escaneados" (5 tx)
+- FAB: scan (mobile) / top-bar button (desktop)
+- Bottom nav: 5 slots with active state
+
+### 2. Single-Scan Idle
+- Top bar: back button + "Escanear" title + mode selector (3 tabs: Recibo / Lote / Estado)
+- Camera viewfinder: centered scan frame with corner brackets, "Apunta al recibo" hint
+- Bottom: credit counter (Créditos: 47 / 50), scan button (full-width primary)
+- Dark mode: frame bg stays dark always (camera UX)
+
+### 3. History List
+- Top bar: "Historial" + filter button + search icon + selection-mode toggle
+- Filter chips row: Categoría / Fecha / Monto / Etiqueta / Búsqueda
+- Date-group headers: "Hoy", "Ayer", "Esta semana"
+- Tx rows (≥20, selection-ready)
+- Empty state variant below hero
+
+### 4. Insights
+- Top bar: "Insights" + 3-tab switcher (Lista / Airlock / Logro)
+- Active tab: Lista (concentration + anomaly highlight cards)
+- Carousel of insight cards, swipeable (mobile) / horizontal scroll with arrows (desktop)
+- Selection mode: long-press toggles multi-select for dismiss/snooze
+
+---
+
+## Dark mode parity
+
+Every token documented has a dark variant. Dark mode is a **re-palette**, not a color inversion:
+- Primary shifts LIGHTER in dark (from `#4a7c59` → `#6b9e7a`) to maintain AA contrast on dark bg
+- Accent shifts DEEPER (harvest amber → bronze)
+- Shadows shift from green-tinted to pure black rgba
+- Category tints gain alpha (0.12 → 0.15–0.20)
+
+---
+
+## Accessibility floor
+
+- WCAG AA contrast: text-on-bg ≥ 4.5:1 (body) / 3:1 (large text). Verified for all 3 themes × 2 modes.
+- Focus rings: 2px primary outline + 2px offset, keyboard-triggered visible (`:focus-visible`).
+- Touch targets: ≥44×44 mobile (56 for nav), ≥32×32 desktop with ≥8px padding.
+- `prefers-reduced-motion: reduce` → disable FAB breathing, balance-card parallax, modal slide; keep fades.
+- `prefers-color-scheme: dark` → auto-apply dark mode unless user overrode.
+- Screen readers: ARIA labels on all icon-only buttons, `aria-live="polite"` on toast region.
+
+---
+
+## Output format
+
+Path: `docs/mockups/explorations/output/normal-{screen}-{platform}.html`
+
+12 files per style:
+- `normal-dashboard-desktop.html` / `normal-dashboard-mobileweb.html` / `normal-dashboard-native.html`
+- `normal-scan-*` / `normal-history-*` / `normal-insights-*`
+
+Each HTML = single self-contained file:
+- `<head>` includes Outfit + Baloo 2 Google Fonts
+- `<body data-theme="normal" data-mode="light">` hero
+- Dark-mode section below with `data-mode="dark"` wrapper + label "DARK MODE"
+- `<!-- INTERACTION NOTES -->` block at bottom documenting gestures / transitions / states / edge cases
+- Inline toggle buttons at top: [Light | Dark] to preview both modes live
+
+Use the legacy gastify-dashboard.html at `/home/khujta/projects/bmad/boletapp/docs/mockups/screens/gastify-dashboard.html` as reference for completeness (2026 lines, all tokens applied, production-proven).
