@@ -18,6 +18,7 @@
 |---------|-------------|------|
 | `.kdbp/**` | KDBP state (PLAN, KNOWLEDGE, PENDING, LEDGER, DECISIONS, etc.) | MVP |
 | `README.md` | Project readme | MVP |
+| `CLAUDE.md` | Claude Code session-start instructions (managed by /gabe-init) | MVP |
 | `LICENSE*` | License file | MVP |
 | `.gitignore` | Git ignore | MVP |
 | `docs/**/*.md` | Project documentation | MVP |
