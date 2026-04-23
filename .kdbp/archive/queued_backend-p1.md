@@ -1,6 +1,7 @@
-# Active Plan
+# Queued Plan — Backend P1 Foundation
 
-<!-- status: active -->
+<!-- status: queued — activate when UX mockups plan (.kdbp/PLAN.md) reaches P13 handoff -->
+<!-- To activate: rename this file to .kdbp/PLAN.md (archive the UX plan first) -->
 
 ## Goal
 
@@ -10,11 +11,10 @@ Deliver P1 Foundation backend — FastAPI + Postgres with identity, ownership sc
 
 - **Maturity:** mvp
 - **Domain:** Smart personal expense tracker — multi-currency, four-jurisdiction compliance, AI receipt scanning (Chile + LATAM + EU + US + Canada)
-- **Lane:** p1-backend
 - **ROADMAP phase:** P1 Foundation (no dependencies — P1 root)
 - **Covers REQs:** REQ-15, REQ-16, REQ-17, REQ-18, REQ-19, REQ-20, REQ-21, REQ-22
-- **Created:** 2026-04-23
-- **Last Updated:** 2026-04-23
+- **Authored:** 2026-04-23
+- **Status:** queued (UX mockups plan active; activate this after P13 ships)
 
 ## Phases
 
@@ -209,8 +209,21 @@ Phase 1: Scaffold + DB baseline
 | Cookie-based session added later silently breaks CSRF posture | medium | PENDING item — `/gabe-assess` gate on any session/cookie addition |
 | FX backfill path (UPDATE fx_rates) breaks structural idempotency | medium | PENDING item — escalate to job-ID dedupe before any UPDATE lands |
 
+## Pending (activate with the plan)
+
+| # | Date | Source | Finding | File | Scale | Priority | Impact | Times Deferred | Status |
+|---|------|--------|---------|------|-------|----------|--------|----------------|--------|
+| P1 | 2026-04-23 | gabe-plan (D3) | CSRF escalation trigger: if cookie-based session is introduced (e.g., HTTP-only cookie for refresh-token XSS defense), Auth.CSRF must escalate from MVP `none` to Ent double-submit token. Bearer-only API currently immune. | .kdbp/DECISIONS.md#D3 | mvp | medium | high | 0 | open |
+| P2 | 2026-04-23 | gabe-plan (D2) | FX backfill escalation trigger: if any code path adds UPDATE to `fx_rates` (e.g., statement-reconciliation backfill of corrected rates), structural PK+ON-CONFLICT idempotency breaks down. Escalate BG-jobs.Idempotency to Ent (job-ID dedupe Option B) before merging the UPDATE path. | .kdbp/DECISIONS.md#D2 | mvp | medium | medium | 0 | open |
+
 ## Notes
 
-- Lane scope = backend only. Client-side concerns (SPA i18n consumption, mobile refresh-token storage, sign-out cache eviction) land in P3 (web) + P4 (mobile) lanes later.
+- Client-side concerns (SPA i18n consumption, mobile refresh-token storage, sign-out cache eviction) land after backend P1 — sequence TBD when UX mockup handoff is in hand.
 - P1 Exit signal per ROADMAP §Phase-1: smoke test signs in (JIT scope-of-one), writes transaction non-primary currency, reads USD shadow at captured FX rate, consent-audit endpoint returns one record. Phase 6 encodes exactly this.
-- Tier distribution: mvp×1, ent×5, scale×0. Two phases have Scale-grade overrides on Obs dim (P1.Obs + P5.Obs) justified by REQ-21 + U8. Load-bearing at mvp-maturity project, worth the escalation.
+- Tier distribution: mvp×1, ent×5, scale×0. Two phases have Scale-grade overrides on Obs dim (P1.Obs + P5.Obs) justified by REQ-21 + U8.
+
+## Plan Creation Log (preserved)
+
+- **2026-04-23 04:45 — PLAN CREATED:** 6 phases | medium-high complexity | mvp maturity. TIERS: mvp×1, ent×5, scale×0. 10 grade overrides, 8 suppressed dims. DECISIONS D1→D6. PENDING P1, P2 (CSRF + FX backfill escalation triggers).
+- **2026-04-23 01:50 — PLAN RETROFIT to spec v7.1:** +Types col, +6 YAML blocks per phase, P1+P5 Tier-cell `ent (Obs→scale)` notation. Zero LLM calls (overrides already explicit in D1+D5). Zero tier decisions changed.
+- **2026-04-23 — lane rollback:** Plan migrated from `.kdbp/lanes/p1-backend/PLAN.md` (lane branch) → `.kdbp/archive/queued_backend-p1.md` (queued). Backend work parked until UX mockup plan ships.

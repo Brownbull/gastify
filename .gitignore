@@ -84,7 +84,3 @@ tests/fixtures/gemini/.scratch/
 # NOTE: Generated files under shared/ (categories.py, categories.ts, constants.py,
 # constants.ts, api-types.ts) ARE committed intentionally. CI runs codegen and
 # diff-checks against committed versions to catch drift. See PLAN.md B3 + LESSONS R6.
-
-# Git worktrees for parallel lanes (/gabe-lane --worktree). Each lane gets its
-# own working dir here, checked out to its gabe/<lane> branch. Shared .git.
-.worktrees/

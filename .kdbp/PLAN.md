@@ -12,15 +12,15 @@ Produce complete clean-slate mockup surface for gastify — responsive web porta
 - **Domain:** Smart personal expense tracker — AI receipt scanning, multi-currency, multi-platform (web + mobile), rebuild of BoletApp
 - **Created:** 2026-04-23
 - **Last Updated:** 2026-04-23
-- **Lane:** ux-mockups (stream-only, branch=main)
 - **Platform sets:** 2 (web responsive + mobile unified)
 - **Strategy:** Clean-slate redesign from zero. Legacy boletapp mockups at `/home/khujta/projects/bmad/boletapp/docs/mockups/` = reference only, not port.
+- **Queued next:** Backend P1 Foundation — see `.kdbp/archive/queued_backend-p1.md` (activate after P13 handoff ships).
 
 ## Phases
 
 | # | Phase | Description | Types | Tier | Complexity | Exec | Review | Commit | Push |
 |---|-------|-------------|-------|------|------------|------|--------|--------|------|
-| 1 | Design language + tokens | Theme exploration (3 legacy + ≥3 new candidates) + lock tokens/type/spacing/motion/icons/wordmark | design-system | mvp | med | ⬜ | ⬜ | ✅ | ⬜ |
+| 1 | Design language + tokens | Theme exploration (3 legacy + ≥3 new candidates) + lock tokens/type/spacing/motion/icons/wordmark | design-system | mvp | med | ⬜ | ⬜ | ⬜ | ⬜ |
 | 2 | Atomic components | Buttons, inputs, pills, badges, avatars, chips, skeletons, progress. Web + mobile | design-system, ui-kit | mvp | low | ⬜ | ⬜ | ⬜ | ⬜ |
 | 3 | Molecular components | Cards, modals, toasts, banners, nav (bottom-tab + top-bar + sidebar), FAB, filters, sheets, drawers, forms + COMPONENT-LIBRARY.md. Full state matrix + WCAG AA | design-system, ui-kit | ent | med | ⬜ | ⬜ | ⬜ | ⬜ |
 | 4 | Flow map index + REQ×screen matrix | Enumerate all flows; low-fi skeleton per flow; seed INDEX.md + REQ-COVERAGE.md (living through P5-P12) | flows, index | mvp | med | ⬜ | ⬜ | ⬜ | ⬜ |
@@ -330,8 +330,9 @@ Phase 1: Design language + tokens
 - REQ-21 (observability): not user-facing — out of mockup scope.
 - Indices: `docs/mockups/INDEX.md` (flow×screen×component) + `docs/mockups/REQ-COVERAGE.md` (REQ×screen matrix) seeded P4, updated P5-P12, audited P13.
 - Theme source: zero, not ported. Legacy 3 themes (Normal/Professional/Mono) rendered as 3 of ≥6 candidates in P1; not privileged.
-- Lane: ux-mockups (stream-only, branch=main). Writes to shared .kdbp/* permitted.
 
 ## Retrofit Log
 
+- **2026-04-23 — state correction (Phase 1 Commit ⬜):** Phase 1 row had Commit=✅ with Exec=⬜ + Review=⬜ — inconsistent state. Verified git log + `docs/mockups/` filesystem + lane LEDGER: zero P1 execution work landed. Corrected Commit ✅ → ⬜. Caught by `/gabe-next` pre-dispatch verification.
 - **2026-04-23 — /gabe-plan check retrofit `[all]`:** Added `Types` column to Phases table. Added structured YAML block per phase (1–13) with `phase_tier`, `dim_overrides: []`, `sections_considered`, `decisions_entry`. Corrected DECISIONS-ID references in Phase Details prose: D1→D7, D2→D8, D3→D9, D4→D10, D5→D11, D6→D12, D7→D13, D8→D14, D9→D15, D10→D16, D11→D17, D12→D18, D13→D19. Zero LLM calls (no prose-only overrides detected). Zero tier decisions changed — structural fix only.
+- **2026-04-23 — lane rollback:** Plan moved from `.kdbp/lanes/ux-mockups/PLAN.md` → `.kdbp/PLAN.md`. Lane architecture dropped in favor of serial single-plan workflow. Backend P1 plan parked at `.kdbp/archive/queued_backend-p1.md`.

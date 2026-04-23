@@ -1,9 +1,0 @@
-# Lane manifest — created by /gabe-lane or migrated by /gabe-init
-name: default
-phase: null            # e.g., p1, p2, b0 — null for default/legacy lanes
-stream: null          # e.g., backend, ux, observability — null for default/legacy lanes
-branch: main          # gabe/<lane-name> for lane branches; main for default/legacy
-created: 2026-04-22   # YYYY-MM-DD
-migrated_from: legacy   # "legacy" on init migration, null on fresh create
-merged_at: null           # YYYY-MM-DD set by /gabe-lane --merge; null while active
-archived_at: null         # YYYY-MM-DD set by /gabe-lane --archive; null while live
