@@ -19,3 +19,11 @@ FINDINGS: 2 (0 critical, 0 high, 1 medium, 0 low, 1 warning)
 ACTIONS: 1:update-structure (added CLAUDE.md as MVP allowed pattern) · 2:scope-bypass-continue (ROADMAP phase ID normalization 1..9->P1..P9 cosmetic)
 DEFERRED: 0
 NOTE: Combined delta from /gabe-init update migration + /gabe-teach init-wells session. 21 files, +417 -12. Shared .kdbp/ writes permitted (branch=main). Scope-Bypass-Audit=true recorded in commit footer.
+
+## 2026-04-23 00:17 — PUSH main -> origin/main
+PR: — (trunk-based; direct-to-main, no PR hop)
+CI: skipped (provider=none; .github/workflows/ absent)
+PROMOTION: N/A (main is final link in chain)
+DEPLOYMENTS: P1 added to .kdbp/DEPLOYMENTS.md
+SETUP: first run — wrote .kdbp/PUSH.md (remote=origin, strategy=trunk-based, CI=none) + seeded .kdbp/DEPLOYMENTS.md from template
+CLASSIFIER: Trunk-first-push trigger fired → [note] action → DEPLOYMENTS P1.Decisions populated with trunk-based scaffold-phase rationale + revisit triggers
