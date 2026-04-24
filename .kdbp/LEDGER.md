@@ -1,5 +1,11 @@
 # Session Ledger
 
+## 2026-04-24 — [09f30b3] chore(kdbp): sync P4/P13 YAML types to Phases table
+FINDINGS: 0 (0 critical, 0 high, 0 medium, 0 low)
+ACTIONS: none (all checks passed — markdown-only diff; deferred ✅; docs Layer 1–4 ✅; structure skipped)
+DEFERRED: 0
+SCOPE: 2 files, +25 -9. Scoped to session work only — pre-existing unstaged pile (DECISIONS.md, PENDING.md, docs/mockups/** v2 cleanup + tweaks.js rename) left for separate commit.
+
 ## 2026-04-24 — PLAN COMPLIANCE CHECK: /gabe-plan check + [fix-types]
 SPEC: v7.1 (9-rule compliance matrix)
 VERDICT: 13/13 phases COMPLIANT on C1–C9
@@ -177,3 +183,7 @@ ACTIONS: 1:update-structure (resolved via .gitignore — docs/mockups/legacy-ref
 DEFERRED: none
 
 ## 2026-04-24 14:22 — [main 083201f] chore(kdbp): adopt /gabe-mockup peer-command + seed P2 mockup infra
+
+## 2026-04-24 14:57 — [main 09f30b3] chore(kdbp): sync P4/P13 YAML types to Phases table
+
+## 2026-04-24 15:41 — [09f30b3] chore(kdbp): sync P4/P13 YAML types to Phases table

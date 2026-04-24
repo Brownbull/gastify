@@ -22,7 +22,7 @@
 | D9 | P3 molecules at ent | 2026-04-23 | Full state matrix + WCAG AA floor required for molecules | P3 scope |
 | D10-D18 | P4-P12 phase tier picks | 2026-04-23 | Per-phase tier decision per /gabe-plan Step 3.5 | all screen phases |
 | D19 | P13 handoff at ent | 2026-04-23 | HANDOFF.json schema + a11y AA pass non-optional | P13 |
-| RF-2026-04-24 | /gabe-mockup retrofit | 2026-04-24 | Project-type dispatch + shared tokens.css / tweaks.js / INDEX.md governance | all phases |
+| RF-2026-04-24 | /gabe-mockup retrofit | 2026-04-24 | Project-type dispatch + single-script tweaks.js (self-contained panel at `assets/js/tweaks.js`) + INDEX.md governance. Existing `assets/css/desktop-shell.css` remains canonical token source. | all phases |
 
 ---
 
@@ -192,7 +192,8 @@
 
 | Component | Declared in | Used on |
 |-----------|-------------|---------|
-| state-tabs | molecules/state-tabs.html (P3) | single-scan-states, login (RETROFIT), consent (RETROFIT) |
+| tweaks-panel | `assets/js/tweaks.js` (self-contained, injects styles + DOM) | every mockup via `<script src="../assets/js/tweaks.js" defer></script>` |
+| state-tabs | molecules/state-tabs.html (P3) + driven by `assets/js/tweaks.js` | single-scan-states, login (RETROFIT), consent (RETROFIT) |
 | transaction-card | molecules/card-transaction.html (P3) | dashboard, history, insights, group-home |
 | balance-card | molecules/card-balance.html (P3) | dashboard |
 | filter-strip | assets/css/desktop-shell.css (canonical — see AUDIT.md §8) | dashboard-desktop, history-desktop, trends-desktop |

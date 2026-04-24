@@ -6,6 +6,8 @@
 | P2 | 2026-04-24 | gabe-review | Style prompts shipped = 6 (mono/normal/organic/playful-geometric/professional/sketch). PLAN called for 6 legacy + 3 new = 9. No DECISIONS entry logging the trim | `docs/mockups/styles/*.prompt` | mvp | medium | low | 1 | open |
 | P3 | 2026-04-24 | gabe-review | No WCAG AA a11y audit artifact for Phase 1 — 14 desktop screens × 6 theme×mode runtime variants lack contrast / focus / ARIA validation. Phase 13 audit gate will catch but fix multiplies | `docs/mockups/design-system.html` | mvp | low | moderate | 1 | open |
 | P4 | 2026-04-24 | gabe-review | `piggy-bank.png` lives at `docs/mockups/screens/piggy-bank.png` — asset in screens/ folder instead of `assets/icons/` or `assets/raster/`. Minor organization drift | `docs/mockups/screens/piggy-bank.png` | mvp | low | negligible | 1 | open |
+| P5 | 2026-04-24 | gabe-mockup retrofit audit | `.kdbp/CHANGES.jsonl` is lane-era relic (last write 2026-04-23 lane_rollback). Consider `git mv .kdbp/CHANGES.jsonl .kdbp/archive/CHANGES.jsonl` to preserve history while decluttering active KDBP surface. Non-blocking cleanup. | `.kdbp/CHANGES.jsonl` | mvp | low | negligible | 0 | open |
 
 <!-- P1-P4 from /gabe-review Phase 1 (2026-04-24) — see LEDGER for review trace -->
+<!-- P5 from /gabe-mockup retrofit audit (2026-04-24) — deferred cleanup per user Q3 -->
 <!-- Backend P1 pending items are tracked inside .kdbp/archive/queued_backend-p1.md and activate with that plan. -->
