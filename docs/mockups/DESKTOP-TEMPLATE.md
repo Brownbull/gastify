@@ -90,6 +90,7 @@ Copy from `_desktop-template.html` `<script>` block at bottom. 3 responsibilitie
 | Scan mode selector | ✅ `gastify-scan-mode-selector-desktop.html` | n/a (capture action) |
 | Scan states | ✅ `gastify-single-scan-states-desktop.html` | n/a (4-state machine: idle/uploading/processing/ready) |
 | Quicksave | ✅ `gastify-quicksave-card-desktop.html` | n/a (post-scan confirm) |
+| Group Hub | ✅ `gastify-group-hub-desktop.html` | ✅ canonical (4-col: sidebar + switcher + hub + activity rail; 4-tab main: Inicio/Miembros/Tx/Stats) |
 
 ## Pending queue (P0 — apply template to all)
 

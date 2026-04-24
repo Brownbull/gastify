@@ -207,7 +207,7 @@ Required: **8+ surfaces**  ·  Present: **2**  ·  Coverage: **25%** 🔴
 |----------|----------|
 | Mobile Web (PWA 390×844) | ✅ all 29 screens (via ~420px mobile frame) |
 | Native Mobile (React Native 390×844) | ⚠ visual parity with mobile web but NO platform-divergence notes documented per screen (haptics, biometrics, safe-area insets, platform-specific gestures) |
-| Desktop Web (1440 responsive) | 🚧 **11/29 shipped** (Dashboard + History + Tx Editor + Settings + Trends + Insights + Reports + Ítems + 3 Scan) — shared shell CSS extracted, 18 to apply |
+| Desktop Web (1440 responsive) | 🚧 **12/29 shipped** (+ Group Hub unified: switcher+home+members+tx+stats in one 4-col screen) — shared shell CSS extracted, 17 to apply (remaining group screens covered inline: admin/create/delete/invite accessible via Hub actions + ⋯ menus) |
 
 ### Desktop template established (T9 anchor — Dashboard)
 

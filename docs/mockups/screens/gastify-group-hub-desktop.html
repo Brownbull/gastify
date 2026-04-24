@@ -1,0 +1,1149 @@
+<!DOCTYPE html>
+<html lang="es-CL">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Grupos — gastify Desktop Web (1440 responsive)</title>
+<link rel="stylesheet" href="../assets/fonts/gastify-fonts.css">
+<link rel="stylesheet" href="../assets/css/desktop-shell.css">
+<style>
+  /* Override shell grid — groups uses 3-col (switcher + hub + activity) */
+  .app-shell {
+    grid-template-columns: 240px 280px 1fr 320px;
+    gap: 16px;
+    max-width: 1600px;
+  }
+
+  /* Group switcher (between sidebar and main) */
+  .group-switcher {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 12px;
+    position: sticky;
+    top: 69px;
+    max-height: calc(100vh - 93px);
+    overflow-y: auto;
+    box-shadow: 0 2px 4px var(--shadow);
+  }
+  .gs-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 8px 10px;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 8px;
+  }
+  .gs-title {
+    font-family: 'Baloo 2', cursive;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .gs-add {
+    width: 26px; height: 26px;
+    border-radius: 8px;
+    background: var(--primary);
+    color: var(--primary-ink);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border: none;
+    font-weight: 700;
+    font-size: 16px;
+  }
+  .gs-add:hover { opacity: 0.9; }
+
+  .gs-section {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--ink-3);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 10px 10px 4px;
+  }
+  .gs-item {
+    display: grid;
+    grid-template-columns: 36px 1fr auto;
+    gap: 10px;
+    align-items: center;
+    padding: 10px 10px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background .15s;
+    margin-bottom: 2px;
+  }
+  .gs-item:hover { background: var(--surface-2); }
+  .gs-item.active {
+    background: var(--primary-soft);
+    box-shadow: inset 3px 0 0 var(--primary);
+  }
+  .gs-emoji {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    background: var(--surface-2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+  }
+  .gs-item.active .gs-emoji { background: var(--primary); }
+  .gs-info { min-width: 0; }
+  .gs-name {
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--ink);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .gs-item.active .gs-name { color: var(--primary); }
+  .gs-meta {
+    font-size: 11px;
+    color: var(--ink-3);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .gs-badge {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 999px;
+    background: var(--error);
+    color: #fff;
+  }
+  .gs-role-pill {
+    display: inline-block;
+    font-size: 9px;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: 999px;
+    background: var(--primary-soft);
+    color: var(--primary);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-top: 2px;
+  }
+
+  /* Hub main */
+  .hub-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 16px;
+    margin: 8px 0 16px;
+    flex-wrap: wrap;
+  }
+  .hub-title-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .hub-emoji {
+    width: 56px; height: 56px;
+    border-radius: 16px;
+    background: var(--primary-soft);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+  }
+  .hub-title {
+    font-family: 'Baloo 2', cursive;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+  }
+  .hub-sub {
+    font-size: 12px;
+    color: var(--ink-2);
+    margin-top: 2px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+  .hub-actions { display: flex; gap: 8px; }
+  .hub-btn {
+    padding: 8px 14px;
+    border-radius: 10px;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    border: 1px solid var(--line-strong);
+    background: var(--surface);
+    color: var(--ink);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all .15s;
+  }
+  .hub-btn:hover { border-color: var(--primary); color: var(--primary); }
+  .hub-btn.primary {
+    background: var(--primary);
+    color: var(--primary-ink);
+    border-color: var(--primary);
+  }
+  .hub-btn.primary:hover { opacity: 0.9; }
+
+  /* View tabs */
+  .view-tabs {
+    display: flex;
+    background: var(--surface-2);
+    padding: 4px;
+    border-radius: 12px;
+    gap: 2px;
+    margin-bottom: 14px;
+  }
+  .view-tab {
+    padding: 10px 20px;
+    border: none;
+    background: transparent;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--ink-2);
+    border-radius: 8px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all .15s;
+  }
+  .view-tab:hover:not(.active) { color: var(--primary); }
+  .view-tab.active {
+    background: var(--surface);
+    color: var(--primary);
+    box-shadow: 0 1px 3px var(--shadow);
+  }
+  .view-tab .tab-count {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 8px;
+    background: var(--bg);
+    color: var(--ink-3);
+    border-radius: 999px;
+  }
+  .view-tab.active .tab-count { background: var(--primary-soft); color: var(--primary); }
+
+  /* Month summary */
+  .month-summary {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--success) 100%);
+    color: var(--primary-ink);
+    border-radius: 18px;
+    padding: 24px 28px;
+    margin-bottom: 16px;
+    box-shadow: 0 4px 12px var(--shadow);
+    position: relative;
+    overflow: hidden;
+  }
+  [data-theme="professional"] .month-summary { background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%); }
+  [data-theme="mono"] .month-summary { background: linear-gradient(135deg, #2d3a4a 0%, #4a5568 100%); }
+  .month-summary::before {
+    content: '';
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 180px; height: 180px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 50%;
+  }
+  .ms-content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+  }
+  .ms-left { }
+  .ms-label {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    opacity: 0.85;
+    font-weight: 700;
+  }
+  .ms-amount {
+    font-family: 'Baloo 2', cursive;
+    font-size: 44px;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    margin-top: 6px;
+    font-variant-numeric: tabular-nums;
+  }
+  .ms-meta { font-size: 13px; opacity: 0.9; margin-top: 6px; }
+  .ms-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+  }
+  .ms-mini-stat {
+    text-align: right;
+    font-size: 12px;
+    opacity: 0.92;
+  }
+  .ms-mini-value {
+    font-family: 'Baloo 2', cursive;
+    font-size: 20px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Member contributions */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 20px 22px;
+    box-shadow: 0 2px 4px var(--shadow);
+    margin-bottom: 14px;
+  }
+  .card-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 14px;
+  }
+  .card-title {
+    font-family: 'Baloo 2', cursive;
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .card-link {
+    font-size: 12px;
+    color: var(--primary);
+    font-weight: 700;
+  }
+
+  .member-row {
+    display: grid;
+    grid-template-columns: 40px 1fr 70px;
+    gap: 14px;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .member-row:last-child { border-bottom: none; }
+  .member-avatar {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: var(--primary-ink);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 13px;
+  }
+  .member-avatar.bg-accent { background: var(--accent); color: #fff; }
+  .member-avatar.bg-sec { background: var(--secondary-color); color: #fff; }
+  .member-info { min-width: 0; }
+  .member-name-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 4px;
+  }
+  .member-name {
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--ink);
+  }
+  .member-role {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 1px 7px;
+    border-radius: 999px;
+    background: var(--primary-soft);
+    color: var(--primary);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-left: 6px;
+  }
+  .member-amount {
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+  }
+  .member-bar-track {
+    height: 6px;
+    background: var(--surface-2);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+  .member-bar-fill {
+    height: 100%;
+    background: var(--primary);
+    border-radius: 999px;
+  }
+  .member-pct {
+    text-align: right;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--ink-2);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Tx list (Transacciones tab) */
+  .tx-row {
+    display: grid;
+    grid-template-columns: 40px 44px 1fr 80px 120px 120px 20px;
+    gap: 12px;
+    align-items: center;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--line);
+    cursor: pointer;
+    transition: background .12s;
+  }
+  .tx-row:last-child { border-bottom: none; }
+  .tx-row:hover { background: var(--surface-2); }
+  .tx-avatar-sm {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: var(--primary-ink);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 11px;
+  }
+  .tx-icon {
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    background: var(--primary-soft);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .tx-icon img { width: 24px; height: 24px; image-rendering: pixelated; }
+  .tx-store { font-weight: 700; font-size: 14px; color: var(--ink); }
+  .tx-meta { font-size: 11px; color: var(--ink-3); margin-top: 2px; }
+  .tx-date { font-size: 12px; color: var(--ink-2); text-align: center; }
+  .tx-cat-chip {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 999px;
+    background: var(--surface-2);
+    color: var(--ink-2);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    justify-self: center;
+  }
+  .tx-amount {
+    font-weight: 700;
+    font-size: 14px;
+    text-align: right;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Stats (Estadisticas tab) */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 16px 18px;
+    box-shadow: 0 2px 4px var(--shadow);
+  }
+  .stat-label {
+    font-size: 10px;
+    color: var(--ink-3);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 700;
+  }
+  .stat-value {
+    font-family: 'Baloo 2', cursive;
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-top: 6px;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+  }
+  .stat-delta {
+    font-size: 12px;
+    font-weight: 700;
+    margin-top: 4px;
+  }
+  .stat-delta.up { color: var(--error); }
+  .stat-delta.down { color: var(--success); }
+
+  /* View panes */
+  .view-pane { display: none; }
+  .view-pane.active { display: block; }
+
+  /* Right rail: activity + quick actions */
+  .hub-rail {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .rail-box {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 16px 18px;
+    box-shadow: 0 2px 4px var(--shadow);
+  }
+  .rail-title {
+    font-family: 'Baloo 2', cursive;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 10px;
+  }
+
+  .activity-row {
+    display: grid;
+    grid-template-columns: 28px 1fr;
+    gap: 10px;
+    padding: 8px 0;
+    font-size: 12px;
+    border-bottom: 1px solid var(--line);
+  }
+  .activity-row:last-child { border-bottom: none; }
+  .activity-ico {
+    width: 28px; height: 28px;
+    border-radius: 8px;
+    background: var(--primary-soft);
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+  .activity-ico.scan { background: var(--accent-soft); color: var(--accent); }
+  .activity-ico.member { background: #dbeafe; color: #2563eb; }
+  .activity-ico.invite { background: #fef9c3; color: #854d0e; }
+  [data-mode="dark"] .activity-ico.member { background: rgba(37, 99, 235, 0.2); color: #60a5fa; }
+  [data-mode="dark"] .activity-ico.invite { background: rgba(234, 179, 8, 0.18); color: #facc15; }
+  .activity-body { min-width: 0; }
+  .activity-text { color: var(--ink); line-height: 1.4; }
+  .activity-text strong { font-weight: 700; }
+  .activity-time { font-size: 11px; color: var(--ink-3); margin-top: 2px; }
+
+  .invite-card {
+    background: var(--primary-soft);
+    border-radius: 10px;
+    padding: 12px;
+    text-align: center;
+  }
+  .invite-code {
+    font-family: 'Outfit', monospace;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--primary);
+    letter-spacing: 0.2em;
+    padding: 8px 10px;
+    background: var(--surface);
+    border-radius: 8px;
+    border: 1px dashed var(--primary);
+    margin: 8px 0;
+    cursor: pointer;
+    user-select: all;
+  }
+  .invite-hint {
+    font-size: 11px;
+    color: var(--ink-2);
+  }
+
+  /* Responsive */
+  @media (max-width: 1440px) {
+    .app-shell { grid-template-columns: 240px 240px 1fr 300px; max-width: 1440px; }
+  }
+  @media (max-width: 1280px) {
+    .app-shell { grid-template-columns: 240px 1fr; }
+    .group-switcher { display: none; }
+    .hub-rail { display: none; }
+  }
+  @media (max-width: 900px) {
+    .stats-grid { grid-template-columns: 1fr 1fr; }
+    .tx-row { grid-template-columns: 32px 1fr auto; gap: 8px; }
+    .tx-avatar-sm, .tx-date, .tx-cat-chip { display: none; }
+  }
+</style>
+</head>
+
+<body data-theme="normal" data-mode="light">
+
+<!-- CONTROLS -->
+<div class="controls">
+  <div class="controls-group"><span class="controls-label">Theme</span><button class="theme-tab active" data-theme-val="normal">Normal</button><button class="theme-tab" data-theme-val="professional">Professional</button><button class="theme-tab" data-theme-val="mono">Mono</button></div>
+  <div class="controls-group"><span class="controls-label">Mode</span><div class="mode-toggle"><span>Light</span><div class="toggle-switch" id="modeToggle"></div><span>Dark</span></div></div>
+  <div class="controls-group"><span class="controls-label">Platform</span><span style="color: var(--primary); font-weight: 600;">Desktop Web 1440</span><a class="platform-switch" href="gastify-group-home.html" title="Ver versión mobile"><span class="dot">●</span> Mobile ↗</a></div>
+  <div class="controls-group">
+    <div class="quick-nav" id="quickNav">
+      <button class="quick-nav-btn" onclick="document.getElementById('quickNav').classList.toggle('open')">☰ Desktop screens</button>
+      <div class="quick-nav-menu">
+        <div class="qn-section">Available (12)</div>
+        <a href="gastify-dashboard-desktop.html">🏠 Dashboard</a>
+        <a href="gastify-history-desktop.html">📜 Historial</a>
+        <a href="gastify-transaction-editor-desktop.html">✎ Transaction editor</a>
+        <a href="gastify-settings-desktop.html">⚙ Ajustes</a>
+        <a href="gastify-trends-desktop.html">📊 Tendencias</a>
+        <a href="gastify-insights-desktop.html">💡 Insights</a>
+        <a href="gastify-reports-desktop.html">📄 Reportes</a>
+        <a href="gastify-items-desktop.html">📦 Ítems</a>
+        <a href="gastify-scan-mode-selector-desktop.html">📸 Scan modes</a>
+        <a href="gastify-single-scan-states-desktop.html">📷 Escaneo</a>
+        <a href="gastify-quicksave-card-desktop.html">⚡ Quicksave</a>
+        <a class="current" href="gastify-group-hub-desktop.html">👥 Grupos <span class="qn-badge">current</span></a>
+        <div class="qn-section">Mobile-only (17 more)</div>
+        <a href="../index.html" style="color: var(--primary); font-weight: 600; margin-top: 4px;">→ See full gap matrix</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="app-shell">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-brand"><div class="brand-mark"><img src="../assets/icons/piggy-bank.png" alt=""></div><span class="wordmark">gastify</span></div>
+    <ul class="nav-list">
+      <li><a class="nav-item" href="gastify-dashboard-desktop.html"><img class="nav-icon" src="../assets/icons/app-icons/navigation/nav-home.png" alt=""><span>Inicio</span></a></li>
+      <li><a class="nav-item" href="gastify-history-desktop.html"><img class="nav-icon" src="../assets/icons/app-icons/navigation/nav-history.png" alt=""><span>Historial</span></a></li>
+      <li><a class="nav-item" href="gastify-trends-desktop.html"><img class="nav-icon" src="../assets/icons/app-icons/navigation/nav-trends.png" alt=""><span>Tendencias</span></a></li>
+      <li><a class="nav-item" href="gastify-insights-desktop.html"><img class="nav-icon" src="../assets/icons/app-icons/navigation/nav-insights.png" alt=""><span>Insights</span></a></li>
+      <li><a class="nav-item" href="gastify-reports-desktop.html"><img class="nav-icon" src="../assets/icons/app-icons/navigation/nav-reports.png" alt=""><span>Reportes</span></a></li>
+      <li><a class="nav-item active" href="gastify-group-hub-desktop.html"><img class="nav-icon" src="../assets/icons/app-icons/navigation/nav-scan.png" alt=""><span>Grupos</span></a></li>
+      <li><a class="nav-item" href="gastify-settings-desktop.html"><img class="nav-icon" src="../assets/icons/app-icons/navigation/nav-settings.png" alt=""><span>Ajustes</span></a></li>
+    </ul>
+    <div class="sidebar-footer"><div class="user-chip"><div class="user-avatar">JG</div><div style="flex: 1; min-width: 0;"><div class="user-name">Juan García</div><div class="user-email">juan@ejemplo.cl</div></div></div></div>
+  </aside>
+
+  <!-- GROUP SWITCHER (2nd col) -->
+  <aside class="group-switcher">
+    <div class="gs-head">
+      <span class="gs-title">Mis grupos</span>
+      <button class="gs-add" aria-label="Crear grupo" title="Crear grupo">+</button>
+    </div>
+
+    <div class="gs-section">Activos (3)</div>
+    <div class="gs-item active">
+      <div class="gs-emoji" style="background: var(--primary); filter: brightness(1.1);">🏠</div>
+      <div class="gs-info">
+        <div class="gs-name">Casa Temuco</div>
+        <div class="gs-meta">3 miembros · 47 tx</div>
+        <span class="gs-role-pill">Admin</span>
+      </div>
+    </div>
+    <div class="gs-item">
+      <div class="gs-emoji">✈️</div>
+      <div class="gs-info">
+        <div class="gs-name">Viaje Patagonia 2026</div>
+        <div class="gs-meta">5 miembros · 12 tx</div>
+      </div>
+      <span class="gs-badge">2</span>
+    </div>
+    <div class="gs-item">
+      <div class="gs-emoji">🐕</div>
+      <div class="gs-info">
+        <div class="gs-name">Veterinario Rocco</div>
+        <div class="gs-meta">2 miembros · 8 tx</div>
+      </div>
+    </div>
+
+    <div class="gs-section">Invitaciones (1)</div>
+    <div class="gs-item">
+      <div class="gs-emoji">🎉</div>
+      <div class="gs-info">
+        <div class="gs-name">Oficina CL</div>
+        <div class="gs-meta">Invitado por Diego R.</div>
+      </div>
+      <span class="gs-badge">!</span>
+    </div>
+
+    <div class="gs-section">Archivados (2)</div>
+    <div class="gs-item" style="opacity: 0.6;">
+      <div class="gs-emoji">🎓</div>
+      <div class="gs-info">
+        <div class="gs-name">Pregrado Medicina</div>
+        <div class="gs-meta">Archivado 2025-12</div>
+      </div>
+    </div>
+    <div class="gs-item" style="opacity: 0.6;">
+      <div class="gs-emoji">🏖️</div>
+      <div class="gs-info">
+        <div class="gs-name">Verano 2024</div>
+        <div class="gs-meta">Archivado 2025-03</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div class="search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        <input type="text" placeholder="Buscar en grupo..." aria-label="Buscar">
+        <span class="kbd-hint">/</span>
+      </div>
+      <button class="scan-btn" aria-label="Escanear boleta"><img src="../assets/icons/app-icons/scan-features/scan-single.png" alt=""><span>Escanear</span><span class="kbd-hint" style="background: rgba(255,255,255,0.22); color: #fff; border: none;">⌘K</span></button>
+      <button class="icon-btn" aria-label="Alertas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span class="bell-badge">3</span></button>
+      <div class="topbar-avatar" aria-label="Perfil">JG</div>
+    </div>
+
+    <!-- HUB HEAD -->
+    <div class="hub-head">
+      <div class="hub-title-row">
+        <div class="hub-emoji">🏠</div>
+        <div>
+          <div class="hub-title">Casa Temuco</div>
+          <div class="hub-sub">
+            <span>3 miembros activos</span>
+            <span>·</span>
+            <span>47 transacciones</span>
+            <span>·</span>
+            <span style="color: var(--primary); font-weight: 700;">Admin</span>
+            <span>·</span>
+            <span>Creado jun 2025</span>
+          </div>
+        </div>
+      </div>
+      <div class="hub-actions">
+        <button class="hub-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="14" height="14"><circle cx="18" cy="18" r="3"/><path d="M3 12a9 9 0 0 1 9-9"/></svg>
+          Invitar
+        </button>
+        <button class="hub-btn">
+          <img src="../assets/icons/app-icons/analytics/chart-export.png" alt="" style="width: 14px; height: 14px;">
+          Exportar
+        </button>
+        <button class="hub-btn primary">
+          <img src="../assets/icons/app-icons/scan-features/scan-single.png" alt="" style="width: 14px; height: 14px;">
+          Escanear al grupo
+        </button>
+      </div>
+    </div>
+
+    <!-- VIEW TABS -->
+    <div class="view-tabs" role="tablist">
+      <button class="view-tab active" data-view="home"><span>Inicio</span></button>
+      <button class="view-tab" data-view="members"><span>Miembros</span><span class="tab-count">3</span></button>
+      <button class="view-tab" data-view="transactions"><span>Transacciones</span><span class="tab-count">47</span></button>
+      <button class="view-tab" data-view="stats"><span>Estadísticas</span></button>
+    </div>
+
+    <!-- ========= INICIO PANE ========= -->
+    <div class="view-pane active" data-view-pane="home">
+
+      <!-- Month summary -->
+      <div class="month-summary">
+        <div class="ms-content">
+          <div class="ms-left">
+            <div class="ms-label">Total grupo · Abril 2026</div>
+            <div class="ms-amount">$234.500</div>
+            <div class="ms-meta">47 transacciones · Tú aportaste 62%</div>
+          </div>
+          <div class="ms-right">
+            <div class="ms-mini-stat">
+              <div>Pendiente cobrar</div>
+              <div class="ms-mini-value">$34.800</div>
+            </div>
+            <div class="ms-mini-stat">
+              <div>Promedio/miembro</div>
+              <div class="ms-mini-value">$78.166</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Member contributions -->
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">Aportes del mes</div>
+          <a class="card-link" href="#" onclick="switchView('members'); return false;">Ver miembros →</a>
+        </div>
+        <div class="member-row">
+          <div class="member-avatar">GA</div>
+          <div class="member-info">
+            <div class="member-name-row">
+              <span><span class="member-name">Gabriel A.</span><span class="member-role">Admin · Tú</span></span>
+              <span class="member-amount">$145.430</span>
+            </div>
+            <div class="member-bar-track"><div class="member-bar-fill" style="width: 62%;"></div></div>
+          </div>
+          <span class="member-pct">62%</span>
+        </div>
+        <div class="member-row">
+          <div class="member-avatar bg-accent">ML</div>
+          <div class="member-info">
+            <div class="member-name-row">
+              <span class="member-name">Maria L.</span>
+              <span class="member-amount">$56.280</span>
+            </div>
+            <div class="member-bar-track"><div class="member-bar-fill" style="width: 24%; background: var(--accent);"></div></div>
+          </div>
+          <span class="member-pct">24%</span>
+        </div>
+        <div class="member-row">
+          <div class="member-avatar bg-sec">DR</div>
+          <div class="member-info">
+            <div class="member-name-row">
+              <span class="member-name">Diego R.</span>
+              <span class="member-amount">$32.790</span>
+            </div>
+            <div class="member-bar-track"><div class="member-bar-fill" style="width: 14%; background: var(--secondary-color);"></div></div>
+          </div>
+          <span class="member-pct">14%</span>
+        </div>
+      </div>
+
+      <!-- Recent transactions preview -->
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">Últimas transacciones</div>
+          <a class="card-link" href="#" onclick="switchView('transactions'); return false;">Ver todas →</a>
+        </div>
+        <div class="tx-row" style="padding: 12px 0; border-bottom: 1px solid var(--line);">
+          <div class="tx-avatar-sm">GA</div>
+          <div class="tx-icon"><img src="../assets/icons/app-icons/rubros/rubro-supermercados.png" alt=""></div>
+          <div>
+            <div class="tx-store">Jumbo Apumanque</div>
+            <div class="tx-meta">🛒 12 ítems · Supermercado Premium</div>
+          </div>
+          <span class="tx-date">Hoy</span>
+          <span class="tx-cat-chip" style="background: var(--primary-soft); color: var(--primary);">Compartida</span>
+          <span class="tx-amount">$23.490</span>
+          <span style="color: var(--ink-3);">›</span>
+        </div>
+        <div class="tx-row" style="padding: 12px 0; border-bottom: 1px solid var(--line);">
+          <div class="tx-avatar-sm bg-accent">ML</div>
+          <div class="tx-icon"><img src="../assets/icons/app-icons/rubros/rubro-servicios-finanzas.png" alt=""></div>
+          <div>
+            <div class="tx-store">Gasfiter Hogar</div>
+            <div class="tx-meta">🔧 Reparación cocina · Hogar</div>
+          </div>
+          <span class="tx-date">Ayer</span>
+          <span class="tx-cat-chip" style="background: var(--primary-soft); color: var(--primary);">Compartida</span>
+          <span class="tx-amount">$45.000</span>
+          <span style="color: var(--ink-3);">›</span>
+        </div>
+        <div class="tx-row" style="padding: 12px 0;">
+          <div class="tx-avatar-sm">GA</div>
+          <div class="tx-icon"><img src="../assets/icons/app-icons/rubros/rubro-vivienda.png" alt=""></div>
+          <div>
+            <div class="tx-store">Enel Energía</div>
+            <div class="tx-meta">💡 Cuenta abril · Servicios Básicos</div>
+          </div>
+          <span class="tx-date">23 abr</span>
+          <span class="tx-cat-chip" style="background: var(--primary-soft); color: var(--primary);">Compartida</span>
+          <span class="tx-amount">$67.890</span>
+          <span style="color: var(--ink-3);">›</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========= MIEMBROS PANE ========= -->
+    <div class="view-pane" data-view-pane="members">
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">Miembros del grupo</div>
+          <button class="hub-btn primary" style="padding: 6px 12px; font-size: 12px;">+ Invitar</button>
+        </div>
+        <div class="member-row">
+          <div class="member-avatar">GA</div>
+          <div class="member-info">
+            <div class="member-name-row">
+              <span><span class="member-name">Gabriel A. (Tú)</span><span class="member-role">Admin</span></span>
+              <span class="member-amount">$145.430</span>
+            </div>
+            <div style="font-size: 11px; color: var(--ink-3); margin-top: 4px;">gabriel@example.cl · Miembro desde jun 2025 · 28 tx</div>
+          </div>
+          <span style="color: var(--ink-3); cursor: pointer;">⋯</span>
+        </div>
+        <div class="member-row">
+          <div class="member-avatar bg-accent">ML</div>
+          <div class="member-info">
+            <div class="member-name-row">
+              <span class="member-name">Maria L.</span>
+              <span class="member-amount">$56.280</span>
+            </div>
+            <div style="font-size: 11px; color: var(--ink-3); margin-top: 4px;">maria@example.cl · Miembro desde jul 2025 · 14 tx</div>
+          </div>
+          <span style="color: var(--ink-3); cursor: pointer;">⋯</span>
+        </div>
+        <div class="member-row">
+          <div class="member-avatar bg-sec">DR</div>
+          <div class="member-info">
+            <div class="member-name-row">
+              <span class="member-name">Diego R.</span>
+              <span class="member-amount">$32.790</span>
+            </div>
+            <div style="font-size: 11px; color: var(--ink-3); margin-top: 4px;">diego@example.cl · Miembro desde sep 2025 · 5 tx</div>
+          </div>
+          <span style="color: var(--ink-3); cursor: pointer;">⋯</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">Invitaciones pendientes</div>
+        </div>
+        <div class="member-row">
+          <div class="member-avatar" style="background: var(--surface-2); color: var(--ink-3);">?</div>
+          <div class="member-info">
+            <div class="member-name-row">
+              <span class="member-name">Camila S.</span>
+              <span style="font-size: 11px; color: var(--warning); font-weight: 700;">Pendiente</span>
+            </div>
+            <div style="font-size: 11px; color: var(--ink-3); margin-top: 4px;">camila@example.cl · Enviada hace 2 días · Expira en 5 días</div>
+          </div>
+          <span style="color: var(--ink-3); cursor: pointer;">⋯</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========= TRANSACCIONES PANE ========= -->
+    <div class="view-pane" data-view-pane="transactions">
+      <div class="card" style="padding: 0;">
+        <div class="tx-row">
+          <div class="tx-avatar-sm">GA</div>
+          <div class="tx-icon"><img src="../assets/icons/app-icons/rubros/rubro-supermercados.png" alt=""></div>
+          <div>
+            <div class="tx-store">Jumbo Apumanque</div>
+            <div class="tx-meta">🛒 12 ítems · Supermercado Premium</div>
+          </div>
+          <span class="tx-date">Hoy</span>
+          <span class="tx-cat-chip" style="background: var(--primary-soft); color: var(--primary);">Compartida</span>
+          <span class="tx-amount">$23.490</span>
+          <span style="color: var(--ink-3);">›</span>
+        </div>
+        <div class="tx-row">
+          <div class="tx-avatar-sm bg-accent">ML</div>
+          <div class="tx-icon"><img src="../assets/icons/app-icons/rubros/rubro-servicios-finanzas.png" alt=""></div>
+          <div>
+            <div class="tx-store">Gasfiter Hogar</div>
+            <div class="tx-meta">🔧 Reparación cocina</div>
+          </div>
+          <span class="tx-date">Ayer</span>
+          <span class="tx-cat-chip" style="background: var(--primary-soft); color: var(--primary);">Compartida</span>
+          <span class="tx-amount">$45.000</span>
+          <span style="color: var(--ink-3);">›</span>
+        </div>
+        <div class="tx-row">
+          <div class="tx-avatar-sm">GA</div>
+          <div class="tx-icon"><img src="../assets/icons/app-icons/rubros/rubro-vivienda.png" alt=""></div>
+          <div>
+            <div class="tx-store">Enel Energía</div>
+            <div class="tx-meta">💡 Cuenta abril</div>
+          </div>
+          <span class="tx-date">23 abr</span>
+          <span class="tx-cat-chip" style="background: var(--primary-soft); color: var(--primary);">Compartida</span>
+          <span class="tx-amount">$67.890</span>
+          <span style="color: var(--ink-3);">›</span>
+        </div>
+        <div class="tx-row">
+          <div class="tx-avatar-sm bg-sec">DR</div>
+          <div class="tx-icon"><img src="../assets/icons/app-icons/rubros/rubro-comercio-barrio.png" alt=""></div>
+          <div>
+            <div class="tx-store">Almacén Don Pepe</div>
+            <div class="tx-meta">🏪 Pan + huevos</div>
+          </div>
+          <span class="tx-date">22 abr</span>
+          <span class="tx-cat-chip" style="background: var(--primary-soft); color: var(--primary);">Compartida</span>
+          <span class="tx-amount">$4.890</span>
+          <span style="color: var(--ink-3);">›</span>
+        </div>
+        <div class="tx-row">
+          <div class="tx-avatar-sm">GA</div>
+          <div class="tx-icon"><img src="../assets/icons/app-icons/rubros/rubro-transporte-vehiculo.png" alt=""></div>
+          <div>
+            <div class="tx-store">Copec Pucón</div>
+            <div class="tx-meta">⛽ Combustible · Viaje Temuco</div>
+          </div>
+          <span class="tx-date">20 abr</span>
+          <span class="tx-cat-chip" style="background: var(--primary-soft); color: var(--primary);">Compartida</span>
+          <span class="tx-amount">$89.420</span>
+          <span style="color: var(--ink-3);">›</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========= STATS PANE ========= -->
+    <div class="view-pane" data-view-pane="stats">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">Total acumulado</div>
+          <div class="stat-value">$1.847.230</div>
+          <div class="stat-delta up">↑ +18% vs mes pasado</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Tx compartidas</div>
+          <div class="stat-value">47</div>
+          <div class="stat-delta up">↑ +12</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Promedio mensual</div>
+          <div class="stat-value">$207k</div>
+          <div class="stat-delta down">↓ -3.2%</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">Tendencia últimos 6 meses</div>
+        </div>
+        <div style="background: var(--surface-2); border-radius: 10px; padding: 24px; min-height: 240px; display: flex; align-items: center; justify-content: center; color: var(--ink-3); font-size: 13px; text-align: center;">
+          📊 SVG line chart aquí<br><small>(Bump: 6 meses × 3 miembros · cada línea = aporte/mes)</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- PLATFORM NOTES -->
+    <aside class="platform-notes">
+      <h3>Desktop Web — Group Hub</h3>
+      <ul>
+        <li>4-column shell: sidebar 240 + group switcher 280 + hub main 1fr + activity rail 320 (replaces mobile's single-column stack)</li>
+        <li>Group switcher (2nd col) shows Active / Invitaciones / Archivados sections with role pill (Admin/Member), unread badge, click-to-switch</li>
+        <li>View tabs: Inicio (month hero + contributions + recent tx) / Miembros (list + pending invites) / Transacciones (shared tx feed) / Estadísticas (3-card grid + trend chart)</li>
+        <li>Activity rail (4th col) shows realtime group events (new scan / member joined / invite sent) + invite code card (click-to-copy, user-select: all)</li>
+        <li>Hub head actions: Invitar (opens invite modal) / Exportar / Escanear al grupo (scan flow with pre-selected group context)</li>
+        <li>Responsive: drops activity rail at 1280, drops switcher at 1280 (collapses to mobile stack)</li>
+        <li>Mobile-only screens not ported to desktop: Group detail drawer, Group delete confirm, Expense split, Activity log fullscreen, Transfer ownership, Leave group confirm (linked via ⋯ member menu + hub actions dropdown)</li>
+      </ul>
+    </aside>
+
+  </main>
+
+  <!-- RIGHT RAIL: ACTIVITY + INVITE -->
+  <aside class="hub-rail">
+    <div class="rail-box">
+      <div class="rail-title">Actividad del grupo</div>
+      <div class="activity-row">
+        <div class="activity-ico scan">📷</div>
+        <div class="activity-body">
+          <div class="activity-text"><strong>Gabriel A.</strong> escaneó <strong>Jumbo Apumanque</strong> · $23.490</div>
+          <div class="activity-time">Hace 8 min</div>
+        </div>
+      </div>
+      <div class="activity-row">
+        <div class="activity-ico member">👋</div>
+        <div class="activity-body">
+          <div class="activity-text"><strong>Diego R.</strong> se unió al grupo</div>
+          <div class="activity-time">Hace 2 horas</div>
+        </div>
+      </div>
+      <div class="activity-row">
+        <div class="activity-ico invite">📨</div>
+        <div class="activity-body">
+          <div class="activity-text">Invitación enviada a <strong>camila@example.cl</strong></div>
+          <div class="activity-time">Hace 2 días</div>
+        </div>
+      </div>
+      <div class="activity-row">
+        <div class="activity-ico scan">📷</div>
+        <div class="activity-body">
+          <div class="activity-text"><strong>Maria L.</strong> escaneó <strong>Gasfiter Hogar</strong> · $45.000</div>
+          <div class="activity-time">Ayer 16:42</div>
+        </div>
+      </div>
+      <div class="activity-row">
+        <div class="activity-ico">⚙️</div>
+        <div class="activity-body">
+          <div class="activity-text"><strong>Tú</strong> editaste nombre → Casa Temuco</div>
+          <div class="activity-time">Hace 1 semana</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="rail-box">
+      <div class="rail-title">Invitar con código</div>
+      <div class="invite-card">
+        <div class="invite-hint">Comparte este código para que se unan</div>
+        <div class="invite-code" title="Click para copiar">CASA-TEMU-4821</div>
+        <div class="invite-hint">Válido hasta 30 abr</div>
+        <button class="hub-btn primary" style="width: 100%; margin-top: 8px; justify-content: center;">
+          📋 Copiar enlace
+        </button>
+      </div>
+    </div>
+
+    <div class="rail-box" style="background: var(--danger-soft); border-color: var(--error);">
+      <div class="rail-title" style="color: var(--error); font-size: 14px;">⚠ Saldos pendientes</div>
+      <p style="font-size: 12px; color: var(--ink-2); line-height: 1.5; margin-bottom: 10px;">Diego te debe $12.400 (su cuota marzo sin cubrir).</p>
+      <button class="hub-btn" style="width: 100%; border-color: var(--error); color: var(--error);">Recordar pago</button>
+    </div>
+  </aside>
+
+</div>
+
+<script>
+  const body = document.body;
+  document.querySelectorAll('.theme-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.theme-tab').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+      body.dataset.theme = btn.dataset.themeVal;
+    });
+  });
+  document.getElementById('modeToggle').addEventListener('click', () => {
+    body.dataset.mode = body.dataset.mode === 'dark' ? 'light' : 'dark';
+  });
+
+  function switchView(view) {
+    document.querySelectorAll('.view-tab').forEach(t => t.classList.remove('active'));
+    const targetTab = document.querySelector(`[data-view="${view}"]`);
+    if (targetTab) targetTab.classList.add('active');
+    document.querySelectorAll('.view-pane').forEach(p => p.classList.remove('active'));
+    const pane = document.querySelector(`[data-view-pane="${view}"]`);
+    if (pane) pane.classList.add('active');
+  }
+  document.querySelectorAll('.view-tab').forEach(tab => {
+    tab.addEventListener('click', () => switchView(tab.dataset.view));
+  });
+
+  // Group switcher selection
+  document.querySelectorAll('.gs-item').forEach(item => {
+    item.addEventListener('click', () => {
+      document.querySelectorAll('.gs-item').forEach(i => i.classList.remove('active'));
+      item.classList.add('active');
+    });
+  });
+
+  // Invite code click-to-copy
+  document.querySelectorAll('.invite-code').forEach(c => {
+    c.addEventListener('click', () => {
+      navigator.clipboard?.writeText(c.textContent);
+      c.style.background = 'var(--primary-soft)';
+      setTimeout(() => { c.style.background = ''; }, 300);
+    });
+  });
+
+  document.addEventListener('click', (e) => {
+    const qn = document.getElementById('quickNav');
+    if (qn && !qn.contains(e.target)) qn.classList.remove('open');
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === '/' && document.activeElement.tagName !== 'INPUT') {
+      e.preventDefault();
+      document.querySelector('.search input').focus();
+    }
+    if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      e.preventDefault();
+      document.querySelector('.scan-btn').click();
+    }
+  });
+</script>
+
+</body>
+</html>
