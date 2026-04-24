@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="es-CL">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>gastify — Design System (Phase 1 locked)</title>
+<link rel="stylesheet" href="assets/fonts/gastify-fonts.css">
+<link rel="stylesheet" href="assets/css/desktop-shell.css">
+<style>
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Outfit', system-ui, sans-serif;
+    padding: 24px 40px 80px;
+  }
+
+  .ds-head {
+    text-align: center;
+    margin: 20px 0 40px;
+    padding-bottom: 24px;
+    border-bottom: 2px solid var(--line);
+  }
+  .ds-head h1 {
+    font-family: 'Baloo 2', cursive;
+    font-size: 40px;
+    font-weight: 700;
+    color: var(--ink);
+    letter-spacing: -0.02em;
+  }
+  .ds-head p {
+    font-size: 15px;
+    color: var(--ink-2);
+    margin-top: 8px;
+  }
+  .ds-head .meta {
+    margin-top: 16px;
+    display: inline-flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .ds-head .meta span {
+    padding: 4px 12px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--ink-2);
+  }
+  .ds-head .meta .ok { color: var(--primary); border-color: var(--primary); }
+
+  .ds-section {
+    max-width: 1200px;
+    margin: 0 auto 48px;
+  }
+  .ds-h2 {
+    font-family: 'Baloo 2', cursive;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 8px;
+    letter-spacing: -0.01em;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .ds-h2 .num {
+    display: inline-flex;
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: var(--primary-ink);
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+  }
+  .ds-sub {
+    font-size: 13px;
+    color: var(--ink-2);
+    margin-bottom: 20px;
+  }
+
+  .ds-card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 24px 28px;
+    box-shadow: 0 2px 4px var(--shadow);
+    margin-bottom: 16px;
+  }
+  .ds-label {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--ink-3);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 12px;
+  }
+
+  /* Color swatches */
+  .swatch-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 10px;
+  }
+  .swatch {
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid var(--line);
+  }
+  .swatch-color { height: 64px; }
+  .swatch-info {
+    padding: 8px 10px;
+    background: var(--surface);
+    font-size: 11px;
+  }
+  .swatch-name { font-weight: 700; color: var(--ink); }
+  .swatch-value {
+    color: var(--ink-3);
+    font-family: 'Outfit', monospace;
+    margin-top: 2px;
+  }
+
+  /* Typography specimens */
+  .type-row {
+    display: grid;
+    grid-template-columns: 120px 1fr auto;
+    gap: 20px;
+    align-items: baseline;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .type-row:last-child { border-bottom: none; }
+  .type-meta {
+    font-size: 11px;
+    color: var(--ink-3);
+    font-weight: 700;
+  }
+  .type-meta code {
+    display: block;
+    font-family: 'Outfit', monospace;
+    color: var(--primary);
+    margin-top: 2px;
+  }
+  .type-spec { color: var(--ink); }
+  .type-metrics {
+    font-size: 11px;
+    color: var(--ink-3);
+    text-align: right;
+    font-family: 'Outfit', monospace;
+  }
+
+  /* Spacing scale */
+  .space-row {
+    display: grid;
+    grid-template-columns: 50px 1fr 80px;
+    gap: 16px;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .space-row:last-child { border-bottom: none; }
+  .space-token { font-weight: 700; font-size: 12px; color: var(--ink); }
+  .space-bar {
+    height: 14px;
+    background: var(--primary);
+    border-radius: 4px;
+  }
+  .space-value {
+    font-size: 11px;
+    color: var(--ink-3);
+    font-family: 'Outfit', monospace;
+    text-align: right;
+  }
+
+  /* Radius grid */
+  .radius-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+    gap: 12px;
+  }
+  .radius-sample {
+    aspect-ratio: 1;
+    background: var(--primary);
+    display: flex;
+    align-items: flex-end;
+    padding: 8px;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--primary-ink);
+  }
+
+  /* Button row */
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .btn {
+    padding: 10px 18px;
+    border-radius: 10px;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .btn.primary { background: var(--primary); color: var(--primary-ink); }
+  .btn.secondary {
+    background: transparent;
+    color: var(--ink-2);
+    border: 1px solid var(--line-strong);
+  }
+  .btn.danger { background: var(--error); color: #fff; }
+  .btn.ghost { background: transparent; color: var(--primary); }
+  .btn.disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* Chip + pill showcase */
+  .chip-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+  }
+  .chip.pri { background: var(--primary-soft); color: var(--primary); }
+  .chip.acc { background: var(--accent-soft); color: var(--accent); }
+  .chip.sec { background: var(--surface-2); color: var(--ink-2); }
+  .chip.danger { background: var(--danger-soft); color: var(--error); }
+  .chip.warn { background: #fef3c7; color: #854d0e; }
+
+  /* Screen gallery */
+  .screen-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+  }
+  .screen-link {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 14px 16px;
+    text-decoration: none;
+    color: var(--ink);
+    transition: all .15s;
+    box-shadow: 0 1px 3px var(--shadow);
+  }
+  .screen-link:hover { border-color: var(--primary); transform: translateY(-2px); }
+  .screen-link .s-emoji { font-size: 24px; margin-bottom: 6px; display: block; }
+  .screen-link .s-name { font-weight: 700; font-size: 13px; color: var(--ink); }
+  .screen-link .s-desc { font-size: 11px; color: var(--ink-3); margin-top: 2px; line-height: 1.4; }
+
+  /* Theme preview grid */
+  .theme-preview {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+  }
+  .theme-tile {
+    border-radius: 12px;
+    padding: 16px;
+    border: 2px solid var(--line);
+  }
+  .theme-tile-name {
+    font-family: 'Baloo 2', cursive;
+    font-weight: 700;
+    font-size: 14px;
+    margin-bottom: 8px;
+  }
+  .theme-tile-swatches {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 6px;
+  }
+  .theme-tile-swatch {
+    width: 30px; height: 30px;
+    border-radius: 6px;
+    border: 1px solid rgba(0,0,0,0.1);
+  }
+
+  /* Status pills */
+  .status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .status-pill.ready    { background: var(--primary-soft); color: var(--primary); }
+  .status-pill.pending  { background: #fef9c3; color: #854d0e; }
+  .status-pill.error    { background: var(--danger-soft); color: var(--error); }
+  .status-pill.draft    { background: var(--surface-2); color: var(--ink-3); }
+
+  /* Token table */
+  .tok-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .tok-table th, .tok-table td {
+    padding: 8px 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--line);
+    font-size: 12px;
+  }
+  .tok-table th {
+    font-size: 10px;
+    color: var(--ink-3);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 700;
+  }
+  .tok-table code {
+    font-family: 'Outfit', monospace;
+    color: var(--primary);
+  }
+
+  /* Controls top-right */
+  .ds-controls {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    display: flex;
+    gap: 8px;
+    background: var(--surface);
+    padding: 8px;
+    border-radius: 12px;
+    box-shadow: 0 4px 16px var(--shadow);
+    z-index: 100;
+  }
+  .ds-ctrl-btn {
+    padding: 6px 12px;
+    border-radius: 8px;
+    border: none;
+    background: var(--surface-2);
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--ink-2);
+    cursor: pointer;
+  }
+  .ds-ctrl-btn.active { background: var(--primary); color: var(--primary-ink); }
+  .ds-ctrl-btn:hover:not(.active) { color: var(--primary); }
+
+  /* Phase 1 exit table */
+  .exit-table td { padding: 10px 12px; border-bottom: 1px solid var(--line); font-size: 12px; }
+  .exit-table .done { color: var(--primary); font-weight: 700; }
+  .exit-table .pending { color: var(--warning); font-weight: 700; }
+</style>
+</head>
+
+<body data-theme="normal" data-mode="light">
+
+<!-- Theme switcher -->
+<div class="ds-controls">
+  <button class="ds-ctrl-btn active" data-theme-val="normal">Normal</button>
+  <button class="ds-ctrl-btn" data-theme-val="professional">Pro</button>
+  <button class="ds-ctrl-btn" data-theme-val="mono">Mono</button>
+  <span style="width: 1px; background: var(--line); align-self: stretch;"></span>
+  <button class="ds-ctrl-btn" id="modeBtn">☀ Light</button>
+</div>
+
+<!-- HEADER -->
+<header class="ds-head">
+  <h1>gastify · Design System</h1>
+  <p>Phase 1 exit artifact · Lockable reference for all design decisions · Last updated 2026-04-23</p>
+  <div class="meta">
+    <span class="ok">✅ Phase 1 locked</span>
+    <span>Tier: ent (escalated from mvp)</span>
+    <span>Themes: 3 × 2 modes = 6 variants</span>
+    <span>Screens: 14/29 desktop + 29/29 mobile</span>
+    <span>V4 taxonomy: 12 L1 + 44 L2 + 9 L3 + 42 L4</span>
+  </div>
+</header>
+
+<!-- 1. THEME SYSTEM -->
+<section class="ds-section">
+  <h2 class="ds-h2"><span class="num">1</span> Theme system</h2>
+  <p class="ds-sub">Runtime multi-theme via <code>[data-theme][data-mode]</code> attrs on <code>&lt;body&gt;</code>. User picks in Settings; switchable without reload. Wordmark is brand-invariant across all 6 variants.</p>
+
+  <div class="ds-card">
+    <div class="ds-label">Current theme swatches (live — change via top-right)</div>
+    <div class="swatch-grid">
+      <div class="swatch"><div class="swatch-color" style="background: var(--primary);"></div><div class="swatch-info"><div class="swatch-name">primary</div><div class="swatch-value">--primary</div></div></div>
+      <div class="swatch"><div class="swatch-color" style="background: var(--primary-soft);"></div><div class="swatch-info"><div class="swatch-name">primary-soft</div><div class="swatch-value">--primary-soft</div></div></div>
+      <div class="swatch"><div class="swatch-color" style="background: var(--accent);"></div><div class="swatch-info"><div class="swatch-name">accent</div><div class="swatch-value">--accent</div></div></div>
+      <div class="swatch"><div class="swatch-color" style="background: var(--success);"></div><div class="swatch-info"><div class="swatch-name">success</div><div class="swatch-value">--success</div></div></div>
+      <div class="swatch"><div class="swatch-color" style="background: var(--warning);"></div><div class="swatch-info"><div class="swatch-name">warning</div><div class="swatch-value">--warning</div></div></div>
+      <div class="swatch"><div class="swatch-color" style="background: var(--error);"></div><div class="swatch-info"><div class="swatch-name">error</div><div class="swatch-value">--error</div></div></div>
+      <div class="swatch"><div class="swatch-color" style="background: var(--ink);"></div><div class="swatch-info"><div class="swatch-name">ink</div><div class="swatch-value">--ink</div></div></div>
+      <div class="swatch"><div class="swatch-color" style="background: var(--ink-2);"></div><div class="swatch-info"><div class="swatch-name">ink-2</div><div class="swatch-value">--ink-2</div></div></div>
+      <div class="swatch"><div class="swatch-color" style="background: var(--ink-3);"></div><div class="swatch-info"><div class="swatch-name">ink-3</div><div class="swatch-value">--ink-3</div></div></div>
+      <div class="swatch"><div class="swatch-color" style="background: var(--bg); border-right: 1px solid var(--line);"></div><div class="swatch-info"><div class="swatch-name">bg</div><div class="swatch-value">--bg</div></div></div>
+      <div class="swatch"><div class="swatch-color" style="background: var(--surface); border-right: 1px solid var(--line);"></div><div class="swatch-info"><div class="swatch-name">surface</div><div class="swatch-value">--surface</div></div></div>
+      <div class="swatch"><div class="swatch-color" style="background: var(--surface-2);"></div><div class="swatch-info"><div class="swatch-name">surface-2</div><div class="swatch-value">--surface-2</div></div></div>
+    </div>
+  </div>
+
+  <div class="ds-card">
+    <div class="ds-label">Category-palette L1 Rubro (theme-agnostic)</div>
+    <div class="swatch-grid">
+      <div class="swatch"><div class="swatch-color" style="background: var(--cat-hogar);"></div><div class="swatch-info"><div class="swatch-name">hogar</div><div class="swatch-value">--cat-hogar</div></div></div>
+      <div class="swatch"><div class="swatch-color" style="background: var(--cat-medicamento);"></div><div class="swatch-info"><div class="swatch-name">medicamento</div><div class="swatch-value">--cat-medicamento</div></div></div>
+      <div class="swatch"><div class="swatch-color" style="background: var(--cat-cargo);"></div><div class="swatch-info"><div class="swatch-name">cargo</div><div class="swatch-value">--cat-cargo</div></div></div>
+      <div class="swatch"><div class="swatch-color" style="background: var(--cat-mascotas);"></div><div class="swatch-info"><div class="swatch-name">mascotas</div><div class="swatch-value">--cat-mascotas</div></div></div>
+    </div>
+    <p style="font-size: 11px; color: var(--ink-3); margin-top: 10px;">Full L1-L4 palettes (12+44+9+42 colors) live in <code>assets/tokens/</code>: storeColors.ts · itemColors.ts · groupColors.ts · categoryTranslations.ts.</p>
+  </div>
+</section>
+
+<!-- 2. TYPOGRAPHY -->
+<section class="ds-section">
+  <h2 class="ds-h2"><span class="num">2</span> Typography</h2>
+  <p class="ds-sub">Outfit (variable 400-800) body + Baloo 2 700 display. Self-hosted woff2 — no Google Fonts CDN dependency. Wordmark spec is brand-invariant.</p>
+
+  <div class="ds-card">
+    <div class="type-row">
+      <div class="type-meta">Wordmark<code>Baloo 2 700 / 24px</code></div>
+      <div class="type-spec" style="font-family: 'Baloo 2', cursive; font-weight: 700; font-size: 24px; color: var(--primary);">gastify</div>
+      <div class="type-metrics">BRAND-INVARIANT<br>Never re-theme</div>
+    </div>
+    <div class="type-row">
+      <div class="type-meta">Display XL<code>Baloo 2 700 / 44px</code></div>
+      <div class="type-spec" style="font-family: 'Baloo 2', cursive; font-weight: 700; font-size: 44px; letter-spacing: -0.02em;">$847.230</div>
+      <div class="type-metrics">Hero numeric<br>balance card</div>
+    </div>
+    <div class="type-row">
+      <div class="type-meta">Heading 1<code>Baloo 2 700 / 28px</code></div>
+      <div class="type-spec" style="font-family: 'Baloo 2', cursive; font-weight: 700; font-size: 28px; letter-spacing: -0.01em;">Insights</div>
+      <div class="type-metrics">Page title</div>
+    </div>
+    <div class="type-row">
+      <div class="type-meta">Heading 2<code>Baloo 2 700 / 20px</code></div>
+      <div class="type-spec" style="font-family: 'Baloo 2', cursive; font-weight: 700; font-size: 20px;">Sección · Card title</div>
+      <div class="type-metrics">Card head</div>
+    </div>
+    <div class="type-row">
+      <div class="type-meta">Body L<code>Outfit 600 / 14px</code></div>
+      <div class="type-spec" style="font-weight: 600; font-size: 14px;">Jumbo Apumanque — 12 ítems</div>
+      <div class="type-metrics">Tx row title</div>
+    </div>
+    <div class="type-row">
+      <div class="type-meta">Body M<code>Outfit 500 / 13px</code></div>
+      <div class="type-spec" style="font-size: 13px; color: var(--ink-2);">Descripción secundaria con detalles del item</div>
+      <div class="type-metrics">Paragraphs</div>
+    </div>
+    <div class="type-row">
+      <div class="type-meta">Caption<code>Outfit 700 / 11px uppercase</code></div>
+      <div class="type-spec" style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-3);">Section Label · Uppercase</div>
+      <div class="type-metrics">Labels, pill text</div>
+    </div>
+    <div class="type-row">
+      <div class="type-meta">Tabular<code>font-variant-numeric: tabular-nums</code></div>
+      <div class="type-spec" style="font-weight: 700; font-variant-numeric: tabular-nums;">$12.345 · 67.890 · 142.100</div>
+      <div class="type-metrics">All $ amounts</div>
+    </div>
+  </div>
+</section>
+
+<!-- 3. SPACING + RADIUS -->
+<section class="ds-section">
+  <h2 class="ds-h2"><span class="num">3</span> Spacing + Radius</h2>
+
+  <div class="ds-card">
+    <div class="ds-label">Spacing scale (all values)</div>
+    <div class="space-row"><div class="space-token">space-1</div><div><div class="space-bar" style="width: 4px;"></div></div><div class="space-value">4px</div></div>
+    <div class="space-row"><div class="space-token">space-3</div><div><div class="space-bar" style="width: 8px;"></div></div><div class="space-value">8px</div></div>
+    <div class="space-row"><div class="space-token">space-5</div><div><div class="space-bar" style="width: 12px;"></div></div><div class="space-value">12px</div></div>
+    <div class="space-row"><div class="space-token">space-7</div><div><div class="space-bar" style="width: 16px;"></div></div><div class="space-value">16px</div></div>
+    <div class="space-row"><div class="space-token">space-9</div><div><div class="space-bar" style="width: 20px;"></div></div><div class="space-value">20px</div></div>
+    <div class="space-row"><div class="space-token">space-10</div><div><div class="space-bar" style="width: 24px;"></div></div><div class="space-value">24px</div></div>
+    <div class="space-row"><div class="space-token">space-14</div><div><div class="space-bar" style="width: 32px;"></div></div><div class="space-value">32px</div></div>
+    <div class="space-row"><div class="space-token">space-20</div><div><div class="space-bar" style="width: 48px;"></div></div><div class="space-value">48px</div></div>
+  </div>
+
+  <div class="ds-card">
+    <div class="ds-label">Border radius</div>
+    <div class="radius-grid">
+      <div class="radius-sample" style="border-radius: 4px;">sm · 4px</div>
+      <div class="radius-sample" style="border-radius: 8px;">lg · 8px</div>
+      <div class="radius-sample" style="border-radius: 10px;">xl · 10px</div>
+      <div class="radius-sample" style="border-radius: 12px;">2xl · 12px</div>
+      <div class="radius-sample" style="border-radius: 14px;">3xl · 14px</div>
+      <div class="radius-sample" style="border-radius: 18px;">5xl · 18px</div>
+      <div class="radius-sample" style="border-radius: 999px;">pill · ∞</div>
+      <div class="radius-sample" style="border-radius: 50%;">round · 50%</div>
+    </div>
+  </div>
+</section>
+
+<!-- 4. COMPONENTS -->
+<section class="ds-section">
+  <h2 class="ds-h2"><span class="num">4</span> Components</h2>
+  <p class="ds-sub">Reusable primitives. Full usage examples live in <code>screens/</code> HTML files; CSS definitions in <code>assets/css/desktop-shell.css</code>.</p>
+
+  <div class="ds-card">
+    <div class="ds-label">Buttons</div>
+    <div class="btn-row">
+      <button class="btn primary">Primary</button>
+      <button class="btn secondary">Secondary</button>
+      <button class="btn ghost">Ghost</button>
+      <button class="btn danger">Delete</button>
+      <button class="btn primary disabled">Disabled</button>
+      <button class="btn primary">📷 With icon</button>
+    </div>
+  </div>
+
+  <div class="ds-card">
+    <div class="ds-label">Pills / chips</div>
+    <div class="chip-row">
+      <span class="chip pri">Supermercados</span>
+      <span class="chip acc">Featured</span>
+      <span class="chip sec">L4 · Lácteos</span>
+      <span class="chip danger">Inusual</span>
+      <span class="chip warn">Pendiente</span>
+      <span class="chip pri">💎 1 crédito</span>
+    </div>
+  </div>
+
+  <div class="ds-card">
+    <div class="ds-label">Status pills</div>
+    <div class="chip-row">
+      <span class="status-pill ready">Listo</span>
+      <span class="status-pill pending">En curso</span>
+      <span class="status-pill error">Error</span>
+      <span class="status-pill draft">Borrador</span>
+    </div>
+  </div>
+
+  <div class="ds-card">
+    <div class="ds-label">Filter strip (see screens/_filter-dropdowns.html for full markup)</div>
+    <section class="filter-strip" style="margin-bottom: 0; padding: 10px 0; position: static;">
+      <div class="filter-strip-row">
+        <div class="timeframe-pills">
+          <button class="timeframe-pill">Año</button>
+          <button class="timeframe-pill">Trimestre</button>
+          <button class="timeframe-pill active">Mes</button>
+          <button class="timeframe-pill">Semana</button>
+        </div>
+        <div class="period-nav">
+          <button class="period-nav-btn">‹</button>
+          <span class="period-label">Abril 2026</span>
+          <button class="period-nav-btn">›</button>
+        </div>
+        <div class="filter-icons">
+          <button class="filter-icon-btn">📅</button>
+          <button class="filter-icon-btn active">🔽</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="ds-card">
+    <div class="ds-label">Taxonomy chips (L1/L2/L3/L4 + Lugar)</div>
+    <div class="taxonomy-chips" style="max-width: 480px;">
+      <button class="taxonomy-chip active">
+        <img src="assets/icons/app-icons/rubros/rubro-supermercados.png" alt="">
+        <span class="chip-label">L1</span>
+      </button>
+      <button class="taxonomy-chip">
+        <img src="assets/icons/app-icons/financial/fin-receipt.png" alt="">
+        <span class="chip-label">L2</span>
+      </button>
+      <button class="taxonomy-chip">
+        <img src="assets/icons/app-icons/familias/familia-productos-generales.png" alt="">
+        <span class="chip-label">L3</span>
+      </button>
+      <button class="taxonomy-chip">
+        <img src="assets/icons/app-icons/item-categories/item-frozen.png" alt="">
+        <span class="chip-label">L4</span>
+      </button>
+      <div class="taxonomy-chip-sep"></div>
+      <button class="taxonomy-chip" style="min-width: 52px;">
+        <span style="font-size: 16px;">📍</span><span class="chip-label">Lugar</span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- 5. SCREEN GALLERY -->
+<section class="ds-section">
+  <h2 class="ds-h2"><span class="num">5</span> Screens (14 desktop variants shipped)</h2>
+  <p class="ds-sub">Full list of desktop-responsive mockups. Click to open. Mobile-only screens (15 remaining) tracked in <a href="index.html" style="color: var(--primary);">gap matrix</a>.</p>
+
+  <div class="screen-grid">
+    <a class="screen-link" href="screens/gastify-dashboard-desktop.html"><span class="s-emoji">🏠</span><div class="s-name">Dashboard</div><div class="s-desc">3-col shell · balance hero · stats · tx list · rail (donut+anomalies+credits)</div></a>
+    <a class="screen-link" href="screens/gastify-history-desktop.html"><span class="s-emoji">📜</span><div class="s-name">Historial</div><div class="s-desc">Filter strip · summary strip · date groups · 7-col tx grid · selection bar</div></a>
+    <a class="screen-link" href="screens/gastify-transaction-editor-desktop.html"><span class="s-emoji">✎</span><div class="s-name">Tx Editor</div><div class="s-desc">Split panel · item list 1fr + detail 420 · mode bar · V4 cascade</div></a>
+    <a class="screen-link" href="screens/gastify-trends-desktop.html"><span class="s-emoji">📊</span><div class="s-name">Tendencias</div><div class="s-desc">Filter strip + chart tabs + donut/sankey/treemap · legend · 3 sparklines</div></a>
+    <a class="screen-link" href="screens/gastify-insights-desktop.html"><span class="s-emoji">💡</span><div class="s-name">Insights</div><div class="s-desc">3-tab (Lista/Airlock/Logros) · split panel · hero gradient · medal grid</div></a>
+    <a class="screen-link" href="screens/gastify-reports-desktop.html"><span class="s-emoji">📄</span><div class="s-name">Reportes</div><div class="s-desc">4 accordion groups · detail drawer · L1 breakdown bars · export</div></a>
+    <a class="screen-link" href="screens/gastify-items-desktop.html"><span class="s-emoji">📦</span><div class="s-name">Ítems</div><div class="s-desc">8-col aggregated table · L3 grouping · view toggle · inflation flag</div></a>
+    <a class="screen-link" href="screens/gastify-settings-desktop.html"><span class="s-emoji">⚙</span><div class="s-name">Ajustes</div><div class="s-desc">Nested subnav 280 + form · 9 subviews · sticky save bar</div></a>
+    <a class="screen-link" href="screens/gastify-scan-mode-selector-desktop.html"><span class="s-emoji">📸</span><div class="s-name">Scan modes</div><div class="s-desc">3-card mode picker · credit banner · recent scans grid</div></a>
+    <a class="screen-link" href="screens/gastify-single-scan-states-desktop.html"><span class="s-emoji">📷</span><div class="s-name">Escaneo</div><div class="s-desc">4-state machine · drop zone · scanline anim · SSE pipeline log · telemetry</div></a>
+    <a class="screen-link" href="screens/gastify-quicksave-card-desktop.html"><span class="s-emoji">⚡</span><div class="s-name">Quicksave</div><div class="s-desc">Hero gradient · L4-grouped items · metadata rail · ⌘+Enter</div></a>
+    <a class="screen-link" href="screens/gastify-group-hub-desktop.html"><span class="s-emoji">👥</span><div class="s-name">Group Hub</div><div class="s-desc">4-col · switcher + hub + activity rail · 4 tabs (Inicio/Miembros/Tx/Stats)</div></a>
+    <a class="screen-link" href="screens/gastify-auth-desktop.html"><span class="s-emoji">🔐</span><div class="s-name">Auth</div><div class="s-desc">Split brand+form · 4-tab (login/register/forgot/welcome) · social buttons</div></a>
+    <a class="screen-link" href="screens/gastify-consent-desktop.html"><span class="s-emoji">⚖</span><div class="s-name">Consent</div><div class="s-desc">4-jurisdiction picker CL/EU/US/CA · req + opt sections · sticky action</div></a>
+  </div>
+</section>
+
+<!-- 6. THEME PREVIEW -->
+<section class="ds-section">
+  <h2 class="ds-h2"><span class="num">6</span> Theme × Mode matrix</h2>
+  <p class="ds-sub">6 valid runtime combinations. Switch via top-right controls to preview current. Per-screen QA verifies each variant in the stress-test spec.</p>
+
+  <div class="theme-preview">
+    <div class="theme-tile" style="background: #f5f0e8; color: #2d3a4a;">
+      <div class="theme-tile-name">Normal · Light</div>
+      <div class="theme-tile-swatches">
+        <div class="theme-tile-swatch" style="background: #4a7c59;"></div>
+        <div class="theme-tile-swatch" style="background: #e8a87c;"></div>
+        <div class="theme-tile-swatch" style="background: #5b8fa8;"></div>
+      </div>
+      <div style="font-size: 11px; opacity: 0.8;">Warm forest · brand-invariant</div>
+    </div>
+    <div class="theme-tile" style="background: #1a2420; color: #e8e4dc;">
+      <div class="theme-tile-name">Normal · Dark</div>
+      <div class="theme-tile-swatches">
+        <div class="theme-tile-swatch" style="background: #6b9e7a;"></div>
+        <div class="theme-tile-swatch" style="background: #d4a574;"></div>
+        <div class="theme-tile-swatch" style="background: #7ab5cc;"></div>
+      </div>
+      <div style="font-size: 11px; opacity: 0.8;">Moonlit forest</div>
+    </div>
+    <div class="theme-tile" style="background: #f8fafc; color: #0f172a;">
+      <div class="theme-tile-name">Professional · Light</div>
+      <div class="theme-tile-swatches">
+        <div class="theme-tile-swatch" style="background: #2563eb;"></div>
+        <div class="theme-tile-swatch" style="background: #3b82f6;"></div>
+        <div class="theme-tile-swatch" style="background: #0ea5e9;"></div>
+      </div>
+      <div style="font-size: 11px; opacity: 0.8;">Cool blue · B2B enterprise</div>
+    </div>
+    <div class="theme-tile" style="background: #0f172a; color: #f8fafc;">
+      <div class="theme-tile-name">Professional · Dark</div>
+      <div class="theme-tile-swatches">
+        <div class="theme-tile-swatch" style="background: #60a5fa;"></div>
+        <div class="theme-tile-swatch" style="background: #93c5fd;"></div>
+        <div class="theme-tile-swatch" style="background: #38bdf8;"></div>
+      </div>
+      <div style="font-size: 11px; opacity: 0.8;">Midnight blue</div>
+    </div>
+    <div class="theme-tile" style="background: #fafafa; color: #18181b;">
+      <div class="theme-tile-name">Mono · Light</div>
+      <div class="theme-tile-swatches">
+        <div class="theme-tile-swatch" style="background: #18181b;"></div>
+        <div class="theme-tile-swatch" style="background: #52525b;"></div>
+        <div class="theme-tile-swatch" style="background: #a1a1aa;"></div>
+      </div>
+      <div style="font-size: 11px; opacity: 0.8;">Grayscale · a11y + print</div>
+    </div>
+    <div class="theme-tile" style="background: #18181b; color: #fafafa;">
+      <div class="theme-tile-name">Mono · Dark</div>
+      <div class="theme-tile-swatches">
+        <div class="theme-tile-swatch" style="background: #fafafa;"></div>
+        <div class="theme-tile-swatch" style="background: #a1a1aa;"></div>
+        <div class="theme-tile-swatch" style="background: #52525b;"></div>
+      </div>
+      <div style="font-size: 11px; opacity: 0.8;">Obsidian</div>
+    </div>
+  </div>
+</section>
+
+<!-- 7. PHASE 1 EXIT -->
+<section class="ds-section">
+  <h2 class="ds-h2"><span class="num">7</span> Phase 1 exit checklist</h2>
+  <p class="ds-sub">All deliverables locked. Ready to hand off to Phase 2 (Frontend scaffold).</p>
+
+  <div class="ds-card">
+    <table class="tok-table exit-table">
+      <thead>
+        <tr><th>Deliverable</th><th>Status</th><th>Location</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Design tokens JSON</td><td class="done">✅ locked</td><td><code>assets/tokens/tokens.json</code></td></tr>
+        <tr><td>Shared desktop shell CSS</td><td class="done">✅ locked</td><td><code>assets/css/desktop-shell.css</code></td></tr>
+        <tr><td>Self-hosted fonts (Outfit + Baloo 2)</td><td class="done">✅ locked</td><td><code>assets/fonts/</code> (6 woff2 · 155 KB)</td></tr>
+        <tr><td>Icon library (pixel-art)</td><td class="done">✅ locked</td><td><code>assets/icons/app-icons/</code> (200+ PNGs · 11 subfolders)</td></tr>
+        <tr><td>V4 taxonomy TS tokens</td><td class="done">✅ locked</td><td><code>assets/tokens/categories.ts + *Colors.ts</code></td></tr>
+        <tr><td>Desktop mockups (14/29)</td><td class="done">✅ locked</td><td><code>screens/*-desktop.html</code></td></tr>
+        <tr><td>Mobile mockups (29/29 legacy)</td><td class="done">✅ preserved</td><td><code>screens/gastify-*.html</code> + <code>legacy-reference/</code></td></tr>
+        <tr><td>Filter strip component + partial</td><td class="done">✅ locked</td><td><code>screens/_filter-dropdowns.html</code> + shell CSS</td></tr>
+        <tr><td>Design system reference</td><td class="done">✅ locked</td><td><code>design-system.html</code> (this file)</td></tr>
+        <tr><td>Gap matrix + audit</td><td class="done">✅ locked</td><td><code>index.html</code> + <code>AUDIT.md</code></td></tr>
+        <tr><td>Desktop template authoring guide</td><td class="done">✅ locked</td><td><code>DESKTOP-TEMPLATE.md</code> + <code>_desktop-template.html</code></td></tr>
+        <tr><td>Stress-test spec</td><td class="done">✅ locked</td><td><code>STRESS-TEST-SPEC.md</code></td></tr>
+        <tr><td>Dual-track structure</td><td class="done">✅ locked</td><td><code>legacy-reference/</code> (frozen) + <code>screens/</code> (editable)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="ds-card">
+    <div class="ds-label">Remaining gaps (Phase 2+ backlog)</div>
+    <table class="tok-table">
+      <tbody>
+        <tr><td>15 mobile-only screens → desktop</td><td><span class="pending">P2 backlog</span></td></tr>
+        <tr><td>Edge-state surfaces (P12): 404 / maintenance / credit-depletion / offline banner / etc.</td><td><span class="pending">P2 backlog</span></td></tr>
+        <tr><td>Platform divergence notes per screen (iOS/Android/Web haptics/biometrics/gestures)</td><td><span class="pending">P3 polish</span></td></tr>
+        <tr><td>PWA install + push permission prompts</td><td><span class="pending">P3 polish</span></td></tr>
+        <tr><td>Flow walkthroughs F14-F20 (auth, consent, PWA, push, i18n, multi-currency, cohort)</td><td><span class="pending">P3 polish</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<script>
+  const body = document.body;
+  document.querySelectorAll('[data-theme-val]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('[data-theme-val]').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+      body.dataset.theme = btn.dataset.themeVal;
+    });
+  });
+  document.getElementById('modeBtn').addEventListener('click', () => {
+    const dark = body.dataset.mode === 'dark';
+    body.dataset.mode = dark ? 'light' : 'dark';
+    document.getElementById('modeBtn').textContent = dark ? '☀ Light' : '🌙 Dark';
+  });
+</script>
+
+</body>
+</html>
