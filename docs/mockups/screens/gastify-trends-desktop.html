@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="es-CL">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tendencias — gastify Desktop Web (1440 responsive)</title>
+<link rel="stylesheet" href="../assets/fonts/gastify-fonts.css">
+<link rel="stylesheet" href="../assets/css/desktop-shell.css">
+<style>
+  /* ========== TRENDS SCREEN-SPECIFIC STYLES ========== */
+
+  .trends-head {
+    display: flex; justify-content: space-between; align-items: center; gap: 16px;
+    padding: 18px 22px;
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: 16px; box-shadow: 0 2px 6px var(--shadow);
+  }
+  .trends-title {
+    font-family: 'Baloo 2', cursive;
+    font-size: 22px; font-weight: 700; color: var(--ink);
+    letter-spacing: -0.01em;
+  }
+  .trends-sub { font-size: 13px; color: var(--ink-2); margin-top: 2px; }
+  .trends-tools { display: flex; gap: 8px; align-items: center; }
+
+  /* Control strip — chart type + timeframe */
+  .control-strip {
+    display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
+    padding: 12px 18px;
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: 14px;
+  }
+  .chart-tabs {
+    display: flex; background: var(--surface-2); border-radius: 10px; padding: 2px; gap: 2px;
+  }
+  .chart-tab {
+    padding: 6px 14px; border-radius: 8px;
+    font-size: 13px; font-weight: 600; color: var(--ink-2);
+    display: flex; align-items: center; gap: 6px;
+    transition: all 0.15s;
+  }
+  .chart-tab:hover { color: var(--ink); }
+  .chart-tab.active { background: var(--surface); color: var(--primary); box-shadow: 0 1px 3px var(--shadow); }
+  .chart-tab img { width: 14px; height: 14px; image-rendering: pixelated; }
+
+  .timeframe-group { display: flex; gap: 6px; align-items: center; }
+  .timeframe-pill {
+    padding: 5px 10px; border-radius: 8px;
+    background: transparent; border: 1px solid var(--line);
+    font-size: 12px; font-weight: 600; color: var(--ink-2);
+    transition: all 0.15s;
+  }
+  .timeframe-pill:hover { border-color: var(--primary); color: var(--primary); }
+  .timeframe-pill.active {
+    background: var(--primary); color: var(--primary-ink); border-color: var(--primary);
+  }
+
+  .group-by {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 12px; border-radius: 8px;
+    background: var(--surface-2);
+    font-size: 12px; color: var(--ink-2);
+    margin-left: auto;
+  }
+  .group-by select {
+    border: none; background: transparent;
+    font-family: inherit; font-weight: 600; font-size: 12px; color: var(--primary);
+    cursor: pointer; outline: none;
+  }
+
+  /* Breadcrumb drill-down */
+  .drill-breadcrumb {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 18px;
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: 12px;
+    font-size: 13px;
+    box-shadow: 0 1px 3px var(--shadow);
+  }
+  .drill-crumb {
+    display: flex; align-items: center; gap: 6px;
+    padding: 4px 10px; border-radius: 8px;
+    color: var(--primary); font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .drill-crumb:hover { background: var(--primary-soft); }
+  .drill-crumb.current { color: var(--ink); background: var(--surface-2); cursor: default; }
+  .drill-chev { color: var(--ink-3); }
+
+  /* Chart + legend area */
+  .chart-area {
+    display: grid; grid-template-columns: 1fr 360px; gap: 18px;
+    align-items: flex-start;
+  }
+  .chart-box {
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: 16px;
+    box-shadow: 0 2px 6px var(--shadow);
+    padding: 24px;
+    min-height: 460px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    position: relative;
+  }
+  .chart-stat {
+    position: absolute; top: 20px; left: 24px;
+  }
+  .chart-stat-label { font-size: 11px; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600; }
+  .chart-stat-value {
+    font-family: 'Baloo 2', cursive;
+    font-size: 32px; font-weight: 700; color: var(--ink);
+    font-variant-numeric: tabular-nums; letter-spacing: -0.02em;
+  }
+  .chart-stat-delta { font-size: 12px; color: var(--success); font-weight: 600; margin-top: 2px; }
+
+  /* Donut SVG */
+  .donut-chart-wrap { position: relative; width: 340px; height: 340px; }
+  .donut-chart-wrap svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+  .donut-slice { fill: none; stroke-width: 40; cursor: pointer; transition: opacity 0.15s; }
+  .donut-slice:hover { opacity: 0.8; }
+  .donut-center {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    pointer-events: none;
+    text-align: center;
+  }
+  .donut-center-label { font-size: 11px; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600; }
+  .donut-center-value {
+    font-family: 'Baloo 2', cursive;
+    font-size: 40px; font-weight: 700; color: var(--primary);
+    letter-spacing: -0.02em; line-height: 1;
+    margin-top: 4px;
+  }
+  .donut-center-sub { font-size: 12px; color: var(--ink-2); margin-top: 4px; }
+
+  .chart-caption {
+    margin-top: 20px;
+    font-size: 13px; color: var(--ink-2);
+    text-align: center;
+  }
+
+  /* Category legend (right of chart) */
+  .cat-legend {
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: 14px;
+    box-shadow: 0 2px 4px var(--shadow);
+    padding: 18px;
+  }
+  .cat-legend-head {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 12px; padding-bottom: 10px;
+    border-bottom: 1px solid var(--line);
+  }
+  .cat-legend-title {
+    font-family: 'Baloo 2', cursive;
+    font-size: 16px; font-weight: 700; color: var(--ink);
+  }
+  .cat-legend-sort {
+    font-size: 11px; color: var(--ink-3); font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.06em;
+  }
+  .cat-row {
+    display: grid; grid-template-columns: 12px 1fr auto auto; gap: 10px; align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--line);
+    cursor: pointer;
+    transition: background 0.12s;
+  }
+  .cat-row:last-child { border-bottom: none; }
+  .cat-row:hover { background: var(--surface-2); margin: 0 -8px; padding: 10px 8px; border-radius: 6px; }
+  .cat-row.active { background: var(--primary-soft); margin: 0 -8px; padding: 10px 8px; border-radius: 6px; }
+  .cat-dot { width: 12px; height: 12px; border-radius: 4px; }
+  .cat-name { font-size: 13px; font-weight: 600; color: var(--ink); }
+  .cat-sub { font-size: 11px; color: var(--ink-3); margin-top: 1px; }
+  .cat-amt { font-size: 13px; font-weight: 700; color: var(--ink); font-variant-numeric: tabular-nums; text-align: right; }
+  .cat-pct { font-size: 11px; color: var(--ink-3); text-align: right; font-variant-numeric: tabular-nums; margin-top: 1px; }
+  .cat-tx-badge {
+    background: var(--surface-2); color: var(--ink-2);
+    font-size: 10px; font-weight: 700;
+    padding: 2px 8px; border-radius: 999px;
+    white-space: nowrap;
+  }
+  .cat-row:hover .cat-tx-badge,
+  .cat-row.active .cat-tx-badge { background: var(--primary); color: var(--primary-ink); }
+
+  /* Month-over-month sparkline block */
+  .spark-block {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
+  }
+  .spark-card {
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: 12px; padding: 14px 16px;
+    box-shadow: 0 2px 4px var(--shadow);
+  }
+  .spark-label { font-size: 11px; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; }
+  .spark-value { font-size: 22px; font-weight: 700; color: var(--ink); font-variant-numeric: tabular-nums; letter-spacing: -0.02em; margin-top: 4px; }
+  .spark-svg { width: 100%; height: 40px; margin-top: 8px; }
+  .spark-delta { font-size: 11px; font-weight: 600; margin-top: 4px; display: flex; gap: 6px; align-items: center; }
+  .spark-delta.up { color: var(--success); }
+  .spark-delta.down { color: var(--error); }
+
+  /* Export FAB (floating) */
+  .export-fab {
+    position: fixed; bottom: 28px; right: 28px;
+    display: flex; align-items: center; gap: 8px;
+    padding: 12px 20px; border-radius: 999px;
+    background: var(--ink); color: var(--surface);
+    font-weight: 600; font-size: 14px;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.3);
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+    z-index: 30;
+  }
+  .export-fab:hover { transform: translateY(-2px); box-shadow: 0 16px 40px rgba(0,0,0,0.4); }
+  .export-fab img { width: 18px; height: 18px; image-rendering: pixelated; filter: brightness(0) invert(1); }
+
+  /* Responsive */
+  @media (max-width: 1024px) {
+    .chart-area { grid-template-columns: 1fr; }
+    .donut-chart-wrap { width: 280px; height: 280px; }
+    .spark-block { grid-template-columns: 1fr 1fr; }
+    .export-fab { bottom: 20px; right: 20px; padding: 10px 16px; }
+  }
+  @media (max-width: 640px) {
+    .trends-head { flex-direction: column; align-items: stretch; }
+    .chart-tabs { overflow-x: auto; }
+    .spark-block { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+
+<body data-theme="normal" data-mode="light">
+
+<!-- CONTROLS -->
+<div class="controls">
+  <div class="controls-group">
+    <span class="controls-label">Theme</span>
+    <button class="theme-tab active" data-theme-val="normal">Normal</button>
+    <button class="theme-tab" data-theme-val="professional">Professional</button>
+    <button class="theme-tab" data-theme-val="mono">Mono</button>
+  </div>
+  <div class="controls-group">
+    <span class="controls-label">Mode</span>
+    <div class="mode-toggle">
+      <span>Light</span>
+      <div class="toggle-switch" id="modeToggle"></div>
+      <span>Dark</span>
+    </div>
+  </div>
+  <div class="controls-group">
+    <span class="controls-label">Platform</span>
+    <span style="color: var(--primary); font-weight: 600;">Desktop Web 1440</span>
+    <a class="platform-switch" href="gastify-trends.html" title="Ver versión mobile"><span class="dot">●</span> Mobile ↗</a>
+  </div>
+  <div class="controls-group">
+    <div class="quick-nav" id="quickNav">
+      <button class="quick-nav-btn" onclick="document.getElementById('quickNav').classList.toggle('open')">
+        ☰ Desktop screens
+      </button>
+      <div class="quick-nav-menu">
+        <div class="qn-section">Available (5)</div>
+        <a href="gastify-dashboard-desktop.html">🏠 Dashboard</a>
+        <a href="gastify-history-desktop.html">📜 Historial</a>
+        <a href="gastify-transaction-editor-desktop.html">✎ Transaction editor</a>
+        <a href="gastify-settings-desktop.html">⚙ Ajustes</a>
+        <a class="current" href="gastify-trends-desktop.html">📊 Tendencias <span class="qn-badge">current</span></a>
+        <div class="qn-section">Mobile-only (24 more)</div>
+        <a href="gastify-insights.html" style="color: var(--ink-3);">💡 Insights <span class="qn-badge">mobile</span></a>
+        <a href="gastify-reports.html" style="color: var(--ink-3);">📄 Reports <span class="qn-badge">mobile</span></a>
+        <a href="../index.html" style="color: var(--primary); font-weight: 600; margin-top: 4px;">→ See full gap matrix</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="app-shell">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-mark"><img src="../assets/icons/piggy-bank.png" alt=""></div>
+      <span class="wordmark">gastify</span>
+    </div>
+    <ul class="nav-list">
+      <li><a class="nav-item" href="gastify-dashboard-desktop.html"><img class="nav-icon" src="../assets/icons/app-icons/navigation/nav-home.png" alt=""><span>Inicio</span></a></li>
+      <li><a class="nav-item" href="gastify-history-desktop.html"><img class="nav-icon" src="../assets/icons/app-icons/navigation/nav-history.png" alt=""><span>Historial</span></a></li>
+      <li><a class="nav-item active" href="gastify-trends-desktop.html"><img class="nav-icon" src="../assets/icons/app-icons/navigation/nav-trends.png" alt=""><span>Tendencias</span></a></li>
+      <li><a class="nav-item" href="gastify-insights.html"><img class="nav-icon" src="../assets/icons/app-icons/navigation/nav-insights.png" alt=""><span>Insights</span></a></li>
+      <li><a class="nav-item" href="gastify-reports.html"><img class="nav-icon" src="../assets/icons/app-icons/navigation/nav-reports.png" alt=""><span>Reportes</span></a></li>
+      <li><a class="nav-item" href="gastify-group-switcher.html"><img class="nav-icon" src="../assets/icons/app-icons/navigation/nav-scan.png" alt=""><span>Grupos</span></a></li>
+      <li><a class="nav-item" href="gastify-settings-desktop.html"><img class="nav-icon" src="../assets/icons/app-icons/navigation/nav-settings.png" alt=""><span>Ajustes</span></a></li>
+    </ul>
+    <div class="sidebar-footer">
+      <div class="user-chip">
+        <div class="user-avatar">JG</div>
+        <div style="flex: 1; min-width: 0;"><div class="user-name">Juan García</div><div class="user-email">juan@ejemplo.cl</div></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- TOP BAR -->
+    <div class="topbar">
+      <div class="search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        <input type="text" placeholder="Buscar categoría, período..." aria-label="Buscar">
+        <span class="kbd-hint">/</span>
+      </div>
+      <button class="scan-btn" aria-label="Escanear"><img src="../assets/icons/app-icons/scan-features/scan-single.png" alt=""><span>Escanear</span><span class="kbd-hint" style="background: rgba(255,255,255,0.22); color: #fff; border: none;">⌘K</span></button>
+      <button class="icon-btn" aria-label="Alertas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span class="bell-badge">3</span></button>
+      <div class="topbar-avatar" aria-label="Perfil">JG</div>
+    </div>
+
+    <!-- PAGE HEADER -->
+    <div class="trends-head">
+      <div>
+        <div class="trends-title">Tendencias</div>
+        <div class="trends-sub">Abril 2026 · 127 transacciones · $847.230 · 12% vs marzo</div>
+      </div>
+      <div class="trends-tools">
+        <button class="icon-btn" title="Compartir" aria-label="Compartir">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+          </svg>
+        </button>
+        <button class="icon-btn" title="Info" aria-label="Info">
+          <img src="../assets/icons/app-icons/status/status-info.png" alt="" style="width: 20px; height: 20px; image-rendering: pixelated;">
+        </button>
+      </div>
+    </div>
+
+    <!-- CONTROL STRIP: chart type + timeframe + group-by -->
+    <div class="control-strip">
+      <div class="chart-tabs">
+        <button class="chart-tab active">
+          <img src="../assets/icons/app-icons/analytics/chart-pie.png" alt="">
+          <span>Donut</span>
+        </button>
+        <button class="chart-tab">
+          <span>⇢</span>
+          <span>Sankey</span>
+        </button>
+        <button class="chart-tab">
+          <span>▦</span>
+          <span>Treemap</span>
+        </button>
+        <button class="chart-tab">
+          <img src="../assets/icons/app-icons/analytics/chart-line.png" alt="">
+          <span>Bump</span>
+        </button>
+      </div>
+
+      <div class="timeframe-group">
+        <button class="timeframe-pill">7D</button>
+        <button class="timeframe-pill">30D</button>
+        <button class="timeframe-pill active">Mes</button>
+        <button class="timeframe-pill">3M</button>
+        <button class="timeframe-pill">1A</button>
+        <button class="timeframe-pill">Todo</button>
+      </div>
+
+      <div class="group-by">
+        <span>Agrupar por:</span>
+        <select>
+          <option>L2 Giro (default)</option>
+          <option>L1 Rubro</option>
+          <option>L3 Familia</option>
+          <option>L4 Categoría</option>
+          <option>Comercio</option>
+          <option>Ubicación</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- DRILL BREADCRUMB -->
+    <div class="drill-breadcrumb">
+      <span style="font-size: 11px; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700; margin-right: 4px;">Drill:</span>
+      <a class="drill-crumb" href="#">Todas las categorías</a>
+      <span class="drill-chev">›</span>
+      <a class="drill-crumb" href="#">Supermercados</a>
+      <span class="drill-chev">›</span>
+      <span class="drill-crumb current">Jumbo</span>
+    </div>
+
+    <!-- CHART AREA (donut + legend) -->
+    <div class="chart-area">
+
+      <!-- CHART BOX -->
+      <div class="chart-box">
+        <div class="chart-stat">
+          <div class="chart-stat-label">Total mes</div>
+          <div class="chart-stat-value tabular">$847.230</div>
+          <div class="chart-stat-delta">↑ 12% vs marzo</div>
+        </div>
+
+        <div class="donut-chart-wrap">
+          <svg viewBox="0 0 120 120">
+            <!-- Donut slices. Each: stroke-dasharray = (pct of 340) and stroke-dashoffset for rotation -->
+            <!-- 40% Supermercado -->
+            <circle class="donut-slice" cx="60" cy="60" r="48" stroke="var(--cat-hogar)" stroke-dasharray="120.6 180.9" stroke-dashoffset="0"></circle>
+            <!-- 20% Combustible -->
+            <circle class="donut-slice" cx="60" cy="60" r="48" stroke="var(--cat-cargo)" stroke-dasharray="60.3 241.2" stroke-dashoffset="-120.6"></circle>
+            <!-- 15% Salud -->
+            <circle class="donut-slice" cx="60" cy="60" r="48" stroke="var(--cat-medicamento)" stroke-dasharray="45.2 256.3" stroke-dashoffset="-180.9"></circle>
+            <!-- 12% Restaurantes -->
+            <circle class="donut-slice" cx="60" cy="60" r="48" stroke="#f59e0b" stroke-dasharray="36.2 265.3" stroke-dashoffset="-226.1"></circle>
+            <!-- 8% Entretención -->
+            <circle class="donut-slice" cx="60" cy="60" r="48" stroke="var(--cat-mascotas)" stroke-dasharray="24.1 277.4" stroke-dashoffset="-262.3"></circle>
+            <!-- 5% Servicios -->
+            <circle class="donut-slice" cx="60" cy="60" r="48" stroke="var(--accent)" stroke-dasharray="15.1 286.4" stroke-dashoffset="-286.4"></circle>
+          </svg>
+          <div class="donut-center">
+            <div class="donut-center-label">Concentración</div>
+            <div class="donut-center-value tabular">40%</div>
+            <div class="donut-center-sub">Supermercado domina</div>
+          </div>
+        </div>
+
+        <div class="chart-caption">Click en un sector para drill-down · hover muestra detalles</div>
+      </div>
+
+      <!-- LEGEND (right of chart) -->
+      <div class="cat-legend">
+        <div class="cat-legend-head">
+          <div class="cat-legend-title">Por categoría</div>
+          <div class="cat-legend-sort">ORDENADO POR MONTO ▾</div>
+        </div>
+
+        <div class="cat-row active">
+          <div class="cat-dot" style="background: var(--cat-hogar);"></div>
+          <div>
+            <div class="cat-name">Supermercado</div>
+            <div class="cat-sub">Jumbo, Lider, OXXO · +2 más</div>
+          </div>
+          <a class="cat-tx-badge" href="gastify-history-desktop.html">34 tx</a>
+          <div style="text-align: right;">
+            <div class="cat-amt">$338.892</div>
+            <div class="cat-pct">40.0%</div>
+          </div>
+        </div>
+
+        <div class="cat-row">
+          <div class="cat-dot" style="background: var(--cat-cargo);"></div>
+          <div>
+            <div class="cat-name">Combustible</div>
+            <div class="cat-sub">Copec, Shell</div>
+          </div>
+          <a class="cat-tx-badge" href="gastify-history-desktop.html">8 tx</a>
+          <div style="text-align: right;">
+            <div class="cat-amt">$169.446</div>
+            <div class="cat-pct">20.0%</div>
+          </div>
+        </div>
+
+        <div class="cat-row">
+          <div class="cat-dot" style="background: var(--cat-medicamento);"></div>
+          <div>
+            <div class="cat-name">Salud</div>
+            <div class="cat-sub">Farmacia · ⚠ 1 inusual</div>
+          </div>
+          <a class="cat-tx-badge" href="gastify-history-desktop.html">6 tx</a>
+          <div style="text-align: right;">
+            <div class="cat-amt">$127.085</div>
+            <div class="cat-pct">15.0%</div>
+          </div>
+        </div>
+
+        <div class="cat-row">
+          <div class="cat-dot" style="background: #f59e0b;"></div>
+          <div>
+            <div class="cat-name">Restaurantes</div>
+            <div class="cat-sub">6 comercios · ⚠ 1.8× baseline</div>
+          </div>
+          <a class="cat-tx-badge" href="gastify-history-desktop.html">12 tx</a>
+          <div style="text-align: right;">
+            <div class="cat-amt">$101.668</div>
+            <div class="cat-pct">12.0%</div>
+          </div>
+        </div>
+
+        <div class="cat-row">
+          <div class="cat-dot" style="background: var(--cat-mascotas);"></div>
+          <div>
+            <div class="cat-name">Entretención</div>
+            <div class="cat-sub">Cinemark, Spotify, Netflix</div>
+          </div>
+          <a class="cat-tx-badge" href="gastify-history-desktop.html">5 tx</a>
+          <div style="text-align: right;">
+            <div class="cat-amt">$67.778</div>
+            <div class="cat-pct">8.0%</div>
+          </div>
+        </div>
+
+        <div class="cat-row">
+          <div class="cat-dot" style="background: var(--accent);"></div>
+          <div>
+            <div class="cat-name">Servicios</div>
+            <div class="cat-sub">Enel, Aguas Andinas</div>
+          </div>
+          <a class="cat-tx-badge" href="gastify-history-desktop.html">2 tx</a>
+          <div style="text-align: right;">
+            <div class="cat-amt">$42.361</div>
+            <div class="cat-pct">5.0%</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- MONTH-OVER-MONTH SPARKLINE BLOCK -->
+    <div>
+      <div class="section-head" style="margin-top: 8px;">
+        <div class="section-title">Comparación mensual</div>
+        <a class="section-link" href="gastify-reports.html">Ver reportes →</a>
+      </div>
+      <div class="spark-block">
+        <div class="spark-card">
+          <div class="spark-label">Gasto total</div>
+          <div class="spark-value tabular">$847k</div>
+          <svg class="spark-svg" viewBox="0 0 120 40" preserveAspectRatio="none">
+            <polyline points="0,30 20,28 40,25 60,22 80,18 100,14 120,8" fill="none" stroke="var(--primary)" stroke-width="2"/>
+            <circle cx="120" cy="8" r="3" fill="var(--primary)"/>
+          </svg>
+          <div class="spark-delta up">↑ 12% · +$91k</div>
+        </div>
+        <div class="spark-card">
+          <div class="spark-label">Transacciones</div>
+          <div class="spark-value tabular">127</div>
+          <svg class="spark-svg" viewBox="0 0 120 40" preserveAspectRatio="none">
+            <polyline points="0,25 20,27 40,22 60,18 80,20 100,14 120,12" fill="none" stroke="var(--accent)" stroke-width="2"/>
+            <circle cx="120" cy="12" r="3" fill="var(--accent)"/>
+          </svg>
+          <div class="spark-delta up">↑ 8% · +9 tx</div>
+        </div>
+        <div class="spark-card">
+          <div class="spark-label">Promedio por tx</div>
+          <div class="spark-value tabular">$6.671</div>
+          <svg class="spark-svg" viewBox="0 0 120 40" preserveAspectRatio="none">
+            <polyline points="0,20 20,22 40,18 60,25 80,19 100,21 120,16" fill="none" stroke="var(--success)" stroke-width="2"/>
+            <circle cx="120" cy="16" r="3" fill="var(--success)"/>
+          </svg>
+          <div class="spark-delta up">↑ 4% · +$269</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PLATFORM NOTES -->
+    <aside class="platform-notes">
+      <h3>Desktop Web — Trends Platform Notes</h3>
+      <ul>
+        <li>4 chart types (Donut / Sankey / Treemap / Bump) as segmented control at top — desktop shows all 4 inline; mobile collapses to horizontal scroll</li>
+        <li>Timeframe pills (7D / 30D / Mes / 3M / 1A / Todo) + "Agrupar por" dropdown (L1-L4 + Comercio + Ubicación) — desktop all visible; mobile stacks to 2nd row</li>
+        <li>Drill breadcrumb surfaces current path (Todas › Supermercados › Jumbo) — each crumb click pops one level; click on chart slice pushes one level</li>
+        <li>Donut slices are clickable — click pushes drill level; hover dims other slices to 80% opacity</li>
+        <li>Transaction count badges link directly to <code>gastify-history-desktop.html</code> with pre-applied filter (category + timeframe)</li>
+        <li>Legend rows sortable — click header toggles amount/pct/count/name sort</li>
+        <li>Export FAB (bottom-right) stays visible during scroll — hover reveals CSV / PDF / PNG menu (intent, not wired)</li>
+        <li>Sparklines synced to same timeframe; tap opens full chart in <code>gastify-reports-desktop.html</code></li>
+      </ul>
+    </aside>
+
+  </main>
+
+</div>
+
+<!-- EXPORT FAB (floating) -->
+<button class="export-fab" aria-label="Exportar">
+  <img src="../assets/icons/app-icons/analytics/chart-export.png" alt="">
+  <span>Exportar</span>
+</button>
+
+<script>
+  const body = document.body;
+  document.querySelectorAll('.theme-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.theme-tab').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+      body.dataset.theme = btn.dataset.themeVal;
+    });
+  });
+  document.getElementById('modeToggle').addEventListener('click', () => {
+    body.dataset.mode = body.dataset.mode === 'dark' ? 'light' : 'dark';
+  });
+  // Chart type tabs
+  document.querySelectorAll('.chart-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.chart-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+    });
+  });
+  // Timeframe pills
+  document.querySelectorAll('.timeframe-pill').forEach(p => {
+    p.addEventListener('click', () => {
+      document.querySelectorAll('.timeframe-pill').forEach(x => x.classList.remove('active'));
+      p.classList.add('active');
+    });
+  });
+  // Legend row selection
+  document.querySelectorAll('.cat-row').forEach(row => {
+    row.addEventListener('click', (e) => {
+      if (e.target.closest('.cat-tx-badge')) return;
+      document.querySelectorAll('.cat-row').forEach(r => r.classList.remove('active'));
+      row.classList.add('active');
+    });
+  });
+  // Close quick-nav on outside click
+  document.addEventListener('click', (e) => {
+    const qn = document.getElementById('quickNav');
+    if (qn && !qn.contains(e.target)) qn.classList.remove('open');
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === '/' && document.activeElement.tagName !== 'INPUT') {
+      e.preventDefault();
+      document.querySelector('.search input').focus();
+    }
+    if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      e.preventDefault();
+      document.querySelector('.scan-btn').click();
+    }
+  });
+</script>
+
+</body>
+</html>
