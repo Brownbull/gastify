@@ -61,13 +61,14 @@
 | Pattern | Description | Tier |
 |---------|-------------|------|
 | `docs/mockups/**/*.html` | HTML mockups (web + mobile variants) | MVP |
-| `docs/mockups/**/*.json` | design tokens + metadata (tokens.json, etc.) | MVP |
-| `docs/mockups/**/*.css` | stylesheets for prototypes | MVP |
-| `docs/mockups/**/*.js` | interactive prototype JS | MVP |
+| `docs/mockups/**/*.json` | design tokens + metadata (tokens.json, HANDOFF.json, etc.) | MVP |
+| `docs/mockups/**/*.css` | stylesheets + shared tokens.css | MVP |
+| `docs/mockups/**/*.js` | interactive prototype JS + tweaks.js panel driver | MVP |
 | `docs/mockups/**/*.svg` | icons + vector assets | MVP |
 | `docs/mockups/**/*.{png,jpg,jpeg,webp,gif}` | raster assets | MVP |
 | `docs/mockups/**/*.woff2` | self-hosted web fonts | MVP |
 | `docs/mockups/**/*.prompt` | Claude-input design specs (style prompts for frontend-design skill / external render pass) | MVP |
+| `docs/mockups/**/*.md` | mockup governance docs (INDEX.md, AUDIT.md, HANDOFF.md, SCREEN-SPECS.md, COMPONENT-LIBRARY.md, DESKTOP-TEMPLATE.md, PLATFORM-NOTES.md, STRESS-TEST-SPEC.md, README.md) | MVP |
 
 <!-- ### Web App (any stack)
 

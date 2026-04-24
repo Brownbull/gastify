@@ -1,6 +1,7 @@
 # Active Plan
 
 <!-- status: active -->
+<!-- project_type: mockup -->
 
 ## Goal
 
@@ -11,7 +12,7 @@ Produce complete clean-slate mockup surface for gastify — responsive web porta
 - **Maturity:** mvp
 - **Domain:** Smart personal expense tracker — AI receipt scanning, multi-currency, multi-platform (web + mobile), rebuild of BoletApp
 - **Created:** 2026-04-23
-- **Last Updated:** 2026-04-24 (Phase 1 Review → ✅ · verdict WARNING, 64→93 confidence, P1-P4 deferred)
+- **Last Updated:** 2026-04-24 (Current Phase advanced 1 → 2 · Atomic components)
 - **Platform sets:** 2 (web responsive + mobile unified)
 - **Strategy:** Clean-slate redesign from zero. Legacy boletapp mockups at `/home/khujta/projects/bmad/boletapp/docs/mockups/` = reference only, not port.
 - **Queued next:** Backend P1 Foundation — see `.kdbp/archive/queued_backend-p1.md` (activate after P13 handoff ships).
@@ -20,10 +21,10 @@ Produce complete clean-slate mockup surface for gastify — responsive web porta
 
 | # | Phase | Description | Types | Tier | Complexity | Exec | Review | Commit | Push |
 |---|-------|-------------|-------|------|------------|------|--------|--------|------|
-| 1 | Design language + tokens | Port 3 legacy themes (Normal/Pro/Mono × light/dark) + 3 new candidates as style prompts → 4-screen stress test × 6 themes × 3 platforms (desktop web / mobile web / native mobile) → pick runtime multi-theme set → lock tokens.json + design-system.html | design-system | ent | high | ✅ | ✅ | ✅ | ⬜ |
+| 1 | Design language + tokens | Port 3 legacy themes (Normal/Pro/Mono × light/dark) + 3 new candidates as style prompts → 4-screen stress test × 6 themes × 3 platforms (desktop web / mobile web / native mobile) → pick runtime multi-theme set → lock tokens.json + design-system.html | design-system | ent | high | ✅ | ✅ | ✅ | ✅ |
 | 2 | Atomic components | Buttons, inputs, pills, badges, avatars, chips, skeletons, progress. Web + mobile | design-system, ui-kit | mvp | low | ⬜ | ⬜ | ⬜ | ⬜ |
 | 3 | Molecular components | Cards, modals, toasts, banners, nav (bottom-tab + top-bar + sidebar), FAB, filters, sheets, drawers, forms + COMPONENT-LIBRARY.md. Full state matrix + WCAG AA | design-system, ui-kit | ent | med | ⬜ | ⬜ | ⬜ | ⬜ |
-| 4 | Flow map index + REQ×screen matrix | Enumerate all flows; low-fi skeleton per flow; seed INDEX.md + REQ-COVERAGE.md (living through P5-P12) | flows, index | mvp | med | ⬜ | ⬜ | ⬜ | ⬜ |
+| 4 | INDEX + Flow map + REQ×screen + CRUD×entity | Enumerate all flows; low-fi skeleton per flow; seed `docs/mockups/INDEX.md` (4 tables: decisions log, workflows, screens-by-section desktop+mobile, CRUD×entity matrix from `.kdbp/ENTITIES.md`) + REQ-COVERAGE.md (living through P5-P12) | mockup-flows, mockup-index | mvp | med | ⬜ | ⬜ | ⬜ | ⬜ |
 | 5 | Auth + onboarding + consent | Login, register, forgot, email verify, 4-jurisdiction consent (CL/LATAM/EU/US/CA), welcome/first-open, PWA install. Web + mobile | user-facing, auth | mvp | med | ⬜ | ⬜ | ⬜ | ⬜ |
 | 6 | Core capture loop | Dashboard, single-scan 5 states (incl. REQ-26 QR/CAF boleta as scan option), quicksave, manual entry, transaction editor (normal + hard-lock). Web + mobile | user-facing, capture, ai-agent | mvp | high | ⬜ | ⬜ | ⬜ | ⬜ |
 | 7 | Batch + statement flows | Scan mode selector, batch capture, credit warning, batch review, statement upload (consent + encrypted pw), processing, review list, reconciliation/matching. Web + mobile | user-facing, capture, reconciliation | mvp | high | ⬜ | ⬜ | ⬜ | ⬜ |
@@ -32,7 +33,7 @@ Produce complete clean-slate mockup surface for gastify — responsive web porta
 | 10 | Groups (shared expenses) | 16 screens: switcher, home, tx list, analytics, create, admin, invite/redeem, settings subview, leave/delete confirm, read-only detail, tx card, batch add. Web + mobile | user-facing, multi-tenant | mvp | high | ⬜ | ⬜ | ⬜ | ⬜ |
 | 11 | Settings + profile | 9 subviews: Límites, Perfil, Preferencias (theme/dark/lang/currency/date/font), Escaneo, Suscripción, Datos, Grupos, App, Cuenta. Web + mobile | user-facing, settings | mvp | med | ⬜ | ⬜ | ⬜ | ⬜ |
 | 12 | Alerts + errors + offline states | Alerts list + unread badge, toasts, scan errors, credit depletion, offline banner, reconnect, 404/maintenance, push examples, extended edge states. Web + mobile | user-facing, edge-cases | ent | med | ⬜ | ⬜ | ⬜ | ⬜ |
-| 13 | Handoff + index hub + audit | index.html gallery, HANDOFF.md, SCREEN-SPECS.md, MOCKUP-PLAN.md (frozen), full REQ×screen audit, a11y pass, cross-screen consistency check | documentation, validation | ent | low | ⬜ | ⬜ | ⬜ | ⬜ |
+| 13 | Handoff + index hub + audit | index.html gallery, HANDOFF.json (against schema) + HANDOFF.md narrative, SCREEN-SPECS.md, MOCKUP-PLAN.md (frozen), full REQ×screen audit, a11y AA pass, cross-screen consistency check | mockup-docs, mockup-validation | ent | low | ⬜ | ⬜ | ⬜ | ⬜ |
 
 <!-- Exec is written by /gabe-execute: ⬜ not started, 🔄 in progress, ✅ complete -->
 <!-- Review/Commit/Push auto-ticked by /gabe-review, /gabe-commit, /gabe-push -->
@@ -319,7 +320,7 @@ decisions_entry: D19
 
 ## Current Phase
 
-Phase 1: Design language + tokens
+Phase 2: Atomic components
 
 ## Dependencies
 
@@ -356,3 +357,4 @@ Phase 1: Design language + tokens
 - **2026-04-23 — state correction (Phase 1 Commit ⬜):** Phase 1 row had Commit=✅ with Exec=⬜ + Review=⬜ — inconsistent state. Verified git log + `docs/mockups/` filesystem + lane LEDGER: zero P1 execution work landed. Corrected Commit ✅ → ⬜. Caught by `/gabe-next` pre-dispatch verification.
 - **2026-04-23 — /gabe-plan check retrofit `[all]`:** Added `Types` column to Phases table. Added structured YAML block per phase (1–13) with `phase_tier`, `dim_overrides: []`, `sections_considered`, `decisions_entry`. Corrected DECISIONS-ID references in Phase Details prose: D1→D7, D2→D8, D3→D9, D4→D10, D5→D11, D6→D12, D7→D13, D8→D14, D9→D15, D10→D16, D11→D17, D12→D18, D13→D19. Zero LLM calls (no prose-only overrides detected). Zero tier decisions changed — structural fix only.
 - **2026-04-23 — lane rollback:** Plan moved from `.kdbp/lanes/ux-mockups/PLAN.md` → `.kdbp/PLAN.md`. Lane architecture dropped in favor of serial single-plan workflow. Backend P1 plan parked at `.kdbp/archive/queued_backend-p1.md`.
+- **2026-04-24 — /gabe-mockup retrofit:** Added `<!-- project_type: mockup -->` to PLAN frontmatter. Added `project_type: mockup` to BEHAVIOR.md frontmatter. P4 types renamed `[flows, index]` → `[mockup-flows, mockup-index]` + description upgraded to include 4-table INDEX.md governance + CRUD×entity matrix. P13 types renamed `[documentation, validation]` → `[mockup-docs, mockup-validation]`. Seeded `.kdbp/ENTITIES.md` (9 principal entities from SCOPE REQs). Landed shared `docs/mockups/{tokens.css, tweaks.js, tweaks-panel.html}` from gabe_lens templates. Seeded `docs/mockups/INDEX.md` from template (4-table skeleton, populated progressively P4-P12). Caught by `/gabe-next` dispatching to `/gabe-mockup` instead of `/gabe-execute` on Current Phase = 2.
