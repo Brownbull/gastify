@@ -11,7 +11,7 @@ Produce complete clean-slate mockup surface for gastify — responsive web porta
 - **Maturity:** mvp
 - **Domain:** Smart personal expense tracker — AI receipt scanning, multi-currency, multi-platform (web + mobile), rebuild of BoletApp
 - **Created:** 2026-04-23
-- **Last Updated:** 2026-04-23 (Phase 1 Exec → ✅ · T10 artifacts locked)
+- **Last Updated:** 2026-04-24 (Phase 1 Review → ✅ · verdict WARNING, 64→93 confidence, P1-P4 deferred)
 - **Platform sets:** 2 (web responsive + mobile unified)
 - **Strategy:** Clean-slate redesign from zero. Legacy boletapp mockups at `/home/khujta/projects/bmad/boletapp/docs/mockups/` = reference only, not port.
 - **Queued next:** Backend P1 Foundation — see `.kdbp/archive/queued_backend-p1.md` (activate after P13 handoff ships).
@@ -20,7 +20,7 @@ Produce complete clean-slate mockup surface for gastify — responsive web porta
 
 | # | Phase | Description | Types | Tier | Complexity | Exec | Review | Commit | Push |
 |---|-------|-------------|-------|------|------------|------|--------|--------|------|
-| 1 | Design language + tokens | Port 3 legacy themes (Normal/Pro/Mono × light/dark) + 3 new candidates as style prompts → 4-screen stress test × 6 themes × 3 platforms (desktop web / mobile web / native mobile) → pick runtime multi-theme set → lock tokens.json + design-system.html | design-system | ent | high | ✅ | ⬜ | ✅ | ⬜ |
+| 1 | Design language + tokens | Port 3 legacy themes (Normal/Pro/Mono × light/dark) + 3 new candidates as style prompts → 4-screen stress test × 6 themes × 3 platforms (desktop web / mobile web / native mobile) → pick runtime multi-theme set → lock tokens.json + design-system.html | design-system | ent | high | ✅ | ✅ | ✅ | ⬜ |
 | 2 | Atomic components | Buttons, inputs, pills, badges, avatars, chips, skeletons, progress. Web + mobile | design-system, ui-kit | mvp | low | ⬜ | ⬜ | ⬜ | ⬜ |
 | 3 | Molecular components | Cards, modals, toasts, banners, nav (bottom-tab + top-bar + sidebar), FAB, filters, sheets, drawers, forms + COMPONENT-LIBRARY.md. Full state matrix + WCAG AA | design-system, ui-kit | ent | med | ⬜ | ⬜ | ⬜ | ⬜ |
 | 4 | Flow map index + REQ×screen matrix | Enumerate all flows; low-fi skeleton per flow; seed INDEX.md + REQ-COVERAGE.md (living through P5-P12) | flows, index | mvp | med | ⬜ | ⬜ | ⬜ | ⬜ |
