@@ -1,0 +1,221 @@
+<!--
+  gastify — Desktop Screen Template
+
+  USAGE:
+  1. Copy this file to screens/gastify-{screen}-desktop.html
+  2. Change <title> to screen name
+  3. Set .nav-item.active to the correct nav entry for this screen
+  4. Replace <!-- MAIN CONTENT --> block with screen-specific markup
+  5. Add screen-specific <style> block in <head> below the shared CSS link
+  6. Optionally add rail cards under <aside class="rail">
+  7. Update the platform-notes block at bottom of main
+
+  SHARED SHELL from assets/css/desktop-shell.css:
+  - Theme tokens (Normal / Professional / Mono × Light / Dark)
+  - Base + typography + focus rings
+  - Controls bar (theme switcher)
+  - App shell grid (240 + 1fr + 340)
+  - Sidebar + nav + user chip
+  - Topbar (search + scan + bell + avatar)
+  - Rail card base (.rail-card + .rail-title)
+  - Section heading (.section-head + .section-title + .section-link)
+  - Platform notes block styling
+  - Responsive breakpoints (1280 / 1024 / 640)
+  - Wordmark (Baloo 2 700 @ 24px brand-invariant)
+
+  EDIT STYLES: per-screen main content. Never override shell unless truly
+  screen-specific. Shell changes → edit desktop-shell.css once, all screens inherit.
+-->
+<!DOCTYPE html>
+<html lang="es-CL">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>__SCREEN_NAME__ — gastify Desktop Web (1440 responsive)</title>
+<link rel="stylesheet" href="../assets/fonts/gastify-fonts.css">
+<link rel="stylesheet" href="../assets/css/desktop-shell.css">
+<style>
+  /* ========== SCREEN-SPECIFIC STYLES ==========
+     Put main-content-specific styles here. Do not duplicate shell styles.
+  */
+
+  /* Example placeholder */
+  .placeholder-block {
+    padding: 40px;
+    background: var(--surface);
+    border: 2px dashed var(--line-strong);
+    border-radius: 16px;
+    text-align: center;
+    color: var(--ink-2);
+  }
+  .placeholder-block h2 {
+    font-family: 'Baloo 2', cursive;
+    font-size: 24px;
+    color: var(--primary);
+    margin-bottom: 8px;
+  }
+</style>
+</head>
+
+<body data-theme="normal" data-mode="light">
+
+<!-- CONTROLS (theme/mode switcher) -->
+<div class="controls">
+  <div class="controls-group">
+    <span class="controls-label">Theme</span>
+    <button class="theme-tab active" data-theme-val="normal">Normal</button>
+    <button class="theme-tab" data-theme-val="professional">Professional</button>
+    <button class="theme-tab" data-theme-val="mono">Mono</button>
+  </div>
+  <div class="controls-group">
+    <span class="controls-label">Mode</span>
+    <div class="mode-toggle">
+      <span>Light</span>
+      <div class="toggle-switch" id="modeToggle"></div>
+      <span>Dark</span>
+    </div>
+  </div>
+  <div class="controls-group">
+    <span class="controls-label">Platform</span>
+    <span style="color: var(--primary); font-weight: 600;">Desktop Web 1440</span>
+  </div>
+</div>
+
+<div class="app-shell">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-mark">
+        <img src="../assets/icons/piggy-bank.png" alt="">
+      </div>
+      <span class="wordmark">gastify</span>
+    </div>
+    <ul class="nav-list">
+      <li><a class="nav-item" href="gastify-dashboard-desktop.html">
+        <img class="nav-icon" src="../assets/icons/app-icons/navigation/nav-home.png" alt="">
+        <span>Inicio</span>
+      </a></li>
+      <li><a class="nav-item" href="gastify-history.html">
+        <img class="nav-icon" src="../assets/icons/app-icons/navigation/nav-history.png" alt="">
+        <span>Historial</span>
+      </a></li>
+      <li><a class="nav-item" href="gastify-trends.html">
+        <img class="nav-icon" src="../assets/icons/app-icons/navigation/nav-trends.png" alt="">
+        <span>Tendencias</span>
+      </a></li>
+      <li><a class="nav-item" href="gastify-insights.html">
+        <img class="nav-icon" src="../assets/icons/app-icons/navigation/nav-insights.png" alt="">
+        <span>Insights</span>
+      </a></li>
+      <li><a class="nav-item" href="gastify-reports.html">
+        <img class="nav-icon" src="../assets/icons/app-icons/navigation/nav-reports.png" alt="">
+        <span>Reportes</span>
+      </a></li>
+      <li><a class="nav-item" href="gastify-group-switcher.html">
+        <img class="nav-icon" src="../assets/icons/app-icons/navigation/nav-scan.png" alt="">
+        <span>Grupos</span>
+      </a></li>
+      <li><a class="nav-item" href="gastify-settings.html">
+        <img class="nav-icon" src="../assets/icons/app-icons/navigation/nav-settings.png" alt="">
+        <span>Ajustes</span>
+      </a></li>
+    </ul>
+    <div class="sidebar-footer">
+      <div class="user-chip">
+        <div class="user-avatar">JG</div>
+        <div style="flex: 1; min-width: 0;">
+          <div class="user-name">Juan García</div>
+          <div class="user-email">juan@ejemplo.cl</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- TOP BAR -->
+    <div class="topbar">
+      <div class="search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+        </svg>
+        <input type="text" placeholder="Buscar transacción, comercio, categoría..." aria-label="Buscar">
+        <span class="kbd-hint">/</span>
+      </div>
+      <button class="scan-btn" aria-label="Escanear boleta">
+        <img src="../assets/icons/app-icons/scan-features/scan-single.png" alt="">
+        <span>Escanear</span>
+        <span class="kbd-hint" style="background: rgba(255,255,255,0.22); color: #fff; border: none;">⌘K</span>
+      </button>
+      <button class="icon-btn" aria-label="Alertas">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+        </svg>
+        <span class="bell-badge">3</span>
+      </button>
+      <div class="topbar-avatar" aria-label="Perfil">JG</div>
+    </div>
+
+    <!-- MAIN CONTENT (replace this block with screen-specific markup) -->
+    <div class="placeholder-block">
+      <h2>__SCREEN_NAME__</h2>
+      <p>Replace this block with screen-specific content.</p>
+      <p style="margin-top: 12px; font-size: 12px; color: var(--ink-3);">
+        Template from <code>_desktop-template.html</code>. Shell styles at <code>../assets/css/desktop-shell.css</code>.
+      </p>
+    </div>
+
+    <!-- PLATFORM NOTES — edit per screen -->
+    <aside class="platform-notes">
+      <h3>Desktop Web — Platform Notes</h3>
+      <ul>
+        <li>Sidebar nav replaces bottom-tab; scan CTA moves to top bar with <code>⌘K</code> / <code>Ctrl+K</code></li>
+        <li>Hover + <code>:focus-visible</code> states active on all interactive elements</li>
+        <li>Right rail drops at <code>≤1280px</code>; sidebar collapses to horizontal pills at <code>≤1024px</code>; mobile fallback at <code>≤640px</code></li>
+        <li>Screen-specific notes: <em>__SCREEN_NOTES__</em></li>
+      </ul>
+    </aside>
+
+  </main>
+
+  <!-- RIGHT RAIL (optional — delete this <aside> if screen doesn't use it) -->
+  <aside class="rail">
+    <div class="rail-card">
+      <div class="rail-title">Rail card example</div>
+      <p style="font-size: 13px; color: var(--ink-2);">Replace with screen-specific rail cards.</p>
+    </div>
+  </aside>
+
+</div>
+
+<!-- Theme + mode switcher wiring + keyboard shortcuts (shared behavior) -->
+<script>
+  const body = document.body;
+  document.querySelectorAll('.theme-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.theme-tab').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+      body.dataset.theme = btn.dataset.themeVal;
+    });
+  });
+  document.getElementById('modeToggle').addEventListener('click', () => {
+    body.dataset.mode = body.dataset.mode === 'dark' ? 'light' : 'dark';
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === '/' && document.activeElement.tagName !== 'INPUT') {
+      e.preventDefault();
+      const s = document.querySelector('.search input');
+      if (s) s.focus();
+    }
+    if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      e.preventDefault();
+      const b = document.querySelector('.scan-btn');
+      if (b) b.click();
+    }
+  });
+</script>
+
+</body>
+</html>

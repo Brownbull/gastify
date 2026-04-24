@@ -5,364 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dashboard — gastify Desktop Web (1440 responsive)</title>
 <link rel="stylesheet" href="../assets/fonts/gastify-fonts.css">
+<link rel="stylesheet" href="../assets/css/desktop-shell.css">
 <style>
-  /* ======================================================
-     GASTIFY — DESKTOP WEB DASHBOARD (P0 desktop variant)
-     Themes: Normal / Professional / Mono × Light / Dark
-     Viewport: 1440 primary; 1024+ works; <1024 collapses
-     ====================================================== */
-
-  /* ---------- Normal Light (default) ---------- */
-  :root {
-    --bg: #f5f0e8;
-    --surface: #ffffff;
-    --surface-2: #f1dbb6;
-    --ink: #2d3a4a;
-    --ink-2: #4a5568;
-    --ink-3: #8a9488;
-    --line: #e3bba1;
-    --line-strong: #d4a574;
-    --primary: #4a7c59;
-    --primary-ink: #ffffff;
-    --primary-soft: #dcefd9;
-    --accent: #e8a87c;
-    --accent-soft: #fdeccc;
-    --success: #7d9b5f;
-    --warning: #f59e0b;
-    --error: #c1392b;
-    --danger-soft: #f7dad6;
-    --secondary-color: #5b8fa8;
-    --shadow: rgba(74, 124, 89, 0.12);
-    --shadow-lg: rgba(74, 124, 89, 0.18);
-    --sidebar-bg: #ffffff;
-    --rail-bg: rgba(255, 255, 255, 0.6);
-    --cat-hogar: #4a7c59;         --cat-hogar-tint: rgba(74, 124, 89, 0.15);
-    --cat-medicamento: #dc2626;   --cat-medicamento-tint: rgba(220, 38, 38, 0.12);
-    --cat-cargo: #d97706;         --cat-cargo-tint: rgba(217, 119, 6, 0.12);
-    --cat-mascotas: #5b8fa8;      --cat-mascotas-tint: rgba(91, 143, 168, 0.12);
-    --cat-farmacia: #dc2626;
-    --cat-vet: #5b8fa8;
-  }
-
-  /* ---------- Normal Dark ---------- */
-  [data-theme="normal"][data-mode="dark"] {
-    --bg: #1a2420; --surface: #243028; --surface-2: #2d3a30;
-    --ink: #e8e4dc; --ink-2: #b8c4a8; --ink-3: #8a9488;
-    --line: #3d4d42; --line-strong: #4d5d52;
-    --primary: #6b9e7a; --primary-soft: rgba(107, 158, 122, 0.15);
-    --accent: #d4a574; --accent-soft: rgba(212, 165, 116, 0.15);
-    --success: #9bbd7f; --warning: #fbbf24; --error: #f87171;
-    --danger-soft: rgba(248, 113, 113, 0.12);
-    --secondary-color: #7ab5cc;
-    --shadow: rgba(0,0,0,0.3); --shadow-lg: rgba(0,0,0,0.5);
-    --sidebar-bg: #1e2a22; --rail-bg: rgba(30, 42, 34, 0.6);
-    --cat-hogar: #6b9e7a;         --cat-hogar-tint: rgba(107, 158, 122, 0.2);
-    --cat-medicamento: #f87171;   --cat-medicamento-tint: rgba(248, 113, 113, 0.15);
-    --cat-cargo: #fbbf24;         --cat-cargo-tint: rgba(251, 191, 36, 0.15);
-    --cat-mascotas: #7ab5cc;      --cat-mascotas-tint: rgba(122, 181, 204, 0.15);
-    --cat-farmacia: #f87171;
-    --cat-vet: #7ab5cc;
-  }
-
-  /* ---------- Professional Light ---------- */
-  [data-theme="professional"][data-mode="light"] {
-    --bg: #f8fafc; --surface: #ffffff; --surface-2: #f1f5f9;
-    --ink: #0f172a; --ink-2: #475569; --ink-3: #94a3b8;
-    --line: #e2e8f0; --line-strong: #cbd5e1;
-    --primary: #2563eb; --primary-soft: #dbeafe;
-    --accent: #3b82f6; --accent-soft: #eff6ff;
-    --success: #16a34a; --warning: #d97706; --error: #dc2626;
-    --danger-soft: #fee2e2;
-    --secondary-color: #0ea5e9;
-    --shadow: rgba(37, 99, 235, 0.08); --shadow-lg: rgba(37, 99, 235, 0.14);
-    --sidebar-bg: #ffffff; --rail-bg: rgba(255, 255, 255, 0.6);
-    --cat-hogar: #2563eb;         --cat-hogar-tint: rgba(37, 99, 235, 0.1);
-    --cat-medicamento: #dc2626;   --cat-medicamento-tint: rgba(220, 38, 38, 0.1);
-    --cat-cargo: #d97706;         --cat-cargo-tint: rgba(217, 119, 6, 0.1);
-    --cat-mascotas: #7c3aed;      --cat-mascotas-tint: rgba(124, 58, 237, 0.1);
-    --cat-farmacia: #dc2626;
-    --cat-vet: #7c3aed;
-  }
-
-  /* ---------- Professional Dark ---------- */
-  [data-theme="professional"][data-mode="dark"] {
-    --bg: #0f172a; --surface: #1e293b; --surface-2: #334155;
-    --ink: #f1f5f9; --ink-2: #94a3b8; --ink-3: #64748b;
-    --line: #334155; --line-strong: #475569;
-    --primary: #3b82f6; --primary-soft: rgba(59, 130, 246, 0.2);
-    --accent: #60a5fa; --accent-soft: rgba(96, 165, 250, 0.15);
-    --success: #22c55e; --warning: #fbbf24; --error: #f87171;
-    --danger-soft: rgba(248, 113, 113, 0.12);
-    --secondary-color: #38bdf8;
-    --shadow: rgba(0,0,0,0.3); --shadow-lg: rgba(0,0,0,0.5);
-    --sidebar-bg: #0f172a; --rail-bg: rgba(15, 23, 42, 0.6);
-    --cat-hogar: #3b82f6;         --cat-hogar-tint: rgba(59, 130, 246, 0.15);
-    --cat-medicamento: #f87171;   --cat-medicamento-tint: rgba(248, 113, 113, 0.15);
-    --cat-cargo: #fbbf24;         --cat-cargo-tint: rgba(251, 191, 36, 0.15);
-    --cat-mascotas: #a78bfa;      --cat-mascotas-tint: rgba(167, 139, 250, 0.15);
-    --cat-farmacia: #f87171;
-    --cat-vet: #a78bfa;
-  }
-
-  /* ---------- Mono Light ---------- */
-  [data-theme="mono"][data-mode="light"] {
-    --bg: #fafafa; --surface: #ffffff; --surface-2: #f4f4f5;
-    --ink: #18181b; --ink-2: #52525b; --ink-3: #a1a1aa;
-    --line: #e4e4e7; --line-strong: #d4d4d8;
-    --primary: #18181b; --primary-soft: rgba(24, 24, 27, 0.08);
-    --accent: #52525b; --accent-soft: rgba(82, 82, 91, 0.08);
-    --success: #52525b; --warning: #52525b; --error: #18181b;
-    --danger-soft: rgba(24, 24, 27, 0.08);
-    --secondary-color: #3f3f46;
-    --shadow: rgba(0, 0, 0, 0.06); --shadow-lg: rgba(0, 0, 0, 0.12);
-    --sidebar-bg: #ffffff; --rail-bg: rgba(255, 255, 255, 0.6);
-    --cat-hogar: #18181b;         --cat-hogar-tint: rgba(24, 24, 27, 0.08);
-    --cat-medicamento: #3f3f46;   --cat-medicamento-tint: rgba(63, 63, 70, 0.08);
-    --cat-cargo: #52525b;         --cat-cargo-tint: rgba(82, 82, 91, 0.08);
-    --cat-mascotas: #a1a1aa;      --cat-mascotas-tint: rgba(161, 161, 170, 0.08);
-    --cat-farmacia: #3f3f46;
-    --cat-vet: #a1a1aa;
-  }
-
-  /* ---------- Mono Dark ---------- */
-  [data-theme="mono"][data-mode="dark"] {
-    --bg: #09090b; --surface: #18181b; --surface-2: #27272a;
-    --ink: #fafafa; --ink-2: #a1a1aa; --ink-3: #71717a;
-    --line: #27272a; --line-strong: #3f3f46;
-    --primary: #a1a1aa; --primary-soft: rgba(161, 161, 170, 0.12);
-    --accent: #71717a; --accent-soft: rgba(113, 113, 122, 0.12);
-    --success: #a1a1aa; --warning: #a1a1aa; --error: #fafafa;
-    --danger-soft: rgba(250, 250, 250, 0.08);
-    --secondary-color: #71717a;
-    --shadow: rgba(0,0,0,0.4); --shadow-lg: rgba(0,0,0,0.6);
-    --sidebar-bg: #09090b; --rail-bg: rgba(9, 9, 11, 0.6);
-    --cat-hogar: #a1a1aa;         --cat-hogar-tint: rgba(161, 161, 170, 0.12);
-    --cat-medicamento: #71717a;   --cat-medicamento-tint: rgba(113, 113, 122, 0.12);
-    --cat-cargo: #52525b;         --cat-cargo-tint: rgba(82, 82, 91, 0.12);
-    --cat-mascotas: #71717a;      --cat-mascotas-tint: rgba(113, 113, 122, 0.12);
-    --cat-farmacia: #71717a;
-    --cat-vet: #71717a;
-  }
-
-  /* ======================================================
-     BASE
-     ====================================================== */
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: 'Outfit', 'Segoe UI', system-ui, sans-serif;
-    background: var(--bg);
-    color: var(--ink);
-    line-height: 1.55;
-    font-size: 15px;
-    min-height: 100vh;
-    transition: background 0.2s, color 0.2s;
-  }
-  button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
-  a { color: var(--primary); text-decoration: none; }
-  .tabular { font-variant-numeric: tabular-nums; }
-
-  /* Focus visible — every interactive */
-  :focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; border-radius: 4px; }
-
-  /* ======================================================
-     TOP CONTROLS (theme switcher — outside app frame)
-     ====================================================== */
-  .controls {
-    position: sticky; top: 0; z-index: 50;
-    background: var(--surface);
-    border-bottom: 1px solid var(--line);
-    padding: 10px 24px;
-    display: flex; align-items: center; gap: 16px; justify-content: space-between;
-    font-size: 12px;
-  }
-  .controls-group { display: flex; align-items: center; gap: 8px; }
-  .controls-label { color: var(--ink-3); font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; font-size: 10px; }
-  .theme-tab {
-    padding: 4px 12px; border-radius: 16px; font-size: 12px; font-weight: 600;
-    background: transparent; color: var(--ink-2); border: 1px solid var(--line);
-    transition: all 0.15s;
-  }
-  .theme-tab.active { background: var(--primary); color: var(--primary-ink); border-color: var(--primary); }
-  .mode-toggle { display: flex; align-items: center; gap: 6px; color: var(--ink-2); }
-  .toggle-switch {
-    width: 40px; height: 22px; background: var(--line); border-radius: 11px;
-    position: relative; cursor: pointer; transition: background 0.15s;
-  }
-  .toggle-switch::after {
-    content: ''; position: absolute; top: 2px; left: 2px;
-    width: 18px; height: 18px; background: #fff; border-radius: 50%;
-    transition: transform 0.2s;
-  }
-  [data-mode="dark"] .toggle-switch { background: var(--primary); }
-  [data-mode="dark"] .toggle-switch::after { transform: translateX(18px); }
-
-  /* ======================================================
-     APP SHELL — 3-column desktop layout
-     ====================================================== */
-  .app-shell {
-    display: grid;
-    grid-template-columns: 240px 1fr 340px;
-    gap: 24px;
-    max-width: 1440px;
-    margin: 0 auto;
-    padding: 24px;
-    min-height: calc(100vh - 45px);
-  }
-
-  /* ======================================================
-     SIDEBAR (left nav)
-     ====================================================== */
-  .sidebar {
-    background: var(--sidebar-bg);
-    border: 1px solid var(--line);
-    border-radius: 16px;
-    padding: 20px 12px;
-    display: flex; flex-direction: column;
-    box-shadow: 0 2px 8px var(--shadow);
-    position: sticky; top: 69px;
-    height: fit-content;
-    max-height: calc(100vh - 93px);
-  }
-  .sidebar-brand {
-    display: flex; align-items: center; gap: 10px;
-    padding: 0 12px 20px;
-    border-bottom: 1px solid var(--line);
-    margin-bottom: 16px;
-  }
-  .brand-mark {
-    width: 36px; height: 36px; border-radius: 50%;
-    background: var(--primary-soft);
-    display: grid; place-items: center;
-    overflow: hidden;
-  }
-  .brand-mark img { width: 80%; height: 80%; object-fit: contain; image-rendering: pixelated; }
-  .wordmark {
-    font-family: 'Baloo 2', cursive;
-    font-weight: 700;
-    font-size: 24px;
-    color: var(--primary);
-    letter-spacing: -0.02em;
-    line-height: 1;
-  }
-  .nav-list { list-style: none; display: flex; flex-direction: column; gap: 2px; flex: 1; }
-  .nav-item {
-    display: flex; align-items: center; gap: 12px;
-    padding: 10px 14px;
-    border-radius: 10px;
-    color: var(--ink-2);
-    font-weight: 500;
-    font-size: 14px;
-    position: relative;
-    transition: all 0.15s;
-  }
-  .nav-item:hover { background: var(--surface-2); color: var(--ink); }
-  .nav-item.active {
-    background: var(--primary-soft);
-    color: var(--primary);
-    font-weight: 600;
-  }
-  .nav-item.active::before {
-    content: ''; position: absolute; left: 0; top: 8px; bottom: 8px; width: 3px;
-    background: var(--primary); border-radius: 2px;
-  }
-  .nav-icon { width: 22px; height: 22px; image-rendering: pixelated; opacity: 0.85; }
-  .nav-item.active .nav-icon { opacity: 1; }
-
-  .sidebar-footer {
-    padding-top: 16px;
-    border-top: 1px solid var(--line);
-    margin-top: 12px;
-    display: flex; flex-direction: column; gap: 8px;
-  }
-  .user-chip {
-    display: flex; align-items: center; gap: 10px;
-    padding: 8px 12px;
-    border-radius: 10px;
-    background: var(--surface-2);
-    font-size: 13px;
-  }
-  .user-avatar {
-    width: 32px; height: 32px; border-radius: 50%;
-    background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
-    color: #fff;
-    display: grid; place-items: center;
-    font-weight: 600; font-size: 12px;
-  }
-  .user-name { font-weight: 600; flex: 1; color: var(--ink); }
-  .user-email { font-size: 11px; color: var(--ink-3); }
-
-  /* ======================================================
-     MAIN CONTENT (center column)
-     ====================================================== */
-  .main { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
-
-  /* Top bar — search + scan + bell + avatar */
-  .topbar {
-    display: flex; align-items: center; gap: 16px;
-    padding: 14px 20px;
-    background: var(--surface);
-    border: 1px solid var(--line);
-    border-radius: 16px;
-    box-shadow: 0 2px 6px var(--shadow);
-  }
-  .search {
-    flex: 1; display: flex; align-items: center; gap: 8px;
-    background: var(--surface-2);
-    border: 1px solid transparent;
-    border-radius: 10px;
-    padding: 8px 14px;
-    color: var(--ink-2);
-    font-size: 14px;
-    transition: border-color 0.15s;
-  }
-  .search:hover { border-color: var(--line); }
-  .search:focus-within { border-color: var(--primary); background: var(--surface); }
-  .search svg { width: 16px; height: 16px; flex-shrink: 0; }
-  .search input {
-    flex: 1; background: transparent; border: none; outline: none;
-    font-family: inherit; font-size: 14px; color: var(--ink);
-  }
-  .search input::placeholder { color: var(--ink-3); }
-  .kbd-hint {
-    font-family: 'SFMono-Regular', Menlo, monospace; font-size: 11px;
-    background: var(--surface); border: 1px solid var(--line);
-    padding: 1px 6px; border-radius: 4px; color: var(--ink-3);
-  }
-  .scan-btn {
-    display: flex; align-items: center; gap: 8px;
-    padding: 8px 16px;
-    background: var(--primary); color: var(--primary-ink);
-    border-radius: 10px;
-    font-weight: 600; font-size: 14px;
-    transition: transform 0.15s, box-shadow 0.15s;
-  }
-  .scan-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 10px var(--shadow-lg); }
-  .scan-btn img { width: 18px; height: 18px; image-rendering: pixelated; filter: brightness(0) invert(1); }
-  .icon-btn {
-    width: 40px; height: 40px; border-radius: 10px;
-    background: var(--surface-2);
-    display: grid; place-items: center;
-    color: var(--ink-2);
-    transition: background 0.15s;
-    position: relative;
-  }
-  .icon-btn:hover { background: var(--line); color: var(--ink); }
-  .icon-btn svg { width: 20px; height: 20px; }
-  .bell-badge {
-    position: absolute; top: -4px; right: -4px;
-    background: var(--error); color: #fff;
-    font-size: 10px; font-weight: 700;
-    padding: 1px 5px; border-radius: 999px;
-    min-width: 16px; text-align: center;
-  }
-  .topbar-avatar {
-    width: 40px; height: 40px; border-radius: 50%;
-    background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
-    color: #fff;
-    display: grid; place-items: center;
-    font-weight: 700; font-size: 13px;
-    cursor: pointer;
-  }
+  /* ========== DASHBOARD SCREEN-SPECIFIC STYLES ========== */
 
   /* Balance hero card */
   .balance {
@@ -439,25 +84,6 @@
   .stat-delta { font-size: 12px; margin-top: 6px; display: flex; align-items: center; gap: 6px; font-weight: 500; }
   .stat-delta.up { color: var(--success); }
   .stat-delta.down { color: var(--error); }
-  .stat-delta .spark { width: 48px; height: 14px; }
-
-  /* Section */
-  .section-head {
-    display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: 12px;
-  }
-  .section-title {
-    font-family: 'Baloo 2', cursive;
-    font-size: 20px; font-weight: 700;
-    color: var(--ink);
-    letter-spacing: -0.01em;
-  }
-  .section-link {
-    font-size: 13px; color: var(--primary);
-    font-weight: 600;
-    display: flex; align-items: center; gap: 4px;
-  }
-  .section-link:hover { text-decoration: underline; }
 
   /* Transactions list */
   .tx-list {
@@ -514,25 +140,7 @@
     transition: transform 0.15s, opacity 0.15s;
   }
 
-  /* ======================================================
-     RIGHT RAIL
-     ====================================================== */
-  .rail { display: flex; flex-direction: column; gap: 14px; }
-  .rail-card {
-    background: var(--surface);
-    border: 1px solid var(--line);
-    border-radius: 14px;
-    padding: 18px;
-    box-shadow: 0 2px 4px var(--shadow);
-  }
-  .rail-title {
-    font-family: 'Baloo 2', cursive;
-    font-size: 16px; font-weight: 700; color: var(--ink);
-    display: flex; align-items: center; gap: 8px;
-    margin-bottom: 10px;
-  }
-  .rail-title img { width: 22px; height: 22px; image-rendering: pixelated; }
-
+  /* Rail cards — dashboard-specific */
   .concentration {
     display: flex; align-items: center; gap: 14px;
   }
@@ -597,21 +205,8 @@
   .credits-bar { margin-top: 10px; height: 6px; background: var(--surface-2); border-radius: 999px; overflow: hidden; }
   .credits-fill { height: 100%; background: var(--primary); width: 94%; }
 
-  /* ======================================================
-     RESPONSIVE: collapse rail → hide sidebar
-     ====================================================== */
-  @media (max-width: 1280px) {
-    .app-shell { grid-template-columns: 240px 1fr; }
-    .rail { display: none; }
-  }
+  /* Responsive — screen-specific overrides for dashboard content */
   @media (max-width: 1024px) {
-    .app-shell { grid-template-columns: 1fr; padding: 16px; gap: 16px; }
-    .sidebar { position: static; max-height: none; }
-    .nav-list { flex-direction: row; overflow-x: auto; }
-    .nav-item { flex: 1; justify-content: center; flex-direction: column; gap: 4px; font-size: 11px; padding: 8px 6px; }
-    .nav-item.active::before { display: none; }
-    .sidebar-footer { display: none; }
-    .sidebar-brand { display: none; }
     .stats-row { grid-template-columns: repeat(2, 1fr); }
     .balance-amount { font-size: 40px; }
     .balance { padding: 24px; }
@@ -619,30 +214,12 @@
     .tx-store { display: none; }
   }
   @media (max-width: 640px) {
-    .app-shell { padding: 12px; }
-    .controls { padding: 8px 12px; flex-wrap: wrap; gap: 8px; }
-    .topbar { padding: 10px 12px; gap: 10px; }
-    .search { display: none; }
     .stats-row { grid-template-columns: 1fr; }
     .balance-amount { font-size: 36px; }
     .balance-content { flex-direction: column; gap: 16px; }
     .tx { grid-template-columns: 40px 1fr 90px; padding: 12px; }
     .tx-chev { display: none; }
   }
-
-  /* Platform notes block */
-  .platform-notes {
-    margin-top: 40px; padding: 20px;
-    background: var(--surface-2);
-    border-left: 4px solid var(--primary);
-    border-radius: 10px;
-    font-size: 13px; color: var(--ink-2);
-  }
-  .platform-notes h3 { font-size: 14px; color: var(--ink); margin-bottom: 8px; font-family: 'Baloo 2', cursive; }
-  .platform-notes ul { list-style: none; }
-  .platform-notes li { padding: 4px 0; }
-  .platform-notes li::before { content: '→ '; color: var(--primary); font-weight: 700; }
-  .platform-notes code { background: var(--surface); padding: 1px 6px; border-radius: 4px; font-size: 12px; }
 </style>
 </head>
 
@@ -670,7 +247,6 @@
   </div>
 </div>
 
-<!-- APP SHELL -->
 <div class="app-shell">
 
   <!-- SIDEBAR -->
@@ -682,31 +258,31 @@
       <span class="wordmark">gastify</span>
     </div>
     <ul class="nav-list">
-      <li><a class="nav-item active" href="#">
+      <li><a class="nav-item active" href="gastify-dashboard-desktop.html">
         <img class="nav-icon" src="../assets/icons/app-icons/navigation/nav-home.png" alt="">
         <span>Inicio</span>
       </a></li>
-      <li><a class="nav-item" href="../screens/gastify-history.html">
+      <li><a class="nav-item" href="gastify-history.html">
         <img class="nav-icon" src="../assets/icons/app-icons/navigation/nav-history.png" alt="">
         <span>Historial</span>
       </a></li>
-      <li><a class="nav-item" href="../screens/gastify-trends.html">
+      <li><a class="nav-item" href="gastify-trends.html">
         <img class="nav-icon" src="../assets/icons/app-icons/navigation/nav-trends.png" alt="">
         <span>Tendencias</span>
       </a></li>
-      <li><a class="nav-item" href="../screens/gastify-insights.html">
+      <li><a class="nav-item" href="gastify-insights.html">
         <img class="nav-icon" src="../assets/icons/app-icons/navigation/nav-insights.png" alt="">
         <span>Insights</span>
       </a></li>
-      <li><a class="nav-item" href="../screens/gastify-reports.html">
+      <li><a class="nav-item" href="gastify-reports.html">
         <img class="nav-icon" src="../assets/icons/app-icons/navigation/nav-reports.png" alt="">
         <span>Reportes</span>
       </a></li>
-      <li><a class="nav-item" href="../screens/gastify-group-switcher.html">
+      <li><a class="nav-item" href="gastify-group-switcher.html">
         <img class="nav-icon" src="../assets/icons/app-icons/navigation/nav-scan.png" alt="">
         <span>Grupos</span>
       </a></li>
-      <li><a class="nav-item" href="../screens/gastify-settings.html">
+      <li><a class="nav-item" href="gastify-settings.html">
         <img class="nav-icon" src="../assets/icons/app-icons/navigation/nav-settings.png" alt="">
         <span>Ajustes</span>
       </a></li>
@@ -811,7 +387,7 @@
     <section>
       <div class="section-head">
         <div class="section-title">Últimos escaneados</div>
-        <a class="section-link" href="../screens/gastify-history.html">Ver todos →</a>
+        <a class="section-link" href="gastify-history.html">Ver todos →</a>
       </div>
       <div class="tx-list">
         <div class="tx" tabindex="0">
@@ -894,7 +470,7 @@
       </div>
     </section>
 
-    <!-- PLATFORM NOTES (informational, desktop-only screen) -->
+    <!-- PLATFORM NOTES -->
     <aside class="platform-notes">
       <h3>Desktop Web — Platform Notes</h3>
       <ul>
@@ -902,8 +478,8 @@
         <li>Hover + <code>:focus-visible</code> states active on all interactive elements (rings offset 2px)</li>
         <li>Right rail (concentration donut / anomalies / quick actions) drops at <code>≤1280px</code></li>
         <li>Sidebar collapses to horizontal pills at <code>≤1024px</code>; at <code>≤640px</code> layout matches Mobile Web (frame defined in <code>gastify-dashboard.html</code>)</li>
-        <li>Search: <code>/</code> shortcut focuses input (not wired in demo)</li>
-        <li>Tx rows: <code>Enter</code> opens editor, <code>j/k</code> navigate (intent — not wired in demo)</li>
+        <li>Search: <code>/</code> shortcut focuses input; tx rows: <code>Enter</code> opens editor (intent, not wired)</li>
+        <li>Shell extracted to <code>../assets/css/desktop-shell.css</code> — screen-specific styles stay inline</li>
       </ul>
     </aside>
 
@@ -1014,7 +590,6 @@
   document.getElementById('modeToggle').addEventListener('click', () => {
     body.dataset.mode = body.dataset.mode === 'dark' ? 'light' : 'dark';
   });
-  // Keyboard: ⌘K focus search, / focus search
   document.addEventListener('keydown', (e) => {
     if (e.key === '/' && document.activeElement.tagName !== 'INPUT') {
       e.preventDefault();
