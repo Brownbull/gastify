@@ -282,6 +282,22 @@ Before a render is considered a valid stress-test output:
 
 ---
 
+## Assets
+
+Every render should reference self-hosted assets at:
+
+```html
+<link rel="stylesheet" href="../../assets/fonts/gastify-fonts.css">
+<!-- Exposes 'Outfit' (variable 400–800) + 'Baloo 2' (700) via local woff2 -->
+
+<img src="../../assets/icons/app-icons/navigation/nav-home.png" width="32" height="32" alt="Inicio">
+<!-- 200+ pixel-art icons organized by role: navigation, actions, scan-features, analytics, status, credits, financial, item-categories, store-categories, rubros, familias + 53 root mascots -->
+```
+
+See `docs/mockups/assets/README.md` for full asset inventory. Icon path is relative from `explorations/output/*.html` → `../../assets/`.
+
+Claude Design workflow: drag the entire `assets/` folder during design-system setup (fonts + icons upload field). Claude Design stores these and references them during render passes.
+
 ## Render workflow
 
 Expected external-tool workflow (user-driven in T5):

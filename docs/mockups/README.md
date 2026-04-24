@@ -9,6 +9,8 @@ Multi-theme runtime design surface. 3 platform targets (Desktop Web / Mobile Web
 | `styles/*.prompt` | Claude-input design spec per theme — consumed by frontend-design skill / external Claude design pass |
 | `styles/_PROMPT-TEMPLATE.md` | Required sections + token list every prompt must cover |
 | `STRESS-TEST-SPEC.md` | Canonical 4-screen × 3-platform × 2-mode matrix + state variants + interaction-note template |
+| `assets/fonts/` | Self-hosted Outfit + Baloo 2 woff2 + `gastify-fonts.css` — drag into Claude Design "fonts" field |
+| `assets/icons/` | 200+ pixel-art PNG icons (nav, actions, scan, categories, mascots) ported from BoletApp PixelLab generator |
 | `explorations/output/` | External render outputs — `{style}-{screen}-{platform}.html` |
 | `screens/` | P5–P12 screen mockups (added after P3) |
 | `components/` | P2–P3 component library HTML (added in P3) |

@@ -21,6 +21,7 @@ Each `styles/{name}.prompt` is a self-contained Claude-input design spec. Consum
 8. **Dark mode parity** — every token group has light + dark variant
 9. **Accessibility floor** — WCAG AA contrast min, focus-ring visible on all interactive elements, touch targets ≥44×44
 10. **Output format** — `docs/mockups/explorations/output/{style}-{screen}-{platform}.html` (12 renders per style: 4 screens × 3 platforms, light mode hero + dark mode section below)
+11. **Assets** — every render references self-hosted `../../assets/fonts/gastify-fonts.css` (Outfit + Baloo 2) and pulls icons from `../../assets/icons/app-icons/{category}/{name}.png` per icon inventory at `docs/mockups/assets/icons/README.md`. No Google Fonts CDN calls. No emoji-substitute for navigation / actions / scan / analytics / status / financial — use pixel-art icon set.
 
 ## Naming
 
