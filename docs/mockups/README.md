@@ -11,6 +11,7 @@ Multi-theme runtime design surface. 3 platform targets (Desktop Web / Mobile Web
 | `STRESS-TEST-SPEC.md` | Canonical 4-screen × 3-platform × 2-mode matrix + state variants + interaction-note template |
 | `assets/fonts/` | Self-hosted Outfit + Baloo 2 woff2 + `gastify-fonts.css` — drag into Claude Design "fonts" field |
 | `assets/icons/` | 200+ pixel-art PNG icons (nav, actions, scan, categories, mascots) ported from BoletApp PixelLab generator |
+| `assets/tokens/` | Canonical V4 taxonomy + category-color maps (12 L1 + 44 L2 + 9 L3 + 42 L4) × 3 themes × 2 modes — production-proven from BoletApp |
 | `explorations/output/` | External render outputs — `{style}-{screen}-{platform}.html` |
 | `screens/` | P5–P12 screen mockups (added after P3) |
 | `components/` | P2–P3 component library HTML (added in P3) |

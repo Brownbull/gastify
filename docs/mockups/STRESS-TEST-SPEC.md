@@ -296,6 +296,28 @@ Every render should reference self-hosted assets at:
 <!-- 200+ pixel-art icons organized by role: navigation, actions, scan-features, analytics, status, credits, financial, item-categories, store-categories, rubros, familias + 53 root mascots -->
 ```
 
+### Category colors
+
+Every category chip / icon tint / group header uses production-proven color tokens from `../../assets/tokens/`:
+
+- **L1 rubros (12)** + **L3 familias (9)** — `groupColors.ts`: fg + bg + border per theme per mode
+- **L2 giros (44)** — `storeColors.ts`: fg + bg per theme per mode
+- **L4 categorías (42)** — `itemColors.ts`: fg + bg per theme per mode
+- **Taxonomy** — `categories.ts`: PascalCase canonical keys + Spanish display labels + AI-prompt groupings
+- **Translations** — `categoryTranslations.ts`: ES/EN display maps
+
+Canonical lookup in render: `tokens/{group|store|item}Colors.ts` → `COLORS[CategoryKey][theme][mode].fg` / `.bg`. No arbitrary category colors — use the ported production values.
+
+Category chip in HTML:
+```html
+<!-- Pharmacy chip, Normal theme, light mode -->
+<span class="chip" style="color: #be185d; background: #fce7f3;">Farmacia</span>
+<!-- Same chip, Professional dark -->
+<span class="chip" style="color: #f472b6; background: #9d174d;">Farmacia</span>
+```
+
+See `tokens/README.md` for full palette inventory + usage.
+
 ### 🔒 Brand-invariant: wordmark font
 
 **The `gastify` wordmark ALWAYS renders in Baloo 2 700 @ 24px across every theme, mode, and platform.** Non-negotiable brand anchor — pinned from legacy BoletApp identity.
