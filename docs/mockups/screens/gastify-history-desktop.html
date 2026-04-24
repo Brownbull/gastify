@@ -257,6 +257,26 @@
   <div class="controls-group">
     <span class="controls-label">Platform</span>
     <span style="color: var(--primary); font-weight: 600;">Desktop Web 1440</span>
+    <a class="platform-switch" href="gastify-history.html" title="Ver versión mobile"><span class="dot">●</span> Mobile ↗</a>
+  </div>
+  <div class="controls-group">
+    <div class="quick-nav" id="quickNav">
+      <button class="quick-nav-btn" onclick="document.getElementById('quickNav').classList.toggle('open')">
+        ☰ Desktop screens
+      </button>
+      <div class="quick-nav-menu">
+        <div class="qn-section">Available (3)</div>
+        <a href="gastify-dashboard-desktop.html">🏠 Dashboard</a>
+        <a class="current" href="gastify-history-desktop.html">📜 Historial <span class="qn-badge">current</span></a>
+        <a href="gastify-transaction-editor-desktop.html">✎ Transaction editor</a>
+        <div class="qn-section">Mobile-only (26 more)</div>
+        <a href="gastify-settings.html" style="color: var(--ink-3);">⚙ Settings <span class="qn-badge">mobile</span></a>
+        <a href="gastify-trends.html" style="color: var(--ink-3);">📊 Trends <span class="qn-badge">mobile</span></a>
+        <a href="gastify-insights.html" style="color: var(--ink-3);">💡 Insights <span class="qn-badge">mobile</span></a>
+        <a href="gastify-reports.html" style="color: var(--ink-3);">📄 Reports <span class="qn-badge">mobile</span></a>
+        <a href="../index.html" style="color: var(--primary); font-weight: 600; margin-top: 4px;">→ See full gap matrix</a>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -717,6 +737,11 @@
   });
   document.getElementById('modeToggle').addEventListener('click', () => {
     body.dataset.mode = body.dataset.mode === 'dark' ? 'light' : 'dark';
+  });
+  // Close quick-nav on outside click
+  document.addEventListener('click', (e) => {
+    const qn = document.getElementById('quickNav');
+    if (qn && !qn.contains(e.target)) qn.classList.remove('open');
   });
   // Toggle selection on checkbox click
   document.querySelectorAll('.tx-check').forEach(c => {

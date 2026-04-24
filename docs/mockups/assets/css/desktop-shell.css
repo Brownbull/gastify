@@ -208,6 +208,56 @@ a { color: var(--primary); text-decoration: none; }
 [data-mode="dark"] .toggle-switch { background: var(--primary); }
 [data-mode="dark"] .toggle-switch::after { transform: translateX(18px); }
 
+/* Cross-platform link (shown in controls bar) */
+.platform-switch {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 10px; border-radius: 8px;
+  background: var(--surface-2); color: var(--ink-2);
+  font-size: 11px; font-weight: 600;
+  text-decoration: none;
+  transition: all 0.15s;
+}
+.platform-switch:hover { background: var(--primary-soft); color: var(--primary); }
+.platform-switch .dot { color: var(--primary); font-weight: 700; }
+
+/* Quick-nav dropdown — desktop variants index */
+.quick-nav { position: relative; }
+.quick-nav-btn {
+  padding: 4px 10px; border-radius: 8px;
+  background: var(--surface-2); color: var(--ink-2);
+  font-size: 11px; font-weight: 600;
+  display: flex; align-items: center; gap: 4px;
+  transition: all 0.15s;
+}
+.quick-nav-btn:hover { background: var(--primary-soft); color: var(--primary); }
+.quick-nav-menu {
+  position: absolute; top: 100%; right: 0; margin-top: 4px;
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: 10px; box-shadow: 0 8px 24px var(--shadow-lg);
+  min-width: 260px; padding: 6px;
+  z-index: 100;
+  display: none;
+  font-size: 12px;
+}
+.quick-nav.open .quick-nav-menu { display: block; }
+.quick-nav-menu a {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 10px; border-radius: 6px;
+  color: var(--ink); text-decoration: none;
+  transition: background 0.12s;
+}
+.quick-nav-menu a:hover { background: var(--surface-2); }
+.quick-nav-menu a.current { background: var(--primary-soft); color: var(--primary); font-weight: 600; }
+.quick-nav-menu .qn-badge {
+  margin-left: auto; font-size: 10px; color: var(--ink-3);
+  padding: 1px 6px; border-radius: 999px; background: var(--surface-2);
+}
+.quick-nav-menu .qn-section {
+  font-size: 10px; font-weight: 700; color: var(--ink-3);
+  text-transform: uppercase; letter-spacing: 0.08em;
+  padding: 8px 10px 4px;
+}
+
 /* ==========================================================
    APP SHELL — 3-column desktop layout
    ========================================================== */
