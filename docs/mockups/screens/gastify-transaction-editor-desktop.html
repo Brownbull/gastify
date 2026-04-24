@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="es-CL">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Editar transacción — gastify Desktop Web (1440 responsive)</title>
+<link rel="stylesheet" href="../assets/fonts/gastify-fonts.css">
+<link rel="stylesheet" href="../assets/css/desktop-shell.css">
+<style>
+  /* ========== TRANSACTION EDITOR SCREEN-SPECIFIC STYLES ========== */
+
+  /* Back row */
+  .back-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 0 4px;
+  }
+  .back-btn {
+    display: flex; align-items: center; gap: 6px;
+    padding: 6px 10px; border-radius: 8px;
+    color: var(--ink-2); font-size: 13px; font-weight: 600;
+    transition: background 0.15s;
+  }
+  .back-btn:hover { background: var(--surface-2); color: var(--ink); }
+  .breadcrumb { font-size: 13px; color: var(--ink-3); }
+  .breadcrumb a { color: var(--ink-3); }
+  .breadcrumb a:hover { color: var(--primary); }
+
+  /* Transaction header */
+  .tx-header {
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: 16px; padding: 22px 24px;
+    box-shadow: 0 2px 6px var(--shadow);
+    display: grid; grid-template-columns: auto 1fr auto; gap: 18px; align-items: center;
+  }
+  .tx-header-icon {
+    width: 56px; height: 56px; border-radius: 14px;
+    background: var(--cat-hogar-tint);
+    display: grid; place-items: center; overflow: hidden;
+  }
+  .tx-header-icon img { width: 36px; height: 36px; image-rendering: pixelated; }
+  .tx-store-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .tx-store-name {
+    font-family: 'Baloo 2', cursive;
+    font-size: 22px; font-weight: 700; color: var(--ink);
+    letter-spacing: -0.01em;
+  }
+  .edit-pencil {
+    width: 20px; height: 20px; border-radius: 4px;
+    display: grid; place-items: center;
+    background: var(--surface-2); color: var(--ink-2);
+    font-size: 11px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .edit-pencil:hover { background: var(--primary-soft); color: var(--primary); }
+  .tx-meta-row { font-size: 13px; color: var(--ink-2); margin-top: 4px; display: flex; gap: 10px; align-items: center; }
+  .tx-meta-row .dot { color: var(--ink-3); }
+  .tx-cat-chip {
+    font-size: 10px; font-weight: 600;
+    padding: 2px 8px; border-radius: 999px;
+    background: var(--primary-soft); color: var(--primary);
+    text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  .tx-total-display {
+    text-align: right;
+  }
+  .tx-total-label {
+    font-size: 11px; color: var(--ink-3);
+    text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600;
+  }
+  .tx-total-amount {
+    font-family: 'Baloo 2', cursive;
+    font-size: 36px; font-weight: 700; color: var(--primary);
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+    margin-top: 2px; line-height: 1;
+  }
+  .tx-total-usd { font-size: 12px; color: var(--ink-3); margin-top: 4px; font-variant-numeric: tabular-nums; }
+
+  /* Mode bar */
+  .mode-bar {
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    padding: 12px 18px;
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: 12px;
+  }
+  .mode-pill-group { display: flex; background: var(--surface-2); border-radius: 10px; padding: 2px; gap: 2px; }
+  .mode-pill {
+    padding: 6px 14px; border-radius: 8px;
+    font-size: 13px; font-weight: 600; color: var(--ink-2);
+    display: flex; align-items: center; gap: 6px;
+    transition: all 0.15s;
+  }
+  .mode-pill:hover { color: var(--ink); }
+  .mode-pill.active { background: var(--surface); color: var(--primary); box-shadow: 0 1px 3px var(--shadow); }
+  .mode-pill img { width: 14px; height: 14px; image-rendering: pixelated; }
+  .hard-lock-indicator {
+    display: flex; align-items: center; gap: 8px;
+    padding: 4px 10px; border-radius: 999px;
+    background: rgba(217, 119, 6, 0.12); color: var(--warning);
+    font-size: 11px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.08em;
+  }
+  .hard-lock-indicator img { width: 14px; height: 14px; image-rendering: pixelated; }
+  .mode-meta { font-size: 12px; color: var(--ink-2); }
+
+  /* Split panel */
+  .editor-split {
+    display: grid;
+    grid-template-columns: 1fr 420px;
+    gap: 16px;
+    align-items: flex-start;
+  }
+
+  /* Left: item list */
+  .item-list {
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: 14px; overflow: hidden;
+    box-shadow: 0 2px 4px var(--shadow);
+  }
+  .item-list-head {
+    display: grid;
+    grid-template-columns: 36px 1fr 90px 70px 90px 28px;
+    gap: 12px; align-items: center;
+    padding: 10px 16px;
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--line);
+    font-size: 10px; font-weight: 700; color: var(--ink-2);
+    text-transform: uppercase; letter-spacing: 0.08em;
+  }
+  .item-list-head > div:last-child { text-align: right; }
+  .item {
+    display: grid;
+    grid-template-columns: 36px 1fr 90px 70px 90px 28px;
+    gap: 12px; align-items: center;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--line);
+    transition: background 0.12s;
+    cursor: pointer;
+    position: relative;
+  }
+  .item:last-child { border-bottom: none; }
+  .item:hover { background: var(--surface-2); }
+  .item.selected { background: var(--primary-soft); }
+  .item.selected::before {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+    background: var(--primary);
+  }
+  .item-ico {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: var(--cat-hogar-tint);
+    display: grid; place-items: center; overflow: hidden;
+  }
+  .item-ico img { width: 22px; height: 22px; image-rendering: pixelated; }
+  .item.cat-bebidas .item-ico { background: var(--cat-cargo-tint); }
+  .item.cat-salud .item-ico { background: var(--cat-medicamento-tint); }
+  .item.cat-cleaning .item-ico { background: var(--cat-mascotas-tint); }
+  .item-body { min-width: 0; }
+  .item-name { font-weight: 600; font-size: 14px; color: var(--ink); line-height: 1.2; }
+  .item-name-meta { font-size: 11px; color: var(--ink-3); margin-top: 2px; }
+  .item-cat {
+    font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: 4px;
+    background: var(--surface-2); color: var(--ink-2);
+    text-transform: uppercase; letter-spacing: 0.04em;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .item.cat-bebidas .item-cat { background: var(--cat-cargo-tint); color: var(--cat-cargo); }
+  .item.cat-salud .item-cat { background: var(--cat-medicamento-tint); color: var(--cat-medicamento); }
+  .item.cat-cleaning .item-cat { background: var(--cat-mascotas-tint); color: var(--cat-mascotas); }
+  .item-qty {
+    font-size: 13px; text-align: center; color: var(--ink-2);
+    font-variant-numeric: tabular-nums; font-weight: 600;
+  }
+  .item-price {
+    font-size: 14px; text-align: right; color: var(--ink); font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+  .item-badge {
+    display: grid; place-items: center;
+    color: var(--ink-3); font-size: 14px;
+  }
+  .item-badge.flagged { color: var(--error); }
+
+  /* Totals footer */
+  .totals-footer {
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: 14px; padding: 18px 22px;
+    box-shadow: 0 2px 4px var(--shadow);
+  }
+  .total-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 6px 0;
+    font-size: 14px;
+    font-variant-numeric: tabular-nums;
+  }
+  .total-row.subtotal { color: var(--ink-2); }
+  .total-row.tax { color: var(--ink-2); }
+  .total-row.discount { color: var(--success); }
+  .total-row.grand {
+    font-family: 'Baloo 2', cursive;
+    font-size: 20px; font-weight: 700; color: var(--ink);
+    border-top: 2px solid var(--line); padding-top: 12px; margin-top: 6px;
+  }
+  .reconciliation-check {
+    margin-top: 10px; padding: 10px 14px;
+    background: rgba(125, 155, 95, 0.12);
+    border-left: 3px solid var(--success);
+    border-radius: 6px;
+    display: flex; align-items: center; gap: 10px;
+    font-size: 13px; color: var(--success); font-weight: 600;
+  }
+  .reconciliation-check.fail {
+    background: var(--danger-soft); color: var(--error);
+    border-left-color: var(--error);
+  }
+  .reconciliation-check .ico {
+    width: 20px; height: 20px; border-radius: 50%;
+    background: var(--success); color: #fff;
+    display: grid; place-items: center; font-size: 12px;
+    flex-shrink: 0;
+  }
+  .reconciliation-check.fail .ico { background: var(--error); }
+
+  /* Action bar */
+  .action-bar {
+    display: flex; gap: 10px; justify-content: flex-end;
+    padding: 14px 0;
+  }
+  .btn {
+    padding: 10px 18px; border-radius: 10px;
+    font-weight: 600; font-size: 14px;
+    display: flex; align-items: center; gap: 6px;
+    transition: all 0.15s;
+  }
+  .btn.secondary { background: var(--surface-2); color: var(--ink); }
+  .btn.secondary:hover { background: var(--line); }
+  .btn.primary { background: var(--primary); color: var(--primary-ink); }
+  .btn.primary:hover { box-shadow: 0 4px 12px var(--shadow-lg); transform: translateY(-1px); }
+  .btn.danger { background: transparent; color: var(--error); }
+  .btn.danger:hover { background: var(--danger-soft); }
+
+  /* Right: Detail panel */
+  .detail-panel {
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: 14px;
+    box-shadow: 0 2px 8px var(--shadow);
+    padding: 20px;
+    position: sticky; top: 69px;
+    max-height: calc(100vh - 93px);
+    overflow-y: auto;
+    display: flex; flex-direction: column; gap: 14px;
+  }
+  .detail-title {
+    font-family: 'Baloo 2', cursive;
+    font-size: 16px; font-weight: 700; color: var(--ink);
+    display: flex; align-items: center; gap: 8px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--line);
+  }
+  .detail-title img { width: 22px; height: 22px; image-rendering: pixelated; }
+  .form-group { display: flex; flex-direction: column; gap: 4px; }
+  .form-label {
+    font-size: 11px; color: var(--ink-2);
+    text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600;
+  }
+  .form-value {
+    font-size: 14px; color: var(--ink); padding: 8px 10px;
+    background: var(--surface-2); border: 1px solid transparent;
+    border-radius: 8px;
+    transition: border-color 0.15s;
+  }
+  .form-value:hover { border-color: var(--line); cursor: text; }
+  .form-value:focus-within, .form-value.editing { border-color: var(--primary); background: var(--surface); }
+  .form-value.edited::after { content: ' •'; color: var(--warning); font-weight: 700; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .select-cascade {
+    display: flex; flex-direction: column; gap: 6px;
+    padding: 10px; border-radius: 8px;
+    background: var(--surface-2);
+  }
+  .cascade-row {
+    display: grid; grid-template-columns: 60px 1fr; gap: 8px; align-items: center;
+    font-size: 13px;
+  }
+  .cascade-level { color: var(--ink-3); font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+  .cascade-value {
+    padding: 4px 8px; background: var(--surface); border: 1px solid var(--line);
+    border-radius: 6px; color: var(--ink); font-weight: 500;
+  }
+  .cascade-value.edited { border-color: var(--warning); color: var(--ink); }
+  .cascade-value.locked { background: var(--surface-2); color: var(--ink-3); cursor: not-allowed; }
+
+  .detail-notes {
+    min-height: 64px;
+    background: var(--surface-2); border: 1px solid transparent;
+    border-radius: 8px; padding: 10px;
+    font-family: inherit; font-size: 13px; color: var(--ink);
+    resize: vertical;
+  }
+  .detail-notes:focus { border-color: var(--primary); background: var(--surface); outline: none; }
+
+  .source-row {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 11px; color: var(--ink-3);
+    padding-top: 10px; border-top: 1px solid var(--line);
+  }
+  .source-chip {
+    padding: 2px 8px; border-radius: 999px;
+    background: var(--surface-2); color: var(--ink-2);
+    font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  .source-chip.user { background: var(--primary-soft); color: var(--primary); }
+  .source-chip.learned { background: var(--accent-soft); color: var(--warning); }
+
+  /* Receipt preview (small) */
+  .receipt-preview {
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: 14px; padding: 14px;
+    box-shadow: 0 2px 4px var(--shadow);
+  }
+  .receipt-preview .rail-title { margin-bottom: 8px; }
+  .receipt-thumb {
+    width: 100%; aspect-ratio: 3/4;
+    background: var(--surface-2);
+    border-radius: 8px;
+    display: grid; place-items: center;
+    color: var(--ink-3); font-size: 12px;
+    border: 1px dashed var(--line-strong);
+  }
+
+  /* Responsive */
+  @media (max-width: 1024px) {
+    .editor-split { grid-template-columns: 1fr; }
+    .detail-panel { position: static; max-height: none; }
+    .tx-header { grid-template-columns: auto 1fr; }
+    .tx-total-display { grid-column: 1 / -1; text-align: left; }
+    .item-list-head, .item { grid-template-columns: 32px 1fr 70px 70px 28px; }
+    .item-list-head > :nth-child(3), .item > :nth-child(3) { display: none; }
+  }
+  @media (max-width: 640px) {
+    .mode-bar { flex-direction: column; align-items: stretch; }
+    .item-list-head, .item { grid-template-columns: 32px 1fr 70px; padding: 10px 12px; }
+    .item-list-head > :nth-child(n+4), .item > :nth-child(n+4) { display: none; }
+  }
+</style>
+</head>
+
+<body data-theme="normal" data-mode="light">
+
+<!-- CONTROLS -->
+<div class="controls">
+  <div class="controls-group">
+    <span class="controls-label">Theme</span>
+    <button class="theme-tab active" data-theme-val="normal">Normal</button>
+    <button class="theme-tab" data-theme-val="professional">Professional</button>
+    <button class="theme-tab" data-theme-val="mono">Mono</button>
+  </div>
+  <div class="controls-group">
+    <span class="controls-label">Mode</span>
+    <div class="mode-toggle">
+      <span>Light</span>
+      <div class="toggle-switch" id="modeToggle"></div>
+      <span>Dark</span>
+    </div>
+  </div>
+  <div class="controls-group">
+    <span class="controls-label">Platform</span>
+    <span style="color: var(--primary); font-weight: 600;">Desktop Web 1440</span>
+  </div>
+</div>
+
+<div class="app-shell">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-mark"><img src="../assets/icons/piggy-bank.png" alt=""></div>
+      <span class="wordmark">gastify</span>
+    </div>
+    <ul class="nav-list">
+      <li><a class="nav-item" href="gastify-dashboard-desktop.html"><img class="nav-icon" src="../assets/icons/app-icons/navigation/nav-home.png" alt=""><span>Inicio</span></a></li>
+      <li><a class="nav-item active" href="gastify-history-desktop.html"><img class="nav-icon" src="../assets/icons/app-icons/navigation/nav-history.png" alt=""><span>Historial</span></a></li>
+      <li><a class="nav-item" href="gastify-trends.html"><img class="nav-icon" src="../assets/icons/app-icons/navigation/nav-trends.png" alt=""><span>Tendencias</span></a></li>
+      <li><a class="nav-item" href="gastify-insights.html"><img class="nav-icon" src="../assets/icons/app-icons/navigation/nav-insights.png" alt=""><span>Insights</span></a></li>
+      <li><a class="nav-item" href="gastify-reports.html"><img class="nav-icon" src="../assets/icons/app-icons/navigation/nav-reports.png" alt=""><span>Reportes</span></a></li>
+      <li><a class="nav-item" href="gastify-group-switcher.html"><img class="nav-icon" src="../assets/icons/app-icons/navigation/nav-scan.png" alt=""><span>Grupos</span></a></li>
+      <li><a class="nav-item" href="gastify-settings.html"><img class="nav-icon" src="../assets/icons/app-icons/navigation/nav-settings.png" alt=""><span>Ajustes</span></a></li>
+    </ul>
+    <div class="sidebar-footer">
+      <div class="user-chip">
+        <div class="user-avatar">JG</div>
+        <div style="flex: 1; min-width: 0;"><div class="user-name">Juan García</div><div class="user-email">juan@ejemplo.cl</div></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- TOP BAR -->
+    <div class="topbar">
+      <div class="search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        <input type="text" placeholder="Buscar..." aria-label="Buscar">
+        <span class="kbd-hint">/</span>
+      </div>
+      <button class="scan-btn" aria-label="Escanear"><img src="../assets/icons/app-icons/scan-features/scan-single.png" alt=""><span>Escanear</span><span class="kbd-hint" style="background: rgba(255,255,255,0.22); color: #fff; border: none;">⌘K</span></button>
+      <button class="icon-btn" aria-label="Alertas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span class="bell-badge">3</span></button>
+      <div class="topbar-avatar" aria-label="Perfil">JG</div>
+    </div>
+
+    <!-- BACK + BREADCRUMB -->
+    <div class="back-row">
+      <a class="back-btn" href="gastify-history-desktop.html">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+        <span>Volver</span>
+      </a>
+      <div class="breadcrumb"><a href="gastify-history-desktop.html">Historial</a> › Jumbo Las Condes · 22 abr</div>
+    </div>
+
+    <!-- TX HEADER -->
+    <div class="tx-header">
+      <div class="tx-header-icon">
+        <img src="../assets/icons/app-icons/store-categories/store-supermarket.png" alt="">
+      </div>
+      <div>
+        <div class="tx-store-row">
+          <span class="tx-store-name">Jumbo Las Condes</span>
+          <span class="edit-pencil" title="Editar comercio">✎</span>
+          <span class="tx-cat-chip">Supermercado</span>
+        </div>
+        <div class="tx-meta-row">
+          <span>📅 hoy · 22 abr 2026 · 18:42</span>
+          <span class="dot">·</span>
+          <span>📍 Las Condes, Av. Apoquindo 4500</span>
+          <span class="dot">·</span>
+          <span>23 items</span>
+        </div>
+      </div>
+      <div class="tx-total-display">
+        <div class="tx-total-label">Total</div>
+        <div class="tx-total-amount">$42.180</div>
+        <div class="tx-total-usd">USD 44.45 · tasa 949.12</div>
+      </div>
+    </div>
+
+    <!-- MODE BAR -->
+    <div class="mode-bar">
+      <div class="mode-pill-group">
+        <button class="mode-pill active">
+          <img src="../assets/icons/app-icons/actions/action-edit.png" alt="">
+          <span>Modo normal</span>
+        </button>
+        <button class="mode-pill">
+          <img src="../assets/icons/app-icons/status/status-warning.png" alt="">
+          <span>Hard-Lock</span>
+        </button>
+      </div>
+      <div class="hard-lock-indicator" style="display: none;">
+        <img src="../assets/icons/app-icons/status/status-warning.png" alt="">
+        <span>Hard-Lock activo</span>
+      </div>
+      <div class="mode-meta">
+        Modo normal: cambios se aplican inmediatamente. Hard-Lock: suma de items debe coincidir con total escaneado antes de guardar.
+      </div>
+    </div>
+
+    <!-- SPLIT PANEL -->
+    <div class="editor-split">
+
+      <!-- LEFT: Item list + totals + actions -->
+      <div>
+        <div class="item-list">
+          <div class="item-list-head">
+            <div></div>
+            <div>Producto</div>
+            <div>Categoría</div>
+            <div>Cant.</div>
+            <div style="text-align:right">Precio</div>
+            <div></div>
+          </div>
+
+          <div class="item selected">
+            <div class="item-ico"><img src="../assets/icons/app-icons/item-categories/item-meat-seafood.png" alt=""></div>
+            <div class="item-body">
+              <div class="item-name">Filete de salmón fresco</div>
+              <div class="item-name-meta">400g · por kg</div>
+            </div>
+            <div class="item-cat">Carnes</div>
+            <div class="item-qty">1</div>
+            <div class="item-price">8.980</div>
+            <div class="item-badge">›</div>
+          </div>
+
+          <div class="item cat-bebidas">
+            <div class="item-ico"><img src="../assets/icons/app-icons/item-categories/item-beverages.png" alt=""></div>
+            <div class="item-body">
+              <div class="item-name">Coca-Cola 1.5L × 3</div>
+              <div class="item-name-meta">pack promoción</div>
+            </div>
+            <div class="item-cat">Bebidas</div>
+            <div class="item-qty">3</div>
+            <div class="item-price">4.470</div>
+            <div class="item-badge">›</div>
+          </div>
+
+          <div class="item">
+            <div class="item-ico"><img src="../assets/icons/app-icons/item-categories/item-produce.png" alt=""></div>
+            <div class="item-body">
+              <div class="item-name">Palta Hass</div>
+              <div class="item-name-meta">0.82 kg · a granel</div>
+            </div>
+            <div class="item-cat">Frutas</div>
+            <div class="item-qty">0.82</div>
+            <div class="item-price">3.280</div>
+            <div class="item-badge">›</div>
+          </div>
+
+          <div class="item cat-cleaning">
+            <div class="item-ico"><img src="../assets/icons/app-icons/item-categories/item-cleaning.png" alt=""></div>
+            <div class="item-body">
+              <div class="item-name">Detergente Ariel 3kg</div>
+              <div class="item-name-meta">powder</div>
+            </div>
+            <div class="item-cat">Limpieza</div>
+            <div class="item-qty">1</div>
+            <div class="item-price">7.990</div>
+            <div class="item-badge">›</div>
+          </div>
+
+          <div class="item">
+            <div class="item-ico"><img src="../assets/icons/app-icons/item-categories/item-dairy-eggs.png" alt=""></div>
+            <div class="item-body">
+              <div class="item-name">Huevo color × 12</div>
+              <div class="item-name-meta">marca Super Huevo</div>
+            </div>
+            <div class="item-cat">Lácteos</div>
+            <div class="item-qty">1</div>
+            <div class="item-price">3.590</div>
+            <div class="item-badge">›</div>
+          </div>
+
+          <div class="item cat-salud">
+            <div class="item-ico"><img src="../assets/icons/app-icons/item-categories/item-medications.png" alt=""></div>
+            <div class="item-body">
+              <div class="item-name">Paracetamol 500mg × 20</div>
+              <div class="item-name-meta">genérico</div>
+            </div>
+            <div class="item-cat">Salud</div>
+            <div class="item-qty">1</div>
+            <div class="item-price">1.890</div>
+            <div class="item-badge flagged" title="Gemini confianza baja">!</div>
+          </div>
+
+          <div class="item">
+            <div class="item-ico"><img src="../assets/icons/app-icons/item-categories/item-bread-pastry.png" alt=""></div>
+            <div class="item-body">
+              <div class="item-name">Pan hallulla × 6</div>
+              <div class="item-name-meta">fresco del día</div>
+            </div>
+            <div class="item-cat">Panadería</div>
+            <div class="item-qty">6</div>
+            <div class="item-price">2.340</div>
+            <div class="item-badge">›</div>
+          </div>
+
+          <div class="item">
+            <div class="item-ico"><img src="../assets/icons/app-icons/item-categories/item-produce.png" alt=""></div>
+            <div class="item-body">
+              <div class="item-name">+ 16 items más</div>
+              <div class="item-name-meta">clic para expandir</div>
+            </div>
+            <div class="item-cat">varias</div>
+            <div class="item-qty">16</div>
+            <div class="item-price">9.640</div>
+            <div class="item-badge">›</div>
+          </div>
+        </div>
+
+        <!-- TOTALS -->
+        <div class="totals-footer" style="margin-top: 14px;">
+          <div class="total-row subtotal"><span>Subtotal (items)</span><span>$40.980</span></div>
+          <div class="total-row tax"><span>IVA 19%</span><span>$1.630</span></div>
+          <div class="total-row discount"><span>Descuento CENCOSUD</span><span>−$430</span></div>
+          <div class="total-row grand"><span>Total</span><span>$42.180</span></div>
+          <div class="reconciliation-check">
+            <div class="ico">✓</div>
+            <div>Reconciliación OK · items + IVA − descuento = total escaneado</div>
+          </div>
+        </div>
+
+        <!-- ACTION BAR -->
+        <div class="action-bar">
+          <button class="btn danger">Eliminar transacción</button>
+          <button class="btn secondary">Cancelar</button>
+          <button class="btn primary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+            <span>Guardar cambios</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- RIGHT: Detail panel for selected item -->
+      <aside class="detail-panel">
+        <div class="detail-title">
+          <img src="../assets/icons/app-icons/item-categories/item-meat-seafood.png" alt="">
+          Detalle del item
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Nombre del producto</label>
+          <div class="form-value editing">Filete de salmón fresco</div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Cantidad</label>
+            <div class="form-value">1</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Unidad</label>
+            <div class="form-value">kg (0.400)</div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Precio unit.</label>
+            <div class="form-value">$22.450 / kg</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Total item</label>
+            <div class="form-value" style="font-weight: 700;">$8.980</div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Categoría V4 · cascada</label>
+          <div class="select-cascade">
+            <div class="cascade-row"><span class="cascade-level">L1</span><span class="cascade-value">Supermercados</span></div>
+            <div class="cascade-row"><span class="cascade-level">L2</span><span class="cascade-value">Supermarket</span></div>
+            <div class="cascade-row"><span class="cascade-level">L3</span><span class="cascade-value">food-fresh</span></div>
+            <div class="cascade-row"><span class="cascade-level">L4</span><span class="cascade-value edited">MeatSeafood</span></div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Tag / etiqueta</label>
+          <div class="form-value" style="color: var(--ink-3); font-style: italic;">+ agregar tag</div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Notas privadas</label>
+          <textarea class="detail-notes" placeholder="Ej: regalo para cumpleaños de Ana..."></textarea>
+        </div>
+
+        <div class="source-row">
+          <span>Fuente:</span>
+          <span class="source-chip user">User override</span>
+          <span style="flex: 1; text-align: right;">Categoría editada manualmente · 14:23</span>
+        </div>
+      </aside>
+
+    </div>
+
+    <!-- PLATFORM NOTES -->
+    <aside class="platform-notes">
+      <h3>Desktop Web — Transaction Editor Platform Notes</h3>
+      <ul>
+        <li>Split-panel pattern: item list left (primary), detail form right (contextual). Mobile collapses to stacked full-width panels</li>
+        <li>Click item → loads into right panel; detail panel is sticky while item list scrolls</li>
+        <li>Mode toggle: Normal (inline save) vs Hard-Lock (requires math reconciliation before save — REQ-12)</li>
+        <li>REQ-13 user-edit precedence: edited fields show orange border + ● indicator; source chip shows "User override" · timestamp</li>
+        <li>Reconciliation check block: green ✓ when items + IVA − discount = total · red ✗ when mismatch (blocks save in Hard-Lock)</li>
+        <li>Confidence flag <code>!</code> on items where Gemini confidence &lt; threshold — user should verify category/price</li>
+        <li>Keyboard: <code>↑/↓</code> navigate items · <code>Enter</code> opens detail · <code>Tab</code> cycles form fields · <code>⌘S</code> save</li>
+        <li>Cascade select (L1→L2→L3→L4) respects V4 taxonomy from <code>assets/tokens/categories.ts</code> — user edits propagate upward (L4 change → reclassifies L3/L2/L1 via lookup)</li>
+      </ul>
+    </aside>
+
+  </main>
+
+  <!-- RIGHT RAIL: Receipt preview + history -->
+  <aside class="rail">
+
+    <!-- Receipt image -->
+    <div class="receipt-preview">
+      <div class="rail-title">
+        <img src="../assets/icons/app-icons/scan-features/scan-single.png" alt="">
+        Boleta escaneada
+      </div>
+      <div class="receipt-thumb">[Receipt image preview]</div>
+      <a href="#" style="display: block; margin-top: 10px; font-size: 12px; color: var(--primary); font-weight: 600; text-align: center;">Ver imagen completa →</a>
+    </div>
+
+    <!-- Transaction metadata -->
+    <div class="rail-card">
+      <div class="rail-title">
+        <img src="../assets/icons/app-icons/actions/action-filter.png" alt="">
+        Detalles
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 8px; font-size: 13px;">
+        <div style="display: flex; justify-content: space-between;"><span style="color: var(--ink-2);">ID transacción</span><span style="font-family: monospace; font-size: 11px; color: var(--ink-3);">tx_8f2d...c991</span></div>
+        <div style="display: flex; justify-content: space-between;"><span style="color: var(--ink-2);">Fuente</span><span style="font-weight: 600;">Scan AI</span></div>
+        <div style="display: flex; justify-content: space-between;"><span style="color: var(--ink-2);">Confianza</span><span style="font-weight: 600; color: var(--success);">96%</span></div>
+        <div style="display: flex; justify-content: space-between;"><span style="color: var(--ink-2);">Método pago</span><span style="font-weight: 600;">Tarjeta crédito ****4211</span></div>
+        <div style="display: flex; justify-content: space-between;"><span style="color: var(--ink-2);">Moneda</span><span style="font-weight: 600;">CLP</span></div>
+        <div style="display: flex; justify-content: space-between;"><span style="color: var(--ink-2);">FX snapshot</span><span style="font-weight: 600;">949.12 USD/CLP</span></div>
+      </div>
+    </div>
+
+    <!-- Similar transactions -->
+    <div class="rail-card">
+      <div class="rail-title">
+        <img src="../assets/icons/app-icons/navigation/nav-history.png" alt="">
+        Jumbo este mes
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 6px; font-size: 13px;">
+        <div style="display: flex; justify-content: space-between;"><span>hoy</span><span style="font-weight: 700; color: var(--primary);">$42.180</span></div>
+        <div style="display: flex; justify-content: space-between; color: var(--ink-2);"><span>18 abr</span><span>$24.680</span></div>
+        <div style="display: flex; justify-content: space-between; color: var(--ink-2);"><span>12 abr</span><span>$31.420</span></div>
+        <div style="display: flex; justify-content: space-between; color: var(--ink-2);"><span>5 abr</span><span>$28.900</span></div>
+        <div style="display: flex; justify-content: space-between; border-top: 1px solid var(--line); padding-top: 6px; margin-top: 4px;"><span style="color: var(--ink-2);">Total mes</span><span style="font-weight: 700;">$127.180</span></div>
+      </div>
+    </div>
+
+  </aside>
+
+</div>
+
+<script>
+  const body = document.body;
+  document.querySelectorAll('.theme-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.theme-tab').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+      body.dataset.theme = btn.dataset.themeVal;
+    });
+  });
+  document.getElementById('modeToggle').addEventListener('click', () => {
+    body.dataset.mode = body.dataset.mode === 'dark' ? 'light' : 'dark';
+  });
+  // Select item → move .selected class
+  document.querySelectorAll('.item').forEach(item => {
+    item.addEventListener('click', () => {
+      document.querySelectorAll('.item').forEach(i => i.classList.remove('selected'));
+      item.classList.add('selected');
+    });
+  });
+  // Mode toggle (normal ↔ hard-lock)
+  document.querySelectorAll('.mode-pill').forEach(pill => {
+    pill.addEventListener('click', () => {
+      document.querySelectorAll('.mode-pill').forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
+      const isLock = pill.textContent.includes('Hard-Lock');
+      document.querySelector('.hard-lock-indicator').style.display = isLock ? 'flex' : 'none';
+    });
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === '/' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
+      e.preventDefault();
+      document.querySelector('.search input').focus();
+    }
+    if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      e.preventDefault();
+      document.querySelector('.scan-btn').click();
+    }
+  });
+</script>
+
+</body>
+</html>
