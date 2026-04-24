@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="es-CL">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ítems — gastify Desktop Web (1440 responsive)</title>
+<link rel="stylesheet" href="../assets/fonts/gastify-fonts.css">
+<link rel="stylesheet" href="../assets/css/desktop-shell.css">
+<style>
+  /* Items header */
+  .items-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin: 8px 0 12px;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .items-head h1 {
+    font-family: 'Baloo 2', cursive;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+  }
+  .items-sub { font-size: 13px; color: var(--ink-2); margin-top: 2px; }
+
+  /* Toolbar — view toggle + sort + export */
+  .items-toolbar {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .view-toggle {
+    display: flex;
+    background: var(--surface-2);
+    padding: 4px;
+    border-radius: 10px;
+    gap: 2px;
+  }
+  .view-opt {
+    padding: 6px 14px;
+    border: none;
+    background: transparent;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--ink-2);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .view-opt.active { background: var(--surface); color: var(--primary); box-shadow: 0 1px 3px var(--shadow); }
+  .view-opt:hover:not(.active) { color: var(--primary); }
+
+  .sort-select {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    font-size: 12px;
+    color: var(--ink-2);
+    cursor: pointer;
+  }
+  .sort-select select {
+    border: none;
+    background: transparent;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 12px;
+    color: var(--primary);
+    outline: none;
+    cursor: pointer;
+  }
+
+  /* Summary strip */
+  .summary-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+  .summary-card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 14px 16px;
+    box-shadow: 0 2px 4px var(--shadow);
+  }
+  .summary-label {
+    font-size: 11px;
+    color: var(--ink-3);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .summary-value {
+    font-family: 'Baloo 2', cursive;
+    font-weight: 700;
+    font-size: 24px;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+  }
+  .summary-meta { font-size: 11px; color: var(--ink-2); margin-top: 2px; }
+
+  /* Items table */
+  .items-table {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px var(--shadow);
+  }
+  .items-table-head {
+    display: grid;
+    grid-template-columns: 44px 2fr 1.3fr 100px 110px 130px 100px 28px;
+    gap: 12px;
+    align-items: center;
+    padding: 10px 18px;
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--line);
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--ink-2);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .items-table-head > div { white-space: nowrap; }
+  .items-table-head .col-num { text-align: right; }
+  .items-table-head .col-sort { cursor: pointer; display: inline-flex; align-items: center; gap: 3px; }
+  .items-table-head .col-sort.active { color: var(--primary); }
+
+  /* Group header (collapsible by L3 Familia) */
+  .items-group-head {
+    padding: 12px 18px;
+    background: var(--bg);
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    font-family: 'Baloo 2', cursive;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .items-group-head:hover { background: var(--surface-2); }
+  .items-group-head .group-chev { color: var(--ink-3); transition: transform .2s; }
+  .items-group-head.collapsed .group-chev { transform: rotate(-90deg); }
+  .items-group-head .group-icon { width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; }
+  .items-group-head .group-icon img { width: 22px; height: 22px; image-rendering: pixelated; }
+  .items-group-head .group-count {
+    font-size: 11px;
+    color: var(--ink-3);
+    font-weight: 700;
+    padding: 2px 8px;
+    background: var(--surface-2);
+    border-radius: 999px;
+    margin-left: auto;
+    font-family: 'Outfit', sans-serif;
+  }
+  .items-group-head .group-total {
+    font-family: 'Outfit', sans-serif;
+    font-size: 13px;
+    color: var(--primary);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Item row */
+  .item-row {
+    display: grid;
+    grid-template-columns: 44px 2fr 1.3fr 100px 110px 130px 100px 28px;
+    gap: 12px;
+    align-items: center;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--line);
+    transition: background .12s;
+    cursor: pointer;
+  }
+  .item-row:last-child { border-bottom: none; }
+  .item-row:hover { background: var(--surface-2); }
+  .item-row:hover .row-chev { opacity: 1; transform: translateX(2px); }
+  .item-row.selected { background: var(--primary-soft); }
+  .item-row.selected::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: var(--primary);
+  }
+  .item-icon {
+    width: 44px; height: 44px;
+    border-radius: 10px;
+    background: var(--primary-soft);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .item-icon img { width: 28px; height: 28px; image-rendering: pixelated; }
+  .item-icon.cat-salud { background: var(--cat-medicamento-tint); }
+  .item-icon.cat-hogar { background: var(--cat-hogar-tint); }
+  .item-icon.cat-cargo { background: var(--cat-cargo-tint); }
+
+  .item-name-cell { min-width: 0; }
+  .item-name {
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--ink);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .item-tag-line {
+    font-size: 11px;
+    color: var(--ink-3);
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .item-tag-line .l4-chip {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 1px 7px;
+    border-radius: 999px;
+    background: var(--surface-2);
+    color: var(--ink-2);
+    margin-right: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .item-store-cell { min-width: 0; }
+  .item-store-top {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .item-store-top img { width: 16px; height: 16px; image-rendering: pixelated; flex-shrink: 0; }
+  .item-store-sub {
+    font-size: 11px;
+    color: var(--ink-3);
+    margin-top: 2px;
+  }
+
+  .col-num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  .item-count {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .item-count-sub {
+    font-size: 11px;
+    color: var(--ink-3);
+    font-weight: 600;
+    margin-top: 2px;
+  }
+  .item-avg {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink-2);
+  }
+  .item-avg-sub {
+    font-size: 11px;
+    color: var(--ink-3);
+    margin-top: 2px;
+  }
+  .item-total {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .item-total-sub {
+    font-size: 11px;
+    color: var(--ink-3);
+    margin-top: 2px;
+  }
+  .item-trend {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 12px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+  .item-trend.up { color: var(--error); }
+  .item-trend.down { color: var(--success); }
+  .item-trend.flat { color: var(--ink-3); }
+
+  .row-chev {
+    color: var(--ink-3);
+    opacity: 0.5;
+    transition: opacity .15s, transform .15s;
+  }
+
+  /* Flagged row */
+  .item-row.flagged {
+    background: var(--danger-soft);
+  }
+  .item-row.flagged .item-total { color: var(--error); }
+
+  /* Pagination */
+  .pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    padding: 20px 0;
+  }
+  .page-btn {
+    min-width: 36px;
+    height: 36px;
+    padding: 0 10px;
+    border-radius: 8px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    color: var(--ink);
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .page-btn:hover:not(:disabled) { background: var(--surface-2); border-color: var(--primary); }
+  .page-btn.active { background: var(--primary); color: var(--primary-ink); border-color: var(--primary); }
+  .page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* Responsive */
+  @media (max-width: 1280px) {
+    .items-table-head, .item-row {
+      grid-template-columns: 40px 2fr 1fr 90px 120px 28px;
+    }
+    .col-hide-md { display: none; }
+  }
+  @media (max-width: 900px) {
+    .summary-row { grid-template-columns: 1fr 1fr; }
+    .items-table-head { display: none; }
+    .item-row {
+      grid-template-columns: 40px 1fr auto;
+      gap: 10px;
+    }
+    .item-store-cell, .col-count, .col-avg { display: none; }
+    .col-total { grid-column: 2 / 4; text-align: left; margin-top: 4px; }
+  }
+</style>
+</head>
+
+<body data-theme="normal" data-mode="light">
+
+<!-- CONTROLS -->
+<div class="controls">
+  <div class="controls-group">
+    <span class="controls-label">Theme</span>
+    <button class="theme-tab active" data-theme-val="normal">Normal</button>
+    <button class="theme-tab" data-theme-val="professional">Professional</button>
+    <button class="theme-tab" data-theme-val="mono">Mono</button>
+  </div>
+  <div class="controls-group">
+    <span class="controls-label">Mode</span>
+    <div class="mode-toggle">
+      <span>Light</span>
+      <div class="toggle-switch" id="modeToggle"></div>
+      <span>Dark</span>
+    </div>
+  </div>
+  <div class="controls-group">
+    <span class="controls-label">Platform</span>
+    <span style="color: var(--primary); font-weight: 600;">Desktop Web 1440</span>
+    <a class="platform-switch" href="gastify-items.html" title="Ver versión mobile"><span class="dot">●</span> Mobile ↗</a>
+  </div>
+  <div class="controls-group">
+    <div class="quick-nav" id="quickNav">
+      <button class="quick-nav-btn" onclick="document.getElementById('quickNav').classList.toggle('open')">☰ Desktop screens</button>
+      <div class="quick-nav-menu">
+        <div class="qn-section">Available (8)</div>
+        <a href="gastify-dashboard-desktop.html">🏠 Dashboard</a>
+        <a href="gastify-history-desktop.html">📜 Historial</a>
+        <a href="gastify-transaction-editor-desktop.html">✎ Transaction editor</a>
+        <a href="gastify-settings-desktop.html">⚙ Ajustes</a>
+        <a href="gastify-trends-desktop.html">📊 Tendencias</a>
+        <a href="gastify-insights-desktop.html">💡 Insights</a>
+        <a href="gastify-reports-desktop.html">📄 Reportes</a>
+        <a class="current" href="gastify-items-desktop.html">📦 Ítems <span class="qn-badge">current</span></a>
+        <div class="qn-section">Mobile-only (21 more)</div>
+        <a href="../index.html" style="color: var(--primary); font-weight: 600; margin-top: 4px;">→ See full gap matrix</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="app-shell">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-mark"><img src="../assets/icons/piggy-bank.png" alt=""></div>
+      <span class="wordmark">gastify</span>
+    </div>
+    <ul class="nav-list">
+      <li><a class="nav-item" href="gastify-dashboard-desktop.html"><img class="nav-icon" src="../assets/icons/app-icons/navigation/nav-home.png" alt=""><span>Inicio</span></a></li>
+      <li><a class="nav-item" href="gastify-history-desktop.html"><img class="nav-icon" src="../assets/icons/app-icons/navigation/nav-history.png" alt=""><span>Historial</span></a></li>
+      <li><a class="nav-item" href="gastify-trends-desktop.html"><img class="nav-icon" src="../assets/icons/app-icons/navigation/nav-trends.png" alt=""><span>Tendencias</span></a></li>
+      <li><a class="nav-item" href="gastify-insights-desktop.html"><img class="nav-icon" src="../assets/icons/app-icons/navigation/nav-insights.png" alt=""><span>Insights</span></a></li>
+      <li><a class="nav-item" href="gastify-reports-desktop.html"><img class="nav-icon" src="../assets/icons/app-icons/navigation/nav-reports.png" alt=""><span>Reportes</span></a></li>
+      <li><a class="nav-item" href="gastify-group-switcher.html"><img class="nav-icon" src="../assets/icons/app-icons/navigation/nav-scan.png" alt=""><span>Grupos</span></a></li>
+      <li><a class="nav-item" href="gastify-settings-desktop.html"><img class="nav-icon" src="../assets/icons/app-icons/navigation/nav-settings.png" alt=""><span>Ajustes</span></a></li>
+    </ul>
+    <div class="sidebar-footer">
+      <div class="user-chip">
+        <div class="user-avatar">JG</div>
+        <div style="flex: 1; min-width: 0;">
+          <div class="user-name">Juan García</div>
+          <div class="user-email">juan@ejemplo.cl</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div class="search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        <input type="text" placeholder="Buscar ítem (leche, pan, café...)..." aria-label="Buscar">
+        <span class="kbd-hint">/</span>
+      </div>
+      <button class="scan-btn" aria-label="Escanear boleta"><img src="../assets/icons/app-icons/scan-features/scan-single.png" alt=""><span>Escanear</span><span class="kbd-hint" style="background: rgba(255,255,255,0.22); color: #fff; border: none;">⌘K</span></button>
+      <button class="icon-btn" aria-label="Alertas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span class="bell-badge">3</span></button>
+      <div class="topbar-avatar" aria-label="Perfil">JG</div>
+    </div>
+
+    <!-- FILTER STRIP -->
+    <section class="filter-strip" aria-label="Filtros">
+      <div class="filter-strip-row">
+        <div class="timeframe-pills" role="tablist" aria-label="Periodo">
+          <button class="timeframe-pill" data-period="year">Año</button>
+          <button class="timeframe-pill" data-period="quarter">Trimestre</button>
+          <button class="timeframe-pill active" data-period="month">Mes</button>
+          <button class="timeframe-pill" data-period="week">Semana</button>
+        </div>
+        <div class="period-nav">
+          <button class="period-nav-btn" aria-label="Periodo anterior"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" width="16" height="16"><polyline points="15 18 9 12 15 6"/></svg></button>
+          <span class="period-label">Abril 2026</span>
+          <button class="period-nav-btn" aria-label="Periodo siguiente"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" width="16" height="16"><polyline points="9 18 15 12 9 6"/></svg></button>
+        </div>
+        <div class="filter-icons">
+          <div class="filter-icon-wrap">
+            <button class="filter-icon-btn" aria-label="Filtro de tiempo" data-modal-toggle="time-modal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></button>
+            <div class="filter-modal" id="time-modal" role="dialog" aria-label="Filtro de tiempo">
+              <div class="filter-modal-header"><div class="filter-modal-title">Tiempo</div><button class="filter-modal-btn ghost" data-action="close-modal">✕</button></div>
+              <div class="filter-modal-body">
+                <div class="time-slider-row"><button class="time-slider-label">Año</button><div class="time-slider-ctrl"><button class="time-slider-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg></button><span class="time-slider-value">2026</span><button class="time-slider-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" width="14" height="14"><polyline points="9 18 15 12 9 6"/></svg></button></div></div>
+                <div class="time-slider-row"><button class="time-slider-label">Trimestre</button><div class="time-slider-ctrl"><button class="time-slider-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg></button><span class="time-slider-value">T2</span><button class="time-slider-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" width="14" height="14"><polyline points="9 18 15 12 9 6"/></svg></button></div></div>
+                <div class="time-slider-row"><button class="time-slider-label active">Mes</button><div class="time-slider-ctrl"><button class="time-slider-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg></button><span class="time-slider-value active">Abr</span><button class="time-slider-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" width="14" height="14"><polyline points="9 18 15 12 9 6"/></svg></button></div></div>
+                <div class="time-slider-row"><button class="time-slider-label">Semana</button><div class="time-slider-ctrl"><button class="time-slider-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg></button><span class="time-slider-value">Sem 1</span><button class="time-slider-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" width="14" height="14"><polyline points="9 18 15 12 9 6"/></svg></button></div></div>
+                <div class="time-slider-row"><button class="time-slider-label">Día</button><div class="time-slider-ctrl"><button class="time-slider-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg></button><span class="time-slider-value">1</span><button class="time-slider-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" width="14" height="14"><polyline points="9 18 15 12 9 6"/></svg></button></div></div>
+              </div>
+              <div class="filter-modal-footer"><button class="filter-modal-btn ghost">✕ Limpiar</button><button class="filter-modal-btn primary">Aplicar</button></div>
+            </div>
+          </div>
+          <div class="filter-icon-wrap">
+            <button class="filter-icon-btn active" aria-label="Filtro de categoría" data-modal-toggle="cat-modal">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+              <span class="filter-dot"></span>
+            </button>
+            <div class="filter-modal wide" id="cat-modal" role="dialog" aria-label="Filtro de categoría">
+              <div class="filter-modal-header">
+                <div class="taxonomy-chips">
+                  <button class="taxonomy-chip" data-cat-level="L1" title="Rubros (12)"><img src="../assets/icons/app-icons/rubros/rubro-supermercados.png" alt=""><span class="chip-label">L1</span></button>
+                  <button class="taxonomy-chip" data-cat-level="L2" title="Giros (44)"><img src="../assets/icons/app-icons/financial/fin-receipt.png" alt=""><span class="chip-label">L2</span></button>
+                  <button class="taxonomy-chip active" data-cat-level="L3" title="Familias (9)"><img src="../assets/icons/app-icons/familias/familia-productos-generales.png" alt=""><span class="chip-label">L3</span></button>
+                  <button class="taxonomy-chip" data-cat-level="L4" title="Categorías (42)"><img src="../assets/icons/app-icons/item-categories/item-frozen.png" alt=""><span class="chip-label">L4</span></button>
+                  <div class="taxonomy-chip-sep"></div>
+                  <button class="taxonomy-chip" data-cat-level="location" title="Ubicación" style="min-width: 52px;"><span style="font-size: 16px;">📍</span><span class="chip-label">Lugar</span></button>
+                </div>
+                <button class="filter-modal-btn ghost" data-action="close-modal">✕</button>
+              </div>
+              <div class="filter-modal-body">
+                <div class="cat-filter-flat" data-cat-pane="L1" hidden>
+                  <label class="cat-filter-row"><span class="row-check"></span><span class="row-icon"><img src="../assets/icons/app-icons/rubros/rubro-supermercados.png" alt=""></span><span class="row-label">Supermercados</span><span class="row-count">412 items</span></label>
+                </div>
+                <div class="cat-filter-flat" data-cat-pane="L2" hidden><div class="cat-filter-group"><div class="cat-filter-group-header">Supermercados<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="6 9 12 15 18 9"/></svg></div><div class="cat-filter-group-items"><button class="cat-filter-chip">Premium</button><button class="cat-filter-chip">Regular</button></div></div></div>
+                <div class="cat-filter-flat" data-cat-pane="L3">
+                  <label class="cat-filter-row selected"><span class="row-check">✓</span><span class="row-icon"><img src="../assets/icons/app-icons/familias/familia-food-fresh.png" alt=""></span><span class="row-label">Alimentos Frescos</span><span class="row-count">142 items</span></label>
+                  <label class="cat-filter-row selected"><span class="row-check">✓</span><span class="row-icon"><img src="../assets/icons/app-icons/familias/familia-food-packaged.png" alt=""></span><span class="row-label">Alimentos Envasados</span><span class="row-count">98 items</span></label>
+                  <label class="cat-filter-row"><span class="row-check"></span><span class="row-icon"><img src="../assets/icons/app-icons/familias/familia-hogar.png" alt=""></span><span class="row-label">Hogar</span><span class="row-count">64 items</span></label>
+                </div>
+                <div class="cat-filter-flat" data-cat-pane="L4" hidden><div class="cat-filter-group"><div class="cat-filter-group-header">Alimentos Frescos<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="6 9 12 15 18 9"/></svg></div><div class="cat-filter-group-items"><button class="cat-filter-chip">Frutas y Verduras</button><button class="cat-filter-chip">Carnes y Mariscos</button></div></div></div>
+                <div class="loc-tree" data-cat-pane="location" hidden><div class="loc-country"><svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="6 9 12 15 18 9"/></svg><span>🇨🇱 Chile</span><span class="loc-count">0</span></div></div>
+              </div>
+              <div class="filter-modal-footer"><button class="filter-modal-btn ghost">✕ Limpiar</button><button class="filter-modal-btn primary">Aplicar 2</button></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- HEADER + TOOLBAR -->
+    <div class="items-head">
+      <div>
+        <h1>Ítems</h1>
+        <div class="items-sub">612 ítems detectados este mes · 240 únicos · Alimentos Frescos + Envasados</div>
+      </div>
+      <div class="items-toolbar">
+        <div class="view-toggle" role="tablist">
+          <button class="view-opt active" data-view="aggregated">Agrupado</button>
+          <button class="view-opt" data-view="flat">Plano</button>
+        </div>
+        <div class="sort-select">
+          Ordenar:
+          <select>
+            <option>Total ↓</option>
+            <option>Compras ↓</option>
+            <option>Precio promedio ↓</option>
+            <option>Alfabético</option>
+            <option>Tendencia</option>
+          </select>
+        </div>
+        <button class="action-btn" style="padding: 8px 14px; border-radius: 10px; font-family: inherit; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid var(--line-strong); background: var(--surface); color: var(--ink); display: inline-flex; align-items: center; gap: 6px;">
+          <img src="../assets/icons/app-icons/analytics/chart-export.png" alt="" style="width: 14px; height: 14px;">
+          Exportar
+        </button>
+      </div>
+    </div>
+
+    <!-- SUMMARY STRIP -->
+    <div class="summary-row">
+      <div class="summary-card">
+        <div class="summary-label">Ítems únicos</div>
+        <div class="summary-value">240</div>
+        <div class="summary-meta">de 612 escaneados</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-label">Total gastado</div>
+        <div class="summary-value">$487.320</div>
+        <div class="summary-meta">58% del mes</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-label">Ítem top</div>
+        <div class="summary-value" style="font-size: 18px;">Leche Entera 1L</div>
+        <div class="summary-meta">12 compras · $28.680</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-label">Inflación detectada</div>
+        <div class="summary-value" style="color: var(--error);">+8.4%</div>
+        <div class="summary-meta">14 ítems subieron de precio</div>
+      </div>
+    </div>
+
+    <!-- ITEMS TABLE -->
+    <div class="items-table">
+
+      <!-- Table head -->
+      <div class="items-table-head">
+        <div></div>
+        <div class="col-sort active">Ítem ↓</div>
+        <div>Comercio top</div>
+        <div class="col-num col-sort">Compras</div>
+        <div class="col-num col-sort">Avg</div>
+        <div class="col-num col-sort">Total</div>
+        <div class="col-num col-sort">Tend.</div>
+        <div></div>
+      </div>
+
+      <!-- Group: Alimentos Frescos -->
+      <div class="items-group-head">
+        <span class="group-chev">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="16" height="16"><polyline points="6 9 12 15 18 9"/></svg>
+        </span>
+        <span class="group-icon"><img src="../assets/icons/app-icons/familias/familia-food-fresh.png" alt=""></span>
+        <span>Alimentos Frescos</span>
+        <span class="group-total">$287.440</span>
+        <span class="group-count">142 items · 4 L4</span>
+      </div>
+
+      <!-- Item 1: Leche (top) -->
+      <div class="item-row selected">
+        <div class="item-icon"><img src="../assets/icons/app-icons/item-categories/item-dairy-eggs.png" alt=""></div>
+        <div class="item-name-cell">
+          <div class="item-name">Leche Entera 1L</div>
+          <div class="item-tag-line"><span class="l4-chip">Lácteos y Huevos</span>Colun · Soprole · Surlat</div>
+        </div>
+        <div class="item-store-cell">
+          <div class="item-store-top">🏪 Lider</div>
+          <div class="item-store-sub">9 de 12 compras</div>
+        </div>
+        <div class="col-num">
+          <div class="item-count">12</div>
+          <div class="item-count-sub">compras</div>
+        </div>
+        <div class="col-num">
+          <div class="item-avg">$2.390</div>
+          <div class="item-avg-sub">$1.990 min</div>
+        </div>
+        <div class="col-num">
+          <div class="item-total">$28.680</div>
+          <div class="item-total-sub">5.9% del mes</div>
+        </div>
+        <div class="col-num">
+          <span class="item-trend up">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" width="11" height="11"><polyline points="18 15 12 9 6 15"/></svg>
+            +4.2%
+          </span>
+        </div>
+        <span class="row-chev">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="16" height="16"><polyline points="9 18 15 12 9 6"/></svg>
+        </span>
+      </div>
+
+      <!-- Item 2: Pan -->
+      <div class="item-row">
+        <div class="item-icon"><img src="../assets/icons/app-icons/item-categories/item-bread-pastry.png" alt=""></div>
+        <div class="item-name-cell">
+          <div class="item-name">Pan Molde Integral</div>
+          <div class="item-tag-line"><span class="l4-chip">Pan y Repostería</span>Bimbo · Ideal</div>
+        </div>
+        <div class="item-store-cell">
+          <div class="item-store-top">🏪 Jumbo</div>
+          <div class="item-store-sub">5 de 8 compras</div>
+        </div>
+        <div class="col-num">
+          <div class="item-count">8</div>
+          <div class="item-count-sub">compras</div>
+        </div>
+        <div class="col-num">
+          <div class="item-avg">$1.890</div>
+          <div class="item-avg-sub">$1.690 min</div>
+        </div>
+        <div class="col-num">
+          <div class="item-total">$15.120</div>
+          <div class="item-total-sub">3.1% del mes</div>
+        </div>
+        <div class="col-num">
+          <span class="item-trend flat">
+            ± 0.8%
+          </span>
+        </div>
+        <span class="row-chev">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="16" height="16"><polyline points="9 18 15 12 9 6"/></svg>
+        </span>
+      </div>
+
+      <!-- Item 3: Queso -->
+      <div class="item-row">
+        <div class="item-icon"><img src="../assets/icons/app-icons/item-categories/item-dairy-eggs.png" alt=""></div>
+        <div class="item-name-cell">
+          <div class="item-name">Queso Gouda Laminado</div>
+          <div class="item-tag-line"><span class="l4-chip">Lácteos y Huevos</span>Soprole · Colun</div>
+        </div>
+        <div class="item-store-cell">
+          <div class="item-store-top">🏪 Jumbo</div>
+          <div class="item-store-sub">3 de 5 compras</div>
+        </div>
+        <div class="col-num">
+          <div class="item-count">5</div>
+          <div class="item-count-sub">compras</div>
+        </div>
+        <div class="col-num">
+          <div class="item-avg">$3.490</div>
+          <div class="item-avg-sub">$2.990 min</div>
+        </div>
+        <div class="col-num">
+          <div class="item-total">$17.450</div>
+          <div class="item-total-sub">3.6% del mes</div>
+        </div>
+        <div class="col-num">
+          <span class="item-trend up">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" width="11" height="11"><polyline points="18 15 12 9 6 15"/></svg>
+            +12.3%
+          </span>
+        </div>
+        <span class="row-chev">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="16" height="16"><polyline points="9 18 15 12 9 6"/></svg>
+        </span>
+      </div>
+
+      <!-- Item 4: Pollo (flagged for inflation) -->
+      <div class="item-row flagged">
+        <div class="item-icon"><img src="../assets/icons/app-icons/item-categories/item-meat-seafood.png" alt=""></div>
+        <div class="item-name-cell">
+          <div class="item-name">Pechuga de Pollo (kg)</div>
+          <div class="item-tag-line"><span class="l4-chip" style="background: var(--danger-soft); color: var(--error);">Carnes y Mariscos</span>Súper Pollo · Ariztía</div>
+        </div>
+        <div class="item-store-cell">
+          <div class="item-store-top">🏪 Santa Isabel</div>
+          <div class="item-store-sub">3 de 4 compras</div>
+        </div>
+        <div class="col-num">
+          <div class="item-count">4</div>
+          <div class="item-count-sub">compras</div>
+        </div>
+        <div class="col-num">
+          <div class="item-avg">$5.990</div>
+          <div class="item-avg-sub">$4.990 min</div>
+        </div>
+        <div class="col-num">
+          <div class="item-total">$23.960</div>
+          <div class="item-total-sub">4.9% del mes</div>
+        </div>
+        <div class="col-num">
+          <span class="item-trend up">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" width="11" height="11"><polyline points="18 15 12 9 6 15"/></svg>
+            +18.7%
+          </span>
+        </div>
+        <span class="row-chev">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="16" height="16"><polyline points="9 18 15 12 9 6"/></svg>
+        </span>
+      </div>
+
+      <!-- Group: Alimentos Envasados -->
+      <div class="items-group-head">
+        <span class="group-chev">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="16" height="16"><polyline points="6 9 12 15 18 9"/></svg>
+        </span>
+        <span class="group-icon"><img src="../assets/icons/app-icons/familias/familia-food-packaged.png" alt=""></span>
+        <span>Alimentos Envasados</span>
+        <span class="group-total">$142.680</span>
+        <span class="group-count">98 items · 4 L4</span>
+      </div>
+
+      <!-- Item 5: Café -->
+      <div class="item-row">
+        <div class="item-icon cat-cargo"><img src="../assets/icons/app-icons/item-categories/item-beverages.png" alt=""></div>
+        <div class="item-name-cell">
+          <div class="item-name">Café Granulado 170g</div>
+          <div class="item-tag-line"><span class="l4-chip">Bebidas</span>Nescafé · Oro</div>
+        </div>
+        <div class="item-store-cell">
+          <div class="item-store-top">🏪 Lider</div>
+          <div class="item-store-sub">2 de 3 compras</div>
+        </div>
+        <div class="col-num">
+          <div class="item-count">3</div>
+          <div class="item-count-sub">compras</div>
+        </div>
+        <div class="col-num">
+          <div class="item-avg">$4.290</div>
+          <div class="item-avg-sub">$3.990 min</div>
+        </div>
+        <div class="col-num">
+          <div class="item-total">$12.870</div>
+          <div class="item-total-sub">2.6% del mes</div>
+        </div>
+        <div class="col-num">
+          <span class="item-trend down">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" width="11" height="11"><polyline points="6 9 12 15 18 9"/></svg>
+            -2.1%
+          </span>
+        </div>
+        <span class="row-chev">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="16" height="16"><polyline points="9 18 15 12 9 6"/></svg>
+        </span>
+      </div>
+
+      <!-- Item 6: Detergente -->
+      <div class="item-row">
+        <div class="item-icon cat-hogar"><img src="../assets/icons/app-icons/item-categories/item-cleaning.png" alt=""></div>
+        <div class="item-name-cell">
+          <div class="item-name">Detergente Líquido 3L</div>
+          <div class="item-tag-line"><span class="l4-chip">Despensa</span>Omo · Ariel · Drive</div>
+        </div>
+        <div class="item-store-cell">
+          <div class="item-store-top">🏪 Jumbo</div>
+          <div class="item-store-sub">2 de 3 compras</div>
+        </div>
+        <div class="col-num">
+          <div class="item-count">3</div>
+          <div class="item-count-sub">compras</div>
+        </div>
+        <div class="col-num">
+          <div class="item-avg">$8.990</div>
+          <div class="item-avg-sub">$7.990 min</div>
+        </div>
+        <div class="col-num">
+          <div class="item-total">$26.970</div>
+          <div class="item-total-sub">5.5% del mes</div>
+        </div>
+        <div class="col-num">
+          <span class="item-trend up">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" width="11" height="11"><polyline points="18 15 12 9 6 15"/></svg>
+            +6.8%
+          </span>
+        </div>
+        <span class="row-chev">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="16" height="16"><polyline points="9 18 15 12 9 6"/></svg>
+        </span>
+      </div>
+
+      <!-- Item 7: Snacks -->
+      <div class="item-row">
+        <div class="item-icon"><img src="../assets/icons/app-icons/item-categories/item-snacks.png" alt=""></div>
+        <div class="item-name-cell">
+          <div class="item-name">Galletas Surtido</div>
+          <div class="item-tag-line"><span class="l4-chip">Snacks y Golosinas</span>Costa · McKay · Nestlé</div>
+        </div>
+        <div class="item-store-cell">
+          <div class="item-store-top">🏪 Unimarc</div>
+          <div class="item-store-sub">4 de 6 compras</div>
+        </div>
+        <div class="col-num">
+          <div class="item-count">6</div>
+          <div class="item-count-sub">compras</div>
+        </div>
+        <div class="col-num">
+          <div class="item-avg">$1.490</div>
+          <div class="item-avg-sub">$1.290 min</div>
+        </div>
+        <div class="col-num">
+          <div class="item-total">$8.940</div>
+          <div class="item-total-sub">1.8% del mes</div>
+        </div>
+        <div class="col-num">
+          <span class="item-trend flat">
+            ± 0.2%
+          </span>
+        </div>
+        <span class="row-chev">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="16" height="16"><polyline points="9 18 15 12 9 6"/></svg>
+        </span>
+      </div>
+
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination">
+      <button class="page-btn" disabled>‹</button>
+      <button class="page-btn active">1</button>
+      <button class="page-btn">2</button>
+      <button class="page-btn">3</button>
+      <span style="color: var(--ink-3); padding: 0 8px;">...</span>
+      <button class="page-btn">12</button>
+      <button class="page-btn">›</button>
+    </div>
+
+    <!-- PLATFORM NOTES -->
+    <aside class="platform-notes">
+      <h3>Desktop Web — Ítems</h3>
+      <ul>
+        <li>Full data table (8 cols) vs legacy mobile card stack — desktop gets dense tabular view of 240+ unique items</li>
+        <li>Row structure: icon / name+L4 chip + brand brands / top-store + frequency / count / avg price + min / total + % of month / trend delta / chevron</li>
+        <li>Grouped by L3 Familia (collapsible) — group header shows total + item count + distinct L4 count</li>
+        <li>View toggle: <code>Agrupado</code> (default, this mockup) / <code>Plano</code> (flat list of every tx-line, not aggregated — swap <code>data-view</code>)</li>
+        <li>Sort: Total / Compras / Precio promedio / Alfabético / Tendencia. Default = Total desc</li>
+        <li>Filter strip drives the universe — filtering L3=Alimentos Frescos + Envasados scopes table (2 seleccionados shown in Aplicar button)</li>
+        <li>Inflation flag: trend ≥+15% auto-flags row as <code>.flagged</code> (danger-soft bg, error amount color) — ties to Insights "actionable" type</li>
+        <li>Click row → drill to Transaction Editor filtered to transactions containing that item</li>
+      </ul>
+    </aside>
+
+  </main>
+
+</div>
+
+<script>
+  const body = document.body;
+  document.querySelectorAll('.theme-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.theme-tab').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+      body.dataset.theme = btn.dataset.themeVal;
+    });
+  });
+  document.getElementById('modeToggle').addEventListener('click', () => {
+    body.dataset.mode = body.dataset.mode === 'dark' ? 'light' : 'dark';
+  });
+
+  // View toggle (Agrupado / Plano)
+  document.querySelectorAll('.view-opt').forEach(opt => {
+    opt.addEventListener('click', () => {
+      document.querySelectorAll('.view-opt').forEach(o => o.classList.remove('active'));
+      opt.classList.add('active');
+    });
+  });
+
+  // Row selection
+  document.querySelectorAll('.item-row').forEach(row => {
+    row.addEventListener('click', () => {
+      document.querySelectorAll('.item-row').forEach(r => r.classList.remove('selected'));
+      row.classList.add('selected');
+    });
+  });
+
+  // Group header collapse
+  document.querySelectorAll('.items-group-head').forEach(h => {
+    h.addEventListener('click', () => {
+      h.classList.toggle('collapsed');
+      let next = h.nextElementSibling;
+      while (next && !next.classList.contains('items-group-head')) {
+        next.style.display = h.classList.contains('collapsed') ? 'none' : '';
+        next = next.nextElementSibling;
+      }
+    });
+  });
+
+  // Close quick-nav on outside click
+  document.addEventListener('click', (e) => {
+    const qn = document.getElementById('quickNav');
+    if (qn && !qn.contains(e.target)) qn.classList.remove('open');
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === '/' && document.activeElement.tagName !== 'INPUT') {
+      e.preventDefault();
+      document.querySelector('.search input').focus();
+    }
+    if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      e.preventDefault();
+      document.querySelector('.scan-btn').click();
+    }
+    if (e.key === 'Escape') {
+      document.querySelectorAll('.filter-modal.open').forEach(m => m.classList.remove('open'));
+    }
+  });
+
+  // ===== CANONICAL FILTER STRIP =====
+  document.querySelectorAll('.timeframe-pills .timeframe-pill').forEach(p => {
+    p.addEventListener('click', () => {
+      document.querySelectorAll('.timeframe-pills .timeframe-pill').forEach(x => x.classList.remove('active'));
+      p.classList.add('active');
+    });
+  });
+  document.querySelectorAll('[data-modal-toggle]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const modal = document.getElementById(btn.dataset.modalToggle);
+      const wasOpen = modal.classList.contains('open');
+      document.querySelectorAll('.filter-modal.open').forEach(m => m.classList.remove('open'));
+      if (!wasOpen) modal.classList.add('open');
+    });
+  });
+  document.querySelectorAll('[data-action="close-modal"]').forEach(btn => {
+    btn.addEventListener('click', (e) => { e.stopPropagation(); btn.closest('.filter-modal').classList.remove('open'); });
+  });
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.filter-modal') && !e.target.closest('[data-modal-toggle]')) {
+      document.querySelectorAll('.filter-modal.open').forEach(m => m.classList.remove('open'));
+    }
+  });
+  document.querySelectorAll('.taxonomy-chip').forEach(c => {
+    c.addEventListener('click', () => {
+      const level = c.dataset.catLevel;
+      const modal = c.closest('.filter-modal');
+      modal.querySelectorAll('.taxonomy-chip').forEach(x => x.classList.remove('active'));
+      c.classList.add('active');
+      modal.querySelectorAll('[data-cat-pane]').forEach(p => { p.hidden = (p.dataset.catPane !== level); });
+    });
+  });
+  document.querySelectorAll('.cat-filter-row').forEach(r => {
+    r.addEventListener('click', () => {
+      r.classList.toggle('selected');
+      const check = r.querySelector('.row-check');
+      if (check) check.textContent = r.classList.contains('selected') ? '✓' : '';
+    });
+  });
+  document.querySelectorAll('.cat-filter-chip').forEach(c => c.addEventListener('click', () => c.classList.toggle('selected')));
+  document.querySelectorAll('.cat-filter-group-header, .loc-country').forEach(h => {
+    h.addEventListener('click', () => {
+      h.classList.toggle('collapsed');
+      const items = h.nextElementSibling;
+      if (items && (items.classList.contains('cat-filter-group-items') || items.classList.contains('loc-cities'))) {
+        items.style.display = h.classList.contains('collapsed') ? 'none' : '';
+      }
+    });
+  });
+  document.querySelectorAll('.time-slider-label').forEach(lbl => {
+    lbl.addEventListener('click', () => {
+      const modal = lbl.closest('.filter-modal');
+      modal.querySelectorAll('.time-slider-label, .time-slider-value').forEach(x => { x.classList.remove('active'); x.classList.remove('pending'); });
+      const row = lbl.closest('.time-slider-row');
+      row.querySelector('.time-slider-label').classList.add('active');
+      row.querySelector('.time-slider-value').classList.add('active');
+      modal.classList.remove('open');
+    });
+  });
+  document.querySelectorAll('.time-slider-arrow').forEach(a => {
+    a.addEventListener('click', () => {
+      const row = a.closest('.time-slider-row');
+      row.querySelector('.time-slider-label').classList.add('pending');
+      row.querySelector('.time-slider-value').classList.add('pending');
+    });
+  });
+</script>
+
+</body>
+</html>
