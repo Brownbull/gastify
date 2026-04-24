@@ -27,16 +27,37 @@ Hashed filenames are Google Fonts canonical names — keep as-is (CSS references
 </style>
 ```
 
+## 🔒 Brand-invariant wordmark font
+
+**The `gastify` wordmark ALWAYS uses Baloo 2 700 @ 24px.** Applies across every theme, every mode, every platform. Legacy BoletApp → gastify identity — do not override.
+
+```css
+.wordmark {
+  font-family: 'Baloo 2', cursive;
+  font-weight: 700;
+  font-size: 24px;
+  /* color inherits from theme --primary (shifts per theme + mode) */
+}
+```
+
+Per theme the COLOR of the wordmark shifts to match `--primary`:
+- Normal light: `#4a7c59` (forest)  ·  Normal dark: `#6b9e7a` (lifted moss)
+- Professional light: `#2563eb` (navy)  ·  Professional dark: `#3b82f6` (brighter steel)
+- Mono light: `#18181b` (near-black)  ·  Mono dark: `#fafafa` (bone)
+- Organic / Playful-Geo / Sketch: match each theme's primary
+
+Shape + weight + font stay constant — only color adapts. Legacy reference: `bmad/boletapp/docs/mockups/screens/gastify-dashboard.html:535` and `.wordmark` class CSS.
+
 ## Font roles per theme
 
-| Theme | Body + Display | Playful accent |
-|-------|---------------|----------------|
-| Normal | Outfit | Baloo 2 (wordmark, emphasis) |
-| Professional | Inter (fallback to Outfit if preferred) | — |
-| Mono | system-ui stack (no web font) | — |
-| Organic | DM Sans + DM Serif Display (add if selected) | — |
-| Playful Geometric | Outfit + Plus Jakarta Sans | — |
-| Sketch | Caveat + Patrick Hand + Kalam (add if selected) | — |
+| Theme | Wordmark (invariant) | Body + Display | Playful accent |
+|-------|---------------------|---------------|----------------|
+| Normal | **Baloo 2 700 @ 24px** | Outfit | Baloo 2 (body emphasis too) |
+| Professional | **Baloo 2 700 @ 24px** | Inter (fallback to Outfit) | — |
+| Mono | **Baloo 2 700 @ 24px** | system-ui stack | — |
+| Organic | **Baloo 2 700 @ 24px** | DM Sans + DM Serif Display (add if selected) | — |
+| Playful Geometric | **Baloo 2 700 @ 24px** | Outfit + Plus Jakarta Sans | — |
+| Sketch | **Baloo 2 700 @ 24px** | Caveat + Patrick Hand + Kalam (add if selected) | — |
 
 **Source for further fonts:** Google Fonts CSS2 API — same pattern as this bundle. Fetch with `curl -A "Mozilla/5.0 ..." "https://fonts.googleapis.com/css2?family=<NAME>:wght@<WEIGHTS>&display=swap"`, parse woff2 URLs, download, rewrite relative paths.
 

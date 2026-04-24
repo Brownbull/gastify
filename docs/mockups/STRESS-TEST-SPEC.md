@@ -273,6 +273,8 @@ Before a render is considered a valid stress-test output:
 - [ ] Spanish-CL copy throughout (`Saldo del mes`, `Últimos escaneados`, `Escanear`)
 - [ ] Peso format `$42.180` (dot thousands, no decimal for CLP integers)
 - [ ] USD shadow shown where balance appears
+- [ ] **Wordmark uses Baloo 2 700 @ 24px** (brand-invariant across all themes)
+- [ ] Wordmark color = theme `--primary` (only color shifts per theme/mode; font+weight+size stay constant)
 - [ ] Dashboard: balance + 2 stats + 5 tx present
 - [ ] Scan: viewfinder or upload zone correct per platform
 - [ ] History: ≥20 tx, ≥3 date groups, 5 filter chips
@@ -293,6 +295,21 @@ Every render should reference self-hosted assets at:
 <img src="../../assets/icons/app-icons/navigation/nav-home.png" width="32" height="32" alt="Inicio">
 <!-- 200+ pixel-art icons organized by role: navigation, actions, scan-features, analytics, status, credits, financial, item-categories, store-categories, rubros, familias + 53 root mascots -->
 ```
+
+### 🔒 Brand-invariant: wordmark font
+
+**The `gastify` wordmark ALWAYS renders in Baloo 2 700 @ 24px across every theme, mode, and platform.** Non-negotiable brand anchor — pinned from legacy BoletApp identity.
+
+```css
+.wordmark {
+  font-family: 'Baloo 2', cursive;
+  font-weight: 700;
+  font-size: 24px;
+  color: var(--primary); /* color shifts per theme + mode; font+weight+size stay constant */
+}
+```
+
+Render review checklist item (MUST pass per screen): "Wordmark uses Baloo 2 700 @ 24px, color = theme `--primary`." See `assets/fonts/README.md` for per-theme primary-color table.
 
 See `docs/mockups/assets/README.md` for full asset inventory. Icon path is relative from `explorations/output/*.html` → `../../assets/`.
 
