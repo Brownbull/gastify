@@ -55,10 +55,10 @@
     align-items: start;
   }
 
-  /* Accordion groups grid (left) */
+  /* Accordion groups — single column (wide drawer already takes 420px) */
   .accordion-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+    display: flex;
+    flex-direction: column;
     gap: 14px;
   }
   .accordion-group {
@@ -68,7 +68,6 @@
     overflow: hidden;
     box-shadow: 0 2px 6px var(--shadow);
   }
-  .accordion-group.wide { grid-column: span 2; }
   .accordion-head {
     padding: 14px 18px;
     display: flex;
@@ -116,11 +115,11 @@
   }
   .accordion-group.collapsed .accordion-body { display: none; }
 
-  /* Report row */
+  /* Report row — 4 cols: logo | info | amount+trend | meta (status+date) */
   .report-row {
     display: grid;
-    grid-template-columns: 36px 1fr auto;
-    gap: 12px;
+    grid-template-columns: 40px 1fr 140px 110px;
+    gap: 14px;
     align-items: center;
     padding: 12px 18px;
     border-bottom: 1px solid var(--line);
@@ -129,9 +128,12 @@
   }
   .report-row:last-child { border-bottom: none; }
   .report-row:hover { background: var(--surface-2); }
-  .report-row.selected { background: var(--primary-soft); border-left: 3px solid var(--primary); padding-left: 15px; }
+  .report-row.selected {
+    background: var(--primary-soft);
+    box-shadow: inset 3px 0 0 var(--primary);
+  }
   .report-logo {
-    width: 36px; height: 36px;
+    width: 40px; height: 40px;
     background: var(--surface-2);
     border-radius: 10px;
     display: flex;
@@ -151,6 +153,9 @@
     font-weight: 700;
     font-size: 14px;
     color: var(--ink);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   .report-count-badge {
     font-size: 10px;
@@ -159,14 +164,25 @@
     background: var(--surface-2);
     padding: 1px 8px;
     border-radius: 999px;
+    flex-shrink: 0;
+  }
+  .report-tag-line {
+    font-size: 11px;
+    color: var(--ink-3);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .report-amount-col {
+    text-align: right;
+    white-space: nowrap;
   }
   .report-amount {
     font-weight: 700;
-    font-size: 14px;
+    font-size: 15px;
     color: var(--ink);
     font-variant-numeric: tabular-nums;
     display: block;
-    margin-bottom: 2px;
   }
   .report-trend {
     display: inline-flex;
@@ -174,6 +190,7 @@
     gap: 3px;
     font-size: 11px;
     font-weight: 600;
+    margin-top: 2px;
   }
   .report-trend.up { color: var(--error); }
   .report-trend.down { color: var(--success); }
@@ -181,7 +198,8 @@
     display: flex;
     flex-direction: column;
     align-items: flex-end;
-    gap: 3px;
+    gap: 4px;
+    white-space: nowrap;
   }
   .report-status {
     font-size: 10px;
@@ -193,6 +211,11 @@
   .report-status.scheduled { background: #fef9c3; color: #854d0e; }
   .report-status.draft { background: var(--surface-2); color: var(--ink-3); }
   [data-mode="dark"] .report-status.scheduled { background: rgba(234, 179, 8, 0.18); color: #facc15; }
+  .report-date {
+    font-size: 11px;
+    color: var(--ink-3);
+    font-weight: 600;
+  }
 
   /* Empty state (for Custom) */
   .custom-empty {
@@ -367,8 +390,9 @@
     .report-drawer { position: static; max-height: none; }
   }
   @media (max-width: 900px) {
-    .accordion-grid { grid-template-columns: 1fr; }
-    .accordion-group.wide { grid-column: auto; }
+    .report-row { grid-template-columns: 40px 1fr auto; gap: 10px; }
+    .report-amount-col { grid-column: 2 / 4; text-align: left; margin-top: 4px; }
+    .report-meta { grid-row: 1; grid-column: 3; }
   }
 </style>
 </head>
@@ -563,8 +587,11 @@
               <div class="report-info">
                 <div class="report-name-row">
                   <span class="report-name">Semana 17</span>
-                  <span class="report-count-badge">8</span>
+                  <span class="report-count-badge">8 tx</span>
                 </div>
+                <span class="report-tag-line">20–26 abr 2026 · 127 ítems</span>
+              </div>
+              <div class="report-amount-col">
                 <span class="report-amount">$187.420</span>
                 <div class="report-trend up">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" width="11" height="11"><polyline points="18 15 12 9 6 15"/></svg>
@@ -573,7 +600,7 @@
               </div>
               <div class="report-meta">
                 <span class="report-status ready">Listo</span>
-                <span style="font-size: 11px; color: var(--ink-3);">Hoy</span>
+                <span class="report-date">Hoy</span>
               </div>
             </div>
             <div class="report-row">
@@ -581,8 +608,11 @@
               <div class="report-info">
                 <div class="report-name-row">
                   <span class="report-name">Semana 16</span>
-                  <span class="report-count-badge">6</span>
+                  <span class="report-count-badge">6 tx</span>
                 </div>
+                <span class="report-tag-line">13–19 abr 2026 · 89 ítems</span>
+              </div>
+              <div class="report-amount-col">
                 <span class="report-amount">$158.920</span>
                 <div class="report-trend down">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" width="11" height="11"><polyline points="6 9 12 15 18 9"/></svg>
@@ -591,7 +621,7 @@
               </div>
               <div class="report-meta">
                 <span class="report-status ready">Listo</span>
-                <span style="font-size: 11px; color: var(--ink-3);">Lun</span>
+                <span class="report-date">Lun</span>
               </div>
             </div>
             <div class="report-row">
@@ -599,13 +629,16 @@
               <div class="report-info">
                 <div class="report-name-row">
                   <span class="report-name">Semana 15</span>
-                  <span class="report-count-badge">9</span>
+                  <span class="report-count-badge">9 tx</span>
                 </div>
+                <span class="report-tag-line">6–12 abr 2026 · 142 ítems</span>
+              </div>
+              <div class="report-amount-col">
                 <span class="report-amount">$172.330</span>
               </div>
               <div class="report-meta">
                 <span class="report-status ready">Listo</span>
-                <span style="font-size: 11px; color: var(--ink-3);">7 abr</span>
+                <span class="report-date">7 abr</span>
               </div>
             </div>
             <div class="report-row">
@@ -613,13 +646,16 @@
               <div class="report-info">
                 <div class="report-name-row">
                   <span class="report-name">Semana 14</span>
-                  <span class="report-count-badge">5</span>
+                  <span class="report-count-badge">5 tx</span>
                 </div>
+                <span class="report-tag-line">30 mar–5 abr · 78 ítems</span>
+              </div>
+              <div class="report-amount-col">
                 <span class="report-amount">$142.100</span>
               </div>
               <div class="report-meta">
                 <span class="report-status ready">Listo</span>
-                <span style="font-size: 11px; color: var(--ink-3);">31 mar</span>
+                <span class="report-date">31 mar</span>
               </div>
             </div>
           </div>
@@ -645,17 +681,20 @@
               <div class="report-info">
                 <div class="report-name-row">
                   <span class="report-name">Abril 2026</span>
-                  <span class="report-count-badge">47</span>
+                  <span class="report-count-badge">47 tx</span>
                 </div>
+                <span class="report-tag-line">1–30 abr · 612 ítems · 4 sem</span>
+              </div>
+              <div class="report-amount-col">
                 <span class="report-amount">$847.230</span>
                 <div class="report-trend up">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" width="11" height="11"><polyline points="18 15 12 9 6 15"/></svg>
-                  +12% vs marzo
+                  +12% vs mar
                 </div>
               </div>
               <div class="report-meta">
                 <span class="report-status scheduled">En curso</span>
-                <span style="font-size: 11px; color: var(--ink-3);">Cierre 30</span>
+                <span class="report-date">Cierre 30</span>
               </div>
             </div>
             <div class="report-row">
@@ -663,13 +702,16 @@
               <div class="report-info">
                 <div class="report-name-row">
                   <span class="report-name">Marzo 2026</span>
-                  <span class="report-count-badge">42</span>
+                  <span class="report-count-badge">42 tx</span>
                 </div>
+                <span class="report-tag-line">1–31 mar · 528 ítems</span>
+              </div>
+              <div class="report-amount-col">
                 <span class="report-amount">$756.540</span>
               </div>
               <div class="report-meta">
                 <span class="report-status ready">Listo</span>
-                <span style="font-size: 11px; color: var(--ink-3);">1 abr</span>
+                <span class="report-date">1 abr</span>
               </div>
             </div>
             <div class="report-row">
@@ -677,13 +719,16 @@
               <div class="report-info">
                 <div class="report-name-row">
                   <span class="report-name">Febrero 2026</span>
-                  <span class="report-count-badge">39</span>
+                  <span class="report-count-badge">39 tx</span>
                 </div>
+                <span class="report-tag-line">1–28 feb · 477 ítems</span>
+              </div>
+              <div class="report-amount-col">
                 <span class="report-amount">$683.210</span>
               </div>
               <div class="report-meta">
                 <span class="report-status ready">Listo</span>
-                <span style="font-size: 11px; color: var(--ink-3);">1 mar</span>
+                <span class="report-date">1 mar</span>
               </div>
             </div>
             <div class="report-row">
@@ -691,13 +736,16 @@
               <div class="report-info">
                 <div class="report-name-row">
                   <span class="report-name">Enero 2026</span>
-                  <span class="report-count-badge">51</span>
+                  <span class="report-count-badge">51 tx</span>
                 </div>
+                <span class="report-tag-line">1–31 ene · 689 ítems</span>
+              </div>
+              <div class="report-amount-col">
                 <span class="report-amount">$891.470</span>
               </div>
               <div class="report-meta">
                 <span class="report-status ready">Listo</span>
-                <span style="font-size: 11px; color: var(--ink-3);">1 feb</span>
+                <span class="report-date">1 feb</span>
               </div>
             </div>
           </div>
@@ -722,13 +770,16 @@
               <div class="report-info">
                 <div class="report-name-row">
                   <span class="report-name">2025 — Resumen anual</span>
-                  <span class="report-count-badge">487</span>
+                  <span class="report-count-badge">487 tx</span>
                 </div>
+                <span class="report-tag-line">Ene–Dic 2025 · 5.842 ítems</span>
+              </div>
+              <div class="report-amount-col">
                 <span class="report-amount">$8.924.600</span>
               </div>
               <div class="report-meta">
                 <span class="report-status ready">Listo</span>
-                <span style="font-size: 11px; color: var(--ink-3);">2 ene</span>
+                <span class="report-date">2 ene</span>
               </div>
             </div>
             <div class="report-row">
@@ -736,13 +787,16 @@
               <div class="report-info">
                 <div class="report-name-row">
                   <span class="report-name">2026 — En curso</span>
-                  <span class="report-count-badge">179</span>
+                  <span class="report-count-badge">179 tx</span>
                 </div>
+                <span class="report-tag-line">Ene–Abr 2026 · 2.316 ítems</span>
+              </div>
+              <div class="report-amount-col">
                 <span class="report-amount">$3.147.250</span>
               </div>
               <div class="report-meta">
                 <span class="report-status scheduled">En curso</span>
-                <span style="font-size: 11px; color: var(--ink-3);">Cierre dic</span>
+                <span class="report-date">Cierre dic</span>
               </div>
             </div>
           </div>
@@ -767,14 +821,16 @@
               <div class="report-info">
                 <div class="report-name-row">
                   <span class="report-name">Supermercados 2026 T1</span>
-                  <span class="report-count-badge">28</span>
+                  <span class="report-count-badge">28 tx</span>
                 </div>
+                <span class="report-tag-line">L1 · Ene–Mar · Pucón + Santiago</span>
+              </div>
+              <div class="report-amount-col">
                 <span class="report-amount">$412.830</span>
-                <div style="font-size: 11px; color: var(--ink-3); margin-top: 2px;">L1 · Ene–Mar · Pucón + Santiago</div>
               </div>
               <div class="report-meta">
                 <span class="report-status ready">Listo</span>
-                <span style="font-size: 11px; color: var(--ink-3);">15 abr</span>
+                <span class="report-date">15 abr</span>
               </div>
             </div>
             <div class="report-row">
@@ -782,14 +838,16 @@
               <div class="report-info">
                 <div class="report-name-row">
                   <span class="report-name">Alimentos Frescos · L3</span>
-                  <span class="report-count-badge">42</span>
+                  <span class="report-count-badge">42 items</span>
                 </div>
+                <span class="report-tag-line">Últimos 90 días · Todas ubicaciones</span>
+              </div>
+              <div class="report-amount-col">
                 <span class="report-amount">$287.440</span>
-                <div style="font-size: 11px; color: var(--ink-3); margin-top: 2px;">Últimos 90 días</div>
               </div>
               <div class="report-meta">
                 <span class="report-status draft">Borrador</span>
-                <span style="font-size: 11px; color: var(--ink-3);">12 abr</span>
+                <span class="report-date">12 abr</span>
               </div>
             </div>
           </div>
