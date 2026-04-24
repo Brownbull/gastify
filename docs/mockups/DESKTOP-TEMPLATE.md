@@ -84,6 +84,7 @@ Copy from `_desktop-template.html` `<script>` block at bottom. 3 responsibilitie
 | Transaction editor | ✅ `gastify-transaction-editor-desktop.html` | n/a (split-panel item editor) |
 | Settings | ✅ `gastify-settings-desktop.html` | n/a (form) |
 | Trends | ✅ `gastify-trends-desktop.html` | ✅ canonical + chart-range zoom |
+| Insights | ✅ `gastify-insights-desktop.html` | ✅ canonical (filters drive which insights appear) |
 
 ## Pending queue (P0 — apply template to all)
 

@@ -207,7 +207,7 @@ Required: **8+ surfaces**  ·  Present: **2**  ·  Coverage: **25%** 🔴
 |----------|----------|
 | Mobile Web (PWA 390×844) | ✅ all 29 screens (via ~420px mobile frame) |
 | Native Mobile (React Native 390×844) | ⚠ visual parity with mobile web but NO platform-divergence notes documented per screen (haptics, biometrics, safe-area insets, platform-specific gestures) |
-| Desktop Web (1440 responsive) | 🚧 **5/29 shipped** (Dashboard + History + Tx Editor + Settings + Trends) — shared shell CSS extracted, 24 to apply |
+| Desktop Web (1440 responsive) | 🚧 **6/29 shipped** (Dashboard + History + Tx Editor + Settings + Trends + Insights) — shared shell CSS extracted, 23 to apply |
 
 ### Desktop template established (T9 anchor — Dashboard)
 

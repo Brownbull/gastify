@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="es-CL">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Insights — gastify Desktop Web (1440 responsive)</title>
+<link rel="stylesheet" href="../assets/fonts/gastify-fonts.css">
+<link rel="stylesheet" href="../assets/css/desktop-shell.css">
+<style>
+  /* ===== INSIGHTS-SPECIFIC ===== */
+
+  /* Insights header */
+  .insights-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin: 8px 0 12px;
+  }
+  .insights-head h1 {
+    font-family: 'Baloo 2', cursive;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+  }
+  .insights-head .insights-sub { font-size: 13px; color: var(--ink-2); margin-top: 2px; }
+
+  /* 3-tab view switcher (Lista / Airlock / Logro) */
+  .view-tabs {
+    display: flex;
+    background: var(--surface-2);
+    padding: 4px;
+    border-radius: 12px;
+    gap: 2px;
+    align-self: flex-end;
+  }
+  .view-tab {
+    padding: 8px 18px;
+    border: none;
+    background: transparent;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--ink-2);
+    border-radius: 8px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all .15s;
+  }
+  .view-tab:hover:not(.active) { color: var(--primary); }
+  .view-tab.active {
+    background: var(--surface);
+    color: var(--primary);
+    box-shadow: 0 1px 3px var(--shadow);
+  }
+  .view-tab .tab-count {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--ink-3);
+    padding: 2px 6px;
+    background: var(--bg);
+    border-radius: 999px;
+  }
+  .view-tab.active .tab-count { color: var(--primary); background: var(--primary-soft); }
+
+  /* Split panel (list left, drawer right) */
+  .insights-split {
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    gap: 18px;
+    align-items: start;
+  }
+  .insights-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  /* Hero insight card (featured at top of Lista) */
+  .hero-insight {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--success) 100%);
+    color: var(--primary-ink);
+    border-radius: 18px;
+    padding: 24px 28px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 16px var(--shadow-lg);
+  }
+  [data-theme="professional"] .hero-insight { background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%); }
+  [data-theme="mono"] .hero-insight { background: linear-gradient(135deg, #2d3a4a 0%, #4a5568 100%); }
+  .hero-insight::before {
+    content: '';
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 180px; height: 180px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 50%;
+  }
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,255,255,0.22);
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .hero-title {
+    font-family: 'Baloo 2', cursive;
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 6px;
+  }
+  .hero-body {
+    font-size: 14px;
+    opacity: 0.92;
+    line-height: 1.5;
+    margin-bottom: 16px;
+    max-width: 520px;
+  }
+  .hero-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+  .hero-cta {
+    padding: 8px 18px;
+    background: var(--primary-ink);
+    color: var(--primary);
+    border: none;
+    border-radius: 999px;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    transition: opacity .15s;
+  }
+  .hero-cta:hover { opacity: 0.92; }
+  .hero-cta.ghost {
+    background: rgba(255,255,255,0.22);
+    color: var(--primary-ink);
+  }
+
+  /* Insight group (Esta Semana / Semana Pasada) */
+  .insight-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .group-header {
+    font-family: 'Baloo 2', cursive;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--ink);
+    margin: 6px 0 2px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .group-count {
+    font-size: 11px;
+    color: var(--ink-3);
+    font-weight: 700;
+    padding: 2px 8px;
+    background: var(--surface-2);
+    border-radius: 999px;
+  }
+
+  /* Individual insight card */
+  .insight-card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 14px 16px;
+    display: grid;
+    grid-template-columns: 44px 1fr auto;
+    gap: 14px;
+    align-items: center;
+    cursor: pointer;
+    transition: all .15s;
+    box-shadow: 0 1px 3px var(--shadow);
+  }
+  .insight-card:hover { border-color: var(--primary); transform: translateX(2px); }
+  .insight-card.selected {
+    border-color: var(--primary);
+    background: var(--primary-soft);
+    box-shadow: 0 2px 8px var(--shadow-lg);
+  }
+  .insight-card.seen { opacity: 0.65; }
+
+  .insight-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .insight-icon svg { width: 24px; height: 24px; stroke-width: 2; fill: none; }
+  .insight-icon.celebration { background: #fef3c7; color: #d97706; }
+  .insight-icon.trend       { background: var(--primary-soft); color: var(--primary); }
+  .insight-icon.actionable  { background: var(--danger-soft); color: var(--error); }
+  .insight-icon.concentration{ background: #fef9c3; color: #854d0e; }
+  .insight-icon.savings     { background: var(--primary-soft); color: var(--success); }
+  [data-mode="dark"] .insight-icon.celebration { background: rgba(217, 119, 6, 0.2); color: #fbbf24; }
+  [data-mode="dark"] .insight-icon.concentration { background: rgba(234, 179, 8, 0.18); color: #facc15; }
+
+  .insight-body { min-width: 0; }
+  .insight-title {
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--ink);
+    margin-bottom: 2px;
+  }
+  .insight-subtitle {
+    font-size: 12px;
+    color: var(--ink-2);
+    line-height: 1.4;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .insight-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+  }
+  .insight-date {
+    font-size: 11px;
+    color: var(--ink-3);
+    font-weight: 600;
+  }
+  .insight-chevron { width: 16px; height: 16px; color: var(--ink-3); }
+
+  /* Selection checkbox (Airlock view) */
+  .select-check {
+    position: absolute;
+    top: 12px; left: 12px;
+    width: 18px; height: 18px;
+    border-radius: 4px;
+    border: 1.5px solid var(--line-strong);
+    background: var(--surface);
+    display: inline-flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    font-size: 12px;
+    color: var(--primary-ink);
+  }
+  .select-check.checked { background: var(--primary); border-color: var(--primary); }
+
+  /* Detail drawer (right) */
+  .insight-drawer {
+    position: sticky;
+    top: 80px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    box-shadow: 0 4px 16px var(--shadow-lg);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    max-height: calc(100vh - 120px);
+  }
+  .drawer-hero {
+    padding: 20px 22px;
+    background: var(--primary-soft);
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .drawer-icon {
+    width: 52px; height: 52px;
+    border-radius: 14px;
+    background: var(--primary);
+    color: var(--primary-ink);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .drawer-icon svg { width: 26px; height: 26px; }
+  .drawer-title {
+    font-family: 'Baloo 2', cursive;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .drawer-sub { font-size: 12px; color: var(--ink-2); margin-top: 2px; }
+  .drawer-body { padding: 20px 22px; overflow-y: auto; flex: 1; }
+
+  .drawer-section { margin-bottom: 18px; }
+  .drawer-section-label {
+    font-size: 10px;
+    color: var(--ink-3);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .drawer-section p {
+    font-size: 13px;
+    line-height: 1.55;
+    color: var(--ink);
+  }
+
+  /* Mini stat grid in drawer */
+  .drawer-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .drawer-stat {
+    background: var(--surface-2);
+    border-radius: 10px;
+    padding: 10px 12px;
+  }
+  .drawer-stat-label {
+    font-size: 10px;
+    color: var(--ink-3);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 700;
+  }
+  .drawer-stat-value {
+    font-family: 'Baloo 2', cursive;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+    margin-top: 2px;
+  }
+  .drawer-stat-value.up { color: var(--error); }
+  .drawer-stat-value.down { color: var(--success); }
+
+  /* Mini sparkline */
+  .drawer-spark {
+    background: var(--surface-2);
+    border-radius: 10px;
+    padding: 14px;
+    margin-top: 8px;
+  }
+  .drawer-spark svg { width: 100%; height: 60px; }
+
+  /* Drawer actions */
+  .drawer-actions {
+    padding: 14px 22px;
+    border-top: 1px solid var(--line);
+    background: var(--surface-2);
+    display: flex;
+    gap: 8px;
+  }
+  .drawer-btn {
+    flex: 1;
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    border: none;
+    transition: opacity .15s;
+  }
+  .drawer-btn.primary { background: var(--primary); color: var(--primary-ink); }
+  .drawer-btn.primary:hover { opacity: 0.9; }
+  .drawer-btn.ghost {
+    background: transparent;
+    color: var(--ink-2);
+    border: 1px solid var(--line-strong);
+  }
+  .drawer-btn.ghost:hover { border-color: var(--primary); color: var(--primary); }
+
+  /* Airlock empty state */
+  .airlock-empty, .logro-empty {
+    background: var(--surface);
+    border: 2px dashed var(--line-strong);
+    border-radius: 16px;
+    padding: 48px 32px;
+    text-align: center;
+    color: var(--ink-2);
+  }
+  .empty-icon {
+    width: 56px; height: 56px;
+    margin: 0 auto 16px;
+    border-radius: 16px;
+    background: var(--surface-2);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--ink-3);
+  }
+  .empty-title {
+    font-family: 'Baloo 2', cursive;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 6px;
+  }
+  .empty-body { font-size: 13px; color: var(--ink-2); max-width: 360px; margin: 0 auto; line-height: 1.5; }
+
+  /* Airlock bulk bar */
+  .airlock-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 16px;
+    background: var(--primary-soft);
+    border: 1px solid var(--primary);
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--primary);
+    margin-bottom: 4px;
+  }
+  .airlock-actions { display: flex; gap: 8px; }
+
+  /* Logro achievement grid */
+  .logro-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  .logro-card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 18px;
+    text-align: center;
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .logro-card:hover { border-color: var(--primary); transform: translateY(-2px); }
+  .logro-card.locked { opacity: 0.5; }
+  .logro-medal {
+    width: 64px; height: 64px;
+    margin: 0 auto 10px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #fef3c7, #d97706);
+    color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px;
+  }
+  .logro-medal.silver { background: linear-gradient(135deg, #e2e8f0, #94a3b8); }
+  .logro-medal.bronze { background: linear-gradient(135deg, #fed7aa, #c2410c); }
+  .logro-medal.locked { background: var(--surface-2); color: var(--ink-3); }
+  .logro-name {
+    font-family: 'Baloo 2', cursive;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 4px;
+  }
+  .logro-sub { font-size: 11px; color: var(--ink-3); }
+
+  /* Hide non-active panes */
+  .view-pane { display: none; }
+  .view-pane.active { display: flex; flex-direction: column; gap: 12px; }
+
+  /* Responsive */
+  @media (max-width: 1280px) {
+    .insights-split { grid-template-columns: 1fr; }
+    .insight-drawer { position: static; max-height: none; }
+  }
+</style>
+</head>
+
+<body data-theme="normal" data-mode="light">
+
+<!-- CONTROLS -->
+<div class="controls">
+  <div class="controls-group">
+    <span class="controls-label">Theme</span>
+    <button class="theme-tab active" data-theme-val="normal">Normal</button>
+    <button class="theme-tab" data-theme-val="professional">Professional</button>
+    <button class="theme-tab" data-theme-val="mono">Mono</button>
+  </div>
+  <div class="controls-group">
+    <span class="controls-label">Mode</span>
+    <div class="mode-toggle">
+      <span>Light</span>
+      <div class="toggle-switch" id="modeToggle"></div>
+      <span>Dark</span>
+    </div>
+  </div>
+  <div class="controls-group">
+    <span class="controls-label">Platform</span>
+    <span style="color: var(--primary); font-weight: 600;">Desktop Web 1440</span>
+    <a class="platform-switch" href="gastify-insights.html" title="Ver versión mobile"><span class="dot">●</span> Mobile ↗</a>
+  </div>
+  <div class="controls-group">
+    <div class="quick-nav" id="quickNav">
+      <button class="quick-nav-btn" onclick="document.getElementById('quickNav').classList.toggle('open')">☰ Desktop screens</button>
+      <div class="quick-nav-menu">
+        <div class="qn-section">Available</div>
+        <a href="gastify-dashboard-desktop.html">🏠 Dashboard</a>
+        <a href="gastify-history-desktop.html">📜 Historial</a>
+        <a href="gastify-transaction-editor-desktop.html">✎ Transaction editor</a>
+        <a href="gastify-settings-desktop.html">⚙ Ajustes</a>
+        <a href="gastify-trends-desktop.html">📊 Tendencias</a>
+        <a href="gastify-insights-desktop.html" class="current">💡 Insights <span class="qn-badge">current</span></a>
+        <div class="qn-section">Mobile-only</div>
+        <a href="gastify-reports.html" style="color: var(--ink-3);">📄 Reports <span class="qn-badge">mobile</span></a>
+        <a href="gastify-items.html" style="color: var(--ink-3);">📦 Items <span class="qn-badge">mobile</span></a>
+        <a href="../index.html" style="color: var(--primary); font-weight: 600; margin-top: 4px;">→ See full gap matrix</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="app-shell">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-mark"><img src="../assets/icons/piggy-bank.png" alt=""></div>
+      <span class="wordmark">gastify</span>
+    </div>
+    <ul class="nav-list">
+      <li><a class="nav-item" href="gastify-dashboard-desktop.html"><img class="nav-icon" src="../assets/icons/app-icons/navigation/nav-home.png" alt=""><span>Inicio</span></a></li>
+      <li><a class="nav-item" href="gastify-history-desktop.html"><img class="nav-icon" src="../assets/icons/app-icons/navigation/nav-history.png" alt=""><span>Historial</span></a></li>
+      <li><a class="nav-item" href="gastify-trends-desktop.html"><img class="nav-icon" src="../assets/icons/app-icons/navigation/nav-trends.png" alt=""><span>Tendencias</span></a></li>
+      <li><a class="nav-item active" href="gastify-insights-desktop.html"><img class="nav-icon" src="../assets/icons/app-icons/navigation/nav-insights.png" alt=""><span>Insights</span></a></li>
+      <li><a class="nav-item" href="gastify-reports.html"><img class="nav-icon" src="../assets/icons/app-icons/navigation/nav-reports.png" alt=""><span>Reportes</span></a></li>
+      <li><a class="nav-item" href="gastify-group-switcher.html"><img class="nav-icon" src="../assets/icons/app-icons/navigation/nav-scan.png" alt=""><span>Grupos</span></a></li>
+      <li><a class="nav-item" href="gastify-settings-desktop.html"><img class="nav-icon" src="../assets/icons/app-icons/navigation/nav-settings.png" alt=""><span>Ajustes</span></a></li>
+    </ul>
+    <div class="sidebar-footer">
+      <div class="user-chip">
+        <div class="user-avatar">JG</div>
+        <div style="flex: 1; min-width: 0;">
+          <div class="user-name">Juan García</div>
+          <div class="user-email">juan@ejemplo.cl</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div class="search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        <input type="text" placeholder="Buscar insight..." aria-label="Buscar">
+        <span class="kbd-hint">/</span>
+      </div>
+      <button class="scan-btn" aria-label="Escanear boleta"><img src="../assets/icons/app-icons/scan-features/scan-single.png" alt=""><span>Escanear</span><span class="kbd-hint" style="background: rgba(255,255,255,0.22); color: #fff; border: none;">⌘K</span></button>
+      <button class="icon-btn" aria-label="Alertas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span class="bell-badge">3</span></button>
+      <div class="topbar-avatar" aria-label="Perfil">JG</div>
+    </div>
+
+    <!-- CANONICAL FILTER STRIP -->
+    <section class="filter-strip" aria-label="Filtros">
+      <div class="filter-strip-row">
+        <div class="timeframe-pills" role="tablist" aria-label="Periodo">
+          <button class="timeframe-pill" data-period="year">Año</button>
+          <button class="timeframe-pill" data-period="quarter">Trimestre</button>
+          <button class="timeframe-pill active" data-period="month">Mes</button>
+          <button class="timeframe-pill" data-period="week">Semana</button>
+        </div>
+        <div class="period-nav">
+          <button class="period-nav-btn" aria-label="Periodo anterior"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" width="16" height="16"><polyline points="15 18 9 12 15 6"/></svg></button>
+          <span class="period-label">Abril 2026</span>
+          <button class="period-nav-btn" aria-label="Periodo siguiente"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" width="16" height="16"><polyline points="9 18 15 12 9 6"/></svg></button>
+        </div>
+        <div class="filter-icons">
+          <div class="filter-icon-wrap">
+            <button class="filter-icon-btn" aria-label="Filtro de tiempo" data-modal-toggle="time-modal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></button>
+            <div class="filter-modal" id="time-modal" role="dialog" aria-label="Filtro de tiempo">
+              <div class="filter-modal-header"><div class="filter-modal-title">Tiempo</div><button class="filter-modal-btn ghost" data-action="close-modal">✕</button></div>
+              <div class="filter-modal-body">
+                <div class="time-slider-row"><button class="time-slider-label">Año</button><div class="time-slider-ctrl"><button class="time-slider-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg></button><span class="time-slider-value">2026</span><button class="time-slider-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" width="14" height="14"><polyline points="9 18 15 12 9 6"/></svg></button></div></div>
+                <div class="time-slider-row"><button class="time-slider-label">Trimestre</button><div class="time-slider-ctrl"><button class="time-slider-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg></button><span class="time-slider-value">T2</span><button class="time-slider-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" width="14" height="14"><polyline points="9 18 15 12 9 6"/></svg></button></div></div>
+                <div class="time-slider-row"><button class="time-slider-label active">Mes</button><div class="time-slider-ctrl"><button class="time-slider-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg></button><span class="time-slider-value active">Abr</span><button class="time-slider-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" width="14" height="14"><polyline points="9 18 15 12 9 6"/></svg></button></div></div>
+                <div class="time-slider-row"><button class="time-slider-label">Semana</button><div class="time-slider-ctrl"><button class="time-slider-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg></button><span class="time-slider-value">Sem 1</span><button class="time-slider-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" width="14" height="14"><polyline points="9 18 15 12 9 6"/></svg></button></div></div>
+                <div class="time-slider-row"><button class="time-slider-label">Día</button><div class="time-slider-ctrl"><button class="time-slider-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg></button><span class="time-slider-value">1</span><button class="time-slider-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" width="14" height="14"><polyline points="9 18 15 12 9 6"/></svg></button></div></div>
+              </div>
+              <div class="filter-modal-footer"><button class="filter-modal-btn ghost">✕ Limpiar</button><button class="filter-modal-btn primary">Aplicar</button></div>
+            </div>
+          </div>
+          <div class="filter-icon-wrap">
+            <button class="filter-icon-btn" aria-label="Filtro de categoría" data-modal-toggle="cat-modal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg></button>
+            <div class="filter-modal wide" id="cat-modal" role="dialog" aria-label="Filtro de categoría">
+              <div class="filter-modal-header">
+                <div class="taxonomy-chips">
+                  <button class="taxonomy-chip active" data-cat-level="L1" title="Rubros (12)"><img src="../assets/icons/app-icons/rubros/rubro-supermercados.png" alt=""><span class="chip-label">L1</span></button>
+                  <button class="taxonomy-chip" data-cat-level="L2" title="Giros (44)"><img src="../assets/icons/app-icons/financial/fin-receipt.png" alt=""><span class="chip-label">L2</span></button>
+                  <button class="taxonomy-chip" data-cat-level="L3" title="Familias (9)"><img src="../assets/icons/app-icons/familias/familia-productos-generales.png" alt=""><span class="chip-label">L3</span></button>
+                  <button class="taxonomy-chip" data-cat-level="L4" title="Categorías (42)"><img src="../assets/icons/app-icons/item-categories/item-frozen.png" alt=""><span class="chip-label">L4</span></button>
+                  <div class="taxonomy-chip-sep"></div>
+                  <button class="taxonomy-chip" data-cat-level="location" title="Ubicación" style="min-width: 52px;"><span style="font-size: 16px;">📍</span><span class="chip-label">Lugar</span></button>
+                </div>
+                <button class="filter-modal-btn ghost" data-action="close-modal">✕</button>
+              </div>
+              <div class="filter-modal-body">
+                <div class="cat-filter-flat" data-cat-pane="L1">
+                  <label class="cat-filter-row"><span class="row-check"></span><span class="row-icon"><img src="../assets/icons/app-icons/rubros/rubro-supermercados.png" alt=""></span><span class="row-label">Supermercados</span><span class="row-count">48 tx</span></label>
+                  <label class="cat-filter-row"><span class="row-check"></span><span class="row-icon"><img src="../assets/icons/app-icons/rubros/rubro-restaurantes.png" alt=""></span><span class="row-label">Restaurantes</span><span class="row-count">12 tx</span></label>
+                  <label class="cat-filter-row"><span class="row-check"></span><span class="row-icon"><img src="../assets/icons/app-icons/rubros/rubro-comercio-barrio.png" alt=""></span><span class="row-label">Comercio de Barrio</span><span class="row-count">8 tx</span></label>
+                </div>
+                <div class="cat-filter-flat" data-cat-pane="L2" hidden><div class="cat-filter-group"><div class="cat-filter-group-header">Supermercados<span style="font-size: 10px; color: var(--ink-3); font-weight: 600;">3 giros</span><svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="6 9 12 15 18 9"/></svg></div><div class="cat-filter-group-items"><button class="cat-filter-chip">Supermercado Premium</button><button class="cat-filter-chip">Supermercado Regular</button><button class="cat-filter-chip">Mayorista</button></div></div></div>
+                <div class="cat-filter-flat" data-cat-pane="L3" hidden><label class="cat-filter-row"><span class="row-check"></span><span class="row-icon"><img src="../assets/icons/app-icons/familias/familia-food-fresh.png" alt=""></span><span class="row-label">Alimentos Frescos</span><span class="row-count">42 items</span></label></div>
+                <div class="cat-filter-flat" data-cat-pane="L4" hidden><div class="cat-filter-group"><div class="cat-filter-group-header">Alimentos Frescos<span style="font-size: 10px; color: var(--ink-3); font-weight: 600;">4 categorías</span><svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="6 9 12 15 18 9"/></svg></div><div class="cat-filter-group-items"><button class="cat-filter-chip">Frutas y Verduras</button><button class="cat-filter-chip">Carnes y Mariscos</button></div></div></div>
+                <div class="loc-tree" data-cat-pane="location" hidden><div class="loc-country"><svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="6 9 12 15 18 9"/></svg><span>🇨🇱 Chile</span><span class="loc-count">0</span></div></div>
+              </div>
+              <div class="filter-modal-footer"><button class="filter-modal-btn ghost">✕ Limpiar</button><button class="filter-modal-btn primary">Aplicar</button></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- HEADER + VIEW TABS -->
+    <div class="insights-head">
+      <div>
+        <h1>Insights</h1>
+        <div class="insights-sub">8 insights nuevos · 3 logros desbloqueados</div>
+      </div>
+      <div class="view-tabs" role="tablist">
+        <button class="view-tab active" data-view="lista">
+          <span>Lista</span><span class="tab-count">8</span>
+        </button>
+        <button class="view-tab" data-view="airlock">
+          <span>Airlock</span><span class="tab-count">2</span>
+        </button>
+        <button class="view-tab" data-view="logro">
+          <span>Logros</span><span class="tab-count">3/12</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- SPLIT PANEL: list left, detail drawer right -->
+    <div class="insights-split">
+
+      <!-- ============ LEFT COLUMN: view panes ============ -->
+      <div>
+
+        <!-- LISTA PANE (default active) -->
+        <div class="view-pane active" data-view-pane="lista">
+
+          <!-- HERO INSIGHT -->
+          <div class="hero-insight">
+            <span class="hero-badge">⭐ Destacado · Abril</span>
+            <div class="hero-title">Ahorrarías $47.000 al mes cambiando supermercado Premium por Regular</div>
+            <div class="hero-body">Las 12 veces que compraste en Jumbo Premium este mes, los mismos productos en Unimarc te habrían costado 22% menos. Mantén lo esencial en Premium y migra el resto.</div>
+            <div class="hero-actions">
+              <button class="hero-cta">Ver análisis completo</button>
+              <button class="hero-cta ghost">Descartar</button>
+            </div>
+          </div>
+
+          <!-- GROUP: Esta Semana -->
+          <div class="insight-group">
+            <div class="group-header">Esta Semana <span class="group-count">3</span></div>
+
+            <div class="insight-card selected">
+              <div class="insight-icon celebration">
+                <svg viewBox="0 0 24 24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              </div>
+              <div class="insight-body">
+                <div class="insight-title">Nuevo récord de escaneo</div>
+                <div class="insight-subtitle">Escaneaste 5 boletas en un día — tu mejor marca del mes</div>
+              </div>
+              <div class="insight-meta">
+                <span class="insight-date">Hoy</span>
+                <svg class="insight-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+              </div>
+            </div>
+
+            <div class="insight-card">
+              <div class="insight-icon trend">
+                <svg viewBox="0 0 24 24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+              </div>
+              <div class="insight-body">
+                <div class="insight-title">Tendencia en restaurantes</div>
+                <div class="insight-subtitle">Tus gastos en restaurantes subieron 45% vs marzo ($127k → $184k)</div>
+              </div>
+              <div class="insight-meta">
+                <span class="insight-date">Ayer</span>
+                <svg class="insight-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+              </div>
+            </div>
+
+            <div class="insight-card">
+              <div class="insight-icon actionable">
+                <svg viewBox="0 0 24 24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              </div>
+              <div class="insight-body">
+                <div class="insight-title">Cargo inusual: $89.420 en Copec</div>
+                <div class="insight-subtitle">43% mayor que tu promedio en combustible. ¿Viaje largo?</div>
+              </div>
+              <div class="insight-meta">
+                <span class="insight-date">Lun</span>
+                <svg class="insight-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- GROUP: Semana Pasada -->
+          <div class="insight-group">
+            <div class="group-header">Semana Pasada <span class="group-count">4</span></div>
+
+            <div class="insight-card seen">
+              <div class="insight-icon concentration">
+                <svg viewBox="0 0 24 24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 10 10"/><line x1="12" y1="12" x2="22" y2="12"/></svg>
+              </div>
+              <div class="insight-body">
+                <div class="insight-title">Concentración: 40% en 1 comercio</div>
+                <div class="insight-subtitle">Jumbo acumula 40% del gasto del mes — diversifica para ahorrar</div>
+              </div>
+              <div class="insight-meta">
+                <span class="insight-date">Sáb</span>
+                <svg class="insight-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+              </div>
+            </div>
+
+            <div class="insight-card seen">
+              <div class="insight-icon savings">
+                <svg viewBox="0 0 24 24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+              </div>
+              <div class="insight-body">
+                <div class="insight-title">Ahorraste $23.400 esta semana</div>
+                <div class="insight-subtitle">vs tu promedio semanal — gran semana!</div>
+              </div>
+              <div class="insight-meta">
+                <span class="insight-date">Vie</span>
+                <svg class="insight-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+              </div>
+            </div>
+
+            <div class="insight-card seen">
+              <div class="insight-icon trend">
+                <svg viewBox="0 0 24 24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg>
+              </div>
+              <div class="insight-body">
+                <div class="insight-title">Combustible bajó 18%</div>
+                <div class="insight-subtitle">Menos viajes este mes — bien hecho</div>
+              </div>
+              <div class="insight-meta">
+                <span class="insight-date">Mié</span>
+                <svg class="insight-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- AIRLOCK PANE (deferred/paused insights) -->
+        <div class="view-pane" data-view-pane="airlock">
+          <div class="airlock-bar">
+            <span>2 insights en espera · se archivan en 3 días</span>
+            <div class="airlock-actions">
+              <button class="drawer-btn ghost" style="flex: 0; padding: 6px 12px; font-size: 12px;">Reactivar todo</button>
+              <button class="drawer-btn primary" style="flex: 0; padding: 6px 12px; font-size: 12px;">Archivar todo</button>
+            </div>
+          </div>
+
+          <div class="insight-card">
+            <div class="insight-icon trend">
+              <svg viewBox="0 0 24 24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg>
+            </div>
+            <div class="insight-body">
+              <div class="insight-title">Suscripciones creciendo 12%</div>
+              <div class="insight-subtitle">Spotify + Netflix + GPT Plus acumulan $68k/mes</div>
+            </div>
+            <div class="insight-meta">
+              <span class="insight-date">Hace 5d</span>
+              <svg class="insight-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </div>
+          </div>
+
+          <div class="insight-card">
+            <div class="insight-icon actionable">
+              <svg viewBox="0 0 24 24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/></svg>
+            </div>
+            <div class="insight-body">
+              <div class="insight-title">Farmacias +$32k vs promedio</div>
+              <div class="insight-subtitle">¿Tratamiento nuevo? Categoriza para seguimiento</div>
+            </div>
+            <div class="insight-meta">
+              <span class="insight-date">Hace 7d</span>
+              <svg class="insight-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- LOGRO PANE (achievements) -->
+        <div class="view-pane" data-view-pane="logro">
+          <div class="logro-grid">
+            <div class="logro-card">
+              <div class="logro-medal">🥇</div>
+              <div class="logro-name">Escaneador Veloz</div>
+              <div class="logro-sub">5 boletas en 1 día · Desbloqueado hoy</div>
+            </div>
+            <div class="logro-card">
+              <div class="logro-medal silver">🥈</div>
+              <div class="logro-name">Ojo del Halcón</div>
+              <div class="logro-sub">10 cargos inusuales revisados</div>
+            </div>
+            <div class="logro-card">
+              <div class="logro-medal bronze">🥉</div>
+              <div class="logro-name">Primer Reporte</div>
+              <div class="logro-sub">Exportaste tu primer resumen mensual</div>
+            </div>
+            <div class="logro-card locked">
+              <div class="logro-medal locked">🔒</div>
+              <div class="logro-name">Arqueólogo</div>
+              <div class="logro-sub">100 boletas escaneadas (47 / 100)</div>
+            </div>
+            <div class="logro-card locked">
+              <div class="logro-medal locked">🔒</div>
+              <div class="logro-name">Minimalista</div>
+              <div class="logro-sub">Reduce concentración por debajo del 30%</div>
+            </div>
+            <div class="logro-card locked">
+              <div class="logro-medal locked">🔒</div>
+              <div class="logro-name">Multi-moneda</div>
+              <div class="logro-sub">Registra tx en 3 monedas distintas (1 / 3)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ RIGHT COLUMN: DETAIL DRAWER ============ -->
+      <aside class="insight-drawer" id="detailDrawer">
+        <div class="drawer-hero">
+          <div class="drawer-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          </div>
+          <div>
+            <div class="drawer-title">Nuevo récord de escaneo</div>
+            <div class="drawer-sub">Celebración · Hoy 14:22</div>
+          </div>
+        </div>
+
+        <div class="drawer-body">
+          <div class="drawer-section">
+            <div class="drawer-section-label">¿Qué pasó?</div>
+            <p>Escaneaste <strong>5 boletas</strong> en un solo día. Tu mejor marca desde que empezaste a usar gastify. Promedio diario: 1.8 boletas.</p>
+          </div>
+
+          <div class="drawer-section">
+            <div class="drawer-section-label">Resumen del día</div>
+            <div class="drawer-stats">
+              <div class="drawer-stat">
+                <div class="drawer-stat-label">Boletas</div>
+                <div class="drawer-stat-value">5</div>
+              </div>
+              <div class="drawer-stat">
+                <div class="drawer-stat-label">Ítems detectados</div>
+                <div class="drawer-stat-value">47</div>
+              </div>
+              <div class="drawer-stat">
+                <div class="drawer-stat-label">Total del día</div>
+                <div class="drawer-stat-value">$148.320</div>
+              </div>
+              <div class="drawer-stat">
+                <div class="drawer-stat-label">Créditos usados</div>
+                <div class="drawer-stat-value">5</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="drawer-section">
+            <div class="drawer-section-label">Tu racha (últimos 7 días)</div>
+            <div class="drawer-spark">
+              <svg viewBox="0 0 280 60" preserveAspectRatio="none">
+                <polyline fill="none" stroke="var(--primary)" stroke-width="2" points="0,45 40,38 80,28 120,42 160,32 200,18 240,8 280,4"/>
+                <circle cx="280" cy="4" r="4" fill="var(--primary)"/>
+              </svg>
+              <div style="display: flex; justify-content: space-between; font-size: 10px; color: var(--ink-3); margin-top: 4px; font-weight: 600;">
+                <span>Mié 16</span><span>Jue</span><span>Vie</span><span>Sáb</span><span>Dom</span><span>Lun</span><span>Mar</span><span>Hoy ⭐</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="drawer-section">
+            <div class="drawer-section-label">Próximo logro</div>
+            <p style="font-size: 12px; color: var(--ink-2);">🏆 <strong>Arqueólogo</strong> — 100 boletas totales. Vas en 47.</p>
+          </div>
+        </div>
+
+        <div class="drawer-actions">
+          <button class="drawer-btn ghost">Archivar</button>
+          <button class="drawer-btn primary">Ver boletas del día</button>
+        </div>
+      </aside>
+    </div>
+
+    <!-- PLATFORM NOTES -->
+    <aside class="platform-notes">
+      <h3>Desktop Web — Insights</h3>
+      <ul>
+        <li>3-tab switcher (Lista / Airlock / Logros) — same concept as legacy mobile, horizontal instead of stacked</li>
+        <li>Split panel: insight list 1fr + detail drawer 400px — clicking a card opens its detail in-place (no drawer slide)</li>
+        <li>Drawer becomes sticky + scrolls independently; falls to stacked at <code>≤1280px</code></li>
+        <li>Hero insight uses gradient per theme (primary→success in Normal, primary→accent in Professional, ink-based in Mono)</li>
+        <li>Filter strip drives <em>which</em> insights appear — e.g., filtering to "Supermercados L1 only" shows concentration insights about that rubro</li>
+        <li>Airlock view auto-archives at 7 days (mobile behavior preserved)</li>
+        <li>Logros view: 2-col grid of medallions, locked ones grayed with progress hint in subtitle</li>
+        <li>Desktop: click hero CTA → route to Trends drilled into that category + timeframe</li>
+      </ul>
+    </aside>
+
+  </main>
+
+</div>
+
+<script>
+  const body = document.body;
+  document.querySelectorAll('.theme-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.theme-tab').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+      body.dataset.theme = btn.dataset.themeVal;
+    });
+  });
+  document.getElementById('modeToggle').addEventListener('click', () => {
+    body.dataset.mode = body.dataset.mode === 'dark' ? 'light' : 'dark';
+  });
+
+  // View tab switcher (Lista / Airlock / Logro)
+  document.querySelectorAll('.view-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      const view = tab.dataset.view;
+      document.querySelectorAll('.view-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      document.querySelectorAll('.view-pane').forEach(p => p.classList.remove('active'));
+      const pane = document.querySelector(`[data-view-pane="${view}"]`);
+      if (pane) pane.classList.add('active');
+    });
+  });
+
+  // Insight card selection (updates drawer)
+  document.querySelectorAll('.insight-card').forEach(card => {
+    card.addEventListener('click', () => {
+      document.querySelectorAll('.insight-card').forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+      card.classList.remove('seen');
+    });
+  });
+
+  // Close quick-nav on outside click
+  document.addEventListener('click', (e) => {
+    const qn = document.getElementById('quickNav');
+    if (qn && !qn.contains(e.target)) qn.classList.remove('open');
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === '/' && document.activeElement.tagName !== 'INPUT') {
+      e.preventDefault();
+      document.querySelector('.search input').focus();
+    }
+    if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      e.preventDefault();
+      document.querySelector('.scan-btn').click();
+    }
+    if (e.key === 'Escape') {
+      document.querySelectorAll('.filter-modal.open').forEach(m => m.classList.remove('open'));
+    }
+  });
+
+  // ===== CANONICAL FILTER STRIP =====
+  document.querySelectorAll('.timeframe-pills .timeframe-pill').forEach(p => {
+    p.addEventListener('click', () => {
+      document.querySelectorAll('.timeframe-pills .timeframe-pill').forEach(x => x.classList.remove('active'));
+      p.classList.add('active');
+    });
+  });
+  document.querySelectorAll('[data-modal-toggle]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const modal = document.getElementById(btn.dataset.modalToggle);
+      const wasOpen = modal.classList.contains('open');
+      document.querySelectorAll('.filter-modal.open').forEach(m => m.classList.remove('open'));
+      if (!wasOpen) modal.classList.add('open');
+    });
+  });
+  document.querySelectorAll('[data-action="close-modal"]').forEach(btn => {
+    btn.addEventListener('click', (e) => { e.stopPropagation(); btn.closest('.filter-modal').classList.remove('open'); });
+  });
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.filter-modal') && !e.target.closest('[data-modal-toggle]')) {
+      document.querySelectorAll('.filter-modal.open').forEach(m => m.classList.remove('open'));
+    }
+  });
+  document.querySelectorAll('.taxonomy-chip').forEach(c => {
+    c.addEventListener('click', () => {
+      const level = c.dataset.catLevel;
+      const modal = c.closest('.filter-modal');
+      modal.querySelectorAll('.taxonomy-chip').forEach(x => x.classList.remove('active'));
+      c.classList.add('active');
+      modal.querySelectorAll('[data-cat-pane]').forEach(p => { p.hidden = (p.dataset.catPane !== level); });
+    });
+  });
+  document.querySelectorAll('.cat-filter-row').forEach(r => {
+    r.addEventListener('click', () => {
+      r.classList.toggle('selected');
+      const check = r.querySelector('.row-check');
+      if (check) check.textContent = r.classList.contains('selected') ? '✓' : '';
+    });
+  });
+  document.querySelectorAll('.cat-filter-chip').forEach(c => c.addEventListener('click', () => c.classList.toggle('selected')));
+  document.querySelectorAll('.cat-filter-group-header, .loc-country').forEach(h => {
+    h.addEventListener('click', () => {
+      h.classList.toggle('collapsed');
+      const items = h.nextElementSibling;
+      if (items && (items.classList.contains('cat-filter-group-items') || items.classList.contains('loc-cities'))) {
+        items.style.display = h.classList.contains('collapsed') ? 'none' : '';
+      }
+    });
+  });
+  document.querySelectorAll('.time-slider-label').forEach(lbl => {
+    lbl.addEventListener('click', () => {
+      const modal = lbl.closest('.filter-modal');
+      modal.querySelectorAll('.time-slider-label, .time-slider-value').forEach(x => { x.classList.remove('active'); x.classList.remove('pending'); });
+      const row = lbl.closest('.time-slider-row');
+      row.querySelector('.time-slider-label').classList.add('active');
+      row.querySelector('.time-slider-value').classList.add('active');
+      modal.classList.remove('open');
+    });
+  });
+  document.querySelectorAll('.time-slider-arrow').forEach(a => {
+    a.addEventListener('click', () => {
+      const row = a.closest('.time-slider-row');
+      row.querySelector('.time-slider-label').classList.add('pending');
+      row.querySelector('.time-slider-value').classList.add('pending');
+    });
+  });
+</script>
+
+</body>
+</html>
