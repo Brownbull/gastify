@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Atom: progress — gastify</title>
+  <link rel="stylesheet" href="../assets/css/desktop-shell.css">
+  <link rel="stylesheet" href="../assets/css/atoms.css">
+  <style>
+    body { margin: 0; font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; padding: 40px 320px 48px 48px; }
+    h1 { font-size: 24px; margin: 0 0 6px 0; font-weight: 700; }
+    .subtitle { color: var(--ink-2); font-size: 13px; margin: 0 0 32px 0; max-width: 720px; line-height: 1.5; }
+    .demo-section { margin-bottom: 36px; }
+    .demo-section h2 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-3); margin: 0 0 14px 0; font-weight: 600; }
+    .demo-row { display: flex; flex-direction: column; gap: 18px; background: var(--surface); padding: 24px; border-radius: 12px; border: 1px solid var(--line); }
+    .demo-row.demo-inline { flex-direction: row; flex-wrap: wrap; gap: 32px; align-items: center; }
+    .demo-swatch { display: flex; flex-direction: column; gap: 8px; align-items: center; min-width: 120px; }
+    .demo-swatch-label { font-size: 11px; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.05em; }
+    .snippet { background: var(--surface-2); padding: 16px; border-radius: 8px; font-family: ui-monospace, Consolas, monospace; font-size: 12px; color: var(--ink); overflow-x: auto; white-space: pre; line-height: 1.5; border: 1px solid var(--line); }
+    .progress-row { display: flex; gap: 16px; align-items: center; }
+    .progress-row-label { min-width: 120px; font-size: 13px; color: var(--ink-2); }
+    .progress-row-value { min-width: 44px; text-align: right; font-size: 12px; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+  </style>
+</head>
+<body>
+  <h1>Progress</h1>
+  <p class="subtitle">Determinate progress indicator — linear bar or circular ring. Use for upload %, budget consumption, credit depletion, scan-processing steps. Transitions width smoothly; respects prefers-reduced-motion.</p>
+
+  <section class="demo-section">
+    <h2>Linear — sizes</h2>
+    <div class="demo-row">
+      <div class="progress-row">
+        <span class="progress-row-label">thin</span>
+        <span class="progress progress-thin" role="progressbar" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100"><span class="progress__bar" style="width: 45%;"></span></span>
+        <span class="progress-row-value">45%</span>
+      </div>
+      <div class="progress-row">
+        <span class="progress-row-label">default</span>
+        <span class="progress" role="progressbar" aria-valuenow="65" aria-valuemin="0" aria-valuemax="100"><span class="progress__bar" style="width: 65%;"></span></span>
+        <span class="progress-row-value">65%</span>
+      </div>
+      <div class="progress-row">
+        <span class="progress-row-label">thick</span>
+        <span class="progress progress-thick" role="progressbar" aria-valuenow="85" aria-valuemin="0" aria-valuemax="100"><span class="progress__bar" style="width: 85%;"></span></span>
+        <span class="progress-row-value">85%</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>Linear — semantic colors</h2>
+    <div class="demo-row">
+      <div class="progress-row">
+        <span class="progress-row-label">default (primary)</span>
+        <span class="progress"><span class="progress__bar" style="width: 50%;"></span></span>
+        <span class="progress-row-value">50%</span>
+      </div>
+      <div class="progress-row">
+        <span class="progress-row-label">success</span>
+        <span class="progress progress-success"><span class="progress__bar" style="width: 100%;"></span></span>
+        <span class="progress-row-value">100%</span>
+      </div>
+      <div class="progress-row">
+        <span class="progress-row-label">warning</span>
+        <span class="progress progress-warning"><span class="progress__bar" style="width: 80%;"></span></span>
+        <span class="progress-row-value">80%</span>
+      </div>
+      <div class="progress-row">
+        <span class="progress-row-label">error</span>
+        <span class="progress progress-error"><span class="progress__bar" style="width: 95%;"></span></span>
+        <span class="progress-row-value">95%</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>Linear — value stages</h2>
+    <div class="demo-row">
+      <div class="progress-row">
+        <span class="progress-row-label">0%</span>
+        <span class="progress"><span class="progress__bar" style="width: 0%;"></span></span>
+        <span class="progress-row-value">0%</span>
+      </div>
+      <div class="progress-row">
+        <span class="progress-row-label">25%</span>
+        <span class="progress"><span class="progress__bar" style="width: 25%;"></span></span>
+        <span class="progress-row-value">25%</span>
+      </div>
+      <div class="progress-row">
+        <span class="progress-row-label">50%</span>
+        <span class="progress"><span class="progress__bar" style="width: 50%;"></span></span>
+        <span class="progress-row-value">50%</span>
+      </div>
+      <div class="progress-row">
+        <span class="progress-row-label">75%</span>
+        <span class="progress"><span class="progress__bar" style="width: 75%;"></span></span>
+        <span class="progress-row-value">75%</span>
+      </div>
+      <div class="progress-row">
+        <span class="progress-row-label">100%</span>
+        <span class="progress"><span class="progress__bar" style="width: 100%;"></span></span>
+        <span class="progress-row-value">100%</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>Circular</h2>
+    <div class="demo-row demo-inline">
+      <div class="demo-swatch"><span class="demo-swatch-label">0%</span>
+        <span class="progress-circle" style="--value: 0;"><span class="progress-circle__label">0%</span></span>
+      </div>
+      <div class="demo-swatch"><span class="demo-swatch-label">25%</span>
+        <span class="progress-circle" style="--value: 25;"><span class="progress-circle__label">25%</span></span>
+      </div>
+      <div class="demo-swatch"><span class="demo-swatch-label">60%</span>
+        <span class="progress-circle" style="--value: 60;"><span class="progress-circle__label">60%</span></span>
+      </div>
+      <div class="demo-swatch"><span class="demo-swatch-label">100%</span>
+        <span class="progress-circle" style="--value: 100;"><span class="progress-circle__label">100%</span></span>
+      </div>
+      <div class="demo-swatch"><span class="demo-swatch-label">lg · 72</span>
+        <span class="progress-circle progress-circle-lg" style="--value: 72;"><span class="progress-circle__label">72%</span></span>
+      </div>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>Usage</h2>
+    <pre class="snippet">&lt;!-- Linear --&gt;
+&lt;span class="progress" role="progressbar"
+      aria-valuenow="65" aria-valuemin="0" aria-valuemax="100"&gt;
+  &lt;span class="progress__bar" style="width: 65%;"&gt;&lt;/span&gt;
+&lt;/span&gt;
+
+&lt;!-- Semantic (warning/error when near limit) --&gt;
+&lt;span class="progress progress-warning"&gt;
+  &lt;span class="progress__bar" style="width: 80%;"&gt;&lt;/span&gt;
+&lt;/span&gt;
+
+&lt;!-- Circular — --value is the percent 0-100 --&gt;
+&lt;span class="progress-circle" style="--value: 60;"&gt;
+  &lt;span class="progress-circle__label"&gt;60%&lt;/span&gt;
+&lt;/span&gt;</pre>
+  </section>
+
+  <script src="../assets/js/tweaks.js" defer></script>
+</body>
+</html>

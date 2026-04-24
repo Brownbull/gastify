@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Atom: badge — gastify</title>
+  <link rel="stylesheet" href="../assets/css/desktop-shell.css">
+  <link rel="stylesheet" href="../assets/css/atoms.css">
+  <style>
+    body { margin: 0; font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; padding: 40px 320px 48px 48px; }
+    h1 { font-size: 24px; margin: 0 0 6px 0; font-weight: 700; }
+    .subtitle { color: var(--ink-2); font-size: 13px; margin: 0 0 32px 0; max-width: 720px; line-height: 1.5; }
+    .demo-section { margin-bottom: 36px; }
+    .demo-section h2 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-3); margin: 0 0 14px 0; font-weight: 600; }
+    .demo-row { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; background: var(--surface); padding: 24px; border-radius: 12px; border: 1px solid var(--line); }
+    .demo-swatch { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
+    .demo-swatch-label { font-size: 11px; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.05em; }
+    .snippet { background: var(--surface-2); padding: 16px; border-radius: 8px; font-family: ui-monospace, Consolas, monospace; font-size: 12px; color: var(--ink); overflow-x: auto; white-space: pre; line-height: 1.5; border: 1px solid var(--line); }
+    .demo-inline { display: inline-flex; align-items: center; gap: 8px; color: var(--ink); }
+  </style>
+</head>
+<body>
+  <h1>Badge</h1>
+  <p class="subtitle">Tiny non-interactive status tag. Use for confidence %, transaction category labels, alert priority, cohort markers. 5 semantic variants + dot indicator (count bubble).</p>
+
+  <section class="demo-section">
+    <h2>Variants</h2>
+    <div class="demo-row">
+      <div class="demo-swatch"><span class="demo-swatch-label">info</span><span class="badge badge-info">98% confianza</span></div>
+      <div class="demo-swatch"><span class="demo-swatch-label">success</span><span class="badge badge-success">Guardado</span></div>
+      <div class="demo-swatch"><span class="demo-swatch-label">warning</span><span class="badge badge-warning">Revisar</span></div>
+      <div class="demo-swatch"><span class="demo-swatch-label">error</span><span class="badge badge-error">Error</span></div>
+      <div class="demo-swatch"><span class="demo-swatch-label">neutral</span><span class="badge badge-neutral">Borrador</span></div>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>Inline usage — with text</h2>
+    <div class="demo-row" style="flex-direction: column; align-items: flex-start; gap: 14px;">
+      <span class="demo-inline">Jumbo Las Condes <span class="badge badge-info">98%</span></span>
+      <span class="demo-inline">Transferencia de Juan <span class="badge badge-success">Nuevo</span></span>
+      <span class="demo-inline">Farmacia Cruz Verde <span class="badge badge-warning">Confianza baja</span></span>
+      <span class="demo-inline">Pago duplicado <span class="badge badge-error">Conflicto</span></span>
+      <span class="demo-inline">Gasto manual <span class="badge badge-neutral">Manual</span></span>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>Dot (count indicator)</h2>
+    <div class="demo-row">
+      <div class="demo-swatch"><span class="demo-swatch-label">alert dot</span>
+        <span style="position: relative; display: inline-block; font-size: 24px; line-height: 1;">
+          <span style="color: var(--ink);">🔔</span>
+          <span class="badge-dot" style="position: absolute; top: 0; right: -4px;"></span>
+        </span>
+      </div>
+      <div class="demo-swatch"><span class="demo-swatch-label">standalone dot</span>
+        <span class="badge-dot"></span>
+      </div>
+      <div class="demo-swatch"><span class="demo-swatch-label">with count badge</span>
+        <span style="position: relative; display: inline-block; font-size: 24px; line-height: 1;">
+          <span style="color: var(--ink);">🔔</span>
+          <span class="badge badge-error" style="position: absolute; top: -6px; right: -10px; padding: 1px 6px; font-size: 10px;">3</span>
+        </span>
+      </div>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>Usage</h2>
+    <pre class="snippet">&lt;!-- Semantic status --&gt;
+&lt;span class="badge badge-info"&gt;98% confianza&lt;/span&gt;
+&lt;span class="badge badge-success"&gt;Guardado&lt;/span&gt;
+&lt;span class="badge badge-warning"&gt;Revisar&lt;/span&gt;
+&lt;span class="badge badge-error"&gt;Error&lt;/span&gt;
+&lt;span class="badge badge-neutral"&gt;Borrador&lt;/span&gt;
+
+&lt;!-- Alert dot (unread indicator) --&gt;
+&lt;span class="badge-dot"&gt;&lt;/span&gt;</pre>
+  </section>
+
+  <script src="../assets/js/tweaks.js" defer></script>
+</body>
+</html>

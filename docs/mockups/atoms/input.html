@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Atom: input — gastify</title>
+  <link rel="stylesheet" href="../assets/css/desktop-shell.css">
+  <link rel="stylesheet" href="../assets/css/atoms.css">
+  <style>
+    body { margin: 0; font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; padding: 40px 320px 48px 48px; }
+    h1 { font-size: 24px; margin: 0 0 6px 0; font-weight: 700; }
+    .subtitle { color: var(--ink-2); font-size: 13px; margin: 0 0 32px 0; max-width: 720px; line-height: 1.5; }
+    .demo-section { margin-bottom: 36px; }
+    .demo-section h2 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-3); margin: 0 0 14px 0; font-weight: 600; }
+    .demo-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; background: var(--surface); padding: 24px; border-radius: 12px; border: 1px solid var(--line); }
+    .snippet { background: var(--surface-2); padding: 16px; border-radius: 8px; font-family: ui-monospace, Consolas, monospace; font-size: 12px; color: var(--ink); overflow-x: auto; white-space: pre; line-height: 1.5; border: 1px solid var(--line); }
+  </style>
+</head>
+<body>
+  <h1>Input</h1>
+  <p class="subtitle">Form input with label. Variants: text · password · email · number · search. Standalone + with prefix/suffix affix. States: default · filled · focused · disabled · error.</p>
+
+  <section class="demo-section">
+    <h2>Variants</h2>
+    <div class="demo-row">
+      <div class="field-group">
+        <label class="field-label" for="in-text">Comercio</label>
+        <input id="in-text" type="text" class="field-input" placeholder="Jumbo Las Condes">
+      </div>
+      <div class="field-group">
+        <label class="field-label" for="in-pw">Contraseña</label>
+        <input id="in-pw" type="password" class="field-input" placeholder="••••••••">
+      </div>
+      <div class="field-group">
+        <label class="field-label" for="in-email">Email</label>
+        <input id="in-email" type="email" class="field-input" placeholder="tu@email.com">
+      </div>
+      <div class="field-group">
+        <label class="field-label" for="in-num">Monto CLP</label>
+        <input id="in-num" type="number" class="field-input" placeholder="0">
+      </div>
+      <div class="field-group">
+        <label class="field-label" for="in-search">Buscar</label>
+        <div class="field-affix">
+          <span class="field-affix__icon" aria-hidden="true">⌕</span>
+          <input id="in-search" type="search" class="field-input" placeholder="Buscar transacciones…">
+        </div>
+      </div>
+      <div class="field-group">
+        <label class="field-label" for="in-amount">Monto con moneda</label>
+        <div class="field-affix">
+          <span class="field-affix__icon">$</span>
+          <input id="in-amount" type="text" class="field-input" placeholder="45.890">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>States</h2>
+    <div class="demo-row">
+      <div class="field-group">
+        <label class="field-label" for="st-default">Default</label>
+        <input id="st-default" type="text" class="field-input" placeholder="Ej. Jumbo">
+      </div>
+      <div class="field-group">
+        <label class="field-label" for="st-filled">Filled</label>
+        <input id="st-filled" type="text" class="field-input filled" value="Jumbo Las Condes">
+      </div>
+      <div class="field-group">
+        <label class="field-label" for="st-focus">Focus (tab here)</label>
+        <input id="st-focus" type="text" class="field-input" placeholder="Dale foco">
+      </div>
+      <div class="field-group">
+        <label class="field-label" for="st-disabled">Disabled</label>
+        <input id="st-disabled" type="text" class="field-input" value="Hoy, 31 Mar 2026" disabled>
+      </div>
+      <div class="field-group">
+        <label class="field-label" for="st-error">Error</label>
+        <input id="st-error" type="text" class="field-input field-error" value="tu@">
+        <span class="field-error-msg">Email no es válido</span>
+      </div>
+      <div class="field-group">
+        <label class="field-label" for="st-hint">With hint</label>
+        <input id="st-hint" type="text" class="field-input" placeholder="Mín. 8 caracteres">
+        <span class="field-hint">La contraseña se valida al enviar</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>Usage</h2>
+    <pre class="snippet">&lt;div class="field-group"&gt;
+  &lt;label class="field-label" for="merchant"&gt;Comercio&lt;/label&gt;
+  &lt;input id="merchant" type="text" class="field-input" placeholder="Jumbo"&gt;
+&lt;/div&gt;
+
+&lt;!-- With affix (icon / currency prefix) --&gt;
+&lt;div class="field-affix"&gt;
+  &lt;span class="field-affix__icon"&gt;⌕&lt;/span&gt;
+  &lt;input type="search" class="field-input" placeholder="Buscar"&gt;
+&lt;/div&gt;
+
+&lt;!-- Error state --&gt;
+&lt;input type="email" class="field-input field-error" value="tu@"&gt;
+&lt;span class="field-error-msg"&gt;Email no es válido&lt;/span&gt;</pre>
+  </section>
+
+  <script src="../assets/js/tweaks.js" defer></script>
+</body>
+</html>

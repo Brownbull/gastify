@@ -1,0 +1,458 @@
+/* ==========================================================
+   gastify — atoms.css (Phase 2 exit artifact)
+
+   Single source of truth for atomic component styles.
+   Composes on top of desktop-shell.css tokens (P1-locked):
+     --bg, --surface, --surface-2
+     --ink, --ink-2, --ink-3
+     --line, --line-strong
+     --primary, --primary-ink, --primary-soft
+     --accent, --accent-soft
+     --success, --warning, --error, --danger-soft
+     --shadow, --shadow-lg
+
+   Supplementary tokens (spacing + radii + type-scale) declared
+   here so atoms are portable if extracted to other surfaces.
+
+   Referenced by:
+     <link rel="stylesheet" href="../assets/css/desktop-shell.css">
+     <link rel="stylesheet" href="../assets/css/atoms.css">
+
+   Tier: MVP — variants complete, states = { default, disabled }
+   (focus + hover kept as transition targets for later tiers).
+
+   Change this file → every atom HTML + screen that composes them
+   inherits. Keep selectors flat (no deep nesting).
+   ========================================================== */
+
+/* ---------- Supplementary tokens ---------- */
+:root {
+  /* Spacing scale (atoms only — shell uses px inline) */
+  --atom-s-1: 4px;
+  --atom-s-2: 8px;
+  --atom-s-3: 12px;
+  --atom-s-4: 16px;
+  --atom-s-5: 20px;
+  --atom-s-6: 24px;
+
+  /* Radii */
+  --atom-r-sm:   4px;
+  --atom-r-md:   8px;
+  --atom-r-lg:   12px;
+  --atom-r-full: 9999px;
+
+  /* Type scale */
+  --atom-fs-xs:   12px;
+  --atom-fs-sm:   13px;
+  --atom-fs-base: 14px;
+  --atom-fs-lg:   16px;
+}
+
+/* ==========================================================
+   BUTTON
+   Variants: primary · secondary · ghost · destructive · icon
+   Sizes:    sm · md (default) · lg
+   States:   default · disabled (+ :hover/:focus-visible transitions)
+   ========================================================== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--atom-s-2);
+  padding: 10px 20px;
+  font-family: inherit;
+  font-size: var(--atom-fs-base);
+  font-weight: 600;
+  line-height: 1;
+  border: 1px solid transparent;
+  border-radius: var(--atom-r-md);
+  cursor: pointer;
+  transition: background 180ms ease, box-shadow 180ms ease, transform 120ms ease, opacity 180ms ease;
+  text-decoration: none;
+  white-space: nowrap;
+  user-select: none;
+}
+.btn:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+.btn[disabled], .btn.is-disabled { opacity: 0.45; cursor: not-allowed; pointer-events: none; }
+
+/* sizes */
+.btn.btn-sm { padding: 6px 12px; font-size: var(--atom-fs-sm); }
+.btn.btn-lg { padding: 14px 28px; font-size: var(--atom-fs-lg); }
+
+/* primary */
+.btn.btn-primary { background: var(--primary); color: var(--primary-ink); }
+.btn.btn-primary:hover { box-shadow: 0 4px 12px var(--shadow-lg); transform: translateY(-1px); }
+
+/* secondary — filled soft surface */
+.btn.btn-secondary { background: var(--surface-2); color: var(--ink); }
+.btn.btn-secondary:hover { background: var(--line); }
+
+/* ghost — no fill, subtle */
+.btn.btn-ghost { background: transparent; color: var(--ink); border-color: var(--line); }
+.btn.btn-ghost:hover { background: var(--surface-2); border-color: var(--line-strong); }
+
+/* destructive */
+.btn.btn-destructive { background: var(--error); color: #ffffff; }
+.btn.btn-destructive:hover { box-shadow: 0 4px 12px var(--shadow-lg); transform: translateY(-1px); }
+
+/* icon-only square */
+.btn.btn-icon {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border-radius: var(--atom-r-md);
+  background: transparent;
+  color: var(--ink-2);
+  border-color: var(--line);
+}
+.btn.btn-icon:hover { background: var(--surface-2); color: var(--ink); }
+.btn.btn-icon.btn-sm { width: 32px; height: 32px; }
+.btn.btn-icon.btn-lg { width: 48px; height: 48px; }
+
+/* ==========================================================
+   INPUT / FIELD
+   Variants: text · password · email · number · search
+   States:   default · filled · focused (:focus-visible) · disabled
+   ========================================================== */
+.field-group { display: flex; flex-direction: column; gap: 6px; }
+.field-label {
+  font-size: var(--atom-fs-xs);
+  font-weight: 600;
+  color: var(--ink-2);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.field-input {
+  font-family: inherit;
+  font-size: var(--atom-fs-base);
+  color: var(--ink);
+  background: var(--surface);
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--atom-r-md);
+  transition: border-color 180ms ease, box-shadow 180ms ease, background 180ms ease;
+  width: 100%;
+  min-height: 40px;
+  box-sizing: border-box;
+}
+.field-input::placeholder { color: var(--ink-3); }
+.field-input.filled { background: var(--surface); border-color: var(--line-strong); }
+.field-input:focus,
+.field-input:focus-visible {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-soft);
+}
+.field-input[disabled], .field-input.is-disabled {
+  opacity: 0.55;
+  background: var(--surface-2);
+  cursor: not-allowed;
+}
+.field-input.field-error { border-color: var(--error); box-shadow: 0 0 0 3px var(--danger-soft); }
+.field-hint { font-size: var(--atom-fs-xs); color: var(--ink-3); }
+.field-error-msg { font-size: var(--atom-fs-xs); color: var(--error); }
+
+/* Prefix/suffix wrapper (search icon, currency sigil, etc.) */
+.field-affix {
+  display: flex;
+  align-items: center;
+  gap: var(--atom-s-2);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--atom-r-md);
+  padding: 0 12px;
+  transition: border-color 180ms ease, box-shadow 180ms ease;
+}
+.field-affix:focus-within { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-soft); }
+.field-affix .field-input { border: 0; padding: 10px 0; background: transparent; box-shadow: none; min-height: 38px; }
+.field-affix__icon { color: var(--ink-3); font-size: 16px; display: inline-flex; align-items: center; }
+
+/* ==========================================================
+   SELECT
+   Native-styled select with caret glyph.
+   ========================================================== */
+.select {
+  font-family: inherit;
+  font-size: var(--atom-fs-base);
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--atom-r-md);
+  padding: 10px 36px 10px 12px;
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+  min-height: 40px;
+  background-image: linear-gradient(45deg, transparent 50%, var(--ink-3) 50%),
+                    linear-gradient(135deg, var(--ink-3) 50%, transparent 50%);
+  background-position: calc(100% - 18px) 18px, calc(100% - 12px) 18px;
+  background-size: 6px 6px, 6px 6px;
+  background-repeat: no-repeat;
+  transition: border-color 180ms ease, box-shadow 180ms ease;
+}
+.select:focus,
+.select:focus-visible { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-soft); }
+.select[disabled] { opacity: 0.55; cursor: not-allowed; background-color: var(--surface-2); }
+
+/* ==========================================================
+   PILL (toggle segment, small standalone status tag)
+   Variants: default · active · with-count
+   ========================================================== */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  font-family: inherit;
+  font-size: var(--atom-fs-sm);
+  font-weight: 500;
+  color: var(--ink-2);
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: var(--atom-r-full);
+  cursor: pointer;
+  transition: background 180ms ease, color 180ms ease, border-color 180ms ease;
+  white-space: nowrap;
+}
+.pill:hover { background: var(--surface-2); color: var(--ink); }
+.pill.is-active,
+.pill.active {
+  background: var(--primary);
+  color: var(--primary-ink);
+  border-color: var(--primary);
+}
+.pill__count {
+  background: rgba(0, 0, 0, 0.08);
+  color: inherit;
+  padding: 1px 7px;
+  border-radius: var(--atom-r-full);
+  font-size: var(--atom-fs-xs);
+  font-weight: 600;
+}
+.pill.is-active .pill__count { background: rgba(255, 255, 255, 0.25); }
+
+/* ==========================================================
+   BADGE (tiny status, non-interactive)
+   Variants: info · success · warning · error · neutral
+   ========================================================== */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  font-size: var(--atom-fs-xs);
+  font-weight: 600;
+  line-height: 1.4;
+  border-radius: var(--atom-r-full);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.badge-info    { background: var(--primary-soft); color: var(--primary); }
+.badge-success { background: var(--primary-soft); color: var(--success); }
+.badge-warning { background: var(--accent-soft); color: var(--warning); }
+.badge-error   { background: var(--danger-soft); color: var(--error); }
+.badge-neutral { background: var(--surface-2);   color: var(--ink-2); }
+
+/* Dot badge (no text, count indicator) */
+.badge-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--error);
+}
+
+/* ==========================================================
+   AVATAR
+   Sizes: sm (24) · md (36) · lg (48)
+   Content: image · initials · icon
+   ========================================================== */
+.avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  font-size: var(--atom-fs-sm);
+  font-weight: 600;
+  color: var(--primary-ink);
+  background: var(--primary);
+  border-radius: var(--atom-r-full);
+  overflow: hidden;
+  flex-shrink: 0;
+  text-transform: uppercase;
+}
+.avatar img { width: 100%; height: 100%; object-fit: cover; }
+.avatar.avatar-sm { width: 24px; height: 24px; font-size: var(--atom-fs-xs); }
+.avatar.avatar-lg { width: 48px; height: 48px; font-size: var(--atom-fs-lg); }
+.avatar.avatar-muted { background: var(--surface-2); color: var(--ink-2); }
+.avatar.avatar-accent { background: var(--accent); color: var(--ink); }
+
+/* ==========================================================
+   CHIP (removable tag, selectable filter value)
+   Variants: default · selected · removable
+   ========================================================== */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  font-family: inherit;
+  font-size: var(--atom-fs-sm);
+  color: var(--ink);
+  background: var(--surface-2);
+  border: 1px solid transparent;
+  border-radius: var(--atom-r-full);
+  cursor: pointer;
+  transition: background 180ms ease, color 180ms ease;
+  white-space: nowrap;
+}
+.chip:hover { background: var(--line); }
+.chip.is-selected,
+.chip.active {
+  background: var(--primary-soft);
+  color: var(--primary);
+  border-color: var(--primary);
+}
+.chip__remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  border-radius: var(--atom-r-full);
+  opacity: 0.7;
+  font-size: 14px;
+  line-height: 1;
+}
+.chip__remove:hover { opacity: 1; background: rgba(0, 0, 0, 0.08); }
+
+/* ==========================================================
+   SKELETON (loading placeholder)
+   Pattern: animated shimmer on surface-2 base
+   ========================================================== */
+.skeleton {
+  display: block;
+  background: var(--surface-2);
+  border-radius: var(--atom-r-sm);
+  position: relative;
+  overflow: hidden;
+}
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.35) 50%,
+    transparent 100%
+  );
+  animation: atomShimmer 1400ms linear infinite;
+  transform: translateX(-100%);
+}
+[data-mode="dark"] .skeleton::after {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.08) 50%,
+    transparent 100%
+  );
+}
+@keyframes atomShimmer {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(100%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .skeleton::after { animation-duration: 0ms !important; }
+}
+
+/* Skeleton variants */
+.skeleton-line   { height: 12px; border-radius: var(--atom-r-sm); }
+.skeleton-line.skeleton-line-sm { height: 8px; }
+.skeleton-line.skeleton-line-lg { height: 18px; }
+.skeleton-avatar { width: 36px; height: 36px; border-radius: 50%; }
+.skeleton-chip   { height: 28px; width: 80px; border-radius: var(--atom-r-full); }
+.skeleton-card   { height: 120px; border-radius: var(--atom-r-lg); }
+
+/* ==========================================================
+   PROGRESS (linear + circular)
+   ========================================================== */
+.progress {
+  display: block;
+  width: 100%;
+  height: 8px;
+  background: var(--surface-2);
+  border-radius: var(--atom-r-full);
+  overflow: hidden;
+}
+.progress__bar {
+  display: block;
+  height: 100%;
+  background: var(--primary);
+  border-radius: inherit;
+  transition: width 220ms ease;
+}
+.progress.progress-thin { height: 4px; }
+.progress.progress-thick { height: 12px; }
+.progress.progress-success .progress__bar { background: var(--success); }
+.progress.progress-warning .progress__bar { background: var(--warning); }
+.progress.progress-error   .progress__bar { background: var(--error); }
+
+/* Circular — uses SVG circumference trick via CSS vars */
+.progress-circle {
+  --size: 48px;
+  --thickness: 4px;
+  --value: 0;   /* 0-100 */
+  width: var(--size);
+  height: var(--size);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  background: conic-gradient(var(--primary) calc(var(--value) * 1%), var(--surface-2) 0);
+  border-radius: 50%;
+}
+.progress-circle::before {
+  content: "";
+  position: absolute;
+  inset: var(--thickness);
+  background: var(--bg);
+  border-radius: 50%;
+}
+.progress-circle__label {
+  position: relative;
+  font-size: var(--atom-fs-xs);
+  font-weight: 600;
+  color: var(--ink-2);
+}
+.progress-circle.progress-circle-lg { --size: 72px; --thickness: 6px; }
+
+/* ==========================================================
+   SPINNER (indeterminate loading)
+   ========================================================== */
+.spinner {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--surface-2);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: atomSpin 640ms linear infinite;
+  vertical-align: middle;
+}
+.spinner.spinner-sm { width: 14px; height: 14px; border-width: 2px; }
+.spinner.spinner-lg { width: 32px; height: 32px; border-width: 3px; }
+.spinner.spinner-ink { border-color: rgba(0,0,0,0.12); border-top-color: var(--ink); }
+.spinner.spinner-on-primary { border-color: rgba(255,255,255,0.3); border-top-color: var(--primary-ink); }
+
+@keyframes atomSpin {
+  to { transform: rotate(360deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .spinner { animation-duration: 0ms !important; }
+}

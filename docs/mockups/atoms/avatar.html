@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Atom: avatar — gastify</title>
+  <link rel="stylesheet" href="../assets/css/desktop-shell.css">
+  <link rel="stylesheet" href="../assets/css/atoms.css">
+  <style>
+    body { margin: 0; font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; padding: 40px 320px 48px 48px; }
+    h1 { font-size: 24px; margin: 0 0 6px 0; font-weight: 700; }
+    .subtitle { color: var(--ink-2); font-size: 13px; margin: 0 0 32px 0; max-width: 720px; line-height: 1.5; }
+    .demo-section { margin-bottom: 36px; }
+    .demo-section h2 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-3); margin: 0 0 14px 0; font-weight: 600; }
+    .demo-row { display: flex; flex-wrap: wrap; gap: 20px; align-items: center; background: var(--surface); padding: 24px; border-radius: 12px; border: 1px solid var(--line); }
+    .demo-swatch { display: flex; flex-direction: column; gap: 8px; align-items: center; min-width: 80px; }
+    .demo-swatch-label { font-size: 11px; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.05em; }
+    .snippet { background: var(--surface-2); padding: 16px; border-radius: 8px; font-family: ui-monospace, Consolas, monospace; font-size: 12px; color: var(--ink); overflow-x: auto; white-space: pre; line-height: 1.5; border: 1px solid var(--line); }
+    .avatar-stack { display: inline-flex; }
+    .avatar-stack .avatar { border: 2px solid var(--surface); margin-left: -10px; }
+    .avatar-stack .avatar:first-child { margin-left: 0; }
+    .user-row { display: flex; gap: 12px; align-items: center; }
+    .user-row-name { font-weight: 600; color: var(--ink); font-size: 14px; }
+    .user-row-meta { font-size: 12px; color: var(--ink-3); }
+  </style>
+</head>
+<body>
+  <h1>Avatar</h1>
+  <p class="subtitle">User / group identity marker. 3 sizes (sm/md/lg), 3 content types (image/initials/icon). Used in topbar, group switcher, shared-expense participant rows. Fills with primary color by default — muted + accent variants for group colorization.</p>
+
+  <section class="demo-section">
+    <h2>Sizes</h2>
+    <div class="demo-row">
+      <div class="demo-swatch"><span class="demo-swatch-label">sm · 24</span><span class="avatar avatar-sm">JP</span></div>
+      <div class="demo-swatch"><span class="demo-swatch-label">md · 36</span><span class="avatar">JP</span></div>
+      <div class="demo-swatch"><span class="demo-swatch-label">lg · 48</span><span class="avatar avatar-lg">JP</span></div>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>Content types</h2>
+    <div class="demo-row">
+      <div class="demo-swatch"><span class="demo-swatch-label">initials</span><span class="avatar">JP</span></div>
+      <div class="demo-swatch"><span class="demo-swatch-label">image</span><span class="avatar"><img src="../assets/icons/cat-tuxedo.png" alt="Juan"></span></div>
+      <div class="demo-swatch"><span class="demo-swatch-label">icon</span><span class="avatar" aria-label="Grupo">👥</span></div>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>Color variants</h2>
+    <div class="demo-row">
+      <div class="demo-swatch"><span class="demo-swatch-label">primary (default)</span><span class="avatar">JP</span></div>
+      <div class="demo-swatch"><span class="demo-swatch-label">muted</span><span class="avatar avatar-muted">MK</span></div>
+      <div class="demo-swatch"><span class="demo-swatch-label">accent</span><span class="avatar avatar-accent">GL</span></div>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>Stacked (group members)</h2>
+    <div class="demo-row">
+      <div class="demo-swatch"><span class="demo-swatch-label">3 members</span>
+        <div class="avatar-stack">
+          <span class="avatar avatar-sm">JP</span>
+          <span class="avatar avatar-sm avatar-accent">MK</span>
+          <span class="avatar avatar-sm avatar-muted">GL</span>
+        </div>
+      </div>
+      <div class="demo-swatch"><span class="demo-swatch-label">5 members + overflow</span>
+        <div class="avatar-stack">
+          <span class="avatar avatar-sm">JP</span>
+          <span class="avatar avatar-sm avatar-accent">MK</span>
+          <span class="avatar avatar-sm avatar-muted">GL</span>
+          <span class="avatar avatar-sm">SB</span>
+          <span class="avatar avatar-sm avatar-muted" style="background: var(--line);">+3</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>With user row</h2>
+    <div class="demo-row" style="flex-direction: column; align-items: flex-start; gap: 12px;">
+      <div class="user-row">
+        <span class="avatar avatar-lg">JP</span>
+        <div>
+          <div class="user-row-name">Juan Pérez</div>
+          <div class="user-row-meta">juan@gastify.cl</div>
+        </div>
+      </div>
+      <div class="user-row">
+        <span class="avatar avatar-accent"><img src="../assets/icons/cat-orange.png" alt=""></span>
+        <div>
+          <div class="user-row-name">Gastos Familia</div>
+          <div class="user-row-meta">4 miembros · Admin</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>Usage</h2>
+    <pre class="snippet">&lt;!-- Initials (fallback) --&gt;
+&lt;span class="avatar"&gt;JP&lt;/span&gt;
+&lt;span class="avatar avatar-sm avatar-muted"&gt;MK&lt;/span&gt;
+
+&lt;!-- Image --&gt;
+&lt;span class="avatar avatar-lg"&gt;
+  &lt;img src="/path/to/photo.jpg" alt="Juan Pérez"&gt;
+&lt;/span&gt;
+
+&lt;!-- Icon --&gt;
+&lt;span class="avatar avatar-accent" aria-label="Grupo familiar"&gt;👥&lt;/span&gt;
+
+&lt;!-- Stacked group --&gt;
+&lt;div class="avatar-stack"&gt;
+  &lt;span class="avatar avatar-sm"&gt;JP&lt;/span&gt;
+  &lt;span class="avatar avatar-sm avatar-accent"&gt;MK&lt;/span&gt;
+&lt;/div&gt;</pre>
+  </section>
+
+  <script src="../assets/js/tweaks.js" defer></script>
+</body>
+</html>

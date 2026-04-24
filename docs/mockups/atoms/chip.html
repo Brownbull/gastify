@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Atom: chip — gastify</title>
+  <link rel="stylesheet" href="../assets/css/desktop-shell.css">
+  <link rel="stylesheet" href="../assets/css/atoms.css">
+  <style>
+    body { margin: 0; font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; padding: 40px 320px 48px 48px; }
+    h1 { font-size: 24px; margin: 0 0 6px 0; font-weight: 700; }
+    .subtitle { color: var(--ink-2); font-size: 13px; margin: 0 0 32px 0; max-width: 720px; line-height: 1.5; }
+    .demo-section { margin-bottom: 36px; }
+    .demo-section h2 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-3); margin: 0 0 14px 0; font-weight: 600; }
+    .demo-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; background: var(--surface); padding: 24px; border-radius: 12px; border: 1px solid var(--line); }
+    .demo-swatch { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
+    .demo-swatch-label { font-size: 11px; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.05em; }
+    .snippet { background: var(--surface-2); padding: 16px; border-radius: 8px; font-family: ui-monospace, Consolas, monospace; font-size: 12px; color: var(--ink); overflow-x: auto; white-space: pre; line-height: 1.5; border: 1px solid var(--line); }
+  </style>
+</head>
+<body>
+  <h1>Chip</h1>
+  <p class="subtitle">Filter value, tag, applied-attribute marker. Subtler fill than pills (chips sit <em>inside</em> filter bars; pills toggle mode). Removable variant for active-filter clearing.</p>
+
+  <section class="demo-section">
+    <h2>Variants</h2>
+    <div class="demo-row">
+      <div class="demo-swatch"><span class="demo-swatch-label">default</span><span class="chip">Supermercado</span></div>
+      <div class="demo-swatch"><span class="demo-swatch-label">selected</span><span class="chip is-selected">Supermercado</span></div>
+      <div class="demo-swatch"><span class="demo-swatch-label">removable</span>
+        <span class="chip">Supermercado <button class="chip__remove" aria-label="Quitar filtro Supermercado">×</button></span>
+      </div>
+      <div class="demo-swatch"><span class="demo-swatch-label">selected + removable</span>
+        <span class="chip is-selected">Abril 2026 <button class="chip__remove" aria-label="Quitar filtro">×</button></span>
+      </div>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>Filter bar — selectable set</h2>
+    <div class="demo-row">
+      <span class="chip is-selected">Supermercado</span>
+      <span class="chip is-selected">Farmacia</span>
+      <span class="chip">Transporte</span>
+      <span class="chip">Restaurante</span>
+      <span class="chip">Servicios</span>
+      <span class="chip">Entretenimiento</span>
+      <span class="chip">Salud</span>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>Active filters bar — all removable</h2>
+    <div class="demo-row">
+      <span class="chip is-selected">Abril 2026 <button class="chip__remove" aria-label="Quitar">×</button></span>
+      <span class="chip is-selected">Supermercado <button class="chip__remove" aria-label="Quitar">×</button></span>
+      <span class="chip is-selected">$5.000+ <button class="chip__remove" aria-label="Quitar">×</button></span>
+      <button class="btn btn-ghost btn-sm" style="border-radius: 9999px;">Limpiar todo</button>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>With icon</h2>
+    <div class="demo-row">
+      <span class="chip"><span aria-hidden="true">📅</span> Último mes</span>
+      <span class="chip is-selected"><span aria-hidden="true">🛒</span> Supermercado</span>
+      <span class="chip"><span aria-hidden="true">📍</span> Las Condes</span>
+      <span class="chip is-selected"><span aria-hidden="true">💳</span> Tarjeta crédito</span>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>Usage</h2>
+    <pre class="snippet">&lt;!-- Default / selected --&gt;
+&lt;span class="chip"&gt;Supermercado&lt;/span&gt;
+&lt;span class="chip is-selected"&gt;Farmacia&lt;/span&gt;
+
+&lt;!-- Removable (active filter) --&gt;
+&lt;span class="chip is-selected"&gt;
+  Abril 2026
+  &lt;button class="chip__remove" aria-label="Quitar filtro"&gt;×&lt;/button&gt;
+&lt;/span&gt;
+
+&lt;!-- With emoji/icon prefix --&gt;
+&lt;span class="chip"&gt;
+  &lt;span aria-hidden="true"&gt;📅&lt;/span&gt;
+  Último mes
+&lt;/span&gt;</pre>
+  </section>
+
+  <script src="../assets/js/tweaks.js" defer></script>
+</body>
+</html>

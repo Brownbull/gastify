@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Atom: pill — gastify</title>
+  <link rel="stylesheet" href="../assets/css/desktop-shell.css">
+  <link rel="stylesheet" href="../assets/css/atoms.css">
+  <style>
+    body { margin: 0; font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; padding: 40px 320px 48px 48px; }
+    h1 { font-size: 24px; margin: 0 0 6px 0; font-weight: 700; }
+    .subtitle { color: var(--ink-2); font-size: 13px; margin: 0 0 32px 0; max-width: 720px; line-height: 1.5; }
+    .demo-section { margin-bottom: 36px; }
+    .demo-section h2 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-3); margin: 0 0 14px 0; font-weight: 600; }
+    .demo-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; background: var(--surface); padding: 24px; border-radius: 12px; border: 1px solid var(--line); }
+    .demo-swatch { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
+    .demo-swatch-label { font-size: 11px; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.05em; }
+    .snippet { background: var(--surface-2); padding: 16px; border-radius: 8px; font-family: ui-monospace, Consolas, monospace; font-size: 12px; color: var(--ink); overflow-x: auto; white-space: pre; line-height: 1.5; border: 1px solid var(--line); }
+  </style>
+</head>
+<body>
+  <h1>Pill</h1>
+  <p class="subtitle">Toggle segment for timeframe selectors, filter groups, status switches. One-of-N selection pattern (pair with a group container). Rounded-full radius distinguishes it from chips (context: pills toggle state, chips filter values).</p>
+
+  <section class="demo-section">
+    <h2>Variants</h2>
+    <div class="demo-row">
+      <div class="demo-swatch"><span class="demo-swatch-label">default</span><button class="pill">Semana</button></div>
+      <div class="demo-swatch"><span class="demo-swatch-label">active</span><button class="pill is-active">Mes</button></div>
+      <div class="demo-swatch"><span class="demo-swatch-label">with count</span><button class="pill">Sin categoría<span class="pill__count">12</span></button></div>
+      <div class="demo-swatch"><span class="demo-swatch-label">active + count</span><button class="pill is-active">Supermercado<span class="pill__count">8</span></button></div>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>Group — timeframe selector</h2>
+    <div class="demo-row" role="tablist" aria-label="Timeframe">
+      <button class="pill" role="tab">Año</button>
+      <button class="pill" role="tab">Trimestre</button>
+      <button class="pill is-active" role="tab" aria-selected="true">Mes</button>
+      <button class="pill" role="tab">Semana</button>
+      <button class="pill" role="tab">Día</button>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>Group — with counts</h2>
+    <div class="demo-row">
+      <button class="pill is-active">Todas<span class="pill__count">42</span></button>
+      <button class="pill">Pendientes<span class="pill__count">5</span></button>
+      <button class="pill">Revisadas<span class="pill__count">37</span></button>
+      <button class="pill">Errores<span class="pill__count">2</span></button>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>States</h2>
+    <div class="demo-row">
+      <div class="demo-swatch"><span class="demo-swatch-label">default</span><button class="pill">Mes</button></div>
+      <div class="demo-swatch"><span class="demo-swatch-label">hover</span><button class="pill" style="background: var(--surface-2); color: var(--ink);">Mes</button></div>
+      <div class="demo-swatch"><span class="demo-swatch-label">active</span><button class="pill is-active">Mes</button></div>
+      <div class="demo-swatch"><span class="demo-swatch-label">disabled</span><button class="pill" disabled style="opacity: 0.4; cursor: not-allowed;">Mes</button></div>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>Usage</h2>
+    <pre class="snippet">&lt;!-- Simple pill --&gt;
+&lt;button class="pill"&gt;Semana&lt;/button&gt;
+&lt;button class="pill is-active"&gt;Mes&lt;/button&gt;
+
+&lt;!-- Pill with count --&gt;
+&lt;button class="pill"&gt;
+  Supermercado
+  &lt;span class="pill__count"&gt;12&lt;/span&gt;
+&lt;/button&gt;
+
+&lt;!-- Group (timeframe, filters, segmented control) --&gt;
+&lt;div role="tablist"&gt;
+  &lt;button class="pill" role="tab"&gt;Año&lt;/button&gt;
+  &lt;button class="pill is-active" role="tab" aria-selected="true"&gt;Mes&lt;/button&gt;
+&lt;/div&gt;</pre>
+  </section>
+
+  <script src="../assets/js/tweaks.js" defer></script>
+</body>
+</html>

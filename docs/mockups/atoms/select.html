@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Atom: select — gastify</title>
+  <link rel="stylesheet" href="../assets/css/desktop-shell.css">
+  <link rel="stylesheet" href="../assets/css/atoms.css">
+  <style>
+    body { margin: 0; font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; padding: 40px 320px 48px 48px; }
+    h1 { font-size: 24px; margin: 0 0 6px 0; font-weight: 700; }
+    .subtitle { color: var(--ink-2); font-size: 13px; margin: 0 0 32px 0; max-width: 720px; line-height: 1.5; }
+    .demo-section { margin-bottom: 36px; }
+    .demo-section h2 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-3); margin: 0 0 14px 0; font-weight: 600; }
+    .demo-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; background: var(--surface); padding: 24px; border-radius: 12px; border: 1px solid var(--line); }
+    .snippet { background: var(--surface-2); padding: 16px; border-radius: 8px; font-family: ui-monospace, Consolas, monospace; font-size: 12px; color: var(--ink); overflow-x: auto; white-space: pre; line-height: 1.5; border: 1px solid var(--line); }
+  </style>
+</head>
+<body>
+  <h1>Select</h1>
+  <p class="subtitle">Native HTML select with custom caret glyph. Reuses input token vocabulary — same focus ring, same radius. Native dropdown behavior (OS-themed).</p>
+
+  <section class="demo-section">
+    <h2>States</h2>
+    <div class="demo-row">
+      <div class="field-group">
+        <label class="field-label" for="sel-closed">Closed (default)</label>
+        <select id="sel-closed" class="select">
+          <option>Rubros (12)</option>
+          <option>Giros (44)</option>
+          <option>Familias (9)</option>
+          <option>Categorías (42)</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label class="field-label" for="sel-withvalue">With value</label>
+        <select id="sel-withvalue" class="select">
+          <option value="">—</option>
+          <option selected>Supermercado</option>
+          <option>Farmacia</option>
+          <option>Transporte</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label class="field-label" for="sel-focus">Focus (tab here)</label>
+        <select id="sel-focus" class="select">
+          <option>CLP — Peso chileno</option>
+          <option>USD — Dólar</option>
+          <option>EUR — Euro</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label class="field-label" for="sel-disabled">Disabled</label>
+        <select id="sel-disabled" class="select" disabled>
+          <option>Seleccionar…</option>
+        </select>
+      </div>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>Common pairings</h2>
+    <div class="demo-row">
+      <div class="field-group">
+        <label class="field-label" for="sel-date">Periodo</label>
+        <select id="sel-date" class="select">
+          <option>Este mes</option>
+          <option>Últimos 30 días</option>
+          <option>Este trimestre</option>
+          <option>Este año</option>
+          <option>Rango personalizado…</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label class="field-label" for="sel-currency">Moneda</label>
+        <select id="sel-currency" class="select">
+          <option>CLP</option>
+          <option>USD</option>
+          <option>EUR</option>
+          <option>ARS</option>
+          <option>BRL</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label class="field-label" for="sel-jurisdiction">Jurisdicción</label>
+        <select id="sel-jurisdiction" class="select">
+          <option>Chile</option>
+          <option>LATAM</option>
+          <option>Unión Europea</option>
+          <option>Estados Unidos</option>
+          <option>Canadá</option>
+        </select>
+      </div>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>Usage</h2>
+    <pre class="snippet">&lt;div class="field-group"&gt;
+  &lt;label class="field-label" for="currency"&gt;Moneda&lt;/label&gt;
+  &lt;select id="currency" class="select"&gt;
+    &lt;option&gt;CLP&lt;/option&gt;
+    &lt;option&gt;USD&lt;/option&gt;
+  &lt;/select&gt;
+&lt;/div&gt;
+
+&lt;select class="select" disabled&gt;...&lt;/select&gt;</pre>
+  </section>
+
+  <script src="../assets/js/tweaks.js" defer></script>
+</body>
+</html>
