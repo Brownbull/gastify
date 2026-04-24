@@ -1,5 +1,13 @@
 # Session Ledger
 
+## 2026-04-24 — PLAN COMPLIANCE CHECK: /gabe-plan check + [fix-types]
+SPEC: v7.1 (9-rule compliance matrix)
+VERDICT: 13/13 phases COMPLIANT on C1–C9
+RETROFIT APPLIED: [fix-types] — synced P4 + P13 Phase Details YAML `types:` + `sections_considered:` + prose `**Types:**` to match Phases table cells (drift from 2026-04-24 /gabe-mockup retrofit)
+CHANGES: P4 `[flows, index]` → `[mockup-flows, mockup-index]`; P13 `[documentation, validation]` → `[mockup-docs, mockup-validation]`
+LLM CALLS: 0 | TIER CHANGES: 0 | DECISIONS TOUCHED: 0
+FILES: .kdbp/PLAN.md (3 edits: P4 YAML/prose, P13 YAML/prose, Last Updated + Retrofit Log)
+
 ## 2026-04-24 — PHASE 1 REVIEW: ux-mockups P1 Design language + tokens
 VERDICT: WARNING (provisional) → WARNING (final, post-triage)
 FINDINGS: 7 total (0 critical, 2 high, 3 medium, 2 low)
@@ -162,3 +170,10 @@ SOURCE: Phase 1 exit-push — 35 commits since P2 covering UX mockups P1 (14 des
 ## 2026-04-24 10:44 — [main 83ef0c9] chore(kdbp): record push bookkeeping for P3
 
 ## 2026-04-24 14:17 — [main 83ef0c9] chore(kdbp): record push bookkeeping for P3
+
+## 2026-04-24 14:22 — [main 083201f] chore(kdbp): adopt /gabe-mockup peer-command + seed P2 mockup infra
+FINDINGS: 1 (0 critical, 0 high, 1 medium, 0 low)
+ACTIONS: 1:update-structure (resolved via .gitignore — docs/mockups/legacy-reference/ now unversioned reference vault)
+DEFERRED: none
+
+## 2026-04-24 14:22 — [main 083201f] chore(kdbp): adopt /gabe-mockup peer-command + seed P2 mockup infra

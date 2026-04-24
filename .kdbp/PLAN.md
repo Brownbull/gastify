@@ -12,7 +12,7 @@ Produce complete clean-slate mockup surface for gastify — responsive web porta
 - **Maturity:** mvp
 - **Domain:** Smart personal expense tracker — AI receipt scanning, multi-currency, multi-platform (web + mobile), rebuild of BoletApp
 - **Created:** 2026-04-23
-- **Last Updated:** 2026-04-24 (Current Phase advanced 1 → 2 · Atomic components)
+- **Last Updated:** 2026-04-24 (Phase 2 Commit ✅ · retrofit + P2 infra seed · types-drift fix P4/P13)
 - **Platform sets:** 2 (web responsive + mobile unified)
 - **Strategy:** Clean-slate redesign from zero. Legacy boletapp mockups at `/home/khujta/projects/bmad/boletapp/docs/mockups/` = reference only, not port.
 - **Queued next:** Backend P1 Foundation — see `.kdbp/archive/queued_backend-p1.md` (activate after P13 handoff ships).
@@ -22,7 +22,7 @@ Produce complete clean-slate mockup surface for gastify — responsive web porta
 | # | Phase | Description | Types | Tier | Complexity | Exec | Review | Commit | Push |
 |---|-------|-------------|-------|------|------------|------|--------|--------|------|
 | 1 | Design language + tokens | Port 3 legacy themes (Normal/Pro/Mono × light/dark) + 3 new candidates as style prompts → 4-screen stress test × 6 themes × 3 platforms (desktop web / mobile web / native mobile) → pick runtime multi-theme set → lock tokens.json + design-system.html | design-system | ent | high | ✅ | ✅ | ✅ | ✅ |
-| 2 | Atomic components | Buttons, inputs, pills, badges, avatars, chips, skeletons, progress. Web + mobile | design-system, ui-kit | mvp | low | ⬜ | ⬜ | ⬜ | ⬜ |
+| 2 | Atomic components | Buttons, inputs, pills, badges, avatars, chips, skeletons, progress. Web + mobile | design-system, ui-kit | mvp | low | ⬜ | ⬜ | ✅ | ⬜ |
 | 3 | Molecular components | Cards, modals, toasts, banners, nav (bottom-tab + top-bar + sidebar), FAB, filters, sheets, drawers, forms + COMPONENT-LIBRARY.md. Full state matrix + WCAG AA | design-system, ui-kit | ent | med | ⬜ | ⬜ | ⬜ | ⬜ |
 | 4 | INDEX + Flow map + REQ×screen + CRUD×entity | Enumerate all flows; low-fi skeleton per flow; seed `docs/mockups/INDEX.md` (4 tables: decisions log, workflows, screens-by-section desktop+mobile, CRUD×entity matrix from `.kdbp/ENTITIES.md`) + REQ-COVERAGE.md (living through P5-P12) | mockup-flows, mockup-index | mvp | med | ⬜ | ⬜ | ⬜ | ⬜ |
 | 5 | Auth + onboarding + consent | Login, register, forgot, email verify, 4-jurisdiction consent (CL/LATAM/EU/US/CA), welcome/first-open, PWA install. Web + mobile | user-facing, auth | mvp | med | ⬜ | ⬜ | ⬜ | ⬜ |
@@ -124,16 +124,16 @@ decisions_entry: D9
 
 ```yaml
 phase: 4
-types: [flows, index]
+types: [mockup-flows, mockup-index]
 phase_tier: mvp
 prototype: false
 dim_overrides: []
-sections_considered: [Core, flows, index]
+sections_considered: [Core, mockup-flows, mockup-index]
 suppressed_dims_count: 0
 decisions_entry: D10
 ```
 
-- **Types:** `flows, index`
+- **Types:** `mockup-flows, mockup-index`
 - **Tier:** mvp
 - **Prototype:** no
 - **Trade-offs accepted:** See DECISIONS.md D10
@@ -303,16 +303,16 @@ decisions_entry: D18
 
 ```yaml
 phase: 13
-types: [documentation, validation]
+types: [mockup-docs, mockup-validation]
 phase_tier: ent
 prototype: false
 dim_overrides: []
-sections_considered: [Core, documentation, validation]
+sections_considered: [Core, mockup-docs, mockup-validation]
 suppressed_dims_count: 0
 decisions_entry: D19
 ```
 
-- **Types:** `documentation, validation`
+- **Types:** `mockup-docs, mockup-validation`
 - **Tier:** ent
 - **Prototype:** no
 - **Trade-offs accepted:** See DECISIONS.md D19
@@ -357,4 +357,5 @@ Phase 2: Atomic components
 - **2026-04-23 — state correction (Phase 1 Commit ⬜):** Phase 1 row had Commit=✅ with Exec=⬜ + Review=⬜ — inconsistent state. Verified git log + `docs/mockups/` filesystem + lane LEDGER: zero P1 execution work landed. Corrected Commit ✅ → ⬜. Caught by `/gabe-next` pre-dispatch verification.
 - **2026-04-23 — /gabe-plan check retrofit `[all]`:** Added `Types` column to Phases table. Added structured YAML block per phase (1–13) with `phase_tier`, `dim_overrides: []`, `sections_considered`, `decisions_entry`. Corrected DECISIONS-ID references in Phase Details prose: D1→D7, D2→D8, D3→D9, D4→D10, D5→D11, D6→D12, D7→D13, D8→D14, D9→D15, D10→D16, D11→D17, D12→D18, D13→D19. Zero LLM calls (no prose-only overrides detected). Zero tier decisions changed — structural fix only.
 - **2026-04-23 — lane rollback:** Plan moved from `.kdbp/lanes/ux-mockups/PLAN.md` → `.kdbp/PLAN.md`. Lane architecture dropped in favor of serial single-plan workflow. Backend P1 plan parked at `.kdbp/archive/queued_backend-p1.md`.
-- **2026-04-24 — /gabe-mockup retrofit:** Added `<!-- project_type: mockup -->` to PLAN frontmatter. Added `project_type: mockup` to BEHAVIOR.md frontmatter. P4 types renamed `[flows, index]` → `[mockup-flows, mockup-index]` + description upgraded to include 4-table INDEX.md governance + CRUD×entity matrix. P13 types renamed `[documentation, validation]` → `[mockup-docs, mockup-validation]`. Seeded `.kdbp/ENTITIES.md` (9 principal entities from SCOPE REQs). Landed shared `docs/mockups/{tokens.css, tweaks.js, tweaks-panel.html}` from gabe_lens templates. Seeded `docs/mockups/INDEX.md` from template (4-table skeleton, populated progressively P4-P12). Caught by `/gabe-next` dispatching to `/gabe-mockup` instead of `/gabe-execute` on Current Phase = 2.
+- **2026-04-24 — /gabe-plan check `[fix-types]`:** Synced Phase Details YAML `types:` + `sections_considered:` + prose `**Types:**` lines to match Phases table cells. P4: `[flows, index]` → `[mockup-flows, mockup-index]`. P13: `[documentation, validation]` → `[mockup-docs, mockup-validation]`. Closes YAML-vs-Phases-table drift introduced by 2026-04-24 /gabe-mockup retrofit. Zero LLM calls, zero tier changes.
+- **2026-04-24 — /gabe-mockup retrofit:** Added `<!-- project_type: mockup -->` to PLAN frontmatter. Added `project_type: mockup` to BEHAVIOR.md frontmatter. P4 types renamed `[flows, index]` → `[mockup-flows, mockup-index]` + description upgraded to include 4-table INDEX.md governance + CRUD×entity matrix. P13 types renamed `[documentation, validation]` → `[mockup-docs, mockup-validation]`. Seeded `.kdbp/ENTITIES.md` (9 principal entities from SCOPE REQs). Landed `docs/mockups/assets/js/tweaks.js` (self-contained runtime Tweaks panel — single-script include) from gabe_lens template. Existing `docs/mockups/assets/css/desktop-shell.css` remains canonical token source (P1 exit artifact, v2.0.0 per `assets/tokens/tokens.json`); tweaks.js detects its `[data-theme][data-mode]` selectors without filename coupling. Seeded `docs/mockups/INDEX.md` from template (4-table skeleton, populated progressively P4-P12). Caught by `/gabe-next` dispatching to `/gabe-mockup` instead of `/gabe-execute` on Current Phase = 2.
