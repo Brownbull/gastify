@@ -147,3 +147,14 @@ EXEC STATE: 🔄 (continues)
 ## 2026-04-23 23:51 — [main aa97301] feat(mockups): T10 lock Phase 1 artifacts — tokens.json + design-system.html
 
 ## 2026-04-24 10:23 — [a37fd59] feat(mockups): canonical filter strip — timeframe pills + period-nav + L1/L2/L3/L4 taxonomy chips, retrofit Dashboard/History/Trends
+
+## 2026-04-24 10:38 — [main b3f973d] docs(kdbp): Phase 1 review — warning verdict, D20 T5 supersession, platform notes, defer P1-P4
+
+## 2026-04-24 10:43 — [main b3f973d] docs(kdbp): Phase 1 review — warning verdict, D20 T5 supersession, platform notes, defer P1-P4
+
+## 2026-04-24 10:45 — PUSH main -> origin/main
+PR: — (trunk-based; direct-to-main, no PR hop)
+CI: skipped (provider=none)
+PROMOTION: N/A (main is final link)
+DEPLOYMENTS: P3 added to .kdbp/DEPLOYMENTS.md
+SOURCE: Phase 1 exit-push — 35 commits since P2 covering UX mockups P1 (14 desktop variants + design-system + tokens + Phase 1 review artifacts)
