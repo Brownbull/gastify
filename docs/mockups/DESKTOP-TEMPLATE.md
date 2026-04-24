@@ -85,6 +85,7 @@ Copy from `_desktop-template.html` `<script>` block at bottom. 3 responsibilitie
 | Settings | ✅ `gastify-settings-desktop.html` | n/a (form) |
 | Trends | ✅ `gastify-trends-desktop.html` | ✅ canonical + chart-range zoom |
 | Insights | ✅ `gastify-insights-desktop.html` | ✅ canonical (filters drive which insights appear) |
+| Reports | ✅ `gastify-reports-desktop.html` | ✅ canonical (accordion groups + detail drawer) |
 
 ## Pending queue (P0 — apply template to all)
 

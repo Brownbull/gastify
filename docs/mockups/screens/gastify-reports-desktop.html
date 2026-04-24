@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="es-CL">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reportes — gastify Desktop Web (1440 responsive)</title>
+<link rel="stylesheet" href="../assets/fonts/gastify-fonts.css">
+<link rel="stylesheet" href="../assets/css/desktop-shell.css">
+<style>
+  /* Reports header */
+  .reports-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin: 8px 0 12px;
+  }
+  .reports-head h1 {
+    font-family: 'Baloo 2', cursive;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+  }
+  .reports-sub { font-size: 13px; color: var(--ink-2); margin-top: 2px; }
+  .reports-actions { display: flex; gap: 8px; }
+  .action-btn {
+    padding: 8px 14px;
+    border-radius: 10px;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    border: 1px solid var(--line-strong);
+    background: var(--surface);
+    color: var(--ink);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all .15s;
+  }
+  .action-btn:hover { border-color: var(--primary); color: var(--primary); }
+  .action-btn.primary {
+    background: var(--primary);
+    color: var(--primary-ink);
+    border-color: var(--primary);
+  }
+  .action-btn.primary:hover { opacity: 0.9; }
+  .action-btn img { width: 16px; height: 16px; image-rendering: pixelated; }
+
+  /* Split panel */
+  .reports-split {
+    display: grid;
+    grid-template-columns: 1fr 420px;
+    gap: 18px;
+    align-items: start;
+  }
+
+  /* Accordion groups grid (left) */
+  .accordion-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  .accordion-group {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 2px 6px var(--shadow);
+  }
+  .accordion-group.wide { grid-column: span 2; }
+  .accordion-head {
+    padding: 14px 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--line);
+    user-select: none;
+  }
+  .accordion-head:hover { background: var(--primary-soft); }
+  .accordion-left { display: flex; align-items: center; gap: 10px; }
+  .accordion-chev {
+    width: 20px; height: 20px;
+    color: var(--ink-3);
+    transition: transform .2s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .accordion-group.collapsed .accordion-chev { transform: rotate(-90deg); }
+  .accordion-title {
+    font-family: 'Baloo 2', cursive;
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .accordion-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .accordion-icon { color: var(--ink-3); }
+  .accordion-count {
+    font-size: 11px;
+    color: var(--ink-2);
+    font-weight: 700;
+    padding: 3px 10px;
+    background: var(--bg);
+    border-radius: 999px;
+  }
+  .accordion-body {
+    max-height: 420px;
+    overflow-y: auto;
+  }
+  .accordion-group.collapsed .accordion-body { display: none; }
+
+  /* Report row */
+  .report-row {
+    display: grid;
+    grid-template-columns: 36px 1fr auto;
+    gap: 12px;
+    align-items: center;
+    padding: 12px 18px;
+    border-bottom: 1px solid var(--line);
+    cursor: pointer;
+    transition: background .12s;
+  }
+  .report-row:last-child { border-bottom: none; }
+  .report-row:hover { background: var(--surface-2); }
+  .report-row.selected { background: var(--primary-soft); border-left: 3px solid var(--primary); padding-left: 15px; }
+  .report-logo {
+    width: 36px; height: 36px;
+    background: var(--surface-2);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .report-logo img { width: 80%; height: 80%; object-fit: contain; image-rendering: pixelated; }
+  .report-info { min-width: 0; }
+  .report-name-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 2px;
+  }
+  .report-name {
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--ink);
+  }
+  .report-count-badge {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--ink-3);
+    background: var(--surface-2);
+    padding: 1px 8px;
+    border-radius: 999px;
+  }
+  .report-amount {
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+    display: block;
+    margin-bottom: 2px;
+  }
+  .report-trend {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .report-trend.up { color: var(--error); }
+  .report-trend.down { color: var(--success); }
+  .report-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 3px;
+  }
+  .report-status {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 999px;
+  }
+  .report-status.ready { background: var(--primary-soft); color: var(--primary); }
+  .report-status.scheduled { background: #fef9c3; color: #854d0e; }
+  .report-status.draft { background: var(--surface-2); color: var(--ink-3); }
+  [data-mode="dark"] .report-status.scheduled { background: rgba(234, 179, 8, 0.18); color: #facc15; }
+
+  /* Empty state (for Custom) */
+  .custom-empty {
+    padding: 32px 24px;
+    text-align: center;
+    color: var(--ink-2);
+  }
+  .custom-empty .empty-icon {
+    width: 56px; height: 56px;
+    margin: 0 auto 12px;
+    border-radius: 16px;
+    background: var(--surface-2);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--ink-3);
+  }
+
+  /* Detail drawer */
+  .report-drawer {
+    position: sticky;
+    top: 80px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    box-shadow: 0 4px 16px var(--shadow-lg);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    max-height: calc(100vh - 120px);
+  }
+  .drawer-hero {
+    padding: 20px 22px;
+    background: var(--primary-soft);
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .drawer-logo {
+    width: 48px; height: 48px;
+    background: var(--primary);
+    color: var(--primary-ink);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .drawer-logo svg { width: 24px; height: 24px; }
+  .drawer-title {
+    font-family: 'Baloo 2', cursive;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.1;
+  }
+  .drawer-sub { font-size: 12px; color: var(--ink-2); margin-top: 2px; }
+  .drawer-body { padding: 20px 22px; overflow-y: auto; flex: 1; }
+
+  .drawer-section { margin-bottom: 20px; }
+  .drawer-section:last-child { margin-bottom: 0; }
+  .drawer-section-label {
+    font-size: 10px;
+    color: var(--ink-3);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+
+  /* Stat grid */
+  .drawer-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .drawer-stat {
+    background: var(--surface-2);
+    border-radius: 10px;
+    padding: 10px 12px;
+  }
+  .drawer-stat-label {
+    font-size: 10px;
+    color: var(--ink-3);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 700;
+  }
+  .drawer-stat-value {
+    font-family: 'Baloo 2', cursive;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+    margin-top: 2px;
+  }
+  .drawer-stat-delta { font-size: 11px; font-weight: 600; margin-top: 2px; }
+  .drawer-stat-delta.up { color: var(--error); }
+  .drawer-stat-delta.down { color: var(--success); }
+
+  /* Category breakdown mini-bars */
+  .cat-bar-row {
+    display: grid;
+    grid-template-columns: 20px 1fr auto;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 8px;
+    font-size: 12px;
+  }
+  .cat-bar-icon {
+    width: 20px; height: 20px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .cat-bar-icon img { width: 18px; height: 18px; image-rendering: pixelated; }
+  .cat-bar-track {
+    height: 6px;
+    background: var(--surface-2);
+    border-radius: 999px;
+    overflow: hidden;
+    position: relative;
+  }
+  .cat-bar-fill {
+    height: 100%;
+    background: var(--primary);
+    border-radius: 999px;
+  }
+  .cat-bar-meta {
+    font-size: 11px;
+    color: var(--ink-2);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    min-width: 56px;
+    text-align: right;
+  }
+
+  /* Actions */
+  .drawer-actions {
+    padding: 14px 22px;
+    border-top: 1px solid var(--line);
+    background: var(--surface-2);
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .drawer-btn {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: opacity .15s;
+  }
+  .drawer-btn.primary { background: var(--primary); color: var(--primary-ink); }
+  .drawer-btn.primary:hover { opacity: 0.9; }
+  .drawer-btn.ghost {
+    background: transparent;
+    color: var(--ink-2);
+    border: 1px solid var(--line-strong);
+  }
+  .drawer-btn.ghost:hover { border-color: var(--primary); color: var(--primary); }
+  .drawer-btn img { width: 14px; height: 14px; image-rendering: pixelated; }
+
+  /* Responsive */
+  @media (max-width: 1280px) {
+    .reports-split { grid-template-columns: 1fr; }
+    .report-drawer { position: static; max-height: none; }
+  }
+  @media (max-width: 900px) {
+    .accordion-grid { grid-template-columns: 1fr; }
+    .accordion-group.wide { grid-column: auto; }
+  }
+</style>
+</head>
+
+<body data-theme="normal" data-mode="light">
+
+<!-- CONTROLS -->
+<div class="controls">
+  <div class="controls-group">
+    <span class="controls-label">Theme</span>
+    <button class="theme-tab active" data-theme-val="normal">Normal</button>
+    <button class="theme-tab" data-theme-val="professional">Professional</button>
+    <button class="theme-tab" data-theme-val="mono">Mono</button>
+  </div>
+  <div class="controls-group">
+    <span class="controls-label">Mode</span>
+    <div class="mode-toggle">
+      <span>Light</span>
+      <div class="toggle-switch" id="modeToggle"></div>
+      <span>Dark</span>
+    </div>
+  </div>
+  <div class="controls-group">
+    <span class="controls-label">Platform</span>
+    <span style="color: var(--primary); font-weight: 600;">Desktop Web 1440</span>
+    <a class="platform-switch" href="gastify-reports.html" title="Ver versión mobile"><span class="dot">●</span> Mobile ↗</a>
+  </div>
+  <div class="controls-group">
+    <div class="quick-nav" id="quickNav">
+      <button class="quick-nav-btn" onclick="document.getElementById('quickNav').classList.toggle('open')">☰ Desktop screens</button>
+      <div class="quick-nav-menu">
+        <div class="qn-section">Available (7)</div>
+        <a href="gastify-dashboard-desktop.html">🏠 Dashboard</a>
+        <a href="gastify-history-desktop.html">📜 Historial</a>
+        <a href="gastify-transaction-editor-desktop.html">✎ Transaction editor</a>
+        <a href="gastify-settings-desktop.html">⚙ Ajustes</a>
+        <a href="gastify-trends-desktop.html">📊 Tendencias</a>
+        <a href="gastify-insights-desktop.html">💡 Insights</a>
+        <a class="current" href="gastify-reports-desktop.html">📄 Reportes <span class="qn-badge">current</span></a>
+        <div class="qn-section">Mobile-only (22 more)</div>
+        <a href="gastify-items.html" style="color: var(--ink-3);">📦 Items <span class="qn-badge">mobile</span></a>
+        <a href="../index.html" style="color: var(--primary); font-weight: 600; margin-top: 4px;">→ See full gap matrix</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="app-shell">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-mark"><img src="../assets/icons/piggy-bank.png" alt=""></div>
+      <span class="wordmark">gastify</span>
+    </div>
+    <ul class="nav-list">
+      <li><a class="nav-item" href="gastify-dashboard-desktop.html"><img class="nav-icon" src="../assets/icons/app-icons/navigation/nav-home.png" alt=""><span>Inicio</span></a></li>
+      <li><a class="nav-item" href="gastify-history-desktop.html"><img class="nav-icon" src="../assets/icons/app-icons/navigation/nav-history.png" alt=""><span>Historial</span></a></li>
+      <li><a class="nav-item" href="gastify-trends-desktop.html"><img class="nav-icon" src="../assets/icons/app-icons/navigation/nav-trends.png" alt=""><span>Tendencias</span></a></li>
+      <li><a class="nav-item" href="gastify-insights-desktop.html"><img class="nav-icon" src="../assets/icons/app-icons/navigation/nav-insights.png" alt=""><span>Insights</span></a></li>
+      <li><a class="nav-item active" href="gastify-reports-desktop.html"><img class="nav-icon" src="../assets/icons/app-icons/navigation/nav-reports.png" alt=""><span>Reportes</span></a></li>
+      <li><a class="nav-item" href="gastify-group-switcher.html"><img class="nav-icon" src="../assets/icons/app-icons/navigation/nav-scan.png" alt=""><span>Grupos</span></a></li>
+      <li><a class="nav-item" href="gastify-settings-desktop.html"><img class="nav-icon" src="../assets/icons/app-icons/navigation/nav-settings.png" alt=""><span>Ajustes</span></a></li>
+    </ul>
+    <div class="sidebar-footer">
+      <div class="user-chip">
+        <div class="user-avatar">JG</div>
+        <div style="flex: 1; min-width: 0;">
+          <div class="user-name">Juan García</div>
+          <div class="user-email">juan@ejemplo.cl</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div class="search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        <input type="text" placeholder="Buscar reporte..." aria-label="Buscar">
+        <span class="kbd-hint">/</span>
+      </div>
+      <button class="scan-btn" aria-label="Escanear boleta"><img src="../assets/icons/app-icons/scan-features/scan-single.png" alt=""><span>Escanear</span><span class="kbd-hint" style="background: rgba(255,255,255,0.22); color: #fff; border: none;">⌘K</span></button>
+      <button class="icon-btn" aria-label="Alertas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span class="bell-badge">3</span></button>
+      <div class="topbar-avatar" aria-label="Perfil">JG</div>
+    </div>
+
+    <!-- FILTER STRIP -->
+    <section class="filter-strip" aria-label="Filtros">
+      <div class="filter-strip-row">
+        <div class="timeframe-pills" role="tablist" aria-label="Periodo">
+          <button class="timeframe-pill" data-period="year">Año</button>
+          <button class="timeframe-pill" data-period="quarter">Trimestre</button>
+          <button class="timeframe-pill active" data-period="month">Mes</button>
+          <button class="timeframe-pill" data-period="week">Semana</button>
+        </div>
+        <div class="period-nav">
+          <button class="period-nav-btn" aria-label="Periodo anterior"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" width="16" height="16"><polyline points="15 18 9 12 15 6"/></svg></button>
+          <span class="period-label">Abril 2026</span>
+          <button class="period-nav-btn" aria-label="Periodo siguiente"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" width="16" height="16"><polyline points="9 18 15 12 9 6"/></svg></button>
+        </div>
+        <div class="filter-icons">
+          <div class="filter-icon-wrap">
+            <button class="filter-icon-btn" aria-label="Filtro de tiempo" data-modal-toggle="time-modal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></button>
+            <div class="filter-modal" id="time-modal" role="dialog" aria-label="Filtro de tiempo">
+              <div class="filter-modal-header"><div class="filter-modal-title">Tiempo</div><button class="filter-modal-btn ghost" data-action="close-modal">✕</button></div>
+              <div class="filter-modal-body">
+                <div class="time-slider-row"><button class="time-slider-label">Año</button><div class="time-slider-ctrl"><button class="time-slider-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg></button><span class="time-slider-value">2026</span><button class="time-slider-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" width="14" height="14"><polyline points="9 18 15 12 9 6"/></svg></button></div></div>
+                <div class="time-slider-row"><button class="time-slider-label">Trimestre</button><div class="time-slider-ctrl"><button class="time-slider-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg></button><span class="time-slider-value">T2</span><button class="time-slider-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" width="14" height="14"><polyline points="9 18 15 12 9 6"/></svg></button></div></div>
+                <div class="time-slider-row"><button class="time-slider-label active">Mes</button><div class="time-slider-ctrl"><button class="time-slider-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg></button><span class="time-slider-value active">Abr</span><button class="time-slider-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" width="14" height="14"><polyline points="9 18 15 12 9 6"/></svg></button></div></div>
+                <div class="time-slider-row"><button class="time-slider-label">Semana</button><div class="time-slider-ctrl"><button class="time-slider-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg></button><span class="time-slider-value">Sem 1</span><button class="time-slider-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" width="14" height="14"><polyline points="9 18 15 12 9 6"/></svg></button></div></div>
+                <div class="time-slider-row"><button class="time-slider-label">Día</button><div class="time-slider-ctrl"><button class="time-slider-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg></button><span class="time-slider-value">1</span><button class="time-slider-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" width="14" height="14"><polyline points="9 18 15 12 9 6"/></svg></button></div></div>
+              </div>
+              <div class="filter-modal-footer"><button class="filter-modal-btn ghost">✕ Limpiar</button><button class="filter-modal-btn primary">Aplicar</button></div>
+            </div>
+          </div>
+          <div class="filter-icon-wrap">
+            <button class="filter-icon-btn" aria-label="Filtro de categoría" data-modal-toggle="cat-modal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg></button>
+            <div class="filter-modal wide" id="cat-modal" role="dialog" aria-label="Filtro de categoría">
+              <div class="filter-modal-header">
+                <div class="taxonomy-chips">
+                  <button class="taxonomy-chip active" data-cat-level="L1" title="Rubros (12)"><img src="../assets/icons/app-icons/rubros/rubro-supermercados.png" alt=""><span class="chip-label">L1</span></button>
+                  <button class="taxonomy-chip" data-cat-level="L2" title="Giros (44)"><img src="../assets/icons/app-icons/financial/fin-receipt.png" alt=""><span class="chip-label">L2</span></button>
+                  <button class="taxonomy-chip" data-cat-level="L3" title="Familias (9)"><img src="../assets/icons/app-icons/familias/familia-productos-generales.png" alt=""><span class="chip-label">L3</span></button>
+                  <button class="taxonomy-chip" data-cat-level="L4" title="Categorías (42)"><img src="../assets/icons/app-icons/item-categories/item-frozen.png" alt=""><span class="chip-label">L4</span></button>
+                  <div class="taxonomy-chip-sep"></div>
+                  <button class="taxonomy-chip" data-cat-level="location" title="Ubicación" style="min-width: 52px;"><span style="font-size: 16px;">📍</span><span class="chip-label">Lugar</span></button>
+                </div>
+                <button class="filter-modal-btn ghost" data-action="close-modal">✕</button>
+              </div>
+              <div class="filter-modal-body">
+                <div class="cat-filter-flat" data-cat-pane="L1">
+                  <label class="cat-filter-row"><span class="row-check"></span><span class="row-icon"><img src="../assets/icons/app-icons/rubros/rubro-supermercados.png" alt=""></span><span class="row-label">Supermercados</span><span class="row-count">48 tx</span></label>
+                  <label class="cat-filter-row"><span class="row-check"></span><span class="row-icon"><img src="../assets/icons/app-icons/rubros/rubro-restaurantes.png" alt=""></span><span class="row-label">Restaurantes</span><span class="row-count">12 tx</span></label>
+                </div>
+                <div class="cat-filter-flat" data-cat-pane="L2" hidden><div class="cat-filter-group"><div class="cat-filter-group-header">Supermercados<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="6 9 12 15 18 9"/></svg></div><div class="cat-filter-group-items"><button class="cat-filter-chip">Premium</button><button class="cat-filter-chip">Regular</button></div></div></div>
+                <div class="cat-filter-flat" data-cat-pane="L3" hidden><label class="cat-filter-row"><span class="row-check"></span><span class="row-icon"><img src="../assets/icons/app-icons/familias/familia-food-fresh.png" alt=""></span><span class="row-label">Alimentos Frescos</span><span class="row-count">42 items</span></label></div>
+                <div class="cat-filter-flat" data-cat-pane="L4" hidden><div class="cat-filter-group"><div class="cat-filter-group-header">Alimentos Frescos<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="6 9 12 15 18 9"/></svg></div><div class="cat-filter-group-items"><button class="cat-filter-chip">Frutas y Verduras</button></div></div></div>
+                <div class="loc-tree" data-cat-pane="location" hidden><div class="loc-country"><svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="6 9 12 15 18 9"/></svg><span>🇨🇱 Chile</span><span class="loc-count">0</span></div></div>
+              </div>
+              <div class="filter-modal-footer"><button class="filter-modal-btn ghost">✕ Limpiar</button><button class="filter-modal-btn primary">Aplicar</button></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- HEADER + ACTIONS -->
+    <div class="reports-head">
+      <div>
+        <h1>Reportes</h1>
+        <div class="reports-sub">68 reportes · 3 programados · último generado hoy 09:14</div>
+      </div>
+      <div class="reports-actions">
+        <button class="action-btn">
+          <img src="../assets/icons/app-icons/analytics/chart-calendar.png" alt="">
+          Programar
+        </button>
+        <button class="action-btn primary">
+          <img src="../assets/icons/app-icons/analytics/chart-export.png" alt="">
+          Nuevo reporte
+        </button>
+      </div>
+    </div>
+
+    <!-- SPLIT: accordion grid (left) + detail drawer (right) -->
+    <div class="reports-split">
+
+      <!-- ===== LEFT: ACCORDION GRID ===== -->
+      <div class="accordion-grid">
+
+        <!-- SEMANAL -->
+        <div class="accordion-group">
+          <div class="accordion-head">
+            <div class="accordion-left">
+              <span class="accordion-chev">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+              </span>
+              <span class="accordion-title">Semanal</span>
+            </div>
+            <div class="accordion-right">
+              <svg class="accordion-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M14 2H6a2 2 0 0 0-2 2v16l2-1.5 2 1.5 2-1.5 2 1.5 2-1.5 2 1.5V4a2 2 0 0 0-2-2z"/></svg>
+              <span class="accordion-count">11 de 52</span>
+            </div>
+          </div>
+          <div class="accordion-body">
+            <div class="report-row selected">
+              <div class="report-logo"><img src="../assets/icons/piggy-bank.png" alt=""></div>
+              <div class="report-info">
+                <div class="report-name-row">
+                  <span class="report-name">Semana 17</span>
+                  <span class="report-count-badge">8</span>
+                </div>
+                <span class="report-amount">$187.420</span>
+                <div class="report-trend up">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" width="11" height="11"><polyline points="18 15 12 9 6 15"/></svg>
+                  +18% vs S16
+                </div>
+              </div>
+              <div class="report-meta">
+                <span class="report-status ready">Listo</span>
+                <span style="font-size: 11px; color: var(--ink-3);">Hoy</span>
+              </div>
+            </div>
+            <div class="report-row">
+              <div class="report-logo"><img src="../assets/icons/piggy-bank.png" alt=""></div>
+              <div class="report-info">
+                <div class="report-name-row">
+                  <span class="report-name">Semana 16</span>
+                  <span class="report-count-badge">6</span>
+                </div>
+                <span class="report-amount">$158.920</span>
+                <div class="report-trend down">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" width="11" height="11"><polyline points="6 9 12 15 18 9"/></svg>
+                  -8% vs S15
+                </div>
+              </div>
+              <div class="report-meta">
+                <span class="report-status ready">Listo</span>
+                <span style="font-size: 11px; color: var(--ink-3);">Lun</span>
+              </div>
+            </div>
+            <div class="report-row">
+              <div class="report-logo"><img src="../assets/icons/piggy-bank.png" alt=""></div>
+              <div class="report-info">
+                <div class="report-name-row">
+                  <span class="report-name">Semana 15</span>
+                  <span class="report-count-badge">9</span>
+                </div>
+                <span class="report-amount">$172.330</span>
+              </div>
+              <div class="report-meta">
+                <span class="report-status ready">Listo</span>
+                <span style="font-size: 11px; color: var(--ink-3);">7 abr</span>
+              </div>
+            </div>
+            <div class="report-row">
+              <div class="report-logo"><img src="../assets/icons/piggy-bank.png" alt=""></div>
+              <div class="report-info">
+                <div class="report-name-row">
+                  <span class="report-name">Semana 14</span>
+                  <span class="report-count-badge">5</span>
+                </div>
+                <span class="report-amount">$142.100</span>
+              </div>
+              <div class="report-meta">
+                <span class="report-status ready">Listo</span>
+                <span style="font-size: 11px; color: var(--ink-3);">31 mar</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- MENSUAL -->
+        <div class="accordion-group">
+          <div class="accordion-head">
+            <div class="accordion-left">
+              <span class="accordion-chev">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+              </span>
+              <span class="accordion-title">Mensual</span>
+            </div>
+            <div class="accordion-right">
+              <svg class="accordion-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              <span class="accordion-count">4 de 12</span>
+            </div>
+          </div>
+          <div class="accordion-body">
+            <div class="report-row">
+              <div class="report-logo"><img src="../assets/icons/piggy-bank.png" alt=""></div>
+              <div class="report-info">
+                <div class="report-name-row">
+                  <span class="report-name">Abril 2026</span>
+                  <span class="report-count-badge">47</span>
+                </div>
+                <span class="report-amount">$847.230</span>
+                <div class="report-trend up">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" width="11" height="11"><polyline points="18 15 12 9 6 15"/></svg>
+                  +12% vs marzo
+                </div>
+              </div>
+              <div class="report-meta">
+                <span class="report-status scheduled">En curso</span>
+                <span style="font-size: 11px; color: var(--ink-3);">Cierre 30</span>
+              </div>
+            </div>
+            <div class="report-row">
+              <div class="report-logo"><img src="../assets/icons/piggy-bank.png" alt=""></div>
+              <div class="report-info">
+                <div class="report-name-row">
+                  <span class="report-name">Marzo 2026</span>
+                  <span class="report-count-badge">42</span>
+                </div>
+                <span class="report-amount">$756.540</span>
+              </div>
+              <div class="report-meta">
+                <span class="report-status ready">Listo</span>
+                <span style="font-size: 11px; color: var(--ink-3);">1 abr</span>
+              </div>
+            </div>
+            <div class="report-row">
+              <div class="report-logo"><img src="../assets/icons/piggy-bank.png" alt=""></div>
+              <div class="report-info">
+                <div class="report-name-row">
+                  <span class="report-name">Febrero 2026</span>
+                  <span class="report-count-badge">39</span>
+                </div>
+                <span class="report-amount">$683.210</span>
+              </div>
+              <div class="report-meta">
+                <span class="report-status ready">Listo</span>
+                <span style="font-size: 11px; color: var(--ink-3);">1 mar</span>
+              </div>
+            </div>
+            <div class="report-row">
+              <div class="report-logo"><img src="../assets/icons/piggy-bank.png" alt=""></div>
+              <div class="report-info">
+                <div class="report-name-row">
+                  <span class="report-name">Enero 2026</span>
+                  <span class="report-count-badge">51</span>
+                </div>
+                <span class="report-amount">$891.470</span>
+              </div>
+              <div class="report-meta">
+                <span class="report-status ready">Listo</span>
+                <span style="font-size: 11px; color: var(--ink-3);">1 feb</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ANUAL -->
+        <div class="accordion-group">
+          <div class="accordion-head">
+            <div class="accordion-left">
+              <span class="accordion-chev">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+              </span>
+              <span class="accordion-title">Anual</span>
+            </div>
+            <div class="accordion-right">
+              <span class="accordion-count">1 de 1</span>
+            </div>
+          </div>
+          <div class="accordion-body">
+            <div class="report-row">
+              <div class="report-logo"><img src="../assets/icons/piggy-bank.png" alt=""></div>
+              <div class="report-info">
+                <div class="report-name-row">
+                  <span class="report-name">2025 — Resumen anual</span>
+                  <span class="report-count-badge">487</span>
+                </div>
+                <span class="report-amount">$8.924.600</span>
+              </div>
+              <div class="report-meta">
+                <span class="report-status ready">Listo</span>
+                <span style="font-size: 11px; color: var(--ink-3);">2 ene</span>
+              </div>
+            </div>
+            <div class="report-row">
+              <div class="report-logo"><img src="../assets/icons/piggy-bank.png" alt=""></div>
+              <div class="report-info">
+                <div class="report-name-row">
+                  <span class="report-name">2026 — En curso</span>
+                  <span class="report-count-badge">179</span>
+                </div>
+                <span class="report-amount">$3.147.250</span>
+              </div>
+              <div class="report-meta">
+                <span class="report-status scheduled">En curso</span>
+                <span style="font-size: 11px; color: var(--ink-3);">Cierre dic</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PERSONALIZADO -->
+        <div class="accordion-group">
+          <div class="accordion-head">
+            <div class="accordion-left">
+              <span class="accordion-chev">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+              </span>
+              <span class="accordion-title">Personalizado</span>
+            </div>
+            <div class="accordion-right">
+              <span class="accordion-count">2 guardados</span>
+            </div>
+          </div>
+          <div class="accordion-body">
+            <div class="report-row">
+              <div class="report-logo"><img src="../assets/icons/app-icons/rubros/rubro-supermercados.png" alt=""></div>
+              <div class="report-info">
+                <div class="report-name-row">
+                  <span class="report-name">Supermercados 2026 T1</span>
+                  <span class="report-count-badge">28</span>
+                </div>
+                <span class="report-amount">$412.830</span>
+                <div style="font-size: 11px; color: var(--ink-3); margin-top: 2px;">L1 · Ene–Mar · Pucón + Santiago</div>
+              </div>
+              <div class="report-meta">
+                <span class="report-status ready">Listo</span>
+                <span style="font-size: 11px; color: var(--ink-3);">15 abr</span>
+              </div>
+            </div>
+            <div class="report-row">
+              <div class="report-logo"><img src="../assets/icons/app-icons/familias/familia-food-fresh.png" alt=""></div>
+              <div class="report-info">
+                <div class="report-name-row">
+                  <span class="report-name">Alimentos Frescos · L3</span>
+                  <span class="report-count-badge">42</span>
+                </div>
+                <span class="report-amount">$287.440</span>
+                <div style="font-size: 11px; color: var(--ink-3); margin-top: 2px;">Últimos 90 días</div>
+              </div>
+              <div class="report-meta">
+                <span class="report-status draft">Borrador</span>
+                <span style="font-size: 11px; color: var(--ink-3);">12 abr</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ===== RIGHT: DETAIL DRAWER ===== -->
+      <aside class="report-drawer">
+        <div class="drawer-hero">
+          <div class="drawer-logo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          </div>
+          <div>
+            <div class="drawer-title">Semana 17</div>
+            <div class="drawer-sub">20–26 abr 2026 · 8 transacciones</div>
+          </div>
+        </div>
+
+        <div class="drawer-body">
+
+          <!-- Top stats -->
+          <div class="drawer-section">
+            <div class="drawer-section-label">Resumen</div>
+            <div class="drawer-stats">
+              <div class="drawer-stat">
+                <div class="drawer-stat-label">Total</div>
+                <div class="drawer-stat-value">$187.420</div>
+                <div class="drawer-stat-delta up">↑ +18% vs S16</div>
+              </div>
+              <div class="drawer-stat">
+                <div class="drawer-stat-label">Transacciones</div>
+                <div class="drawer-stat-value">8</div>
+                <div class="drawer-stat-delta up">↑ +2 vs S16</div>
+              </div>
+              <div class="drawer-stat">
+                <div class="drawer-stat-label">Ítems detectados</div>
+                <div class="drawer-stat-value">127</div>
+              </div>
+              <div class="drawer-stat">
+                <div class="drawer-stat-label">Promedio/tx</div>
+                <div class="drawer-stat-value">$23.428</div>
+                <div class="drawer-stat-delta down">↓ -8% vs S16</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Category breakdown -->
+          <div class="drawer-section">
+            <div class="drawer-section-label">Desglose por L1 Rubro</div>
+            <div>
+              <div class="cat-bar-row">
+                <span class="cat-bar-icon"><img src="../assets/icons/app-icons/rubros/rubro-supermercados.png" alt=""></span>
+                <div class="cat-bar-track"><div class="cat-bar-fill" style="width: 52%; background: var(--primary);"></div></div>
+                <span class="cat-bar-meta">$97.458</span>
+              </div>
+              <div class="cat-bar-row">
+                <span class="cat-bar-icon"><img src="../assets/icons/app-icons/rubros/rubro-restaurantes.png" alt=""></span>
+                <div class="cat-bar-track"><div class="cat-bar-fill" style="width: 24%; background: #e8a87c;"></div></div>
+                <span class="cat-bar-meta">$44.980</span>
+              </div>
+              <div class="cat-bar-row">
+                <span class="cat-bar-icon"><img src="../assets/icons/app-icons/rubros/rubro-transporte-vehiculo.png" alt=""></span>
+                <div class="cat-bar-track"><div class="cat-bar-fill" style="width: 15%; background: var(--secondary-color);"></div></div>
+                <span class="cat-bar-meta">$28.113</span>
+              </div>
+              <div class="cat-bar-row">
+                <span class="cat-bar-icon"><img src="../assets/icons/app-icons/rubros/rubro-comercio-barrio.png" alt=""></span>
+                <div class="cat-bar-track"><div class="cat-bar-fill" style="width: 9%; background: #f59e0b;"></div></div>
+                <span class="cat-bar-meta">$16.869</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Locations -->
+          <div class="drawer-section">
+            <div class="drawer-section-label">Ubicaciones</div>
+            <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+              <span style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; background: var(--surface-2); border-radius: 999px; font-size: 12px; font-weight: 600; color: var(--ink-2);">🇨🇱 Pucón · 5 tx</span>
+              <span style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; background: var(--surface-2); border-radius: 999px; font-size: 12px; font-weight: 600; color: var(--ink-2);">🇨🇱 Santiago · 3 tx</span>
+            </div>
+          </div>
+
+          <!-- Notable insights tied to report -->
+          <div class="drawer-section">
+            <div class="drawer-section-label">Insights destacados</div>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              <div style="padding: 10px 12px; background: var(--danger-soft); border-left: 3px solid var(--error); border-radius: 8px; font-size: 12px;">
+                <strong style="color: var(--error);">⚠ Cargo inusual</strong>
+                <div style="color: var(--ink-2); margin-top: 2px;">$89.420 en Copec — 43% sobre promedio</div>
+              </div>
+              <div style="padding: 10px 12px; background: var(--primary-soft); border-left: 3px solid var(--primary); border-radius: 8px; font-size: 12px;">
+                <strong style="color: var(--primary);">⭐ Nuevo récord</strong>
+                <div style="color: var(--ink-2); margin-top: 2px;">5 escaneos en 1 día</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="drawer-actions">
+          <button class="drawer-btn ghost" style="flex: 0 1 auto;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="14" height="14"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>
+          </button>
+          <button class="drawer-btn ghost">
+            <img src="../assets/icons/app-icons/analytics/chart-export.png" alt="">
+            PDF
+          </button>
+          <button class="drawer-btn ghost">
+            <img src="../assets/icons/app-icons/analytics/chart-export.png" alt="">
+            CSV
+          </button>
+          <button class="drawer-btn primary">Ver completo</button>
+        </div>
+      </aside>
+    </div>
+
+    <!-- PLATFORM NOTES -->
+    <aside class="platform-notes">
+      <h3>Desktop Web — Reportes</h3>
+      <ul>
+        <li>4 accordion groups (Semanal / Mensual / Anual / Personalizado) in a 2-col grid; each opens/closes independently; state persisted in <code>localStorage</code> client-side in P2</li>
+        <li>Split panel identical to Insights: list 1fr + drawer 420px sticky — click a row to load its detail</li>
+        <li>Status pills: <code>ready</code> (green) / <code>scheduled</code> (amber "En curso") / <code>draft</code> (gray)</li>
+        <li>Filter strip scopes ALL groups — filtering to "Supermercados L1" filters reports to L1-scoped ones and rewrites Personalizado suggestions</li>
+        <li>Drawer includes L1 rubro breakdown mini-bars + tied insights (link to <code>gastify-insights-desktop.html</code>)</li>
+        <li>Export actions: PDF (full report) + CSV (raw data) + Delete (destructive, confirms in-line)</li>
+        <li>"Nuevo reporte" → opens builder modal (not in this mockup); "Programar" → recurring-report config</li>
+      </ul>
+    </aside>
+
+  </main>
+
+</div>
+
+<script>
+  const body = document.body;
+  document.querySelectorAll('.theme-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.theme-tab').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+      body.dataset.theme = btn.dataset.themeVal;
+    });
+  });
+  document.getElementById('modeToggle').addEventListener('click', () => {
+    body.dataset.mode = body.dataset.mode === 'dark' ? 'light' : 'dark';
+  });
+
+  // Accordion group collapse
+  document.querySelectorAll('.accordion-head').forEach(h => {
+    h.addEventListener('click', () => {
+      h.closest('.accordion-group').classList.toggle('collapsed');
+    });
+  });
+
+  // Report row selection
+  document.querySelectorAll('.report-row').forEach(row => {
+    row.addEventListener('click', () => {
+      document.querySelectorAll('.report-row').forEach(r => r.classList.remove('selected'));
+      row.classList.add('selected');
+    });
+  });
+
+  // Close quick-nav on outside click
+  document.addEventListener('click', (e) => {
+    const qn = document.getElementById('quickNav');
+    if (qn && !qn.contains(e.target)) qn.classList.remove('open');
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === '/' && document.activeElement.tagName !== 'INPUT') {
+      e.preventDefault();
+      document.querySelector('.search input').focus();
+    }
+    if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      e.preventDefault();
+      document.querySelector('.scan-btn').click();
+    }
+    if (e.key === 'Escape') {
+      document.querySelectorAll('.filter-modal.open').forEach(m => m.classList.remove('open'));
+    }
+  });
+
+  // ===== CANONICAL FILTER STRIP =====
+  document.querySelectorAll('.timeframe-pills .timeframe-pill').forEach(p => {
+    p.addEventListener('click', () => {
+      document.querySelectorAll('.timeframe-pills .timeframe-pill').forEach(x => x.classList.remove('active'));
+      p.classList.add('active');
+    });
+  });
+  document.querySelectorAll('[data-modal-toggle]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const modal = document.getElementById(btn.dataset.modalToggle);
+      const wasOpen = modal.classList.contains('open');
+      document.querySelectorAll('.filter-modal.open').forEach(m => m.classList.remove('open'));
+      if (!wasOpen) modal.classList.add('open');
+    });
+  });
+  document.querySelectorAll('[data-action="close-modal"]').forEach(btn => {
+    btn.addEventListener('click', (e) => { e.stopPropagation(); btn.closest('.filter-modal').classList.remove('open'); });
+  });
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.filter-modal') && !e.target.closest('[data-modal-toggle]')) {
+      document.querySelectorAll('.filter-modal.open').forEach(m => m.classList.remove('open'));
+    }
+  });
+  document.querySelectorAll('.taxonomy-chip').forEach(c => {
+    c.addEventListener('click', () => {
+      const level = c.dataset.catLevel;
+      const modal = c.closest('.filter-modal');
+      modal.querySelectorAll('.taxonomy-chip').forEach(x => x.classList.remove('active'));
+      c.classList.add('active');
+      modal.querySelectorAll('[data-cat-pane]').forEach(p => { p.hidden = (p.dataset.catPane !== level); });
+    });
+  });
+  document.querySelectorAll('.cat-filter-row').forEach(r => {
+    r.addEventListener('click', () => {
+      r.classList.toggle('selected');
+      const check = r.querySelector('.row-check');
+      if (check) check.textContent = r.classList.contains('selected') ? '✓' : '';
+    });
+  });
+  document.querySelectorAll('.cat-filter-chip').forEach(c => c.addEventListener('click', () => c.classList.toggle('selected')));
+  document.querySelectorAll('.cat-filter-group-header, .loc-country').forEach(h => {
+    h.addEventListener('click', () => {
+      h.classList.toggle('collapsed');
+      const items = h.nextElementSibling;
+      if (items && (items.classList.contains('cat-filter-group-items') || items.classList.contains('loc-cities'))) {
+        items.style.display = h.classList.contains('collapsed') ? 'none' : '';
+      }
+    });
+  });
+  document.querySelectorAll('.time-slider-label').forEach(lbl => {
+    lbl.addEventListener('click', () => {
+      const modal = lbl.closest('.filter-modal');
+      modal.querySelectorAll('.time-slider-label, .time-slider-value').forEach(x => { x.classList.remove('active'); x.classList.remove('pending'); });
+      const row = lbl.closest('.time-slider-row');
+      row.querySelector('.time-slider-label').classList.add('active');
+      row.querySelector('.time-slider-value').classList.add('active');
+      modal.classList.remove('open');
+    });
+  });
+  document.querySelectorAll('.time-slider-arrow').forEach(a => {
+    a.addEventListener('click', () => {
+      const row = a.closest('.time-slider-row');
+      row.querySelector('.time-slider-label').classList.add('pending');
+      row.querySelector('.time-slider-value').classList.add('pending');
+    });
+  });
+</script>
+
+</body>
+</html>
