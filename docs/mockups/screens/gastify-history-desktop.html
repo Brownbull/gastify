@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="es-CL">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Historial — gastify Desktop Web (1440 responsive)</title>
+<link rel="stylesheet" href="../assets/fonts/gastify-fonts.css">
+<link rel="stylesheet" href="../assets/css/desktop-shell.css">
+<style>
+  /* ========== HISTORY SCREEN-SPECIFIC STYLES ========== */
+
+  /* Page header with filters */
+  .history-head {
+    display: flex; justify-content: space-between; align-items: center; gap: 16px;
+    padding: 18px 22px;
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: 16px; box-shadow: 0 2px 6px var(--shadow);
+  }
+  .history-title {
+    font-family: 'Baloo 2', cursive;
+    font-size: 22px; font-weight: 700; color: var(--ink);
+    letter-spacing: -0.01em;
+  }
+  .history-sub { font-size: 13px; color: var(--ink-2); margin-top: 2px; }
+  .history-tools { display: flex; gap: 8px; align-items: center; }
+  .tool-btn {
+    display: flex; align-items: center; gap: 6px;
+    padding: 8px 14px; border-radius: 10px;
+    background: var(--surface-2); color: var(--ink);
+    font-size: 13px; font-weight: 600;
+    transition: background 0.15s;
+  }
+  .tool-btn:hover { background: var(--line); }
+  .tool-btn.primary { background: var(--primary); color: var(--primary-ink); }
+  .tool-btn.primary:hover { background: color-mix(in srgb, var(--primary) 85%, black); }
+  .tool-btn img { width: 16px; height: 16px; image-rendering: pixelated; }
+
+  /* Filter chips row */
+  .filter-row {
+    display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+    padding: 14px 20px;
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: 16px; box-shadow: 0 2px 4px var(--shadow);
+  }
+  .filter-label { font-size: 11px; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600; }
+  .filter-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 12px; border-radius: 999px;
+    background: var(--surface-2); border: 1px solid var(--line);
+    font-size: 12px; font-weight: 600; color: var(--ink);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .filter-chip:hover { background: var(--line); }
+  .filter-chip.active {
+    background: var(--primary-soft); color: var(--primary);
+    border-color: var(--primary);
+  }
+  .filter-chip .chip-x {
+    width: 12px; height: 12px;
+    cursor: pointer;
+    opacity: 0.7;
+  }
+  .filter-chip .chip-x:hover { opacity: 1; }
+  .filter-chip img { width: 14px; height: 14px; image-rendering: pixelated; }
+  .filter-chip.add {
+    background: transparent; color: var(--ink-2); border: 1px dashed var(--line-strong);
+    font-weight: 500;
+  }
+  .filter-chip.add:hover { border-color: var(--primary); color: var(--primary); }
+
+  /* Stats summary strip */
+  .summary-row {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
+  }
+  .summary-card {
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: 12px; padding: 14px 16px;
+    box-shadow: 0 2px 4px var(--shadow);
+  }
+  .summary-label { font-size: 11px; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600; margin-bottom: 4px; }
+  .summary-value { font-weight: 700; font-size: 22px; color: var(--ink); font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+  .summary-meta { font-size: 11px; color: var(--ink-2); margin-top: 2px; }
+
+  /* Date group header */
+  .date-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin: 24px 0 8px;
+    padding: 0 4px;
+  }
+  .date-label {
+    font-family: 'Baloo 2', cursive;
+    font-size: 15px; font-weight: 700; color: var(--ink);
+    letter-spacing: 0.02em;
+  }
+  .date-sub { font-size: 11px; color: var(--ink-3); margin-left: 8px; font-weight: 500; }
+  .date-total { font-size: 14px; font-weight: 700; color: var(--primary); font-variant-numeric: tabular-nums; }
+
+  /* Transaction rows */
+  .tx-list {
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: 14px; overflow: hidden;
+    box-shadow: 0 2px 4px var(--shadow);
+  }
+  .tx {
+    display: grid;
+    grid-template-columns: 40px 44px 1fr 120px 140px 140px 32px;
+    gap: 12px; align-items: center;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--line);
+    transition: background 0.12s;
+    cursor: pointer;
+  }
+  .tx:last-child { border-bottom: none; }
+  .tx:hover { background: var(--surface-2); }
+  .tx:hover .tx-chev { opacity: 1; transform: translateX(2px); }
+  .tx-check {
+    width: 22px; height: 22px;
+    border: 2px solid var(--line-strong);
+    border-radius: 6px;
+    background: transparent;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.15s;
+  }
+  .tx-check:hover { border-color: var(--primary); }
+  .tx-check.checked { background: var(--primary); border-color: var(--primary); }
+  .tx-check.checked::after {
+    content: '✓'; position: absolute; inset: 0;
+    display: grid; place-items: center;
+    color: var(--primary-ink); font-weight: 700; font-size: 14px;
+  }
+  .tx-icon {
+    width: 40px; height: 40px; border-radius: 10px;
+    background: var(--cat-hogar-tint);
+    display: grid; place-items: center;
+    overflow: hidden;
+  }
+  .tx-icon img { width: 26px; height: 26px; image-rendering: pixelated; }
+  .tx.cat-farmacia .tx-icon { background: var(--cat-medicamento-tint); }
+  .tx.cat-combustible .tx-icon { background: var(--cat-cargo-tint); }
+  .tx.cat-ent .tx-icon { background: var(--cat-mascotas-tint); }
+  .tx.cat-cafe .tx-icon { background: var(--cat-cargo-tint); }
+  .tx.flagged { background: var(--danger-soft); }
+  .tx-body { min-width: 0; }
+  .tx-name { font-weight: 600; font-size: 14px; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tx-meta { font-size: 11px; color: var(--ink-3); margin-top: 2px; display: flex; gap: 6px; align-items: center; }
+  .tx-cat-chip {
+    font-size: 10px; font-weight: 600;
+    padding: 1px 8px; border-radius: 999px;
+    background: var(--surface-2); color: var(--ink-2);
+    text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  .tx.cat-farmacia .tx-cat-chip { background: var(--cat-medicamento-tint); color: var(--cat-medicamento); }
+  .tx.cat-combustible .tx-cat-chip { background: var(--cat-cargo-tint); color: var(--cat-cargo); }
+  .tx.cat-ent .tx-cat-chip { background: var(--cat-mascotas-tint); color: var(--cat-mascotas); }
+  .tx.cat-cafe .tx-cat-chip { background: var(--cat-cargo-tint); color: var(--cat-cargo); }
+  .tx-cat-chip.inusual { background: var(--danger-soft); color: var(--error); }
+  .tx-store { font-size: 12px; color: var(--ink-2); }
+  .tx-time { font-size: 12px; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+  .tx-amt { font-weight: 700; font-size: 14px; text-align: right; color: var(--ink); font-variant-numeric: tabular-nums; }
+  .tx-amt small { display: block; font-size: 10px; font-weight: 500; color: var(--ink-3); margin-top: 1px; }
+  .tx-chev { color: var(--ink-3); opacity: 0.5; transition: opacity 0.15s, transform 0.15s; }
+
+  /* Selection mode action bar — appears when items selected */
+  .selection-bar {
+    position: sticky; bottom: 20px;
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 20px;
+    background: var(--ink); color: var(--surface);
+    border-radius: 14px;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.2);
+    margin-top: 16px;
+    z-index: 10;
+  }
+  .selection-count { font-weight: 700; font-size: 14px; }
+  .selection-spacer { flex: 1; }
+  .selection-action {
+    display: flex; align-items: center; gap: 6px;
+    padding: 6px 12px; border-radius: 8px;
+    background: rgba(255,255,255,0.12); color: #fff;
+    font-size: 13px; font-weight: 600;
+    transition: background 0.15s;
+  }
+  .selection-action:hover { background: rgba(255,255,255,0.22); }
+  .selection-action.danger { background: rgba(193, 57, 43, 0.4); }
+
+  /* Pagination */
+  .pagination {
+    display: flex; justify-content: center; align-items: center; gap: 8px;
+    padding: 20px 0;
+  }
+  .page-btn {
+    min-width: 36px; height: 36px; padding: 0 10px;
+    border-radius: 8px;
+    background: var(--surface); border: 1px solid var(--line);
+    color: var(--ink); font-weight: 600; font-size: 13px;
+    transition: all 0.15s;
+  }
+  .page-btn:hover:not(:disabled) { background: var(--surface-2); border-color: var(--primary); }
+  .page-btn.active { background: var(--primary); color: var(--primary-ink); border-color: var(--primary); }
+  .page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* Rail-specific content */
+  .bulk-stats { display: flex; flex-direction: column; gap: 10px; }
+  .bulk-stat { display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
+  .bulk-stat-label { color: var(--ink-2); }
+  .bulk-stat-value { font-weight: 700; color: var(--ink); font-variant-numeric: tabular-nums; }
+
+  .cat-breakdown { display: flex; flex-direction: column; gap: 10px; }
+  .cat-row {
+    display: grid; grid-template-columns: 1fr 80px; gap: 8px; align-items: center;
+    font-size: 13px;
+  }
+  .cat-row-label { display: flex; align-items: center; gap: 6px; color: var(--ink); font-weight: 500; }
+  .cat-row-label img { width: 18px; height: 18px; image-rendering: pixelated; }
+  .cat-row-amt { text-align: right; font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; }
+  .cat-bar { grid-column: 1 / -1; height: 4px; background: var(--surface-2); border-radius: 999px; overflow: hidden; margin-top: -4px; }
+  .cat-bar-fill { height: 100%; background: var(--primary); border-radius: 999px; }
+
+  /* Responsive */
+  @media (max-width: 1024px) {
+    .summary-row { grid-template-columns: repeat(2, 1fr); }
+    .tx { grid-template-columns: 30px 36px 1fr 100px 100px 28px; gap: 10px; padding: 10px 12px; }
+    .tx-time { display: none; }
+  }
+  @media (max-width: 640px) {
+    .summary-row { grid-template-columns: 1fr 1fr; gap: 8px; }
+    .summary-card { padding: 10px 12px; }
+    .summary-value { font-size: 18px; }
+    .tx { grid-template-columns: 28px 36px 1fr 90px 24px; }
+    .tx-store { display: none; }
+    .history-head { flex-direction: column; align-items: stretch; }
+    .history-tools { justify-content: flex-end; }
+  }
+</style>
+</head>
+
+<body data-theme="normal" data-mode="light">
+
+<!-- CONTROLS -->
+<div class="controls">
+  <div class="controls-group">
+    <span class="controls-label">Theme</span>
+    <button class="theme-tab active" data-theme-val="normal">Normal</button>
+    <button class="theme-tab" data-theme-val="professional">Professional</button>
+    <button class="theme-tab" data-theme-val="mono">Mono</button>
+  </div>
+  <div class="controls-group">
+    <span class="controls-label">Mode</span>
+    <div class="mode-toggle">
+      <span>Light</span>
+      <div class="toggle-switch" id="modeToggle"></div>
+      <span>Dark</span>
+    </div>
+  </div>
+  <div class="controls-group">
+    <span class="controls-label">Platform</span>
+    <span style="color: var(--primary); font-weight: 600;">Desktop Web 1440</span>
+  </div>
+</div>
+
+<div class="app-shell">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-mark"><img src="../assets/icons/piggy-bank.png" alt=""></div>
+      <span class="wordmark">gastify</span>
+    </div>
+    <ul class="nav-list">
+      <li><a class="nav-item" href="gastify-dashboard-desktop.html">
+        <img class="nav-icon" src="../assets/icons/app-icons/navigation/nav-home.png" alt=""><span>Inicio</span>
+      </a></li>
+      <li><a class="nav-item active" href="gastify-history-desktop.html">
+        <img class="nav-icon" src="../assets/icons/app-icons/navigation/nav-history.png" alt=""><span>Historial</span>
+      </a></li>
+      <li><a class="nav-item" href="gastify-trends.html">
+        <img class="nav-icon" src="../assets/icons/app-icons/navigation/nav-trends.png" alt=""><span>Tendencias</span>
+      </a></li>
+      <li><a class="nav-item" href="gastify-insights.html">
+        <img class="nav-icon" src="../assets/icons/app-icons/navigation/nav-insights.png" alt=""><span>Insights</span>
+      </a></li>
+      <li><a class="nav-item" href="gastify-reports.html">
+        <img class="nav-icon" src="../assets/icons/app-icons/navigation/nav-reports.png" alt=""><span>Reportes</span>
+      </a></li>
+      <li><a class="nav-item" href="gastify-group-switcher.html">
+        <img class="nav-icon" src="../assets/icons/app-icons/navigation/nav-scan.png" alt=""><span>Grupos</span>
+      </a></li>
+      <li><a class="nav-item" href="gastify-settings.html">
+        <img class="nav-icon" src="../assets/icons/app-icons/navigation/nav-settings.png" alt=""><span>Ajustes</span>
+      </a></li>
+    </ul>
+    <div class="sidebar-footer">
+      <div class="user-chip">
+        <div class="user-avatar">JG</div>
+        <div style="flex: 1; min-width: 0;">
+          <div class="user-name">Juan García</div>
+          <div class="user-email">juan@ejemplo.cl</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- TOP BAR -->
+    <div class="topbar">
+      <div class="search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+        </svg>
+        <input type="text" placeholder="Buscar MASSA, Jumbo, $40k, &quot;supermercado&quot;..." aria-label="Buscar">
+        <span class="kbd-hint">/</span>
+      </div>
+      <button class="scan-btn" aria-label="Escanear">
+        <img src="../assets/icons/app-icons/scan-features/scan-single.png" alt="">
+        <span>Escanear</span>
+        <span class="kbd-hint" style="background: rgba(255,255,255,0.22); color: #fff; border: none;">⌘K</span>
+      </button>
+      <button class="icon-btn" aria-label="Alertas">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+        </svg>
+        <span class="bell-badge">3</span>
+      </button>
+      <div class="topbar-avatar" aria-label="Perfil">JG</div>
+    </div>
+
+    <!-- PAGE HEADER -->
+    <div class="history-head">
+      <div>
+        <div class="history-title">Historial</div>
+        <div class="history-sub">127 transacciones · abril 2026</div>
+      </div>
+      <div class="history-tools">
+        <button class="tool-btn" aria-label="Seleccionar">
+          <img src="../assets/icons/app-icons/actions/action-filter.png" alt="">
+          <span>Seleccionar</span>
+        </button>
+        <button class="tool-btn" aria-label="Exportar">
+          <img src="../assets/icons/app-icons/analytics/chart-export.png" alt="">
+          <span>Exportar CSV</span>
+        </button>
+        <button class="tool-btn primary" aria-label="Nueva">
+          <img src="../assets/icons/app-icons/actions/action-add.png" alt="">
+          <span>Nueva</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- FILTER CHIPS -->
+    <div class="filter-row">
+      <span class="filter-label">Filtros:</span>
+      <div class="filter-chip active">
+        <img src="../assets/icons/app-icons/analytics/chart-calendar.png" alt="">
+        <span>Abril 2026</span>
+        <svg class="chip-x" viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg>
+      </div>
+      <div class="filter-chip active">
+        <span>Categoría: Supermercado</span>
+        <svg class="chip-x" viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg>
+      </div>
+      <div class="filter-chip">
+        <span>Monto</span>
+      </div>
+      <div class="filter-chip">
+        <span>Comercio</span>
+      </div>
+      <div class="filter-chip">
+        <span>Etiqueta</span>
+      </div>
+      <div class="filter-chip add">+ Agregar filtro</div>
+    </div>
+
+    <!-- SUMMARY STRIP -->
+    <div class="summary-row">
+      <div class="summary-card">
+        <div class="summary-label">Mostrando</div>
+        <div class="summary-value tabular">47</div>
+        <div class="summary-meta">de 127 totales</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-label">Total filtrado</div>
+        <div class="summary-value tabular">$290.520</div>
+        <div class="summary-meta">34% del mes</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-label">Promedio</div>
+        <div class="summary-value tabular">$6.181</div>
+        <div class="summary-meta">por transacción</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-label">Inusuales</div>
+        <div class="summary-value" style="color: var(--error);">2</div>
+        <div class="summary-meta">marcadas</div>
+      </div>
+    </div>
+
+    <!-- DATE GROUP: HOY -->
+    <div class="date-header">
+      <div>
+        <span class="date-label">Hoy · 22 abr</span>
+        <span class="date-sub">3 transacciones</span>
+      </div>
+      <span class="date-total tabular">$52.300</span>
+    </div>
+    <div class="tx-list">
+      <div class="tx" tabindex="0">
+        <button class="tx-check checked" aria-label="Seleccionar"></button>
+        <div class="tx-icon"><img src="../assets/icons/app-icons/store-categories/store-supermarket.png" alt=""></div>
+        <div class="tx-body">
+          <div class="tx-name">Jumbo Las Condes</div>
+          <div class="tx-meta"><span class="tx-cat-chip">Supermercado</span><span>23 items</span></div>
+        </div>
+        <div class="tx-store">Las Condes</div>
+        <div class="tx-time">18:42</div>
+        <div class="tx-amt">−42.180<small>CLP</small></div>
+        <div class="tx-chev">›</div>
+      </div>
+      <div class="tx cat-cafe" tabindex="0">
+        <button class="tx-check" aria-label="Seleccionar"></button>
+        <div class="tx-icon"><img src="../assets/icons/app-icons/store-categories/store-restaurant.png" alt=""></div>
+        <div class="tx-body">
+          <div class="tx-name">Starbucks Apoquindo</div>
+          <div class="tx-meta"><span class="tx-cat-chip">Café</span><span>2 items</span></div>
+        </div>
+        <div class="tx-store">Las Condes</div>
+        <div class="tx-time">14:10</div>
+        <div class="tx-amt">−5.920<small>CLP</small></div>
+        <div class="tx-chev">›</div>
+      </div>
+      <div class="tx" tabindex="0">
+        <button class="tx-check" aria-label="Seleccionar"></button>
+        <div class="tx-icon"><img src="../assets/icons/app-icons/store-categories/store-minimarket.png" alt=""></div>
+        <div class="tx-body">
+          <div class="tx-name">OXXO Providencia</div>
+          <div class="tx-meta"><span class="tx-cat-chip">Supermercado</span><span>5 items</span></div>
+        </div>
+        <div class="tx-store">Providencia</div>
+        <div class="tx-time">09:03</div>
+        <div class="tx-amt">−4.200<small>CLP</small></div>
+        <div class="tx-chev">›</div>
+      </div>
+    </div>
+
+    <!-- DATE GROUP: AYER -->
+    <div class="date-header">
+      <div>
+        <span class="date-label">Ayer · 21 abr</span>
+        <span class="date-sub">4 transacciones</span>
+      </div>
+      <span class="date-total tabular">$76.920</span>
+    </div>
+    <div class="tx-list">
+      <div class="tx cat-combustible" tabindex="0">
+        <button class="tx-check" aria-label="Seleccionar"></button>
+        <div class="tx-icon"><img src="../assets/icons/app-icons/store-categories/store-gas-station.png" alt=""></div>
+        <div class="tx-body">
+          <div class="tx-name">Copec Apoquindo</div>
+          <div class="tx-meta"><span class="tx-cat-chip">Combustible</span><span>45L</span></div>
+        </div>
+        <div class="tx-store">Las Condes</div>
+        <div class="tx-time">09:15</div>
+        <div class="tx-amt">−28.500<small>CLP</small></div>
+        <div class="tx-chev">›</div>
+      </div>
+      <div class="tx cat-cafe" tabindex="0">
+        <button class="tx-check" aria-label="Seleccionar"></button>
+        <div class="tx-icon"><img src="../assets/icons/app-icons/store-categories/store-restaurant.png" alt=""></div>
+        <div class="tx-body">
+          <div class="tx-name">Cafetería Providencia</div>
+          <div class="tx-meta"><span class="tx-cat-chip">Café</span><span>1 item</span></div>
+        </div>
+        <div class="tx-store">Providencia</div>
+        <div class="tx-time">11:45</div>
+        <div class="tx-amt">−4.200<small>CLP</small></div>
+        <div class="tx-chev">›</div>
+      </div>
+      <div class="tx" tabindex="0">
+        <button class="tx-check checked" aria-label="Seleccionar"></button>
+        <div class="tx-icon"><img src="../assets/icons/app-icons/store-categories/store-supermarket.png" alt=""></div>
+        <div class="tx-body">
+          <div class="tx-name">Lider Kennedy</div>
+          <div class="tx-meta"><span class="tx-cat-chip">Supermercado</span><span>31 items</span></div>
+        </div>
+        <div class="tx-store">Vitacura</div>
+        <div class="tx-time">18:22</div>
+        <div class="tx-amt">−35.820<small>CLP</small></div>
+        <div class="tx-chev">›</div>
+      </div>
+      <div class="tx" tabindex="0">
+        <button class="tx-check" aria-label="Seleccionar"></button>
+        <div class="tx-icon"><img src="../assets/icons/app-icons/store-categories/store-minimarket.png" alt=""></div>
+        <div class="tx-body">
+          <div class="tx-name">Unimarc Los Dominicos</div>
+          <div class="tx-meta"><span class="tx-cat-chip">Supermercado</span><span>12 items</span></div>
+        </div>
+        <div class="tx-store">Las Condes</div>
+        <div class="tx-time">20:35</div>
+        <div class="tx-amt">−8.400<small>CLP</small></div>
+        <div class="tx-chev">›</div>
+      </div>
+    </div>
+
+    <!-- DATE GROUP: ESTA SEMANA -->
+    <div class="date-header">
+      <div>
+        <span class="date-label">Esta semana</span>
+        <span class="date-sub">lun 19 — sab 20 · 6 transacciones</span>
+      </div>
+      <span class="date-total tabular">$161.300</span>
+    </div>
+    <div class="tx-list">
+      <div class="tx cat-farmacia flagged" tabindex="0">
+        <button class="tx-check" aria-label="Seleccionar"></button>
+        <div class="tx-icon"><img src="../assets/icons/app-icons/store-categories/store-pharmacy.png" alt=""></div>
+        <div class="tx-body">
+          <div class="tx-name">Farmacia Cruz Verde</div>
+          <div class="tx-meta"><span class="tx-cat-chip inusual">⚠ Inusual</span><span>3× promedio</span></div>
+        </div>
+        <div class="tx-store">Ñuñoa</div>
+        <div class="tx-time">sáb 20 · 16:40</div>
+        <div class="tx-amt">−89.420<small>CLP</small></div>
+        <div class="tx-chev">›</div>
+      </div>
+      <div class="tx cat-ent" tabindex="0">
+        <button class="tx-check" aria-label="Seleccionar"></button>
+        <div class="tx-icon"><img src="../assets/icons/app-icons/store-categories/store-entertainment.png" alt=""></div>
+        <div class="tx-body">
+          <div class="tx-name">Cinemark Costanera</div>
+          <div class="tx-meta"><span class="tx-cat-chip">Entretención</span><span>2 entradas + snack</span></div>
+        </div>
+        <div class="tx-store">Providencia</div>
+        <div class="tx-time">vie 19 · 20:30</div>
+        <div class="tx-amt">−12.000<small>CLP</small></div>
+        <div class="tx-chev">›</div>
+      </div>
+      <div class="tx cat-cafe" tabindex="0">
+        <button class="tx-check" aria-label="Seleccionar"></button>
+        <div class="tx-icon"><img src="../assets/icons/app-icons/store-categories/store-bakery.png" alt=""></div>
+        <div class="tx-body">
+          <div class="tx-name">Panadería San Camilo</div>
+          <div class="tx-meta"><span class="tx-cat-chip">Panadería</span><span>5 items</span></div>
+        </div>
+        <div class="tx-store">Ñuñoa</div>
+        <div class="tx-time">vie 19 · 08:15</div>
+        <div class="tx-amt">−6.800<small>CLP</small></div>
+        <div class="tx-chev">›</div>
+      </div>
+      <div class="tx" tabindex="0">
+        <button class="tx-check" aria-label="Seleccionar"></button>
+        <div class="tx-icon"><img src="../assets/icons/app-icons/store-categories/store-supermarket.png" alt=""></div>
+        <div class="tx-body">
+          <div class="tx-name">Jumbo Costanera</div>
+          <div class="tx-meta"><span class="tx-cat-chip">Supermercado</span><span>18 items</span></div>
+        </div>
+        <div class="tx-store">Providencia</div>
+        <div class="tx-time">jue 18 · 19:05</div>
+        <div class="tx-amt">−24.680<small>CLP</small></div>
+        <div class="tx-chev">›</div>
+      </div>
+      <div class="tx cat-combustible" tabindex="0">
+        <button class="tx-check" aria-label="Seleccionar"></button>
+        <div class="tx-icon"><img src="../assets/icons/app-icons/store-categories/store-transport.png" alt=""></div>
+        <div class="tx-body">
+          <div class="tx-name">Uber · 3 viajes</div>
+          <div class="tx-meta"><span class="tx-cat-chip">Transporte</span><span>agrupado</span></div>
+        </div>
+        <div class="tx-store">Varias</div>
+        <div class="tx-time">jue 18 · 09–21</div>
+        <div class="tx-amt">−18.400<small>CLP</small></div>
+        <div class="tx-chev">›</div>
+      </div>
+      <div class="tx" tabindex="0">
+        <button class="tx-check" aria-label="Seleccionar"></button>
+        <div class="tx-icon"><img src="../assets/icons/app-icons/store-categories/store-restaurant.png" alt=""></div>
+        <div class="tx-body">
+          <div class="tx-name">La Calma Restaurant</div>
+          <div class="tx-meta"><span class="tx-cat-chip">Restaurante</span><span>3 items</span></div>
+        </div>
+        <div class="tx-store">Vitacura</div>
+        <div class="tx-time">mié 17 · 21:20</div>
+        <div class="tx-amt">−10.000<small>CLP</small></div>
+        <div class="tx-chev">›</div>
+      </div>
+    </div>
+
+    <!-- SELECTION BAR (sticky bottom, visible when selection mode active) -->
+    <div class="selection-bar">
+      <span class="selection-count">2 seleccionadas · $77.580</span>
+      <span class="selection-spacer"></span>
+      <button class="selection-action">
+        <img src="../assets/icons/app-icons/actions/action-edit.png" alt="" style="width: 14px; filter: brightness(0) invert(1); image-rendering: pixelated;">
+        Editar
+      </button>
+      <button class="selection-action">
+        <img src="../assets/icons/app-icons/actions/action-filter.png" alt="" style="width: 14px; filter: brightness(0) invert(1); image-rendering: pixelated;">
+        Categorizar
+      </button>
+      <button class="selection-action">
+        <img src="../assets/icons/app-icons/analytics/chart-export.png" alt="" style="width: 14px; filter: brightness(0) invert(1); image-rendering: pixelated;">
+        Exportar
+      </button>
+      <button class="selection-action danger">
+        <img src="../assets/icons/app-icons/actions/action-delete.png" alt="" style="width: 14px; filter: brightness(0) invert(1); image-rendering: pixelated;">
+        Eliminar
+      </button>
+    </div>
+
+    <!-- PAGINATION -->
+    <div class="pagination">
+      <button class="page-btn" disabled>‹ Anterior</button>
+      <button class="page-btn active">1</button>
+      <button class="page-btn">2</button>
+      <button class="page-btn">3</button>
+      <span style="color: var(--ink-3); padding: 0 4px;">...</span>
+      <button class="page-btn">9</button>
+      <button class="page-btn">Siguiente ›</button>
+    </div>
+
+    <!-- PLATFORM NOTES -->
+    <aside class="platform-notes">
+      <h3>Desktop Web — History Platform Notes</h3>
+      <ul>
+        <li>Checkbox column appears always (desktop space allows) — on mobile, checkboxes appear only in Selection mode toggled via top bar</li>
+        <li>Filter chips use click to dismiss (<code>×</code> icon inside) vs long-press on mobile</li>
+        <li>Tx rows: <code>Enter</code> / double-click opens Transaction Editor; <code>Space</code> toggles selection; <code>j</code>/<code>k</code> navigate (intent, not wired)</li>
+        <li>Selection bar sticks to bottom of main content at <code>bottom: 20px</code> (inside main, not viewport) so it doesn't obstruct rail</li>
+        <li>Pagination keyboard: <code>PgUp</code> / <code>PgDn</code> (intent)</li>
+        <li>Hover states on all interactive; <code>:focus-visible</code> rings on all tabindex=0 elements</li>
+        <li>Mobile fallback (<code>≤640</code>): hide time column + store column, selection bar expands to full-width at bottom</li>
+      </ul>
+    </aside>
+
+  </main>
+
+  <!-- RIGHT RAIL -->
+  <aside class="rail">
+
+    <!-- Filter summary -->
+    <div class="rail-card">
+      <div class="rail-title">
+        <img src="../assets/icons/app-icons/actions/action-filter.png" alt="">
+        Resumen filtrado
+      </div>
+      <div class="bulk-stats">
+        <div class="bulk-stat"><span class="bulk-stat-label">Total</span><span class="bulk-stat-value tabular">$290.520</span></div>
+        <div class="bulk-stat"><span class="bulk-stat-label">Transacciones</span><span class="bulk-stat-value">47</span></div>
+        <div class="bulk-stat"><span class="bulk-stat-label">Items</span><span class="bulk-stat-value">243</span></div>
+        <div class="bulk-stat"><span class="bulk-stat-label">Promedio tx</span><span class="bulk-stat-value tabular">$6.181</span></div>
+        <div class="bulk-stat"><span class="bulk-stat-label">Inusuales</span><span class="bulk-stat-value" style="color: var(--error);">2</span></div>
+        <div class="bulk-stat"><span class="bulk-stat-label">USD equiv.</span><span class="bulk-stat-value tabular">306.13</span></div>
+      </div>
+    </div>
+
+    <!-- Category breakdown -->
+    <div class="rail-card">
+      <div class="rail-title">
+        <img src="../assets/icons/app-icons/analytics/chart-pie.png" alt="">
+        Por categoría
+      </div>
+      <div class="cat-breakdown">
+        <div class="cat-row">
+          <div class="cat-row-label"><img src="../assets/icons/app-icons/store-categories/store-supermarket.png" alt="">Supermercado</div>
+          <div class="cat-row-amt">$98.280</div>
+          <div class="cat-bar"><div class="cat-bar-fill" style="width: 100%; background: var(--cat-hogar);"></div></div>
+        </div>
+        <div class="cat-row">
+          <div class="cat-row-label"><img src="../assets/icons/app-icons/store-categories/store-pharmacy.png" alt="">Salud</div>
+          <div class="cat-row-amt">$89.420</div>
+          <div class="cat-bar"><div class="cat-bar-fill" style="width: 91%; background: var(--cat-medicamento);"></div></div>
+        </div>
+        <div class="cat-row">
+          <div class="cat-row-label"><img src="../assets/icons/app-icons/store-categories/store-gas-station.png" alt="">Combustible</div>
+          <div class="cat-row-amt">$46.900</div>
+          <div class="cat-bar"><div class="cat-bar-fill" style="width: 48%; background: var(--cat-cargo);"></div></div>
+        </div>
+        <div class="cat-row">
+          <div class="cat-row-label"><img src="../assets/icons/app-icons/store-categories/store-restaurant.png" alt="">Café</div>
+          <div class="cat-row-amt">$20.920</div>
+          <div class="cat-bar"><div class="cat-bar-fill" style="width: 22%; background: var(--cat-cargo);"></div></div>
+        </div>
+        <div class="cat-row">
+          <div class="cat-row-label"><img src="../assets/icons/app-icons/store-categories/store-entertainment.png" alt="">Entretención</div>
+          <div class="cat-row-amt">$35.000</div>
+          <div class="cat-bar"><div class="cat-bar-fill" style="width: 36%; background: var(--cat-mascotas);"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Anomaly highlight -->
+    <div class="rail-card" style="border-left: 4px solid var(--error);">
+      <div class="rail-title">
+        <img src="../assets/icons/app-icons/status/status-warning.png" alt="">
+        Inusuales (2)
+      </div>
+      <p style="font-size: 13px; color: var(--ink-2); margin-bottom: 10px;">Transacciones que rompen el patrón de los últimos 3 meses.</p>
+      <div class="bulk-stat"><span class="bulk-stat-label">Farmacia · 20 abr</span><span class="bulk-stat-value" style="color: var(--error);">3×</span></div>
+      <div class="bulk-stat"><span class="bulk-stat-label">Restaurantes · mes</span><span class="bulk-stat-value" style="color: var(--error);">1.8×</span></div>
+      <a href="gastify-insights.html" style="display: block; margin-top: 10px; font-size: 13px; color: var(--primary); font-weight: 600;">Ver en Insights →</a>
+    </div>
+
+  </aside>
+
+</div>
+
+<script>
+  const body = document.body;
+  document.querySelectorAll('.theme-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.theme-tab').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+      body.dataset.theme = btn.dataset.themeVal;
+    });
+  });
+  document.getElementById('modeToggle').addEventListener('click', () => {
+    body.dataset.mode = body.dataset.mode === 'dark' ? 'light' : 'dark';
+  });
+  // Toggle selection on checkbox click
+  document.querySelectorAll('.tx-check').forEach(c => {
+    c.addEventListener('click', (e) => {
+      e.stopPropagation();
+      c.classList.toggle('checked');
+    });
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === '/' && document.activeElement.tagName !== 'INPUT') {
+      e.preventDefault();
+      document.querySelector('.search input').focus();
+    }
+    if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      e.preventDefault();
+      document.querySelector('.scan-btn').click();
+    }
+  });
+</script>
+
+</body>
+</html>

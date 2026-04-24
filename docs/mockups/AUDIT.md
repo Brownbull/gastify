@@ -207,7 +207,7 @@ Required: **8+ surfaces**  ·  Present: **2**  ·  Coverage: **25%** 🔴
 |----------|----------|
 | Mobile Web (PWA 390×844) | ✅ all 29 screens (via ~420px mobile frame) |
 | Native Mobile (React Native 390×844) | ⚠ visual parity with mobile web but NO platform-divergence notes documented per screen (haptics, biometrics, safe-area insets, platform-specific gestures) |
-| Desktop Web (1440 responsive) | 🚧 **1/29 shipped** (`gastify-dashboard-desktop.html`) — template pattern established, 28 to apply |
+| Desktop Web (1440 responsive) | 🚧 **2/29 shipped** (Dashboard + History) — shared shell CSS extracted (`assets/css/desktop-shell.css`), 27 to apply |
 
 ### Desktop template established (T9 anchor — Dashboard)
 
