@@ -391,19 +391,19 @@
     font-variant-numeric: tabular-nums;
   }
 
-  /* Tx list (Transacciones tab) */
+  /* Tx list (Transacciones tab + Inicio preview) — unified compact grid */
   .tx-row {
     display: grid;
-    grid-template-columns: 40px 44px 1fr 80px 120px 120px 20px;
+    grid-template-columns: 36px 40px 1fr auto;
     gap: 12px;
     align-items: center;
-    padding: 12px 16px;
+    padding: 12px 0;
     border-bottom: 1px solid var(--line);
     cursor: pointer;
     transition: background .12s;
   }
   .tx-row:last-child { border-bottom: none; }
-  .tx-row:hover { background: var(--surface-2); }
+  .tx-row:hover { background: var(--surface-2); margin: 0 -12px; padding: 12px 12px; border-radius: 8px; }
   .tx-avatar-sm {
     width: 32px; height: 32px;
     border-radius: 50%;
@@ -414,6 +414,7 @@
     justify-content: center;
     font-weight: 700;
     font-size: 11px;
+    flex-shrink: 0;
   }
   .tx-icon {
     width: 40px; height: 40px;
@@ -422,28 +423,54 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
   }
   .tx-icon img { width: 24px; height: 24px; image-rendering: pixelated; }
-  .tx-store { font-weight: 700; font-size: 14px; color: var(--ink); }
-  .tx-meta { font-size: 11px; color: var(--ink-3); margin-top: 2px; }
-  .tx-date { font-size: 12px; color: var(--ink-2); text-align: center; }
-  .tx-cat-chip {
-    font-size: 10px;
+  .tx-body { min-width: 0; }
+  .tx-store {
     font-weight: 700;
-    padding: 3px 8px;
+    font-size: 14px;
+    color: var(--ink);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .tx-meta {
+    font-size: 11px;
+    color: var(--ink-3);
+    margin-top: 2px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .tx-meta .tx-cat-chip {
+    font-size: 9px;
+    font-weight: 700;
+    padding: 1px 7px;
     border-radius: 999px;
-    background: var(--surface-2);
-    color: var(--ink-2);
+    background: var(--primary-soft);
+    color: var(--primary);
     text-transform: uppercase;
     letter-spacing: 0.04em;
-    justify-self: center;
+    flex-shrink: 0;
+  }
+  .tx-right {
+    text-align: right;
+    white-space: nowrap;
   }
   .tx-amount {
     font-weight: 700;
     font-size: 14px;
-    text-align: right;
     color: var(--ink);
     font-variant-numeric: tabular-nums;
+    display: block;
+  }
+  .tx-date {
+    font-size: 11px;
+    color: var(--ink-3);
+    font-weight: 600;
+    margin-top: 2px;
   }
 
   /* Stats (Estadisticas tab) */
@@ -575,8 +602,9 @@
   }
   @media (max-width: 900px) {
     .stats-grid { grid-template-columns: 1fr 1fr; }
-    .tx-row { grid-template-columns: 32px 1fr auto; gap: 8px; }
-    .tx-avatar-sm, .tx-date, .tx-cat-chip { display: none; }
+    .tx-row { grid-template-columns: 36px 1fr auto; gap: 10px; }
+    .tx-avatar-sm { display: none; }
+    .tx-meta .tx-cat-chip { display: none; }
   }
 </style>
 </head>
@@ -815,41 +843,50 @@
           <div class="card-title">Últimas transacciones</div>
           <a class="card-link" href="#" onclick="switchView('transactions'); return false;">Ver todas →</a>
         </div>
-        <div class="tx-row" style="padding: 12px 0; border-bottom: 1px solid var(--line);">
+        <div class="tx-row">
           <div class="tx-avatar-sm">GA</div>
           <div class="tx-icon"><img src="../assets/icons/app-icons/rubros/rubro-supermercados.png" alt=""></div>
-          <div>
+          <div class="tx-body">
             <div class="tx-store">Jumbo Apumanque</div>
-            <div class="tx-meta">🛒 12 ítems · Supermercado Premium</div>
+            <div class="tx-meta">
+              <span>🛒 12 ítems · Supermercado Premium</span>
+              <span class="tx-cat-chip">Compartida</span>
+            </div>
           </div>
-          <span class="tx-date">Hoy</span>
-          <span class="tx-cat-chip" style="background: var(--primary-soft); color: var(--primary);">Compartida</span>
-          <span class="tx-amount">$23.490</span>
-          <span style="color: var(--ink-3);">›</span>
+          <div class="tx-right">
+            <span class="tx-amount">$23.490</span>
+            <div class="tx-date">Hoy</div>
+          </div>
         </div>
-        <div class="tx-row" style="padding: 12px 0; border-bottom: 1px solid var(--line);">
+        <div class="tx-row">
           <div class="tx-avatar-sm bg-accent">ML</div>
           <div class="tx-icon"><img src="../assets/icons/app-icons/rubros/rubro-servicios-finanzas.png" alt=""></div>
-          <div>
+          <div class="tx-body">
             <div class="tx-store">Gasfiter Hogar</div>
-            <div class="tx-meta">🔧 Reparación cocina · Hogar</div>
+            <div class="tx-meta">
+              <span>🔧 Reparación cocina · Hogar</span>
+              <span class="tx-cat-chip">Compartida</span>
+            </div>
           </div>
-          <span class="tx-date">Ayer</span>
-          <span class="tx-cat-chip" style="background: var(--primary-soft); color: var(--primary);">Compartida</span>
-          <span class="tx-amount">$45.000</span>
-          <span style="color: var(--ink-3);">›</span>
+          <div class="tx-right">
+            <span class="tx-amount">$45.000</span>
+            <div class="tx-date">Ayer</div>
+          </div>
         </div>
-        <div class="tx-row" style="padding: 12px 0;">
+        <div class="tx-row">
           <div class="tx-avatar-sm">GA</div>
           <div class="tx-icon"><img src="../assets/icons/app-icons/rubros/rubro-vivienda.png" alt=""></div>
-          <div>
+          <div class="tx-body">
             <div class="tx-store">Enel Energía</div>
-            <div class="tx-meta">💡 Cuenta abril · Servicios Básicos</div>
+            <div class="tx-meta">
+              <span>💡 Cuenta abril · Servicios Básicos</span>
+              <span class="tx-cat-chip">Compartida</span>
+            </div>
           </div>
-          <span class="tx-date">23 abr</span>
-          <span class="tx-cat-chip" style="background: var(--primary-soft); color: var(--primary);">Compartida</span>
-          <span class="tx-amount">$67.890</span>
-          <span style="color: var(--ink-3);">›</span>
+          <div class="tx-right">
+            <span class="tx-amount">$67.890</span>
+            <div class="tx-date">23 abr</div>
+          </div>
         </div>
       </div>
     </div>
@@ -916,66 +953,51 @@
 
     <!-- ========= TRANSACCIONES PANE ========= -->
     <div class="view-pane" data-view-pane="transactions">
-      <div class="card" style="padding: 0;">
+      <div class="card">
         <div class="tx-row">
           <div class="tx-avatar-sm">GA</div>
           <div class="tx-icon"><img src="../assets/icons/app-icons/rubros/rubro-supermercados.png" alt=""></div>
-          <div>
+          <div class="tx-body">
             <div class="tx-store">Jumbo Apumanque</div>
-            <div class="tx-meta">🛒 12 ítems · Supermercado Premium</div>
+            <div class="tx-meta"><span>🛒 12 ítems · Supermercado Premium</span><span class="tx-cat-chip">Compartida</span></div>
           </div>
-          <span class="tx-date">Hoy</span>
-          <span class="tx-cat-chip" style="background: var(--primary-soft); color: var(--primary);">Compartida</span>
-          <span class="tx-amount">$23.490</span>
-          <span style="color: var(--ink-3);">›</span>
+          <div class="tx-right"><span class="tx-amount">$23.490</span><div class="tx-date">Hoy</div></div>
         </div>
         <div class="tx-row">
           <div class="tx-avatar-sm bg-accent">ML</div>
           <div class="tx-icon"><img src="../assets/icons/app-icons/rubros/rubro-servicios-finanzas.png" alt=""></div>
-          <div>
+          <div class="tx-body">
             <div class="tx-store">Gasfiter Hogar</div>
-            <div class="tx-meta">🔧 Reparación cocina</div>
+            <div class="tx-meta"><span>🔧 Reparación cocina</span><span class="tx-cat-chip">Compartida</span></div>
           </div>
-          <span class="tx-date">Ayer</span>
-          <span class="tx-cat-chip" style="background: var(--primary-soft); color: var(--primary);">Compartida</span>
-          <span class="tx-amount">$45.000</span>
-          <span style="color: var(--ink-3);">›</span>
+          <div class="tx-right"><span class="tx-amount">$45.000</span><div class="tx-date">Ayer</div></div>
         </div>
         <div class="tx-row">
           <div class="tx-avatar-sm">GA</div>
           <div class="tx-icon"><img src="../assets/icons/app-icons/rubros/rubro-vivienda.png" alt=""></div>
-          <div>
+          <div class="tx-body">
             <div class="tx-store">Enel Energía</div>
-            <div class="tx-meta">💡 Cuenta abril</div>
+            <div class="tx-meta"><span>💡 Cuenta abril</span><span class="tx-cat-chip">Compartida</span></div>
           </div>
-          <span class="tx-date">23 abr</span>
-          <span class="tx-cat-chip" style="background: var(--primary-soft); color: var(--primary);">Compartida</span>
-          <span class="tx-amount">$67.890</span>
-          <span style="color: var(--ink-3);">›</span>
+          <div class="tx-right"><span class="tx-amount">$67.890</span><div class="tx-date">23 abr</div></div>
         </div>
         <div class="tx-row">
           <div class="tx-avatar-sm bg-sec">DR</div>
           <div class="tx-icon"><img src="../assets/icons/app-icons/rubros/rubro-comercio-barrio.png" alt=""></div>
-          <div>
+          <div class="tx-body">
             <div class="tx-store">Almacén Don Pepe</div>
-            <div class="tx-meta">🏪 Pan + huevos</div>
+            <div class="tx-meta"><span>🏪 Pan + huevos</span><span class="tx-cat-chip">Compartida</span></div>
           </div>
-          <span class="tx-date">22 abr</span>
-          <span class="tx-cat-chip" style="background: var(--primary-soft); color: var(--primary);">Compartida</span>
-          <span class="tx-amount">$4.890</span>
-          <span style="color: var(--ink-3);">›</span>
+          <div class="tx-right"><span class="tx-amount">$4.890</span><div class="tx-date">22 abr</div></div>
         </div>
         <div class="tx-row">
           <div class="tx-avatar-sm">GA</div>
           <div class="tx-icon"><img src="../assets/icons/app-icons/rubros/rubro-transporte-vehiculo.png" alt=""></div>
-          <div>
+          <div class="tx-body">
             <div class="tx-store">Copec Pucón</div>
-            <div class="tx-meta">⛽ Combustible · Viaje Temuco</div>
+            <div class="tx-meta"><span>⛽ Combustible · Viaje Temuco</span><span class="tx-cat-chip">Compartida</span></div>
           </div>
-          <span class="tx-date">20 abr</span>
-          <span class="tx-cat-chip" style="background: var(--primary-soft); color: var(--primary);">Compartida</span>
-          <span class="tx-amount">$89.420</span>
-          <span style="color: var(--ink-3);">›</span>
+          <div class="tx-right"><span class="tx-amount">$89.420</span><div class="tx-date">20 abr</div></div>
         </div>
       </div>
     </div>
