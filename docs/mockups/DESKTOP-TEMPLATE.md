@@ -91,6 +91,8 @@ Copy from `_desktop-template.html` `<script>` block at bottom. 3 responsibilitie
 | Scan states | ✅ `gastify-single-scan-states-desktop.html` | n/a (4-state machine: idle/uploading/processing/ready) |
 | Quicksave | ✅ `gastify-quicksave-card-desktop.html` | n/a (post-scan confirm) |
 | Group Hub | ✅ `gastify-group-hub-desktop.html` | ✅ canonical (4-col: sidebar + switcher + hub + activity rail; 4-tab main: Inicio/Miembros/Tx/Stats) |
+| Auth | ✅ `gastify-auth-desktop.html` | n/a (split brand+form; 4-tab: login/register/forgot/welcome) |
+| Consent | ✅ `gastify-consent-desktop.html` | n/a (4-jurisdiction picker CL/EU/US/CA + required+optional sections + sticky action bar) |
 
 ## Pending queue (P0 — apply template to all)
 

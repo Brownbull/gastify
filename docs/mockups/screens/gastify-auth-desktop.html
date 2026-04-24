@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="es-CL">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Iniciar sesión — gastify Desktop Web (1440 responsive)</title>
+<link rel="stylesheet" href="../assets/fonts/gastify-fonts.css">
+<link rel="stylesheet" href="../assets/css/desktop-shell.css">
+<style>
+  /* Full-page auth — no sidebar, centered content */
+  body { background: var(--bg); min-height: 100vh; }
+  .auth-page {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    max-width: 1440px;
+    margin: 0 auto;
+  }
+
+  /* Left: brand panel */
+  .auth-brand {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--success) 100%);
+    color: var(--primary-ink);
+    padding: 60px 64px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+    overflow: hidden;
+  }
+  [data-theme="professional"] .auth-brand { background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%); }
+  [data-theme="mono"] .auth-brand { background: linear-gradient(135deg, #2d3a4a 0%, #4a5568 100%); }
+  .auth-brand::before {
+    content: '';
+    position: absolute;
+    top: -80px; right: -80px;
+    width: 320px; height: 320px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 50%;
+  }
+  .auth-brand::after {
+    content: '';
+    position: absolute;
+    bottom: -60px; left: -60px;
+    width: 200px; height: 200px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 50%;
+  }
+  .brand-top {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .brand-top .brand-mark {
+    width: 48px; height: 48px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.22);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .brand-top .brand-mark img { width: 36px; height: 36px; image-rendering: pixelated; }
+  .brand-top .wordmark {
+    font-family: 'Baloo 2', cursive;
+    font-weight: 700;
+    font-size: 28px;
+    color: var(--primary-ink);
+  }
+
+  .brand-pitch {
+    position: relative;
+    z-index: 1;
+    max-width: 420px;
+  }
+  .pitch-eyebrow {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    font-weight: 700;
+    opacity: 0.85;
+    margin-bottom: 12px;
+  }
+  .pitch-title {
+    font-family: 'Baloo 2', cursive;
+    font-size: 38px;
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+    margin-bottom: 18px;
+  }
+  .pitch-body {
+    font-size: 15px;
+    line-height: 1.55;
+    opacity: 0.92;
+    margin-bottom: 32px;
+  }
+  .pitch-features { display: flex; flex-direction: column; gap: 12px; }
+  .pitch-feature {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .pitch-feature .check {
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.22);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .brand-footer {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    opacity: 0.8;
+    font-weight: 600;
+  }
+  .brand-footer a { color: inherit; }
+
+  /* Right: form panel */
+  .auth-form-wrap {
+    padding: 60px 64px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    max-width: 520px;
+    margin: 0 auto;
+    width: 100%;
+    position: relative;
+  }
+
+  /* Top locale + controls */
+  .auth-top-row {
+    position: absolute;
+    top: 24px; right: 24px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .locale-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--ink);
+    cursor: pointer;
+  }
+  .locale-pill:hover { border-color: var(--primary); color: var(--primary); }
+
+  /* Auth tabs (Iniciar / Registrarse / Recuperar / Bienvenido) */
+  .auth-tabs {
+    display: flex;
+    background: var(--surface-2);
+    padding: 4px;
+    border-radius: 12px;
+    gap: 2px;
+    margin-bottom: 28px;
+  }
+  .auth-tab {
+    flex: 1;
+    padding: 10px 14px;
+    border: none;
+    background: transparent;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--ink-2);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all .15s;
+    white-space: nowrap;
+  }
+  .auth-tab:hover:not(.active) { color: var(--primary); }
+  .auth-tab.active {
+    background: var(--surface);
+    color: var(--primary);
+    box-shadow: 0 1px 3px var(--shadow);
+  }
+
+  /* Heading */
+  .auth-heading {
+    font-family: 'Baloo 2', cursive;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+    margin-bottom: 6px;
+  }
+  .auth-sub {
+    font-size: 14px;
+    color: var(--ink-2);
+    margin-bottom: 28px;
+    line-height: 1.5;
+  }
+
+  /* Social buttons */
+  .auth-social {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  .social-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: var(--surface);
+    border: 1.5px solid var(--line-strong);
+    border-radius: 12px;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--ink);
+    cursor: pointer;
+    transition: all .15s;
+    text-align: left;
+  }
+  .social-btn:hover { border-color: var(--primary); background: var(--surface-2); }
+  .social-btn .social-ico {
+    width: 22px; height: 22px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+  }
+
+  /* OR divider */
+  .auth-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 20px 0;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--ink-3);
+  }
+  .auth-divider::before,
+  .auth-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--line);
+  }
+
+  /* Form fields */
+  .field { margin-bottom: 16px; }
+  .field-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--ink-2);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .field-input {
+    width: 100%;
+    padding: 12px 14px;
+    background: var(--surface);
+    border: 1.5px solid var(--line-strong);
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 14px;
+    color: var(--ink);
+    outline: none;
+    transition: border-color .15s;
+  }
+  .field-input:focus { border-color: var(--primary); }
+  .field-input::placeholder { color: var(--ink-3); }
+  .field-help { font-size: 11px; color: var(--ink-3); margin-top: 4px; }
+
+  /* Password field with toggle */
+  .field-with-toggle { position: relative; }
+  .password-toggle {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    color: var(--ink-3);
+    cursor: pointer;
+    font-size: 16px;
+  }
+  .password-toggle:hover { color: var(--primary); }
+
+  /* Row: remember + forgot */
+  .field-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    font-size: 13px;
+  }
+  .remember-me {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    color: var(--ink-2);
+    font-weight: 600;
+  }
+  .remember-me input {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--primary);
+  }
+  .forgot-link { color: var(--primary); font-weight: 700; }
+  .forgot-link:hover { text-decoration: underline; }
+
+  /* Primary button */
+  .auth-btn {
+    width: 100%;
+    padding: 14px 18px;
+    background: var(--primary);
+    color: var(--primary-ink);
+    border: none;
+    border-radius: 12px;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 15px;
+    cursor: pointer;
+    transition: opacity .15s;
+    margin-bottom: 16px;
+  }
+  .auth-btn:hover { opacity: 0.9; }
+  .auth-btn.ghost {
+    background: transparent;
+    color: var(--ink-2);
+    border: 1.5px solid var(--line-strong);
+  }
+  .auth-btn.ghost:hover { border-color: var(--primary); color: var(--primary); }
+
+  /* Switch mode link */
+  .auth-switch {
+    text-align: center;
+    font-size: 13px;
+    color: var(--ink-2);
+    margin-top: 8px;
+  }
+  .auth-switch a { color: var(--primary); font-weight: 700; }
+
+  /* Legal footer */
+  .auth-legal {
+    font-size: 11px;
+    color: var(--ink-3);
+    text-align: center;
+    margin-top: 32px;
+    line-height: 1.6;
+  }
+  .auth-legal a { color: var(--primary); text-decoration: underline; }
+
+  /* Panes */
+  .auth-pane { display: none; }
+  .auth-pane.active { display: block; }
+
+  /* Welcome pane specific */
+  .welcome-hero {
+    text-align: center;
+    padding: 20px 0 32px;
+  }
+  .welcome-emoji {
+    font-size: 64px;
+    margin-bottom: 16px;
+    display: inline-block;
+    animation: bounce 2s ease-in-out infinite;
+  }
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+  .welcome-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+  .welcome-step {
+    display: grid;
+    grid-template-columns: 40px 1fr;
+    gap: 14px;
+    align-items: center;
+    padding: 14px 16px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+  }
+  .welcome-step-num {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: var(--primary-ink);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Baloo 2', cursive;
+    font-size: 18px;
+    font-weight: 700;
+  }
+  .welcome-step-title { font-weight: 700; font-size: 14px; color: var(--ink); }
+  .welcome-step-body { font-size: 12px; color: var(--ink-2); margin-top: 2px; }
+
+  /* Forgot success state */
+  .forgot-success {
+    text-align: center;
+    padding: 20px 0;
+    margin-bottom: 24px;
+  }
+  .forgot-icon {
+    width: 64px; height: 64px;
+    margin: 0 auto 16px;
+    border-radius: 50%;
+    background: var(--primary-soft);
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+  }
+
+  /* Responsive */
+  @media (max-width: 1024px) {
+    .auth-page { grid-template-columns: 1fr; }
+    .auth-brand { min-height: 300px; padding: 40px; }
+    .pitch-title { font-size: 28px; }
+    .pitch-features { display: none; }
+    .brand-footer { display: none; }
+  }
+  @media (max-width: 640px) {
+    .auth-form-wrap { padding: 40px 24px; }
+    .auth-top-row { top: 16px; right: 16px; }
+  }
+</style>
+</head>
+
+<body data-theme="normal" data-mode="light">
+
+<!-- CONTROLS (dev-only theme switcher, positioned bottom) -->
+<div class="controls" style="position: fixed; bottom: 0; left: 0; right: 0; top: auto; z-index: 100;">
+  <div class="controls-group"><span class="controls-label">Theme</span><button class="theme-tab active" data-theme-val="normal">Normal</button><button class="theme-tab" data-theme-val="professional">Professional</button><button class="theme-tab" data-theme-val="mono">Mono</button></div>
+  <div class="controls-group"><span class="controls-label">Mode</span><div class="mode-toggle"><span>Light</span><div class="toggle-switch" id="modeToggle"></div><span>Dark</span></div></div>
+  <div class="controls-group"><span class="controls-label">Platform</span><span style="color: var(--primary); font-weight: 600;">Desktop Web 1440</span><a class="platform-switch" href="gastify-login.html" title="Ver versión mobile"><span class="dot">●</span> Mobile ↗</a></div>
+  <div class="controls-group">
+    <div class="quick-nav" id="quickNav">
+      <button class="quick-nav-btn" onclick="document.getElementById('quickNav').classList.toggle('open')">☰ Desktop screens</button>
+      <div class="quick-nav-menu">
+        <div class="qn-section">Available (13)</div>
+        <a href="gastify-dashboard-desktop.html">🏠 Dashboard</a>
+        <a href="gastify-history-desktop.html">📜 Historial</a>
+        <a href="gastify-transaction-editor-desktop.html">✎ Transaction editor</a>
+        <a href="gastify-settings-desktop.html">⚙ Ajustes</a>
+        <a href="gastify-trends-desktop.html">📊 Tendencias</a>
+        <a href="gastify-insights-desktop.html">💡 Insights</a>
+        <a href="gastify-reports-desktop.html">📄 Reportes</a>
+        <a href="gastify-items-desktop.html">📦 Ítems</a>
+        <a href="gastify-scan-mode-selector-desktop.html">📸 Scan modes</a>
+        <a href="gastify-single-scan-states-desktop.html">📷 Escaneo</a>
+        <a href="gastify-quicksave-card-desktop.html">⚡ Quicksave</a>
+        <a href="gastify-group-hub-desktop.html">👥 Grupos</a>
+        <a class="current" href="gastify-auth-desktop.html">🔐 Auth <span class="qn-badge">current</span></a>
+        <a href="gastify-consent-desktop.html">⚖ Consent</a>
+        <a href="../index.html" style="color: var(--primary); font-weight: 600; margin-top: 4px;">→ See full gap matrix</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="auth-page">
+
+  <!-- LEFT: BRAND + PITCH -->
+  <aside class="auth-brand">
+    <div class="brand-top">
+      <div class="brand-mark">
+        <img src="../assets/icons/piggy-bank.png" alt="">
+      </div>
+      <span class="wordmark">gastify</span>
+    </div>
+
+    <div class="brand-pitch">
+      <div class="pitch-eyebrow">Tu billetera inteligente</div>
+      <div class="pitch-title">Escanea tus boletas. Entiende tus gastos.</div>
+      <p class="pitch-body">Saca foto a tus tickets y gastify extrae ítem por ítem, categoriza automáticamente, y te muestra dónde se va tu plata. Multi-moneda, multi-grupo, sin fricción.</p>
+
+      <div class="pitch-features">
+        <div class="pitch-feature">
+          <div class="check">✓</div>
+          <span>Extracción ítem-por-ítem con 42 categorías L4</span>
+        </div>
+        <div class="pitch-feature">
+          <div class="check">✓</div>
+          <span>Multi-moneda con USD-shadow automático</span>
+        </div>
+        <div class="pitch-feature">
+          <div class="check">✓</div>
+          <span>Grupos compartidos (Casa, Viaje, Oficina)</span>
+        </div>
+        <div class="pitch-feature">
+          <div class="check">✓</div>
+          <span>Detección de cargos inusuales + concentración</span>
+        </div>
+        <div class="pitch-feature">
+          <div class="check">✓</div>
+          <span>PDF de boleta SII o bancario, también aceptado</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="brand-footer">
+      <span>v2.0 · 2026</span>
+      <span><a href="#">Status</a> · <a href="#">Blog</a> · <a href="#">Ayuda</a></span>
+    </div>
+  </aside>
+
+  <!-- RIGHT: FORM -->
+  <section class="auth-form-wrap">
+
+    <div class="auth-top-row">
+      <button class="locale-pill">🇨🇱 Chile · ES</button>
+    </div>
+
+    <!-- Mode tabs -->
+    <div class="auth-tabs" role="tablist">
+      <button class="auth-tab active" data-auth="login">Iniciar sesión</button>
+      <button class="auth-tab" data-auth="register">Registrarse</button>
+      <button class="auth-tab" data-auth="forgot">Recuperar</button>
+      <button class="auth-tab" data-auth="welcome">Bienvenido</button>
+    </div>
+
+    <!-- ===== LOGIN PANE ===== -->
+    <div class="auth-pane active" data-auth-pane="login">
+      <h1 class="auth-heading">Bienvenido de vuelta</h1>
+      <p class="auth-sub">Ingresa con tu cuenta para continuar</p>
+
+      <div class="auth-social">
+        <button class="social-btn">
+          <span class="social-ico">🔵</span>
+          Continuar con Google
+        </button>
+        <button class="social-btn">
+          <span class="social-ico">🍎</span>
+          Continuar con Apple
+        </button>
+      </div>
+
+      <div class="auth-divider">o con email</div>
+
+      <div class="field">
+        <label class="field-label">Email</label>
+        <input type="email" class="field-input" placeholder="tu@ejemplo.cl" value="juan@ejemplo.cl">
+      </div>
+      <div class="field">
+        <label class="field-label">Contraseña</label>
+        <div class="field-with-toggle">
+          <input type="password" class="field-input" placeholder="••••••••" id="loginPw">
+          <button type="button" class="password-toggle" onclick="togglePw('loginPw', this)">👁</button>
+        </div>
+      </div>
+
+      <div class="field-row">
+        <label class="remember-me">
+          <input type="checkbox" checked>
+          Recordarme 30 días
+        </label>
+        <a class="forgot-link" href="#" onclick="switchAuth('forgot'); return false;">¿Olvidaste tu contraseña?</a>
+      </div>
+
+      <button class="auth-btn">Ingresar</button>
+
+      <div class="auth-switch">
+        ¿Nuevo en gastify? <a href="#" onclick="switchAuth('register'); return false;">Crear cuenta</a>
+      </div>
+
+      <div class="auth-legal">
+        Al ingresar aceptas nuestros <a href="#">Términos</a> y <a href="#">Privacidad</a>.
+      </div>
+    </div>
+
+    <!-- ===== REGISTER PANE ===== -->
+    <div class="auth-pane" data-auth-pane="register">
+      <h1 class="auth-heading">Crea tu cuenta</h1>
+      <p class="auth-sub">Empieza gratis con 50 créditos. Sin tarjeta requerida.</p>
+
+      <div class="auth-social">
+        <button class="social-btn">
+          <span class="social-ico">🔵</span>
+          Continuar con Google
+        </button>
+        <button class="social-btn">
+          <span class="social-ico">🍎</span>
+          Continuar con Apple
+        </button>
+      </div>
+
+      <div class="auth-divider">o con email</div>
+
+      <div class="field">
+        <label class="field-label">Nombre completo</label>
+        <input type="text" class="field-input" placeholder="Juan García">
+      </div>
+      <div class="field">
+        <label class="field-label">Email</label>
+        <input type="email" class="field-input" placeholder="tu@ejemplo.cl">
+      </div>
+      <div class="field">
+        <label class="field-label">Contraseña</label>
+        <div class="field-with-toggle">
+          <input type="password" class="field-input" placeholder="Mínimo 8 caracteres" id="regPw">
+          <button type="button" class="password-toggle" onclick="togglePw('regPw', this)">👁</button>
+        </div>
+        <div class="field-help">Al menos 8 caracteres, incluye 1 número y 1 mayúscula</div>
+      </div>
+      <div class="field">
+        <label class="field-label">País (para moneda + consentimiento)</label>
+        <input type="text" class="field-input" value="🇨🇱 Chile" readonly style="cursor: pointer;">
+        <div class="field-help">Detectado por ubicación · Puedes cambiarlo en Ajustes</div>
+      </div>
+
+      <button class="auth-btn" onclick="switchAuth('welcome')">Crear cuenta y continuar</button>
+
+      <div class="auth-switch">
+        ¿Ya tienes cuenta? <a href="#" onclick="switchAuth('login'); return false;">Ingresa</a>
+      </div>
+
+      <div class="auth-legal">
+        Al crear cuenta aceptas <a href="#">Términos</a>, <a href="#">Privacidad</a> y <a href="gastify-consent-desktop.html">Consentimiento de datos (CL)</a>.
+      </div>
+    </div>
+
+    <!-- ===== FORGOT PANE ===== -->
+    <div class="auth-pane" data-auth-pane="forgot">
+      <h1 class="auth-heading">Recupera tu acceso</h1>
+      <p class="auth-sub">Te enviaremos un enlace para crear una nueva contraseña.</p>
+
+      <div class="field">
+        <label class="field-label">Email de tu cuenta</label>
+        <input type="email" class="field-input" placeholder="tu@ejemplo.cl">
+        <div class="field-help">Revisa tu spam si no ves el email en 2 minutos</div>
+      </div>
+
+      <button class="auth-btn">Enviar enlace de recuperación</button>
+
+      <button class="auth-btn ghost" onclick="switchAuth('login')">Volver a ingresar</button>
+
+      <div class="auth-switch">
+        ¿No tienes cuenta? <a href="#" onclick="switchAuth('register'); return false;">Regístrate</a>
+      </div>
+    </div>
+
+    <!-- ===== WELCOME PANE (post-register onboarding) ===== -->
+    <div class="auth-pane" data-auth-pane="welcome">
+      <div class="welcome-hero">
+        <div class="welcome-emoji">🎉</div>
+        <h1 class="auth-heading">¡Cuenta creada, Juan!</h1>
+        <p class="auth-sub">50 créditos agregados · Tu primer escaneo es gratis</p>
+      </div>
+
+      <div class="welcome-steps">
+        <div class="welcome-step">
+          <div class="welcome-step-num">1</div>
+          <div>
+            <div class="welcome-step-title">📷 Escanea tu primera boleta</div>
+            <div class="welcome-step-body">Foto o PDF · Extracción automática en ~8s</div>
+          </div>
+        </div>
+        <div class="welcome-step">
+          <div class="welcome-step-num">2</div>
+          <div>
+            <div class="welcome-step-title">👥 Crea o únete a un grupo (opcional)</div>
+            <div class="welcome-step-body">Casa, viaje, oficina · Gastos compartidos con amigos</div>
+          </div>
+        </div>
+        <div class="welcome-step">
+          <div class="welcome-step-num">3</div>
+          <div>
+            <div class="welcome-step-title">📊 Ve tus primeros insights</div>
+            <div class="welcome-step-body">Concentración, inflación, récords — luego de 5 escaneos</div>
+          </div>
+        </div>
+      </div>
+
+      <button class="auth-btn" onclick="window.location.href='gastify-scan-mode-selector-desktop.html'">
+        ⚡ Empezar con mi primer escaneo
+      </button>
+
+      <button class="auth-btn ghost" onclick="window.location.href='gastify-dashboard-desktop.html'">
+        Saltar al dashboard
+      </button>
+
+      <div class="auth-legal">
+        Al continuar aceptas el <a href="gastify-consent-desktop.html">consentimiento de datos</a> de tu jurisdicción.
+      </div>
+    </div>
+
+  </section>
+</div>
+
+<script>
+  const body = document.body;
+  document.querySelectorAll('.theme-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.theme-tab').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+      body.dataset.theme = btn.dataset.themeVal;
+    });
+  });
+  document.getElementById('modeToggle').addEventListener('click', () => {
+    body.dataset.mode = body.dataset.mode === 'dark' ? 'light' : 'dark';
+  });
+
+  function switchAuth(mode) {
+    document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+    const tab = document.querySelector(`[data-auth="${mode}"]`);
+    if (tab) tab.classList.add('active');
+    document.querySelectorAll('.auth-pane').forEach(p => p.classList.remove('active'));
+    const pane = document.querySelector(`[data-auth-pane="${mode}"]`);
+    if (pane) pane.classList.add('active');
+  }
+  document.querySelectorAll('.auth-tab').forEach(tab => {
+    tab.addEventListener('click', () => switchAuth(tab.dataset.auth));
+  });
+
+  function togglePw(id, btn) {
+    const input = document.getElementById(id);
+    if (input.type === 'password') { input.type = 'text'; btn.textContent = '🙈'; }
+    else { input.type = 'password'; btn.textContent = '👁'; }
+  }
+
+  document.addEventListener('click', (e) => {
+    const qn = document.getElementById('quickNav');
+    if (qn && !qn.contains(e.target)) qn.classList.remove('open');
+  });
+</script>
+
+</body>
+</html>

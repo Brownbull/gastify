@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="es-CL">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Consentimiento de datos — gastify Desktop Web (1440 responsive)</title>
+<link rel="stylesheet" href="../assets/fonts/gastify-fonts.css">
+<link rel="stylesheet" href="../assets/css/desktop-shell.css">
+<style>
+  body { background: var(--bg); min-height: 100vh; }
+  .consent-page {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 48px 32px 120px;
+  }
+
+  /* Brand strip */
+  .consent-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 32px;
+  }
+  .consent-brand .brand-mark {
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    background: var(--primary);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .consent-brand .brand-mark img { width: 32px; height: 32px; image-rendering: pixelated; }
+  .consent-brand .wordmark {
+    font-family: 'Baloo 2', cursive;
+    font-weight: 700;
+    font-size: 24px;
+    color: var(--primary);
+  }
+
+  /* Head */
+  .consent-head {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+  .consent-head h1 {
+    font-family: 'Baloo 2', cursive;
+    font-size: 34px;
+    font-weight: 700;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+    margin-bottom: 10px;
+  }
+  .consent-head p {
+    font-size: 15px;
+    color: var(--ink-2);
+    max-width: 640px;
+    margin: 0 auto;
+    line-height: 1.55;
+  }
+
+  /* Jurisdiction picker */
+  .jurisdiction-picker {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+  .jurisdiction-card {
+    background: var(--surface);
+    border: 2px solid var(--line);
+    border-radius: 14px;
+    padding: 16px 18px;
+    cursor: pointer;
+    transition: all .15s;
+    position: relative;
+  }
+  .jurisdiction-card:hover { border-color: var(--primary); transform: translateY(-2px); }
+  .jurisdiction-card.active {
+    border-color: var(--primary);
+    background: var(--primary-soft);
+  }
+  .jurisdiction-card.active::before {
+    content: '✓';
+    position: absolute;
+    top: 10px; right: 12px;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: var(--primary-ink);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+  }
+  .j-flag {
+    font-size: 32px;
+    margin-bottom: 6px;
+    display: block;
+  }
+  .j-name {
+    font-family: 'Baloo 2', cursive;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .j-sub {
+    font-size: 11px;
+    color: var(--ink-3);
+    font-weight: 700;
+    margin-top: 2px;
+  }
+  .j-law {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--primary);
+    margin-top: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  /* Consent panel */
+  .consent-panel {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px var(--shadow);
+  }
+  .consent-panel-head {
+    padding: 20px 28px;
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+  }
+  .consent-panel-title {
+    font-family: 'Baloo 2', cursive;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .consent-panel-meta {
+    font-size: 11px;
+    color: var(--ink-3);
+    font-weight: 700;
+  }
+  .consent-panel-body { padding: 28px 32px; }
+
+  /* Consent sections */
+  .c-section {
+    margin-bottom: 28px;
+    padding-bottom: 28px;
+    border-bottom: 1px solid var(--line);
+  }
+  .c-section:last-child { border-bottom: none; padding-bottom: 0; margin-bottom: 0; }
+  .c-section-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 10px;
+  }
+  .c-section-title {
+    font-family: 'Baloo 2', cursive;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .c-section-pill {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 999px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .c-section-pill.required { background: var(--danger-soft); color: var(--error); }
+  .c-section-pill.optional { background: var(--primary-soft); color: var(--primary); }
+  .c-section p {
+    font-size: 13px;
+    color: var(--ink-2);
+    line-height: 1.6;
+    margin-bottom: 10px;
+  }
+  .c-list {
+    list-style: none;
+    margin-top: 8px;
+  }
+  .c-list li {
+    font-size: 13px;
+    color: var(--ink-2);
+    padding: 3px 0 3px 22px;
+    position: relative;
+    line-height: 1.55;
+  }
+  .c-list li::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: var(--primary);
+    font-weight: 700;
+  }
+  .c-link {
+    color: var(--primary);
+    font-weight: 700;
+    text-decoration: underline;
+  }
+
+  /* Consent checkbox */
+  .c-check {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 16px;
+    background: var(--bg);
+    border: 1.5px solid var(--line);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all .15s;
+    margin-top: 12px;
+  }
+  .c-check:hover { border-color: var(--primary); }
+  .c-check.checked { border-color: var(--primary); background: var(--primary-soft); }
+  .c-check input {
+    width: 20px;
+    height: 20px;
+    margin-top: 2px;
+    accent-color: var(--primary);
+    flex-shrink: 0;
+  }
+  .c-check-body { flex: 1; }
+  .c-check-label {
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--ink);
+  }
+  .c-check-help {
+    font-size: 12px;
+    color: var(--ink-2);
+    margin-top: 2px;
+    line-height: 1.45;
+  }
+
+  /* Right-to-be-forgotten box (jurisdiction-specific) */
+  .rights-box {
+    background: var(--primary-soft);
+    border: 1px solid var(--primary);
+    border-radius: 12px;
+    padding: 16px 18px;
+    margin-top: 12px;
+  }
+  .rights-title {
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--primary);
+    margin-bottom: 6px;
+  }
+  .rights-box ul {
+    list-style: none;
+    margin: 0;
+  }
+  .rights-box li {
+    font-size: 12px;
+    color: var(--ink-2);
+    padding: 3px 0 3px 20px;
+    position: relative;
+    line-height: 1.5;
+  }
+  .rights-box li::before {
+    content: '⚖';
+    position: absolute;
+    left: 0;
+    color: var(--primary);
+  }
+
+  /* Sticky action bar */
+  .consent-actions {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--surface);
+    border-top: 1px solid var(--line);
+    padding: 16px 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    box-shadow: 0 -4px 16px var(--shadow);
+    z-index: 10;
+  }
+  .consent-summary {
+    font-size: 13px;
+    color: var(--ink-2);
+  }
+  .consent-summary strong {
+    color: var(--ink);
+    font-weight: 700;
+  }
+  .consent-btns { display: flex; gap: 10px; }
+  .c-btn {
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    border: none;
+    transition: opacity .15s;
+  }
+  .c-btn.primary { background: var(--primary); color: var(--primary-ink); }
+  .c-btn.primary:hover { opacity: 0.9; }
+  .c-btn.primary:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+  .c-btn.ghost {
+    background: transparent;
+    color: var(--ink-2);
+    border: 1px solid var(--line-strong);
+  }
+  .c-btn.ghost:hover { border-color: var(--error); color: var(--error); }
+
+  /* Jurisdiction-specific content panes */
+  .j-pane { display: none; }
+  .j-pane.active { display: block; }
+
+  @media (max-width: 900px) {
+    .jurisdiction-picker { grid-template-columns: 1fr 1fr; }
+    .consent-actions { flex-direction: column; gap: 10px; padding: 14px 20px; }
+    .consent-btns { width: 100%; }
+    .c-btn { flex: 1; }
+  }
+</style>
+</head>
+
+<body data-theme="normal" data-mode="light">
+
+<!-- CONTROLS -->
+<div class="controls" style="position: fixed; top: 0; z-index: 100;">
+  <div class="controls-group"><span class="controls-label">Theme</span><button class="theme-tab active" data-theme-val="normal">Normal</button><button class="theme-tab" data-theme-val="professional">Professional</button><button class="theme-tab" data-theme-val="mono">Mono</button></div>
+  <div class="controls-group"><span class="controls-label">Mode</span><div class="mode-toggle"><span>Light</span><div class="toggle-switch" id="modeToggle"></div><span>Dark</span></div></div>
+  <div class="controls-group"><span class="controls-label">Platform</span><span style="color: var(--primary); font-weight: 600;">Desktop Web 1440</span></div>
+  <div class="controls-group">
+    <div class="quick-nav" id="quickNav">
+      <button class="quick-nav-btn" onclick="document.getElementById('quickNav').classList.toggle('open')">☰ Desktop screens</button>
+      <div class="quick-nav-menu">
+        <div class="qn-section">Available (14)</div>
+        <a href="gastify-dashboard-desktop.html">🏠 Dashboard</a>
+        <a href="gastify-history-desktop.html">📜 Historial</a>
+        <a href="gastify-transaction-editor-desktop.html">✎ Transaction editor</a>
+        <a href="gastify-settings-desktop.html">⚙ Ajustes</a>
+        <a href="gastify-trends-desktop.html">📊 Tendencias</a>
+        <a href="gastify-insights-desktop.html">💡 Insights</a>
+        <a href="gastify-reports-desktop.html">📄 Reportes</a>
+        <a href="gastify-items-desktop.html">📦 Ítems</a>
+        <a href="gastify-scan-mode-selector-desktop.html">📸 Scan modes</a>
+        <a href="gastify-single-scan-states-desktop.html">📷 Escaneo</a>
+        <a href="gastify-quicksave-card-desktop.html">⚡ Quicksave</a>
+        <a href="gastify-group-hub-desktop.html">👥 Grupos</a>
+        <a href="gastify-auth-desktop.html">🔐 Auth</a>
+        <a class="current" href="gastify-consent-desktop.html">⚖ Consent <span class="qn-badge">current</span></a>
+        <a href="../index.html" style="color: var(--primary); font-weight: 600; margin-top: 4px;">→ See full gap matrix</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="consent-page">
+
+  <!-- Brand -->
+  <div class="consent-brand">
+    <div class="brand-mark"><img src="../assets/icons/piggy-bank.png" alt=""></div>
+    <span class="wordmark">gastify</span>
+  </div>
+
+  <!-- Head -->
+  <div class="consent-head">
+    <h1>Consentimiento de datos</h1>
+    <p>Selecciona tu jurisdicción para ver los términos específicos de protección de datos que aplican a tu cuenta. Detectamos Chile por tu ubicación, pero puedes cambiarlo si residual otra parte.</p>
+  </div>
+
+  <!-- Jurisdiction picker (4-card) -->
+  <div class="jurisdiction-picker">
+    <div class="jurisdiction-card active" data-j="cl">
+      <span class="j-flag">🇨🇱</span>
+      <div class="j-name">Chile</div>
+      <div class="j-sub">LATAM · ES</div>
+      <div class="j-law">Ley 21.719</div>
+    </div>
+    <div class="jurisdiction-card" data-j="eu">
+      <span class="j-flag">🇪🇺</span>
+      <div class="j-name">Unión Europea</div>
+      <div class="j-sub">EU · Multi-idioma</div>
+      <div class="j-law">GDPR</div>
+    </div>
+    <div class="jurisdiction-card" data-j="us">
+      <span class="j-flag">🇺🇸</span>
+      <div class="j-name">Estados Unidos</div>
+      <div class="j-sub">US · EN</div>
+      <div class="j-law">CCPA · CPRA</div>
+    </div>
+    <div class="jurisdiction-card" data-j="ca">
+      <span class="j-flag">🇨🇦</span>
+      <div class="j-name">Canadá</div>
+      <div class="j-sub">CA · EN/FR</div>
+      <div class="j-law">PIPEDA</div>
+    </div>
+  </div>
+
+  <!-- Consent panel -->
+  <div class="consent-panel">
+    <div class="consent-panel-head">
+      <div>
+        <div class="consent-panel-title">Términos de protección de datos — <span id="jName">Chile</span></div>
+      </div>
+      <div class="consent-panel-meta" id="jMeta">
+        v2.1 · Vigente 2026-04-01 · Ley 21.719
+      </div>
+    </div>
+
+    <div class="consent-panel-body">
+
+      <!-- ===== CL PANE ===== -->
+      <div class="j-pane active" data-j-pane="cl">
+        <div class="c-section">
+          <div class="c-section-head">
+            <div class="c-section-title">📋 Qué datos recolectamos</div>
+            <span class="c-section-pill required">Requerido</span>
+          </div>
+          <p>Para que gastify funcione, guardamos los siguientes datos en servidores ubicados en la Unión Europea (residencia de datos AWS eu-west-1):</p>
+          <ul class="c-list">
+            <li>Email + nombre + país (registro)</li>
+            <li>Imágenes de boletas que escaneas (cifradas en reposo · eliminadas a los 90 días)</li>
+            <li>Ítems extraídos + categorías + montos + ubicaciones (duración de tu cuenta)</li>
+            <li>Telemetría anónima de uso (latencia, errores — no incluye contenido de tus boletas)</li>
+          </ul>
+          <label class="c-check checked">
+            <input type="checkbox" checked required data-consent="cl-processing">
+            <div class="c-check-body">
+              <div class="c-check-label">Acepto el tratamiento de datos personales según la Ley 21.719 de Chile</div>
+              <div class="c-check-help">Base jurídica: ejecución del contrato (art. 13 lit. a). Sin este consentimiento, no podemos crear tu cuenta.</div>
+            </div>
+          </label>
+        </div>
+
+        <div class="c-section">
+          <div class="c-section-head">
+            <div class="c-section-title">🔐 Mis derechos como titular</div>
+            <span class="c-section-pill optional">Informativo</span>
+          </div>
+          <div class="rights-box">
+            <div class="rights-title">Puedes ejercer en cualquier momento:</div>
+            <ul>
+              <li>Derecho de acceso (ver qué datos tenemos sobre ti)</li>
+              <li>Derecho de rectificación (corregir datos incorrectos)</li>
+              <li>Derecho de supresión (eliminar tu cuenta y todos tus datos — "olvido")</li>
+              <li>Derecho de portabilidad (exportar todo en JSON o CSV)</li>
+              <li>Derecho de oposición (dejar de procesar para fines específicos)</li>
+            </ul>
+          </div>
+          <p style="margin-top: 10px;">Delegado de Protección de Datos: <a class="c-link" href="mailto:dpo@gastify.cl">dpo@gastify.cl</a>. Autoridad de reclamo: <a class="c-link" href="#">Agencia de Protección de Datos de Chile</a>.</p>
+        </div>
+
+        <div class="c-section">
+          <div class="c-section-head">
+            <div class="c-section-title">📊 Usos opcionales</div>
+            <span class="c-section-pill optional">Opcional</span>
+          </div>
+          <label class="c-check">
+            <input type="checkbox" data-consent="cl-cohort">
+            <div class="c-check-body">
+              <div class="c-check-label">Cohort insights opt-in (REQ-27)</div>
+              <div class="c-check-help">Comparar tus gastos anónimamente vs otros usuarios similares (mismo ingreso, misma ciudad). Nunca compartimos tus datos individuales; solo agregados de ≥50 usuarios.</div>
+            </div>
+          </label>
+          <label class="c-check">
+            <input type="checkbox" data-consent="cl-marketing">
+            <div class="c-check-body">
+              <div class="c-check-label">Marketing y novedades por email</div>
+              <div class="c-check-help">Máximo 1 email al mes con nuevas funciones. Puedes darte de baja con un click.</div>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <!-- ===== EU PANE ===== -->
+      <div class="j-pane" data-j-pane="eu">
+        <div class="c-section">
+          <div class="c-section-head">
+            <div class="c-section-title">📋 Data we collect (GDPR art. 13)</div>
+            <span class="c-section-pill required">Required</span>
+          </div>
+          <p>Under GDPR, we operate as Data Controller for your gastify account. Lawful basis: <strong>contract performance</strong> (art. 6.1.b).</p>
+          <ul class="c-list">
+            <li>Email, name, country (registration)</li>
+            <li>Receipt images (encrypted at rest · auto-deleted after 90 days)</li>
+            <li>Extracted items, categories, amounts, locations (account lifetime)</li>
+            <li>Anonymized usage telemetry (no receipt content)</li>
+          </ul>
+          <p style="margin-top: 10px;">Data residency: AWS eu-west-1 (Ireland). No data transferred outside EU without SCCs.</p>
+          <label class="c-check checked">
+            <input type="checkbox" checked required data-consent="eu-gdpr">
+            <div class="c-check-body">
+              <div class="c-check-label">I consent to data processing under GDPR (EU Regulation 2016/679)</div>
+              <div class="c-check-help">Without this consent, we cannot create your account.</div>
+            </div>
+          </label>
+        </div>
+
+        <div class="c-section">
+          <div class="c-section-head">
+            <div class="c-section-title">🔐 Your rights as data subject</div>
+            <span class="c-section-pill optional">Informational</span>
+          </div>
+          <div class="rights-box">
+            <div class="rights-title">GDPR rights (exercise anytime):</div>
+            <ul>
+              <li>Right of access (art. 15) — see all data we hold on you</li>
+              <li>Right to rectification (art. 16) — correct inaccuracies</li>
+              <li>Right to erasure (art. 17) — "right to be forgotten"</li>
+              <li>Right to data portability (art. 20) — export in JSON/CSV</li>
+              <li>Right to object (art. 21) — stop specific processing</li>
+              <li>Right to restrict processing (art. 18)</li>
+            </ul>
+          </div>
+          <p style="margin-top: 10px;">DPO: <a class="c-link" href="mailto:dpo@gastify.eu">dpo@gastify.eu</a>. Supervisory authority: your national data-protection agency.</p>
+        </div>
+
+        <div class="c-section">
+          <div class="c-section-head">
+            <div class="c-section-title">📊 Optional processing</div>
+            <span class="c-section-pill optional">Optional</span>
+          </div>
+          <label class="c-check">
+            <input type="checkbox" data-consent="eu-cohort">
+            <div class="c-check-body">
+              <div class="c-check-label">Cohort analytics opt-in (art. 6.1.a · explicit consent)</div>
+              <div class="c-check-help">Compare your spending anonymously vs similar users. Aggregates only, min cohort size 50.</div>
+            </div>
+          </label>
+          <label class="c-check">
+            <input type="checkbox" data-consent="eu-marketing">
+            <div class="c-check-body">
+              <div class="c-check-label">Marketing communications</div>
+              <div class="c-check-help">Max 1 email/month. Unsubscribe in one click.</div>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <!-- ===== US PANE ===== -->
+      <div class="j-pane" data-j-pane="us">
+        <div class="c-section">
+          <div class="c-section-head">
+            <div class="c-section-title">📋 California Consumer Privacy Act (CCPA/CPRA)</div>
+            <span class="c-section-pill required">Required</span>
+          </div>
+          <p>We collect the following categories of personal information (as defined by CCPA §1798.140):</p>
+          <ul class="c-list">
+            <li>Identifiers: email, name, IP address</li>
+            <li>Commercial information: receipts, purchase history</li>
+            <li>Geolocation: country, city (for currency + store matching)</li>
+            <li>Inferences: spending categories, merchant preferences</li>
+          </ul>
+          <p style="margin-top: 10px;"><strong>We do NOT sell your personal information.</strong> We do share aggregated anonymized data with our analytics provider (processor only, not controller).</p>
+          <label class="c-check checked">
+            <input type="checkbox" checked required data-consent="us-ccpa">
+            <div class="c-check-body">
+              <div class="c-check-label">I acknowledge the CCPA/CPRA disclosure notice</div>
+              <div class="c-check-help">Residents of CA, CO, CT, VA, and UT have enhanced privacy rights. See full notice at <a class="c-link" href="#">gastify.com/privacy-us</a>.</div>
+            </div>
+          </label>
+        </div>
+
+        <div class="c-section">
+          <div class="c-section-head">
+            <div class="c-section-title">🔐 Your rights (CA/CO/CT/VA/UT)</div>
+            <span class="c-section-pill optional">Informational</span>
+          </div>
+          <div class="rights-box">
+            <div class="rights-title">Consumer rights exercisable via <a class="c-link" href="#">privacy@gastify.com</a>:</div>
+            <ul>
+              <li>Right to know what PI is collected + sources + purposes</li>
+              <li>Right to delete (with exceptions per §1798.105)</li>
+              <li>Right to correct inaccurate PI</li>
+              <li>Right to opt-out of sale/sharing (we don't sell, but you can opt out preemptively)</li>
+              <li>Right to limit use of sensitive PI (none collected by gastify)</li>
+              <li>Right to non-discrimination for exercising rights</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="c-section">
+          <div class="c-section-head">
+            <div class="c-section-title">🚫 Do Not Sell / Do Not Share</div>
+            <span class="c-section-pill optional">Opt-out</span>
+          </div>
+          <label class="c-check">
+            <input type="checkbox" data-consent="us-donotsell">
+            <div class="c-check-body">
+              <div class="c-check-label">Do Not Sell / Do Not Share my personal information</div>
+              <div class="c-check-help">We don't sell anyway, but we'll log this preference for future compliance. Required link under CPRA.</div>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <!-- ===== CA PANE ===== -->
+      <div class="j-pane" data-j-pane="ca">
+        <div class="c-section">
+          <div class="c-section-head">
+            <div class="c-section-title">📋 PIPEDA compliance</div>
+            <span class="c-section-pill required">Required</span>
+          </div>
+          <p>Under PIPEDA (Personal Information Protection and Electronic Documents Act), we collect only the personal information necessary to provide gastify services:</p>
+          <ul class="c-list">
+            <li>Identity (email, name)</li>
+            <li>Receipt images + extracted data</li>
+            <li>Usage telemetry (anonymized)</li>
+          </ul>
+          <p style="margin-top: 10px;">Data stored in AWS eu-west-1 (no Canadian data residency required under PIPEDA if consent given).</p>
+          <label class="c-check checked">
+            <input type="checkbox" checked required data-consent="ca-pipeda">
+            <div class="c-check-body">
+              <div class="c-check-label">I consent to personal information collection under PIPEDA</div>
+              <div class="c-check-help">Includes transfer to AWS servers in Ireland. Quebec Law 25 residents: additional consent noted.</div>
+            </div>
+          </label>
+        </div>
+
+        <div class="c-section">
+          <div class="c-section-head">
+            <div class="c-section-title">🔐 10 Fair Information Principles</div>
+            <span class="c-section-pill optional">Informational</span>
+          </div>
+          <div class="rights-box">
+            <div class="rights-title">Your rights under PIPEDA + Québec Law 25:</div>
+            <ul>
+              <li>Access to your personal information (Principle 9)</li>
+              <li>Correction of inaccuracies</li>
+              <li>Withdrawal of consent at any time</li>
+              <li>Complaint to Privacy Commissioner of Canada</li>
+              <li>Québec residents: additional rights under Law 25 (automated decision-making, cross-border transfers)</li>
+            </ul>
+          </div>
+          <p style="margin-top: 10px;">Privacy contact: <a class="c-link" href="mailto:privacy@gastify.ca">privacy@gastify.ca</a>. Federal oversight: <a class="c-link" href="#">Office of the Privacy Commissioner of Canada</a>.</p>
+        </div>
+
+        <div class="c-section">
+          <div class="c-section-head">
+            <div class="c-section-title">📊 Optional consents</div>
+            <span class="c-section-pill optional">Optional</span>
+          </div>
+          <label class="c-check">
+            <input type="checkbox" data-consent="ca-marketing">
+            <div class="c-check-body">
+              <div class="c-check-label">CASL-compliant marketing (explicit opt-in)</div>
+              <div class="c-check-help">Canadian Anti-Spam Legislation requires express consent for commercial email. Max 1 email/month.</div>
+            </div>
+          </label>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Fine print -->
+  <p style="font-size: 11px; color: var(--ink-3); text-align: center; margin-top: 20px; line-height: 1.5;">
+    ¿Cambias de país? Puedes actualizar tu jurisdicción en <a class="c-link" href="gastify-settings-desktop.html">Ajustes → Cuenta</a>.
+    Última revisión legal: 2026-04-01. Revisión v2.2 programada 2026-10-01.
+  </p>
+
+</div>
+
+<!-- STICKY ACTION BAR -->
+<div class="consent-actions">
+  <div class="consent-summary">
+    Jurisdicción: <strong id="jSummary">🇨🇱 Chile</strong> · Requeridos aceptados: <strong id="reqCount">1/1</strong> · Opcionales: <strong id="optCount">0/2</strong>
+  </div>
+  <div class="consent-btns">
+    <button class="c-btn ghost" onclick="window.location.href='gastify-auth-desktop.html'">Salir sin aceptar</button>
+    <button class="c-btn primary" id="acceptBtn" onclick="window.location.href='gastify-dashboard-desktop.html'">Aceptar y continuar</button>
+  </div>
+</div>
+
+<script>
+  const body = document.body;
+  document.querySelectorAll('.theme-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.theme-tab').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+      body.dataset.theme = btn.dataset.themeVal;
+    });
+  });
+  document.getElementById('modeToggle').addEventListener('click', () => {
+    body.dataset.mode = body.dataset.mode === 'dark' ? 'light' : 'dark';
+  });
+
+  // Jurisdiction switcher
+  const jData = {
+    cl: { name: 'Chile',           meta: 'v2.1 · Vigente 2026-04-01 · Ley 21.719', flag: '🇨🇱 Chile' },
+    eu: { name: 'Unión Europea',   meta: 'v2.1 · Effective 2026-04-01 · GDPR',     flag: '🇪🇺 Unión Europea' },
+    us: { name: 'Estados Unidos',  meta: 'v2.1 · Effective 2026-04-01 · CCPA/CPRA',flag: '🇺🇸 Estados Unidos' },
+    ca: { name: 'Canadá',          meta: 'v2.1 · Effective 2026-04-01 · PIPEDA',   flag: '🇨🇦 Canadá' }
+  };
+  document.querySelectorAll('.jurisdiction-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const j = card.dataset.j;
+      document.querySelectorAll('.jurisdiction-card').forEach(c => c.classList.remove('active'));
+      card.classList.add('active');
+      document.querySelectorAll('.j-pane').forEach(p => p.classList.remove('active'));
+      const pane = document.querySelector(`[data-j-pane="${j}"]`);
+      if (pane) pane.classList.add('active');
+      document.getElementById('jName').textContent = jData[j].name;
+      document.getElementById('jMeta').textContent = jData[j].meta;
+      document.getElementById('jSummary').textContent = jData[j].flag;
+      updateCounts();
+    });
+  });
+
+  // Consent checkbox visual + counts
+  function updateCounts() {
+    const activeP = document.querySelector('.j-pane.active');
+    if (!activeP) return;
+    const req = activeP.querySelectorAll('input[required]');
+    const reqChecked = activeP.querySelectorAll('input[required]:checked');
+    const opt = activeP.querySelectorAll('input:not([required])');
+    const optChecked = activeP.querySelectorAll('input:not([required]):checked');
+    document.getElementById('reqCount').textContent = `${reqChecked.length}/${req.length}`;
+    document.getElementById('optCount').textContent = `${optChecked.length}/${opt.length}`;
+    document.getElementById('acceptBtn').disabled = reqChecked.length < req.length;
+  }
+  document.querySelectorAll('.c-check input').forEach(cb => {
+    cb.addEventListener('change', () => {
+      cb.closest('.c-check').classList.toggle('checked', cb.checked);
+      updateCounts();
+    });
+  });
+
+  document.addEventListener('click', (e) => {
+    const qn = document.getElementById('quickNav');
+    if (qn && !qn.contains(e.target)) qn.classList.remove('open');
+  });
+</script>
+
+</body>
+</html>
