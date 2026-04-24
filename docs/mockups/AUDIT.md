@@ -201,13 +201,28 @@ Required: **8+ surfaces**  ·  Present: **2**  ·  Coverage: **25%** 🔴
 
 ## 4. Platform coverage — CROSS-CUTTING GAP 🔴
 
-**All 29 legacy screens render mobile 420px only.** PLAN + SCOPE demand 3 platform targets:
+**Current state (2026-04-23 after T9 P0 anchor):** 1/29 desktop variants shipped (Dashboard). 28 remaining.
 
 | Platform | Coverage |
 |----------|----------|
 | Mobile Web (PWA 390×844) | ✅ all 29 screens (via ~420px mobile frame) |
 | Native Mobile (React Native 390×844) | ⚠ visual parity with mobile web but NO platform-divergence notes documented per screen (haptics, biometrics, safe-area insets, platform-specific gestures) |
-| Desktop Web (1440 responsive) | ❌ **0 of 29 screens have desktop variants** — no `1440` / `min-width: 1024` breakpoints present in any legacy file |
+| Desktop Web (1440 responsive) | 🚧 **1/29 shipped** (`gastify-dashboard-desktop.html`) — template pattern established, 28 to apply |
+
+### Desktop template established (T9 anchor — Dashboard)
+
+`screens/gastify-dashboard-desktop.html` (~700 lines) defines the pattern:
+
+- **Shell:** 3-column CSS grid `240px + 1fr + 340px` @ 1440 max-width
+- **Sidebar:** 240px fixed, sticky top, 7 nav items with pixel-art icons, user chip at footer
+- **Top bar:** search (`/` shortcut) + scan button (`⌘K` shortcut, replaces FAB) + bell + avatar
+- **Main:** balance hero + 3-col stats row + recent-tx list (5-col grid: icon / name+meta / store / amount / chev)
+- **Right rail:** concentration donut + anomalies + credits + quick actions — drops at ≤1280px
+- **Sidebar collapse:** horizontal pills at ≤1024px; ≤640px triggers mobile layout fall-back notice
+- **Platform notes block** appended at bottom: documents hover states, keyboard shortcuts, breakpoints
+- **Focus rings:** `:focus-visible` 2px primary outline + 2px offset on every interactive
+- **Theme switcher:** top controls bar (Normal/Pro/Mono + light/dark toggle) with working JS
+- **Reuses assets:** self-hosted fonts (Outfit + Baloo 2), pixel-art icons from `assets/icons/app-icons/*`, tokens from category palette
 
 **Impact:** this is the single largest rebuild delta. Every active screen needs:
 1. Desktop layout (sidebar nav replacing bottom nav, top-bar scan with ⌘K, hover states, focus rings, 12-col grid, optional right rail)
