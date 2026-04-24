@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gastify Component Library — Modals & Prompts</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Baloo+2:wght@700&display=swap" rel="stylesheet">
+  <style>
+    /* ── Normal Light (default) ── */
+    :root {
+      --bg: #f5f0e8; --surface: #fff; --primary: #4a7c59; --text: #2d3a4a;
+      --secondary: #4a5568; --accent: #e8a87c; --border: #e3bba1;
+      --bg-tertiary: #f1dbb6; --secondary-color: #5b8fa8;
+      --primary-rgb: 74, 124, 89; --nav-bg: #4a5568;
+      --shadow: rgba(74,124,89,0.12); --shadow-lg: rgba(74,124,89,0.18);
+      --frame-bg: #1a1a2e; --fab-gradient-from: #4a7c59; --fab-gradient-to: #3d6b4b;
+    }
+    [data-theme="normal"][data-mode="dark"] {
+      --bg: #1a2420; --surface: #243028; --primary: #6b9e7a; --text: #e8e4dc;
+      --secondary: #b8c4a8; --border: #3d4d42; --bg-tertiary: #2d3a30;
+      --secondary-color: #7ab5cc; --primary-rgb: 107,158,122; --nav-bg: #1e2a22;
+      --shadow: rgba(0,0,0,0.3); --shadow-lg: rgba(0,0,0,0.4);
+      --frame-bg: #0a0f0c; --accent: #d4a574;
+      --fab-gradient-from: #6b9e7a; --fab-gradient-to: #5a8a68;
+    }
+    [data-theme="professional"][data-mode="light"] {
+      --bg: #f8fafc; --surface: #fff; --primary: #2563eb; --text: #0f172a;
+      --secondary: #64748b; --accent: #3b82f6; --border: #e2e8f0;
+      --bg-tertiary: #f1f5f9; --secondary-color: #0ea5e9;
+      --primary-rgb: 37,99,235; --nav-bg: #1e293b;
+      --shadow: rgba(37,99,235,0.08); --shadow-lg: rgba(37,99,235,0.12);
+      --frame-bg: #1e293b; --fab-gradient-from: #2563eb; --fab-gradient-to: #1d4ed8;
+    }
+    [data-theme="professional"][data-mode="dark"] {
+      --bg: #0f172a; --surface: #1e293b; --primary: #3b82f6; --text: #f1f5f9;
+      --secondary: #94a3b8; --accent: #60a5fa; --border: #334155;
+      --bg-tertiary: #1e293b; --secondary-color: #38bdf8;
+      --primary-rgb: 59,130,246; --nav-bg: #0f172a;
+      --shadow: rgba(0,0,0,0.3); --shadow-lg: rgba(0,0,0,0.4);
+      --frame-bg: #020617; --fab-gradient-from: #3b82f6; --fab-gradient-to: #2563eb;
+    }
+    [data-theme="mono"][data-mode="light"] {
+      --bg: #fafafa; --surface: #fff; --primary: #18181b; --text: #18181b;
+      --secondary: #71717a; --accent: #52525b; --border: #e4e4e7;
+      --bg-tertiary: #f4f4f5; --secondary-color: #3f3f46;
+      --primary-rgb: 24,24,27; --nav-bg: #27272a;
+      --shadow: rgba(0,0,0,0.06); --shadow-lg: rgba(0,0,0,0.1);
+      --frame-bg: #18181b; --fab-gradient-from: #18181b; --fab-gradient-to: #27272a;
+    }
+    [data-theme="mono"][data-mode="dark"] {
+      --bg: #09090b; --surface: #18181b; --primary: #a1a1aa; --text: #fafafa;
+      --secondary: #a1a1aa; --accent: #71717a; --border: #27272a;
+      --bg-tertiary: #18181b; --secondary-color: #71717a;
+      --primary-rgb: 63,63,70; --nav-bg: #09090b;
+      --shadow: rgba(0,0,0,0.4); --shadow-lg: rgba(0,0,0,0.5);
+      --frame-bg: #000; --fab-gradient-from: #3f3f46; --fab-gradient-to: #27272a;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #1a1a2e; font-family: 'Outfit', system-ui, sans-serif;
+      min-height: 100vh; padding: 20px 20px 60px; color: var(--text);
+    }
+
+    /* ── Controls ── */
+    .controls {
+      display: flex; flex-direction: column; align-items: center;
+      gap: 16px; margin-bottom: 32px;
+    }
+    .controls-row { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; justify-content: center; }
+    .theme-tabs, .variant-tabs {
+      display: flex; background: rgba(255,255,255,0.08); border-radius: 12px; padding: 4px; gap: 2px;
+    }
+    .theme-tab {
+      padding: 8px 20px; border: none; background: transparent; color: rgba(255,255,255,0.5);
+      font-family: 'Outfit', sans-serif; font-weight: 500; font-size: 14px;
+      border-radius: 10px; cursor: pointer; transition: all 0.2s;
+    }
+    .theme-tab:hover { color: rgba(255,255,255,0.8); }
+    .theme-tab.active { background: rgba(255,255,255,0.15); color: #fff; }
+    .mode-toggle { display: flex; align-items: center; gap: 8px; color: rgba(255,255,255,0.7); font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 500; }
+    .toggle-switch { width: 44px; height: 24px; background: rgba(255,255,255,0.15); border-radius: 12px; cursor: pointer; position: relative; transition: background 0.2s; }
+    .toggle-switch.dark { background: rgba(255,255,255,0.3); }
+    .toggle-switch::after { content: ''; position: absolute; width: 18px; height: 18px; background: #fff; border-radius: 50%; top: 3px; left: 3px; transition: transform 0.2s; }
+    .toggle-switch.dark::after { transform: translateX(20px); }
+
+    /* ── Page Title ── */
+    .page-title {
+      text-align: center; color: rgba(255,255,255,0.9); font-size: 22px; font-weight: 700;
+      font-family: 'Baloo 2', cursive; margin-bottom: 8px;
+    }
+
+    /* ── Section ── */
+    .section { max-width: 640px; margin: 0 auto 32px; }
+    .section-title {
+      color: rgba(255,255,255,0.7); font-size: 13px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 12px; padding-left: 4px;
+    }
+
+    /* ── Grid ── */
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media (max-width: 680px) { .grid { grid-template-columns: 1fr; } }
+
+    /* ── Component Card ── */
+    .card {
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px; padding: 12px; display: flex; flex-direction: column; align-items: center;
+    }
+    .card-label {
+      color: rgba(255,255,255,0.6); font-size: 11px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; text-align: center;
+    }
+
+    /* ── Mini Phone ── */
+    .mini-phone {
+      width: 280px; height: 480px; background: var(--frame-bg); border-radius: 28px;
+      padding: 8px; box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    }
+    .mini-screen {
+      width: 100%; height: 100%; background: var(--bg); border-radius: 22px;
+      overflow: hidden; position: relative; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+    }
+
+    /* ── Dim backdrop inside mini-screen ── */
+    .mini-screen .backdrop {
+      position: absolute; inset: 0; background: rgba(0,0,0,0.4); z-index: 1;
+    }
+
+    /* ══════════════════════════════════════
+       SHARED COMPONENT STYLES
+       ══════════════════════════════════════ */
+
+    /* Modal dialog */
+    .modal {
+      background: var(--surface); border-radius: 20px; padding: 20px; width: 240px;
+      box-shadow: 0 12px 40px var(--shadow-lg); z-index: 2; text-align: center;
+    }
+    .modal-icon { font-size: 32px; margin-bottom: 8px; }
+    .modal-title { font-weight: 700; font-size: 15px; color: var(--text); margin-bottom: 6px; }
+    .modal-sub { font-size: 12px; color: var(--secondary); margin-bottom: 12px; line-height: 1.4; }
+    .modal-row { display: flex; gap: 8px; justify-content: center; }
+    .btn {
+      padding: 8px 16px; border-radius: 10px; border: none; font-family: 'Outfit', sans-serif;
+      font-weight: 600; font-size: 12px; cursor: pointer; transition: all 0.15s;
+    }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-outline { background: transparent; border: 1.5px solid var(--border); color: var(--text); }
+    .btn-red { background: #ef4444; color: #fff; }
+    .btn-ghost { background: transparent; color: var(--secondary); }
+    .btn-sm { padding: 6px 12px; font-size: 11px; }
+
+    /* Slide-up prompt */
+    .slide-up {
+      position: absolute; bottom: 0; left: 0; right: 0; background: var(--surface);
+      border-radius: 20px 20px 0 0; padding: 16px; z-index: 2;
+      box-shadow: 0 -8px 30px var(--shadow-lg);
+    }
+    .slide-up .modal-title { text-align: left; }
+    .slide-up .modal-sub { text-align: left; }
+
+    /* Banner */
+    .banner {
+      position: absolute; top: 0; left: 0; right: 0; z-index: 2;
+      padding: 12px 16px; display: flex; align-items: center; gap: 10px;
+    }
+    .banner-primary { background: linear-gradient(135deg, var(--primary), var(--fab-gradient-to)); color: #fff; }
+
+    /* Overlay full */
+    .overlay-full {
+      position: absolute; inset: 0; z-index: 2; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 10px;
+      background: rgba(0,0,0,0.75); color: #fff;
+    }
+    .overlay-full .spinner {
+      width: 48px; height: 48px; border: 3px solid rgba(255,255,255,0.2);
+      border-top-color: #fff; border-radius: 50%; animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Progress ring */
+    .progress-ring { position: relative; width: 56px; height: 56px; }
+    .progress-ring svg { transform: rotate(-90deg); }
+    .progress-ring .pct {
+      position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 700; color: #fff;
+    }
+
+    /* Badge / detail helpers */
+    .badge {
+      display: inline-block; padding: 3px 10px; border-radius: 8px; font-size: 11px; font-weight: 600;
+      background: rgba(var(--primary-rgb), 0.15); color: var(--primary);
+    }
+    .text-dim { color: var(--secondary); font-size: 11px; }
+    .text-warn { color: #f59e0b; }
+    .text-sm { font-size: 11px; }
+    .text-xs { font-size: 10px; }
+    .mb-4 { margin-bottom: 4px; }
+    .mb-6 { margin-bottom: 6px; }
+    .mb-8 { margin-bottom: 8px; }
+    .mb-10 { margin-bottom: 10px; }
+    .mt-8 { margin-top: 8px; }
+    .gap-6 { gap: 6px; }
+    .gap-4 { gap: 4px; }
+    .flex-col { display: flex; flex-direction: column; }
+    .flex-row { display: flex; align-items: center; }
+    .flex-between { display: flex; justify-content: space-between; align-items: center; }
+    .w-full { width: 100%; }
+    .text-left { text-align: left; }
+    .text-center { text-align: center; }
+
+    /* Checkbox */
+    .check-row { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text); }
+    .check-box {
+      width: 16px; height: 16px; border-radius: 4px; border: 1.5px solid var(--border);
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .check-box.checked { background: var(--primary); border-color: var(--primary); color: #fff; font-size: 10px; }
+
+    /* Item list inside modals */
+    .item-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 4px 0; font-size: 11px; color: var(--text);
+      border-bottom: 1px solid var(--border);
+    }
+    .item-row:last-child { border-bottom: none; }
+
+    /* Credit bar */
+    .credit-bar-wrap {
+      width: 100%; height: 6px; background: var(--bg-tertiary); border-radius: 3px; overflow: hidden;
+    }
+    .credit-bar { height: 100%; border-radius: 3px; }
+    .credit-bar.green { background: #22c55e; }
+    .credit-bar.violet { background: #8b5cf6; }
+
+    /* Celebration confetti hint */
+    .confetti-dots {
+      position: absolute; inset: 0; z-index: 1; pointer-events: none; overflow: hidden;
+    }
+    .confetti-dots span {
+      position: absolute; width: 6px; height: 6px; border-radius: 50%; opacity: 0.6;
+    }
+
+    /* PWA banner */
+    .pwa-banner {
+      position: absolute; bottom: 0; left: 0; right: 0; z-index: 2;
+      background: var(--surface); border-top: 1px solid var(--border);
+      padding: 12px 16px; display: flex; align-items: center; gap: 10px;
+    }
+
+    /* Dismiss indicator */
+    .dismiss-indicator {
+      position: absolute; top: 4px; right: 12px; font-size: 9px; color: rgba(255,255,255,0.5);
+    }
+
+    /* Success check circle */
+    .check-circle {
+      width: 48px; height: 48px; border-radius: 50%;
+      background: #22c55e; display: flex; align-items: center; justify-content: center;
+      font-size: 24px; color: #fff;
+    }
+    /* Error circle */
+    .error-circle {
+      width: 48px; height: 48px; border-radius: 50%;
+      background: #ef4444; display: flex; align-items: center; justify-content: center;
+      font-size: 24px; color: #fff;
+    }
+
+    /* Gradient badge circle */
+    .badge-circle {
+      width: 64px; height: 64px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      display: flex; align-items: center; justify-content: center; font-size: 28px;
+    }
+
+    /* Warn box */
+    .warn-box {
+      background: rgba(239,68,68,0.08); border-radius: 8px; padding: 6px 10px;
+      font-size: 10px; color: #ef4444; text-align: center; margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body data-theme="normal" data-mode="light">
+
+  <!-- Controls -->
+  <div class="controls">
+    <div class="controls-row">
+      <div class="theme-tabs">
+        <button class="theme-tab active" data-theme-val="normal">Normal</button>
+        <button class="theme-tab" data-theme-val="professional">Professional</button>
+        <button class="theme-tab" data-theme-val="mono">Mono</button>
+      </div>
+      <div class="mode-toggle">
+        <span>Light</span>
+        <div class="toggle-switch" id="modeToggle"></div>
+        <span>Dark</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-title">Gastify Component Library — Modals & Prompts</div>
+
+  <!-- ════════════════════════════════════
+       SECTION 1: MODALS
+       ════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-title">Section 1 — Modals</div>
+    <div class="grid">
+
+      <!-- 1. ScanCompleteModal -->
+      <div class="card">
+        <div class="card-label">ScanCompleteModal</div>
+        <div class="mini-phone"><div class="mini-screen">
+          <div class="backdrop"></div>
+          <div class="modal">
+            <div class="modal-icon">&#x2705;</div>
+            <div class="modal-title">Boleta escaneada</div>
+            <div class="modal-sub" style="margin-bottom:4px;">Supermercado Lider</div>
+            <div style="font-size:22px;font-weight:800;color:var(--text);margin-bottom:2px;">$45.890</div>
+            <div class="text-dim mb-10">5 items detectados</div>
+            <div class="modal-row">
+              <button class="btn btn-outline btn-sm">Editar</button>
+              <button class="btn btn-primary btn-sm">Guardar</button>
+            </div>
+          </div>
+        </div></div>
+      </div>
+
+      <!-- 2. CreditInfoModal -->
+      <div class="card">
+        <div class="card-label">CreditInfoModal</div>
+        <div class="mini-phone"><div class="mini-screen">
+          <div class="backdrop"></div>
+          <div class="modal">
+            <div class="modal-icon">&#x1F48E;</div>
+            <div class="modal-title">Tus Creditos</div>
+            <div class="flex-col gap-6 w-full mb-10" style="text-align:left;">
+              <div>
+                <div class="flex-between mb-4"><span class="text-sm" style="color:var(--text);">Normal</span><span class="text-sm" style="color:#22c55e;font-weight:600;">87 restantes</span></div>
+                <div class="credit-bar-wrap"><div class="credit-bar green" style="width:87%;"></div></div>
+              </div>
+              <div style="margin-top:6px;">
+                <div class="flex-between mb-4"><span class="text-sm" style="color:var(--text);">Super</span><span class="text-sm" style="color:#8b5cf6;font-weight:600;">3 restantes</span></div>
+                <div class="credit-bar-wrap"><div class="credit-bar violet" style="width:30%;"></div></div>
+              </div>
+            </div>
+            <button class="btn btn-outline btn-sm w-full">Cerrar</button>
+          </div>
+        </div></div>
+      </div>
+
+      <!-- 3. CreditWarningDialog -->
+      <div class="card">
+        <div class="card-label">CreditWarningDialog</div>
+        <div class="mini-phone"><div class="mini-screen">
+          <div class="backdrop"></div>
+          <div class="modal">
+            <div class="modal-icon">&#x26A0;&#xFE0F;</div>
+            <div class="modal-title">Creditos insuficientes</div>
+            <div class="modal-sub">Necesitas 5 creditos pero solo tienes 2</div>
+            <div class="modal-row">
+              <button class="btn btn-outline btn-sm">Esperar recarga</button>
+              <button class="btn btn-primary btn-sm">Ver opciones</button>
+            </div>
+          </div>
+        </div></div>
+      </div>
+
+      <!-- 4. DeleteTransactionsModal -->
+      <div class="card">
+        <div class="card-label">DeleteTransactionsModal</div>
+        <div class="mini-phone"><div class="mini-screen">
+          <div class="backdrop"></div>
+          <div class="modal">
+            <div class="modal-icon">&#x1F5D1;&#xFE0F;</div>
+            <div class="modal-title" style="color:#ef4444;">Eliminar 3 transacciones?</div>
+            <div class="flex-col gap-4 w-full mb-6" style="text-align:left;">
+              <div class="item-row"><span>Supermercado Lider</span><span>$12.500</span></div>
+              <div class="item-row"><span>Farmacia Cruz Verde</span><span>$8.900</span></div>
+              <div class="text-dim">y 1 mas...</div>
+            </div>
+            <div class="warn-box">No se puede deshacer</div>
+            <div class="modal-row">
+              <button class="btn btn-outline btn-sm">Cancelar</button>
+              <button class="btn btn-red btn-sm">Eliminar</button>
+            </div>
+          </div>
+        </div></div>
+      </div>
+
+      <!-- 5. LearnMerchantDialog -->
+      <div class="card">
+        <div class="card-label">LearnMerchantDialog</div>
+        <div class="mini-phone"><div class="mini-screen">
+          <div class="backdrop"></div>
+          <div class="modal">
+            <div class="modal-icon">&#x1F3EA;</div>
+            <div class="modal-title">Nombre del comercio</div>
+            <div class="flex-col gap-4 w-full mb-8" style="text-align:left;">
+              <div><span class="text-xs" style="color:var(--secondary);">Original:</span><br><span class="text-sm text-dim" style="text-decoration:line-through;">SUPERMCDO LDR</span></div>
+              <div><span class="text-xs" style="color:var(--secondary);">Corregido:</span><br><span class="text-sm" style="font-weight:700;color:var(--text);">Supermercado Lider</span></div>
+            </div>
+            <div class="check-row mb-10">
+              <div class="check-box checked">&#x2713;</div>
+              <span>Recordar para proximas veces?</span>
+            </div>
+            <button class="btn btn-primary btn-sm w-full">Guardar</button>
+          </div>
+        </div></div>
+      </div>
+
+      <!-- 6. ConfirmationDialog (two variants) -->
+      <div class="card">
+        <div class="card-label">ConfirmationDialog</div>
+        <div class="mini-phone"><div class="mini-screen">
+          <div class="backdrop"></div>
+          <div class="modal" style="width:230px;">
+            <div class="modal-title mb-6">Confirmar accion?</div>
+            <div class="modal-sub">Esta accion modificara los datos seleccionados.</div>
+            <div class="modal-row mb-10">
+              <button class="btn btn-outline btn-sm">Cancelar</button>
+              <button class="btn btn-primary btn-sm">Confirmar</button>
+            </div>
+            <div style="border-top:1px solid var(--border);padding-top:10px;">
+              <div class="text-xs text-dim mb-6" style="text-transform:uppercase;letter-spacing:1px;">Variante destructiva</div>
+              <div class="modal-row">
+                <button class="btn btn-outline btn-sm">Cancelar</button>
+                <button class="btn btn-red btn-sm">Confirmar</button>
+              </div>
+            </div>
+          </div>
+        </div></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       SECTION 2: LEARNING PROMPTS
+       ════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-title">Section 2 — Learning Prompts</div>
+    <div class="grid">
+
+      <!-- 1. CategoryLearningPrompt -->
+      <div class="card">
+        <div class="card-label">CategoryLearningPrompt</div>
+        <div class="mini-phone"><div class="mini-screen">
+          <div class="backdrop"></div>
+          <div class="slide-up">
+            <div class="modal-title mb-6">Guardar categoria?</div>
+            <div class="mb-8"><span class="badge">Supermercado</span></div>
+            <div class="flex-col gap-4 mb-10">
+              <div class="check-row"><div class="check-box checked">&#x2713;</div><span>Leche Colun 1L</span></div>
+              <div class="check-row"><div class="check-box checked">&#x2713;</div><span>Pan molde integral</span></div>
+              <div class="check-row"><div class="check-box checked">&#x2713;</div><span>Queso laminado</span></div>
+            </div>
+            <div class="modal-row" style="justify-content:flex-end;">
+              <button class="btn btn-ghost btn-sm">No</button>
+              <button class="btn btn-primary btn-sm">Si, guardar</button>
+            </div>
+          </div>
+        </div></div>
+      </div>
+
+      <!-- 2. SubcategoryLearningPrompt -->
+      <div class="card">
+        <div class="card-label">SubcategoryLearningPrompt</div>
+        <div class="mini-phone"><div class="mini-screen">
+          <div class="backdrop"></div>
+          <div class="slide-up">
+            <div class="modal-title mb-6">Guardar subcategoria?</div>
+            <div class="flex-row gap-6 mb-10" style="justify-content:center;">
+              <span class="badge">Lacteos</span>
+              <span style="color:var(--secondary);font-size:14px;">&#x2192;</span>
+              <span class="badge" style="background:rgba(var(--primary-rgb),0.25);">Queso</span>
+            </div>
+            <div class="modal-sub text-left">Los proximos items similares se clasificaran automaticamente.</div>
+            <div class="modal-row" style="justify-content:flex-end;">
+              <button class="btn btn-ghost btn-sm">No</button>
+              <button class="btn btn-primary btn-sm">Si</button>
+            </div>
+          </div>
+        </div></div>
+      </div>
+
+      <!-- 3. TrustMerchantPrompt -->
+      <div class="card">
+        <div class="card-label">TrustMerchantPrompt</div>
+        <div class="mini-phone"><div class="mini-screen">
+          <div class="backdrop"></div>
+          <div class="slide-up">
+            <div class="modal-title mb-6">Confiar en Supermercado Lider?</div>
+            <div class="text-sm mb-8" style="color:var(--primary);">3 escaneos exitosos &#x2713;&#x2713;&#x2713;</div>
+            <div class="text-sm mb-10" style="color:var(--text);">Activar QuickSave automatico</div>
+            <div class="modal-row" style="justify-content:flex-end;">
+              <button class="btn btn-ghost btn-sm">No por ahora</button>
+              <button class="btn btn-primary btn-sm">Si, confiar</button>
+            </div>
+          </div>
+        </div></div>
+      </div>
+
+      <!-- 4. IntentionalPrompt -->
+      <div class="card">
+        <div class="card-label">IntentionalPrompt</div>
+        <div class="mini-phone"><div class="mini-screen">
+          <div class="backdrop"></div>
+          <div class="slide-up">
+            <div class="modal-title mb-6">Gasto intencional?</div>
+            <div style="font-size:18px;font-weight:800;color:var(--text);margin-bottom:4px;">$89.000</div>
+            <div class="text-sm mb-4" style="color:var(--secondary);">en Falabella</div>
+            <div class="text-sm text-warn mb-10">Un gasto inusual para ti</div>
+            <div class="modal-row" style="justify-content:flex-end;">
+              <button class="btn btn-outline btn-sm">Quiero revisar</button>
+              <button class="btn btn-primary btn-sm">Si, fue intencional</button>
+            </div>
+          </div>
+        </div></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       SECTION 3: CELEBRATIONS
+       ════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-title">Section 3 — Celebrations</div>
+    <div class="grid">
+
+      <!-- 1. PersonalRecordBanner -->
+      <div class="card">
+        <div class="card-label">PersonalRecordBanner</div>
+        <div class="mini-phone"><div class="mini-screen">
+          <div class="banner banner-primary">
+            <span class="dismiss-indicator">8s</span>
+            <span style="font-size:22px;">&#x1F3C6;</span>
+            <div class="flex-col">
+              <span style="font-weight:700;font-size:13px;">Nuevo record!</span>
+              <span style="font-size:11px;opacity:0.85;">Menos gastos en comida este mes</span>
+            </div>
+          </div>
+        </div></div>
+      </div>
+
+      <!-- 2. BadgeUnlock -->
+      <div class="card">
+        <div class="card-label">BadgeUnlock</div>
+        <div class="mini-phone"><div class="mini-screen">
+          <div class="backdrop"></div>
+          <div class="confetti-dots">
+            <span style="top:15%;left:10%;background:#f59e0b;"></span>
+            <span style="top:20%;left:80%;background:#8b5cf6;width:8px;height:8px;"></span>
+            <span style="top:60%;left:15%;background:#ef4444;"></span>
+            <span style="top:70%;left:75%;background:#22c55e;width:7px;height:7px;"></span>
+            <span style="top:35%;left:90%;background:#3b82f6;"></span>
+            <span style="top:80%;left:50%;background:#f59e0b;width:5px;height:5px;"></span>
+          </div>
+          <div class="flex-col text-center" style="align-items:center;z-index:2;">
+            <div class="badge-circle mb-8">&#x1F31F;</div>
+            <div class="modal-title">Primera Boleta</div>
+            <div class="text-dim">Escaneaste tu primera boleta</div>
+          </div>
+        </div></div>
+      </div>
+
+      <!-- 3. CelebrationCard -->
+      <div class="card">
+        <div class="card-label">CelebrationCard</div>
+        <div class="mini-phone"><div class="mini-screen">
+          <div class="backdrop"></div>
+          <div class="modal">
+            <div style="font-size:36px;margin-bottom:6px;animation:bounce 0.6s ease infinite alternate;">&#x1F389;</div>
+            <div class="modal-title">100 transacciones!</div>
+            <div class="flex-col gap-4 mb-10" style="margin-top:8px;">
+              <div class="text-sm" style="color:var(--text);">Ahorraste <strong>$34.500</strong> este mes</div>
+              <div class="text-sm" style="color:var(--secondary);">Rastreaste 100 gastos</div>
+            </div>
+            <button class="btn btn-primary btn-sm w-full">Compartir</button>
+          </div>
+        </div></div>
+      </div>
+
+      <!-- 4. PWAUpdatePrompt -->
+      <div class="card">
+        <div class="card-label">PWAUpdatePrompt</div>
+        <div class="mini-phone"><div class="mini-screen">
+          <div class="pwa-banner">
+            <span style="font-size:20px;">&#x1F504;</span>
+            <div class="flex-col" style="flex:1;">
+              <span style="font-weight:600;font-size:12px;color:var(--text);">Nueva version disponible</span>
+            </div>
+            <button class="btn btn-ghost btn-sm">Despues</button>
+            <button class="btn btn-primary btn-sm">Actualizar</button>
+          </div>
+        </div></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       SECTION 4: OVERLAYS
+       ════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-title">Section 4 — Overlays</div>
+    <div class="grid">
+
+      <!-- 1. ScanOverlay — Upload -->
+      <div class="card">
+        <div class="card-label">ScanOverlay — Upload</div>
+        <div class="mini-phone"><div class="mini-screen">
+          <div class="overlay-full">
+            <div class="progress-ring">
+              <svg width="56" height="56" viewBox="0 0 56 56">
+                <circle cx="28" cy="28" r="24" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="4"/>
+                <circle cx="28" cy="28" r="24" fill="none" stroke="#fff" stroke-width="4"
+                  stroke-dasharray="150.8" stroke-dashoffset="52.8" stroke-linecap="round"/>
+              </svg>
+              <div class="pct">65%</div>
+            </div>
+            <div style="font-weight:600;font-size:14px;">Subiendo imagen...</div>
+            <div style="font-size:11px;opacity:0.6;cursor:pointer;text-decoration:underline;">Cancelar</div>
+          </div>
+        </div></div>
+      </div>
+
+      <!-- 2. ScanOverlay — Processing -->
+      <div class="card">
+        <div class="card-label">ScanOverlay — Processing</div>
+        <div class="mini-phone"><div class="mini-screen">
+          <div class="overlay-full">
+            <div class="spinner"></div>
+            <div style="font-weight:600;font-size:14px;">Procesando boleta...</div>
+            <div style="font-size:12px;opacity:0.7;">~5 seg</div>
+            <div style="font-size:10px;opacity:0.4;margin-top:8px;">Puedes navegar mientras procesamos</div>
+          </div>
+        </div></div>
+      </div>
+
+      <!-- 3. ScanOverlay — Ready -->
+      <div class="card">
+        <div class="card-label">ScanOverlay — Ready</div>
+        <div class="mini-phone"><div class="mini-screen">
+          <div class="overlay-full" style="background:rgba(0,0,0,0.65);">
+            <div class="check-circle">&#x2713;</div>
+            <div style="font-weight:700;font-size:16px;">Listo!</div>
+          </div>
+        </div></div>
+      </div>
+
+      <!-- 4. ScanOverlay — Error -->
+      <div class="card">
+        <div class="card-label">ScanOverlay — Error</div>
+        <div class="mini-phone"><div class="mini-screen">
+          <div class="overlay-full" style="background:rgba(0,0,0,0.8);">
+            <div class="error-circle">&#x2717;</div>
+            <div style="font-weight:600;font-size:14px;">Error de conexion</div>
+            <div style="display:flex;gap:8px;margin-top:8px;">
+              <button class="btn btn-ghost btn-sm" style="color:rgba(255,255,255,0.7);border:1px solid rgba(255,255,255,0.2);">Cancelar</button>
+              <button class="btn btn-sm" style="background:#fff;color:#000;">Reintentar</button>
+            </div>
+          </div>
+        </div></div>
+      </div>
+
+    </div>
+  </div>
+
+  <style>
+    @keyframes bounce {
+      from { transform: translateY(0); }
+      to { transform: translateY(-6px); }
+    }
+  </style>
+
+  <script>
+    (function() {
+      var body = document.body;
+      var themeTabs = document.querySelectorAll('.theme-tab');
+      var modeToggle = document.getElementById('modeToggle');
+      var currentTheme = 'normal';
+      var currentMode = 'light';
+
+      function applyTheme() {
+        body.setAttribute('data-theme', currentTheme);
+        body.setAttribute('data-mode', currentMode);
+      }
+
+      themeTabs.forEach(function(tab) {
+        tab.addEventListener('click', function() {
+          themeTabs.forEach(function(t) { t.classList.remove('active'); });
+          tab.classList.add('active');
+          currentTheme = tab.dataset.themeVal;
+          applyTheme();
+        });
+      });
+
+      modeToggle.addEventListener('click', function() {
+        currentMode = currentMode === 'light' ? 'dark' : 'light';
+        modeToggle.classList.toggle('dark', currentMode === 'dark');
+        applyTheme();
+      });
+
+      applyTheme();
+    })();
+  </script>
+</body>
+</html>

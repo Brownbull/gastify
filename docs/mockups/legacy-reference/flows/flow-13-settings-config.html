@@ -1,0 +1,2080 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gastify — Flujo 13: Configuracion de Settings</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #1a1a2e;
+    --bg-lighter: #22224a;
+    --surface: #2a2a4a;
+    --border: #3a3a6a;
+    --text: #e8e8f0;
+    --muted: #8888aa;
+    --primary: #4a7c59;
+    --primary-dim: #1a3a24;
+    --primary-border: #5a9c6a;
+    --accent: #e8a87c;
+    --accent-dim: #4a3020;
+    --accent-border: #d4956a;
+    --secondary: #5b8fa8;
+    --secondary-dim: #1e3a4a;
+    --secondary-border: #4a7a96;
+    --green: #34d399;
+    --green-dim: #064e3b;
+    --green-border: #10b981;
+    --amber: #fbbf24;
+    --amber-dim: #78350f;
+    --amber-border: #f59e0b;
+    --blue: #60a5fa;
+    --blue-dim: #1e3a5f;
+    --blue-border: #3b82f6;
+    --purple: #a78bfa;
+    --purple-dim: #3b1f7a;
+    --purple-border: #8b5cf6;
+    --red: #f87171;
+    --red-dim: #5b1a1a;
+    --red-border: #ef4444;
+    --gold: #fde68a;
+    --gold-dim: #4a3f1a;
+    --gold-border: #fbbf24;
+    --indigo: #818cf8;
+    --indigo-dim: #2a2a5a;
+    --indigo-border: #6366f1;
+    --pink: #f472b6;
+    --pink-dim: #4a1a3a;
+    --pink-border: #ec4899;
+  }
+
+  body {
+    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background:
+      radial-gradient(ellipse at 20% 20%, rgba(74, 124, 89, 0.08) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 60%, rgba(232, 168, 124, 0.06) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 90%, rgba(91, 143, 168, 0.05) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 20px 100px;
+  }
+
+  /* -- Brand Header -- */
+  .brand-header {
+    text-align: center;
+    margin-bottom: 12px;
+  }
+  .brand-name {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--primary);
+    opacity: 0.7;
+  }
+
+  /* -- Flow Header -- */
+  .flow-header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+  .flow-header h1 {
+    font-size: 32px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin-bottom: 12px;
+    line-height: 1.2;
+    background: linear-gradient(135deg, var(--primary-border), var(--indigo), var(--accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .flow-header .subtitle {
+    font-size: 15px;
+    font-weight: 400;
+    color: var(--muted);
+    line-height: 1.7;
+    max-width: 680px;
+    margin: 0 auto;
+  }
+  .flow-header .subtitle strong {
+    color: var(--text);
+    font-weight: 600;
+  }
+  .flow-header .value-tag {
+    display: inline-block;
+    margin-top: 16px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 6px 18px;
+    border-radius: 20px;
+    background: var(--indigo-dim);
+    border: 1px solid var(--indigo-border);
+    color: var(--indigo);
+  }
+
+  /* -- Nav Reference Bar -- */
+  .nav-ref {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0;
+    margin-bottom: 36px;
+    padding: 10px 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    max-width: 420px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    padding: 6px 16px;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--muted);
+    letter-spacing: 0.03em;
+    position: relative;
+  }
+  .nav-item .nav-icon { font-size: 18px; }
+  .nav-item.active { color: var(--primary-border); }
+  .nav-item.active::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 20px;
+    height: 3px;
+    border-radius: 2px;
+    background: var(--primary-border);
+  }
+  .nav-fab {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary), var(--primary-border));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(74, 124, 89, 0.4);
+    margin: 0 8px;
+    flex-shrink: 0;
+  }
+
+  /* -- Legend -- */
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    justify-content: center;
+    margin-bottom: 36px;
+    padding: 16px 24px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 12px;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--muted);
+  }
+  .legend-swatch {
+    width: 14px;
+    height: 14px;
+    border-radius: 4px;
+    border: 2px solid;
+    flex-shrink: 0;
+  }
+  .legend-swatch.red { border-color: var(--red-border); background: var(--red-dim); }
+  .legend-swatch.amber { border-color: var(--amber-border); background: var(--amber-dim); }
+  .legend-swatch.blue { border-color: var(--blue-border); background: var(--blue-dim); }
+  .legend-swatch.green { border-color: var(--green-border); background: var(--green-dim); }
+  .legend-swatch.purple {
+    border-color: var(--purple-border);
+    background: var(--purple-dim);
+    border-radius: 50%;
+    transform: rotate(45deg);
+  }
+
+  /* -- Flow Container -- */
+  .flow {
+    width: 100%;
+    position: relative;
+  }
+
+  /* -- Timeline -- */
+  .timeline {
+    position: relative;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 24px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: linear-gradient(to bottom,
+      var(--blue) 0%,
+      var(--blue) 20%,
+      var(--indigo) 30%,
+      var(--indigo) 100%
+    );
+    opacity: 0.25;
+    border-radius: 1px;
+  }
+
+  /* -- Phase Dividers -- */
+  .phase-divider {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 36px 0 20px;
+    padding-left: 0;
+    position: relative;
+  }
+  .phase-divider:first-child { margin-top: 0; }
+  .phase-badge {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-weight: 700;
+    font-size: 18px;
+    line-height: 1.2;
+    position: relative;
+    z-index: 2;
+  }
+  .phase-badge .badge-label {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    line-height: 1;
+  }
+  .phase-badge.blue-phase {
+    background: var(--blue-dim);
+    border: 2px solid var(--blue-border);
+    color: var(--blue);
+  }
+  .phase-badge.indigo-phase {
+    background: var(--indigo-dim);
+    border: 2px solid var(--indigo-border);
+    color: var(--indigo);
+  }
+  .phase-info {
+    flex: 1;
+  }
+  .phase-title {
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+  .phase-title.blue-text { color: var(--blue); }
+  .phase-title.indigo-text { color: var(--indigo); }
+  .phase-subtitle {
+    font-size: 12px;
+    color: var(--muted);
+    font-weight: 400;
+    margin-top: 2px;
+  }
+  .phase-line {
+    flex: 0;
+    height: 2px;
+    min-width: 40px;
+    flex-grow: 1;
+    border-radius: 1px;
+    opacity: 0.3;
+  }
+  .phase-line.blue-line { background: var(--blue); }
+  .phase-line.indigo-line { background: var(--indigo); }
+
+  /* -- Nodes -- */
+  .node {
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: 16px;
+    padding: 20px 24px;
+    position: relative;
+    margin-bottom: 0;
+    margin-left: 50px;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .node:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+  }
+  .node-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  .node-step {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    font-size: 12px;
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .node-title {
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.4;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .node-screen {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 2px 8px;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    background: rgba(255,255,255,0.06);
+    color: var(--muted);
+  }
+  .node-state {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 10px;
+    line-height: 1.5;
+    font-weight: 400;
+  }
+  .node-thought {
+    font-size: 12px;
+    font-style: italic;
+    color: #9999bb;
+    padding: 8px 12px;
+    background: rgba(255,255,255,0.03);
+    border-radius: 8px;
+    border-left: 3px solid;
+    line-height: 1.5;
+    font-weight: 400;
+  }
+
+  /* Node variants */
+  .node.action-node {
+    border-color: var(--red-border);
+    background: linear-gradient(135deg, var(--red-dim), #3a1a2a);
+  }
+  .node.action-node .node-title { color: var(--red); }
+  .node.action-node .node-thought { border-left-color: var(--red); }
+  .node.action-node .node-step { background: var(--red); color: #111; }
+
+  .node.screen-node {
+    border-color: var(--blue-border);
+    background: linear-gradient(135deg, var(--blue-dim), #1a2a4a);
+  }
+  .node.screen-node .node-title { color: var(--blue); }
+  .node.screen-node .node-thought { border-left-color: var(--blue); }
+  .node.screen-node .node-step { background: var(--blue); color: #111; }
+
+  .node.success-node {
+    border-color: var(--green-border);
+    background: linear-gradient(135deg, var(--green-dim), #0a3a2a);
+  }
+  .node.success-node .node-title { color: var(--green); }
+  .node.success-node .node-thought { border-left-color: var(--green); }
+  .node.success-node .node-step { background: var(--green); color: #111; }
+
+  .node.key-moment-node {
+    border-color: var(--purple-border);
+    border-width: 3px;
+    background: linear-gradient(135deg, var(--purple-dim), #2a1a4a);
+  }
+  .node.key-moment-node .node-title { color: var(--purple); }
+  .node.key-moment-node .node-thought { border-left-color: var(--purple); }
+  .node.key-moment-node .node-step {
+    background: var(--purple);
+    color: #111;
+    width: 28px;
+    height: 28px;
+    transform: rotate(45deg);
+    border-radius: 6px;
+  }
+  .node.key-moment-node .node-step span {
+    display: inline-block;
+    transform: rotate(-45deg);
+  }
+
+  .node.indigo-node {
+    border-color: var(--indigo-border);
+    background: linear-gradient(135deg, var(--indigo-dim), #1a1a4a);
+  }
+  .node.indigo-node .node-title { color: var(--indigo); }
+  .node.indigo-node .node-thought { border-left-color: var(--indigo); }
+  .node.indigo-node .node-step { background: var(--indigo); color: #111; }
+
+  .node.amber-node {
+    border-color: var(--amber-border);
+    background: linear-gradient(135deg, var(--amber-dim), #3a2a10);
+  }
+  .node.amber-node .node-title { color: var(--amber); }
+  .node.amber-node .node-thought { border-left-color: var(--amber); }
+  .node.amber-node .node-step { background: var(--amber); color: #111; }
+
+  .node.green-accent-node {
+    border-color: var(--green-border);
+    background: linear-gradient(135deg, var(--green-dim), var(--primary-dim));
+  }
+  .node.green-accent-node .node-title { color: var(--green); }
+  .node.green-accent-node .node-thought { border-left-color: var(--green); }
+  .node.green-accent-node .node-step { background: var(--green); color: #111; }
+
+  .node.pink-node {
+    border-color: var(--pink-border);
+    background: linear-gradient(135deg, var(--pink-dim), #3a1a2a);
+  }
+  .node.pink-node .node-title { color: var(--pink); }
+  .node.pink-node .node-thought { border-left-color: var(--pink); }
+  .node.pink-node .node-step { background: var(--pink); color: #111; }
+
+  /* -- Callout Badge -- */
+  .callout {
+    position: absolute;
+    top: -10px;
+    right: -8px;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 12px;
+    border-radius: 10px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    z-index: 2;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    white-space: nowrap;
+  }
+  .callout.key-moment { background: var(--purple); color: #fff; }
+  .callout.live-preview { background: linear-gradient(135deg, var(--indigo), var(--purple)); color: #fff; }
+  .callout.trust { background: var(--green); color: #111; }
+  .callout.destructive { background: var(--red); color: #fff; }
+
+  /* -- Connectors -- */
+  .connector {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px 0;
+    position: relative;
+    margin-left: 50px;
+  }
+  .connector-line {
+    width: 3px;
+    height: 32px;
+    border-radius: 2px;
+  }
+  .connector-line.red { background: var(--red); }
+  .connector-line.amber { background: var(--amber); }
+  .connector-line.blue { background: var(--blue); }
+  .connector-line.green { background: var(--green); }
+  .connector-line.purple { background: var(--purple); }
+  .connector-line.indigo { background: var(--indigo); }
+  .connector-line.pink { background: var(--pink); }
+  .connector-line.neutral { background: var(--border); }
+  .connector-line.grad-rb { background: linear-gradient(to bottom, var(--red), var(--blue)); }
+  .connector-line.grad-bi { background: linear-gradient(to bottom, var(--blue), var(--indigo)); }
+  .connector-line.grad-ip { background: linear-gradient(to bottom, var(--indigo), var(--purple)); }
+  .connector-line.grad-ig { background: linear-gradient(to bottom, var(--indigo), var(--green)); }
+  .connector-line.grad-ia { background: linear-gradient(to bottom, var(--indigo), var(--amber)); }
+  .connector-line.grad-ik { background: linear-gradient(to bottom, var(--indigo), var(--pink)); }
+  .connector-line.grad-ag { background: linear-gradient(to bottom, var(--amber), var(--green)); }
+  .connector-line.grad-pr { background: linear-gradient(to bottom, var(--purple), var(--red)); }
+  .connector-line.grad-kr { background: linear-gradient(to bottom, var(--pink), var(--red)); }
+
+  .connector-arrow {
+    width: 0;
+    height: 0;
+    border-left: 7px solid transparent;
+    border-right: 7px solid transparent;
+  }
+  .connector-arrow.red { border-top: 9px solid var(--red); }
+  .connector-arrow.amber { border-top: 9px solid var(--amber); }
+  .connector-arrow.blue { border-top: 9px solid var(--blue); }
+  .connector-arrow.green { border-top: 9px solid var(--green); }
+  .connector-arrow.purple { border-top: 9px solid var(--purple); }
+  .connector-arrow.indigo { border-top: 9px solid var(--indigo); }
+  .connector-arrow.pink { border-top: 9px solid var(--pink); }
+
+  .connector-label {
+    position: absolute;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 10px;
+    border-radius: 10px;
+    white-space: nowrap;
+  }
+  .connector-label.right { left: calc(50% + 20px); }
+  .connector-label.left { right: calc(50% + 20px); }
+  .connector-label.red { color: var(--red); background: var(--red-dim); }
+  .connector-label.amber { color: var(--amber); background: var(--amber-dim); }
+  .connector-label.blue { color: var(--blue); background: var(--blue-dim); }
+  .connector-label.green { color: var(--green); background: var(--green-dim); }
+  .connector-label.purple { color: var(--purple); background: var(--purple-dim); }
+  .connector-label.indigo { color: var(--indigo); background: var(--indigo-dim); }
+  .connector-label.pink { color: var(--pink); background: var(--pink-dim); }
+
+  /* -- Mini UI (inline mockups) -- */
+  .mini-ui {
+    background: rgba(0,0,0,0.25);
+    border-radius: 12px;
+    padding: 12px;
+    margin: 10px 0;
+  }
+  .mini-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 10px;
+    border-radius: 8px;
+    margin-bottom: 4px;
+    font-size: 12px;
+    font-weight: 500;
+  }
+  .mini-row:last-child { margin-bottom: 0; }
+  .mini-row .mini-label { flex: 1; }
+  .mini-row .mini-value {
+    font-weight: 600;
+    font-size: 11px;
+  }
+
+  .mini-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin-bottom: 6px;
+  }
+  .mini-card:last-child { margin-bottom: 0; }
+
+  .mini-btn {
+    display: block;
+    width: 100%;
+    padding: 9px 12px;
+    border-radius: 10px;
+    border: none;
+    font-family: 'Outfit', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    text-align: center;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: transform 0.15s, opacity 0.15s;
+  }
+  .mini-btn:hover { transform: scale(1.02); }
+  .mini-btn:active { transform: scale(0.98); }
+  .mini-btn.primary-btn { background: var(--primary-border); color: #fff; }
+  .mini-btn.accent-btn { background: var(--accent); color: #111; }
+  .mini-btn.green-btn { background: var(--green); color: #111; }
+  .mini-btn.red-btn { background: var(--red); color: #fff; }
+  .mini-btn.indigo-btn { background: var(--indigo); color: #fff; }
+  .mini-btn.muted-btn {
+    background: rgba(255,255,255,0.08);
+    color: var(--muted);
+    font-weight: 500;
+  }
+  .mini-btn-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+  }
+  .mini-btn-row .mini-btn {
+    margin-top: 0;
+    flex: 1;
+  }
+
+  /* -- Settings Menu Items -- */
+  .settings-menu {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .settings-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    margin-bottom: 3px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+    transition: background 0.15s;
+    cursor: pointer;
+  }
+  .settings-menu-item:hover {
+    background: rgba(255,255,255,0.06);
+  }
+  .settings-menu-item .smi-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  .settings-menu-item .smi-label { flex: 1; }
+  .settings-menu-item .smi-arrow {
+    font-size: 14px;
+    color: var(--muted);
+    opacity: 0.5;
+  }
+  .settings-menu-item .smi-badge {
+    font-size: 9px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  /* -- Profile Dropdown -- */
+  .profile-dropdown {
+    background: rgba(0,0,0,0.4);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    padding: 8px;
+    margin: 8px 0;
+  }
+  .pd-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--muted);
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .pd-item:hover { background: rgba(255,255,255,0.06); }
+  .pd-item.active {
+    background: rgba(74, 124, 89, 0.15);
+    color: var(--primary-border);
+  }
+  .pd-item .pd-icon { font-size: 16px; width: 24px; text-align: center; }
+  .pd-item.disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+
+  /* -- Theme Preview -- */
+  .theme-preview {
+    border-radius: 10px;
+    padding: 12px;
+    margin: 8px 0;
+    transition: all 0.4s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  .theme-preview.normal-theme {
+    background: linear-gradient(135deg, #1a3a24, #2a2a4a);
+    border: 2px solid var(--primary-border);
+  }
+  .theme-preview.professional-theme {
+    background: linear-gradient(135deg, #1a2a4a, #2a2a5a);
+    border: 2px solid var(--secondary-border);
+  }
+  .theme-preview .tp-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 6px;
+  }
+  .theme-preview .tp-swatch-row {
+    display: flex;
+    gap: 6px;
+  }
+  .theme-preview .tp-swatch {
+    width: 20px;
+    height: 20px;
+    border-radius: 6px;
+  }
+
+  /* -- Tabs for Path Branching -- */
+  .path-tabs {
+    display: flex;
+    gap: 4px;
+    margin: 0 0 0 50px;
+    padding: 4px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow-x: auto;
+  }
+  .path-tab {
+    flex: 1;
+    padding: 10px 8px;
+    border-radius: 10px;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    font-family: 'Outfit', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    text-align: center;
+    white-space: nowrap;
+    min-width: 0;
+  }
+  .path-tab:hover {
+    background: rgba(255,255,255,0.05);
+    color: var(--text);
+  }
+  .path-tab.active {
+    color: #111;
+    font-weight: 700;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  }
+  .path-tab.tab-indigo.active { background: var(--indigo); }
+  .path-tab.tab-amber.active { background: var(--amber); }
+  .path-tab.tab-green.active { background: var(--green); }
+  .path-tab.tab-pink.active { background: var(--pink); }
+
+  .path-tab .tab-icon {
+    display: block;
+    font-size: 16px;
+    margin-bottom: 2px;
+  }
+
+  .path-content {
+    display: none;
+    animation: pathFadeIn 0.35s ease;
+  }
+  .path-content.active {
+    display: block;
+  }
+  @keyframes pathFadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* -- Hub Visualization -- */
+  .hub-visual {
+    margin: 24px 50px 24px;
+    padding: 24px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    text-align: center;
+  }
+  .hub-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    margin-bottom: 20px;
+  }
+  .hub-center {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary-dim), var(--indigo-dim));
+    border: 3px solid var(--primary-border);
+    font-size: 28px;
+    margin-bottom: 20px;
+    position: relative;
+  }
+  .hub-center::after {
+    content: '';
+    position: absolute;
+    inset: -8px;
+    border-radius: 50%;
+    border: 1px dashed var(--border);
+    animation: hub-rotate 20s linear infinite;
+  }
+  @keyframes hub-rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  .hub-spokes {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    max-width: 520px;
+    margin: 0 auto;
+  }
+  .hub-spoke {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 12px 8px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .hub-spoke:hover {
+    transform: translateY(-3px);
+  }
+  .hub-spoke .hs-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+  }
+  .hub-spoke .hs-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-align: center;
+    line-height: 1.3;
+  }
+  .hub-spoke.spoke-indigo .hs-icon { background: var(--indigo-dim); border: 1px solid var(--indigo-border); }
+  .hub-spoke.spoke-indigo .hs-label { color: var(--indigo); }
+  .hub-spoke.spoke-indigo:hover { background: rgba(99, 102, 241, 0.08); }
+  .hub-spoke.spoke-amber .hs-icon { background: var(--amber-dim); border: 1px solid var(--amber-border); }
+  .hub-spoke.spoke-amber .hs-label { color: var(--amber); }
+  .hub-spoke.spoke-amber:hover { background: rgba(251, 191, 36, 0.08); }
+  .hub-spoke.spoke-green .hs-icon { background: var(--green-dim); border: 1px solid var(--green-border); }
+  .hub-spoke.spoke-green .hs-label { color: var(--green); }
+  .hub-spoke.spoke-green:hover { background: rgba(52, 211, 153, 0.08); }
+  .hub-spoke.spoke-pink .hs-icon { background: var(--pink-dim); border: 1px solid var(--pink-border); }
+  .hub-spoke.spoke-pink .hs-label { color: var(--pink); }
+  .hub-spoke.spoke-pink:hover { background: rgba(236, 72, 153, 0.08); }
+
+  /* -- Toggle/Switch UI -- */
+  .mini-toggle-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 10px;
+    border-radius: 8px;
+    margin-bottom: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text);
+  }
+  .mini-toggle-row .mtl { flex: 1; }
+  .mini-toggle {
+    width: 36px;
+    height: 20px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.15);
+    position: relative;
+    flex-shrink: 0;
+    transition: background 0.2s;
+  }
+  .mini-toggle.on {
+    background: var(--primary-border);
+  }
+  .mini-toggle::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #fff;
+    transition: transform 0.2s;
+  }
+  .mini-toggle.on::after {
+    transform: translateX(16px);
+  }
+
+  /* -- Option Selector (radio-like) -- */
+  .mini-option-group {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin: 6px 0;
+  }
+  .mini-option {
+    padding: 5px 12px;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 600;
+    border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.04);
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .mini-option.selected {
+    border-color: var(--primary-border);
+    background: var(--primary-dim);
+    color: var(--primary-border);
+  }
+  .mini-option.selected-indigo {
+    border-color: var(--indigo-border);
+    background: var(--indigo-dim);
+    color: var(--indigo);
+  }
+
+  /* -- Mapping Row -- */
+  .mapping-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 10px;
+    border-radius: 8px;
+    margin-bottom: 4px;
+    font-size: 12px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+  .mapping-row .mr-from {
+    font-weight: 500;
+    color: var(--text);
+    flex: 1;
+  }
+  .mapping-row .mr-arrow {
+    color: var(--muted);
+    font-size: 10px;
+    flex-shrink: 0;
+  }
+  .mapping-row .mr-to {
+    font-weight: 600;
+    flex: 1;
+    text-align: right;
+  }
+  .mapping-row .mr-delete {
+    font-size: 14px;
+    color: var(--red);
+    cursor: pointer;
+    flex-shrink: 0;
+    opacity: 0.6;
+    transition: opacity 0.15s;
+  }
+  .mapping-row .mr-delete:hover { opacity: 1; }
+  .mapping-row.strikethrough .mr-from,
+  .mapping-row.strikethrough .mr-to {
+    text-decoration: line-through;
+    opacity: 0.4;
+  }
+
+  /* -- Mini Tabs (inside nodes) -- */
+  .mini-tabs {
+    display: flex;
+    gap: 2px;
+    margin-bottom: 8px;
+    background: rgba(0,0,0,0.2);
+    border-radius: 8px;
+    padding: 3px;
+  }
+  .mini-tab {
+    flex: 1;
+    padding: 5px 8px;
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 600;
+    text-align: center;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .mini-tab.active {
+    background: rgba(255,255,255,0.1);
+    color: var(--text);
+  }
+
+  /* -- Credit Display -- */
+  .credit-display {
+    display: flex;
+    gap: 12px;
+    margin: 8px 0;
+  }
+  .credit-box {
+    flex: 1;
+    padding: 10px;
+    border-radius: 10px;
+    text-align: center;
+  }
+  .credit-box .cb-num {
+    font-size: 22px;
+    font-weight: 800;
+    line-height: 1;
+  }
+  .credit-box .cb-label {
+    font-size: 10px;
+    font-weight: 500;
+    margin-top: 4px;
+    line-height: 1.2;
+  }
+  .credit-box.normal-credits {
+    background: rgba(74, 124, 89, 0.15);
+    border: 1px solid rgba(90, 156, 106, 0.3);
+  }
+  .credit-box.normal-credits .cb-num { color: var(--primary-border); }
+  .credit-box.normal-credits .cb-label { color: var(--muted); }
+  .credit-box.super-credits {
+    background: rgba(232, 168, 124, 0.12);
+    border: 1px solid rgba(212, 149, 106, 0.3);
+  }
+  .credit-box.super-credits .cb-num { color: var(--accent); }
+  .credit-box.super-credits .cb-label { color: var(--muted); }
+
+  /* -- Progress Bar -- */
+  .mini-progress {
+    width: 100%;
+    height: 6px;
+    border-radius: 3px;
+    background: rgba(255,255,255,0.08);
+    overflow: hidden;
+    margin: 8px 0;
+  }
+  .mini-progress-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.6s ease;
+  }
+
+  /* -- Dialog Overlay -- */
+  .mini-dialog {
+    background: rgba(0,0,0,0.5);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 14px;
+    padding: 16px;
+    margin: 8px 0;
+    text-align: center;
+  }
+  .mini-dialog .md-icon {
+    font-size: 32px;
+    margin-bottom: 8px;
+  }
+  .mini-dialog .md-title {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .mini-dialog .md-desc {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 12px;
+    line-height: 1.5;
+  }
+
+  /* -- Summary Bar -- */
+  .summary-bar {
+    margin-top: 24px;
+    padding: 28px;
+    background: var(--surface);
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    margin-left: 50px;
+  }
+  .summary-title {
+    text-align: center;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    margin-bottom: 20px;
+  }
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 16px;
+    text-align: center;
+  }
+  .summary-num {
+    font-size: 30px;
+    font-weight: 800;
+  }
+  .summary-label {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  /* -- Responsive -- */
+  @media (max-width: 640px) {
+    .flow-header h1 { font-size: 24px; }
+    .node { padding: 16px 18px; margin-left: 40px; }
+    .connector { margin-left: 40px; }
+    .path-tabs { margin-left: 40px; }
+    .hub-visual { margin-left: 40px; margin-right: 0; }
+    .summary-bar { margin-left: 40px; }
+    .timeline::before { left: 18px; }
+    .phase-badge { width: 38px; height: 38px; font-size: 15px; }
+    .phase-badge .badge-label { font-size: 8px; }
+    .phase-title { font-size: 14px; }
+    .nav-ref { max-width: 340px; }
+    .nav-item { padding: 6px 10px; font-size: 9px; }
+    .hub-spokes { grid-template-columns: repeat(2, 1fr); }
+    .path-tab { font-size: 10px; padding: 8px 6px; }
+    .summary-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* -- Entrance animation -- */
+  .node, .phase-divider, .connector, .hub-visual, .path-tabs {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  .node.visible, .phase-divider.visible, .connector.visible, .hub-visual.visible, .path-tabs.visible {
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- Brand Header -->
+  <div class="brand-header">
+    <div class="brand-name">Gastify</div>
+  </div>
+
+  <!-- Flow Header -->
+  <header class="flow-header">
+    <h1>Flujo 13: Configuracion de Settings</h1>
+    <p class="subtitle">
+      Explorando las <strong>9 vistas de configuracion</strong> de Gastify.
+      Desde personalizar el tema visual hasta gestionar datos aprendidos, creditos y copia de seguridad &mdash;
+      todo el control de la app en un solo lugar.
+    </p>
+    <span class="value-tag">Personalizacion Total &mdash; "Tu app, a tu manera"</span>
+  </header>
+
+  <!-- Nav Reference Bar -->
+  <div class="nav-ref">
+        <div class="nav-item" data-nav="home">Home</div>
+        <div class="nav-item" data-nav="trends">Trends</div>
+        <div class="nav-item fab" data-nav="fab">FAB Scan</div>
+        <div class="nav-item" data-nav="reports">Reports</div>
+        <div class="nav-item" data-nav="alerts">Alerts</div>
+      </div>
+
+  <!-- Legend -->
+  <div class="legend">
+    <div class="legend-item"><div class="legend-swatch red"></div> Accion del usuario</div>
+    <div class="legend-item"><div class="legend-swatch blue"></div> Pantalla / Vista</div>
+    <div class="legend-item"><div class="legend-swatch green"></div> Exito / Resultado</div>
+    <div class="legend-item"><div class="legend-swatch purple"></div> Momento clave</div>
+    <div class="legend-item"><div class="legend-swatch amber"></div> Informacion</div>
+  </div>
+
+  <!-- Flow -->
+  <div class="flow">
+    <div class="timeline">
+
+      <!-- ════════════════════════════════════════════ -->
+      <!-- PHASE 1: Acceso                              -->
+      <!-- ════════════════════════════════════════════ -->
+
+      <div class="phase-divider" id="phase1">
+        <div class="phase-badge blue-phase">
+          <span class="badge-label">Fase</span>
+          <span>1</span>
+        </div>
+        <div class="phase-info">
+          <div class="phase-title blue-text">Fase 1: Acceso</div>
+          <div class="phase-subtitle">Desde el dashboard hasta el menu de Settings</div>
+        </div>
+        <div class="phase-line blue-line"></div>
+      </div>
+
+      <!-- STEP 1: Dashboard -->
+      <div class="node screen-node" tabindex="0">
+        <div class="node-screen">Dashboard</div>
+        <div class="node-header">
+          <div class="node-step"><span>1</span></div>
+          <div class="node-title">
+            <span>&#x1F3E0;</span> Dashboard Poblado
+          </div>
+        </div>
+        <div class="node-state">
+          Vista principal con resumen de gastos del mes, transacciones recientes
+          y el avatar del perfil en el header superior.
+        </div>
+        <div class="mini-ui">
+          <div style="display:flex; align-items:center; gap:10px; padding:8px 10px; background:rgba(255,255,255,0.04); border-radius:10px; margin-bottom:8px;">
+            <div style="width:36px; height:36px; border-radius:50%; background:linear-gradient(135deg, var(--primary), var(--primary-border)); display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:700; color:#fff;">G</div>
+            <div style="flex:1;">
+              <div style="font-size:14px; font-weight:700; color:var(--text);">Gasto Mensual</div>
+              <div style="font-size:11px; color:var(--muted);">$247.350 de $400.000</div>
+            </div>
+            <div style="width:32px; height:32px; border-radius:50%; background:var(--accent-dim); border:2px solid var(--accent-border); display:flex; align-items:center; justify-content:center; font-size:14px; cursor:pointer;" title="Perfil">&#x1F464;</div>
+          </div>
+          <div style="font-size:11px; color:var(--muted); text-align:center; padding:4px;">
+            &#x2191; Toca el avatar para abrir el menu
+          </div>
+        </div>
+        <div class="node-thought" style="border-left-color: var(--blue);">
+          "Quiero cambiar el tema de la app."
+        </div>
+      </div>
+
+      <div class="connector">
+        <div style="display:flex;flex-direction:column;align-items:center;">
+          <div class="connector-line grad-rb"></div>
+          <div class="connector-arrow red"></div>
+        </div>
+        <span class="connector-label right red">Toca avatar</span>
+      </div>
+
+      <!-- STEP 2: Profile Dropdown -->
+      <div class="node action-node" tabindex="0">
+        <div class="node-screen">Profile Dropdown</div>
+        <div class="node-header">
+          <div class="node-step"><span>2</span></div>
+          <div class="node-title">
+            <span>&#x1F464;</span> Avatar &rarr; Menu del Perfil
+          </div>
+        </div>
+        <div class="node-state">
+          Dropdown desplegable con accesos directos a las secciones principales.
+          "Goals" esta deshabilitado (proximamente).
+        </div>
+        <div class="mini-ui">
+          <div class="profile-dropdown">
+            <div class="pd-item">
+              <span class="pd-icon">&#x1F4CB;</span> Transactions
+            </div>
+            <div class="pd-item">
+              <span class="pd-icon">&#x1F6D2;</span> Productos
+            </div>
+            <div class="pd-item">
+              <span class="pd-icon">&#x1F4CA;</span> Reports
+            </div>
+            <div class="pd-item disabled">
+              <span class="pd-icon">&#x1F3AF;</span> Goals
+              <span style="font-size:9px; background:rgba(255,255,255,0.08); padding:2px 6px; border-radius:4px; margin-left:auto;">Pronto</span>
+            </div>
+            <div style="height:1px; background:rgba(255,255,255,0.08); margin:6px 0;"></div>
+            <div class="pd-item active">
+              <span class="pd-icon">&#x2699;&#xFE0F;</span> Settings
+            </div>
+          </div>
+        </div>
+        <div class="node-thought">
+          "Voy a Settings para cambiar el tema."
+        </div>
+      </div>
+
+      <div class="connector">
+        <div style="display:flex;flex-direction:column;align-items:center;">
+          <div class="connector-line grad-rb"></div>
+          <div class="connector-arrow blue"></div>
+        </div>
+        <span class="connector-label right blue">Toca "Settings"</span>
+      </div>
+
+      <!-- STEP 3: Settings Main -->
+      <div class="node screen-node" tabindex="0">
+        <div class="node-screen">Settings Main</div>
+        <div class="node-header">
+          <div class="node-step"><span>3</span></div>
+          <div class="node-title">
+            <span>&#x2699;&#xFE0F;</span> Vista Principal de Settings
+          </div>
+        </div>
+        <div class="node-state">
+          9 subvistas organizadas con iconos de color. Cada una agrupa
+          una area de configuracion distinta. Boton de cerrar sesion al pie.
+        </div>
+        <div class="mini-ui">
+          <ul class="settings-menu">
+            <li class="settings-menu-item">
+              <div class="smi-icon" style="background:var(--red-dim); border:1px solid rgba(239,68,68,0.3);">&#x1F6AB;</div>
+              <span class="smi-label">Limites</span>
+              <span style="font-size:10px; color:var(--muted);">Spending limits</span>
+              <span class="smi-arrow">&#x203A;</span>
+            </li>
+            <li class="settings-menu-item">
+              <div class="smi-icon" style="background:var(--green-dim); border:1px solid rgba(16,185,129,0.3);">&#x1F464;</div>
+              <span class="smi-label">Perfil</span>
+              <span style="font-size:10px; color:var(--muted);">Name, phone, birth</span>
+              <span class="smi-arrow">&#x203A;</span>
+            </li>
+            <li class="settings-menu-item" style="background:rgba(99,102,241,0.08); border:1px solid rgba(99,102,241,0.2); border-radius:10px;">
+              <div class="smi-icon" style="background:var(--indigo-dim); border:1px solid rgba(99,102,241,0.3);">&#x1F3A8;</div>
+              <span class="smi-label" style="color:var(--indigo); font-weight:700;">Preferencias</span>
+              <span style="font-size:10px; color:var(--indigo);">Theme, lang, currency</span>
+              <span class="smi-arrow" style="color:var(--indigo);">&#x203A;</span>
+            </li>
+            <li class="settings-menu-item">
+              <div class="smi-icon" style="background:var(--blue-dim); border:1px solid rgba(59,130,246,0.3);">&#x1F4F7;</div>
+              <span class="smi-label">Escaneo</span>
+              <span style="font-size:10px; color:var(--muted);">Default settings</span>
+              <span class="smi-arrow">&#x203A;</span>
+            </li>
+            <li class="settings-menu-item">
+              <div class="smi-icon" style="background:var(--green-dim); border:1px solid rgba(16,185,129,0.3);">&#x2B50;</div>
+              <span class="smi-label">Suscripcion</span>
+              <span style="font-size:10px; color:var(--muted);">Plan, credits</span>
+              <span class="smi-arrow">&#x203A;</span>
+            </li>
+            <li class="settings-menu-item">
+              <div class="smi-icon" style="background:var(--amber-dim); border:1px solid rgba(245,158,11,0.3);">&#x1F9E0;</div>
+              <span class="smi-label">Datos</span>
+              <span style="font-size:10px; color:var(--muted);">Learned mappings</span>
+              <span class="smi-arrow">&#x203A;</span>
+            </li>
+            <li class="settings-menu-item">
+              <div class="smi-icon" style="background:var(--blue-dim); border:1px solid rgba(59,130,246,0.3);">&#x1F465;</div>
+              <span class="smi-label">Grupos</span>
+              <span class="smi-badge" style="background:rgba(59,130,246,0.15); color:var(--blue);">Pronto</span>
+              <span class="smi-arrow">&#x203A;</span>
+            </li>
+            <li class="settings-menu-item">
+              <div class="smi-icon" style="background:var(--purple-dim); border:1px solid rgba(139,92,246,0.3);">&#x1F4F1;</div>
+              <span class="smi-label">App</span>
+              <span style="font-size:10px; color:var(--muted);">Version info</span>
+              <span class="smi-arrow">&#x203A;</span>
+            </li>
+            <li class="settings-menu-item">
+              <div class="smi-icon" style="background:var(--pink-dim); border:1px solid rgba(236,72,153,0.3);">&#x1F512;</div>
+              <span class="smi-label">Cuenta</span>
+              <span style="font-size:10px; color:var(--muted);">Export, wipe</span>
+              <span class="smi-arrow">&#x203A;</span>
+            </li>
+          </ul>
+          <div style="margin-top:12px; padding-top:10px; border-top:1px solid rgba(255,255,255,0.06);">
+            <button class="mini-btn red-btn" style="opacity:0.8;">&#x1F6AA; Cerrar Sesion</button>
+          </div>
+        </div>
+        <div class="node-thought" style="border-left-color: var(--blue);">
+          "Voy a Preferencias para cambiar el tema."
+        </div>
+      </div>
+
+      <!-- ════════════════════════════════════════════ -->
+      <!-- PHASE 2: Configuracion — Hub + 4 Paths      -->
+      <!-- ════════════════════════════════════════════ -->
+
+      <div class="phase-divider" id="phase2">
+        <div class="phase-badge indigo-phase">
+          <span class="badge-label">Fase</span>
+          <span>2</span>
+        </div>
+        <div class="phase-info">
+          <div class="phase-title indigo-text">Fase 2: Configuracion</div>
+          <div class="phase-subtitle">4 caminos destacados desde el hub de Settings</div>
+        </div>
+        <div class="phase-line indigo-line"></div>
+      </div>
+
+      <!-- Hub Visualization -->
+      <div class="hub-visual">
+        <div class="hub-title">Settings Hub &mdash; 4 Caminos Destacados</div>
+        <div class="hub-center">&#x2699;&#xFE0F;</div>
+        <div class="hub-spokes">
+          <div class="hub-spoke spoke-indigo" onclick="switchTab('path-a')">
+            <div class="hs-icon">&#x1F3A8;</div>
+            <div class="hs-label">Path A<br>Preferencias</div>
+          </div>
+          <div class="hub-spoke spoke-amber" onclick="switchTab('path-b')">
+            <div class="hs-icon">&#x1F9E0;</div>
+            <div class="hs-label">Path B<br>Datos</div>
+          </div>
+          <div class="hub-spoke spoke-green" onclick="switchTab('path-c')">
+            <div class="hs-icon">&#x2B50;</div>
+            <div class="hs-label">Path C<br>Suscripcion</div>
+          </div>
+          <div class="hub-spoke spoke-pink" onclick="switchTab('path-d')">
+            <div class="hs-icon">&#x1F512;</div>
+            <div class="hs-label">Path D<br>Cuenta</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Path Tabs -->
+      <div class="path-tabs" id="pathTabs">
+        <button class="path-tab tab-indigo active" onclick="switchTab('path-a')">
+          <span class="tab-icon">&#x1F3A8;</span>
+          A: Preferencias
+        </button>
+        <button class="path-tab tab-amber" onclick="switchTab('path-b')">
+          <span class="tab-icon">&#x1F9E0;</span>
+          B: Datos
+        </button>
+        <button class="path-tab tab-green" onclick="switchTab('path-c')">
+          <span class="tab-icon">&#x2B50;</span>
+          C: Suscripcion
+        </button>
+        <button class="path-tab tab-pink" onclick="switchTab('path-d')">
+          <span class="tab-icon">&#x1F512;</span>
+          D: Cuenta
+        </button>
+      </div>
+
+      <!-- ═══════════════════════════════════════ -->
+      <!-- PATH A: Theme Customization             -->
+      <!-- ═══════════════════════════════════════ -->
+      <div class="path-content active" id="path-a">
+
+        <!-- Step 4a: Preferencias View -->
+        <div class="connector">
+          <div style="display:flex;flex-direction:column;align-items:center;">
+            <div class="connector-line indigo"></div>
+            <div class="connector-arrow indigo"></div>
+          </div>
+        </div>
+
+        <div class="node indigo-node" tabindex="0">
+          <div class="node-screen">Preferencias</div>
+          <div class="node-header">
+            <div class="node-step"><span>4a</span></div>
+            <div class="node-title">
+              <span>&#x1F3A8;</span> Vista de Preferencias
+            </div>
+          </div>
+          <div class="node-state">
+            Todas las opciones de personalizacion visual y regional.
+            Tema, modo oscuro, idioma, moneda, formato de fecha y tamano de fuente.
+          </div>
+          <div class="mini-ui">
+            <div style="font-size:11px; font-weight:600; color:var(--muted); margin-bottom:6px; text-transform:uppercase; letter-spacing:0.05em;">Tema</div>
+            <div class="mini-option-group">
+              <span class="mini-option selected-indigo">Normal</span>
+              <span class="mini-option">Professional</span>
+              <span class="mini-option">Mono</span>
+            </div>
+
+            <div class="mini-toggle-row" style="margin-top:10px;">
+              <span class="mtl">Modo Oscuro</span>
+              <div class="mini-toggle"></div>
+            </div>
+
+            <div style="height:1px; background:rgba(255,255,255,0.06); margin:8px 0;"></div>
+
+            <div style="font-size:11px; font-weight:600; color:var(--muted); margin-bottom:6px; text-transform:uppercase; letter-spacing:0.05em;">Idioma</div>
+            <div class="mini-option-group">
+              <span class="mini-option selected-indigo">Espanol</span>
+              <span class="mini-option">English</span>
+            </div>
+
+            <div style="font-size:11px; font-weight:600; color:var(--muted); margin:8px 0 6px; text-transform:uppercase; letter-spacing:0.05em;">Moneda</div>
+            <div class="mini-option-group">
+              <span class="mini-option selected-indigo">CLP</span>
+              <span class="mini-option">USD</span>
+              <span class="mini-option">EUR</span>
+            </div>
+
+            <div style="font-size:11px; font-weight:600; color:var(--muted); margin:8px 0 6px; text-transform:uppercase; letter-spacing:0.05em;">Formato de Fecha</div>
+            <div class="mini-option-group">
+              <span class="mini-option selected-indigo">LatAm</span>
+              <span class="mini-option">US</span>
+            </div>
+
+            <div style="font-size:11px; font-weight:600; color:var(--muted); margin:8px 0 6px; text-transform:uppercase; letter-spacing:0.05em;">Tamano de Fuente</div>
+            <div class="mini-option-group">
+              <span class="mini-option">small</span>
+              <span class="mini-option selected-indigo">normal</span>
+            </div>
+          </div>
+          <div class="node-thought" style="border-left-color: var(--indigo);">
+            "Voy a probar el tema Professional."
+          </div>
+        </div>
+
+        <div class="connector">
+          <div style="display:flex;flex-direction:column;align-items:center;">
+            <div class="connector-line grad-ip"></div>
+            <div class="connector-arrow purple"></div>
+          </div>
+          <span class="connector-label right indigo">Selecciona "Professional"</span>
+        </div>
+
+        <!-- Step 5a: Live Preview -->
+        <div class="node key-moment-node" tabindex="0">
+          <span class="callout live-preview">Live Preview</span>
+          <div class="node-screen">Preferencias &mdash; Tema</div>
+          <div class="node-header">
+            <div class="node-step"><span>5a</span></div>
+            <div class="node-title">
+              <span>&#x1F504;</span> Cambio Instantaneo a Professional
+            </div>
+          </div>
+          <div class="node-state">
+            El tema cambia EN VIVO &mdash; sin recargar, sin guardar.
+            Los colores pasan de verde/crema a tonos azules. El usuario
+            puede comparar inmediatamente.
+          </div>
+          <div class="mini-ui">
+            <div class="theme-preview professional-theme">
+              <div class="tp-label" style="color:var(--secondary);">&#x2713; Tema Professional activo</div>
+              <div class="tp-swatch-row">
+                <div class="tp-swatch" style="background:var(--secondary);"></div>
+                <div class="tp-swatch" style="background:#4a5a7a;"></div>
+                <div class="tp-swatch" style="background:#6a8aaa;"></div>
+                <div class="tp-swatch" style="background:#3a4a6a;"></div>
+              </div>
+            </div>
+            <div style="margin-top:8px;">
+              <div class="mini-option-group">
+                <span class="mini-option">Normal</span>
+                <span class="mini-option selected-indigo">Professional</span>
+                <span class="mini-option">Mono</span>
+              </div>
+            </div>
+          </div>
+          <div class="node-thought" style="border-left-color: var(--purple);">
+            "Se ve bien, pero prefiero el original."
+          </div>
+        </div>
+
+        <div class="connector">
+          <div style="display:flex;flex-direction:column;align-items:center;">
+            <div class="connector-line purple"></div>
+            <div class="connector-arrow indigo"></div>
+          </div>
+          <span class="connector-label right purple">Vuelve a "Normal"</span>
+        </div>
+
+        <!-- Step 6a: Back to Normal -->
+        <div class="node indigo-node" tabindex="0">
+          <div class="node-screen">Preferencias &mdash; Tema</div>
+          <div class="node-header">
+            <div class="node-step"><span>6a</span></div>
+            <div class="node-title">
+              <span>&#x1F33F;</span> Vuelve al Tema Normal
+            </div>
+          </div>
+          <div class="node-state">
+            Los colores regresan al verde/crema original instantaneamente.
+            El cambio es fluido y sin delay.
+          </div>
+          <div class="mini-ui">
+            <div class="theme-preview normal-theme">
+              <div class="tp-label" style="color:var(--primary-border);">&#x2713; Tema Normal activo</div>
+              <div class="tp-swatch-row">
+                <div class="tp-swatch" style="background:var(--primary);"></div>
+                <div class="tp-swatch" style="background:var(--accent);"></div>
+                <div class="tp-swatch" style="background:var(--primary-border);"></div>
+                <div class="tp-swatch" style="background:#3a5a3a;"></div>
+              </div>
+            </div>
+          </div>
+          <div class="node-thought" style="border-left-color: var(--indigo);">
+            "Si, me quedo con este."
+          </div>
+        </div>
+
+        <div class="connector">
+          <div style="display:flex;flex-direction:column;align-items:center;">
+            <div class="connector-line grad-ip"></div>
+            <div class="connector-arrow purple"></div>
+          </div>
+          <span class="connector-label right indigo">Activa Dark Mode</span>
+        </div>
+
+        <!-- Step 7a: Dark Mode -->
+        <div class="node key-moment-node" tabindex="0">
+          <span class="callout live-preview">Live Preview</span>
+          <div class="node-screen">Preferencias &mdash; Dark Mode</div>
+          <div class="node-header">
+            <div class="node-step"><span>7a</span></div>
+            <div class="node-title">
+              <span>&#x1F311;</span> Modo Oscuro Activado
+            </div>
+          </div>
+          <div class="node-state">
+            Transicion instantanea a fondo oscuro. Todos los colores se adaptan
+            automaticamente para mantener legibilidad y contraste.
+          </div>
+          <div class="mini-ui" style="background:rgba(0,0,0,0.45); border:1px solid rgba(255,255,255,0.08);">
+            <div class="mini-toggle-row">
+              <span class="mtl" style="font-weight:700;">Modo Oscuro</span>
+              <div class="mini-toggle on"></div>
+            </div>
+            <div style="display:flex; gap:8px; margin-top:8px;">
+              <div style="flex:1; padding:8px; border-radius:8px; background:rgba(74,124,89,0.15); border:1px solid rgba(90,156,106,0.3); text-align:center;">
+                <div style="font-size:10px; color:var(--primary-border); font-weight:600;">Fondos</div>
+                <div style="width:100%; height:20px; border-radius:4px; margin-top:4px; background:linear-gradient(to right, #0a0a1a, #1a1a2e, #2a2a4a);"></div>
+              </div>
+              <div style="flex:1; padding:8px; border-radius:8px; background:rgba(232,168,124,0.1); border:1px solid rgba(212,149,106,0.3); text-align:center;">
+                <div style="font-size:10px; color:var(--accent); font-weight:600;">Acentos</div>
+                <div style="width:100%; height:20px; border-radius:4px; margin-top:4px; background:linear-gradient(to right, var(--primary), var(--accent), var(--secondary));"></div>
+              </div>
+            </div>
+          </div>
+          <div class="node-thought" style="border-left-color: var(--purple);">
+            "El modo oscuro me gusta de noche."
+          </div>
+        </div>
+
+      </div><!-- /path-a -->
+
+      <!-- ═══════════════════════════════════════ -->
+      <!-- PATH B: Learned Data Management         -->
+      <!-- ═══════════════════════════════════════ -->
+      <div class="path-content" id="path-b">
+
+        <div class="connector">
+          <div style="display:flex;flex-direction:column;align-items:center;">
+            <div class="connector-line amber"></div>
+            <div class="connector-arrow amber"></div>
+          </div>
+        </div>
+
+        <!-- Step 4b: Datos View -->
+        <div class="node amber-node" tabindex="0">
+          <div class="node-screen">Datos &mdash; Learned Mappings</div>
+          <div class="node-header">
+            <div class="node-step"><span>4b</span></div>
+            <div class="node-title">
+              <span>&#x1F9E0;</span> Vista de Datos Aprendidos
+            </div>
+          </div>
+          <div class="node-state">
+            3 pestanas muestran todo lo que la app ha aprendido: mapeos de categorias
+            (comercio a categoria), comercios de confianza y mapeos de subcategorias.
+            Cada mapeo puede eliminarse individualmente.
+          </div>
+          <div class="mini-ui">
+            <div class="mini-tabs">
+              <div class="mini-tab active">&#x1F4C1; Categories</div>
+              <div class="mini-tab">&#x1F3EA; Merchants</div>
+              <div class="mini-tab">&#x1F3F7;&#xFE0F; Subcategories</div>
+            </div>
+
+            <div class="mapping-row">
+              <span class="mr-from">Lider Express</span>
+              <span class="mr-arrow">&#x2192;</span>
+              <span class="mr-to" style="color:var(--primary-border);">Alimentacion</span>
+              <span class="mr-delete">&#x1F5D1;</span>
+            </div>
+            <div class="mapping-row">
+              <span class="mr-from">Shell La Dehesa</span>
+              <span class="mr-arrow">&#x2192;</span>
+              <span class="mr-to" style="color:var(--secondary);">Transporte</span>
+              <span class="mr-delete">&#x1F5D1;</span>
+            </div>
+            <div class="mapping-row" style="border-color:rgba(239,68,68,0.3); background:rgba(239,68,68,0.06);">
+              <span class="mr-from">Farmacia Cruz Verde</span>
+              <span class="mr-arrow">&#x2192;</span>
+              <span class="mr-to" style="color:var(--red);">Otros &#x26A0;&#xFE0F;</span>
+              <span class="mr-delete" style="opacity:1;">&#x1F5D1;</span>
+            </div>
+            <div class="mapping-row">
+              <span class="mr-from">Copec Vitacura</span>
+              <span class="mr-arrow">&#x2192;</span>
+              <span class="mr-to" style="color:var(--secondary);">Transporte</span>
+              <span class="mr-delete">&#x1F5D1;</span>
+            </div>
+
+            <div style="text-align:center; margin-top:8px;">
+              <span style="font-size:10px; color:var(--muted);">4 mapeos aprendidos</span>
+            </div>
+          </div>
+          <div class="node-thought" style="border-left-color: var(--amber);">
+            "Quiero revisar que ha aprendido la app."
+          </div>
+        </div>
+
+        <div class="connector">
+          <div style="display:flex;flex-direction:column;align-items:center;">
+            <div class="connector-line grad-pr"></div>
+            <div class="connector-arrow red"></div>
+          </div>
+          <span class="connector-label right red">Elimina mapeo incorrecto</span>
+        </div>
+
+        <!-- Step 5b: Delete Mapping -->
+        <div class="node action-node" tabindex="0">
+          <div class="node-screen">Datos &mdash; Eliminar Mapeo</div>
+          <div class="node-header">
+            <div class="node-step"><span>5b</span></div>
+            <div class="node-title">
+              <span>&#x1F5D1;&#xFE0F;</span> Eliminar Mapeo Incorrecto
+            </div>
+          </div>
+          <div class="node-state">
+            El usuario encuentra "Farmacia Cruz Verde &rarr; Otros" que estaba mal clasificado.
+            Al eliminar el mapeo, el proximo escaneo en ese comercio re-aprendera la categoria correcta.
+          </div>
+          <div class="mini-ui">
+            <div class="mini-dialog" style="background:rgba(239,68,68,0.08); border-color:rgba(239,68,68,0.2);">
+              <div class="md-icon">&#x1F5D1;&#xFE0F;</div>
+              <div class="md-title" style="color:var(--red);">Eliminar mapeo?</div>
+              <div class="md-desc">
+                "Farmacia Cruz Verde &rarr; Otros"<br>
+                El proximo escaneo aprendera de nuevo.
+              </div>
+              <div class="mini-btn-row">
+                <button class="mini-btn muted-btn">Cancelar</button>
+                <button class="mini-btn red-btn">Eliminar</button>
+              </div>
+            </div>
+            <div style="margin-top:8px;">
+              <div class="mapping-row strikethrough" style="border-color:rgba(239,68,68,0.2); opacity:0.5;">
+                <span class="mr-from">Farmacia Cruz Verde</span>
+                <span class="mr-arrow">&#x2192;</span>
+                <span class="mr-to" style="color:var(--red);">Otros</span>
+                <span style="font-size:12px; color:var(--green);">&#x2713;</span>
+              </div>
+            </div>
+          </div>
+          <div class="node-thought">
+            "Eso estaba mal, lo borro."
+          </div>
+        </div>
+
+      </div><!-- /path-b -->
+
+      <!-- ═══════════════════════════════════════ -->
+      <!-- PATH C: Subscription & Credits          -->
+      <!-- ═══════════════════════════════════════ -->
+      <div class="path-content" id="path-c">
+
+        <div class="connector">
+          <div style="display:flex;flex-direction:column;align-items:center;">
+            <div class="connector-line green"></div>
+            <div class="connector-arrow green"></div>
+          </div>
+        </div>
+
+        <!-- Step 4c: Subscription View -->
+        <div class="node green-accent-node" tabindex="0">
+          <span class="callout trust">Transparencia</span>
+          <div class="node-screen">Suscripcion</div>
+          <div class="node-header">
+            <div class="node-step"><span>4c</span></div>
+            <div class="node-title">
+              <span>&#x2B50;</span> Vista de Suscripcion y Creditos
+            </div>
+          </div>
+          <div class="node-state">
+            Detalle del plan actual, creditos disponibles (normales y super)
+            y cuenta regresiva para la renovacion. Transparencia total sobre
+            el consumo de recursos.
+          </div>
+          <div class="mini-ui">
+            <div style="text-align:center; margin-bottom:10px;">
+              <div style="font-size:10px; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:0.08em;">Plan Actual</div>
+              <div style="font-size:20px; font-weight:800; color:var(--green); margin-top:4px;">Basico</div>
+            </div>
+
+            <div class="credit-display">
+              <div class="credit-box normal-credits">
+                <div class="cb-num">15 <span style="font-size:12px; font-weight:500; color:var(--muted);">/ 20</span></div>
+                <div class="cb-label">Creditos Normales</div>
+                <div class="mini-progress" style="margin-top:6px;">
+                  <div class="mini-progress-fill" style="width:75%; background:var(--primary-border);"></div>
+                </div>
+              </div>
+              <div class="credit-box super-credits">
+                <div class="cb-num">2 <span style="font-size:12px; font-weight:500; color:var(--muted);">/ 3</span></div>
+                <div class="cb-label">Creditos Super</div>
+                <div class="mini-progress" style="margin-top:6px;">
+                  <div class="mini-progress-fill" style="width:66%; background:var(--accent);"></div>
+                </div>
+              </div>
+            </div>
+
+            <div style="text-align:center; margin-top:10px; padding:10px; background:rgba(255,255,255,0.04); border-radius:10px; border:1px solid rgba(255,255,255,0.06);">
+              <div style="font-size:11px; color:var(--muted);">Proxima renovacion</div>
+              <div style="font-size:15px; font-weight:700; color:var(--text); margin-top:4px;">
+                &#x1F4C5; 1 de Abril <span style="font-size:11px; color:var(--amber); font-weight:500;">(12 dias)</span>
+              </div>
+            </div>
+          </div>
+          <div class="node-thought" style="border-left-color: var(--green);">
+            "Ah, me quedan 15 creditos. Bien."
+          </div>
+        </div>
+
+      </div><!-- /path-c -->
+
+      <!-- ═══════════════════════════════════════ -->
+      <!-- PATH D: Account & Data                  -->
+      <!-- ═══════════════════════════════════════ -->
+      <div class="path-content" id="path-d">
+
+        <div class="connector">
+          <div style="display:flex;flex-direction:column;align-items:center;">
+            <div class="connector-line pink"></div>
+            <div class="connector-arrow pink"></div>
+          </div>
+        </div>
+
+        <!-- Step 4d: Account View -->
+        <div class="node pink-node" tabindex="0">
+          <div class="node-screen">Cuenta</div>
+          <div class="node-header">
+            <div class="node-step"><span>4d</span></div>
+            <div class="node-title">
+              <span>&#x1F512;</span> Vista de Cuenta y Datos
+            </div>
+          </div>
+          <div class="node-state">
+            Acciones sobre la cuenta: exportar todos los datos como CSV
+            o borrar toda la base de datos (accion destructiva con confirmacion doble).
+          </div>
+          <div class="mini-ui">
+            <div class="mini-card" style="border-color:rgba(236,72,153,0.2);">
+              <div style="display:flex; align-items:center; gap:10px; margin-bottom:6px;">
+                <span style="font-size:20px;">&#x1F4E5;</span>
+                <div>
+                  <div style="font-size:13px; font-weight:700; color:var(--text);">Exportar todos mis datos</div>
+                  <div style="font-size:11px; color:var(--muted);">Descarga un CSV con todas tus transacciones</div>
+                </div>
+              </div>
+              <button class="mini-btn" style="background:var(--pink); color:#fff;">&#x1F4BE; Exportar CSV</button>
+            </div>
+            <div class="mini-card" style="border-color:rgba(239,68,68,0.3); background:rgba(239,68,68,0.04);">
+              <div style="display:flex; align-items:center; gap:10px; margin-bottom:6px;">
+                <span style="font-size:20px;">&#x26A0;&#xFE0F;</span>
+                <div>
+                  <div style="font-size:13px; font-weight:700; color:var(--red);">Borrar toda mi base de datos</div>
+                  <div style="font-size:11px; color:var(--muted);">Accion irreversible. Elimina transacciones y datos aprendidos.</div>
+                </div>
+              </div>
+              <button class="mini-btn red-btn" style="opacity:0.7;">&#x1F5D1;&#xFE0F; Borrar Todo</button>
+            </div>
+          </div>
+          <div class="node-thought" style="border-left-color: var(--pink);">
+            "Mejor hago un respaldo."
+          </div>
+        </div>
+
+        <div class="connector">
+          <div style="display:flex;flex-direction:column;align-items:center;">
+            <div class="connector-line pink"></div>
+            <div class="connector-arrow green"></div>
+          </div>
+          <span class="connector-label right pink">Toca "Exportar CSV"</span>
+        </div>
+
+        <!-- Step 5d: Export Success -->
+        <div class="node success-node" tabindex="0">
+          <div class="node-screen">Cuenta &mdash; Exportar</div>
+          <div class="node-header">
+            <div class="node-step"><span>5d</span></div>
+            <div class="node-title">
+              <span>&#x1F4E5;</span> Exportacion Completa
+            </div>
+          </div>
+          <div class="node-state">
+            Descarga CSV de todas las transacciones. Indicador de progreso
+            y confirmacion de descarga exitosa.
+          </div>
+          <div class="mini-ui">
+            <div style="text-align:center; padding:12px;">
+              <div style="font-size:32px; margin-bottom:8px;">&#x2705;</div>
+              <div style="font-size:14px; font-weight:700; color:var(--green);">Exportacion completa</div>
+              <div style="font-size:11px; color:var(--muted); margin-top:4px;">gastify-export-2026-03-19.csv</div>
+              <div class="mini-progress" style="margin-top:8px;">
+                <div class="mini-progress-fill" style="width:100%; background:var(--green);"></div>
+              </div>
+              <div style="font-size:10px; color:var(--green); margin-top:4px;">247 transacciones exportadas</div>
+            </div>
+          </div>
+          <div class="node-thought" style="border-left-color: var(--green);">
+            "Listo, tengo mi respaldo."
+          </div>
+        </div>
+
+        <div class="connector">
+          <div style="display:flex;flex-direction:column;align-items:center;">
+            <div class="connector-line grad-kr"></div>
+            <div class="connector-arrow red"></div>
+          </div>
+          <span class="connector-label right pink">Vuelve a Settings Main</span>
+        </div>
+
+        <!-- Step 6d: Sign Out -->
+        <div class="node action-node" tabindex="0">
+          <span class="callout destructive">Cierre de Sesion</span>
+          <div class="node-screen">SignOutDialog</div>
+          <div class="node-header">
+            <div class="node-step"><span>6d</span></div>
+            <div class="node-title">
+              <span>&#x1F6AA;</span> Cerrar Sesion
+            </div>
+          </div>
+          <div class="node-state">
+            Desde el footer de Settings Main, el usuario toca "Cerrar Sesion".
+            Dialogo de confirmacion con advertencia antes de desloguearse.
+          </div>
+          <div class="mini-ui">
+            <div class="mini-dialog" style="border-color:rgba(239,68,68,0.2);">
+              <div class="md-icon">&#x1F6AA;</div>
+              <div class="md-title" style="color:var(--red);">Cerrar sesion?</div>
+              <div class="md-desc">
+                Tus datos quedan guardados en la nube.<br>
+                Puedes volver a iniciar sesion en cualquier momento.
+              </div>
+              <div class="mini-btn-row">
+                <button class="mini-btn muted-btn">Cancelar</button>
+                <button class="mini-btn red-btn">Cerrar sesion</button>
+              </div>
+            </div>
+          </div>
+          <div class="node-thought">
+            "Confirmo para cerrar sesion."
+          </div>
+        </div>
+
+        <div class="connector">
+          <div style="display:flex;flex-direction:column;align-items:center;">
+            <div class="connector-line red"></div>
+            <div class="connector-arrow green"></div>
+          </div>
+          <span class="connector-label right red">Confirma</span>
+        </div>
+
+        <!-- Step 7d: Login Screen -->
+        <div class="node success-node" tabindex="0">
+          <div class="node-screen">Login</div>
+          <div class="node-header">
+            <div class="node-step"><span>7d</span></div>
+            <div class="node-title">
+              <span>&#x1F513;</span> Regresa a Login
+            </div>
+          </div>
+          <div class="node-state">
+            Sesion cerrada exitosamente. El usuario ve la pantalla de login
+            de Gastify.
+          </div>
+          <div class="mini-ui">
+            <div style="text-align:center; padding:12px;">
+              <div style="font-size:24px; font-weight:800; margin-bottom:8px;">
+                <span style="background:linear-gradient(135deg, var(--primary-border), var(--accent)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;">GASTIFY</span>
+              </div>
+              <div style="font-size:11px; color:var(--muted); margin-bottom:12px;">Inicia sesion para continuar</div>
+              <button class="mini-btn primary-btn">&#x1F310; Continuar con Google</button>
+            </div>
+          </div>
+          <div class="node-thought" style="border-left-color: var(--green);">
+            "Sesion cerrada. Mis datos estan seguros en la nube."
+          </div>
+        </div>
+
+      </div><!-- /path-d -->
+
+    </div><!-- /timeline -->
+  </div><!-- /flow -->
+
+  <!-- Summary -->
+  <div class="summary-bar">
+    <div class="summary-title">Resumen del Flujo</div>
+    <div class="summary-grid">
+      <div>
+        <div class="summary-num" style="color:var(--indigo);">9</div>
+        <div class="summary-label">Subvistas de Settings</div>
+      </div>
+      <div>
+        <div class="summary-num" style="color:var(--purple);">3</div>
+        <div class="summary-label">Temas disponibles</div>
+      </div>
+      <div>
+        <div class="summary-num" style="color:var(--amber);">3</div>
+        <div class="summary-label">Tabs de datos aprendidos</div>
+      </div>
+      <div>
+        <div class="summary-num" style="color:var(--green);">0</div>
+        <div class="summary-label" style="line-height:1.3;">Recargas para personalizar</div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+<script>
+  // Tab switching
+  function switchTab(tabId) {
+    // Deactivate all tabs and content
+    document.querySelectorAll('.path-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.path-content').forEach(c => c.classList.remove('active'));
+
+    // Activate selected
+    const content = document.getElementById(tabId);
+    if (content) {
+      content.classList.add('active');
+      // Re-trigger entrance animation for newly visible nodes
+      content.querySelectorAll('.node, .connector').forEach(el => {
+        el.classList.remove('visible');
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            el.classList.add('visible');
+          });
+        });
+      });
+    }
+
+    // Activate corresponding tab button
+    const tabMap = {
+      'path-a': 'tab-indigo',
+      'path-b': 'tab-amber',
+      'path-c': 'tab-green',
+      'path-d': 'tab-pink'
+    };
+    const tabClass = tabMap[tabId];
+    if (tabClass) {
+      document.querySelectorAll('.path-tab.' + tabClass).forEach(t => t.classList.add('active'));
+    }
+  }
+
+  // Scroll-based entrance animations
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, {
+    threshold: 0.15,
+    rootMargin: '0px 0px -40px 0px'
+  });
+
+  document.querySelectorAll('.node, .phase-divider, .connector, .hub-visual, .path-tabs').forEach(el => {
+    observer.observe(el);
+  });
+</script>
+
+</body>
+</html>

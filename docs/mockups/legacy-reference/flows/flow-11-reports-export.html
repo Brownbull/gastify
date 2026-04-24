@@ -1,0 +1,2215 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gastify — Flujo 11: Reports & PDF Export</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #1a1a2e;
+    --bg-lighter: #22224a;
+    --surface: #2a2a4a;
+    --border: #3a3a6a;
+    --text: #e8e8f0;
+    --muted: #8888aa;
+    --primary: #4a7c59;
+    --primary-dim: #1a3a24;
+    --primary-border: #5a9c6a;
+    --accent: #e8a87c;
+    --accent-dim: #4a3020;
+    --accent-border: #d4956a;
+    --secondary: #5b8fa8;
+    --secondary-dim: #1e3a4a;
+    --secondary-border: #4a7a96;
+    --green: #34d399;
+    --green-dim: #064e3b;
+    --green-border: #10b981;
+    --amber: #fbbf24;
+    --amber-dim: #78350f;
+    --amber-border: #f59e0b;
+    --blue: #60a5fa;
+    --blue-dim: #1e3a5f;
+    --blue-border: #3b82f6;
+    --purple: #a78bfa;
+    --purple-dim: #3b1f7a;
+    --purple-border: #8b5cf6;
+    --red: #f87171;
+    --red-dim: #5b1a1a;
+    --red-border: #ef4444;
+    --gold: #fde68a;
+    --gold-dim: #4a3f1a;
+    --gold-border: #fbbf24;
+  }
+
+  body {
+    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background:
+      radial-gradient(ellipse at 20% 20%, rgba(74, 124, 89, 0.08) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 60%, rgba(232, 168, 124, 0.06) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 90%, rgba(91, 143, 168, 0.05) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 20px 100px;
+  }
+
+  /* -- Brand Header -- */
+  .brand-header {
+    text-align: center;
+    margin-bottom: 12px;
+  }
+  .brand-name {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--primary);
+    opacity: 0.7;
+  }
+
+  /* -- Flow Header -- */
+  .flow-header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+  .flow-header h1 {
+    font-size: 32px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin-bottom: 12px;
+    line-height: 1.2;
+    background: linear-gradient(135deg, var(--primary-border), var(--accent), var(--secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .flow-header .subtitle {
+    font-size: 15px;
+    font-weight: 400;
+    color: var(--muted);
+    line-height: 1.7;
+    max-width: 680px;
+    margin: 0 auto;
+  }
+  .flow-header .subtitle strong {
+    color: var(--text);
+    font-weight: 600;
+  }
+  .flow-header .value-tag {
+    display: inline-block;
+    margin-top: 16px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 6px 18px;
+    border-radius: 20px;
+    background: var(--secondary-dim);
+    border: 1px solid var(--secondary-border);
+    color: var(--secondary-border);
+  }
+
+  /* -- Nav Reference Bar -- */
+  .nav-ref {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0;
+    margin-bottom: 36px;
+    padding: 10px 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    max-width: 420px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    padding: 6px 16px;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--muted);
+    letter-spacing: 0.03em;
+    position: relative;
+  }
+  .nav-item.active {
+    color: var(--primary-border);
+  }
+  .nav-item.active::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 20px;
+    height: 3px;
+    border-radius: 2px;
+    background: var(--primary-border);
+  }
+  .nav-item .nav-icon { font-size: 18px; }
+  .nav-fab {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary), var(--primary-border));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(74, 124, 89, 0.4);
+    margin: 0 8px;
+    flex-shrink: 0;
+  }
+
+  /* -- Legend -- */
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    justify-content: center;
+    margin-bottom: 36px;
+    padding: 16px 24px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 12px;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--muted);
+  }
+  .legend-swatch {
+    width: 14px;
+    height: 14px;
+    border-radius: 4px;
+    border: 2px solid;
+    flex-shrink: 0;
+  }
+  .legend-swatch.red { border-color: var(--red-border); background: var(--red-dim); }
+  .legend-swatch.amber { border-color: var(--amber-border); background: var(--amber-dim); }
+  .legend-swatch.blue { border-color: var(--blue-border); background: var(--blue-dim); }
+  .legend-swatch.green { border-color: var(--green-border); background: var(--green-dim); }
+  .legend-swatch.purple {
+    border-color: var(--purple-border);
+    background: var(--purple-dim);
+    border-radius: 50%;
+    transform: rotate(45deg);
+  }
+
+  /* -- Flow Container -- */
+  .flow {
+    width: 100%;
+    position: relative;
+  }
+
+  /* -- Timeline -- */
+  .timeline {
+    position: relative;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 24px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: linear-gradient(to bottom,
+      var(--blue) 0%,
+      var(--blue) 18%,
+      var(--amber) 25%,
+      var(--amber) 40%,
+      var(--secondary) 48%,
+      var(--secondary) 62%,
+      var(--green) 70%,
+      var(--green) 82%,
+      var(--purple) 90%,
+      var(--purple) 100%
+    );
+    opacity: 0.25;
+    border-radius: 1px;
+  }
+
+  /* -- Phase Dividers -- */
+  .phase-divider {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 36px 0 20px;
+    padding-left: 0;
+    position: relative;
+  }
+  .phase-divider:first-child { margin-top: 0; }
+  .phase-day {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-weight: 700;
+    font-size: 10px;
+    letter-spacing: 0.05em;
+    line-height: 1.2;
+    position: relative;
+    z-index: 2;
+    cursor: pointer;
+  }
+  .phase-day .day-num {
+    font-size: 16px;
+    font-weight: 800;
+    line-height: 1;
+  }
+  .phase-day.blue-phase {
+    background: var(--blue-dim);
+    border: 2px solid var(--blue-border);
+    color: var(--blue);
+  }
+  .phase-day.amber-phase {
+    background: var(--amber-dim);
+    border: 2px solid var(--amber-border);
+    color: var(--amber);
+  }
+  .phase-day.secondary-phase {
+    background: var(--secondary-dim);
+    border: 2px solid var(--secondary-border);
+    color: var(--secondary);
+  }
+  .phase-day.green-phase {
+    background: var(--green-dim);
+    border: 2px solid var(--green-border);
+    color: var(--green);
+  }
+  .phase-day.purple-phase {
+    background: var(--purple-dim);
+    border: 2px solid var(--purple-border);
+    color: var(--purple);
+  }
+  .phase-info {
+    flex: 1;
+  }
+  .phase-title {
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+  .phase-title.blue-text { color: var(--blue); }
+  .phase-title.amber-text { color: var(--amber); }
+  .phase-title.secondary-text { color: var(--secondary); }
+  .phase-title.green-text { color: var(--green); }
+  .phase-title.purple-text { color: var(--purple); }
+  .phase-subtitle {
+    font-size: 12px;
+    color: var(--muted);
+    font-weight: 400;
+    margin-top: 2px;
+  }
+  .phase-line {
+    flex: 0;
+    height: 2px;
+    min-width: 40px;
+    flex-grow: 1;
+    border-radius: 1px;
+    opacity: 0.3;
+  }
+  .phase-line.blue-line { background: var(--blue); }
+  .phase-line.amber-line { background: var(--amber); }
+  .phase-line.secondary-line { background: var(--secondary); }
+  .phase-line.green-line { background: var(--green); }
+  .phase-line.purple-line { background: var(--purple); }
+
+  /* -- Nodes -- */
+  .node {
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: 16px;
+    padding: 20px 24px;
+    position: relative;
+    margin-bottom: 0;
+    margin-left: 50px;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .node:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+  }
+  .node-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  .node-step {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    font-size: 12px;
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .node-title {
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.4;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .node-screen {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 2px 8px;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    background: rgba(255,255,255,0.06);
+    color: var(--muted);
+  }
+  .node-state {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 10px;
+    line-height: 1.5;
+    font-weight: 400;
+  }
+  .node-thought {
+    font-size: 12px;
+    font-style: italic;
+    color: #9999bb;
+    padding: 8px 12px;
+    background: rgba(255,255,255,0.03);
+    border-radius: 8px;
+    border-left: 3px solid;
+    line-height: 1.5;
+    font-weight: 400;
+  }
+
+  /* Node variants */
+  .node.action-node {
+    border-color: var(--red-border);
+    background: linear-gradient(135deg, var(--red-dim), #3a1a2a);
+  }
+  .node.action-node .node-title { color: var(--red); }
+  .node.action-node .node-thought { border-left-color: var(--red); }
+  .node.action-node .node-step { background: var(--red); color: #111; }
+
+  .node.screen-node {
+    border-color: var(--blue-border);
+    background: linear-gradient(135deg, var(--blue-dim), #1a2a4a);
+  }
+  .node.screen-node .node-title { color: var(--blue); }
+  .node.screen-node .node-thought { border-left-color: var(--blue); }
+  .node.screen-node .node-step { background: var(--blue); color: #111; }
+
+  .node.success-node {
+    border-color: var(--green-border);
+    background: linear-gradient(135deg, var(--green-dim), #0a3a2a);
+  }
+  .node.success-node .node-title { color: var(--green); }
+  .node.success-node .node-thought { border-left-color: var(--green); }
+  .node.success-node .node-step { background: var(--green); color: #111; }
+
+  .node.key-moment-node {
+    border-color: var(--purple-border);
+    border-width: 3px;
+    background: linear-gradient(135deg, var(--purple-dim), #2a1a4a);
+  }
+  .node.key-moment-node .node-title { color: var(--purple); }
+  .node.key-moment-node .node-thought { border-left-color: var(--purple); }
+  .node.key-moment-node .node-step {
+    background: var(--purple);
+    color: #111;
+    width: 28px;
+    height: 28px;
+    transform: rotate(45deg);
+    border-radius: 6px;
+  }
+  .node.key-moment-node .node-step span {
+    display: inline-block;
+    transform: rotate(-45deg);
+  }
+
+  .node.detail-node {
+    border-color: var(--amber-border);
+    background: linear-gradient(135deg, var(--amber-dim), #3a2a10);
+  }
+  .node.detail-node .node-title { color: var(--amber); }
+  .node.detail-node .node-thought { border-left-color: var(--amber); }
+  .node.detail-node .node-step { background: var(--amber); color: #111; }
+
+  .node.secondary-node {
+    border-color: var(--secondary-border);
+    background: linear-gradient(135deg, var(--secondary-dim), #1a2a3a);
+  }
+  .node.secondary-node .node-title { color: var(--secondary); }
+  .node.secondary-node .node-thought { border-left-color: var(--secondary); }
+  .node.secondary-node .node-step { background: var(--secondary); color: #111; }
+
+  /* -- Callout Badge -- */
+  .callout {
+    position: absolute;
+    top: -10px;
+    right: -8px;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 12px;
+    border-radius: 10px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    z-index: 2;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    white-space: nowrap;
+  }
+  .callout.key-moment { background: var(--purple); color: #fff; }
+  .callout.export { background: var(--green); color: #111; }
+  .callout.cross-nav { background: var(--secondary); color: #fff; }
+
+  /* -- Connectors -- */
+  .connector {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px 0;
+    position: relative;
+    margin-left: 50px;
+  }
+  .connector-line {
+    width: 3px;
+    height: 32px;
+    border-radius: 2px;
+  }
+  .connector-line.red { background: var(--red); }
+  .connector-line.amber { background: var(--amber); }
+  .connector-line.blue { background: var(--blue); }
+  .connector-line.green { background: var(--green); }
+  .connector-line.purple { background: var(--purple); }
+  .connector-line.secondary { background: var(--secondary); }
+  .connector-line.neutral { background: var(--border); }
+  .connector-line.grad-rb { background: linear-gradient(to bottom, var(--red), var(--blue)); }
+  .connector-line.grad-ba { background: linear-gradient(to bottom, var(--blue), var(--amber)); }
+  .connector-line.grad-ar { background: linear-gradient(to bottom, var(--amber), var(--red)); }
+  .connector-line.grad-ra { background: linear-gradient(to bottom, var(--red), var(--amber)); }
+  .connector-line.grad-as { background: linear-gradient(to bottom, var(--amber), var(--secondary)); }
+  .connector-line.grad-sr { background: linear-gradient(to bottom, var(--secondary), var(--red)); }
+  .connector-line.grad-sa { background: linear-gradient(to bottom, var(--secondary), var(--amber)); }
+  .connector-line.grad-sb { background: linear-gradient(to bottom, var(--secondary), var(--blue)); }
+  .connector-line.grad-bs { background: linear-gradient(to bottom, var(--blue), var(--secondary)); }
+  .connector-line.grad-sg { background: linear-gradient(to bottom, var(--secondary), var(--green)); }
+  .connector-line.grad-rg { background: linear-gradient(to bottom, var(--red), var(--green)); }
+  .connector-line.grad-gr { background: linear-gradient(to bottom, var(--green), var(--red)); }
+  .connector-line.grad-ga { background: linear-gradient(to bottom, var(--green), var(--amber)); }
+  .connector-line.grad-gp { background: linear-gradient(to bottom, var(--green), var(--purple)); }
+  .connector-line.grad-ap { background: linear-gradient(to bottom, var(--amber), var(--purple)); }
+  .connector-line.grad-rp { background: linear-gradient(to bottom, var(--red), var(--purple)); }
+
+  .connector-arrow {
+    width: 0;
+    height: 0;
+    border-left: 7px solid transparent;
+    border-right: 7px solid transparent;
+  }
+  .connector-arrow.red { border-top: 9px solid var(--red); }
+  .connector-arrow.amber { border-top: 9px solid var(--amber); }
+  .connector-arrow.blue { border-top: 9px solid var(--blue); }
+  .connector-arrow.green { border-top: 9px solid var(--green); }
+  .connector-arrow.purple { border-top: 9px solid var(--purple); }
+  .connector-arrow.secondary { border-top: 9px solid var(--secondary); }
+
+  .connector-label {
+    position: absolute;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 10px;
+    border-radius: 10px;
+    white-space: nowrap;
+  }
+  .connector-label.right { left: calc(50% + 20px); }
+  .connector-label.left { right: calc(50% + 20px); }
+  .connector-label.red { color: var(--red); background: var(--red-dim); }
+  .connector-label.amber { color: var(--amber); background: var(--amber-dim); }
+  .connector-label.blue { color: var(--blue); background: var(--blue-dim); }
+  .connector-label.green { color: var(--green); background: var(--green-dim); }
+  .connector-label.purple { color: var(--purple); background: var(--purple-dim); }
+  .connector-label.secondary { color: var(--secondary); background: var(--secondary-dim); }
+
+  /* -- Mini UI (inline mockups) -- */
+  .mini-ui {
+    background: rgba(0,0,0,0.25);
+    border-radius: 12px;
+    padding: 12px;
+    margin: 10px 0;
+  }
+  .mini-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 10px;
+    border-radius: 8px;
+    margin-bottom: 4px;
+    font-size: 12px;
+    font-weight: 500;
+  }
+  .mini-row:last-child { margin-bottom: 0; }
+  .mini-row .mini-label { flex: 1; }
+  .mini-row .mini-value {
+    font-weight: 600;
+    font-size: 11px;
+  }
+
+  .mini-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin-bottom: 6px;
+  }
+  .mini-card:last-child { margin-bottom: 0; }
+
+  .mini-btn {
+    display: block;
+    width: 100%;
+    padding: 9px 12px;
+    border-radius: 10px;
+    border: none;
+    font-family: 'Outfit', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    text-align: center;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: transform 0.15s, opacity 0.15s;
+  }
+  .mini-btn:hover { transform: scale(1.02); }
+  .mini-btn:active { transform: scale(0.98); }
+  .mini-btn.primary-btn { background: var(--primary-border); color: #fff; }
+  .mini-btn.accent-btn { background: var(--accent); color: #111; }
+  .mini-btn.green-btn { background: var(--green); color: #111; }
+  .mini-btn.secondary-btn { background: var(--secondary); color: #fff; }
+  .mini-btn.muted-btn {
+    background: rgba(255,255,255,0.08);
+    color: var(--muted);
+    font-weight: 500;
+  }
+  .mini-btn-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+  }
+  .mini-btn-row .mini-btn {
+    margin-top: 0;
+    flex: 1;
+  }
+
+  /* -- Accordion UI -- */
+  .mini-accordion {
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 6px;
+  }
+  .mini-accordion-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    background: rgba(255,255,255,0.04);
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    transition: background 0.2s;
+  }
+  .mini-accordion-header:hover {
+    background: rgba(255,255,255,0.07);
+  }
+  .mini-accordion-header .acc-icon {
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  .mini-accordion-header .acc-title { flex: 1; }
+  .mini-accordion-header .acc-count {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.08);
+    color: var(--muted);
+  }
+  .mini-accordion-header .acc-chevron {
+    font-size: 12px;
+    color: var(--muted);
+    transition: transform 0.2s;
+  }
+  .mini-accordion-header.expanded .acc-chevron {
+    transform: rotate(180deg);
+  }
+  .mini-accordion-body {
+    padding: 0 12px 10px;
+    font-size: 12px;
+  }
+
+  /* -- Report Row -- */
+  .mini-report-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    margin-bottom: 4px;
+    background: rgba(255,255,255,0.03);
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .mini-report-row:hover {
+    background: rgba(255,255,255,0.07);
+  }
+  .mini-report-row .rr-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    flex-shrink: 0;
+  }
+  .mini-report-row .rr-info { flex: 1; }
+  .mini-report-row .rr-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .mini-report-row .rr-meta {
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: 1px;
+  }
+  .mini-report-row .rr-amount {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .mini-report-row .rr-trend {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 6px;
+  }
+  .mini-report-row .rr-trend.up {
+    background: var(--red-dim);
+    color: var(--red);
+  }
+  .mini-report-row .rr-trend.down {
+    background: var(--green-dim);
+    color: var(--green);
+  }
+
+  /* -- Donut Chart -- */
+  .mini-donut-container {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 10px 0;
+  }
+  .mini-donut {
+    width: 80px;
+    height: 80px;
+    flex-shrink: 0;
+    position: relative;
+  }
+  .mini-donut svg {
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+  }
+  .mini-donut-center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text);
+    text-align: center;
+    line-height: 1.1;
+  }
+  .mini-donut-center .donut-sub {
+    font-size: 8px;
+    font-weight: 500;
+    color: var(--muted);
+  }
+  .mini-donut-legend {
+    flex: 1;
+  }
+  .mini-donut-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 0;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--muted);
+  }
+  .mini-donut-legend-item .dl-swatch {
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+  .mini-donut-legend-item .dl-label { flex: 1; }
+  .mini-donut-legend-item .dl-pct {
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  /* -- Hero Card -- */
+  .mini-hero {
+    text-align: center;
+    padding: 16px 12px;
+    margin-bottom: 10px;
+  }
+  .mini-hero .hero-amount {
+    font-size: 32px;
+    font-weight: 800;
+    color: var(--text);
+    letter-spacing: -0.02em;
+  }
+  .mini-hero .hero-badge {
+    display: inline-block;
+    margin-top: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 12px;
+    border-radius: 10px;
+  }
+  .mini-hero .hero-badge.up {
+    background: var(--red-dim);
+    color: var(--red);
+    border: 1px solid rgba(239,68,68,0.3);
+  }
+
+  /* -- Insight Card -- */
+  .mini-insight {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 14px;
+    background: linear-gradient(135deg, var(--accent-dim), rgba(232,168,124,0.08));
+    border: 1px solid var(--accent-border);
+    border-radius: 10px;
+    margin: 8px 0;
+  }
+  .mini-insight .insight-icon {
+    font-size: 20px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .mini-insight .insight-text {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--accent);
+    line-height: 1.5;
+    font-style: italic;
+  }
+
+  /* -- Year Selector -- */
+  .mini-year-selector {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    padding: 8px 0;
+    margin-bottom: 8px;
+  }
+  .mini-year-selector .ys-arrow {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    color: var(--muted);
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .mini-year-selector .ys-arrow:hover {
+    background: rgba(255,255,255,0.1);
+  }
+  .mini-year-selector .ys-year {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--text);
+    letter-spacing: -0.02em;
+  }
+
+  /* -- Filter Chip -- */
+  .mini-filter-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 14px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  .mini-filter-chip.active {
+    background: var(--secondary-dim);
+    border: 1px solid var(--secondary-border);
+    color: var(--secondary);
+  }
+  .mini-filter-chip .chip-x {
+    font-size: 10px;
+    opacity: 0.7;
+    cursor: pointer;
+  }
+
+  /* -- Transaction List -- */
+  .mini-txn-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 10px;
+    border-radius: 8px;
+    margin-bottom: 3px;
+    background: rgba(255,255,255,0.03);
+    font-size: 12px;
+  }
+  .mini-txn-row .txn-icon {
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  .mini-txn-row .txn-info { flex: 1; }
+  .mini-txn-row .txn-name {
+    font-weight: 600;
+    color: var(--text);
+  }
+  .mini-txn-row .txn-date {
+    font-size: 10px;
+    color: var(--muted);
+  }
+  .mini-txn-row .txn-amount {
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  /* -- Overlay Header -- */
+  .mini-overlay-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+    margin-bottom: 8px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  .mini-overlay-header .oh-back {
+    font-size: 18px;
+    color: var(--muted);
+    cursor: pointer;
+  }
+  .mini-overlay-header .oh-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+    flex: 1;
+  }
+  .mini-overlay-header .oh-pill {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 10px;
+    background: var(--secondary-dim);
+    border: 1px solid var(--secondary-border);
+    color: var(--secondary);
+    cursor: pointer;
+    transition: transform 0.15s;
+  }
+  .mini-overlay-header .oh-pill:hover {
+    transform: scale(1.05);
+  }
+  .mini-overlay-header .oh-pdf {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    background: var(--green-dim);
+    border: 1px solid var(--green-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    cursor: pointer;
+    transition: transform 0.15s;
+  }
+  .mini-overlay-header .oh-pdf:hover {
+    transform: scale(1.1);
+  }
+
+  /* -- Print Preview -- */
+  .mini-print-preview {
+    background: #fff;
+    border-radius: 8px;
+    padding: 16px;
+    color: #222;
+    font-size: 11px;
+    line-height: 1.5;
+    position: relative;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+  }
+  .mini-print-preview .pp-brand {
+    text-align: center;
+    margin-bottom: 12px;
+  }
+  .mini-print-preview .pp-brand-name {
+    font-size: 16px;
+    font-weight: 800;
+    color: #4a7c59;
+    letter-spacing: 2px;
+  }
+  .mini-print-preview .pp-title {
+    font-size: 13px;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 10px;
+    color: #333;
+  }
+  .mini-print-preview .pp-total {
+    text-align: center;
+    font-size: 20px;
+    font-weight: 800;
+    color: #222;
+    margin-bottom: 8px;
+  }
+  .mini-print-preview .pp-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 3px 0;
+    border-bottom: 1px solid #eee;
+    font-size: 10px;
+    color: #555;
+  }
+  .mini-print-preview .pp-row span:last-child {
+    font-weight: 600;
+    color: #333;
+  }
+
+  /* -- Highlights Card -- */
+  .mini-highlight {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 8px;
+    margin-bottom: 4px;
+    border-left: 3px solid var(--primary-border);
+  }
+  .mini-highlight .hl-icon {
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  .mini-highlight .hl-info { flex: 1; }
+  .mini-highlight .hl-label {
+    font-size: 10px;
+    color: var(--muted);
+    font-weight: 500;
+  }
+  .mini-highlight .hl-value {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  /* -- Hover details -- */
+  .node-detail-expand {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease, padding 0.3s ease;
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+  .node:hover .node-detail-expand,
+  .node:focus-within .node-detail-expand {
+    max-height: 120px;
+    padding-top: 8px;
+  }
+  .node-detail-expand code {
+    font-size: 11px;
+    background: rgba(255,255,255,0.06);
+    padding: 1px 6px;
+    border-radius: 4px;
+    color: var(--text);
+    font-family: 'Courier New', monospace;
+  }
+
+  /* -- Emotional Arc -- */
+  .arc-section {
+    margin-top: 48px;
+    padding: 28px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+  }
+  .arc-title {
+    text-align: center;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    margin-bottom: 24px;
+  }
+  .arc-track {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 4px;
+    height: 140px;
+    padding: 0 8px 1px;
+    position: relative;
+  }
+  .arc-track::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0; right: 0;
+    height: 1px;
+    background: var(--border);
+  }
+  .arc-point {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    flex: 1;
+    min-width: 0;
+  }
+  .arc-emoji { font-size: 20px; }
+  .arc-bar-seg {
+    width: 100%;
+    max-width: 50px;
+    border-radius: 6px 6px 0 0;
+    transition: height 0.8s ease;
+  }
+  .arc-point-label {
+    font-size: 9px;
+    font-weight: 600;
+    color: var(--muted);
+    text-align: center;
+    line-height: 1.2;
+    margin-top: 6px;
+    max-width: 72px;
+  }
+
+  /* -- Summary -- */
+  .summary-bar {
+    margin-top: 24px;
+    padding: 28px;
+    background: var(--surface);
+    border-radius: 16px;
+    border: 1px solid var(--border);
+  }
+  .summary-title {
+    text-align: center;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    margin-bottom: 20px;
+  }
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 16px;
+    text-align: center;
+  }
+  .summary-num {
+    font-size: 30px;
+    font-weight: 800;
+  }
+  .summary-label {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  /* -- Responsive -- */
+  @media (max-width: 640px) {
+    .flow-header h1 { font-size: 24px; }
+    .node { padding: 16px 18px; margin-left: 40px; }
+    .connector { margin-left: 40px; }
+    .timeline::before { left: 18px; }
+    .phase-day { width: 38px; height: 38px; font-size: 9px; }
+    .phase-day .day-num { font-size: 13px; }
+    .phase-title { font-size: 14px; }
+    .nav-ref { max-width: 340px; }
+    .nav-item { padding: 6px 10px; font-size: 9px; }
+    .arc-point-label { font-size: 8px; max-width: 50px; }
+    .summary-grid { grid-template-columns: repeat(2, 1fr); }
+    .mini-donut-container { flex-direction: column; align-items: flex-start; }
+    .mini-hero .hero-amount { font-size: 26px; }
+  }
+
+  /* -- Entrance animation -- */
+  .node, .phase-divider, .connector {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  .node.visible, .phase-divider.visible, .connector.visible {
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- Brand Header -->
+  <div class="brand-header">
+    <div class="brand-name">Gastify</div>
+  </div>
+
+  <!-- Flow Header -->
+  <header class="flow-header">
+    <h1>Flujo 11: Reports &amp; PDF Export</h1>
+    <p class="subtitle">
+      El usuario explora sus <strong>reportes de gasto</strong> (semanal, mensual, trimestral, anual),
+      profundiza en el detalle con <strong>insights personalizados</strong>, navega a transacciones
+      relacionadas y <strong>exporta un PDF profesional</strong> para sus registros.
+    </p>
+    <span class="value-tag">Inteligencia Financiera &mdash; "Tus gastos, con perspectiva"</span>
+  </header>
+
+  <!-- Nav Reference Bar -->
+  <div class="nav-ref">
+        <div class="nav-item" data-nav="home">Home</div>
+        <div class="nav-item" data-nav="trends">Trends</div>
+        <div class="nav-item fab" data-nav="fab">FAB Scan</div>
+        <div class="nav-item" data-nav="reports">Reports</div>
+        <div class="nav-item" data-nav="alerts">Alerts</div>
+      </div>
+
+  <!-- Legend -->
+  <div class="legend">
+    <div class="legend-item"><div class="legend-swatch red"></div> Accion del usuario</div>
+    <div class="legend-item"><div class="legend-swatch amber"></div> Detalle / Overlay</div>
+    <div class="legend-item"><div class="legend-swatch blue"></div> Pantalla</div>
+    <div class="legend-item"><div class="legend-swatch green"></div> Exito / Exportacion</div>
+    <div class="legend-item"><div class="legend-swatch purple"></div> Momento clave</div>
+  </div>
+
+  <!-- Flow -->
+  <div class="flow">
+    <div class="timeline">
+
+      <!-- ══════════════════════════════════════════ -->
+      <!-- PHASE 1: Navegacion (steps 1-3)           -->
+      <!-- ══════════════════════════════════════════ -->
+
+      <div class="phase-divider" id="phase1">
+        <div class="phase-day blue-phase">
+          <span>Fase</span>
+          <span class="day-num">1</span>
+        </div>
+        <div class="phase-info">
+          <div class="phase-title blue-text">Fase 1: Navegacion</div>
+          <div class="phase-subtitle">Desde el dashboard hasta la vista de reportes</div>
+        </div>
+        <div class="phase-line blue-line"></div>
+      </div>
+
+      <!-- STEP 1: Dashboard (populated) -->
+      <div class="node screen-node" tabindex="0">
+        <div class="node-screen">Dashboard</div>
+        <div class="node-header">
+          <div class="node-step"><span>1</span></div>
+          <div class="node-title">
+            <span>&#x1F3E0;</span> Dashboard &mdash; estado poblado
+          </div>
+        </div>
+        <div class="node-state">
+          El usuario tiene datos de gastos acumulados. El dashboard muestra el resumen
+          del mes actual con transacciones recientes. Nav: Home activo.
+        </div>
+        <div class="mini-ui">
+          <div style="text-align:center; padding:8px 0;">
+            <div style="font-size:11px; color:var(--muted); font-weight:500;">Gasto del mes</div>
+            <div style="font-size:24px; font-weight:800; color:var(--text);">$342.560</div>
+            <div style="font-size:10px; color:var(--green); font-weight:600; margin-top:2px;">&#x2193; 8% vs mes anterior</div>
+          </div>
+          <div class="mini-txn-row">
+            <span class="txn-icon">&#x1F6D2;</span>
+            <div class="txn-info">
+              <div class="txn-name">Lider Express</div>
+              <div class="txn-date">Hoy &middot; Alimentacion</div>
+            </div>
+            <span class="txn-amount">-$12.450</span>
+          </div>
+          <div class="mini-txn-row" style="opacity:0.6;">
+            <span class="txn-icon">&#x26FD;</span>
+            <div class="txn-info">
+              <div class="txn-name">Copec</div>
+              <div class="txn-date">Ayer &middot; Transporte</div>
+            </div>
+            <span class="txn-amount">-$35.000</span>
+          </div>
+        </div>
+        <div class="node-thought">
+          "Quiero ver mi resumen de la semana."
+        </div>
+        <div class="node-detail-expand">
+          Estado: <code>populated</code>. Nav activo: <code>Home</code>.
+          Datos suficientes para generar reportes semanales/mensuales.
+        </div>
+      </div>
+
+      <div class="connector">
+        <div style="display:flex;flex-direction:column;align-items:center;">
+          <div class="connector-line grad-rb"></div>
+          <div class="connector-arrow red"></div>
+        </div>
+        <span class="connector-label right red">Toca Reports en nav</span>
+      </div>
+
+      <!-- STEP 2: Tap Reports (action) -->
+      <div class="node action-node" tabindex="0">
+        <div class="node-screen">Bottom Nav</div>
+        <div class="node-header">
+          <div class="node-step"><span>2</span></div>
+          <div class="node-title">
+            <span>&#x1F4CA;</span> Toca Reports (bottom nav)
+          </div>
+        </div>
+        <div class="node-state">
+          El usuario toca el icono BarChart3 en la barra de navegacion inferior.
+          Transicion a la vista de reportes. Nav: Reports se activa.
+        </div>
+        <div class="node-thought">
+          "Veamos que dice mi reporte esta semana."
+        </div>
+      </div>
+
+      <div class="connector">
+        <div style="display:flex;flex-direction:column;align-items:center;">
+          <div class="connector-line grad-rb"></div>
+          <div class="connector-arrow blue"></div>
+        </div>
+        <span class="connector-label right blue">Navega a Reports</span>
+      </div>
+
+      <!-- STEP 3: Reports View (4 accordion sections) -->
+      <div class="node screen-node" tabindex="0">
+        <div class="node-screen">Reports View</div>
+        <div class="node-header">
+          <div class="node-step"><span>3</span></div>
+          <div class="node-title">
+            <span>&#x1F4CB;</span> Vista de Reportes &mdash; 4 secciones
+          </div>
+        </div>
+        <div class="node-state">
+          Vista principal de reportes con selector de anio y 4 secciones tipo accordion.
+          Seccion semanal expandida por defecto.
+        </div>
+        <div class="mini-ui">
+          <!-- Year selector -->
+          <div class="mini-year-selector">
+            <div class="ys-arrow">&#x25C0;</div>
+            <div class="ys-year">2026</div>
+            <div class="ys-arrow">&#x25B6;</div>
+          </div>
+
+          <!-- Accordion: Semanal (expanded) -->
+          <div class="mini-accordion">
+            <div class="mini-accordion-header expanded">
+              <span class="acc-icon">&#x1F4C5;</span>
+              <span class="acc-title">Semanal</span>
+              <span class="acc-count">23/52</span>
+              <span class="acc-chevron">&#x25B2;</span>
+            </div>
+            <div class="mini-accordion-body">
+              <div class="mini-report-row" style="opacity:0.5;">
+                <div class="rr-info">
+                  <div class="rr-name">Semana 13</div>
+                  <div class="rr-meta">En progreso</div>
+                </div>
+                <span class="rr-amount" style="color:var(--muted);">$42.100</span>
+              </div>
+              <div class="mini-report-row" id="reportWeek12">
+                <div class="rr-dot"></div>
+                <div class="rr-info">
+                  <div class="rr-name">Semana 12</div>
+                  <div class="rr-meta">34 transacciones &middot; &#x2191; 12% vs S11</div>
+                </div>
+                <span class="rr-amount">$87.340</span>
+                <span class="rr-trend up">&#x2191; 12%</span>
+              </div>
+              <div class="mini-report-row" style="opacity:0.6;">
+                <div class="rr-info">
+                  <div class="rr-name">Semana 11</div>
+                  <div class="rr-meta">28 transacciones</div>
+                </div>
+                <span class="rr-amount" style="color:var(--muted);">$77.980</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Accordion: Mensual (collapsed) -->
+          <div class="mini-accordion">
+            <div class="mini-accordion-header">
+              <span class="acc-icon">&#x1F4C6;</span>
+              <span class="acc-title">Mensual</span>
+              <span class="acc-count">3/12</span>
+              <span class="acc-chevron">&#x25BC;</span>
+            </div>
+          </div>
+
+          <!-- Accordion: Trimestral (collapsed) -->
+          <div class="mini-accordion">
+            <div class="mini-accordion-header">
+              <span class="acc-icon">&#x1F4CA;</span>
+              <span class="acc-title">Trimestral</span>
+              <span class="acc-count">1/4</span>
+              <span class="acc-chevron">&#x25BC;</span>
+            </div>
+          </div>
+
+          <!-- Accordion: Anual (collapsed) -->
+          <div class="mini-accordion">
+            <div class="mini-accordion-header">
+              <span class="acc-icon">&#x1F4C8;</span>
+              <span class="acc-title">Anual</span>
+              <span class="acc-count">0/1</span>
+              <span class="acc-chevron">&#x25BC;</span>
+            </div>
+          </div>
+        </div>
+        <div class="node-thought">
+          "Veo las semanas, voy a la 12."
+        </div>
+        <div class="node-detail-expand">
+          4 secciones accordion: <code>Semanal</code>, <code>Mensual</code>, <code>Trimestral</code>, <code>Anual</code>.
+          Cada una muestra conteo de reportes generados vs total posible.
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════ -->
+      <!-- PHASE 2: Detalle del Reporte (steps 4-5)  -->
+      <!-- ══════════════════════════════════════════ -->
+
+      <div class="phase-divider" id="phase2">
+        <div class="phase-day amber-phase">
+          <span>Fase</span>
+          <span class="day-num">2</span>
+        </div>
+        <div class="phase-info">
+          <div class="phase-title amber-text">Fase 2: Detalle del Reporte</div>
+          <div class="phase-subtitle">Explorando el desglose semanal con insights personalizados</div>
+        </div>
+        <div class="phase-line amber-line"></div>
+      </div>
+
+      <div class="connector">
+        <div style="display:flex;flex-direction:column;align-items:center;">
+          <div class="connector-line grad-ba"></div>
+          <div class="connector-arrow red"></div>
+        </div>
+        <span class="connector-label right red">Toca Semana 12</span>
+      </div>
+
+      <!-- STEP 4: Tap "Semana 12" -->
+      <div class="node action-node" tabindex="0">
+        <div class="node-screen">Report Row</div>
+        <div class="node-header">
+          <div class="node-step"><span>4</span></div>
+          <div class="node-title">
+            <span>&#x1F447;</span> Toca "Semana 12"
+          </div>
+        </div>
+        <div class="node-state">
+          ReportRow con indicador de nuevo (dot naranja), nombre del periodo,
+          monto total, tendencia vs semana anterior y conteo de transacciones.
+          Abre el ReportDetailOverlay.
+        </div>
+        <div class="mini-ui">
+          <div class="mini-report-row" style="background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2);">
+            <div class="rr-dot"></div>
+            <div class="rr-info">
+              <div class="rr-name">Semana 12</div>
+              <div class="rr-meta">34 transacciones &middot; &#x2191; 12% vs S11</div>
+            </div>
+            <span class="rr-amount">$87.340</span>
+            <span class="rr-trend up">&#x2191; 12%</span>
+          </div>
+        </div>
+        <div class="node-thought">
+          "Gaste mas esta semana, veamos por que."
+        </div>
+      </div>
+
+      <div class="connector">
+        <div style="display:flex;flex-direction:column;align-items:center;">
+          <div class="connector-line grad-ra"></div>
+          <div class="connector-arrow amber"></div>
+        </div>
+        <span class="connector-label right amber">Abre ReportDetailOverlay</span>
+      </div>
+
+      <!-- STEP 5: ReportDetailOverlay -->
+      <div class="node key-moment-node" tabindex="0">
+        <span class="callout key-moment">Momento clave</span>
+        <div class="node-screen">ReportDetailOverlay</div>
+        <div class="node-header">
+          <div class="node-step"><span>5</span></div>
+          <div class="node-title">
+            <span>&#x1F4CA;</span> Detalle del reporte semanal
+          </div>
+        </div>
+        <div class="node-state">
+          Overlay con hero card, insight personalizado de la persona,
+          desglose por categorias de transacciones y por grupos de items.
+          Header con navegacion, pill de transacciones y boton PDF.
+        </div>
+        <div class="mini-ui">
+
+          <!-- Overlay header -->
+          <div class="mini-overlay-header">
+            <span class="oh-back">&#x2190;</span>
+            <span class="oh-title">Semana 12</span>
+            <span class="oh-pill" id="txnPill">34 transacciones</span>
+            <div class="oh-pdf" id="pdfBtn" title="Descargar PDF">&#x1F4E5;</div>
+          </div>
+
+          <!-- Hero card -->
+          <div class="mini-hero">
+            <div class="hero-amount">$87.340</div>
+            <div class="hero-badge up">&#x2191; 12% vs semana anterior</div>
+          </div>
+
+          <!-- Persona insight -->
+          <div class="mini-insight">
+            <span class="insight-icon">&#x1F4AC;</span>
+            <span class="insight-text">
+              "Gastaste mas en restaurantes esta semana &mdash; &iquest;salidas de fin de semana?"
+            </span>
+          </div>
+
+          <!-- Transaction Groups: Donut + breakdown -->
+          <div style="font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.08em; margin:12px 0 6px;">
+            Por Categorias
+          </div>
+          <div class="mini-donut-container">
+            <div class="mini-donut">
+              <svg viewBox="0 0 42 42">
+                <!-- Supermercados 40% -->
+                <circle cx="21" cy="21" r="15.915" fill="transparent"
+                  stroke="#4a7c59" stroke-width="5"
+                  stroke-dasharray="40 60" stroke-dashoffset="0"/>
+                <!-- Restaurantes 25% -->
+                <circle cx="21" cy="21" r="15.915" fill="transparent"
+                  stroke="#e8a87c" stroke-width="5"
+                  stroke-dasharray="25 75" stroke-dashoffset="-40"/>
+                <!-- Transporte 15% -->
+                <circle cx="21" cy="21" r="15.915" fill="transparent"
+                  stroke="#5b8fa8" stroke-width="5"
+                  stroke-dasharray="15 85" stroke-dashoffset="-65"/>
+                <!-- Otros 20% -->
+                <circle cx="21" cy="21" r="15.915" fill="transparent"
+                  stroke="#8888aa" stroke-width="5"
+                  stroke-dasharray="20 80" stroke-dashoffset="-80"/>
+              </svg>
+              <div class="mini-donut-center">
+                4<br><span class="donut-sub">cats</span>
+              </div>
+            </div>
+            <div class="mini-donut-legend">
+              <div class="mini-donut-legend-item">
+                <div class="dl-swatch" style="background:#4a7c59;"></div>
+                <span class="dl-label">Supermercados</span>
+                <span class="dl-pct">40%</span>
+              </div>
+              <div class="mini-donut-legend-item">
+                <div class="dl-swatch" style="background:#e8a87c;"></div>
+                <span class="dl-label">Restaurantes</span>
+                <span class="dl-pct">25%</span>
+              </div>
+              <div class="mini-donut-legend-item">
+                <div class="dl-swatch" style="background:#5b8fa8;"></div>
+                <span class="dl-label">Transporte</span>
+                <span class="dl-pct">15%</span>
+              </div>
+              <div class="mini-donut-legend-item">
+                <div class="dl-swatch" style="background:#8888aa;"></div>
+                <span class="dl-label">Otros</span>
+                <span class="dl-pct">20%</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Item Groups: Donut + breakdown -->
+          <div style="font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.08em; margin:12px 0 6px;">
+            Por Items
+          </div>
+          <div class="mini-donut-container">
+            <div class="mini-donut">
+              <svg viewBox="0 0 42 42">
+                <!-- Alimentacion 45% -->
+                <circle cx="21" cy="21" r="15.915" fill="transparent"
+                  stroke="#34d399" stroke-width="5"
+                  stroke-dasharray="45 55" stroke-dashoffset="0"/>
+                <!-- Comida preparada 25% -->
+                <circle cx="21" cy="21" r="15.915" fill="transparent"
+                  stroke="#fbbf24" stroke-width="5"
+                  stroke-dasharray="25 75" stroke-dashoffset="-45"/>
+                <!-- Combustible 18% -->
+                <circle cx="21" cy="21" r="15.915" fill="transparent"
+                  stroke="#a78bfa" stroke-width="5"
+                  stroke-dasharray="18 82" stroke-dashoffset="-70"/>
+                <!-- Otros 12% -->
+                <circle cx="21" cy="21" r="15.915" fill="transparent"
+                  stroke="#60a5fa" stroke-width="5"
+                  stroke-dasharray="12 88" stroke-dashoffset="-88"/>
+              </svg>
+              <div class="mini-donut-center">
+                4<br><span class="donut-sub">grupos</span>
+              </div>
+            </div>
+            <div class="mini-donut-legend">
+              <div class="mini-donut-legend-item">
+                <div class="dl-swatch" style="background:#34d399;"></div>
+                <span class="dl-label">Alimentacion</span>
+                <span class="dl-pct">45%</span>
+              </div>
+              <div class="mini-donut-legend-item">
+                <div class="dl-swatch" style="background:#fbbf24;"></div>
+                <span class="dl-label">Comida preparada</span>
+                <span class="dl-pct">25%</span>
+              </div>
+              <div class="mini-donut-legend-item">
+                <div class="dl-swatch" style="background:#a78bfa;"></div>
+                <span class="dl-label">Combustible</span>
+                <span class="dl-pct">18%</span>
+              </div>
+              <div class="mini-donut-legend-item">
+                <div class="dl-swatch" style="background:#60a5fa;"></div>
+                <span class="dl-label">Otros items</span>
+                <span class="dl-pct">12%</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <div class="node-thought" style="border-left-color: var(--purple);">
+          "Ah, si, fui a comer afuera 3 veces esta semana."
+        </div>
+        <div class="node-detail-expand">
+          Momento clave: El insight de la persona hace que los datos sean personales, no solo numeros.
+          <code>PersonaInsight</code> genera texto contextual basado en la diferencia vs periodo anterior.
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════ -->
+      <!-- PHASE 3: Exploracion Cruzada (steps 6-8)  -->
+      <!-- ══════════════════════════════════════════ -->
+
+      <div class="phase-divider" id="phase3">
+        <div class="phase-day secondary-phase">
+          <span>Fase</span>
+          <span class="day-num">3</span>
+        </div>
+        <div class="phase-info">
+          <div class="phase-title secondary-text">Fase 3: Exploracion Cruzada</div>
+          <div class="phase-subtitle">Del reporte a las transacciones y de vuelta</div>
+        </div>
+        <div class="phase-line secondary-line"></div>
+      </div>
+
+      <div class="connector">
+        <div style="display:flex;flex-direction:column;align-items:center;">
+          <div class="connector-line grad-ar"></div>
+          <div class="connector-arrow red"></div>
+        </div>
+        <span class="connector-label right red">Toca pill "34 transacciones"</span>
+      </div>
+
+      <!-- STEP 6: Tap Transaction Count Pill -->
+      <div class="node action-node" tabindex="0">
+        <span class="callout cross-nav">Cross-view</span>
+        <div class="node-screen">Cross-View Navigation</div>
+        <div class="node-header">
+          <div class="node-step"><span>6</span></div>
+          <div class="node-title">
+            <span>&#x1F517;</span> Toca pill de transacciones
+          </div>
+        </div>
+        <div class="node-state">
+          El usuario toca la pill "34 transacciones" en el header del overlay.
+          Navega a History con filtro temporal: Semana 12, 2026.
+        </div>
+        <div class="mini-ui">
+          <div style="text-align:center; padding:8px 0;">
+            <div style="display:inline-block; padding:6px 20px; border-radius:20px; background:var(--secondary-dim); border:2px solid var(--secondary-border); color:var(--secondary); font-size:13px; font-weight:700; cursor:pointer;">
+              34 transacciones &#x2192;
+            </div>
+            <div style="font-size:10px; color:var(--muted); margin-top:6px;">Navega a History con filtro temporal</div>
+          </div>
+        </div>
+        <div class="node-thought">
+          "Quiero ver esas 34 transacciones."
+        </div>
+      </div>
+
+      <div class="connector">
+        <div style="display:flex;flex-direction:column;align-items:center;">
+          <div class="connector-line grad-sb"></div>
+          <div class="connector-arrow secondary"></div>
+        </div>
+        <span class="connector-label right secondary">Navega a History filtrado</span>
+      </div>
+
+      <!-- STEP 7: History — Filtered by Week -->
+      <div class="node secondary-node" tabindex="0">
+        <div class="node-screen">History &mdash; Filtered</div>
+        <div class="node-header">
+          <div class="node-step"><span>7</span></div>
+          <div class="node-title">
+            <span>&#x1F4C3;</span> History &mdash; filtro temporal activo
+          </div>
+        </div>
+        <div class="node-state">
+          Vista de historial con chip de filtro activo mostrando "Semana 12, Marzo 2026".
+          34 transacciones listadas por fecha.
+        </div>
+        <div class="mini-ui">
+          <div class="mini-filter-chip active">
+            &#x1F4C5; Semana 12, Marzo 2026 <span class="chip-x">&#x2715;</span>
+          </div>
+
+          <div style="font-size:10px; font-weight:600; color:var(--muted); padding:4px 0; text-transform:uppercase; letter-spacing:0.06em;">
+            Lunes 16 Marzo
+          </div>
+          <div class="mini-txn-row">
+            <span class="txn-icon">&#x1F6D2;</span>
+            <div class="txn-info">
+              <div class="txn-name">Lider Express</div>
+              <div class="txn-date">09:32 &middot; Alimentacion</div>
+            </div>
+            <span class="txn-amount">-$18.450</span>
+          </div>
+          <div class="mini-txn-row">
+            <span class="txn-icon">&#x2615;</span>
+            <div class="txn-info">
+              <div class="txn-name">Cafe Tiramisu</div>
+              <div class="txn-date">13:15 &middot; Restaurantes</div>
+            </div>
+            <span class="txn-amount">-$6.800</span>
+          </div>
+          <div class="mini-txn-row">
+            <span class="txn-icon">&#x26FD;</span>
+            <div class="txn-info">
+              <div class="txn-name">Copec</div>
+              <div class="txn-date">17:40 &middot; Transporte</div>
+            </div>
+            <span class="txn-amount">-$35.000</span>
+          </div>
+          <div style="text-align:center; padding:6px; font-size:10px; color:var(--muted);">
+            ... 31 transacciones mas
+          </div>
+        </div>
+        <div class="node-thought" style="border-left-color: var(--secondary);">
+          "Si, veo todos los gastos de la semana."
+        </div>
+        <div class="node-detail-expand">
+          Nav: History (desde Reports). Filtro temporal aplicado via query param:
+          <code>?period=week&amp;week=12&amp;year=2026</code>
+        </div>
+      </div>
+
+      <div class="connector">
+        <div style="display:flex;flex-direction:column;align-items:center;">
+          <div class="connector-line grad-sr"></div>
+          <div class="connector-arrow red"></div>
+        </div>
+        <span class="connector-label right red">Back button</span>
+      </div>
+
+      <!-- STEP 8: Back to Report -->
+      <div class="node action-node" tabindex="0">
+        <div class="node-screen">Navigation</div>
+        <div class="node-header">
+          <div class="node-step"><span>8</span></div>
+          <div class="node-title">
+            <span>&#x2190;</span> Vuelve al reporte
+          </div>
+        </div>
+        <div class="node-state">
+          Back button devuelve al usuario al ReportDetailOverlay.
+          Nav: Reports restaurado. El overlay mantiene su estado.
+        </div>
+        <div class="node-thought">
+          "Ya vi las transacciones, ahora quiero exportar."
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════ -->
+      <!-- PHASE 4: Exportacion (steps 9-10)         -->
+      <!-- ══════════════════════════════════════════ -->
+
+      <div class="phase-divider" id="phase4">
+        <div class="phase-day green-phase">
+          <span>Fase</span>
+          <span class="day-num">4</span>
+        </div>
+        <div class="phase-info">
+          <div class="phase-title green-text">Fase 4: Exportacion</div>
+          <div class="phase-subtitle">Del reporte digital al documento profesional</div>
+        </div>
+        <div class="phase-line green-line"></div>
+      </div>
+
+      <div class="connector">
+        <div style="display:flex;flex-direction:column;align-items:center;">
+          <div class="connector-line grad-rg"></div>
+          <div class="connector-arrow red"></div>
+        </div>
+        <span class="connector-label right red">Toca boton PDF</span>
+      </div>
+
+      <!-- STEP 9: Tap PDF Download -->
+      <div class="node action-node" tabindex="0">
+        <span class="callout export">Exportacion</span>
+        <div class="node-screen">PDF Download</div>
+        <div class="node-header">
+          <div class="node-step"><span>9</span></div>
+          <div class="node-title">
+            <span>&#x1F4E5;</span> Toca descargar PDF
+          </div>
+        </div>
+        <div class="node-state">
+          El usuario toca el icono de descarga en el header del overlay.
+          Se abre el dialogo de impresion del navegador con layout optimizado para papel.
+        </div>
+        <div class="mini-ui">
+          <div style="display:flex; align-items:center; gap:10px; padding:8px 0; justify-content:center;">
+            <div style="width:36px; height:36px; border-radius:10px; background:var(--green-dim); border:2px solid var(--green-border); display:flex; align-items:center; justify-content:center; font-size:18px;">
+              &#x1F4E5;
+            </div>
+            <div style="font-size:12px; color:var(--muted);">&#x2192;</div>
+            <div style="font-size:12px; color:var(--green); font-weight:600;">
+              window.print() activado
+            </div>
+          </div>
+        </div>
+        <div class="node-thought">
+          "Quiero guardar esto como PDF."
+        </div>
+      </div>
+
+      <div class="connector">
+        <div style="display:flex;flex-direction:column;align-items:center;">
+          <div class="connector-line green"></div>
+          <div class="connector-arrow green"></div>
+        </div>
+        <span class="connector-label right green">Print dialog abre</span>
+      </div>
+
+      <!-- STEP 10: PDF Generated (print preview) -->
+      <div class="node success-node" tabindex="0">
+        <span class="callout key-moment">Momento clave</span>
+        <div class="node-screen">Print Preview</div>
+        <div class="node-header">
+          <div class="node-step"><span>10</span></div>
+          <div class="node-title">
+            <span>&#x1F4C4;</span> PDF generado &mdash; vista previa
+          </div>
+        </div>
+        <div class="node-state">
+          Layout optimizado para impresion: branding de la app, titulo del reporte,
+          contenido formateado. La UI de la pantalla se oculta, solo se muestra el layout de impresion.
+        </div>
+        <div class="mini-ui">
+          <div class="mini-print-preview">
+            <div class="pp-brand">
+              <div class="pp-brand-name">GASTIFY</div>
+              <div style="font-size:9px; color:#888; margin-top:2px;">Resumen de Gastos</div>
+            </div>
+            <div class="pp-title">Resumen Semanal &mdash; Semana 12, Marzo 2026</div>
+            <div class="pp-total">$87.340</div>
+            <div class="pp-row">
+              <span>Supermercados</span>
+              <span>$34.936 (40%)</span>
+            </div>
+            <div class="pp-row">
+              <span>Restaurantes</span>
+              <span>$21.835 (25%)</span>
+            </div>
+            <div class="pp-row">
+              <span>Transporte</span>
+              <span>$13.101 (15%)</span>
+            </div>
+            <div class="pp-row">
+              <span>Otros</span>
+              <span>$17.468 (20%)</span>
+            </div>
+            <div style="text-align:center; margin-top:10px; font-size:8px; color:#aaa;">
+              34 transacciones &middot; Generado por Gastify &middot; Marzo 2026
+            </div>
+          </div>
+        </div>
+        <div class="node-thought" style="border-left-color: var(--green);">
+          "Perfecto, lo imprimo para mis registros."
+        </div>
+        <div class="node-detail-expand">
+          Momento clave: Resultado profesional desde datos personales.
+          CSS <code>@media print</code> oculta nav, sidebar, overlays.
+          Solo muestra <code>.print-report-layout</code>.
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════ -->
+      <!-- PHASE 5: Mas Reportes (steps 11-12)       -->
+      <!-- ══════════════════════════════════════════ -->
+
+      <div class="phase-divider" id="phase5">
+        <div class="phase-day purple-phase">
+          <span>Fase</span>
+          <span class="day-num">5</span>
+        </div>
+        <div class="phase-info">
+          <div class="phase-title purple-text">Fase 5: Mas Reportes</div>
+          <div class="phase-subtitle">Explorando otros periodos y niveles de detalle</div>
+        </div>
+        <div class="phase-line purple-line"></div>
+      </div>
+
+      <div class="connector">
+        <div style="display:flex;flex-direction:column;align-items:center;">
+          <div class="connector-line grad-gr"></div>
+          <div class="connector-arrow red"></div>
+        </div>
+        <span class="connector-label right red">Cierra overlay</span>
+      </div>
+
+      <!-- STEP 11: Close Overlay → Reports View -->
+      <div class="node action-node" tabindex="0">
+        <div class="node-screen">Reports View</div>
+        <div class="node-header">
+          <div class="node-step"><span>11</span></div>
+          <div class="node-title">
+            <span>&#x2715;</span> Cierra overlay &rarr; vuelve a Reports
+          </div>
+        </div>
+        <div class="node-state">
+          El usuario cierra el ReportDetailOverlay y regresa a la vista de accordion.
+          Puede expandir otras secciones para explorar mensual, trimestral o anual.
+        </div>
+        <div class="node-thought">
+          "Veamos el resumen trimestral tambien."
+        </div>
+      </div>
+
+      <div class="connector">
+        <div style="display:flex;flex-direction:column;align-items:center;">
+          <div class="connector-line grad-rp"></div>
+          <div class="connector-arrow purple"></div>
+        </div>
+        <span class="connector-label right purple">Expande Trimestral</span>
+      </div>
+
+      <!-- STEP 12: Expand Quarterly Section -->
+      <div class="node detail-node" tabindex="0">
+        <div class="node-screen">Reports View &mdash; Trimestral</div>
+        <div class="node-header">
+          <div class="node-step"><span>12</span></div>
+          <div class="node-title">
+            <span>&#x1F4CA;</span> Seccion Trimestral expandida
+          </div>
+        </div>
+        <div class="node-state">
+          El usuario expande el accordion "Trimestral". Q1 2026 visible con
+          texto hook de persona en italica. Tarjetas de highlights con datos agregados.
+        </div>
+        <div class="mini-ui">
+          <!-- Accordion: Trimestral (expanded) -->
+          <div class="mini-accordion">
+            <div class="mini-accordion-header expanded">
+              <span class="acc-icon">&#x1F4CA;</span>
+              <span class="acc-title">Trimestral</span>
+              <span class="acc-count">1/4</span>
+              <span class="acc-chevron">&#x25B2;</span>
+            </div>
+            <div class="mini-accordion-body">
+              <div class="mini-report-row">
+                <div class="rr-info">
+                  <div class="rr-name">Q1 2026 (Ene-Mar)</div>
+                  <div class="rr-meta" style="font-style:italic; color:var(--accent);">
+                    "Tu gasto en alimentacion crecio un 15% &mdash; &iquest;cambio de habitos?"
+                  </div>
+                </div>
+                <span class="rr-amount">$987.200</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Highlights -->
+          <div style="font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.08em; margin:10px 0 6px;">
+            Highlights Q1
+          </div>
+          <div class="mini-highlight">
+            <span class="hl-icon">&#x1F3C6;</span>
+            <div class="hl-info">
+              <div class="hl-label">Top categoria</div>
+              <div class="hl-value">Alimentacion</div>
+            </div>
+          </div>
+          <div class="mini-highlight">
+            <span class="hl-icon">&#x1F4B0;</span>
+            <div class="hl-info">
+              <div class="hl-label">Promedio semanal</div>
+              <div class="hl-value">$72.000</div>
+            </div>
+          </div>
+          <div class="mini-highlight">
+            <span class="hl-icon">&#x1F4C8;</span>
+            <div class="hl-info">
+              <div class="hl-label">Transacciones totales</div>
+              <div class="hl-value">312</div>
+            </div>
+          </div>
+        </div>
+        <div class="node-thought" style="border-left-color: var(--amber);">
+          "El resumen trimestral tiene mas info."
+        </div>
+        <div class="node-detail-expand">
+          Persona hook text genera engagement con preguntas contextuales.
+          Highlights resumen los KPIs clave del trimestre para decision rapida.
+        </div>
+      </div>
+
+    </div><!-- /timeline -->
+  </div><!-- /flow -->
+
+  <!-- Emotional Arc Visualization -->
+  <div class="arc-section">
+    <div class="arc-title">Arco Emocional &mdash; Engagement del Usuario a traves del Flujo</div>
+    <div class="arc-track" id="arcTrack">
+      <div class="arc-point">
+        <div class="arc-emoji">&#x1F614;</div>
+        <div class="arc-bar-seg" data-h="40" style="height:0; background: linear-gradient(to top, var(--blue-dim), var(--blue));"></div>
+        <div class="arc-point-label">Dashboard (neutral)</div>
+      </div>
+      <div class="arc-point">
+        <div class="arc-emoji">&#x1F50D;</div>
+        <div class="arc-bar-seg" data-h="55" style="height:0; background: linear-gradient(to top, var(--blue-dim), var(--blue));"></div>
+        <div class="arc-point-label">Navega a Reports</div>
+      </div>
+      <div class="arc-point">
+        <div class="arc-emoji">&#x1F4CA;</div>
+        <div class="arc-bar-seg" data-h="70" style="height:0; background: linear-gradient(to top, var(--amber-dim), var(--amber));"></div>
+        <div class="arc-point-label">Accordions con datos</div>
+      </div>
+      <div class="arc-point">
+        <div class="arc-emoji">&#x1F929;</div>
+        <div class="arc-bar-seg" data-h="95" style="height:0; background: linear-gradient(to top, var(--purple-dim), var(--purple));"></div>
+        <div class="arc-point-label">Insight personal</div>
+      </div>
+      <div class="arc-point">
+        <div class="arc-emoji">&#x1F517;</div>
+        <div class="arc-bar-seg" data-h="75" style="height:0; background: linear-gradient(to top, var(--secondary-dim), var(--secondary));"></div>
+        <div class="arc-point-label">Cross-view nav</div>
+      </div>
+      <div class="arc-point">
+        <div class="arc-emoji">&#x1F4C4;</div>
+        <div class="arc-bar-seg" data-h="90" style="height:0; background: linear-gradient(to top, var(--green-dim), var(--green));"></div>
+        <div class="arc-point-label">PDF profesional</div>
+      </div>
+      <div class="arc-point">
+        <div class="arc-emoji">&#x1F60C;</div>
+        <div class="arc-bar-seg" data-h="80" style="height:0; background: linear-gradient(to top, var(--purple-dim), var(--purple));"></div>
+        <div class="arc-point-label">Mas reportes</div>
+      </div>
+    </div>
+    <div style="display:flex; justify-content:center; gap:20px; margin-top:16px; font-size:11px;">
+      <div style="display:flex; align-items:center; gap:6px;">
+        <div style="width:12px; height:12px; border-radius:3px; background:var(--purple);"></div>
+        <span style="color:var(--muted);">Alto = maximo engagement</span>
+      </div>
+      <div style="display:flex; align-items:center; gap:6px;">
+        <div style="width:12px; height:12px; border-radius:3px; background:var(--blue);"></div>
+        <span style="color:var(--muted);">Bajo = exploracion tranquila</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Summary -->
+  <div class="summary-bar">
+    <div class="summary-title">Resumen del Flujo</div>
+    <div class="summary-grid">
+      <div>
+        <div class="summary-num" style="color:var(--blue);">12</div>
+        <div class="summary-label">Pasos en el flujo completo</div>
+      </div>
+      <div>
+        <div class="summary-num" style="color:var(--amber);">4</div>
+        <div class="summary-label">Niveles de reporte (S/M/Q/A)</div>
+      </div>
+      <div>
+        <div class="summary-num" style="color:var(--green);">1</div>
+        <div class="summary-label">PDF exportado</div>
+      </div>
+      <div>
+        <div class="summary-num" style="color:var(--purple);">2</div>
+        <div class="summary-label">Momentos clave</div>
+      </div>
+      <div>
+        <div class="summary-num" style="color:var(--secondary);">1</div>
+        <div class="summary-label">Cross-view navigation</div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+<script>
+(function() {
+  // Staggered entrance animation
+  var animTargets = document.querySelectorAll('.node, .phase-divider, .connector');
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        var el = entry.target;
+        var d = parseInt(el.dataset.delay || '0', 10);
+        setTimeout(function() { el.classList.add('visible'); }, d);
+        observer.unobserve(el);
+      }
+    });
+  }, { threshold: 0.12 });
+
+  animTargets.forEach(function(el, i) {
+    el.dataset.delay = String(i * 70);
+    observer.observe(el);
+  });
+
+  // Emotional arc bar animation
+  var arcBars = document.querySelectorAll('.arc-bar-seg');
+  var arcObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        var el = entry.target;
+        var h = el.getAttribute('data-h');
+        el.style.height = '0px';
+        requestAnimationFrame(function() {
+          requestAnimationFrame(function() {
+            el.style.height = h + 'px';
+          });
+        });
+        arcObserver.unobserve(el);
+      }
+    });
+  }, { threshold: 0.3 });
+
+  arcBars.forEach(function(bar) { arcObserver.observe(bar); });
+
+  // Interactive: Week 12 report row highlights step 5
+  var reportWeek12 = document.getElementById('reportWeek12');
+  if (reportWeek12) {
+    reportWeek12.addEventListener('click', function() {
+      var nodes = document.querySelectorAll('.node');
+      // Step 5 is the ReportDetailOverlay (5th node, index 4)
+      if (nodes[4]) {
+        nodes[4].scrollIntoView({ behavior: 'smooth', block: 'center' });
+        nodes[4].style.transition = 'box-shadow 0.3s';
+        nodes[4].style.boxShadow = '0 0 30px rgba(167,139,250,0.4)';
+        setTimeout(function() { nodes[4].style.boxShadow = ''; }, 1500);
+      }
+    });
+  }
+
+  // Interactive: Transaction pill navigates to step 7
+  var txnPill = document.getElementById('txnPill');
+  if (txnPill) {
+    txnPill.addEventListener('click', function() {
+      var nodes = document.querySelectorAll('.node');
+      // Step 7 is History filtered (7th node, index 6)
+      if (nodes[6]) {
+        nodes[6].scrollIntoView({ behavior: 'smooth', block: 'center' });
+        nodes[6].style.transition = 'box-shadow 0.3s';
+        nodes[6].style.boxShadow = '0 0 30px rgba(91,143,168,0.4)';
+        setTimeout(function() { nodes[6].style.boxShadow = ''; }, 1500);
+      }
+    });
+  }
+
+  // Interactive: PDF button navigates to step 10
+  var pdfBtn = document.getElementById('pdfBtn');
+  if (pdfBtn) {
+    pdfBtn.addEventListener('click', function() {
+      var nodes = document.querySelectorAll('.node');
+      // Step 10 is PDF Generated (10th node, index 9)
+      if (nodes[9]) {
+        nodes[9].scrollIntoView({ behavior: 'smooth', block: 'center' });
+        nodes[9].style.transition = 'box-shadow 0.3s';
+        nodes[9].style.boxShadow = '0 0 30px rgba(52,211,153,0.4)';
+        setTimeout(function() { nodes[9].style.boxShadow = ''; }, 1500);
+      }
+    });
+  }
+
+  // Phase navigation: clicking phase days scrolls to that phase's first node
+  document.querySelectorAll('.phase-day').forEach(function(day) {
+    day.addEventListener('click', function() {
+      var divider = day.closest('.phase-divider');
+      var next = divider.nextElementSibling;
+      while (next && !next.classList.contains('node')) {
+        next = next.nextElementSibling;
+      }
+      if (next) {
+        next.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    });
+  });
+})();
+</script>
+
+</body>
+</html>

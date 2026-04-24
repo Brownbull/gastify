@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gastify - Login Screen Mockup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  /* ===== RESET ===== */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  /* ===== PAGE ===== */
+  body {
+    font-family: 'Outfit', sans-serif;
+    background: #e8e8e8;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 16px 40px;
+  }
+
+  /* ===== THEME VARIABLES ===== */
+  :root {
+    /* Normal Light (default) */
+    --bg: #f5f0e8;
+    --surface: #ffffff;
+    --primary: #4a7c59;
+    --primary-hover: #3d6a4b;
+    --text: #2d3a4a;
+    --text-secondary: #4a5568;
+    --accent: #e8a87c;
+    --border: #e3bba1;
+    --secondary: #5b8fa8;
+    --error-bg: #fef2f2;
+    --error-text: #dc2626;
+    --error-border: #fecaca;
+    --success-bg: #f0fdf4;
+    --success-text: #16a34a;
+    --success-border: #bbf7d0;
+    --gradient-start: var(--primary);
+    --gradient-end: #3d6a4b;
+    --btn-google-bg: #ffffff;
+    --btn-google-text: #2d3a4a;
+    --btn-google-border: #e3bba1;
+    --divider-color: #d1d5db;
+    --divider-text: #9ca3af;
+  }
+
+  [data-theme="normal"][data-mode="dark"] {
+    --bg: #1a2420;
+    --surface: #243028;
+    --primary: #6b9e7a;
+    --primary-hover: #5a8d69;
+    --text: #e8e4dc;
+    --text-secondary: #b8c4a8;
+    --border: #3d4d42;
+    --gradient-start: #3d5a45;
+    --gradient-end: #2a3e30;
+    --btn-google-bg: #2d3d33;
+    --btn-google-text: #e8e4dc;
+    --btn-google-border: #3d4d42;
+    --error-bg: #3b1515;
+    --error-text: #f87171;
+    --error-border: #7f1d1d;
+    --success-bg: #14532d;
+    --success-text: #4ade80;
+    --success-border: #166534;
+    --divider-color: #3d4d42;
+    --divider-text: #6b7a6e;
+  }
+
+  [data-theme="professional"][data-mode="light"] {
+    --bg: #f8fafc;
+    --surface: #ffffff;
+    --primary: #2563eb;
+    --primary-hover: #1d4ed8;
+    --text: #0f172a;
+    --text-secondary: #475569;
+    --border: #e2e8f0;
+    --gradient-start: #2563eb;
+    --gradient-end: #1e40af;
+    --btn-google-bg: #ffffff;
+    --btn-google-text: #0f172a;
+    --btn-google-border: #e2e8f0;
+    --error-bg: #fef2f2;
+    --error-text: #dc2626;
+    --error-border: #fecaca;
+    --success-bg: #f0fdf4;
+    --success-text: #16a34a;
+    --success-border: #bbf7d0;
+    --divider-color: #e2e8f0;
+    --divider-text: #94a3b8;
+  }
+
+  [data-theme="professional"][data-mode="dark"] {
+    --bg: #0f172a;
+    --surface: #1e293b;
+    --primary: #3b82f6;
+    --primary-hover: #2563eb;
+    --text: #f1f5f9;
+    --text-secondary: #94a3b8;
+    --border: #334155;
+    --gradient-start: #1e3a5f;
+    --gradient-end: #0f172a;
+    --btn-google-bg: #1e293b;
+    --btn-google-text: #f1f5f9;
+    --btn-google-border: #334155;
+    --error-bg: #3b1515;
+    --error-text: #f87171;
+    --error-border: #7f1d1d;
+    --success-bg: #14532d;
+    --success-text: #4ade80;
+    --success-border: #166534;
+    --divider-color: #334155;
+    --divider-text: #64748b;
+  }
+
+  [data-theme="mono"][data-mode="light"] {
+    --bg: #fafafa;
+    --surface: #ffffff;
+    --primary: #18181b;
+    --primary-hover: #27272a;
+    --text: #18181b;
+    --text-secondary: #52525b;
+    --border: #e4e4e7;
+    --gradient-start: #27272a;
+    --gradient-end: #18181b;
+    --btn-google-bg: #ffffff;
+    --btn-google-text: #18181b;
+    --btn-google-border: #e4e4e7;
+    --error-bg: #fef2f2;
+    --error-text: #dc2626;
+    --error-border: #fecaca;
+    --success-bg: #f4f4f5;
+    --success-text: #3f3f46;
+    --success-border: #d4d4d8;
+    --divider-color: #e4e4e7;
+    --divider-text: #a1a1aa;
+  }
+
+  [data-theme="mono"][data-mode="dark"] {
+    --bg: #09090b;
+    --surface: #18181b;
+    --primary: #3f3f46;
+    --primary-hover: #52525b;
+    --text: #fafafa;
+    --text-secondary: #a1a1aa;
+    --border: #27272a;
+    --gradient-start: #27272a;
+    --gradient-end: #09090b;
+    --btn-google-bg: #18181b;
+    --btn-google-text: #fafafa;
+    --btn-google-border: #27272a;
+    --error-bg: #2a1515;
+    --error-text: #f87171;
+    --error-border: #5c1d1d;
+    --success-bg: #1a1a1d;
+    --success-text: #a1a1aa;
+    --success-border: #27272a;
+    --divider-color: #27272a;
+    --divider-text: #52525b;
+  }
+
+  /* ===== CONTROLS (outside phone frame) ===== */
+  .controls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+    width: 100%;
+    max-width: 480px;
+  }
+
+  .controls-title {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    color: #333;
+    letter-spacing: 0.02em;
+  }
+
+  .controls-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .theme-tabs {
+    display: flex;
+    background: #e5e5e5;
+    border-radius: 10px;
+    padding: 3px;
+    gap: 2px;
+  }
+
+  .theme-tab {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    font-size: 0.8125rem;
+    padding: 6px 16px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    background: transparent;
+    color: #666;
+    transition: all 0.2s;
+  }
+
+  .theme-tab.active {
+    background: #ffffff;
+    color: #111;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+  }
+
+  .mode-toggle {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    font-size: 0.8125rem;
+    padding: 6px 16px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    cursor: pointer;
+    background: #fff;
+    color: #333;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .mode-toggle:hover { background: #f3f4f6; }
+
+  /* ===== PHONE FRAME ===== */
+  .phone-frame {
+    width: 100%;
+    max-width: 360px;
+    background: #1a1a2e;
+    border-radius: 40px;
+    padding: 12px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.05);
+    position: relative;
+  }
+
+  .phone-screen {
+    background: var(--bg);
+    border-radius: 30px;
+    overflow: hidden;
+    position: relative;
+    min-height: 720px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ===== NOTCH ===== */
+  .notch {
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 120px;
+    height: 28px;
+    background: #1a1a2e;
+    border-radius: 14px;
+    z-index: 10;
+  }
+
+  /* ===== STATUS BAR ===== */
+  .status-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 24px 6px;
+    position: relative;
+    z-index: 5;
+  }
+
+  .status-bar-time {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    font-size: 0.875rem;
+    color: #fff;
+  }
+
+  .status-bar-icons {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .status-bar-icons svg {
+    width: 16px;
+    height: 16px;
+    fill: #fff;
+  }
+
+  /* ===== HOME INDICATOR ===== */
+  .home-indicator {
+    display: flex;
+    justify-content: center;
+    padding: 8px 0 6px;
+    background: var(--surface);
+  }
+
+  .home-indicator-bar {
+    width: 134px;
+    height: 5px;
+    background: var(--text);
+    opacity: 0.2;
+    border-radius: 3px;
+  }
+
+  /* ===== LOGIN: TOP HERO SECTION ===== */
+  .login-hero {
+    flex: 0 0 auto;
+    min-height: 340px;
+    background: linear-gradient(160deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 32px 48px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .login-hero::before {
+    content: '';
+    position: absolute;
+    top: -60%;
+    right: -30%;
+    width: 300px;
+    height: 300px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 50%;
+  }
+
+  .login-hero::after {
+    content: '';
+    position: absolute;
+    bottom: -40%;
+    left: -20%;
+    width: 250px;
+    height: 250px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 50%;
+  }
+
+  .logo-circle {
+    width: 64px;
+    height: 64px;
+    background: #ffffff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    position: relative;
+    z-index: 1;
+  }
+
+  .logo-letter {
+    font-family: 'Baloo 2', cursive;
+    font-weight: 700;
+    font-size: 32px;
+    color: var(--primary);
+    line-height: 1;
+    margin-top: 2px;
+  }
+
+  .wordmark {
+    font-family: 'Baloo 2', cursive;
+    font-weight: 700;
+    font-size: 28px;
+    color: #ffffff;
+    margin-top: 12px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .tagline {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 400;
+    font-size: 14px;
+    color: rgba(255,255,255,0.8);
+    margin-top: 6px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ===== LOGIN: BOTTOM CARD SECTION ===== */
+  .login-card {
+    flex: 1;
+    background: var(--surface);
+    border-radius: 24px 24px 0 0;
+    margin-top: -20px;
+    padding: 28px 24px 16px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    z-index: 2;
+  }
+
+  .login-heading {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    font-size: 20px;
+    color: var(--text);
+    margin-bottom: 20px;
+    text-align: center;
+  }
+
+  /* ===== VARIANT BANNER ===== */
+  .variant-banner {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    margin-bottom: 16px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.8125rem;
+    font-weight: 600;
+  }
+
+  .variant-banner.error-banner {
+    background: var(--error-bg);
+    color: var(--error-text);
+    border: 1px solid var(--error-border);
+  }
+
+  .variant-banner.welcome-banner {
+    background: var(--success-bg);
+    color: var(--success-text);
+    border: 1px solid var(--success-border);
+  }
+
+  .variant-banner svg {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+  }
+
+  .variant-banner.visible {
+    display: flex;
+  }
+
+  /* ===== BUTTONS ===== */
+  .btn {
+    width: 100%;
+    min-height: 48px;
+    border-radius: 14px;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    border: none;
+    outline: none;
+    position: relative;
+  }
+
+  .btn-google {
+    background: var(--btn-google-bg);
+    color: var(--btn-google-text);
+    border: 1px solid var(--btn-google-border);
+  }
+
+  .btn-google:hover { box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+  .btn-google:active { transform: scale(0.99); }
+
+  .btn-google.loading {
+    opacity: 0.7;
+    pointer-events: none;
+  }
+
+  .btn-google .google-icon {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+  }
+
+  .btn-google .spinner {
+    display: none;
+    width: 20px;
+    height: 20px;
+    border: 2.5px solid var(--border);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+
+  .btn-google.loading .google-icon { display: none; }
+  .btn-google.loading .spinner { display: block; }
+  .btn-google.loading .btn-label { color: var(--text-secondary); }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  .btn-primary {
+    background: var(--primary);
+    color: #ffffff;
+  }
+
+  .btn-primary:hover { background: var(--primary-hover); }
+  .btn-primary:active { transform: scale(0.99); }
+
+  /* ===== TERMS ===== */
+  .terms {
+    margin-top: 20px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    text-align: center;
+    line-height: 1.5;
+  }
+
+  .terms a {
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 600;
+  }
+
+  .terms a:hover { text-decoration: underline; }
+
+  /* ===== FOOTER ===== */
+  .login-footer {
+    margin-top: auto;
+    padding-top: 16px;
+    text-align: center;
+  }
+
+  .footer-brand {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    font-weight: 400;
+    opacity: 0.7;
+  }
+
+  .footer-version {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.6875rem;
+    color: var(--text-secondary);
+    font-weight: 400;
+    opacity: 0.5;
+    margin-top: 2px;
+  }
+
+  /* ===== VARIANT SECTION LABELS (outside phone) ===== */
+  .variant-section {
+    width: 100%;
+    max-width: 480px;
+    margin-top: 40px;
+  }
+
+  .variant-section-title {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    font-size: 0.875rem;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 12px;
+    padding-left: 4px;
+  }
+
+  .variant-phone-frame {
+    width: 100%;
+    max-width: 360px;
+    background: #1a1a2e;
+    border-radius: 40px;
+    padding: 12px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.05);
+  }
+
+  .variant-phone-screen {
+    background: var(--bg);
+    border-radius: 30px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* Variant inner: only the bottom card portion */
+  .variant-card-preview {
+    background: var(--surface);
+    padding: 24px 24px 20px;
+    border-radius: 20px;
+    margin: 12px;
+    border: 1px solid var(--border);
+  }
+
+  .variant-label {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    font-size: 0.6875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .variant-label-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+
+  .variant-label-dot.dot-blue { background: #3b82f6; }
+  .variant-label-dot.dot-red { background: #ef4444; }
+  .variant-label-dot.dot-green { background: #22c55e; }
+
+  /* ===== PAGE SECTION TITLE ===== */
+  .page-section-title {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 800;
+    font-size: 1.125rem;
+    color: #333;
+    text-align: center;
+    margin-top: 48px;
+    margin-bottom: 8px;
+    letter-spacing: 0.01em;
+  }
+
+  .page-section-desc {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 400;
+    font-size: 0.8125rem;
+    color: #888;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  /* ===== VARIANTS GRID ===== */
+  .variants-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 24px;
+    width: 100%;
+    max-width: 480px;
+  }
+</style>
+</head>
+<body data-theme="normal" data-mode="light">
+
+<!-- ===== CONTROLS ===== -->
+<div class="controls">
+  <span class="controls-title">Gastify Login - Design Mockup</span>
+  <div class="controls-row">
+    <div class="theme-tabs">
+      <button class="theme-tab active" data-theme-select="normal" onclick="setTheme('normal')">Normal</button>
+      <button class="theme-tab" data-theme-select="professional" onclick="setTheme('professional')">Professional</button>
+      <button class="theme-tab" data-theme-select="mono" onclick="setTheme('mono')">Mono</button>
+    </div>
+    <button class="mode-toggle" onclick="toggleMode()">
+      <span class="mode-icon">&#9788;</span>
+      <span class="mode-label">Light</span>
+    </button>
+  </div>
+</div>
+
+<!-- ===== HERO: DEFAULT LOGIN ===== -->
+<div class="phone-frame">
+  <div class="phone-screen">
+    <!-- Notch -->
+    <div class="notch"></div>
+
+    <!-- Status Bar -->
+    <div class="status-bar">
+      <span class="status-bar-time">9:41</span>
+      <div class="status-bar-icons">
+        <!-- Signal -->
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <rect x="1" y="16" width="4" height="6" rx="1"/>
+          <rect x="7" y="12" width="4" height="10" rx="1"/>
+          <rect x="13" y="7" width="4" height="15" rx="1"/>
+          <rect x="19" y="2" width="4" height="20" rx="1"/>
+        </svg>
+        <!-- WiFi -->
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 18c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zM4.93 7.36l1.41 1.41C8.18 7.11 10 6.2 12 6.2s3.82.91 5.66 2.57l1.41-1.41C16.85 5.15 14.53 4 12 4S7.15 5.15 4.93 7.36zM12 10c-1.63 0-3.12.55-4.24 1.46l1.41 1.41C10.05 12.33 11 12 12 12s1.95.33 2.83.87l1.41-1.41C15.12 10.55 13.63 10 12 10z"/>
+        </svg>
+        <!-- Battery -->
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <rect x="2" y="7" width="18" height="10" rx="2" stroke="white" stroke-width="1.5" fill="none"/>
+          <rect x="4" y="9" width="14" height="6" rx="1" fill="white"/>
+          <rect x="21" y="10" width="2" height="4" rx="0.5"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Hero Section -->
+    <div class="login-hero">
+      <div class="logo-circle">
+        <img src="piggy-bank.png" class="logo-letter" style="width:80%;height:80%;object-fit:contain;image-rendering:pixelated">
+      </div>
+      <span class="wordmark">Gastify</span>
+      <span class="tagline">Tu asistente inteligente de gastos</span>
+    </div>
+
+    <!-- Bottom Card -->
+    <div class="login-card">
+      <h2 class="login-heading">Iniciar Sesion</h2>
+
+      <!-- Google Button -->
+      <button class="btn btn-google">
+        <!-- Google G Icon -->
+        <svg class="google-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.27-4.74 3.27-8.1z" fill="#4285F4"/>
+          <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+          <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18A10.97 10.97 0 0 0 1 12c0 1.78.43 3.46 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+          <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+        </svg>
+        <span class="spinner"></span>
+        <span class="btn-label">Continuar con Google</span>
+      </button>
+
+      <!-- Terms -->
+      <p class="terms">
+        Al continuar, aceptas nuestros <a href="#">Terminos de Servicio</a> y <a href="#">Politica de Privacidad</a>
+      </p>
+
+      <!-- Footer -->
+      <div class="login-footer">
+        <div class="footer-brand">Khujta AI</div>
+        <div class="footer-version">v1.0.0-beta.5</div>
+      </div>
+    </div>
+
+    <!-- Home Indicator -->
+    <div class="home-indicator">
+      <div class="home-indicator-bar"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== VARIANT STATES ===== -->
+<div class="page-section-title">Estados Variantes</div>
+<div class="page-section-desc">Diferentes estados de la pantalla de login</div>
+
+<div class="variants-grid">
+
+  <!-- VARIANT: Loading -->
+  <div class="variant-section">
+    <div class="variant-section-title">2. Estado de Carga</div>
+    <div class="variant-phone-frame">
+      <div class="variant-phone-screen">
+        <div class="variant-card-preview">
+          <div class="variant-label">
+            <span class="variant-label-dot dot-blue"></span>
+            LOADING
+          </div>
+          <h2 class="login-heading">Iniciar Sesion</h2>
+          <button class="btn btn-google loading" disabled>
+            <svg class="google-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.27-4.74 3.27-8.1z" fill="#4285F4"/>
+              <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+              <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18A10.97 10.97 0 0 0 1 12c0 1.78.43 3.46 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+              <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+            </svg>
+            <span class="spinner"></span>
+            <span class="btn-label">Continuar con Google</span>
+          </button>
+          <div class="divider">
+            <div class="divider-line"></div>
+            <span class="divider-text">o</span>
+            <div class="divider-line"></div>
+          </div>
+          <button class="btn btn-primary" disabled style="opacity:0.5; pointer-events:none;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="4" width="20" height="16" rx="2"/>
+              <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+            </svg>
+            Continuar con Email
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VARIANT: Error -->
+  <div class="variant-section">
+    <div class="variant-section-title">3. Estado de Error</div>
+    <div class="variant-phone-frame">
+      <div class="variant-phone-screen">
+        <div class="variant-card-preview">
+          <div class="variant-label">
+            <span class="variant-label-dot dot-red"></span>
+            ERROR
+          </div>
+          <h2 class="login-heading">Iniciar Sesion</h2>
+          <button class="btn btn-google">
+            <svg class="google-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.27-4.74 3.27-8.1z" fill="#4285F4"/>
+              <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+              <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18A10.97 10.97 0 0 0 1 12c0 1.78.43 3.46 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+              <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+            </svg>
+            <span class="btn-label">Continuar con Google</span>
+          </button>
+          <!-- Error Banner -->
+          <div class="variant-banner error-banner visible" style="margin-top:14px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="8" x2="12" y2="12"/>
+              <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+            <span>Error al iniciar sesion. Intenta de nuevo.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VARIANT: First-time / Welcome -->
+  <div class="variant-section">
+    <div class="variant-section-title">4. Primer Ingreso</div>
+    <div class="variant-phone-frame">
+      <div class="variant-phone-screen">
+        <div class="variant-card-preview">
+          <div class="variant-label">
+            <span class="variant-label-dot dot-green"></span>
+            FIRST-TIME
+          </div>
+          <h2 class="login-heading">Iniciar Sesion</h2>
+          <!-- Welcome Banner -->
+          <div class="variant-banner welcome-banner visible" style="margin-bottom:14px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
+              <path d="M5 3v4"/>
+              <path d="M19 17v4"/>
+              <path d="M3 5h4"/>
+              <path d="M17 19h4"/>
+            </svg>
+            <span>Bienvenido! Crea tu cuenta en segundos.</span>
+          </div>
+          <button class="btn btn-google">
+            <svg class="google-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.27-4.74 3.27-8.1z" fill="#4285F4"/>
+              <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+              <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18A10.97 10.97 0 0 0 1 12c0 1.78.43 3.46 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+              <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+            </svg>
+            <span class="btn-label">Continuar con Google</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function setTheme(theme) {
+    document.body.setAttribute('data-theme', theme);
+    document.querySelectorAll('.theme-tab').forEach(function(tab) {
+      tab.classList.toggle('active', tab.getAttribute('data-theme-select') === theme);
+    });
+  }
+
+  function toggleMode() {
+    var body = document.body;
+    var currentMode = body.getAttribute('data-mode');
+    var newMode = currentMode === 'light' ? 'dark' : 'light';
+    body.setAttribute('data-mode', newMode);
+
+    var btn = document.querySelector('.mode-toggle');
+    var icon = btn.querySelector('.mode-icon');
+    var label = btn.querySelector('.mode-label');
+
+    if (newMode === 'dark') {
+      icon.innerHTML = '&#9790;';
+      label.textContent = 'Dark';
+    } else {
+      icon.innerHTML = '&#9788;';
+      label.textContent = 'Light';
+    }
+  }
+</script>
+
+</body>
+</html>

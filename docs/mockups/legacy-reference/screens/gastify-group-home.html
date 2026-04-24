@@ -1,0 +1,2108 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Group Home — Gastify (Production Design System)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Baloo+2:wght@700&display=swap" rel="stylesheet">
+  <style>
+    /* ======================================================
+       GASTIFY — PRODUCTION DESIGN SYSTEM
+       Themes: Normal / Professional / Mono
+       Modes: Light / Dark
+       Screen: Group Home (Epic 19 — Shared Groups)
+       Phone: 360x780 (Samsung S23)
+       ====================================================== */
+
+    /* -- Normal Light (default) -- */
+    :root {
+      --bg: #f5f0e8;
+      --surface: #fff;
+      --primary: #4a7c59;
+      --text: #2d3a4a;
+      --secondary: #4a5568;
+      --accent: #e8a87c;
+      --border: #e3bba1;
+      --border-medium: #d4a574;
+      --bg-tertiary: #f1dbb6;
+      --secondary-color: #5b8fa8;
+      --success: #7d9b5f;
+      --warning: #f59e0b;
+      --error: #ef4444;
+      --primary-rgb: 74, 124, 89;
+      --nav-bg: #ffffff;
+      --nav-border: #e3bba1;
+      --shadow: rgba(74, 124, 89, 0.12);
+      --shadow-lg: rgba(74, 124, 89, 0.18);
+      --skeleton-base: #f1dbb6;
+      --skeleton-shine: #f5f0e8;
+      --progress-track: #e3bba1;
+      --indicator-inactive: #e3bba1;
+      --treemap-text: #fff;
+      --frame-bg: #1a1a2e;
+      --status-bar-text: #fff;
+      --fab-gradient-from: #4a7c59;
+      --fab-gradient-to: #3d6b4b;
+      --recent-indicator: #d4a574;
+      --cat-supermercado: #4a7c59;
+      --cat-supermercado-tint: rgba(74, 124, 89, 0.15);
+      --cat-comida: #2563eb;
+      --cat-comida-tint: rgba(37, 99, 235, 0.12);
+      --cat-servicios: #d97706;
+      --cat-servicios-tint: rgba(217, 119, 6, 0.12);
+      --cat-transporte: #7c3aed;
+      --cat-transporte-tint: rgba(124, 58, 237, 0.12);
+    }
+
+    /* -- Normal Dark -- */
+    [data-theme="normal"][data-mode="dark"] {
+      --bg: #1a2420;
+      --surface: #243028;
+      --primary: #6b9e7a;
+      --text: #e8e4dc;
+      --secondary: #b8c4a8;
+      --border: #3d4d42;
+      --border-medium: #4d5d52;
+      --bg-tertiary: #2d3a30;
+      --secondary-color: #7ab5cc;
+      --success: #9bbd7f;
+      --primary-rgb: 107, 158, 122;
+      --nav-bg: #1e2a22;
+      --nav-border: #3d4d42;
+      --shadow: rgba(0,0,0,0.3);
+      --shadow-lg: rgba(0,0,0,0.4);
+      --skeleton-base: #2d3a30;
+      --skeleton-shine: #3d4d42;
+      --progress-track: #3d4d42;
+      --indicator-inactive: #3d4d42;
+      --frame-bg: #0a0f0c;
+      --status-bar-text: #e8e4dc;
+      --accent: #d4a574;
+      --fab-gradient-from: #6b9e7a;
+      --fab-gradient-to: #5a8a68;
+      --recent-indicator: #d4a574;
+      --cat-supermercado: #6b9e7a;
+      --cat-supermercado-tint: rgba(107, 158, 122, 0.2);
+      --cat-comida: #60a5fa;
+      --cat-comida-tint: rgba(96, 165, 250, 0.15);
+      --cat-servicios: #fbbf24;
+      --cat-servicios-tint: rgba(251, 191, 36, 0.15);
+      --cat-transporte: #a78bfa;
+      --cat-transporte-tint: rgba(167, 139, 250, 0.15);
+    }
+
+    /* -- Professional Light -- */
+    [data-theme="professional"][data-mode="light"] {
+      --bg: #f8fafc;
+      --surface: #fff;
+      --primary: #2563eb;
+      --text: #0f172a;
+      --secondary: #475569;
+      --accent: #3b82f6;
+      --border: #e2e8f0;
+      --border-medium: #cbd5e1;
+      --bg-tertiary: #f1f5f9;
+      --secondary-color: #0ea5e9;
+      --success: #16a34a;
+      --primary-rgb: 37, 99, 235;
+      --nav-bg: #ffffff;
+      --nav-border: #e2e8f0;
+      --shadow: rgba(37, 99, 235, 0.08);
+      --shadow-lg: rgba(37, 99, 235, 0.12);
+      --skeleton-base: #f1f5f9;
+      --skeleton-shine: #f8fafc;
+      --progress-track: #e2e8f0;
+      --indicator-inactive: #e2e8f0;
+      --frame-bg: #1e293b;
+      --status-bar-text: #fff;
+      --fab-gradient-from: #2563eb;
+      --fab-gradient-to: #1d4ed8;
+      --recent-indicator: #3b82f6;
+      --cat-supermercado: #2563eb;
+      --cat-supermercado-tint: rgba(37, 99, 235, 0.1);
+      --cat-comida: #0ea5e9;
+      --cat-comida-tint: rgba(14, 165, 233, 0.1);
+      --cat-servicios: #d97706;
+      --cat-servicios-tint: rgba(217, 119, 6, 0.1);
+      --cat-transporte: #7c3aed;
+      --cat-transporte-tint: rgba(124, 58, 237, 0.1);
+    }
+
+    /* -- Professional Dark -- */
+    [data-theme="professional"][data-mode="dark"] {
+      --bg: #0f172a;
+      --surface: #1e293b;
+      --primary: #3b82f6;
+      --text: #f1f5f9;
+      --secondary: #94a3b8;
+      --accent: #60a5fa;
+      --border: #334155;
+      --border-medium: #475569;
+      --bg-tertiary: #1e293b;
+      --secondary-color: #38bdf8;
+      --success: #22c55e;
+      --primary-rgb: 59, 130, 246;
+      --nav-bg: #0f172a;
+      --nav-border: #334155;
+      --shadow: rgba(0,0,0,0.3);
+      --shadow-lg: rgba(0,0,0,0.4);
+      --skeleton-base: #1e293b;
+      --skeleton-shine: #334155;
+      --progress-track: #334155;
+      --indicator-inactive: #334155;
+      --frame-bg: #020617;
+      --status-bar-text: #f1f5f9;
+      --fab-gradient-from: #3b82f6;
+      --fab-gradient-to: #2563eb;
+      --recent-indicator: #60a5fa;
+      --cat-supermercado: #3b82f6;
+      --cat-supermercado-tint: rgba(59, 130, 246, 0.15);
+      --cat-comida: #38bdf8;
+      --cat-comida-tint: rgba(56, 189, 248, 0.15);
+      --cat-servicios: #fbbf24;
+      --cat-servicios-tint: rgba(251, 191, 36, 0.15);
+      --cat-transporte: #a78bfa;
+      --cat-transporte-tint: rgba(167, 139, 250, 0.15);
+    }
+
+    /* -- Mono Light -- */
+    [data-theme="mono"][data-mode="light"] {
+      --bg: #fafafa;
+      --surface: #fff;
+      --primary: #18181b;
+      --text: #18181b;
+      --secondary: #52525b;
+      --accent: #52525b;
+      --border: #e4e4e7;
+      --border-medium: #d4d4d8;
+      --bg-tertiary: #f4f4f5;
+      --secondary-color: #3f3f46;
+      --success: #52525b;
+      --primary-rgb: 24, 24, 27;
+      --nav-bg: #ffffff;
+      --nav-border: #e4e4e7;
+      --shadow: rgba(0,0,0,0.06);
+      --shadow-lg: rgba(0,0,0,0.1);
+      --skeleton-base: #f4f4f5;
+      --skeleton-shine: #fafafa;
+      --progress-track: #e4e4e7;
+      --indicator-inactive: #e4e4e7;
+      --frame-bg: #18181b;
+      --status-bar-text: #fff;
+      --fab-gradient-from: #18181b;
+      --fab-gradient-to: #27272a;
+      --recent-indicator: #52525b;
+      --cat-supermercado: #18181b;
+      --cat-supermercado-tint: rgba(24, 24, 27, 0.08);
+      --cat-comida: #3f3f46;
+      --cat-comida-tint: rgba(63, 63, 70, 0.08);
+      --cat-servicios: #52525b;
+      --cat-servicios-tint: rgba(82, 82, 91, 0.08);
+      --cat-transporte: #71717a;
+      --cat-transporte-tint: rgba(113, 113, 122, 0.08);
+    }
+
+    /* -- Mono Dark -- */
+    [data-theme="mono"][data-mode="dark"] {
+      --bg: #09090b;
+      --surface: #18181b;
+      --primary: #a1a1aa;
+      --text: #fafafa;
+      --secondary: #a1a1aa;
+      --accent: #71717a;
+      --border: #27272a;
+      --border-medium: #3f3f46;
+      --bg-tertiary: #18181b;
+      --secondary-color: #71717a;
+      --success: #a1a1aa;
+      --primary-rgb: 63, 63, 70;
+      --nav-bg: #09090b;
+      --nav-border: #27272a;
+      --shadow: rgba(0,0,0,0.4);
+      --shadow-lg: rgba(0,0,0,0.5);
+      --skeleton-base: #18181b;
+      --skeleton-shine: #27272a;
+      --progress-track: #27272a;
+      --indicator-inactive: #27272a;
+      --frame-bg: #000;
+      --status-bar-text: #fafafa;
+      --fab-gradient-from: #3f3f46;
+      --fab-gradient-to: #27272a;
+      --recent-indicator: #71717a;
+      --cat-supermercado: #a1a1aa;
+      --cat-supermercado-tint: rgba(161, 161, 170, 0.12);
+      --cat-comida: #71717a;
+      --cat-comida-tint: rgba(113, 113, 122, 0.12);
+      --cat-servicios: #52525b;
+      --cat-servicios-tint: rgba(82, 82, 91, 0.12);
+      --cat-transporte: #a1a1aa;
+      --cat-transporte-tint: rgba(161, 161, 170, 0.12);
+    }
+
+    /* ======================================================
+       BASE STYLES
+       ====================================================== */
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #1a1a2e;
+      font-family: 'Outfit', 'Segoe UI', system-ui, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      gap: 32px;
+      color: var(--text);
+    }
+
+    /* ======================================================
+       CONTROLS (outside phone frame)
+       ====================================================== */
+
+    .controls {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      width: 100%;
+      max-width: 520px;
+    }
+
+    .controls-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .theme-tabs {
+      display: flex;
+      background: rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 4px;
+      gap: 2px;
+    }
+
+    .theme-tab {
+      padding: 8px 20px;
+      border: none;
+      background: transparent;
+      color: rgba(255,255,255,0.5);
+      font-family: 'Outfit', sans-serif;
+      font-weight: 500;
+      font-size: 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .theme-tab:hover {
+      color: rgba(255,255,255,0.8);
+    }
+
+    .theme-tab.active {
+      background: rgba(255,255,255,0.15);
+      color: #fff;
+    }
+
+    .mode-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: rgba(255,255,255,0.7);
+      font-family: 'Outfit', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .toggle-switch {
+      width: 44px;
+      height: 24px;
+      background: rgba(255,255,255,0.15);
+      border-radius: 12px;
+      cursor: pointer;
+      position: relative;
+      transition: background 0.2s;
+    }
+
+    .toggle-switch.dark {
+      background: rgba(255,255,255,0.3);
+    }
+
+    .toggle-switch::after {
+      content: '';
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      background: #fff;
+      border-radius: 50%;
+      top: 3px;
+      left: 3px;
+      transition: transform 0.2s;
+    }
+
+    .toggle-switch.dark::after {
+      transform: translateX(20px);
+    }
+
+    .variant-tabs {
+      display: flex;
+      background: rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 4px;
+      gap: 2px;
+    }
+
+    .variant-tab {
+      padding: 6px 16px;
+      border: none;
+      background: transparent;
+      color: rgba(255,255,255,0.5);
+      font-family: 'Outfit', sans-serif;
+      font-weight: 500;
+      font-size: 13px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .variant-tab:hover {
+      color: rgba(255,255,255,0.8);
+    }
+
+    .variant-tab.active {
+      background: rgba(255,255,255,0.15);
+      color: #fff;
+    }
+
+    /* ======================================================
+       PHONE FRAME — 360x780 (Samsung S23)
+       ====================================================== */
+
+    .phone-frame {
+      width: 384px; /* 360 + 24 padding */
+      height: 804px; /* 780 + 24 padding */
+      background: var(--frame-bg);
+      border-radius: 40px;
+      padding: 12px;
+      position: relative;
+      box-shadow: 0 25px 80px rgba(0,0,0,0.4), inset 0 0 0 2px rgba(255,255,255,0.08);
+    }
+
+    .phone-screen {
+      width: 360px;
+      height: 780px;
+      background: var(--bg);
+      border-radius: 30px;
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* -- Notch (pill-shaped, centered) -- */
+    .phone-notch {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 120px;
+      height: 26px;
+      background: var(--frame-bg);
+      border-radius: 0 0 16px 16px;
+      z-index: 100;
+    }
+
+    /* -- Status Bar -- */
+    .status-bar {
+      height: 44px;
+      padding: 12px 20px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text);
+      position: relative;
+      z-index: 99;
+      flex-shrink: 0;
+      background: var(--bg);
+    }
+
+    .status-bar-left {
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .status-bar-right {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .status-bar-right svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    /* -- Home Indicator -- */
+    .home-indicator {
+      position: absolute;
+      bottom: 6px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 120px;
+      height: 4px;
+      background: var(--secondary);
+      border-radius: 2px;
+      opacity: 0.3;
+      z-index: 100;
+    }
+
+    /* ======================================================
+       GROUP HEADER
+       ====================================================== */
+
+    .group-header {
+      flex-shrink: 0;
+      background: var(--bg);
+      position: relative;
+    }
+
+    .group-accent-bar {
+      height: 3px;
+      background: var(--primary);
+    }
+
+    .group-header-row {
+      height: 56px;
+      padding: 0 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .group-emoji {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(var(--primary-rgb), 0.12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .group-title {
+      font-family: 'Baloo 2', cursive;
+      font-weight: 700;
+      font-size: 22px;
+      color: var(--text);
+      line-height: 1;
+      flex: 1;
+    }
+
+    .group-pill {
+      background: rgba(var(--primary-rgb), 0.12);
+      border: 1px solid rgba(var(--primary-rgb), 0.25);
+      border-radius: 999px;
+      padding: 3px 10px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--primary);
+      white-space: nowrap;
+    }
+
+    .avatar-circle {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--bg-tertiary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: transform 0.15s;
+      flex-shrink: 0;
+    }
+
+    .avatar-circle:hover {
+      transform: scale(1.05);
+    }
+
+    .avatar-circle span {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--text);
+      line-height: 1;
+    }
+
+    /* -- In-screen tabs (Home / Transactions / Analytics) -- */
+    .screen-tabs {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+      padding: 0 12px;
+      background: var(--bg);
+      flex-shrink: 0;
+    }
+
+    .screen-tab {
+      flex: 1;
+      text-align: center;
+      padding: 10px 0 8px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--secondary);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.15s;
+      opacity: 0.6;
+    }
+
+    .screen-tab.active {
+      color: var(--primary);
+      font-weight: 600;
+      border-bottom-color: var(--primary);
+      opacity: 1;
+    }
+
+    /* ======================================================
+       SCROLLABLE CONTENT
+       ====================================================== */
+
+    .scroll-content {
+      flex: 1;
+      overflow-y: auto;
+      padding-bottom: 90px;
+    }
+
+    .scroll-content::-webkit-scrollbar {
+      display: none;
+    }
+
+    /* ======================================================
+       SHARED CARD STYLES
+       ====================================================== */
+
+    .card {
+      margin: 10px 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      box-shadow: 0 1px 4px var(--shadow);
+      overflow: hidden;
+    }
+
+    .card-inner {
+      padding: 14px;
+    }
+
+    .card-title {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+      font-size: 14px;
+      color: var(--text);
+      margin-bottom: 10px;
+    }
+
+    .card-title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    /* ======================================================
+       VARIANT: HOME — Month Summary
+       ====================================================== */
+
+    .month-summary {
+      text-align: center;
+      padding: 16px 14px;
+    }
+
+    .month-summary-label {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 500;
+      font-size: 13px;
+      color: var(--secondary);
+      margin-bottom: 4px;
+    }
+
+    .month-summary-amount {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 800;
+      font-size: 28px;
+      color: var(--text);
+      line-height: 1.1;
+    }
+
+    .month-summary-count {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 400;
+      font-size: 12px;
+      color: var(--secondary);
+      margin-top: 2px;
+    }
+
+    /* -- Member Contributions -- */
+
+    .member-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .member-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .member-avatar-sm {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--bg-tertiary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-family: 'Outfit', sans-serif;
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--secondary);
+    }
+
+    .member-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .member-name-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 3px;
+    }
+
+    .member-name {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 500;
+      font-size: 13px;
+      color: var(--text);
+    }
+
+    .member-amount {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+      font-size: 12px;
+      color: var(--text);
+    }
+
+    .member-bar-track {
+      height: 6px;
+      background: var(--progress-track);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .member-bar-fill {
+      height: 100%;
+      background: var(--primary);
+      border-radius: 3px;
+      transition: width 0.3s;
+    }
+
+    .member-pct {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 500;
+      font-size: 11px;
+      color: var(--secondary);
+      flex-shrink: 0;
+      width: 32px;
+      text-align: right;
+    }
+
+    /* -- Recent Group Transactions -- */
+
+    .group-txn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: transform 0.1s;
+    }
+
+    .group-txn:last-child {
+      margin-bottom: 0;
+    }
+
+    .group-txn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 3px 10px var(--shadow-lg);
+    }
+
+    .group-txn-emoji {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .group-txn-body {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .group-txn-merchant {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .group-txn-meta {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 2px;
+    }
+
+    .group-txn-contributor-avatar {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--bg-tertiary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Outfit', sans-serif;
+      font-size: 7px;
+      font-weight: 700;
+      color: var(--secondary);
+      flex-shrink: 0;
+    }
+
+    .group-txn-date {
+      font-family: 'Outfit', sans-serif;
+      font-size: 11px;
+      font-weight: 400;
+      color: var(--secondary);
+    }
+
+    .group-txn-amount {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--text);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    /* -- Auto-copy banner -- */
+
+    .auto-copy-banner {
+      margin: 10px 12px 0;
+      padding: 8px 12px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .auto-copy-banner.active {
+      background: rgba(var(--primary-rgb), 0.08);
+      border: 1px solid rgba(var(--primary-rgb), 0.2);
+      color: var(--primary);
+    }
+
+    .auto-copy-banner.inactive {
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border);
+      color: var(--secondary);
+    }
+
+    .auto-copy-icon {
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    /* ======================================================
+       VARIANT: TRANSACTIONS — Filter Pills + List
+       ====================================================== */
+
+    .filter-pills {
+      display: flex;
+      gap: 6px;
+      padding: 10px 12px;
+      flex-wrap: wrap;
+    }
+
+    .filter-pill {
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--secondary);
+    }
+
+    .filter-pill.active {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+
+    .txn-list {
+      padding: 0 12px;
+    }
+
+    .txn-list-card {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: transform 0.1s;
+    }
+
+    .txn-list-card:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 3px 10px var(--shadow-lg);
+    }
+
+    .txn-list-emoji {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .txn-list-body {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .txn-list-merchant {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .txn-list-meta {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 3px;
+    }
+
+    .txn-list-avatar {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--bg-tertiary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Outfit', sans-serif;
+      font-size: 8px;
+      font-weight: 700;
+      color: var(--secondary);
+      flex-shrink: 0;
+    }
+
+    .txn-list-contributor {
+      font-family: 'Outfit', sans-serif;
+      font-size: 11px;
+      font-weight: 400;
+      color: var(--secondary);
+    }
+
+    .txn-list-date {
+      font-family: 'Outfit', sans-serif;
+      font-size: 11px;
+      font-weight: 400;
+      color: var(--secondary);
+    }
+
+    .txn-list-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 2px;
+      flex-shrink: 0;
+    }
+
+    .txn-list-amount {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--text);
+      white-space: nowrap;
+    }
+
+    .txn-list-chevron {
+      width: 14px;
+      height: 14px;
+      color: var(--secondary);
+      opacity: 0.4;
+    }
+
+    .txn-list-chevron svg {
+      width: 14px;
+      height: 14px;
+      stroke: var(--secondary);
+    }
+
+    /* ======================================================
+       VARIANT: ANALYTICS — Donut + Breakdown
+       ====================================================== */
+
+    .donut-wrapper {
+      display: flex;
+      justify-content: center;
+      padding: 16px 0;
+    }
+
+    .donut-chart {
+      position: relative;
+      width: 160px;
+      height: 160px;
+    }
+
+    .donut-center {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+    }
+
+    .donut-total-label {
+      font-family: 'Outfit', sans-serif;
+      font-size: 11px;
+      font-weight: 400;
+      color: var(--secondary);
+    }
+
+    .donut-total-amount {
+      font-family: 'Outfit', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .breakdown-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .breakdown-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .breakdown-emoji {
+      font-size: 16px;
+      width: 24px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    .breakdown-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .breakdown-name-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 3px;
+    }
+
+    .breakdown-name {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 500;
+      font-size: 13px;
+      color: var(--text);
+    }
+
+    .breakdown-amount {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+      font-size: 12px;
+      color: var(--text);
+    }
+
+    .breakdown-bar-track {
+      height: 6px;
+      background: var(--progress-track);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .breakdown-bar-fill {
+      height: 100%;
+      border-radius: 3px;
+      transition: width 0.3s;
+    }
+
+    .breakdown-pct {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 500;
+      font-size: 11px;
+      color: var(--secondary);
+      flex-shrink: 0;
+      width: 32px;
+      text-align: right;
+    }
+
+    /* ======================================================
+       VARIANT: TRANSACTION DETAIL — Read-only
+       ====================================================== */
+
+    .detail-back {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 10px 14px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--primary);
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .detail-back svg {
+      width: 18px;
+      height: 18px;
+      stroke: var(--primary);
+    }
+
+    .detail-hero {
+      text-align: center;
+      padding: 10px 14px 16px;
+    }
+
+    .detail-emoji-lg {
+      font-size: 40px;
+      margin-bottom: 6px;
+    }
+
+    .detail-merchant-lg {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      font-size: 18px;
+      color: var(--text);
+    }
+
+    .detail-date-lg {
+      font-family: 'Outfit', sans-serif;
+      font-size: 12px;
+      font-weight: 400;
+      color: var(--secondary);
+      margin-top: 2px;
+    }
+
+    .detail-amount-lg {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 800;
+      font-size: 28px;
+      color: var(--text);
+      margin-top: 8px;
+    }
+
+    .detail-field {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .detail-field:last-child {
+      border-bottom: none;
+    }
+
+    .detail-field-label {
+      font-family: 'Outfit', sans-serif;
+      font-size: 12px;
+      font-weight: 400;
+      color: var(--secondary);
+    }
+
+    .detail-field-value {
+      font-family: 'Outfit', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .detail-field-avatar {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--bg-tertiary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Outfit', sans-serif;
+      font-size: 8px;
+      font-weight: 700;
+      color: var(--secondary);
+    }
+
+    .detail-items-title {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--text);
+      margin-bottom: 8px;
+      padding-top: 10px;
+    }
+
+    .detail-item-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 0;
+    }
+
+    .detail-item-name {
+      font-family: 'Outfit', sans-serif;
+      font-size: 13px;
+      font-weight: 400;
+      color: var(--text);
+    }
+
+    .detail-item-price {
+      font-family: 'Outfit', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .detail-note {
+      margin: 16px 12px;
+      padding: 10px 14px;
+      background: var(--bg-tertiary);
+      border-radius: 10px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 11px;
+      font-weight: 400;
+      color: var(--secondary);
+      text-align: center;
+      line-height: 1.5;
+    }
+
+    /* ======================================================
+       VARIANT: DELETE CONFIRM — Modal
+       ====================================================== */
+
+    .modal-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+      border-radius: 30px;
+    }
+
+    .modal-dialog {
+      background: var(--surface);
+      border-radius: 16px;
+      padding: 24px 20px;
+      margin: 0 24px;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+      max-width: 300px;
+      width: 100%;
+    }
+
+    .modal-title {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      font-size: 18px;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+
+    .modal-merchant {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 500;
+      font-size: 14px;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 4px;
+    }
+
+    .modal-amount {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      font-size: 20px;
+      color: var(--text);
+      margin-bottom: 12px;
+    }
+
+    .modal-warning {
+      font-family: 'Outfit', sans-serif;
+      font-size: 12px;
+      font-weight: 400;
+      color: var(--error, #ef4444);
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .modal-btn {
+      flex: 1;
+      padding: 10px 0;
+      border-radius: 10px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      border: none;
+    }
+
+    .modal-btn-cancel {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+
+    .modal-btn-cancel:hover {
+      background: var(--bg-tertiary);
+    }
+
+    .modal-btn-delete {
+      background: #ef4444;
+      color: #fff;
+    }
+
+    .modal-btn-delete:hover {
+      background: #dc2626;
+    }
+
+        /* ======================================================
+       BOTTOM NAVIGATION (5 equal items — restructured)
+       ====================================================== */
+
+    .bottom-nav {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 56px;
+      padding-bottom: 6px;
+      background: var(--nav-bg);
+      border-top: 1px solid var(--nav-border);
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-around;
+      z-index: 50;
+      border-radius: 0 0 30px 30px;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1px;
+      cursor: pointer;
+      padding: 4px 0 2px;
+      position: relative;
+      width: 48px;
+    }
+
+    .nav-icon {
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .nav-icon svg {
+      width: 22px;
+      height: 22px;
+      stroke-width: 2;
+    }
+
+    .nav-label {
+      font-family: 'Outfit', sans-serif;
+      font-size: 10px;
+      font-weight: 500;
+      color: var(--secondary);
+      opacity: 0.5;
+    }
+
+    .nav-item.active .nav-label {
+      color: var(--primary);
+      font-weight: 600;
+      opacity: 1;
+    }
+
+    .nav-item.active .nav-icon svg {
+      stroke: var(--primary);
+    }
+
+    .nav-item:not(.active) .nav-icon svg {
+      stroke: var(--secondary);
+      opacity: 0.45;
+    }
+
+    /* ======================================================
+       VARIANT VISIBILITY
+       ====================================================== */
+
+    .variant-home { display: block; }
+    .variant-transactions { display: none; }
+    .variant-analytics { display: none; }
+    .variant-detail { display: none; }
+    .variant-delete { display: none; }
+
+    body.show-home .variant-home { display: block; }
+    body.show-home .variant-transactions { display: none; }
+    body.show-home .variant-analytics { display: none; }
+    body.show-home .variant-detail { display: none; }
+    body.show-home .variant-delete { display: none; }
+
+    body.show-transactions .variant-home { display: none; }
+    body.show-transactions .variant-transactions { display: block; }
+    body.show-transactions .variant-analytics { display: none; }
+    body.show-transactions .variant-detail { display: none; }
+    body.show-transactions .variant-delete { display: none; }
+
+    body.show-analytics .variant-home { display: none; }
+    body.show-analytics .variant-transactions { display: none; }
+    body.show-analytics .variant-analytics { display: block; }
+    body.show-analytics .variant-detail { display: none; }
+    body.show-analytics .variant-delete { display: none; }
+
+    body.show-detail .variant-home { display: none; }
+    body.show-detail .variant-transactions { display: none; }
+    body.show-detail .variant-analytics { display: none; }
+    body.show-detail .variant-detail { display: block; }
+    body.show-detail .variant-delete { display: none; }
+    body.show-detail .screen-tabs { display: none; }
+    body.show-detail .group-header { display: none; }
+
+    body.show-delete .variant-home { display: none; }
+    body.show-delete .variant-transactions { display: none; }
+    body.show-delete .variant-analytics { display: none; }
+    body.show-delete .variant-detail { display: block; }
+    body.show-delete .variant-delete { display: block; }
+    body.show-delete .screen-tabs { display: none; }
+    body.show-delete .group-header { display: none; }
+
+    /* ======================================================
+       RESPONSIVE (just in case)
+       ====================================================== */
+
+    @media (max-width: 400px) {
+      .phone-frame {
+        width: 100%;
+        border-radius: 0;
+        padding: 0;
+      }
+      .phone-screen {
+        border-radius: 0;
+        width: 100%;
+      }
+      .phone-notch { display: none; }
+      .bottom-nav { border-radius: 0; }
+    }
+  </style>
+</head>
+<body data-theme="normal" data-mode="light" class="show-home">
+
+  <!-- ========================================
+       CONTROLS (outside phone frame)
+       ======================================== -->
+  <div class="controls">
+    <div class="controls-row">
+      <div class="theme-tabs">
+        <button class="theme-tab active" data-theme-val="normal">Normal</button>
+        <button class="theme-tab" data-theme-val="professional">Professional</button>
+        <button class="theme-tab" data-theme-val="mono">Mono</button>
+      </div>
+      <div class="mode-toggle">
+        <span>Light</span>
+        <div class="toggle-switch" id="modeToggle"></div>
+        <span>Dark</span>
+      </div>
+    </div>
+    <div class="controls-row">
+      <div class="variant-tabs">
+        <button class="variant-tab active" data-variant="home">Home</button>
+        <button class="variant-tab" data-variant="transactions">Transactions</button>
+        <button class="variant-tab" data-variant="analytics">Analytics</button>
+        <button class="variant-tab" data-variant="detail">Txn Detail</button>
+        <button class="variant-tab" data-variant="delete">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================
+       PHONE FRAME (360x780)
+       ======================================== -->
+  <div class="phone-frame">
+    <div class="phone-notch"></div>
+    <div class="phone-screen">
+
+      <!-- Status Bar -->
+      <div class="status-bar">
+        <span class="status-bar-left">9:41</span>
+        <div class="status-bar-right">
+          <!-- Signal -->
+          <svg viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="11" width="2.5" height="4" rx="0.5"/><rect x="5" y="8" width="2.5" height="7" rx="0.5"/><rect x="9" y="5" width="2.5" height="10" rx="0.5"/><rect x="13" y="1" width="2.5" height="14" rx="0.5"/></svg>
+          <!-- WiFi -->
+          <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 12.5a1.25 1.25 0 110 2.5 1.25 1.25 0 010-2.5zM8 8.5c2.07 0 3.94.84 5.3 2.2l-1.42 1.42A5.48 5.48 0 008 10.5c-1.52 0-2.9.62-3.88 1.62L2.7 10.7A7.47 7.47 0 018 8.5z"/></svg>
+          <!-- Battery -->
+          <svg viewBox="0 0 24 12" fill="currentColor"><rect x="0" y="0" width="20" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="2" y="2" width="14" height="8" rx="1"/><rect x="21" y="3.5" width="2.5" height="5" rx="1"/></svg>
+        </div>
+      </div>
+
+      <!-- Group Header -->
+      <div class="group-header">
+        <div class="group-accent-bar"></div>
+        <div class="group-header-row">
+          <div class="group-emoji">&#x1F3E0;</div>
+          <span class="group-title">Casa Temuco</span>
+          <span class="group-pill">Grupo</span>
+          <div class="avatar-circle"><span>GA</span></div>
+        </div>
+      </div>
+
+      <!-- Screen Tabs (Home / Transacciones / Estadisticas) -->
+      <div class="screen-tabs">
+        <div class="screen-tab active" data-screen="home">Inicio</div>
+        <div class="screen-tab" data-screen="transactions">Transacciones</div>
+        <div class="screen-tab" data-screen="analytics">Estadisticas</div>
+      </div>
+
+      <!-- Scrollable Content -->
+      <div class="scroll-content">
+
+        <!-- ================================
+             VARIANT: HOME
+             ================================ -->
+        <div class="variant-home">
+
+          <!-- Month Summary Card -->
+          <div class="card">
+            <div class="month-summary">
+              <div class="month-summary-label">Marzo 2026</div>
+              <div class="month-summary-amount">$234.500</div>
+              <div class="month-summary-count">12 transacciones</div>
+            </div>
+          </div>
+
+          <!-- Member Contributions -->
+          <div class="card">
+            <div class="card-inner">
+              <div class="card-title">Aportes del mes</div>
+
+              <!-- Gabriel A. -->
+              <div class="member-row">
+                <div class="member-avatar-sm">GA</div>
+                <div class="member-info">
+                  <div class="member-name-row">
+                    <span class="member-name">Gabriel A.</span>
+                    <span class="member-amount">$145.000</span>
+                  </div>
+                  <div class="member-bar-track">
+                    <div class="member-bar-fill" style="width:62%"></div>
+                  </div>
+                </div>
+                <span class="member-pct">62%</span>
+              </div>
+
+              <!-- Maria L. -->
+              <div class="member-row">
+                <div class="member-avatar-sm">ML</div>
+                <div class="member-info">
+                  <div class="member-name-row">
+                    <span class="member-name">Maria L.</span>
+                    <span class="member-amount">$89.500</span>
+                  </div>
+                  <div class="member-bar-track">
+                    <div class="member-bar-fill" style="width:38%"></div>
+                  </div>
+                </div>
+                <span class="member-pct">38%</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Recent Group Transactions -->
+          <div class="card">
+            <div class="card-inner">
+              <div class="card-title-row">
+                <span class="card-title" style="margin-bottom:0">Recientes del grupo</span>
+              </div>
+
+              <!-- Txn 1 -->
+              <div class="group-txn">
+                <div class="group-txn-emoji" style="background:var(--cat-supermercado-tint)">&#x1F6D2;</div>
+                <div class="group-txn-body">
+                  <div class="group-txn-merchant">Supermercado Lider</div>
+                  <div class="group-txn-meta">
+                    <div class="group-txn-contributor-avatar">GA</div>
+                    <span class="group-txn-date">Hace 2 hrs</span>
+                  </div>
+                </div>
+                <span class="group-txn-amount">$45.890</span>
+              </div>
+
+              <!-- Txn 2 -->
+              <div class="group-txn">
+                <div class="group-txn-emoji" style="background:var(--cat-comida-tint)">&#x1F355;</div>
+                <div class="group-txn-body">
+                  <div class="group-txn-merchant">Pizza Hut</div>
+                  <div class="group-txn-meta">
+                    <div class="group-txn-contributor-avatar">ML</div>
+                    <span class="group-txn-date">Ayer</span>
+                  </div>
+                </div>
+                <span class="group-txn-amount">$28.900</span>
+              </div>
+
+              <!-- Txn 3 -->
+              <div class="group-txn">
+                <div class="group-txn-emoji" style="background:var(--cat-servicios-tint)">&#x26A1;</div>
+                <div class="group-txn-body">
+                  <div class="group-txn-merchant">Luz electrica</div>
+                  <div class="group-txn-meta">
+                    <div class="group-txn-contributor-avatar">GA</div>
+                    <span class="group-txn-date">15 Mar</span>
+                  </div>
+                </div>
+                <span class="group-txn-amount">$32.100</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Auto-copy Status Banner -->
+          <div class="auto-copy-banner active">
+            <span class="auto-copy-icon">&#x1F504;</span>
+            <span>Auto-copia activa</span>
+          </div>
+
+        </div><!-- /variant-home -->
+
+        <!-- ================================
+             VARIANT: TRANSACTIONS
+             ================================ -->
+        <div class="variant-transactions">
+
+          <!-- Filter Pills -->
+          <div class="filter-pills">
+            <div class="filter-pill active">Todos</div>
+            <div class="filter-pill">Mis aportes</div>
+            <div class="filter-pill">Este mes</div>
+          </div>
+
+          <!-- Transaction List -->
+          <div class="txn-list">
+
+            <!-- Txn 1 -->
+            <div class="txn-list-card">
+              <div class="txn-list-emoji" style="background:var(--cat-supermercado-tint)">&#x1F6D2;</div>
+              <div class="txn-list-body">
+                <div class="txn-list-merchant">Supermercado Lider</div>
+                <div class="txn-list-meta">
+                  <div class="txn-list-avatar">GA</div>
+                  <span class="txn-list-contributor">Gabriel</span>
+                  <span class="txn-list-date">&middot; Hace 2 hrs</span>
+                </div>
+              </div>
+              <div class="txn-list-right">
+                <span class="txn-list-amount">$45.890</span>
+                <div class="txn-list-chevron"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></div>
+              </div>
+            </div>
+
+            <!-- Txn 2 -->
+            <div class="txn-list-card">
+              <div class="txn-list-emoji" style="background:var(--cat-comida-tint)">&#x1F355;</div>
+              <div class="txn-list-body">
+                <div class="txn-list-merchant">Pizza Hut</div>
+                <div class="txn-list-meta">
+                  <div class="txn-list-avatar">ML</div>
+                  <span class="txn-list-contributor">Maria</span>
+                  <span class="txn-list-date">&middot; Ayer</span>
+                </div>
+              </div>
+              <div class="txn-list-right">
+                <span class="txn-list-amount">$28.900</span>
+                <div class="txn-list-chevron"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></div>
+              </div>
+            </div>
+
+            <!-- Txn 3 -->
+            <div class="txn-list-card">
+              <div class="txn-list-emoji" style="background:var(--cat-servicios-tint)">&#x26A1;</div>
+              <div class="txn-list-body">
+                <div class="txn-list-merchant">Luz electrica</div>
+                <div class="txn-list-meta">
+                  <div class="txn-list-avatar">GA</div>
+                  <span class="txn-list-contributor">Gabriel</span>
+                  <span class="txn-list-date">&middot; 15 Mar</span>
+                </div>
+              </div>
+              <div class="txn-list-right">
+                <span class="txn-list-amount">$32.100</span>
+                <div class="txn-list-chevron"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></div>
+              </div>
+            </div>
+
+            <!-- Txn 4 -->
+            <div class="txn-list-card">
+              <div class="txn-list-emoji" style="background:var(--cat-supermercado-tint)">&#x1F6D2;</div>
+              <div class="txn-list-body">
+                <div class="txn-list-merchant">Jumbo Temuco</div>
+                <div class="txn-list-meta">
+                  <div class="txn-list-avatar">ML</div>
+                  <span class="txn-list-contributor">Maria</span>
+                  <span class="txn-list-date">&middot; 12 Mar</span>
+                </div>
+              </div>
+              <div class="txn-list-right">
+                <span class="txn-list-amount">$74.110</span>
+                <div class="txn-list-chevron"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></div>
+              </div>
+            </div>
+
+            <!-- Txn 5 -->
+            <div class="txn-list-card">
+              <div class="txn-list-emoji" style="background:var(--cat-transporte-tint)">&#x1F697;</div>
+              <div class="txn-list-body">
+                <div class="txn-list-merchant">Copec Temuco</div>
+                <div class="txn-list-meta">
+                  <div class="txn-list-avatar">GA</div>
+                  <span class="txn-list-contributor">Gabriel</span>
+                  <span class="txn-list-date">&middot; 10 Mar</span>
+                </div>
+              </div>
+              <div class="txn-list-right">
+                <span class="txn-list-amount">$53.500</span>
+                <div class="txn-list-chevron"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></div>
+              </div>
+            </div>
+
+          </div>
+        </div><!-- /variant-transactions -->
+
+        <!-- ================================
+             VARIANT: ANALYTICS
+             ================================ -->
+        <div class="variant-analytics">
+
+          <!-- Donut Chart -->
+          <div class="card">
+            <div class="card-inner">
+              <div class="donut-wrapper">
+                <div class="donut-chart">
+                  <svg viewBox="0 0 36 36" width="160" height="160">
+                    <!-- Background circle -->
+                    <circle cx="18" cy="18" r="15.915" fill="none" stroke="var(--progress-track)" stroke-width="3"/>
+                    <!-- Supermercado 51% — starts at 0 -->
+                    <circle cx="18" cy="18" r="15.915" fill="none" stroke="var(--cat-supermercado)" stroke-width="3.5"
+                      stroke-dasharray="51 49" stroke-dashoffset="25" stroke-linecap="round"/>
+                    <!-- Comida 25% — starts at 51 -->
+                    <circle cx="18" cy="18" r="15.915" fill="none" stroke="var(--cat-comida)" stroke-width="3.5"
+                      stroke-dasharray="25 75" stroke-dashoffset="-26" stroke-linecap="round"/>
+                    <!-- Servicios 18% — starts at 76 -->
+                    <circle cx="18" cy="18" r="15.915" fill="none" stroke="var(--cat-servicios)" stroke-width="3.5"
+                      stroke-dasharray="18 82" stroke-dashoffset="-51" stroke-linecap="round"/>
+                    <!-- Transporte 6% — starts at 94 -->
+                    <circle cx="18" cy="18" r="15.915" fill="none" stroke="var(--cat-transporte)" stroke-width="3.5"
+                      stroke-dasharray="6 94" stroke-dashoffset="-69" stroke-linecap="round"/>
+                  </svg>
+                  <div class="donut-center">
+                    <div class="donut-total-label">Total</div>
+                    <div class="donut-total-amount">$234.500</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Category Breakdown -->
+          <div class="card">
+            <div class="card-inner">
+              <div class="card-title">Desglose por categoria</div>
+
+              <!-- Supermercado -->
+              <div class="breakdown-row">
+                <span class="breakdown-emoji">&#x1F6D2;</span>
+                <div class="breakdown-info">
+                  <div class="breakdown-name-row">
+                    <span class="breakdown-name">Supermercado</span>
+                    <span class="breakdown-amount">$120.000</span>
+                  </div>
+                  <div class="breakdown-bar-track">
+                    <div class="breakdown-bar-fill" style="width:51%;background:var(--cat-supermercado)"></div>
+                  </div>
+                </div>
+                <span class="breakdown-pct">51%</span>
+              </div>
+
+              <!-- Comida -->
+              <div class="breakdown-row">
+                <span class="breakdown-emoji">&#x1F355;</span>
+                <div class="breakdown-info">
+                  <div class="breakdown-name-row">
+                    <span class="breakdown-name">Comida</span>
+                    <span class="breakdown-amount">$58.900</span>
+                  </div>
+                  <div class="breakdown-bar-track">
+                    <div class="breakdown-bar-fill" style="width:25%;background:var(--cat-comida)"></div>
+                  </div>
+                </div>
+                <span class="breakdown-pct">25%</span>
+              </div>
+
+              <!-- Servicios -->
+              <div class="breakdown-row">
+                <span class="breakdown-emoji">&#x26A1;</span>
+                <div class="breakdown-info">
+                  <div class="breakdown-name-row">
+                    <span class="breakdown-name">Servicios</span>
+                    <span class="breakdown-amount">$42.100</span>
+                  </div>
+                  <div class="breakdown-bar-track">
+                    <div class="breakdown-bar-fill" style="width:18%;background:var(--cat-servicios)"></div>
+                  </div>
+                </div>
+                <span class="breakdown-pct">18%</span>
+              </div>
+
+              <!-- Transporte -->
+              <div class="breakdown-row">
+                <span class="breakdown-emoji">&#x1F697;</span>
+                <div class="breakdown-info">
+                  <div class="breakdown-name-row">
+                    <span class="breakdown-name">Transporte</span>
+                    <span class="breakdown-amount">$13.500</span>
+                  </div>
+                  <div class="breakdown-bar-track">
+                    <div class="breakdown-bar-fill" style="width:6%;background:var(--cat-transporte)"></div>
+                  </div>
+                </div>
+                <span class="breakdown-pct">6%</span>
+              </div>
+
+            </div>
+          </div>
+
+        </div><!-- /variant-analytics -->
+
+        <!-- ================================
+             VARIANT: TRANSACTION DETAIL (read-only)
+             ================================ -->
+        <div class="variant-detail">
+
+          <!-- Back Header -->
+          <div class="detail-back">
+            <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+            Detalle
+          </div>
+
+          <!-- Detail Hero -->
+          <div class="detail-hero">
+            <div class="detail-emoji-lg">&#x1F6D2;</div>
+            <div class="detail-merchant-lg">Supermercado Lider</div>
+            <div class="detail-date-lg">15 de Marzo, 2026</div>
+            <div class="detail-amount-lg">$45.890</div>
+          </div>
+
+          <!-- Detail Fields -->
+          <div class="card">
+            <div class="card-inner">
+              <div class="detail-field">
+                <span class="detail-field-label">Categoria</span>
+                <span class="detail-field-value">&#x1F6D2; Supermercado</span>
+              </div>
+              <div class="detail-field">
+                <span class="detail-field-label">Subcategoria</span>
+                <span class="detail-field-value">Viveres</span>
+              </div>
+              <div class="detail-field">
+                <span class="detail-field-label">Agregado por</span>
+                <span class="detail-field-value">
+                  <span class="detail-field-avatar">GA</span>
+                  Gabriel A.
+                </span>
+              </div>
+              <div class="detail-field">
+                <span class="detail-field-label">Fecha de aporte</span>
+                <span class="detail-field-value">15 Mar 2026</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Items List -->
+          <div class="card">
+            <div class="card-inner">
+              <div class="detail-items-title">Items (2)</div>
+              <div class="detail-item-row">
+                <span class="detail-item-name">Pan</span>
+                <span class="detail-item-price">$2.500</span>
+              </div>
+              <div class="detail-item-row">
+                <span class="detail-item-name">Leche</span>
+                <span class="detail-item-price">$1.890</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Read-only Note -->
+          <div class="detail-note">
+            Solo admins pueden eliminar transacciones del grupo
+          </div>
+
+        </div><!-- /variant-detail -->
+
+        <!-- ================================
+             VARIANT: DELETE CONFIRM (modal overlay)
+             ================================ -->
+        <div class="variant-delete">
+          <div class="modal-overlay">
+            <div class="modal-dialog">
+              <div class="modal-title">Eliminar transaccion?</div>
+              <div class="modal-merchant">&#x1F6D2; Supermercado Lider</div>
+              <div class="modal-amount">$45.890</div>
+              <div class="modal-warning">&#x26A0;&#xFE0F; Esta accion no se puede deshacer</div>
+              <div class="modal-actions">
+                <button class="modal-btn modal-btn-cancel">Cancelar</button>
+                <button class="modal-btn modal-btn-delete">Eliminar</button>
+              </div>
+            </div>
+          </div>
+        </div><!-- /variant-delete -->
+
+      </div><!-- /scroll-content -->
+
+      <!-- Bottom Navigation -->
+            <div class="bottom-nav">
+        <!-- Inicio -->
+        <div class="nav-item active">
+          <div class="nav-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+              <polyline points="9 22 9 12 15 12 15 22"/>
+            </svg>
+          </div>
+          <span class="nav-label">Inicio</span>
+        </div>
+        <!-- Compras -->
+        <div class="nav-item">
+          <div class="nav-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="16" y1="13" x2="8" y2="13"/>
+              <line x1="16" y1="17" x2="8" y2="17"/>
+            </svg>
+          </div>
+          <span class="nav-label">Compras</span>
+        </div>
+        <!-- Escanear -->
+        <div class="nav-item">
+          <div class="nav-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+              <circle cx="12" cy="13" r="4"/>
+            </svg>
+          </div>
+          <span class="nav-label">Escanear</span>
+        </div>
+        <!-- Gastos -->
+        <div class="nav-item">
+          <div class="nav-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="20" x2="18" y2="10"/>
+              <line x1="12" y1="20" x2="12" y2="4"/>
+              <line x1="6" y1="20" x2="6" y2="14"/>
+            </svg>
+          </div>
+          <span class="nav-label">Gastos</span>
+        </div>
+        <!-- Perfil -->
+        <div class="nav-item">
+          <div class="nav-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+          </div>
+          <span class="nav-label">Perfil</span>
+        </div>
+      </div>
+<!-- Home Indicator -->
+      <div class="home-indicator"></div>
+
+    </div><!-- /phone-screen -->
+  </div><!-- /phone-frame -->
+
+  <!-- ========================================
+       JAVASCRIPT — Theme / Mode / Variant
+       ======================================== -->
+  <script>
+    (function() {
+      var body = document.body;
+      var themeTabs = document.querySelectorAll('.theme-tab');
+      var modeToggle = document.getElementById('modeToggle');
+      var variantTabs = document.querySelectorAll('.variant-tab');
+      var screenTabs = document.querySelectorAll('.screen-tab');
+
+      var currentTheme = 'normal';
+      var currentMode = 'light';
+
+      function applyTheme() {
+        body.setAttribute('data-theme', currentTheme);
+        body.setAttribute('data-mode', currentMode);
+      }
+
+      // Theme tabs
+      themeTabs.forEach(function(tab) {
+        tab.addEventListener('click', function() {
+          themeTabs.forEach(function(t) { t.classList.remove('active'); });
+          tab.classList.add('active');
+          currentTheme = tab.dataset.themeVal;
+          applyTheme();
+        });
+      });
+
+      // Mode toggle
+      modeToggle.addEventListener('click', function() {
+        currentMode = currentMode === 'light' ? 'dark' : 'light';
+        modeToggle.classList.toggle('dark', currentMode === 'dark');
+        applyTheme();
+      });
+
+      // Map variant names to screen tab names and body classes
+      var variantToScreen = {
+        'home': 'home',
+        'transactions': 'transactions',
+        'analytics': 'analytics',
+        'detail': 'detail',
+        'delete': 'delete'
+      };
+
+      function setVariant(variant) {
+        body.classList.remove('show-home', 'show-transactions', 'show-analytics', 'show-detail', 'show-delete');
+        body.classList.add('show-' + variant);
+
+        // Sync screen tabs for home/transactions/analytics
+        screenTabs.forEach(function(st) { st.classList.remove('active'); });
+        if (variant === 'home' || variant === 'transactions' || variant === 'analytics') {
+          screenTabs.forEach(function(st) {
+            if (st.dataset.screen === variant) st.classList.add('active');
+          });
+        }
+      }
+
+      // Variant tabs (outside controls)
+      variantTabs.forEach(function(tab) {
+        tab.addEventListener('click', function() {
+          variantTabs.forEach(function(t) { t.classList.remove('active'); });
+          tab.classList.add('active');
+          setVariant(tab.dataset.variant);
+        });
+      });
+
+      // Screen tabs (inside phone)
+      screenTabs.forEach(function(tab) {
+        tab.addEventListener('click', function() {
+          var screen = tab.dataset.screen;
+          // Sync outside variant tabs too
+          variantTabs.forEach(function(vt) {
+            vt.classList.remove('active');
+            if (vt.dataset.variant === screen) vt.classList.add('active');
+          });
+          setVariant(screen);
+        });
+      });
+
+      // Filter pills interaction
+      var filterPills = document.querySelectorAll('.filter-pill');
+      filterPills.forEach(function(pill) {
+        pill.addEventListener('click', function() {
+          filterPills.forEach(function(p) { p.classList.remove('active'); });
+          pill.classList.add('active');
+        });
+      });
+
+      // Initial apply
+      applyTheme();
+    })();
+  </script>
+</body>
+</html>

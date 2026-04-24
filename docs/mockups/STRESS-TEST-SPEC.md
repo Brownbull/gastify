@@ -296,6 +296,19 @@ Every render should reference self-hosted assets at:
 <!-- 200+ pixel-art icons organized by role: navigation, actions, scan-features, analytics, status, credits, financial, item-categories, store-categories, rubros, familias + 53 root mascots -->
 ```
 
+### Legacy reference
+
+Full BoletApp mockup tree at `../legacy-reference/` — 29 screens + 13 flows + design-system-hub index. Layout + state-matrix + interaction reference for rebuild. Use as checklist per stress-test screen:
+
+- **Dashboard** → `legacy-reference/screens/gastify-dashboard.html` (2026 lines, runtime theme switcher baked in)
+- **Scan Idle** → `legacy-reference/screens/gastify-single-scan-states.html` + `gastify-scan-mode-selector.html`
+- **History** → `legacy-reference/screens/gastify-history.html` (2296 lines, 5 filters + selection mode + date groups)
+- **Insights** → `legacy-reference/screens/gastify-insights.html` (3-tab switcher + carousel)
+
+Cross-screen flows: `legacy-reference/flows/flow-{01..13}.html` — lift interaction transitions + step sequences verbatim where sensible.
+
+Do NOT port verbatim — legacy is cruft-accumulated production code. Lift structure + state surface + interaction vocabulary; rebuild cleanly in new themes.
+
 ### Category colors
 
 Every category chip / icon tint / group header uses production-proven color tokens from `../../assets/tokens/`:

@@ -1,0 +1,1561 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reports / Resumen — Gastify (Production Design System)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Baloo+2:wght@700&display=swap" rel="stylesheet">
+<style>
+/* ======================================================
+   GASTIFY — PRODUCTION DESIGN SYSTEM
+   Themes: Normal / Professional / Mono
+   Modes: Light / Dark
+   Screen: Reports / Resumen
+   Phone: 360px wide, height extends as needed
+   ====================================================== */
+
+/* -- Normal Light (default) -- */
+:root {
+  --bg: #f5f0e8;
+  --surface: #fff;
+  --primary: #4a7c59;
+  --text: #2d3a4a;
+  --secondary: #4a5568;
+  --accent: #e8a87c;
+  --border: #e3bba1;
+  --border-medium: #d4a574;
+  --bg-tertiary: #f1dbb6;
+  --secondary-color: #5b8fa8;
+  --success: #7d9b5f;
+  --warning: #f59e0b;
+  --error: #ef4444;
+  --primary-rgb: 74, 124, 89;
+  --nav-bg: #ffffff;
+  --nav-border: #e3bba1;
+  --shadow: rgba(74, 124, 89, 0.12);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+  --frame-bg: #1a1a2e;
+  --fab-gradient-from: #4a7c59;
+  --fab-gradient-to: #3d6b4b;
+  --primary-tint: rgba(74,124,89,0.12);
+  --error-tint: rgba(239,68,68,0.1);
+  --success-tint: rgba(125,155,95,0.12);
+  --skeleton-base: #f1dbb6;
+  --skeleton-shine: #f5f0e8;
+}
+
+/* -- Normal Dark -- */
+[data-theme="normal"][data-mode="dark"] {
+  --bg: #1a2420;
+  --surface: #243028;
+  --primary: #6b9e7a;
+  --text: #e8e4dc;
+  --secondary: #b8c4a8;
+  --accent: #d4a574;
+  --border: #3d4d42;
+  --border-medium: #4d5d52;
+  --bg-tertiary: #2d3a30;
+  --secondary-color: #7ab5cc;
+  --success: #9bbd7f;
+  --error: #f87171;
+  --primary-rgb: 107, 158, 122;
+  --nav-bg: #1e2a22;
+  --nav-border: #3d4d42;
+  --shadow: rgba(0,0,0,0.3);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.25);
+  --frame-bg: #0a0f0c;
+  --fab-gradient-from: #6b9e7a;
+  --fab-gradient-to: #5a8a68;
+  --primary-tint: rgba(107,158,122,0.15);
+  --error-tint: rgba(248,113,113,0.15);
+  --success-tint: rgba(157,187,127,0.15);
+  --skeleton-base: #2d3a30;
+  --skeleton-shine: #3d4d42;
+}
+
+/* -- Professional Light -- */
+[data-theme="professional"][data-mode="light"] {
+  --bg: #f8fafc;
+  --surface: #fff;
+  --primary: #2563eb;
+  --text: #0f172a;
+  --secondary: #475569;
+  --accent: #3b82f6;
+  --border: #e2e8f0;
+  --border-medium: #cbd5e1;
+  --bg-tertiary: #f1f5f9;
+  --secondary-color: #0ea5e9;
+  --success: #16a34a;
+  --error: #ef4444;
+  --primary-rgb: 37, 99, 235;
+  --nav-bg: #ffffff;
+  --nav-border: #e2e8f0;
+  --shadow: rgba(37, 99, 235, 0.08);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.06);
+  --frame-bg: #1e293b;
+  --fab-gradient-from: #2563eb;
+  --fab-gradient-to: #1d4ed8;
+  --primary-tint: rgba(37,99,235,0.1);
+  --error-tint: rgba(239,68,68,0.08);
+  --success-tint: rgba(34,197,94,0.08);
+  --skeleton-base: #f1f5f9;
+  --skeleton-shine: #f8fafc;
+}
+
+/* -- Professional Dark -- */
+[data-theme="professional"][data-mode="dark"] {
+  --bg: #0f172a;
+  --surface: #1e293b;
+  --primary: #3b82f6;
+  --text: #f1f5f9;
+  --secondary: #94a3b8;
+  --accent: #60a5fa;
+  --border: #334155;
+  --border-medium: #475569;
+  --bg-tertiary: #1e293b;
+  --secondary-color: #38bdf8;
+  --success: #22c55e;
+  --error: #f87171;
+  --primary-rgb: 59, 130, 246;
+  --nav-bg: #0f172a;
+  --nav-border: #334155;
+  --shadow: rgba(0,0,0,0.3);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.35);
+  --frame-bg: #020617;
+  --fab-gradient-from: #3b82f6;
+  --fab-gradient-to: #2563eb;
+  --primary-tint: rgba(96,165,250,0.15);
+  --error-tint: rgba(248,113,113,0.15);
+  --success-tint: rgba(74,222,128,0.12);
+  --skeleton-base: #1e293b;
+  --skeleton-shine: #334155;
+}
+
+/* -- Mono Light -- */
+[data-theme="mono"][data-mode="light"] {
+  --bg: #fafafa;
+  --surface: #fff;
+  --primary: #18181b;
+  --text: #18181b;
+  --secondary: #52525b;
+  --accent: #52525b;
+  --border: #e4e4e7;
+  --border-medium: #d4d4d8;
+  --bg-tertiary: #f4f4f5;
+  --secondary-color: #3f3f46;
+  --success: #52525b;
+  --error: #52525b;
+  --primary-rgb: 24, 24, 27;
+  --nav-bg: #ffffff;
+  --nav-border: #e4e4e7;
+  --shadow: rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.06);
+  --frame-bg: #18181b;
+  --fab-gradient-from: #18181b;
+  --fab-gradient-to: #27272a;
+  --primary-tint: rgba(24,24,27,0.08);
+  --error-tint: rgba(24,24,27,0.06);
+  --success-tint: rgba(24,24,27,0.06);
+  --skeleton-base: #f4f4f5;
+  --skeleton-shine: #fafafa;
+}
+
+/* -- Mono Dark -- */
+[data-theme="mono"][data-mode="dark"] {
+  --bg: #09090b;
+  --surface: #18181b;
+  --primary: #a1a1aa;
+  --text: #fafafa;
+  --secondary: #a1a1aa;
+  --accent: #71717a;
+  --border: #27272a;
+  --border-medium: #3f3f46;
+  --bg-tertiary: #18181b;
+  --secondary-color: #71717a;
+  --success: #a1a1aa;
+  --error: #a1a1aa;
+  --primary-rgb: 63, 63, 70;
+  --nav-bg: #09090b;
+  --nav-border: #27272a;
+  --shadow: rgba(0,0,0,0.4);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.35);
+  --frame-bg: #000;
+  --fab-gradient-from: #3f3f46;
+  --fab-gradient-to: #27272a;
+  --primary-tint: rgba(228,228,231,0.1);
+  --error-tint: rgba(228,228,231,0.1);
+  --success-tint: rgba(228,228,231,0.1);
+  --skeleton-base: #18181b;
+  --skeleton-shine: #27272a;
+}
+
+/* ======================================================
+   BASE STYLES
+   ====================================================== */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: #1a1a2e;
+  font-family: 'Outfit', 'Segoe UI', system-ui, sans-serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  gap: 32px;
+  color: var(--text);
+}
+
+/* ======================================================
+   CONTROLS (outside phone frame)
+   ====================================================== */
+
+.controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  max-width: 520px;
+}
+
+.controls-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.theme-tabs {
+  display: flex;
+  background: rgba(255,255,255,0.08);
+  border-radius: 12px;
+  padding: 4px;
+  gap: 2px;
+}
+
+.theme-tab {
+  padding: 8px 20px;
+  border: none;
+  background: transparent;
+  color: rgba(255,255,255,0.5);
+  font-family: 'Outfit', sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.theme-tab:hover { color: rgba(255,255,255,0.8); }
+
+.theme-tab.active {
+  background: rgba(255,255,255,0.15);
+  color: #fff;
+}
+
+.mode-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: rgba(255,255,255,0.7);
+  font-family: 'Outfit', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.toggle-switch {
+  width: 44px;
+  height: 24px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 12px;
+  cursor: pointer;
+  position: relative;
+  transition: background 0.2s;
+}
+
+.toggle-switch.dark { background: rgba(255,255,255,0.3); }
+
+.toggle-switch::after {
+  content: '';
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  background: #fff;
+  border-radius: 50%;
+  top: 3px;
+  left: 3px;
+  transition: transform 0.2s;
+}
+
+.toggle-switch.dark::after { transform: translateX(20px); }
+
+.variant-tabs {
+  display: flex;
+  background: rgba(255,255,255,0.08);
+  border-radius: 12px;
+  padding: 4px;
+  gap: 2px;
+}
+
+.variant-tab {
+  padding: 6px 16px;
+  border: none;
+  background: transparent;
+  color: rgba(255,255,255,0.5);
+  font-family: 'Outfit', sans-serif;
+  font-weight: 500;
+  font-size: 13px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.variant-tab:hover { color: rgba(255,255,255,0.8); }
+
+.variant-tab.active {
+  background: rgba(255,255,255,0.15);
+  color: #fff;
+}
+
+/* ======================================================
+   PHONE FRAME — 360px wide, height extends as needed
+   ====================================================== */
+
+.phone-frame {
+  width: 384px;
+  background: var(--frame-bg);
+  border-radius: 40px;
+  padding: 12px;
+  position: relative;
+  box-shadow: 0 25px 80px rgba(0,0,0,0.4), inset 0 0 0 2px rgba(255,255,255,0.08);
+}
+
+.phone-screen {
+  width: 360px;
+  background: var(--bg);
+  border-radius: 30px;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 780px;
+}
+
+/* -- Notch -- */
+.phone-notch {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120px;
+  height: 26px;
+  background: var(--frame-bg);
+  border-radius: 0 0 16px 16px;
+  z-index: 100;
+}
+
+/* -- Status Bar -- */
+.status-bar {
+  height: 44px;
+  padding: 12px 20px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+  position: relative;
+  z-index: 99;
+  flex-shrink: 0;
+  background: var(--bg);
+}
+
+.status-bar-left { font-size: 13px; font-weight: 700; }
+
+.status-bar-right {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.status-bar-right svg { width: 14px; height: 14px; }
+
+/* -- Home Indicator -- */
+.home-indicator {
+  position: absolute;
+  bottom: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120px;
+  height: 4px;
+  background: var(--secondary);
+  border-radius: 2px;
+  opacity: 0.3;
+  z-index: 100;
+}
+
+/* ======================================================
+   TOP HEADER — single line: back + title + year + avatar
+   ====================================================== */
+
+.top-header {
+  height: 56px;
+  padding: 0 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  background: var(--bg);
+}
+
+.back-btn {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: 10px;
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+
+.back-btn:hover { background: var(--primary-tint); }
+
+.header-title {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 700;
+  font-size: 18px;
+  color: var(--text);
+  flex-shrink: 0;
+}
+
+.header-spacer { flex: 1; }
+
+.year-selector {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.year-arrow {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: 50%;
+  color: var(--secondary);
+  transition: all 0.15s;
+}
+
+.year-arrow:hover {
+  background: var(--primary-tint);
+  color: var(--primary);
+}
+
+.year-text {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--text);
+}
+
+/* ======================================================
+   SCROLLABLE CONTENT
+   ====================================================== */
+
+.scroll-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 12px 90px;
+}
+
+.scroll-content::-webkit-scrollbar { display: none; }
+
+/* ======================================================
+   ACCORDION CONTAINER (all sections in ONE card)
+   ====================================================== */
+
+.reports-container {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px var(--shadow);
+  overflow: hidden;
+}
+
+/* -- Accordion Section Header -- */
+.accordion-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 14px;
+  cursor: pointer;
+  transition: background 0.15s;
+  min-height: 44px;
+}
+
+.accordion-header:hover { background: var(--primary-tint); }
+
+.accordion-header + .accordion-header,
+.accordion-body + .accordion-header {
+  border-top: 1px solid var(--border);
+}
+
+.accordion-header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.accordion-chevron {
+  color: var(--secondary);
+  flex-shrink: 0;
+  transition: transform 0.25s;
+  display: flex;
+  align-items: center;
+}
+
+.accordion-title {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--text);
+}
+
+.accordion-header-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.accordion-count {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 400;
+  font-size: 12px;
+  color: var(--secondary);
+}
+
+/* -- Accordion Body -- */
+.accordion-body {
+  border-top: 1px solid var(--border);
+}
+
+/* ======================================================
+   REPORT ROW
+   ====================================================== */
+
+.report-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: background 0.15s;
+  min-height: 44px;
+}
+
+.report-row:hover { background: rgba(var(--primary-rgb), 0.04); }
+
+.report-row + .report-row {
+  border-top: 1px solid var(--border);
+}
+
+/* G logo circle */
+.report-logo img { display:block; }
+.report-logo {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary), var(--secondary-color));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-family: 'Baloo 2', cursive;
+  font-weight: 700;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+/* Report info column */
+.report-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.report-name-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.report-name {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text);
+}
+
+/* Count badge — circled number */
+.report-count-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border-medium);
+  font-family: 'Outfit', sans-serif;
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--secondary);
+  padding: 0 2px;
+  flex-shrink: 0;
+}
+
+.report-amount {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text);
+}
+
+.report-trend {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+/* Down = green (spending decreased = good) */
+.report-trend.down { color: var(--success); }
+/* Up = red (spending increased = bad) */
+.report-trend.up { color: var(--error); }
+
+/* ======================================================
+   REPORT DETAIL OVERLAY (Variant 2)
+   ====================================================== */
+
+.detail-header {
+  height: 56px;
+  padding: 0 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  background: var(--bg);
+}
+
+.detail-title {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 700;
+  font-size: 18px;
+  color: var(--text);
+}
+
+.detail-spacer { flex: 1; }
+
+.txn-pill {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 600;
+  font-size: 11px;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  background: var(--primary);
+  color: #fff;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.download-btn {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: 10px;
+  color: var(--secondary);
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+
+.download-btn:hover {
+  background: var(--primary-tint);
+  color: var(--primary);
+}
+
+.detail-content {
+  padding: 0 12px 90px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Hero card */
+.hero-card {
+  border-radius: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-md);
+  padding: 24px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.hero-amount {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 800;
+  font-size: 28px;
+  color: var(--text);
+}
+
+.hero-trend-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 600;
+  font-size: 13px;
+  padding: 4px 14px;
+  border-radius: 9999px;
+}
+
+.hero-trend-badge.up {
+  background: var(--error-tint);
+  color: var(--error);
+}
+
+.hero-trend-badge.down {
+  background: var(--success-tint);
+  color: var(--success);
+}
+
+/* Persona insight card */
+.insight-card {
+  border-radius: 12px;
+  background: var(--bg-tertiary);
+  padding: 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.insight-icon {
+  font-size: 20px;
+  flex-shrink: 0;
+  line-height: 1;
+  margin-top: 1px;
+}
+
+.insight-text {
+  font-family: 'Outfit', sans-serif;
+  font-style: italic;
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--text);
+  line-height: 1.5;
+}
+
+/* Transaction groups card */
+.groups-card {
+  border-radius: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: 0 1px 3px var(--shadow);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.groups-title {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--text);
+}
+
+.groups-content {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.donut-container { flex-shrink: 0; }
+
+.donut-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 13px;
+  color: var(--text);
+}
+
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  min-width: 10px;
+  border-radius: 50%;
+}
+
+.legend-pct {
+  font-weight: 700;
+  margin-left: auto;
+  white-space: nowrap;
+}
+
+.legend-amt {
+  font-weight: 400;
+  font-size: 12px;
+  color: var(--secondary);
+}
+
+/* ======================================================
+   EMPTY STATE (Variant 3)
+   ====================================================== */
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 80px 32px;
+  text-align: center;
+}
+
+.empty-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--bg-tertiary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--secondary);
+}
+
+.empty-text {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+  color: var(--secondary);
+}
+
+    /* ======================================================
+       BOTTOM NAVIGATION (5 equal items — restructured)
+       ====================================================== */
+
+    .bottom-nav {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 56px;
+      padding-bottom: 6px;
+      background: var(--nav-bg);
+      border-top: 1px solid var(--nav-border);
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-around;
+      z-index: 50;
+      border-radius: 0 0 30px 30px;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1px;
+      cursor: pointer;
+      padding: 4px 0 2px;
+      position: relative;
+      width: 48px;
+    }
+
+    .nav-icon {
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .nav-icon svg {
+      width: 22px;
+      height: 22px;
+      stroke-width: 2;
+    }
+
+    .nav-label {
+      font-family: 'Outfit', sans-serif;
+      font-size: 10px;
+      font-weight: 500;
+      color: var(--secondary);
+      opacity: 0.5;
+    }
+
+    .nav-item.active .nav-label {
+      color: var(--primary);
+      font-weight: 600;
+      opacity: 1;
+    }
+
+    .nav-item.active .nav-icon svg {
+      stroke: var(--primary);
+    }
+
+    .nav-item:not(.active) .nav-icon svg {
+      stroke: var(--secondary);
+      opacity: 0.45;
+    }
+
+
+/* ======================================================
+   SKELETON / LOADING STATE
+   ====================================================== */
+
+.skeleton-state {
+  display: none;
+  padding: 0 12px;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.skel {
+  border-radius: 8px;
+  background: linear-gradient(
+    90deg,
+    var(--skeleton-base) 25%,
+    var(--skeleton-shine) 50%,
+    var(--skeleton-base) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.8s ease-in-out infinite;
+}
+
+.skel-section {
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+
+/* ======================================================
+   VARIANT VISIBILITY
+   ====================================================== */
+
+.variant-hero { display: flex; }
+.variant-detail { display: none; }
+.variant-empty { display: none; }
+
+body.show-detail .variant-hero { display: none; }
+body.show-detail .variant-detail { display: flex; }
+
+body.show-empty .variant-hero { display: none; }
+body.show-empty .variant-empty { display: flex; }
+
+body.show-loading .variant-hero { display: none; }
+body.show-loading .variant-detail { display: none; }
+body.show-loading .variant-empty { display: none; }
+body.show-loading .skeleton-state { display: block; }
+
+/* ======================================================
+   RESPONSIVE
+   ====================================================== */
+
+@media (max-width: 400px) {
+  .phone-frame { width: 100%; border-radius: 0; padding: 0; }
+  .phone-screen { border-radius: 0; width: 100%; }
+  .phone-notch { display: none; }
+  .bottom-nav { border-radius: 0; }
+}
+</style>
+</head>
+<body data-theme="normal" data-mode="light">
+  <!-- ⚠️ DEPRECATED: This screen has been merged into Gastos (Resumen segment). Kept for reference only. -->
+  <div style="position:fixed;top:0;left:0;right:0;background:#f59e0b;color:#78350f;padding:8px 16px;font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;text-align:center;z-index:9999;">
+    MERGED into Gastos (Resumen segment) — this file is for reference only
+  </div>
+
+
+<!-- ========================================
+     CONTROLS (outside phone frame)
+     ======================================== -->
+<div class="controls">
+  <div class="controls-row">
+    <div class="theme-tabs">
+      <button class="theme-tab active" data-theme-val="normal">Normal</button>
+      <button class="theme-tab" data-theme-val="professional">Professional</button>
+      <button class="theme-tab" data-theme-val="mono">Mono</button>
+    </div>
+    <div class="mode-toggle">
+      <span>Light</span>
+      <div class="toggle-switch" id="modeToggle"></div>
+      <span>Dark</span>
+    </div>
+  </div>
+  <div class="controls-row">
+    <div class="variant-tabs">
+      <button class="variant-tab active" data-variant="hero">Hero</button>
+      <button class="variant-tab" data-variant="detail">Report Detail</button>
+      <button class="variant-tab" data-variant="empty">Empty State</button>
+      <button class="variant-tab" data-variant="loading">Loading</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========================================
+     PHONE FRAME
+     ======================================== -->
+<div class="phone-frame">
+  <div class="phone-notch"></div>
+  <div class="phone-screen">
+
+    <!-- Status Bar -->
+    <div class="status-bar">
+      <span class="status-bar-left">9:41</span>
+      <div class="status-bar-right">
+        <svg viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="11" width="2.5" height="4" rx="0.5"/><rect x="5" y="8" width="2.5" height="7" rx="0.5"/><rect x="9" y="5" width="2.5" height="10" rx="0.5"/><rect x="13" y="1" width="2.5" height="14" rx="0.5"/></svg>
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 12.5a1.25 1.25 0 110 2.5 1.25 1.25 0 010-2.5zM8 8.5c2.07 0 3.94.84 5.3 2.2l-1.42 1.42A5.48 5.48 0 008 10.5c-1.52 0-2.9.62-3.88 1.62L2.7 10.7A7.47 7.47 0 018 8.5z"/></svg>
+        <svg viewBox="0 0 24 12" fill="currentColor"><rect x="0" y="0" width="20" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="2" y="2" width="14" height="8" rx="1"/><rect x="21" y="3.5" width="2.5" height="5" rx="1"/></svg>
+      </div>
+    </div>
+
+    <!-- ========== VARIANT 1: HERO — Report List ========== -->
+    <div class="variant-hero" style="flex-direction:column;flex:1;">
+
+      <!-- Top Header: back + Resumen + year selector + avatar — ONE line -->
+      <div class="top-header">
+        <div class="back-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text-secondary,var(--secondary))"><polyline points="15 18 9 12 15 6"></polyline></svg>
+        </div>
+        <span class="header-title">Resumen</span>
+        <div class="header-spacer"></div>
+        <div class="year-selector">
+          <div class="year-arrow">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+          </div>
+          <span class="year-text">2026</span>
+          <div class="year-arrow" style="visibility:hidden;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </div>
+        </div>
+        <div class="header-bell" style="position:relative;cursor:pointer;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--secondary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+            </svg>
+            <span style="position:absolute;top:-4px;right:-6px;background:#ef4444;color:#fff;font-size:9px;font-weight:700;font-family:'Outfit',sans-serif;border-radius:999px;padding:1px 5px;line-height:1.3;">3</span>
+          </div>
+      </div>
+
+      <!-- Scrollable Content -->
+      <div class="scroll-content">
+        <div class="reports-container">
+
+          <!-- === Semanal (EXPANDED) === -->
+          <div class="accordion-header">
+            <div class="accordion-header-left">
+              <span class="accordion-chevron">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+              </span>
+              <span class="accordion-title">Semanal</span>
+            </div>
+            <div class="accordion-header-right">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--secondary);opacity:0.6"><path d="M14 2H6a2 2 0 0 0-2 2v16l2-1.5 2 1.5 2-1.5 2 1.5 2-1.5 2 1.5V4a2 2 0 0 0-2-2z"/><line x1="8" y1="7" x2="14" y2="7"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+              <span class="accordion-count">11 de 52</span>
+            </div>
+          </div>
+
+          <div class="accordion-body">
+            <!-- Row 1: Semana 11 -->
+            <div class="report-row">
+              <div class="report-logo"><img src="piggy-bank.png" style="width:80%;height:80%;object-fit:contain;image-rendering:pixelated"></div>
+              <div class="report-info">
+                <div class="report-name-row">
+                  <span class="report-name">Semana 11</span>
+                  <span class="report-count-badge">1</span>
+                </div>
+                <span class="report-amount">$8.000</span>
+                <div class="report-trend down">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                  95% vs S10
+                </div>
+              </div>
+            </div>
+
+            <!-- Row 2: Semana 10 -->
+            <div class="report-row">
+              <div class="report-logo"><img src="piggy-bank.png" style="width:80%;height:80%;object-fit:contain;image-rendering:pixelated"></div>
+              <div class="report-info">
+                <div class="report-name-row">
+                  <span class="report-name">Semana 10</span>
+                  <span class="report-count-badge">3</span>
+                </div>
+                <span class="report-amount">$155.925</span>
+              </div>
+            </div>
+
+            <!-- Row 3: Semana 9 -->
+            <div class="report-row">
+              <div class="report-logo"><img src="piggy-bank.png" style="width:80%;height:80%;object-fit:contain;image-rendering:pixelated"></div>
+              <div class="report-info">
+                <div class="report-name-row">
+                  <span class="report-name">Semana 9</span>
+                  <span class="report-count-badge">3</span>
+                </div>
+                <span class="report-amount">$158.353</span>
+                <div class="report-trend up">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg>
+                  +30% vs S8
+                </div>
+              </div>
+            </div>
+
+            <!-- Row 4: Semana 8 -->
+            <div class="report-row">
+              <div class="report-logo"><img src="piggy-bank.png" style="width:80%;height:80%;object-fit:contain;image-rendering:pixelated"></div>
+              <div class="report-info">
+                <div class="report-name-row">
+                  <span class="report-name">Semana 8</span>
+                  <span class="report-count-badge">2</span>
+                </div>
+                <span class="report-amount">$121.422</span>
+                <div class="report-trend down">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                  57% vs S7
+                </div>
+              </div>
+            </div>
+
+            <!-- Row 5: Semana 7 -->
+            <div class="report-row">
+              <div class="report-logo"><img src="piggy-bank.png" style="width:80%;height:80%;object-fit:contain;image-rendering:pixelated"></div>
+              <div class="report-info">
+                <div class="report-name-row">
+                  <span class="report-name">Semana 7</span>
+                  <span class="report-count-badge" style="min-width:20px;padding:0 3px;">10</span>
+                </div>
+                <span class="report-amount">$279.759</span>
+                <div class="report-trend up">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg>
+                  +37% vs S6
+                </div>
+              </div>
+            </div>
+
+            <!-- Row 6: Semana 6 -->
+            <div class="report-row">
+              <div class="report-logo"><img src="piggy-bank.png" style="width:80%;height:80%;object-fit:contain;image-rendering:pixelated"></div>
+              <div class="report-info">
+                <div class="report-name-row">
+                  <span class="report-name">Semana 6</span>
+                  <span class="report-count-badge">6</span>
+                </div>
+                <span class="report-amount">$204.246</span>
+                <div class="report-trend up">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg>
+                  +5% vs S5
+                </div>
+              </div>
+            </div>
+
+            <!-- Row 7: Semana 5 -->
+            <div class="report-row">
+              <div class="report-logo"><img src="piggy-bank.png" style="width:80%;height:80%;object-fit:contain;image-rendering:pixelated"></div>
+              <div class="report-info">
+                <div class="report-name-row">
+                  <span class="report-name">Semana 5</span>
+                  <span class="report-count-badge">5</span>
+                </div>
+                <span class="report-amount">$194.894</span>
+                <div class="report-trend down">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                  63% vs S4
+                </div>
+              </div>
+            </div>
+
+            <!-- Row 8: Semana 4 -->
+            <div class="report-row">
+              <div class="report-logo"><img src="piggy-bank.png" style="width:80%;height:80%;object-fit:contain;image-rendering:pixelated"></div>
+              <div class="report-info">
+                <div class="report-name-row">
+                  <span class="report-name">Semana 4</span>
+                  <span class="report-count-badge" style="min-width:20px;padding:0 3px;">11</span>
+                </div>
+                <span class="report-amount">$521.417</span>
+                <div class="report-trend up">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg>
+                  +69% vs S3
+                </div>
+              </div>
+            </div>
+
+            <!-- Row 9: Semana 3 -->
+            <div class="report-row">
+              <div class="report-logo"><img src="piggy-bank.png" style="width:80%;height:80%;object-fit:contain;image-rendering:pixelated"></div>
+              <div class="report-info">
+                <div class="report-name-row">
+                  <span class="report-name">Semana 3</span>
+                  <span class="report-count-badge">1</span>
+                </div>
+                <span class="report-amount">$309.100</span>
+                <div class="report-trend down">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                  10% vs S2
+                </div>
+              </div>
+            </div>
+          </div><!-- /accordion-body -->
+
+          <!-- === Mensual (COLLAPSED) === -->
+          <div class="accordion-header">
+            <div class="accordion-header-left">
+              <span class="accordion-chevron">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+              </span>
+              <span class="accordion-title">Mensual</span>
+            </div>
+            <div class="accordion-header-right">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--secondary);opacity:0.6"><path d="M14 2H6a2 2 0 0 0-2 2v16l2-1.5 2 1.5 2-1.5 2 1.5 2-1.5 2 1.5V4a2 2 0 0 0-2-2z"/><line x1="8" y1="7" x2="14" y2="7"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+              <span class="accordion-count">3 de 12</span>
+            </div>
+          </div>
+
+          <!-- === Trimestral (COLLAPSED) === -->
+          <div class="accordion-header">
+            <div class="accordion-header-left">
+              <span class="accordion-chevron">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+              </span>
+              <span class="accordion-title">Trimestral</span>
+            </div>
+            <div class="accordion-header-right">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--secondary);opacity:0.6"><path d="M14 2H6a2 2 0 0 0-2 2v16l2-1.5 2 1.5 2-1.5 2 1.5 2-1.5 2 1.5V4a2 2 0 0 0-2-2z"/><line x1="8" y1="7" x2="14" y2="7"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+              <span class="accordion-count">1 de 4</span>
+            </div>
+          </div>
+
+          <!-- === Anual (COLLAPSED) === -->
+          <div class="accordion-header">
+            <div class="accordion-header-left">
+              <span class="accordion-chevron">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+              </span>
+              <span class="accordion-title">Anual</span>
+            </div>
+            <div class="accordion-header-right">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--secondary);opacity:0.6"><path d="M14 2H6a2 2 0 0 0-2 2v16l2-1.5 2 1.5 2-1.5 2 1.5 2-1.5 2 1.5V4a2 2 0 0 0-2-2z"/><line x1="8" y1="7" x2="14" y2="7"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+              <span class="accordion-count">0 de 1</span>
+            </div>
+          </div>
+
+        </div><!-- /reports-container -->
+      </div><!-- /scroll-content -->
+    </div><!-- /variant-hero -->
+
+    <!-- ========== VARIANT 2: REPORT DETAIL OVERLAY ========== -->
+    <div class="variant-detail" style="flex-direction:column;flex:1;">
+      <div class="detail-header">
+        <div class="back-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--secondary)"><polyline points="15 18 9 12 15 6"></polyline></svg>
+        </div>
+        <span class="detail-title">Semana 12</span>
+        <div class="detail-spacer"></div>
+        <span class="txn-pill">34 transacciones</span>
+        <div class="download-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        </div>
+      </div>
+
+      <div class="detail-content">
+        <!-- Hero Card -->
+        <div class="hero-card">
+          <div class="hero-amount">$87.340</div>
+          <div class="hero-trend-badge up">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg>
+            12% vs semana anterior
+          </div>
+        </div>
+
+        <!-- Persona Insight Card -->
+        <div class="insight-card">
+          <span class="insight-icon">&#x1F4A1;</span>
+          <span class="insight-text">Gastaste mas en restaurantes esta semana &mdash; &iquest;salidas de fin de semana?</span>
+        </div>
+
+        <!-- Transaction Groups Card -->
+        <div class="groups-card">
+          <div class="groups-title">&#x1F3EA; Desglose por Tienda</div>
+          <div class="groups-content">
+            <div class="donut-container">
+              <svg width="80" height="80" viewBox="0 0 42 42">
+                <circle cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="var(--bg-tertiary)" stroke-width="5"></circle>
+                <circle cx="21" cy="21" r="15.91549430918954" fill="transparent"
+                  stroke="var(--primary)" stroke-width="5"
+                  stroke-dasharray="40 60" stroke-dashoffset="25"
+                  stroke-linecap="round"></circle>
+                <circle cx="21" cy="21" r="15.91549430918954" fill="transparent"
+                  stroke="var(--accent)" stroke-width="5"
+                  stroke-dasharray="30 70" stroke-dashoffset="85"
+                  stroke-linecap="round"></circle>
+                <circle cx="21" cy="21" r="15.91549430918954" fill="transparent"
+                  stroke="var(--secondary-color)" stroke-width="5"
+                  stroke-dasharray="30 70" stroke-dashoffset="55"
+                  stroke-linecap="round"></circle>
+              </svg>
+            </div>
+            <div class="donut-legend">
+              <div class="legend-item">
+                <div class="legend-dot" style="background:var(--primary)"></div>
+                <span>Supermercados</span>
+                <span class="legend-pct">40%</span>
+                <span class="legend-amt">($34.936)</span>
+              </div>
+              <div class="legend-item">
+                <div class="legend-dot" style="background:var(--accent)"></div>
+                <span>Restaurantes</span>
+                <span class="legend-pct">30%</span>
+                <span class="legend-amt">($26.202)</span>
+              </div>
+              <div class="legend-item">
+                <div class="legend-dot" style="background:var(--secondary-color)"></div>
+                <span>Otros</span>
+                <span class="legend-pct">30%</span>
+                <span class="legend-amt">($26.202)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /variant-detail -->
+
+    <!-- ========== VARIANT 3: EMPTY STATE ========== -->
+    <div class="variant-empty" style="flex-direction:column;flex:1;">
+      <!-- Top Header (same as hero) -->
+      <div class="top-header">
+        <div class="back-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--secondary)"><polyline points="15 18 9 12 15 6"></polyline></svg>
+        </div>
+        <span class="header-title">Resumen</span>
+        <div class="header-spacer"></div>
+        <div class="year-selector">
+          <div class="year-arrow">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+          </div>
+          <span class="year-text">2026</span>
+          <div class="year-arrow" style="visibility:hidden;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </div>
+        </div>
+        <div class="header-bell" style="position:relative;cursor:pointer;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--secondary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+            </svg>
+            <span style="position:absolute;top:-4px;right:-6px;background:#ef4444;color:#fff;font-size:9px;font-weight:700;font-family:'Outfit',sans-serif;border-radius:999px;padding:1px 5px;line-height:1.3;">3</span>
+          </div>
+      </div>
+
+      <div class="empty-state">
+        <div class="empty-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        </div>
+        <div class="empty-text">No hay reportes para 2026</div>
+      </div>
+    </div><!-- /variant-empty -->
+
+
+    <!-- === LOADING SKELETON === -->
+    <div class="skeleton-state">
+      <!-- Skeleton Report Section 1 -->
+      <div class="skel-section">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <div class="skel" style="width:100px;height:16px;border-radius:6px"></div>
+          <div class="skel" style="width:60px;height:12px;border-radius:4px"></div>
+        </div>
+        <div class="skel" style="width:100%;height:120px;border-radius:8px;margin-bottom:10px"></div>
+        <div style="display:flex;gap:8px">
+          <div class="skel" style="flex:1;height:32px;border-radius:6px"></div>
+          <div class="skel" style="flex:1;height:32px;border-radius:6px"></div>
+        </div>
+      </div>
+      <!-- Skeleton Report Section 2 -->
+      <div class="skel-section">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <div class="skel" style="width:80px;height:16px;border-radius:6px"></div>
+          <div class="skel" style="width:50px;height:12px;border-radius:4px"></div>
+        </div>
+        <div class="skel" style="width:100%;height:90px;border-radius:8px;margin-bottom:10px"></div>
+        <div style="display:flex;gap:8px">
+          <div class="skel" style="flex:1;height:32px;border-radius:6px"></div>
+          <div class="skel" style="flex:1;height:32px;border-radius:6px"></div>
+        </div>
+      </div>
+      <!-- Skeleton Report Section 3 -->
+      <div class="skel-section">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <div class="skel" style="width:110px;height:16px;border-radius:6px"></div>
+          <div class="skel" style="width:55px;height:12px;border-radius:4px"></div>
+        </div>
+        <div class="skel" style="width:100%;height:100px;border-radius:8px;margin-bottom:10px"></div>
+        <div style="display:flex;gap:8px">
+          <div class="skel" style="flex:1;height:32px;border-radius:6px"></div>
+          <div class="skel" style="flex:1;height:32px;border-radius:6px"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Navigation (from _nav-reference.html — no active tab) -->
+          <div class="bottom-nav">
+        <!-- Inicio -->
+        <div class="nav-item">
+          <div class="nav-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+              <polyline points="9 22 9 12 15 12 15 22"/>
+            </svg>
+          </div>
+          <span class="nav-label">Inicio</span>
+        </div>
+        <!-- Compras -->
+        <div class="nav-item">
+          <div class="nav-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="16" y1="13" x2="8" y2="13"/>
+              <line x1="16" y1="17" x2="8" y2="17"/>
+            </svg>
+          </div>
+          <span class="nav-label">Compras</span>
+        </div>
+        <!-- Escanear -->
+        <div class="nav-item">
+          <div class="nav-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+              <circle cx="12" cy="13" r="4"/>
+            </svg>
+          </div>
+          <span class="nav-label">Escanear</span>
+        </div>
+        <!-- Gastos -->
+        <div class="nav-item active">
+          <div class="nav-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="20" x2="18" y2="10"/>
+              <line x1="12" y1="20" x2="12" y2="4"/>
+              <line x1="6" y1="20" x2="6" y2="14"/>
+            </svg>
+          </div>
+          <span class="nav-label">Gastos</span>
+        </div>
+        <!-- Perfil -->
+        <div class="nav-item">
+          <div class="nav-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+          </div>
+          <span class="nav-label">Perfil</span>
+        </div>
+      </div>
+<!-- Home Indicator -->
+    <div class="home-indicator"></div>
+
+  </div><!-- /phone-screen -->
+</div><!-- /phone-frame -->
+
+<!-- ========================================
+     JAVASCRIPT — Theme / Mode / Variant
+     ======================================== -->
+<script>
+(function() {
+  var body = document.body;
+  var themeTabs = document.querySelectorAll('.theme-tab');
+  var modeToggle = document.getElementById('modeToggle');
+  var variantTabs = document.querySelectorAll('.variant-tab');
+
+  var currentTheme = 'normal';
+  var currentMode = 'light';
+
+  function applyTheme() {
+    body.setAttribute('data-theme', currentTheme);
+    body.setAttribute('data-mode', currentMode);
+  }
+
+  // Theme tabs
+  themeTabs.forEach(function(tab) {
+    tab.addEventListener('click', function() {
+      themeTabs.forEach(function(t) { t.classList.remove('active'); });
+      tab.classList.add('active');
+      currentTheme = tab.dataset.themeVal;
+      applyTheme();
+    });
+  });
+
+  // Mode toggle
+  modeToggle.addEventListener('click', function() {
+    currentMode = currentMode === 'light' ? 'dark' : 'light';
+    modeToggle.classList.toggle('dark', currentMode === 'dark');
+    applyTheme();
+  });
+
+  // Variant tabs
+  variantTabs.forEach(function(tab) {
+    tab.addEventListener('click', function() {
+      variantTabs.forEach(function(t) { t.classList.remove('active'); });
+      tab.classList.add('active');
+      body.classList.remove('show-detail', 'show-empty', 'show-loading');
+      var variant = tab.dataset.variant;
+      if (variant === 'detail') {
+        body.classList.add('show-detail');
+      } else if (variant === 'empty') {
+        body.classList.add('show-empty');
+      } else if (variant === 'loading') {
+        body.classList.add('show-loading');
+      }
+    });
+  });
+
+  // Initial apply
+  applyTheme();
+})();
+</script>
+</body>
+</html>

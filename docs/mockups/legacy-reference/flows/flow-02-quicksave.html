@@ -1,0 +1,1395 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flujo 2: Quick Scan &rarr; QuickSave &mdash; Gastify</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+
+  :root {
+    --bg: var(--bg);
+    --bg-lighter: var(--bg-lighter);
+    --surface: var(--surface);
+    --border: var(--border);
+    --text: #e8e8f0;
+    --muted: #8888aa;
+    --primary: var(--primary);
+    --primary-dim: var(--primary-dim);
+    --primary-border: var(--primary-border);
+    --accent: var(--accent);
+    --accent-dim: #4a3020;
+    --accent-border: var(--accent-border);
+    --secondary: var(--secondary);
+    --secondary-dim: #1e3a4a;
+    --secondary-border: var(--secondary-border);
+    --green: var(--green);
+    --green-dim: #064e3b;
+    --green-border: var(--green-border);
+    --amber: var(--amber);
+    --amber-dim: #78350f;
+    --amber-border: var(--amber-border);
+    --blue: var(--blue);
+    --blue-dim: #1e3a5f;
+    --blue-border: var(--blue-border);
+    --purple: var(--purple);
+    --purple-dim: #3b1f7a;
+    --purple-border: var(--purple-border);
+    --red: var(--red);
+    --red-dim: #5b1a1a;
+    --red-border: var(--red-border);
+    --gold: #fde68a;
+    --gold-dim: #4a3f1a;
+    --gold-border: var(--amber);
+  }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Outfit', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Subtle animated background */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background:
+        radial-gradient(ellipse at 15% 10%, rgba(74, 124, 89, 0.12) 0%, transparent 50%),
+        radial-gradient(ellipse at 85% 30%, rgba(232, 168, 124, 0.08) 0%, transparent 50%),
+        radial-gradient(ellipse at 40% 70%, rgba(91, 143, 168, 0.07) 0%, transparent 55%),
+        radial-gradient(ellipse at 70% 90%, rgba(139, 111, 192, 0.05) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: 0;
+      animation: bg-drift 20s ease-in-out infinite alternate;
+    }
+
+    @keyframes bg-drift {
+      0% { opacity: 1; }
+      50% { opacity: 0.8; }
+      100% { opacity: 1; }
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 40px 20px 80px;
+    }
+
+    /* ── Header ── */
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .header .brand {
+      font-size: 13px;
+      color: var(--primary);
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      font-weight: 600;
+    }
+
+    .header h1 {
+      font-size: 38px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 14px;
+      line-height: 1.15;
+    }
+
+    .header h1 span {
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .header .subtitle {
+      font-size: 15px;
+      color: var(--muted);
+      max-width: 620px;
+      margin: 0 auto;
+      line-height: 1.7;
+      font-weight: 400;
+    }
+
+      /* -- Nav Reference Bar (canonical — matches flow-06+) -- */
+  .nav-ref {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0;
+    margin-bottom: 36px;
+    padding: 10px 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    max-width: 420px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    padding: 6px 16px;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--muted);
+    letter-spacing: 0.03em;
+    position: relative;
+  }
+  .nav-item .nav-icon { font-size: 18px; }
+  .nav-fab {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary), var(--primary-border));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(74, 124, 89, 0.4);
+    margin: 0 8px;
+    flex-shrink: 0;
+  }
+
+
+    /* ── Legend ── */
+    .legend {
+      display: flex;
+      justify-content: center;
+      gap: 22px;
+      flex-wrap: wrap;
+      margin-bottom: 36px;
+      padding: 14px 24px;
+      background: rgba(255, 255, 255, 0.025);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 14px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .legend-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 4px;
+      flex-shrink: 0;
+    }
+
+    .legend-dot.red { background: var(--red); }
+    .legend-dot.amber { background: var(--accent); }
+    .legend-dot.blue { background: var(--secondary); }
+    .legend-dot.green { background: var(--primary); }
+    .legend-dot.diamond {
+      background: var(--purple);
+      transform: rotate(45deg);
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+    }
+
+    /* ── Flow wrapper ── */
+    .flow {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+      position: relative;
+    }
+
+    /* ── Phase dividers ── */
+    .phase-divider {
+      width: 100%;
+      max-width: 620px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin: 30px 0 18px;
+    }
+
+    .phase-divider .line {
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(to right, transparent, rgba(255,255,255,0.10), transparent);
+    }
+
+    .phase-divider .label {
+      font-size: 13px;
+      color: #6a6a86;
+      font-weight: 700;
+      white-space: nowrap;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+
+    /* ── Connector arrows ── */
+    .connector {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 4px 0;
+    }
+
+    .connector .line {
+      width: 2px;
+      height: 28px;
+      background: linear-gradient(to bottom, rgba(255,255,255,0.12), rgba(255,255,255,0.22));
+    }
+
+    .connector .arrow {
+      width: 0;
+      height: 0;
+      border-left: 6px solid transparent;
+      border-right: 6px solid transparent;
+      border-top: 8px solid rgba(255, 255, 255, 0.22);
+    }
+
+    .connector .label {
+      font-size: 11px;
+      color: #7a7a96;
+      margin: 4px 0;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+    }
+
+    /* ── Screen card nodes ── */
+    .node {
+      width: 100%;
+      max-width: 540px;
+      border-radius: 16px;
+      padding: 26px 28px;
+      position: relative;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      cursor: pointer;
+    }
+
+    .node:hover {
+      transform: translateY(-3px);
+    }
+
+    .node .step-badge {
+      position: absolute;
+      top: -10px;
+      left: 24px;
+      background: var(--bg);
+      border: 2px solid;
+      border-radius: 20px;
+      padding: 2px 12px;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+    }
+
+    .node .screen-name {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .node .screen-state {
+      font-size: 13px;
+      opacity: 0.65;
+      margin-bottom: 14px;
+      font-weight: 500;
+    }
+
+    .node .user-thought {
+      font-size: 13px;
+      font-style: italic;
+      line-height: 1.55;
+      padding: 12px 16px;
+      border-radius: 10px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .node .user-thought::before {
+      content: '\201C';
+      font-size: 32px;
+      position: absolute;
+      top: 0;
+      left: 6px;
+      opacity: 0.25;
+      font-style: normal;
+      font-weight: 700;
+    }
+
+    .node .user-thought .thought-text {
+      padding-left: 14px;
+    }
+
+    .node .nav-highlight {
+      margin-top: 12px;
+      font-size: 11px;
+      opacity: 0.45;
+      font-weight: 600;
+    }
+
+    .node .nav-highlight span {
+      opacity: 1;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    /* ── Key moment badge ── */
+    .key-moment {
+      position: absolute;
+      top: -10px;
+      right: 20px;
+      background: linear-gradient(135deg, var(--accent), var(--primary));
+      color: var(--bg);
+      font-size: 10px;
+      font-weight: 800;
+      padding: 4px 12px;
+      border-radius: 12px;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+      box-shadow: 0 2px 10px rgba(232, 168, 124, 0.3);
+      animation: badge-pulse 3s ease-in-out infinite;
+    }
+
+    @keyframes badge-pulse {
+      0%, 100% { box-shadow: 0 2px 10px rgba(232, 168, 124, 0.3); }
+      50% { box-shadow: 0 3px 18px rgba(232, 168, 124, 0.5); }
+    }
+
+    /* ── Node color variants ── */
+
+    /* Action nodes (amber/peach border) */
+    .node.amber {
+      background: linear-gradient(135deg, rgba(232, 168, 124, 0.11), rgba(232, 168, 124, 0.04));
+      border: 1px solid rgba(232, 168, 124, 0.25);
+      box-shadow: 0 4px 24px rgba(232, 168, 124, 0.06);
+    }
+    .node.amber:hover { box-shadow: 0 8px 36px rgba(232, 168, 124, 0.16); }
+    .node.amber .step-badge { border-color: var(--accent); color: var(--accent); }
+    .node.amber .screen-name { color: #f0d8c0; }
+    .node.amber .user-thought { background: rgba(232, 168, 124, 0.07); color: #d4c0a8; }
+
+    /* Screen display nodes (green/primary border) */
+    .node.green {
+      background: linear-gradient(135deg, rgba(74, 124, 89, 0.14), rgba(74, 124, 89, 0.05));
+      border: 1px solid rgba(74, 124, 89, 0.28);
+      box-shadow: 0 4px 24px rgba(74, 124, 89, 0.08);
+    }
+    .node.green:hover { box-shadow: 0 8px 36px rgba(74, 124, 89, 0.18); }
+    .node.green .step-badge { border-color: var(--primary); color: var(--primary); }
+    .node.green .screen-name { color: #a0e0b8; }
+    .node.green .user-thought { background: rgba(74, 124, 89, 0.08); color: #a0d4b8; }
+
+    /* Overlay / processing nodes (blue border) */
+    .node.blue {
+      background: linear-gradient(135deg, rgba(91, 143, 168, 0.11), rgba(91, 143, 168, 0.04));
+      border: 1px solid rgba(91, 143, 168, 0.25);
+      box-shadow: 0 4px 24px rgba(91, 143, 168, 0.06);
+    }
+    .node.blue:hover { box-shadow: 0 8px 36px rgba(91, 143, 168, 0.16); }
+    .node.blue .step-badge { border-color: var(--secondary); color: var(--secondary); }
+    .node.blue .screen-name { color: #a0d0e8; }
+    .node.blue .user-thought { background: rgba(91, 143, 168, 0.07); color: #a0c0d4; }
+
+    /* Decision nodes (purple border) */
+    .node.purple {
+      background: linear-gradient(135deg, rgba(139, 111, 192, 0.11), rgba(139, 111, 192, 0.04));
+      border: 1px solid rgba(139, 111, 192, 0.25);
+      box-shadow: 0 4px 24px rgba(139, 111, 192, 0.06);
+    }
+    .node.purple:hover { box-shadow: 0 8px 36px rgba(139, 111, 192, 0.16); }
+    .node.purple .step-badge { border-color: var(--purple); color: var(--purple); }
+    .node.purple .screen-name { color: #c4b0e0; }
+    .node.purple .user-thought { background: rgba(139, 111, 192, 0.07); color: #b0a0d4; }
+
+    /* Red / user action nodes */
+    .node.red {
+      background: linear-gradient(135deg, rgba(224, 85, 85, 0.11), rgba(224, 85, 85, 0.04));
+      border: 1px solid rgba(224, 85, 85, 0.22);
+      box-shadow: 0 4px 24px rgba(224, 85, 85, 0.06);
+    }
+    .node.red:hover { box-shadow: 0 8px 36px rgba(224, 85, 85, 0.14); }
+    .node.red .step-badge { border-color: var(--red); color: var(--red); }
+    .node.red .screen-name { color: #f0a0a0; }
+    .node.red .user-thought { background: rgba(224, 85, 85, 0.07); color: #d4a8a8; }
+
+    /* ── Success tint (green with glow) ── */
+    .node.success {
+      background: linear-gradient(135deg, rgba(74, 124, 89, 0.18), rgba(74, 124, 89, 0.06));
+      border: 1.5px solid rgba(74, 124, 89, 0.35);
+      box-shadow: 0 4px 24px rgba(74, 124, 89, 0.12);
+    }
+    .node.success:hover { box-shadow: 0 8px 36px rgba(74, 124, 89, 0.22); }
+    .node.success .step-badge { border-color: var(--primary); color: var(--primary); }
+    .node.success .screen-name { color: #a0e0b8; }
+    .node.success .user-thought { background: rgba(74, 124, 89, 0.10); color: #a0d4b8; }
+
+    /* ── Celebration ring ── */
+    .celebration {
+      position: absolute;
+      top: -4px;
+      left: -4px;
+      right: -4px;
+      bottom: -4px;
+      border-radius: 20px;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .node:hover .celebration {
+      opacity: 1;
+    }
+
+    .celebration::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 20px;
+      border: 2px solid rgba(74, 124, 89, 0.25);
+      animation: celebration-ring 2s ease-in-out infinite;
+    }
+
+    @keyframes celebration-ring {
+      0%, 100% { transform: scale(1); opacity: 0.4; }
+      50% { transform: scale(1.015); opacity: 1; }
+    }
+
+    .celebration::after {
+      content: '';
+      position: absolute;
+      inset: -8px;
+      border-radius: 24px;
+      background:
+        radial-gradient(circle 2px at 10% 20%, rgba(74, 124, 89, 0.6) 0%, transparent 100%),
+        radial-gradient(circle 2px at 90% 15%, rgba(232, 168, 124, 0.5) 0%, transparent 100%),
+        radial-gradient(circle 1.5px at 85% 80%, rgba(74, 124, 89, 0.5) 0%, transparent 100%),
+        radial-gradient(circle 1.5px at 15% 75%, rgba(232, 168, 124, 0.4) 0%, transparent 100%),
+        radial-gradient(circle 2px at 50% 5%, rgba(91, 143, 168, 0.4) 0%, transparent 100%),
+        radial-gradient(circle 1px at 40% 95%, rgba(74, 124, 89, 0.5) 0%, transparent 100%);
+      animation: sparkle-float 4s ease-in-out infinite;
+    }
+
+    @keyframes sparkle-float {
+      0%, 100% { opacity: 0.3; transform: scale(1); }
+      50% { opacity: 0.8; transform: scale(1.03); }
+    }
+
+    /* ── Decision diamonds ── */
+    .decision {
+      width: 100%;
+      max-width: 540px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .diamond-wrapper {
+      position: relative;
+      width: 220px;
+      height: 120px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .diamond-shape {
+      position: absolute;
+      width: 190px;
+      height: 95px;
+      background: linear-gradient(135deg, rgba(139, 111, 192, 0.18), rgba(139, 111, 192, 0.06));
+      border: 1.5px solid rgba(139, 111, 192, 0.35);
+      clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+    }
+
+    .diamond-text {
+      position: relative;
+      z-index: 1;
+      font-size: 12px;
+      font-weight: 700;
+      color: #c4b0e0;
+      text-align: center;
+      line-height: 1.35;
+    }
+
+    .decision-branches {
+      display: flex;
+      justify-content: center;
+      gap: 60px;
+      width: 100%;
+      margin-top: 4px;
+    }
+
+    .branch {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      min-width: 140px;
+    }
+
+    .branch-label {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 12px;
+      border-radius: 10px;
+    }
+
+    .branch-label.yes {
+      background: rgba(74, 124, 89, 0.18);
+      color: var(--primary);
+    }
+
+    .branch-label.no {
+      background: rgba(224, 85, 85, 0.12);
+      color: var(--red);
+    }
+
+    .branch-desc {
+      font-size: 11px;
+      color: #7a7a96;
+      margin-top: 4px;
+      text-align: center;
+    }
+
+    .branch .line {
+      width: 2px;
+      height: 16px;
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .branch .arrow {
+      width: 0;
+      height: 0;
+      border-left: 5px solid transparent;
+      border-right: 5px solid transparent;
+      border-top: 7px solid rgba(255, 255, 255, 0.2);
+    }
+
+    /* ── Expandable screen details ── */
+    .screen-details {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      max-height: 0;
+      overflow: hidden;
+      opacity: 0;
+      transition: max-height 0.4s ease, opacity 0.3s ease, margin-top 0.3s ease, padding-top 0.3s ease;
+    }
+
+    .node.expanded .screen-details {
+      max-height: 400px;
+      opacity: 1;
+    }
+
+    .screen-details .detail-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 6px;
+      line-height: 1.4;
+    }
+
+    .screen-details .detail-icon {
+      width: 18px;
+      text-align: center;
+      flex-shrink: 0;
+      font-size: 13px;
+    }
+
+    .expand-hint {
+      font-size: 10px;
+      color: #444460;
+      margin-top: 10px;
+      text-align: right;
+      transition: opacity 0.2s ease;
+    }
+
+    .node.expanded .expand-hint {
+      opacity: 0.3;
+    }
+
+    /* ── Dual-path container (for branching) ── */
+    .dual-path {
+      width: 100%;
+      max-width: 620px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      position: relative;
+    }
+
+    .dual-path::before {
+      content: '';
+      position: absolute;
+      top: -10px;
+      left: 50%;
+      width: 1px;
+      height: calc(100% + 20px);
+      background: linear-gradient(to bottom, rgba(139, 111, 192, 0.2), rgba(139, 111, 192, 0.05));
+    }
+
+    .path-column {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+    }
+
+    .path-header {
+      font-size: 12px;
+      font-weight: 700;
+      padding: 5px 16px;
+      border-radius: 12px;
+      margin-bottom: 12px;
+      letter-spacing: 0.5px;
+    }
+
+    .path-header.high {
+      background: rgba(74, 124, 89, 0.15);
+      color: var(--primary);
+      border: 1px solid rgba(74, 124, 89, 0.25);
+    }
+
+    .path-header.low {
+      background: rgba(232, 168, 124, 0.12);
+      color: var(--accent);
+      border: 1px solid rgba(232, 168, 124, 0.25);
+    }
+
+    .dual-path .node {
+      max-width: 100%;
+    }
+
+    .dual-path .connector {
+      padding: 2px 0;
+    }
+
+    .dual-path .connector .line {
+      height: 18px;
+    }
+
+    /* ── Merge connector ── */
+    .merge-connector {
+      width: 100%;
+      max-width: 540px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 8px 0;
+    }
+
+    .merge-connector .merge-lines {
+      width: 100%;
+      max-width: 300px;
+      height: 20px;
+      position: relative;
+    }
+
+    .merge-connector .merge-lines::before,
+    .merge-connector .merge-lines::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      width: 2px;
+      height: 10px;
+      background: rgba(255,255,255,0.15);
+    }
+
+    .merge-connector .merge-lines::before { left: 25%; }
+    .merge-connector .merge-lines::after { right: 25%; }
+
+    .merge-connector .merge-horizontal {
+      width: 50%;
+      height: 2px;
+      background: rgba(255,255,255,0.12);
+      margin: 0 auto;
+    }
+
+    .merge-connector .line {
+      width: 2px;
+      height: 20px;
+      background: linear-gradient(to bottom, rgba(255,255,255,0.12), rgba(255,255,255,0.22));
+    }
+
+    .merge-connector .arrow {
+      width: 0;
+      height: 0;
+      border-left: 6px solid transparent;
+      border-right: 6px solid transparent;
+      border-top: 8px solid rgba(255, 255, 255, 0.22);
+    }
+
+    /* ── Tap count badge ── */
+    .tap-count {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: linear-gradient(135deg, rgba(74, 124, 89, 0.2), rgba(232, 168, 124, 0.15));
+      border: 1px solid rgba(74, 124, 89, 0.25);
+      border-radius: 10px;
+      padding: 6px 14px;
+      margin-top: 12px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #a0e0b8;
+      letter-spacing: 0.3px;
+    }
+
+    .tap-count .tap-icon {
+      font-size: 14px;
+    }
+
+    /* ── Button preview ── */
+    .button-preview {
+      display: flex;
+      gap: 10px;
+      margin-top: 14px;
+      align-items: center;
+    }
+
+    .btn-mock {
+      padding: 8px 18px;
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 700;
+      text-align: center;
+      letter-spacing: 0.3px;
+    }
+
+    .btn-mock.secondary {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: var(--muted);
+      flex: 1;
+    }
+
+    .btn-mock.primary {
+      background: linear-gradient(135deg, var(--primary), #3d6b4a);
+      border: 1px solid rgba(74, 124, 89, 0.4);
+      color: #fff;
+      flex: 2;
+      box-shadow: 0 2px 12px rgba(74, 124, 89, 0.25);
+    }
+
+    /* ── Confidence badge ── */
+    .confidence-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 10px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .confidence-badge.high {
+      background: rgba(74, 124, 89, 0.15);
+      border: 1px solid rgba(74, 124, 89, 0.3);
+      color: var(--primary);
+    }
+
+    .confidence-badge.low {
+      background: rgba(232, 168, 124, 0.12);
+      border: 1px solid rgba(232, 168, 124, 0.25);
+      color: var(--accent);
+    }
+
+    /* ── Micro-interaction card ── */
+    .micro-card {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 18px;
+      border-radius: 12px;
+      background: rgba(74, 124, 89, 0.08);
+      border: 1px solid rgba(74, 124, 89, 0.18);
+      margin-top: 10px;
+    }
+
+    .micro-card .micro-icon {
+      font-size: 28px;
+      animation: micro-bounce 1.5s ease-in-out infinite;
+    }
+
+    @keyframes micro-bounce {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.15); }
+    }
+
+    .micro-card .micro-text {
+      font-size: 14px;
+      font-weight: 700;
+      color: #a0e0b8;
+    }
+
+    .micro-card .micro-sub {
+      font-size: 11px;
+      color: var(--primary);
+      margin-top: 2px;
+    }
+
+    /* ── Footer ── */
+    .footer {
+      text-align: center;
+      margin-top: 56px;
+      padding-top: 24px;
+      border-top: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .footer p {
+      font-size: 12px;
+      color: #444460;
+      line-height: 1.7;
+    }
+
+    .footer .app-name {
+      color: #6a6a86;
+      font-weight: 700;
+    }
+
+    /* ── Speed metric callout ── */
+    .speed-callout {
+      width: 100%;
+      max-width: 540px;
+      margin: 16px 0;
+      padding: 16px 24px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, rgba(74, 124, 89, 0.08), rgba(232, 168, 124, 0.05));
+      border: 1px dashed rgba(74, 124, 89, 0.2);
+      text-align: center;
+    }
+
+    .speed-callout .speed-number {
+      font-size: 36px;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1;
+    }
+
+    .speed-callout .speed-label {
+      font-size: 13px;
+      color: #7a7a96;
+      margin-top: 4px;
+      font-weight: 500;
+    }
+
+    .speed-callout .speed-detail {
+      font-size: 11px;
+      color: #555570;
+      margin-top: 2px;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 700px) {
+      .container { padding: 24px 12px 60px; }
+      .header h1 { font-size: 28px; }
+      .node { padding: 20px 18px; max-width: 100%; }
+      .node .screen-name { font-size: 17px; }
+      .legend { gap: 12px; padding: 12px 14px; }
+      .decision-branches { gap: 40px; }
+      .diamond-wrapper { width: 180px; height: 100px; }
+      .diamond-shape { width: 155px; height: 78px; }
+      .dual-path {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+      .dual-path::before { display: none; }
+      .speed-callout .speed-number { font-size: 28px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <!-- ═══════════ HEADER ═══════════ -->
+    <div class="header">
+      <div class="brand">Khujta AI &middot; Gastify</div>
+      <h1>Flujo 2: <span>Quick Scan &rarr; QuickSave</span></h1>
+      <p class="subtitle">
+        El flujo mas comun: el habito diario. Escanear una boleta y guardarla
+        en el menor tiempo posible. Velocidad es todo &mdash; 3 taps para guardar.
+      </p>
+      <div class="nav-ref">
+        <div class="nav-item" data-nav="home">&#127968; Inicio</div>
+        <div class="nav-item" data-nav="trends">&#128161; Tendencias</div>
+        <div class="nav-item fab" data-nav="fab">&#128247;</div>
+        <div class="nav-item" data-nav="reports">&#128202; Reportes</div>
+        <div class="nav-item" data-nav="alerts">&#128276; Alertas</div>
+      </div>
+    </div>
+
+    <!-- ═══════════ LEGEND ═══════════ -->
+    <div class="legend">
+      <div class="legend-item">
+        <div class="legend-dot red"></div>
+        Accion del usuario
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot amber"></div>
+        Procesamiento del sistema
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot blue"></div>
+        Pantalla / overlay
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot green"></div>
+        Exito
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot diamond"></div>
+        Momento clave
+      </div>
+    </div>
+
+    <!-- ═══════════ FLOW ═══════════ -->
+    <div class="flow">
+
+      <!-- ──── FASE 1: Captura ──── -->
+      <div class="phase-divider">
+        <div class="line"></div>
+        <div class="label">Fase 1 &mdash; Captura</div>
+        <div class="line"></div>
+      </div>
+
+      <!-- 01. Dashboard — Populated -->
+      <div class="node green" data-active-nav="home" onclick="this.classList.toggle('expanded')">
+        <div class="step-badge">01</div>
+        <div class="screen-name">Dashboard &mdash; Poblado</div>
+        <div class="screen-state">Transacciones recientes visibles &middot; treemap de gastos</div>
+        <div class="user-thought">
+          <div class="thought-text">Acabo de comprar algo, voy a escanearlo rapido.</div>
+        </div>
+        <div class="nav-highlight">Tab: <span>Inicio</span> activo</div>
+        <div class="screen-details">
+          <div class="detail-row"><span class="detail-icon">&#128179;</span> Carrusel "Recientes" con transacciones del dia/semana</div>
+          <div class="detail-row"><span class="detail-icon">&#128202;</span> Treemap de categorias de gasto (colores por tipo)</div>
+          <div class="detail-row"><span class="detail-icon">&#128176;</span> Total mensual y presupuesto en header</div>
+          <div class="detail-row"><span class="detail-icon">&#128241;</span> FAB verde siempre visible abajo centro</div>
+        </div>
+        <div class="expand-hint">clic para detalles</div>
+      </div>
+
+      <div class="connector">
+        <div class="line"></div>
+        <div class="label">tap FAB</div>
+        <div class="arrow"></div>
+      </div>
+
+      <!-- 02. Tap FAB -->
+      <div class="node red" data-active-nav="fab" onclick="this.classList.toggle('expanded')">
+        <div class="step-badge">02</div>
+        <div class="screen-name">Tap FAB</div>
+        <div class="screen-state">Accion del usuario &middot; un solo tap</div>
+        <div class="user-thought">
+          <div class="thought-text">Un tap en el boton verde de la camara.</div>
+        </div>
+        <div class="nav-highlight">FAB: <span>Camara</span> activa</div>
+        <div class="screen-details">
+          <div class="detail-row"><span class="detail-icon">&#128073;</span> Boton circular verde var(--primary) con icono de camara</div>
+          <div class="detail-row"><span class="detail-icon">&#9889;</span> Transicion instantanea a camara (< 200ms)</div>
+          <div class="detail-row"><span class="detail-icon">&#128274;</span> Requiere permiso de camara (primera vez)</div>
+        </div>
+        <div class="expand-hint">clic para detalles</div>
+      </div>
+
+      <div class="connector">
+        <div class="line"></div>
+        <div class="label">camara abre</div>
+        <div class="arrow"></div>
+      </div>
+
+      <!-- 03. Camera Capture -->
+      <div class="node blue" data-active-nav="fab" onclick="this.classList.toggle('expanded')">
+        <div class="step-badge">03</div>
+        <div class="screen-name">Captura de Camara</div>
+        <div class="screen-state">Camara activa &middot; visor + boton de captura</div>
+        <div class="user-thought">
+          <div class="thought-text">Enfoco la boleta y tomo la foto.</div>
+        </div>
+        <div class="nav-highlight">FAB: <span>Camara</span> activa</div>
+        <div class="screen-details">
+          <div class="detail-row"><span class="detail-icon">&#128247;</span> Viewfinder a pantalla completa con guias de encuadre</div>
+          <div class="detail-row"><span class="detail-icon">&#128308;</span> Boton de captura circular rojo/blanco grande</div>
+          <div class="detail-row"><span class="detail-icon">&#128444;</span> Opcion de galeria para elegir foto existente</div>
+          <div class="detail-row"><span class="detail-icon">&#128161;</span> Tip: "Centra la boleta en el recuadro"</div>
+        </div>
+        <div class="expand-hint">clic para detalles</div>
+      </div>
+
+      <div class="connector">
+        <div class="line"></div>
+        <div class="label">foto tomada</div>
+        <div class="arrow"></div>
+      </div>
+
+      <!-- ──── FASE 2: Procesamiento ──── -->
+      <div class="phase-divider">
+        <div class="line"></div>
+        <div class="label">Fase 2 &mdash; Procesamiento</div>
+        <div class="line"></div>
+      </div>
+
+      <!-- 04. ScanOverlay — Processing -->
+      <div class="node amber" onclick="this.classList.toggle('expanded')">
+        <div class="step-badge">04</div>
+        <div class="screen-name">ScanOverlay &mdash; Procesando</div>
+        <div class="screen-state">No bloqueante &middot; spinner + "Procesando..."</div>
+        <div class="user-thought">
+          <div class="thought-text">Ya se que puedo navegar, pero voy a esperar.</div>
+        </div>
+        <div class="nav-highlight">Overlay flotante &middot; navegacion libre</div>
+        <div class="screen-details">
+          <div class="detail-row"><span class="detail-icon">&#9203;</span> Spinner animado con progreso visual</div>
+          <div class="detail-row"><span class="detail-icon">&#128172;</span> Texto: "Procesando..." con puntos animados</div>
+          <div class="detail-row"><span class="detail-icon">&#128161;</span> Tip: "Puedes seguir navegando mientras procesamos"</div>
+          <div class="detail-row"><span class="detail-icon">&#129302;</span> Gemini AI procesando imagen en backend (Cloud Function)</div>
+          <div class="detail-row"><span class="detail-icon">&#128338;</span> Tiempo tipico: 3-8 segundos</div>
+        </div>
+        <div class="expand-hint">clic para detalles</div>
+      </div>
+
+      <div class="connector">
+        <div class="line"></div>
+        <div class="label">procesamiento completo</div>
+        <div class="arrow"></div>
+      </div>
+
+      <!-- 05. ScanOverlay — Ready -->
+      <div class="node success" onclick="this.classList.toggle('expanded')">
+        <div class="celebration"></div>
+        <div class="step-badge">05</div>
+        <div class="screen-name">ScanOverlay &mdash; Listo</div>
+        <div class="screen-state">Checkmark verde + bounce &middot; auto-dismiss</div>
+        <div class="user-thought">
+          <div class="thought-text">Listo, ya proceso la boleta!</div>
+        </div>
+        <div class="screen-details">
+          <div class="detail-row"><span class="detail-icon">&#9989;</span> Checkmark verde animado con efecto spring</div>
+          <div class="detail-row"><span class="detail-icon">&#127881;</span> Bounce animation + brillo sutil</div>
+          <div class="detail-row"><span class="detail-icon">&#9201;</span> Auto-dismiss despues de 1.5s &rarr; abre resultado</div>
+        </div>
+        <div class="expand-hint">clic para detalles</div>
+      </div>
+
+      <div class="connector">
+        <div class="line"></div>
+        <div class="label">evalua resultado</div>
+        <div class="arrow"></div>
+      </div>
+
+      <!-- ──── FASE 3: Revision ──── -->
+      <div class="phase-divider">
+        <div class="line"></div>
+        <div class="label">Fase 3 &mdash; Revision</div>
+        <div class="line"></div>
+      </div>
+
+      <!-- 06. Decision: Confidence Check -->
+      <div class="decision">
+        <div class="diamond-wrapper">
+          <div class="diamond-shape"></div>
+          <div class="diamond-text">Resultado<br>confiable?</div>
+        </div>
+        <div class="decision-branches">
+          <div class="branch">
+            <div class="branch-label yes">Si, confiable</div>
+            <div class="branch-desc">Confidence &gt; 70%<br>QuickSave path</div>
+            <div class="line"></div>
+            <div class="arrow"></div>
+          </div>
+          <div class="branch">
+            <div class="branch-label no">No, necesita edicion</div>
+            <div class="branch-desc">Confidence &lt; 70%<br>Editor path</div>
+            <div class="line"></div>
+            <div class="arrow"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ──── DUAL PATH ──── -->
+      <div class="dual-path">
+
+        <!-- LEFT: High Confidence Path -->
+        <div class="path-column">
+          <div class="path-header high">Path A &mdash; QuickSave</div>
+
+          <!-- 7a. QuickSave Card -->
+          <div class="node green" data-active-nav="home" onclick="this.classList.toggle('expanded')">
+            <div class="step-badge">7a</div>
+            <div class="key-moment">3 taps</div>
+            <div class="screen-name">QuickSave Card</div>
+            <div class="screen-state">Auto-populado &middot; alta confianza</div>
+            <div class="confidence-badge high">&#9679; 85%+ confianza</div>
+            <div class="user-thought">
+              <div class="thought-text">Todo bien, un tap y listo.</div>
+            </div>
+            <div class="button-preview">
+              <div class="btn-mock secondary">Editar</div>
+              <div class="btn-mock primary">Guardar</div>
+            </div>
+            <div class="tap-count">
+              <span class="tap-icon">&#128073;</span>
+              3 taps: FAB &rarr; Camara &rarr; Guardar
+            </div>
+            <div class="screen-details">
+              <div class="detail-row"><span class="detail-icon">&#127978;</span> Merchant name detectado correctamente</div>
+              <div class="detail-row"><span class="detail-icon">&#128193;</span> Categoria auto-asignada con mapeos aprendidos</div>
+              <div class="detail-row"><span class="detail-icon">&#128203;</span> Items + cantidades + precios correctos</div>
+              <div class="detail-row"><span class="detail-icon">&#128176;</span> Total verificado (suma items = total boleta)</div>
+              <div class="detail-row"><span class="detail-icon">&#9998;</span> Boton "Editar" (secundario, 1x ancho)</div>
+              <div class="detail-row"><span class="detail-icon">&#128190;</span> Boton "Guardar" (primario, 2x ancho)</div>
+            </div>
+            <div class="expand-hint">clic para detalles</div>
+          </div>
+
+          <div class="connector">
+            <div class="line"></div>
+            <div class="label">tap Guardar</div>
+            <div class="arrow"></div>
+          </div>
+
+          <!-- 7b. Save micro-interaction -->
+          <div class="node success" onclick="this.classList.toggle('expanded')">
+            <div class="celebration"></div>
+            <div class="step-badge">7b</div>
+            <div class="screen-name">Guardado!</div>
+            <div class="screen-state">Micro-interaccion de exito</div>
+            <div class="micro-card">
+              <div class="micro-icon">&#9989;</div>
+              <div>
+                <div class="micro-text">Guardado!</div>
+                <div class="micro-sub">Spring animation + auto-return</div>
+              </div>
+            </div>
+            <div class="screen-details">
+              <div class="detail-row"><span class="detail-icon">&#127881;</span> Animacion spring con check verde</div>
+              <div class="detail-row"><span class="detail-icon">&#128172;</span> Texto "Guardado!" con efecto de aparicion</div>
+              <div class="detail-row"><span class="detail-icon">&#9201;</span> Auto-return al Dashboard en ~1s</div>
+              <div class="detail-row"><span class="detail-icon">&#128190;</span> Transaccion persistida en Firestore</div>
+            </div>
+            <div class="expand-hint">clic para detalles</div>
+          </div>
+        </div>
+
+        <!-- RIGHT: Low Confidence Path -->
+        <div class="path-column">
+          <div class="path-header low">Path B &mdash; Editor</div>
+
+          <!-- 8a. Transaction Editor -->
+          <div class="node amber" onclick="this.classList.toggle('expanded')">
+            <div class="step-badge">8a</div>
+            <div class="screen-name">Editor de Transaccion</div>
+            <div class="screen-state">Necesita correccion &middot; baja confianza</div>
+            <div class="confidence-badge low">&#9679; &lt; 70% confianza</div>
+            <div class="user-thought">
+              <div class="thought-text">Hmm, el nombre del local esta mal, lo corrijo.</div>
+            </div>
+            <div class="nav-highlight">Pantalla completa (sin bottom nav)</div>
+            <div class="screen-details">
+              <div class="detail-row"><span class="detail-icon">&#9998;</span> Campos editables: merchant, categoria, items, total</div>
+              <div class="detail-row"><span class="detail-icon">&#128308;</span> Campos con baja confianza resaltados en rojo/ambar</div>
+              <div class="detail-row"><span class="detail-icon">&#128269;</span> Autocomplete para merchant names conocidos</div>
+              <div class="detail-row"><span class="detail-icon">&#128193;</span> Category picker con opciones frecuentes primero</div>
+              <div class="detail-row"><span class="detail-icon">&#10010;</span> Agregar/eliminar items individuales</div>
+            </div>
+            <div class="expand-hint">clic para detalles</div>
+          </div>
+
+          <div class="connector">
+            <div class="line"></div>
+            <div class="label">corrige datos</div>
+            <div class="arrow"></div>
+          </div>
+
+          <!-- 8b. Category Learning Prompt -->
+          <div class="node purple" onclick="this.classList.toggle('expanded')">
+            <div class="step-badge">8b</div>
+            <div class="key-moment">Aprendizaje</div>
+            <div class="screen-name">Prompt de Aprendizaje</div>
+            <div class="screen-state">Condicional &middot; mapeo de categoria nuevo</div>
+            <div class="user-thought">
+              <div class="thought-text">Si, asi no tengo que corregirlo de nuevo.</div>
+            </div>
+            <div class="screen-details">
+              <div class="detail-row"><span class="detail-icon">&#129504;</span> "Guardar 'Farmacia' &rarr; 'Salud' para futuros items?"</div>
+              <div class="detail-row"><span class="detail-icon">&#128077;</span> Botones Si / No</div>
+              <div class="detail-row"><span class="detail-icon">&#128218;</span> Mapeo guardado en learnedMappings del usuario</div>
+              <div class="detail-row"><span class="detail-icon">&#9889;</span> Proximo escaneo usa el mapeo aprendido</div>
+            </div>
+            <div class="expand-hint">clic para detalles</div>
+          </div>
+
+          <div class="connector">
+            <div class="line"></div>
+            <div class="label">tap Guardar</div>
+            <div class="arrow"></div>
+          </div>
+
+          <!-- 8c. Save from Editor -->
+          <div class="node success" onclick="this.classList.toggle('expanded')">
+            <div class="celebration"></div>
+            <div class="step-badge">8c</div>
+            <div class="screen-name">Guardado!</div>
+            <div class="screen-state">Desde editor &middot; datos corregidos</div>
+            <div class="micro-card">
+              <div class="micro-icon">&#9989;</div>
+              <div>
+                <div class="micro-text">Guardado!</div>
+                <div class="micro-sub">Retorna al Dashboard</div>
+              </div>
+            </div>
+            <div class="screen-details">
+              <div class="detail-row"><span class="detail-icon">&#128190;</span> Transaccion con datos corregidos persistida</div>
+              <div class="detail-row"><span class="detail-icon">&#129504;</span> Mapeos aprendidos aplicados (si aplica)</div>
+              <div class="detail-row"><span class="detail-icon">&#9201;</span> Auto-return al Dashboard</div>
+            </div>
+            <div class="expand-hint">clic para detalles</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ──── Merge point ──── -->
+      <div class="merge-connector">
+        <div class="merge-lines"></div>
+        <div class="merge-horizontal"></div>
+        <div class="line"></div>
+        <div class="arrow"></div>
+      </div>
+
+      <!-- ──── FASE 4: Confirmacion ──── -->
+      <div class="phase-divider">
+        <div class="line"></div>
+        <div class="label">Fase 4 &mdash; Confirmacion</div>
+        <div class="line"></div>
+      </div>
+
+      <!-- 09. Dashboard — Updated -->
+      <div class="node success" data-active-nav="home" onclick="this.classList.toggle('expanded')">
+        <div class="celebration"></div>
+        <div class="step-badge">09</div>
+        <div class="key-moment">Ciclo completo</div>
+        <div class="screen-name">Dashboard &mdash; Actualizado</div>
+        <div class="screen-state">Nueva transaccion visible &middot; treemap recalculado</div>
+        <div class="user-thought">
+          <div class="thought-text">Listo, ya aparece mi compra en Recientes. El treemap cambio tambien.</div>
+        </div>
+        <div class="nav-highlight">Tab: <span>Inicio</span> activo</div>
+        <div class="screen-details">
+          <div class="detail-row"><span class="detail-icon">&#128179;</span> Carrusel Recientes actualizado con nueva transaccion</div>
+          <div class="detail-row"><span class="detail-icon">&#128202;</span> Treemap recalculado con nueva categoria/monto</div>
+          <div class="detail-row"><span class="detail-icon">&#128176;</span> Total mensual actualizado</div>
+          <div class="detail-row"><span class="detail-icon">&#128260;</span> El ciclo se repite: compra &rarr; scan &rarr; save &rarr; dashboard</div>
+          <div class="detail-row"><span class="detail-icon">&#9989;</span> TanStack Query invalida cache automaticamente</div>
+        </div>
+        <div class="expand-hint">clic para detalles</div>
+      </div>
+
+      <!-- Speed metric -->
+      <div class="speed-callout">
+        <div class="speed-number">3 taps</div>
+        <div class="speed-label">FAB &rarr; Captura &rarr; Guardar</div>
+        <div class="speed-detail">El flujo QuickSave completo en menos de 10 segundos (sin contar procesamiento AI)</div>
+      </div>
+
+    </div><!-- /flow -->
+
+    <!-- ═══════════ FOOTER ═══════════ -->
+    <div class="footer">
+      <p>
+        <span class="app-name">Gastify</span> &mdash; Tu tracker inteligente de gastos
+        <br>Flujo de usuario v1.0 &middot; Khujta AI &middot; 2026
+      </p>
+    </div>
+
+  </div><!-- /container -->
+
+  <script>
+    // ── Smooth scroll for expanded nodes ──
+    document.querySelectorAll('.node').forEach(node => {
+      node.addEventListener('click', () => {
+        setTimeout(() => {
+          if (node.classList.contains('expanded')) {
+            node.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          }
+        }, 80);
+      });
+    });
+
+    // ── Entrance animations on scroll (IntersectionObserver) ──
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.style.opacity = '1';
+          entry.target.style.transform = 'translateY(0)';
+        }
+      });
+    }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+
+    document.querySelectorAll('.node, .decision, .phase-divider, .speed-callout, .dual-path').forEach((el, i) => {
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(24px)';
+      el.style.transition = `opacity 0.6s ease ${i * 0.04}s, transform 0.6s ease ${i * 0.04}s`;
+      observer.observe(el);
+    });
+
+    // ── Preserve hover transitions after entrance animation ──
+    document.querySelectorAll('.node').forEach(node => {
+      node.addEventListener('mouseenter', () => {
+        node.style.transition = 'opacity 0.6s ease, transform 0.3s ease, box-shadow 0.3s ease';
+      });
+    });
+
+    // ── Highlight active nav item on node hover ──
+    const navItems = document.querySelectorAll('.nav-ref .nav-item');
+    const navMap = {
+      'home': navItems[0],
+      'trends': navItems[1],
+      'fab': navItems[2],
+      'reports': navItems[3],
+      'alerts': navItems[4]
+    };
+
+    document.querySelectorAll('.node[data-active-nav]').forEach(node => {
+      const navKey = node.getAttribute('data-active-nav');
+      const navEl = navMap[navKey];
+
+      node.addEventListener('mouseenter', () => {
+        if (navEl) navEl.classList.add('active-in-step');
+      });
+
+      node.addEventListener('mouseleave', () => {
+        Object.values(navMap).forEach(n => n.classList.remove('active-in-step'));
+      });
+    });
+  </script>
+</body>
+</html>

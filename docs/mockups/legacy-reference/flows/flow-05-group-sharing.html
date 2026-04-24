@@ -1,0 +1,1315 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flujo 5: Gastos Compartidos en Grupo &mdash; Gastify</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+
+  :root {
+    --bg: var(--bg);
+    --bg-lighter: var(--bg-lighter);
+    --surface: var(--surface);
+    --border: var(--border);
+    --text: #e8e8f0;
+    --muted: #8888aa;
+    --primary: var(--primary);
+    --primary-dim: var(--primary-dim);
+    --primary-border: var(--primary-border);
+    --accent: var(--accent);
+    --accent-dim: #4a3020;
+    --accent-border: var(--accent-border);
+    --secondary: var(--secondary);
+    --secondary-dim: #1e3a4a;
+    --secondary-border: var(--secondary-border);
+    --green: var(--green);
+    --green-dim: #064e3b;
+    --green-border: var(--green-border);
+    --amber: var(--amber);
+    --amber-dim: #78350f;
+    --amber-border: var(--amber-border);
+    --blue: var(--blue);
+    --blue-dim: #1e3a5f;
+    --blue-border: var(--blue-border);
+    --purple: var(--purple);
+    --purple-dim: #3b1f7a;
+    --purple-border: var(--purple-border);
+    --red: var(--red);
+    --red-dim: #5b1a1a;
+    --red-border: var(--red-border);
+    --gold: #fde68a;
+    --gold-dim: #4a3f1a;
+    --gold-border: var(--amber);
+  }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Outfit', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background:
+        radial-gradient(ellipse at 20% 15%, rgba(74, 124, 89, 0.10) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 25%, rgba(232, 168, 124, 0.07) 0%, transparent 50%),
+        radial-gradient(ellipse at 35% 65%, rgba(91, 143, 168, 0.06) 0%, transparent 55%),
+        radial-gradient(ellipse at 75% 85%, rgba(139, 111, 192, 0.05) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: 0;
+      animation: bg-drift 20s ease-in-out infinite alternate;
+    }
+
+    @keyframes bg-drift {
+      0% { opacity: 1; }
+      50% { opacity: 0.8; }
+      100% { opacity: 1; }
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 40px 20px 80px;
+    }
+
+    /* ══════════════════════════════════════ HEADER ══════════════════════════════════════ */
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .header .brand {
+      font-size: 13px;
+      color: #7a8a7a;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      font-weight: 600;
+    }
+
+    .header h1 {
+      font-size: 38px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 14px;
+      line-height: 1.15;
+    }
+
+    .header h1 span {
+      background: linear-gradient(135deg, var(--primary), var(--secondary), var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .header .subtitle {
+      font-size: 15px;
+      color: var(--muted);
+      max-width: 620px;
+      margin: 0 auto;
+      line-height: 1.7;
+    }
+
+    .header .epic-badge {
+      display: inline-block;
+      margin-top: 14px;
+      background: linear-gradient(135deg, rgba(91, 143, 168, 0.20), rgba(74, 124, 89, 0.15));
+      border: 1px solid rgba(91, 143, 168, 0.30);
+      border-radius: 20px;
+      padding: 5px 16px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--secondary);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+      /* -- Nav Reference Bar (canonical — matches flow-06+) -- */
+  .nav-ref {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0;
+    margin-bottom: 36px;
+    padding: 10px 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    max-width: 420px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    padding: 6px 16px;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--muted);
+    letter-spacing: 0.03em;
+    position: relative;
+  }
+  .nav-item .nav-icon { font-size: 18px; }
+  .nav-fab {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary), var(--primary-border));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(74, 124, 89, 0.4);
+    margin: 0 8px;
+    flex-shrink: 0;
+  }
+
+
+    /* ══════════════════════════════════════ LEGEND ══════════════════════════════════════ */
+    .legend {
+      display: flex;
+      justify-content: center;
+      gap: 22px;
+      flex-wrap: wrap;
+      margin-bottom: 36px;
+      padding: 14px 24px;
+      background: rgba(255, 255, 255, 0.025);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 14px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .legend-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 4px;
+      flex-shrink: 0;
+    }
+
+    .legend-dot.red { background: var(--red); }
+    .legend-dot.amber { background: #d4a03c; }
+    .legend-dot.blue { background: var(--secondary); }
+    .legend-dot.green { background: var(--primary); }
+    .legend-dot.diamond {
+      background: var(--purple);
+      transform: rotate(45deg);
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+    }
+
+    /* ══════════════════════════════════════ FLOW ══════════════════════════════════════ */
+    .flow {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+      position: relative;
+    }
+
+    /* ── Phase dividers ── */
+    .phase-divider {
+      width: 100%;
+      max-width: 700px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin: 30px 0 18px;
+    }
+
+    .phase-divider .line {
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(to right, transparent, rgba(255,255,255,0.10), transparent);
+    }
+
+    .phase-divider .label {
+      font-size: 13px;
+      color: #6a6a86;
+      font-weight: 700;
+      white-space: nowrap;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    /* ── Connector arrows ── */
+    .connector {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 4px 0;
+    }
+
+    .connector .line {
+      width: 2px;
+      height: 28px;
+      background: linear-gradient(to bottom, rgba(255,255,255,0.12), rgba(255,255,255,0.22));
+    }
+
+    .connector .arrow {
+      width: 0;
+      height: 0;
+      border-left: 6px solid transparent;
+      border-right: 6px solid transparent;
+      border-top: 8px solid rgba(255, 255, 255, 0.22);
+    }
+
+    .connector .label {
+      font-size: 11px;
+      color: #7a7a96;
+      margin: 4px 0;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+    }
+
+    /* ── Screen card nodes ── */
+    .node {
+      width: 100%;
+      max-width: 540px;
+      border-radius: 16px;
+      padding: 26px 28px;
+      position: relative;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      cursor: pointer;
+    }
+
+    .node:hover {
+      transform: translateY(-3px);
+    }
+
+    .node .step-badge {
+      position: absolute;
+      top: -10px;
+      left: 24px;
+      background: var(--bg);
+      border: 2px solid;
+      border-radius: 20px;
+      padding: 2px 12px;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+    }
+
+    .node .screen-name {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .node .screen-state {
+      font-size: 13px;
+      opacity: 0.65;
+      margin-bottom: 14px;
+      font-weight: 600;
+    }
+
+    .node .user-thought {
+      font-size: 13px;
+      font-style: italic;
+      line-height: 1.55;
+      padding: 12px 16px;
+      border-radius: 10px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .node .user-thought::before {
+      content: '\201C';
+      font-size: 32px;
+      position: absolute;
+      top: 0;
+      left: 6px;
+      opacity: 0.25;
+      font-style: normal;
+      font-weight: 700;
+    }
+
+    .node .user-thought .thought-text {
+      padding-left: 14px;
+    }
+
+    .node .nav-highlight {
+      margin-top: 12px;
+      font-size: 11px;
+      opacity: 0.45;
+      font-weight: 600;
+    }
+
+    .node .nav-highlight span {
+      opacity: 1;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    /* ── Key moment badge ── */
+    .key-moment {
+      position: absolute;
+      top: -10px;
+      right: 20px;
+      background: linear-gradient(135deg, var(--accent), var(--primary));
+      color: var(--bg);
+      font-size: 10px;
+      font-weight: 800;
+      padding: 4px 12px;
+      border-radius: 12px;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+      box-shadow: 0 2px 10px rgba(232, 168, 124, 0.3);
+      animation: badge-pulse 3s ease-in-out infinite;
+    }
+
+    @keyframes badge-pulse {
+      0%, 100% { box-shadow: 0 2px 10px rgba(232, 168, 124, 0.3); }
+      50% { box-shadow: 0 3px 18px rgba(232, 168, 124, 0.5); }
+    }
+
+    /* ── Node color variants ── */
+    .node.red {
+      background: linear-gradient(135deg, rgba(224, 85, 85, 0.11), rgba(224, 85, 85, 0.04));
+      border: 1px solid rgba(224, 85, 85, 0.22);
+      box-shadow: 0 4px 24px rgba(224, 85, 85, 0.06);
+    }
+    .node.red:hover { box-shadow: 0 8px 36px rgba(224, 85, 85, 0.14); }
+    .node.red .step-badge { border-color: var(--red); color: var(--red); }
+    .node.red .screen-name { color: #f0a0a0; }
+    .node.red .user-thought { background: rgba(224, 85, 85, 0.07); color: #d4a8a8; }
+
+    .node.amber {
+      background: linear-gradient(135deg, rgba(212, 160, 60, 0.11), rgba(212, 160, 60, 0.04));
+      border: 1px solid rgba(212, 160, 60, 0.22);
+      box-shadow: 0 4px 24px rgba(212, 160, 60, 0.06);
+    }
+    .node.amber:hover { box-shadow: 0 8px 36px rgba(212, 160, 60, 0.14); }
+    .node.amber .step-badge { border-color: #d4a03c; color: #d4a03c; }
+    .node.amber .screen-name { color: #f0d8a0; }
+    .node.amber .user-thought { background: rgba(212, 160, 60, 0.07); color: #d4c8a8; }
+
+    .node.blue {
+      background: linear-gradient(135deg, rgba(91, 143, 168, 0.11), rgba(91, 143, 168, 0.04));
+      border: 1px solid rgba(91, 143, 168, 0.22);
+      box-shadow: 0 4px 24px rgba(91, 143, 168, 0.06);
+    }
+    .node.blue:hover { box-shadow: 0 8px 36px rgba(91, 143, 168, 0.14); }
+    .node.blue .step-badge { border-color: var(--secondary); color: var(--secondary); }
+    .node.blue .screen-name { color: #a0c8d8; }
+    .node.blue .user-thought { background: rgba(91, 143, 168, 0.07); color: #a0b8c4; }
+
+    .node.green {
+      background: linear-gradient(135deg, rgba(74, 124, 89, 0.14), rgba(74, 124, 89, 0.05));
+      border: 1px solid rgba(74, 124, 89, 0.28);
+      box-shadow: 0 4px 24px rgba(74, 124, 89, 0.08);
+    }
+    .node.green:hover { box-shadow: 0 8px 36px rgba(74, 124, 89, 0.18); }
+    .node.green .step-badge { border-color: var(--primary); color: var(--primary); }
+    .node.green .screen-name { color: #a0d8b0; }
+    .node.green .user-thought { background: rgba(74, 124, 89, 0.08); color: #a0c4a8; }
+
+    /* ── Celebration ring ── */
+    .celebration {
+      position: absolute;
+      top: -4px; left: -4px; right: -4px; bottom: -4px;
+      border-radius: 20px;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .node.green:hover .celebration { opacity: 1; }
+
+    .celebration::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 20px;
+      border: 2px solid rgba(74, 124, 89, 0.25);
+      animation: celebration-ring 2s ease-in-out infinite;
+    }
+
+    @keyframes celebration-ring {
+      0%, 100% { transform: scale(1); opacity: 0.4; }
+      50% { transform: scale(1.015); opacity: 1; }
+    }
+
+    .celebration::after {
+      content: '';
+      position: absolute;
+      inset: -8px;
+      border-radius: 24px;
+      background:
+        radial-gradient(circle 2px at 10% 20%, rgba(74, 124, 89, 0.6) 0%, transparent 100%),
+        radial-gradient(circle 2px at 90% 15%, rgba(232, 168, 124, 0.5) 0%, transparent 100%),
+        radial-gradient(circle 1.5px at 85% 80%, rgba(74, 124, 89, 0.5) 0%, transparent 100%),
+        radial-gradient(circle 1.5px at 15% 75%, rgba(232, 168, 124, 0.4) 0%, transparent 100%),
+        radial-gradient(circle 2px at 50% 5%, rgba(91, 143, 168, 0.4) 0%, transparent 100%),
+        radial-gradient(circle 1px at 40% 95%, rgba(74, 124, 89, 0.5) 0%, transparent 100%);
+      animation: sparkle-float 4s ease-in-out infinite;
+    }
+
+    @keyframes sparkle-float {
+      0%, 100% { opacity: 0.3; transform: scale(1); }
+      50% { opacity: 0.8; transform: scale(1.03); }
+    }
+
+    /* ── Expandable details ── */
+    .screen-details {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      max-height: 0;
+      overflow: hidden;
+      opacity: 0;
+      transition: max-height 0.4s ease, opacity 0.3s ease;
+    }
+
+    .node.expanded .screen-details {
+      max-height: 400px;
+      opacity: 1;
+    }
+
+    .screen-details .detail-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 6px;
+      line-height: 1.4;
+    }
+
+    .screen-details .detail-icon {
+      width: 18px;
+      text-align: center;
+      flex-shrink: 0;
+      font-size: 13px;
+    }
+
+    .expand-hint {
+      font-size: 10px;
+      color: #444460;
+      margin-top: 10px;
+      text-align: right;
+      transition: opacity 0.2s ease;
+    }
+
+    .node.expanded .expand-hint { opacity: 0.3; }
+
+    /* ══════════════════════════════════════ BRANCHING ══════════════════════════════════════ */
+
+    .branch-intro {
+      width: 100%;
+      max-width: 700px;
+      text-align: center;
+      margin: 8px 0 4px;
+    }
+
+    .branch-intro p {
+      font-size: 13px;
+      color: #7a7a96;
+      font-weight: 500;
+    }
+
+    /* Branch split visual */
+    .branch-split-visual {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      width: 100%;
+      max-width: 700px;
+      position: relative;
+      margin: 6px 0 0;
+    }
+
+    .branch-split-visual svg {
+      width: 100%;
+      height: 40px;
+    }
+
+    /* Sub-path tabs */
+    .subpath-tabs {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin: 20px 0 8px;
+      flex-wrap: wrap;
+    }
+
+    .subpath-tab {
+      padding: 8px 20px;
+      border-radius: 24px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      border: 2px solid;
+      transition: all 0.3s ease;
+      letter-spacing: 0.3px;
+      user-select: none;
+    }
+
+    .subpath-tab.tab-a {
+      border-color: rgba(74, 124, 89, 0.35);
+      color: #6aad7a;
+      background: rgba(74, 124, 89, 0.08);
+    }
+    .subpath-tab.tab-a:hover,
+    .subpath-tab.tab-a.active {
+      background: rgba(74, 124, 89, 0.20);
+      border-color: rgba(74, 124, 89, 0.60);
+      box-shadow: 0 0 20px rgba(74, 124, 89, 0.15);
+    }
+
+    .subpath-tab.tab-b {
+      border-color: rgba(91, 143, 168, 0.35);
+      color: #7ab0c8;
+      background: rgba(91, 143, 168, 0.08);
+    }
+    .subpath-tab.tab-b:hover,
+    .subpath-tab.tab-b.active {
+      background: rgba(91, 143, 168, 0.20);
+      border-color: rgba(91, 143, 168, 0.60);
+      box-shadow: 0 0 20px rgba(91, 143, 168, 0.15);
+    }
+
+    .subpath-tab.tab-c {
+      border-color: rgba(212, 160, 60, 0.35);
+      color: #d4b060;
+      background: rgba(212, 160, 60, 0.08);
+    }
+    .subpath-tab.tab-c:hover,
+    .subpath-tab.tab-c.active {
+      background: rgba(212, 160, 60, 0.20);
+      border-color: rgba(212, 160, 60, 0.60);
+      box-shadow: 0 0 20px rgba(212, 160, 60, 0.15);
+    }
+
+    /* Sub-path containers */
+    .subpath-container {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .subpath-panel {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      animation: fadeSlideIn 0.4s ease;
+    }
+
+    .subpath-panel.active {
+      display: flex;
+    }
+
+    @keyframes fadeSlideIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Sub-path accent borders */
+    .subpath-panel.path-a .node {
+      border-left: 3px solid rgba(74, 124, 89, 0.40);
+    }
+    .subpath-panel.path-b .node {
+      border-left: 3px solid rgba(91, 143, 168, 0.40);
+    }
+    .subpath-panel.path-c .node {
+      border-left: 3px solid rgba(212, 160, 60, 0.40);
+    }
+
+    /* Sub-path header */
+    .subpath-header {
+      width: 100%;
+      max-width: 540px;
+      padding: 16px 24px;
+      border-radius: 12px;
+      margin-bottom: 16px;
+      text-align: center;
+    }
+
+    .subpath-header h3 {
+      font-size: 17px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .subpath-header p {
+      font-size: 12px;
+      opacity: 0.7;
+    }
+
+    .subpath-header.path-a {
+      background: linear-gradient(135deg, rgba(74, 124, 89, 0.12), rgba(74, 124, 89, 0.04));
+      border: 1px solid rgba(74, 124, 89, 0.20);
+    }
+    .subpath-header.path-a h3 { color: #a0d8b0; }
+    .subpath-header.path-a p { color: #7aaa88; }
+
+    .subpath-header.path-b {
+      background: linear-gradient(135deg, rgba(91, 143, 168, 0.12), rgba(91, 143, 168, 0.04));
+      border: 1px solid rgba(91, 143, 168, 0.20);
+    }
+    .subpath-header.path-b h3 { color: #a0c8d8; }
+    .subpath-header.path-b p { color: #7aa0b0; }
+
+    .subpath-header.path-c {
+      background: linear-gradient(135deg, rgba(212, 160, 60, 0.12), rgba(212, 160, 60, 0.04));
+      border: 1px solid rgba(212, 160, 60, 0.20);
+    }
+    .subpath-header.path-c h3 { color: #f0d8a0; }
+    .subpath-header.path-c p { color: #b0a070; }
+
+    /* Merge visual */
+    .merge-visual {
+      display: flex;
+      justify-content: center;
+      width: 100%;
+      max-width: 700px;
+      margin: 6px 0;
+    }
+
+    .merge-visual svg {
+      width: 100%;
+      height: 40px;
+    }
+
+    /* ══════════════════════════════════════ FOOTER ══════════════════════════════════════ */
+    .footer {
+      text-align: center;
+      margin-top: 56px;
+      padding-top: 24px;
+      border-top: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .footer p {
+      font-size: 12px;
+      color: #444460;
+      line-height: 1.7;
+    }
+
+    .footer .app-name {
+      color: #6a6a86;
+      font-weight: 700;
+    }
+
+    /* ══════════════════════════════════════ RESPONSIVE ══════════════════════════════════════ */
+    @media (max-width: 600px) {
+      .container { padding: 24px 12px 60px; }
+      .header h1 { font-size: 28px; }
+      .node { padding: 20px 18px; max-width: 100%; }
+      .node .screen-name { font-size: 17px; }
+      .legend { gap: 12px; padding: 12px 14px; }
+      .subpath-tabs { gap: 6px; }
+      .subpath-tab { padding: 6px 14px; font-size: 12px; }
+      .subpath-header { padding: 12px 16px; }
+      .subpath-header h3 { font-size: 15px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <!-- =============================== HEADER =============================== -->
+    <div class="header">
+      <div class="brand">Khujta AI &middot; Gastify</div>
+      <h1>Flujo 5: <span>Gastos Compartidos en Grupo</span></h1>
+      <p class="subtitle">
+        El usuario comparte gastos con un grupo (compas de depto, pareja, equipo de oficina).
+        Tres sub-caminos muestran distintas formas de compartir: auto-copia, lote, y administracion.
+      </p>
+      <div class="epic-badge">Epic 19 &mdash; Planificado</div>
+      <div class="nav-ref">
+        <div class="nav-item">Home</div>
+        <div class="nav-item">Trends</div>
+        <div class="nav-item fab">+ FAB</div>
+        <div class="nav-item">Reports</div>
+        <div class="nav-item">Alerts</div>
+      </div>
+    </div>
+
+    <!-- =============================== LEGEND =============================== -->
+    <div class="legend">
+      <div class="legend-item">
+        <div class="legend-dot red"></div>
+        Accion del usuario
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot amber"></div>
+        Procesando / sistema
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot blue"></div>
+        Pantalla informativa
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot green"></div>
+        Exito / completado
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot diamond"></div>
+        Momento clave
+      </div>
+    </div>
+
+    <!-- =============================== FLOW =============================== -->
+    <div class="flow">
+
+      <!-- ──────── FASE 1: Cambio de Contexto ──────── -->
+      <div class="phase-divider">
+        <div class="line"></div>
+        <div class="label">Fase 1 &mdash; Cambio de Contexto</div>
+        <div class="line"></div>
+      </div>
+
+      <!-- 01. Dashboard Personal -->
+      <div class="node blue" onclick="this.classList.toggle('expanded')">
+        <div class="step-badge">01</div>
+        <div class="screen-name">Dashboard &mdash; Vista Personal</div>
+        <div class="screen-state">poblado, contexto personal &middot; logo "G" Gastify</div>
+        <div class="user-thought">
+          <div class="thought-text">Quiero ver los gastos del departamento.</div>
+        </div>
+        <div class="nav-highlight">Tab: <span>Home</span></div>
+        <div class="screen-details">
+          <div class="detail-row"><span class="detail-icon">&#127968;</span> Vista personal con transacciones propias</div>
+          <div class="detail-row"><span class="detail-icon">&#127311;</span> Logo muestra "G" (Gastify personal)</div>
+          <div class="detail-row"><span class="detail-icon">&#128200;</span> Resumen de gastos del mes en curso</div>
+          <div class="detail-row"><span class="detail-icon">&#128100;</span> Avatar de usuario en header</div>
+        </div>
+        <div class="expand-hint">clic para detalles</div>
+      </div>
+
+      <div class="connector">
+        <div class="line"></div>
+        <div class="label">toca logo "G"</div>
+        <div class="arrow"></div>
+      </div>
+
+      <!-- 02. Group Switcher Dropdown -->
+      <div class="node red" onclick="this.classList.toggle('expanded')">
+        <div class="step-badge">02</div>
+        <div class="key-moment">Descubrimiento</div>
+        <div class="screen-name">Group Switcher Dropdown</div>
+        <div class="screen-state">overlay &middot; lista de grupos + toggle auto-copia</div>
+        <div class="user-thought">
+          <div class="thought-text">Voy al grupo 'Depto 4B'...</div>
+        </div>
+        <div class="nav-highlight">Overlay sobre <span>Home</span></div>
+        <div class="screen-details">
+          <div class="detail-row"><span class="detail-icon">&#128279;</span> Dropdown full-width bajo el header</div>
+          <div class="detail-row"><span class="detail-icon">&#127311;</span> Fila personal: "Gastify" con logo G (actual, sin toggle)</div>
+          <div class="detail-row"><span class="detail-icon">&#127968;</span> Filas de grupo: emoji + nombre + toggle auto-copia</div>
+          <div class="detail-row"><span class="detail-icon">&#128308;</span> Badges de actividad (puntos rojos) en grupos con txns no vistas</div>
+          <div class="detail-row"><span class="detail-icon">&#10133;</span> Botones "+ Crear grupo" y "Unirse" al fondo</div>
+          <div class="detail-row"><span class="detail-icon">&#128101;</span> Max 5 grupos por usuario (cualquier rol)</div>
+        </div>
+        <div class="expand-hint">clic para detalles</div>
+      </div>
+
+      <div class="connector">
+        <div class="line"></div>
+        <div class="label">selecciona "Depto 4B"</div>
+        <div class="arrow"></div>
+      </div>
+
+      <!-- 03. Select Group (action) -->
+      <div class="node red" onclick="this.classList.toggle('expanded')">
+        <div class="step-badge">03</div>
+        <div class="screen-name">Seleccionar Grupo</div>
+        <div class="screen-state">accion &middot; transicion de contexto instantanea</div>
+        <div class="user-thought">
+          <div class="thought-text">Toco "Depto 4B" y cambia al instante.</div>
+        </div>
+        <div class="screen-details">
+          <div class="detail-row"><span class="detail-icon">&#9889;</span> Animacion de cambio de contexto (sensacion instantanea)</div>
+          <div class="detail-row"><span class="detail-icon">&#128260;</span> Header cambia a mostrar icono + nombre del grupo</div>
+          <div class="detail-row"><span class="detail-icon">&#128203;</span> Feed de transacciones cambia a las del grupo</div>
+          <div class="detail-row"><span class="detail-icon">&#128274;</span> Permisos cargados segun rol (admin/miembro)</div>
+        </div>
+        <div class="expand-hint">clic para detalles</div>
+      </div>
+
+      <div class="connector">
+        <div class="line"></div>
+        <div class="label">contexto cambiado</div>
+        <div class="arrow"></div>
+      </div>
+
+      <!-- 04. Group View Home -->
+      <div class="node blue" onclick="this.classList.toggle('expanded')">
+        <div class="step-badge">04</div>
+        <div class="key-moment">Contexto seamless</div>
+        <div class="screen-name">Vista de Grupo &mdash; Home</div>
+        <div class="screen-state">feed de transacciones del grupo &middot; contexto grupal</div>
+        <div class="user-thought">
+          <div class="thought-text">Ah, Maria compro en el super ayer.</div>
+        </div>
+        <div class="nav-highlight">Tab: <span>Home</span> (contexto grupal)</div>
+        <div class="screen-details">
+          <div class="detail-row"><span class="detail-icon">&#8592;</span> TopHeader: Back + icono grupo "Depto 4B" + menu &#8942; + Avatar</div>
+          <div class="detail-row"><span class="detail-icon">&#128179;</span> GroupTransactionCard feed: badge categoria, nombre poster, comercio, monto, fecha</div>
+          <div class="detail-row"><span class="detail-icon">&#128196;</span> Items expandibles por tarjeta</div>
+          <div class="detail-row"><span class="detail-icon">&#128101;</span> Cada transaccion muestra quien la posteo</div>
+          <div class="detail-row"><span class="detail-icon">&#128274;</span> Solo admins pueden eliminar transacciones del grupo</div>
+          <div class="detail-row"><span class="detail-icon">&#127968;</span> Max 50 miembros, 5 admins por grupo</div>
+        </div>
+        <div class="expand-hint">clic para detalles</div>
+      </div>
+
+      <!-- ──────── FASE 2: Compartir Gastos ──────── -->
+      <div class="phase-divider">
+        <div class="line"></div>
+        <div class="label">Fase 2 &mdash; Compartir Gastos</div>
+        <div class="line"></div>
+      </div>
+
+      <!-- Branch split SVG -->
+      <div class="branch-intro">
+        <p>Desde el paso 4, el flujo diverge en 3 sub-caminos paralelos</p>
+      </div>
+
+      <div class="branch-split-visual">
+        <svg viewBox="0 0 700 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <line x1="350" y1="0" x2="350" y2="10" stroke="rgba(255,255,255,0.18)" stroke-width="2"/>
+          <!-- Left branch -->
+          <path d="M350 10 Q350 25 175 25" stroke="rgba(74,124,89,0.35)" stroke-width="1.5" fill="none"/>
+          <circle cx="175" cy="25" r="3" fill="rgba(74,124,89,0.5)"/>
+          <!-- Center branch -->
+          <line x1="350" y1="10" x2="350" y2="25" stroke="rgba(91,143,168,0.35)" stroke-width="1.5"/>
+          <circle cx="350" cy="25" r="3" fill="rgba(91,143,168,0.5)"/>
+          <!-- Right branch -->
+          <path d="M350 10 Q350 25 525 25" stroke="rgba(212,160,60,0.35)" stroke-width="1.5" fill="none"/>
+          <circle cx="525" cy="25" r="3" fill="rgba(212,160,60,0.5)"/>
+          <!-- Labels -->
+          <text x="175" y="38" text-anchor="middle" fill="rgba(74,124,89,0.6)" font-size="10" font-family="Outfit" font-weight="600">A</text>
+          <text x="350" y="38" text-anchor="middle" fill="rgba(91,143,168,0.6)" font-size="10" font-family="Outfit" font-weight="600">B</text>
+          <text x="525" y="38" text-anchor="middle" fill="rgba(212,160,60,0.6)" font-size="10" font-family="Outfit" font-weight="600">C</text>
+        </svg>
+      </div>
+
+      <!-- Sub-path tabs -->
+      <div class="subpath-tabs">
+        <div class="subpath-tab tab-a active" data-path="a">A &middot; Auto-Copy</div>
+        <div class="subpath-tab tab-b" data-path="b">B &middot; Batch Add</div>
+        <div class="subpath-tab tab-c" data-path="c">C &middot; Group Admin</div>
+      </div>
+
+      <!-- Sub-path content area -->
+      <div class="subpath-container">
+
+        <!-- ═══════════ SUB-PATH A: Auto-Copy ═══════════ -->
+        <div class="subpath-panel path-a active" id="panel-a">
+
+          <div class="subpath-header path-a">
+            <h3>Sub-Camino A: Auto-Copia</h3>
+            <p>Al guardar una transaccion, se copia automaticamente al grupo si el toggle esta activado</p>
+          </div>
+
+          <!-- 5a. Return to Personal + Scan -->
+          <div class="node red" onclick="this.classList.toggle('expanded')">
+            <div class="step-badge">5a</div>
+            <div class="screen-name">Volver a Personal &rarr; Escanear Boleta</div>
+            <div class="screen-state">accion &middot; vuelve a contexto personal, escanea normalmente</div>
+            <div class="user-thought">
+              <div class="thought-text">Compre en el super para el depto, voy a escanear la boleta.</div>
+            </div>
+            <div class="nav-highlight">Tab: <span>Home</span> (personal) &rarr; FAB &rarr; Scan</div>
+            <div class="screen-details">
+              <div class="detail-row"><span class="detail-icon">&#128247;</span> Cambia a contexto personal via Group Switcher</div>
+              <div class="detail-row"><span class="detail-icon">&#128260;</span> Flujo normal de escaneo: captura &rarr; AI &rarr; QuickSave/Editor</div>
+              <div class="detail-row"><span class="detail-icon">&#128190;</span> Guarda transaccion normalmente</div>
+              <div class="detail-row"><span class="detail-icon">&#129302;</span> Gemini procesa la boleta como siempre</div>
+            </div>
+            <div class="expand-hint">clic para detalles</div>
+          </div>
+
+          <div class="connector">
+            <div class="line"></div>
+            <div class="label">guarda transaccion</div>
+            <div class="arrow"></div>
+          </div>
+
+          <!-- 6a. Auto-Copy Active -->
+          <div class="node green" onclick="this.classList.toggle('expanded')">
+            <div class="celebration"></div>
+            <div class="step-badge">6a</div>
+            <div class="key-moment">Zero friction</div>
+            <div class="screen-name">Auto-Copia Activa</div>
+            <div class="screen-state">sistema automatico &middot; transaccion copiada al grupo</div>
+            <div class="user-thought">
+              <div class="thought-text">Ni tuve que hacer nada, se copio solo.</div>
+            </div>
+            <div class="nav-highlight">Toast sobre <span>Home</span></div>
+            <div class="screen-details">
+              <div class="detail-row"><span class="detail-icon">&#9989;</span> Toggle auto-copia ON para "Depto 4B" en Group Switcher</div>
+              <div class="detail-row"><span class="detail-icon">&#128260;</span> Transaccion copiada automaticamente al grupo al guardar</div>
+              <div class="detail-row"><span class="detail-icon">&#128172;</span> Toast: "Copiado a Depto 4B"</div>
+              <div class="detail-row"><span class="detail-icon">&#128274;</span> La copia en el grupo es inmutable (solo admin puede eliminar)</div>
+              <div class="detail-row"><span class="detail-icon">&#9889;</span> Cero friccion: el usuario no hace nada extra</div>
+            </div>
+            <div class="expand-hint">clic para detalles</div>
+          </div>
+
+        </div><!-- /panel-a -->
+
+        <!-- ═══════════ SUB-PATH B: Batch Add ═══════════ -->
+        <div class="subpath-panel path-b" id="panel-b">
+
+          <div class="subpath-header path-b">
+            <h3>Sub-Camino B: Agregar en Lote</h3>
+            <p>Seleccionar varias transacciones del historial y agregarlas al grupo de una sola vez</p>
+          </div>
+
+          <!-- 5b. History Selection Mode -->
+          <div class="node blue" onclick="this.classList.toggle('expanded')">
+            <div class="step-badge">5b</div>
+            <div class="screen-name">Historial &rarr; Modo Seleccion</div>
+            <div class="screen-state">seleccion activa &middot; checkboxes en transacciones</div>
+            <div class="user-thought">
+              <div class="thought-text">Estas 3 son del departamento.</div>
+            </div>
+            <div class="nav-highlight">Tab: <span>Home</span> (historial personal)</div>
+            <div class="screen-details">
+              <div class="detail-row"><span class="detail-icon">&#128073;</span> Long-press en transaccion activa modo seleccion</div>
+              <div class="detail-row"><span class="detail-icon">&#9745;</span> Checkboxes aparecen en cada TransactionCard</div>
+              <div class="detail-row"><span class="detail-icon">&#128203;</span> Selecciona 3 transacciones</div>
+              <div class="detail-row"><span class="detail-icon">&#128204;</span> SelectionBar: "3 seleccionadas" + boton "Agregar a Grupo"</div>
+            </div>
+            <div class="expand-hint">clic para detalles</div>
+          </div>
+
+          <div class="connector">
+            <div class="line"></div>
+            <div class="label">toca "Agregar a Grupo"</div>
+            <div class="arrow"></div>
+          </div>
+
+          <!-- 6b. Group Picker Dialog -->
+          <div class="node amber" onclick="this.classList.toggle('expanded')">
+            <div class="step-badge">6b</div>
+            <div class="screen-name">Dialogo Selector de Grupo</div>
+            <div class="screen-state">lista de grupos del usuario &middot; confirmacion</div>
+            <div class="user-thought">
+              <div class="thought-text">Si, agregar al Depto 4B.</div>
+            </div>
+            <div class="nav-highlight">Modal sobre <span>Home</span></div>
+            <div class="screen-details">
+              <div class="detail-row"><span class="detail-icon">&#128101;</span> Lista de grupos del usuario</div>
+              <div class="detail-row"><span class="detail-icon">&#127968;</span> Toca "Depto 4B"</div>
+              <div class="detail-row"><span class="detail-icon">&#10067;</span> Confirmacion: "Agregar 3 transacciones a Depto 4B?"</div>
+              <div class="detail-row"><span class="detail-icon">&#128274;</span> Solo grupos donde el usuario es miembro</div>
+            </div>
+            <div class="expand-hint">clic para detalles</div>
+          </div>
+
+          <div class="connector">
+            <div class="line"></div>
+            <div class="label">confirma</div>
+            <div class="arrow"></div>
+          </div>
+
+          <!-- 7b. Success Toast -->
+          <div class="node green" onclick="this.classList.toggle('expanded')">
+            <div class="celebration"></div>
+            <div class="step-badge">7b</div>
+            <div class="key-moment">Lote rapido</div>
+            <div class="screen-name">Toast de Exito</div>
+            <div class="screen-state">agregado &middot; 3 transacciones copiadas al grupo</div>
+            <div class="user-thought">
+              <div class="thought-text">Listo, las 3 quedaron en el grupo al tiro.</div>
+            </div>
+            <div class="nav-highlight">Toast sobre <span>Home</span></div>
+            <div class="screen-details">
+              <div class="detail-row"><span class="detail-icon">&#128172;</span> "3 transacciones agregadas a Depto 4B"</div>
+              <div class="detail-row"><span class="detail-icon">&#9989;</span> Modo seleccion se desactiva automaticamente</div>
+              <div class="detail-row"><span class="detail-icon">&#128260;</span> Copias inmutables creadas en el grupo</div>
+              <div class="detail-row"><span class="detail-icon">&#9889;</span> Batch sharing es rapido: 3 taps total</div>
+            </div>
+            <div class="expand-hint">clic para detalles</div>
+          </div>
+
+        </div><!-- /panel-b -->
+
+        <!-- ═══════════ SUB-PATH C: Group Admin ═══════════ -->
+        <div class="subpath-panel path-c" id="panel-c">
+
+          <div class="subpath-header path-c">
+            <h3>Sub-Camino C: Administracion del Grupo</h3>
+            <p>El admin gestiona miembros y genera links de invitacion para compartir</p>
+          </div>
+
+          <!-- 5c. Group Options > Admin Panel -->
+          <div class="node red" onclick="this.classList.toggle('expanded')">
+            <div class="step-badge">5c</div>
+            <div class="screen-name">Vista de Grupo &rarr; Admin Panel</div>
+            <div class="screen-state">accion &middot; menu opciones &rarr; "Administrar grupo"</div>
+            <div class="user-thought">
+              <div class="thought-text">Quiero agregar a mi companero nuevo.</div>
+            </div>
+            <div class="nav-highlight">Tab: <span>Home</span> (grupo) &rarr; &#8942; menu</div>
+            <div class="screen-details">
+              <div class="detail-row"><span class="detail-icon">&#9881;</span> Toca menu &#8942; en header del grupo</div>
+              <div class="detail-row"><span class="detail-icon">&#128203;</span> Opciones: Administrar grupo, Configuracion, Salir</div>
+              <div class="detail-row"><span class="detail-icon">&#128274;</span> "Administrar grupo" solo visible para admins</div>
+              <div class="detail-row"><span class="detail-icon">&#128100;</span> Admin puede editar nombre, icono, color del grupo</div>
+            </div>
+            <div class="expand-hint">clic para detalles</div>
+          </div>
+
+          <div class="connector">
+            <div class="line"></div>
+            <div class="label">abre panel admin</div>
+            <div class="arrow"></div>
+          </div>
+
+          <!-- 6c. Admin Panel -->
+          <div class="node blue" onclick="this.classList.toggle('expanded')">
+            <div class="step-badge">6c</div>
+            <div class="screen-name">Panel de Administracion</div>
+            <div class="screen-state">lista de miembros &middot; roles &middot; invitaciones</div>
+            <div class="user-thought">
+              <div class="thought-text">Le mando el link por WhatsApp.</div>
+            </div>
+            <div class="nav-highlight">Pantalla: <span>Admin Panel</span></div>
+            <div class="screen-details">
+              <div class="detail-row"><span class="detail-icon">&#128101;</span> Lista de miembros con roles (Admin/Miembro)</div>
+              <div class="detail-row"><span class="detail-icon">&#128279;</span> Boton "Generar Link de Invitacion"</div>
+              <div class="detail-row"><span class="detail-icon">&#128100;</span> Cambiar rol de miembros (admin puede promover/degradar)</div>
+              <div class="detail-row"><span class="detail-icon">&#128465;</span> Eliminar miembros del grupo</div>
+              <div class="detail-row"><span class="detail-icon">&#9881;</span> Editar nombre, icono, color del grupo (updateGroup CF)</div>
+            </div>
+            <div class="expand-hint">clic para detalles</div>
+          </div>
+
+          <div class="connector">
+            <div class="line"></div>
+            <div class="label">genera link</div>
+            <div class="arrow"></div>
+          </div>
+
+          <!-- 7c. Invite Link Generator -->
+          <div class="node green" onclick="this.classList.toggle('expanded')">
+            <div class="celebration"></div>
+            <div class="step-badge">7c</div>
+            <div class="key-moment">Invitar facil</div>
+            <div class="screen-name">Generador de Link de Invitacion</div>
+            <div class="screen-state">link listo &middot; compartir via native share sheet</div>
+            <div class="user-thought">
+              <div class="thought-text">Copio el link y lo mando por WhatsApp. Facil.</div>
+            </div>
+            <div class="nav-highlight">Modal sobre <span>Admin Panel</span></div>
+            <div class="screen-details">
+              <div class="detail-row"><span class="detail-icon">&#128279;</span> Link de invitacion generado con expiracion</div>
+              <div class="detail-row"><span class="detail-icon">&#128203;</span> Botones: Compartir / Copiar</div>
+              <div class="detail-row"><span class="detail-icon">&#128241;</span> Share via native share sheet (WhatsApp, Telegram, etc.)</div>
+              <div class="detail-row"><span class="detail-icon">&#9202;</span> Info de expiracion del link visible</div>
+              <div class="detail-row"><span class="detail-icon">&#128274;</span> Solo admins pueden generar links</div>
+              <div class="detail-row"><span class="detail-icon">&#128101;</span> Nuevo miembro entra como "Miembro" por defecto</div>
+            </div>
+            <div class="expand-hint">clic para detalles</div>
+          </div>
+
+        </div><!-- /panel-c -->
+
+      </div><!-- /subpath-container -->
+
+      <!-- Merge visual -->
+      <div class="merge-visual">
+        <svg viewBox="0 0 700 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Left branch -->
+          <path d="M175 5 Q350 5 350 20" stroke="rgba(74,124,89,0.30)" stroke-width="1.5" fill="none"/>
+          <circle cx="175" cy="5" r="3" fill="rgba(74,124,89,0.4)"/>
+          <!-- Center branch -->
+          <line x1="350" y1="5" x2="350" y2="20" stroke="rgba(91,143,168,0.30)" stroke-width="1.5"/>
+          <circle cx="350" cy="5" r="3" fill="rgba(91,143,168,0.4)"/>
+          <!-- Right branch -->
+          <path d="M525 5 Q350 5 350 20" stroke="rgba(212,160,60,0.30)" stroke-width="1.5" fill="none"/>
+          <circle cx="525" cy="5" r="3" fill="rgba(212,160,60,0.4)"/>
+          <!-- Merge point -->
+          <line x1="350" y1="20" x2="350" y2="32" stroke="rgba(255,255,255,0.18)" stroke-width="2"/>
+          <polygon points="344,32 356,32 350,40" fill="rgba(255,255,255,0.18)"/>
+        </svg>
+      </div>
+
+      <!-- ──────── FASE 3: Resultado ──────── -->
+      <div class="phase-divider">
+        <div class="line"></div>
+        <div class="label">Fase 3 &mdash; Resultado</div>
+        <div class="line"></div>
+      </div>
+
+      <!-- 08. Dashboard Updated -->
+      <div class="node green" onclick="this.classList.toggle('expanded')">
+        <div class="celebration"></div>
+        <div class="step-badge">08</div>
+        <div class="key-moment">Ciclo completo</div>
+        <div class="screen-name">Dashboard &mdash; Actualizado</div>
+        <div class="screen-state">personal o grupal &middot; gastos compartidos reflejados</div>
+        <div class="user-thought">
+          <div class="thought-text">Todos los gastos del depto estan al dia. El grupo funciona solo.</div>
+        </div>
+        <div class="nav-highlight">Tab: <span>Home</span></div>
+        <div class="screen-details">
+          <div class="detail-row"><span class="detail-icon">&#128200;</span> Gastos compartidos reflejados en ambos contextos</div>
+          <div class="detail-row"><span class="detail-icon">&#128260;</span> Group Switcher muestra badge de actividad actualizado</div>
+          <div class="detail-row"><span class="detail-icon">&#127968;</span> Contexto personal o grupal segun donde termino el usuario</div>
+          <div class="detail-row"><span class="detail-icon">&#128101;</span> Otros miembros del grupo ven las transacciones nuevas</div>
+          <div class="detail-row"><span class="detail-icon">&#9989;</span> Datos denormalizados en memberProfiles del group doc</div>
+          <div class="detail-row"><span class="detail-icon">&#128260;</span> El ciclo se repite: escanear &rarr; compartir &rarr; revisar</div>
+        </div>
+        <div class="expand-hint">clic para detalles</div>
+      </div>
+
+      <!-- Cycle summary -->
+      <div class="connector">
+        <div class="line"></div>
+        <div class="arrow"></div>
+      </div>
+
+      <div style="width: 100%; max-width: 540px; position: relative; display: flex; flex-direction: column; align-items: center;">
+        <div style="width: 100%; border: 1.5px dashed rgba(74,124,89,0.25); border-radius: 16px; padding: 24px 28px; background: linear-gradient(135deg, rgba(74,124,89,0.06), rgba(91,143,168,0.04)); cursor: pointer; transition: transform 0.3s ease, box-shadow 0.3s ease;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 28px rgba(74,124,89,0.1)';" onmouseout="this.style.transform=''; this.style.boxShadow='';" onclick="this.classList.toggle('expanded')">
+          <div style="font-size: 18px; font-weight: 700; color: #a0d8b0; margin-bottom: 4px;">Ciclo Continuo</div>
+          <div style="font-size: 13px; color: var(--muted); font-weight: 600; margin-bottom: 12px;">Escanear &#8594; Compartir &#8594; Revisar &#8594; Repetir</div>
+          <div style="font-size: 13px; font-style: italic; color: #a0c4a8; background: rgba(74,124,89,0.06); padding: 10px 14px; border-radius: 10px; line-height: 1.5; position: relative;">
+            <span style="font-size: 28px; position: absolute; top: 0; left: 6px; opacity: 0.2; font-style: normal; font-weight: 700;">&#8220;</span>
+            <span style="padding-left: 14px; display: block;">Cada vez que alguien del grupo escanea, todos ven los gastos. Ya no tenemos que preguntar "cuanto pagaste".</span>
+          </div>
+        </div>
+
+        <!-- Loop arrow SVG -->
+        <svg style="margin-top: 12px; opacity: 0.35;" width="120" height="50" viewBox="0 0 120 50" fill="none">
+          <path d="M60 2 C20 2, 4 20, 4 32 C4 44, 20 48, 40 48" stroke="rgba(255,255,255,0.18)" stroke-width="1.5" fill="none" stroke-dasharray="4 3"/>
+          <path d="M36 43 L40 48 L34 48 Z" fill="rgba(255,255,255,0.18)"/>
+          <path d="M60 2 C100 2, 116 20, 116 32 C116 44, 100 48, 80 48" stroke="rgba(255,255,255,0.18)" stroke-width="1.5" fill="none" stroke-dasharray="4 3"/>
+          <path d="M84 43 L80 48 L86 48 Z" fill="rgba(255,255,255,0.18)"/>
+        </svg>
+      </div>
+
+    </div><!-- /flow -->
+
+    <!-- =============================== FOOTER =============================== -->
+    <div class="footer">
+      <p>
+        <span class="app-name">Gastify</span> &mdash; Tu tracker de gastos inteligente
+        <br>Flujo de usuario v1.0 &middot; Epic 19 (Planificado) &middot; Khujta AI &middot; 2026
+      </p>
+    </div>
+
+  </div><!-- /container -->
+
+  <script>
+    // ── Sub-path tab switching ──
+    const tabs = document.querySelectorAll('.subpath-tab');
+    const panels = document.querySelectorAll('.subpath-panel');
+
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        const path = tab.dataset.path;
+
+        // Update tabs
+        tabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+
+        // Update panels
+        panels.forEach(p => p.classList.remove('active'));
+        document.getElementById('panel-' + path).classList.add('active');
+      });
+    });
+
+    // ── Smooth scroll for expanded nodes ──
+    document.querySelectorAll('.node').forEach(node => {
+      node.addEventListener('click', () => {
+        setTimeout(() => {
+          if (node.classList.contains('expanded')) {
+            node.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          }
+        }, 80);
+      });
+    });
+
+    // ── Entrance animations on scroll ──
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.style.opacity = '1';
+          entry.target.style.transform = 'translateY(0)';
+        }
+      });
+    }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+
+    document.querySelectorAll('.node, .phase-divider, .subpath-header, .branch-intro, .branch-split-visual, .subpath-tabs, .merge-visual').forEach((el, i) => {
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(24px)';
+      el.style.transition = `opacity 0.6s ease ${i * 0.03}s, transform 0.6s ease ${i * 0.03}s`;
+      observer.observe(el);
+    });
+
+    // ── Preserve hover transitions after entrance animation ──
+    document.querySelectorAll('.node').forEach(node => {
+      node.addEventListener('mouseenter', () => {
+        node.style.transition = 'opacity 0.6s ease, transform 0.3s ease, box-shadow 0.3s ease';
+      });
+    });
+
+    // ── Highlight active nav item on node hover ──
+    const navItems = document.querySelectorAll('.nav-ref .nav-item');
+    const navMap = { 'Home': 0, 'Trends': 1, 'FAB': 2, 'Reports': 3, 'Alerts': 4 };
+
+    document.querySelectorAll('.node').forEach(node => {
+      const highlight = node.querySelector('.nav-highlight span');
+      if (!highlight) return;
+      const tabName = highlight.textContent.trim();
+      const idx = navMap[tabName];
+
+      node.addEventListener('mouseenter', () => {
+        if (idx !== undefined) {
+          navItems[idx].classList.add('active-in-step');
+        }
+      });
+
+      node.addEventListener('mouseleave', () => {
+        navItems.forEach(n => n.classList.remove('active-in-step'));
+      });
+    });
+
+    // ── Re-run entrance animation when switching tabs (for newly visible nodes) ──
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        setTimeout(() => {
+          const activePanel = document.querySelector('.subpath-panel.active');
+          if (!activePanel) return;
+          activePanel.querySelectorAll('.node, .subpath-header').forEach((el, i) => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(16px)';
+            el.style.transition = `opacity 0.4s ease ${i * 0.06}s, transform 0.4s ease ${i * 0.06}s`;
+            requestAnimationFrame(() => {
+              el.style.opacity = '1';
+              el.style.transform = 'translateY(0)';
+            });
+          });
+        }, 10);
+      });
+    });
+  </script>
+</body>
+</html>

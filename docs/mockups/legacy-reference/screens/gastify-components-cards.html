@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Component Library — Cards & Patterns — Gastify</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Baloo+2:wght@700&display=swap" rel="stylesheet">
+  <style>
+    /* ── Normal Light (default) ── */
+    :root {
+      --bg: #f5f0e8; --surface: #fff; --primary: #4a7c59; --text: #2d3a4a;
+      --secondary: #4a5568; --accent: #e8a87c; --border: #e3bba1;
+      --bg-tertiary: #f1dbb6; --secondary-color: #5b8fa8;
+      --primary-rgb: 74, 124, 89; --nav-bg: #4a5568;
+      --shadow: rgba(74,124,89,0.12); --shadow-lg: rgba(74,124,89,0.18);
+      --fab-gradient-from: #4a7c59; --fab-gradient-to: #3d6b4b;
+    }
+    /* ── Normal Dark ── */
+    [data-theme="normal"][data-mode="dark"] {
+      --bg: #1a2420; --surface: #243028; --primary: #6b9e7a; --text: #e8e4dc;
+      --secondary: #b8c4a8; --border: #3d4d42; --bg-tertiary: #2d3a30;
+      --secondary-color: #7ab5cc; --primary-rgb: 107,158,122;
+      --nav-bg: #1e2a22; --shadow: rgba(0,0,0,0.3); --shadow-lg: rgba(0,0,0,0.4);
+      --accent: #d4a574; --fab-gradient-from: #6b9e7a; --fab-gradient-to: #5a8a68;
+    }
+    /* ── Professional Light ── */
+    [data-theme="professional"][data-mode="light"] {
+      --bg: #f8fafc; --surface: #fff; --primary: #2563eb; --text: #0f172a;
+      --secondary: #64748b; --accent: #3b82f6; --border: #e2e8f0;
+      --bg-tertiary: #f1f5f9; --secondary-color: #0ea5e9;
+      --primary-rgb: 37,99,235; --nav-bg: #1e293b;
+      --shadow: rgba(37,99,235,0.08); --shadow-lg: rgba(37,99,235,0.12);
+      --fab-gradient-from: #2563eb; --fab-gradient-to: #1d4ed8;
+    }
+    /* ── Professional Dark ── */
+    [data-theme="professional"][data-mode="dark"] {
+      --bg: #0f172a; --surface: #1e293b; --primary: #3b82f6; --text: #f1f5f9;
+      --secondary: #94a3b8; --accent: #60a5fa; --border: #334155;
+      --bg-tertiary: #1e293b; --secondary-color: #38bdf8;
+      --primary-rgb: 59,130,246; --nav-bg: #0f172a;
+      --shadow: rgba(0,0,0,0.3); --shadow-lg: rgba(0,0,0,0.4);
+      --fab-gradient-from: #3b82f6; --fab-gradient-to: #2563eb;
+    }
+    /* ── Mono Light ── */
+    [data-theme="mono"][data-mode="light"] {
+      --bg: #fafafa; --surface: #fff; --primary: #18181b; --text: #18181b;
+      --secondary: #71717a; --accent: #52525b; --border: #e4e4e7;
+      --bg-tertiary: #f4f4f5; --secondary-color: #3f3f46;
+      --primary-rgb: 24,24,27; --nav-bg: #27272a;
+      --shadow: rgba(0,0,0,0.06); --shadow-lg: rgba(0,0,0,0.1);
+      --fab-gradient-from: #18181b; --fab-gradient-to: #27272a;
+    }
+    /* ── Mono Dark ── */
+    [data-theme="mono"][data-mode="dark"] {
+      --bg: #09090b; --surface: #18181b; --primary: #a1a1aa; --text: #fafafa;
+      --secondary: #a1a1aa; --accent: #71717a; --border: #27272a;
+      --bg-tertiary: #18181b; --secondary-color: #71717a;
+      --primary-rgb: 63,63,70; --nav-bg: #09090b;
+      --shadow: rgba(0,0,0,0.4); --shadow-lg: rgba(0,0,0,0.5);
+      --fab-gradient-from: #3f3f46; --fab-gradient-to: #27272a;
+    }
+
+    /* ══════════════ BASE ══════════════ */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: var(--bg); font-family: 'Outfit', system-ui, sans-serif;
+      min-height: 100vh; padding: 24px; color: var(--text);
+      transition: background 0.3s, color 0.3s;
+    }
+
+    /* ══════════════ CONTROLS ══════════════ */
+    .controls {
+      display: flex; align-items: center; justify-content: center;
+      gap: 16px; flex-wrap: wrap; margin-bottom: 24px;
+      position: sticky; top: 0; z-index: 100;
+      background: var(--nav-bg); padding: 12px 20px; border-radius: 14px;
+    }
+    .theme-tabs, .variant-tabs {
+      display: flex; background: rgba(255,255,255,0.08);
+      border-radius: 10px; padding: 3px; gap: 2px;
+    }
+    .theme-tab {
+      padding: 6px 16px; border: none; background: transparent;
+      color: rgba(255,255,255,0.5); font-family: 'Outfit', sans-serif;
+      font-weight: 500; font-size: 13px; border-radius: 8px; cursor: pointer;
+      transition: all 0.2s;
+    }
+    .theme-tab:hover { color: rgba(255,255,255,0.8); }
+    .theme-tab.active { background: rgba(255,255,255,0.15); color: #fff; }
+    .mode-toggle {
+      display: flex; align-items: center; gap: 6px;
+      color: rgba(255,255,255,0.7); font-size: 12px; font-weight: 500;
+    }
+    .toggle-switch {
+      width: 40px; height: 22px; background: rgba(255,255,255,0.15);
+      border-radius: 11px; cursor: pointer; position: relative; transition: background 0.2s;
+    }
+    .toggle-switch.dark { background: rgba(255,255,255,0.3); }
+    .toggle-switch::after {
+      content: ''; position: absolute; width: 16px; height: 16px;
+      background: #fff; border-radius: 50%; top: 3px; left: 3px; transition: transform 0.2s;
+    }
+    .toggle-switch.dark::after { transform: translateX(18px); }
+
+    /* ══════════════ PAGE TITLE ══════════════ */
+    .page-title {
+      font-family: 'Baloo 2', cursive; font-size: 22px; text-align: center;
+      margin-bottom: 28px; color: var(--primary);
+    }
+
+    /* ══════════════ SECTION ══════════════ */
+    .section { margin-bottom: 36px; }
+    .section-title {
+      font-size: 15px; font-weight: 700; color: var(--primary);
+      text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 16px;
+      padding-bottom: 8px; border-bottom: 2px solid var(--border);
+    }
+
+    /* ══════════════ GRID ══════════════ */
+    .grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+      gap: 20px;
+    }
+
+    /* ══════════════ COMPONENT CARD (wrapper) ══════════════ */
+    .comp-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 16px; overflow: hidden;
+      box-shadow: 0 2px 8px var(--shadow);
+    }
+    .comp-label {
+      padding: 8px 14px; font-size: 11px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 1px;
+      background: var(--bg-tertiary); color: var(--secondary);
+      border-bottom: 1px solid var(--border);
+    }
+    .comp-body { padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+
+    /* ══════════════ SHARED MINI STYLES ══════════════ */
+    .mini { font-size: 13px; line-height: 1.4; }
+    .row { display: flex; align-items: center; }
+    .col { display: flex; flex-direction: column; }
+    .gap4 { gap: 4px; } .gap6 { gap: 6px; } .gap8 { gap: 8px; } .gap10 { gap: 10px; }
+    .gap2 { gap: 2px; }
+    .between { justify-content: space-between; }
+    .flex1 { flex: 1; min-width: 0; }
+    .center { align-items: center; justify-content: center; }
+    .wrap { flex-wrap: wrap; }
+    .text-s { font-size: 11px; } .text-xs { font-size: 10px; }
+    .text-m { font-size: 13px; } .text-l { font-size: 15px; }
+    .fw500 { font-weight: 500; } .fw600 { font-weight: 600; } .fw700 { font-weight: 700; }
+    .clr-sec { color: var(--secondary); } .clr-pri { color: var(--primary); }
+    .clr-txt { color: var(--text); }
+    .truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    /* ── Pill / badge ── */
+    .pill {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 2px 8px; border-radius: 99px; font-size: 10px; font-weight: 600;
+      background: rgba(var(--primary-rgb), 0.1); color: var(--primary);
+    }
+    .pill-accent { background: var(--accent); color: #fff; }
+    .pill-outline { background: transparent; border: 1px solid var(--border); color: var(--secondary); }
+
+    /* ── Icon circle ── */
+    .icon-circle {
+      width: 36px; height: 36px; border-radius: 50%; display: flex;
+      align-items: center; justify-content: center; font-size: 18px;
+      background: rgba(var(--primary-rgb), 0.12); flex-shrink: 0;
+    }
+    .icon-circle-sm { width: 28px; height: 28px; font-size: 14px; }
+
+    /* ── Chevron ── */
+    .chevron { color: var(--secondary); font-size: 16px; opacity: 0.5; flex-shrink: 0; }
+
+    /* ── Button ── */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      padding: 8px 18px; border: none; border-radius: 10px; font-family: 'Outfit', sans-serif;
+      font-size: 13px; font-weight: 600; cursor: pointer; transition: opacity 0.2s;
+    }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--secondary); }
+    .btn-ghost { background: transparent; color: var(--primary); padding: 6px 10px; }
+    .btn-danger { background: #ef4444; color: #fff; }
+
+    /* ── Checkbox ── */
+    .checkbox {
+      width: 18px; height: 18px; border: 2px solid var(--border); border-radius: 4px;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .checkbox.checked { background: var(--primary); border-color: var(--primary); color: #fff; font-size: 11px; }
+
+    /* ── TransactionCard ── */
+    .txn-card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+      padding: 12px; transition: border-color 0.2s;
+    }
+    .txn-card.selected { border-color: var(--primary); border-width: 2px; padding: 11px; }
+
+    /* ── Trend ── */
+    .trend-up { color: #ef4444; } .trend-down { color: #22c55e; }
+
+    /* ── Blue dot (unread) ── */
+    .dot-unread {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--secondary-color); flex-shrink: 0;
+    }
+
+    /* ── Header bar ── */
+    .header-bar {
+      display: flex; align-items: center; gap: 10px; padding: 10px 14px;
+      background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    }
+    .header-bar .logo-text { font-family: 'Baloo 2', cursive; font-size: 18px; color: var(--primary); }
+    .avatar {
+      width: 28px; height: 28px; border-radius: 50%; font-size: 11px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(var(--primary-rgb), 0.15); color: var(--primary); flex-shrink: 0;
+    }
+    .back-arrow { font-size: 18px; cursor: pointer; color: var(--text); flex-shrink: 0; }
+    .credit-badge {
+      padding: 2px 7px; border-radius: 8px; font-size: 10px; font-weight: 700;
+      background: rgba(var(--primary-rgb), 0.1); color: var(--primary);
+    }
+
+    /* ── Filter elements ── */
+    .filter-pill {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 6px 12px; border-radius: 99px; font-size: 12px; font-weight: 500;
+      background: var(--surface); border: 1px solid var(--border); color: var(--text);
+      cursor: pointer;
+    }
+    .filter-pill.active { border-color: var(--primary); background: rgba(var(--primary-rgb), 0.08); }
+    .dropdown-panel {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+      padding: 10px; margin-top: 6px; box-shadow: 0 4px 12px var(--shadow-lg);
+    }
+    .month-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
+    .month-cell {
+      padding: 6px; text-align: center; border-radius: 8px; font-size: 11px;
+      font-weight: 500; cursor: pointer; color: var(--text);
+    }
+    .month-cell:hover { background: rgba(var(--primary-rgb), 0.08); }
+    .month-cell.active { background: var(--primary); color: #fff; }
+    .check-list-item {
+      display: flex; align-items: center; gap: 8px; padding: 6px 4px;
+      font-size: 12px; color: var(--text);
+    }
+    .icon-filter-bar {
+      display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px;
+    }
+    .icon-filter-item {
+      display: flex; flex-direction: column; align-items: center; gap: 2px;
+      padding: 6px 10px; font-size: 18px; cursor: pointer; border-radius: 8px;
+      position: relative; flex-shrink: 0;
+    }
+    .icon-filter-item.active::after {
+      content: ''; position: absolute; bottom: 0; left: 25%; right: 25%;
+      height: 2px; background: var(--primary); border-radius: 1px;
+    }
+    .chip {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 4px 10px; border-radius: 99px; font-size: 11px; font-weight: 500;
+      background: rgba(var(--primary-rgb), 0.1); color: var(--primary);
+    }
+    .chip-x { cursor: pointer; font-size: 13px; opacity: 0.6; }
+
+    /* ── Error / Empty state ── */
+    .state-card {
+      display: flex; flex-direction: column; align-items: center; text-align: center;
+      padding: 24px 16px; gap: 8px;
+    }
+    .state-icon { font-size: 40px; margin-bottom: 4px; }
+    .state-title { font-size: 15px; font-weight: 700; color: var(--text); }
+    .state-desc { font-size: 12px; color: var(--secondary); max-width: 220px; }
+    .state-actions { display: flex; gap: 8px; margin-top: 8px; }
+    .error-id { font-size: 10px; font-family: monospace; color: var(--secondary); opacity: 0.6; }
+
+    /* ══════════════ RESPONSIVE ══════════════ */
+    @media (max-width: 700px) {
+      .grid { grid-template-columns: 1fr; }
+      body { padding: 12px; }
+    }
+  </style>
+</head>
+<body data-theme="normal" data-mode="light">
+
+<!-- ══════════════ CONTROLS ══════════════ -->
+<div class="controls">
+  <div class="theme-tabs">
+    <button class="theme-tab active" data-theme-val="normal">Normal</button>
+    <button class="theme-tab" data-theme-val="professional">Professional</button>
+    <button class="theme-tab" data-theme-val="mono">Mono</button>
+  </div>
+  <div class="mode-toggle">
+    <span>Light</span>
+    <div class="toggle-switch" id="modeToggle"></div>
+    <span>Dark</span>
+  </div>
+</div>
+
+<h1 class="page-title">Gastify Component Library — Cards & Patterns</h1>
+
+<!-- ═══════════════════════════════════════
+     SECTION 1: CARDS
+     ═══════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">1. Cards</div>
+  <div class="grid">
+
+    <!-- TransactionCard -->
+    <div class="comp-card">
+      <div class="comp-label">TransactionCard</div>
+      <div class="comp-body">
+        <!-- Normal state -->
+        <div class="txn-card">
+          <div class="row between">
+            <div class="row gap8">
+              <div class="icon-circle">&#x1F6D2;</div>
+              <div class="col gap2">
+                <span class="text-m fw600 clr-txt truncate">Supermercado Lider</span>
+                <span class="text-s clr-sec">15 Mar 2026, 14:30</span>
+              </div>
+            </div>
+            <div class="row gap8">
+              <div class="col gap2" style="align-items:flex-end">
+                <span class="text-m fw700 clr-txt">$45.890</span>
+                <span class="text-xs clr-sec">Temuco</span>
+              </div>
+              <span class="chevron">&#x203A;</span>
+            </div>
+          </div>
+        </div>
+        <!-- Selected state -->
+        <div class="txn-card selected">
+          <div class="row between">
+            <div class="row gap8">
+              <div class="checkbox checked">&#x2713;</div>
+              <div class="icon-circle">&#x1F6D2;</div>
+              <div class="col gap2">
+                <span class="text-m fw600 clr-txt truncate">Supermercado Lider</span>
+                <span class="text-s clr-sec">15 Mar 2026, 14:30</span>
+              </div>
+            </div>
+            <div class="col gap2" style="align-items:flex-end">
+              <span class="text-m fw700 clr-txt">$45.890</span>
+              <span class="text-xs clr-sec">Temuco</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AggregatedItemCard -->
+    <div class="comp-card">
+      <div class="comp-label">AggregatedItemCard</div>
+      <div class="comp-body">
+        <div class="txn-card">
+          <div class="col gap6">
+            <div class="row between">
+              <span class="text-m fw600 clr-txt">Leche entera</span>
+              <span class="pill">3 compras</span>
+            </div>
+            <div class="row gap4 wrap">
+              <span class="text-xs pill-outline pill">Lider</span>
+              <span class="text-xs pill-outline pill">Jumbo</span>
+              <span class="text-xs pill-outline pill">Unimarc</span>
+            </div>
+            <div class="row between" style="margin-top:2px">
+              <div class="col gap2">
+                <span class="text-xs clr-sec">Total</span>
+                <span class="text-m fw700 clr-txt">$8.670</span>
+              </div>
+              <div class="col gap2" style="align-items:flex-end">
+                <span class="text-xs clr-sec">Promedio</span>
+                <span class="text-m fw600 clr-txt">$2.890</span>
+              </div>
+              <div class="row gap4 center">
+                <span class="trend-down fw600 text-m">&#x2193;</span>
+                <span class="trend-down text-xs fw500">-5%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ItemCard -->
+    <div class="comp-card">
+      <div class="comp-label">ItemCard</div>
+      <div class="comp-body">
+        <div class="txn-card">
+          <div class="row between">
+            <div class="col gap2 flex1">
+              <span class="text-m fw600 clr-txt">Pan de molde</span>
+              <span class="text-xs clr-sec">Supermercado Lider &middot; 15 Mar</span>
+              <div class="row gap4" style="margin-top:2px">
+                <span class="text-xs clr-sec">1 un</span>
+                <span class="text-xs clr-sec">&middot;</span>
+                <span class="text-xs clr-sec">&#x1F1E8;&#x1F1F1; Temuco</span>
+                <span class="text-xs clr-sec">&middot;</span>
+                <span class="text-xs clr-sec">Panaderia</span>
+              </div>
+            </div>
+            <span class="text-m fw700 clr-txt" style="white-space:nowrap">$2.450</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- InsightCard -->
+    <div class="comp-card">
+      <div class="comp-label">InsightCard</div>
+      <div class="comp-body">
+        <div class="txn-card">
+          <div class="row gap10">
+            <div class="icon-circle" style="font-size:20px">&#x1F4A1;</div>
+            <div class="col gap2 flex1">
+              <span class="text-m fw600 clr-txt">Gasto en comida aumento 15%</span>
+              <span class="text-xs clr-sec">Comparado con el mes anterior</span>
+              <span class="text-xs clr-sec" style="opacity:0.6">Hace 2 dias</span>
+            </div>
+            <span class="chevron">&#x203A;</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ReportRow -->
+    <div class="comp-card">
+      <div class="comp-label">ReportRow</div>
+      <div class="comp-body">
+        <div class="txn-card">
+          <div class="row gap8">
+            <div class="dot-unread"></div>
+            <div class="icon-circle icon-circle-sm">&#x1F4CA;</div>
+            <div class="col gap2 flex1">
+              <span class="text-m fw600 clr-txt">Semana 12</span>
+              <span class="text-xs clr-sec">47 transacciones</span>
+            </div>
+            <div class="col gap2" style="align-items:flex-end">
+              <span class="text-m fw700 clr-txt">$234.500</span>
+              <span class="trend-up text-xs fw600">&#x2191; 8%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /grid -->
+</div><!-- /section -->
+
+<!-- ═══════════════════════════════════════
+     SECTION 2: HEADERS
+     ═══════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">2. Headers</div>
+  <div class="grid">
+
+    <!-- Home Header -->
+    <div class="comp-card">
+      <div class="comp-label">Home Header</div>
+      <div class="comp-body">
+        <div class="header-bar">
+          <img src="piggy-bank.png" alt="Gastify" width="28" height="28" style="image-rendering:pixelated">
+          <span class="header-bar .logo-text logo-text">Gastify</span>
+          <div style="flex:1"></div>
+          <span class="credit-badge">100</span>
+          <span class="credit-badge">1K</span>
+          <div class="avatar">GA</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Detail Header -->
+    <div class="comp-card">
+      <div class="comp-label">Detail Header</div>
+      <div class="comp-body">
+        <div class="header-bar">
+          <span class="back-arrow">&#x2039;</span>
+          <span class="text-l fw600 clr-txt">Compras</span>
+          <div style="flex:1"></div>
+          <div class="avatar">GA</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Settings Header -->
+    <div class="comp-card">
+      <div class="comp-label">Settings Header</div>
+      <div class="comp-body">
+        <div class="header-bar">
+          <span class="back-arrow">&#x2039;</span>
+          <span class="text-m clr-sec">Ajustes</span>
+          <div style="flex:1"></div>
+          <div class="avatar">GA</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Group Header -->
+    <div class="comp-card">
+      <div class="comp-label">Group Header</div>
+      <div class="comp-body">
+        <div class="header-bar">
+          <span class="back-arrow">&#x2039;</span>
+          <span style="font-size:18px">&#x1F3E0;</span>
+          <span class="text-l fw600 clr-txt">Casa Temuco</span>
+          <div style="flex:1"></div>
+          <span style="font-size:18px;cursor:pointer;color:var(--secondary)">&#x22EE;</span>
+          <div class="avatar">GA</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /grid -->
+</div><!-- /section -->
+
+<!-- ═══════════════════════════════════════
+     SECTION 3: FILTERS
+     ═══════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">3. Filters</div>
+  <div class="grid">
+
+    <!-- TemporalFilterDropdown -->
+    <div class="comp-card">
+      <div class="comp-label">TemporalFilterDropdown</div>
+      <div class="comp-body">
+        <!-- Closed -->
+        <div class="filter-pill active">
+          <span>&#x1F4C5;</span>
+          <span>Marzo 2026</span>
+          <span style="font-size:10px;opacity:0.5">&#x25BC;</span>
+        </div>
+        <!-- Open -->
+        <div class="dropdown-panel">
+          <div class="row between center" style="margin-bottom:8px">
+            <span style="cursor:pointer;color:var(--secondary)">&#x25C0;</span>
+            <span class="text-m fw600">2026</span>
+            <span style="cursor:pointer;color:var(--secondary)">&#x25B6;</span>
+          </div>
+          <div class="month-grid">
+            <div class="month-cell">Ene</div><div class="month-cell">Feb</div>
+            <div class="month-cell active">Mar</div><div class="month-cell">Abr</div>
+            <div class="month-cell">May</div><div class="month-cell">Jun</div>
+            <div class="month-cell">Jul</div><div class="month-cell">Ago</div>
+            <div class="month-cell">Sep</div><div class="month-cell">Oct</div>
+            <div class="month-cell">Nov</div><div class="month-cell">Dic</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CategoryFilterDropdown -->
+    <div class="comp-card">
+      <div class="comp-label">CategoryFilterDropdown</div>
+      <div class="comp-body">
+        <!-- Closed -->
+        <div class="filter-pill">
+          <span>Categorias</span>
+          <span style="font-size:10px;opacity:0.5">&#x25BC;</span>
+        </div>
+        <!-- Open -->
+        <div class="dropdown-panel">
+          <div class="check-list-item">
+            <div class="checkbox checked">&#x2713;</div>
+            <span>&#x1F6D2; Supermercado</span>
+          </div>
+          <div class="check-list-item">
+            <div class="checkbox checked">&#x2713;</div>
+            <span>&#x1F355; Comida</span>
+          </div>
+          <div class="check-list-item">
+            <div class="checkbox"></div>
+            <span>&#x26A1; Servicios</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LocationFilterDropdown -->
+    <div class="comp-card">
+      <div class="comp-label">LocationFilterDropdown</div>
+      <div class="comp-body">
+        <!-- Closed -->
+        <div class="filter-pill active">
+          <span>&#x1F1E8;&#x1F1F1; Temuco</span>
+          <span style="font-size:10px;opacity:0.5">&#x25BC;</span>
+        </div>
+        <!-- Open -->
+        <div class="dropdown-panel">
+          <div class="check-list-item">
+            <div class="checkbox checked">&#x2713;</div>
+            <span>&#x1F1E8;&#x1F1F1; Temuco</span>
+          </div>
+          <div class="check-list-item">
+            <div class="checkbox"></div>
+            <span>&#x1F1E8;&#x1F1F1; Santiago</span>
+          </div>
+          <div class="check-list-item">
+            <div class="checkbox"></div>
+            <span>&#x1F1E8;&#x1F1F1; Valdivia</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- IconFilterBar -->
+    <div class="comp-card">
+      <div class="comp-label">IconFilterBar</div>
+      <div class="comp-body">
+        <div class="icon-filter-bar">
+          <div class="icon-filter-item active">&#x1F6D2;</div>
+          <div class="icon-filter-item">&#x1F355;</div>
+          <div class="icon-filter-item">&#x26A1;</div>
+          <div class="icon-filter-item">&#x1F697;</div>
+          <div class="icon-filter-item">&#x1F3E5;</div>
+          <div class="icon-filter-item">&#x1F48A;</div>
+          <div class="icon-filter-item">&#x1F43E;</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FilterChips -->
+    <div class="comp-card">
+      <div class="comp-label">FilterChips</div>
+      <div class="comp-body">
+        <div class="row gap6 wrap">
+          <span class="chip">Marzo <span class="chip-x">&#x2715;</span></span>
+          <span class="chip">Supermercado <span class="chip-x">&#x2715;</span></span>
+          <span class="chip">Temuco <span class="chip-x">&#x2715;</span></span>
+          <span class="btn-ghost text-xs fw600" style="color:var(--secondary-color);cursor:pointer">Limpiar todo</span>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /grid -->
+</div><!-- /section -->
+
+<!-- ═══════════════════════════════════════
+     SECTION 4: ERROR & EMPTY STATES
+     ═══════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">4. Error & Empty States</div>
+  <div class="grid">
+
+    <!-- ScanError -->
+    <div class="comp-card">
+      <div class="comp-label">ScanError</div>
+      <div class="comp-body">
+        <div class="state-card">
+          <div class="state-icon">&#x1F4F6;</div>
+          <div class="state-title">Sin conexion</div>
+          <div class="state-desc">Verifica tu conexion e intenta de nuevo</div>
+          <div class="state-actions">
+            <button class="btn btn-primary">Reintentar</button>
+            <button class="btn btn-outline">Cancelar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HistoryEmpty (no data) -->
+    <div class="comp-card">
+      <div class="comp-label">HistoryEmpty (no data)</div>
+      <div class="comp-body">
+        <div class="state-card">
+          <div class="state-icon">&#x1F4ED;</div>
+          <div class="state-title">No tienes transacciones</div>
+          <div class="state-desc">Escanea tu primera boleta para comenzar</div>
+          <div class="state-actions">
+            <button class="btn btn-primary">Escanear</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HistoryEmpty (no filter match) -->
+    <div class="comp-card">
+      <div class="comp-label">HistoryEmpty (no filter match)</div>
+      <div class="comp-body">
+        <div class="state-card">
+          <div class="state-icon">&#x1F50D;</div>
+          <div class="state-title">Sin resultados</div>
+          <div class="state-desc">Prueba cambiando los filtros</div>
+          <div class="state-actions">
+            <button class="btn btn-outline">Limpiar filtros</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ItemsEmpty -->
+    <div class="comp-card">
+      <div class="comp-label">ItemsEmpty</div>
+      <div class="comp-body">
+        <div class="state-card">
+          <div class="state-icon">&#x1F4A1;</div>
+          <div class="state-title">Agrega gastos para ver tus productos</div>
+          <div class="state-desc">Los items apareceran cuando escanees boletas</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AppErrorBoundary -->
+    <div class="comp-card">
+      <div class="comp-label">AppErrorBoundary</div>
+      <div class="comp-body">
+        <div class="state-card" style="padding:32px 16px">
+          <div class="state-icon">&#x26A0;&#xFE0F;</div>
+          <div class="state-title">Algo salio mal</div>
+          <div class="error-id">ERR-2026-0330</div>
+          <div class="state-actions">
+            <button class="btn btn-danger">Recargar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /grid -->
+</div><!-- /section -->
+
+<!-- ═══════════════════════════════════════
+     JAVASCRIPT — Theme / Mode
+     ═══════════════════════════════════════ -->
+<script>
+  (function() {
+    var body = document.body;
+    var themeTabs = document.querySelectorAll('.theme-tab');
+    var modeToggle = document.getElementById('modeToggle');
+    var currentTheme = 'normal';
+    var currentMode = 'light';
+
+    function applyTheme() {
+      body.setAttribute('data-theme', currentTheme);
+      body.setAttribute('data-mode', currentMode);
+    }
+
+    themeTabs.forEach(function(tab) {
+      tab.addEventListener('click', function() {
+        themeTabs.forEach(function(t) { t.classList.remove('active'); });
+        tab.classList.add('active');
+        currentTheme = tab.dataset.themeVal;
+        applyTheme();
+      });
+    });
+
+    modeToggle.addEventListener('click', function() {
+      currentMode = currentMode === 'light' ? 'dark' : 'light';
+      modeToggle.classList.toggle('dark', currentMode === 'dark');
+      applyTheme();
+    });
+
+    applyTheme();
+  })();
+</script>
+</body>
+</html>

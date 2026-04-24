@@ -1,0 +1,1619 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Insights — Gastify (Production Design System)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Baloo+2:wght@700&display=swap" rel="stylesheet">
+  <style>
+    /* ══════════════════════════════════════════
+       GASTIFY — PRODUCTION DESIGN SYSTEM
+       Themes: Normal / Professional / Mono
+       Modes: Light / Dark
+       ══════════════════════════════════════════ */
+
+    /* ── Normal Light (default) ── */
+    :root {
+      --bg: #f5f0e8;
+      --surface: #fff;
+      --primary: #4a7c59;
+      --text: #2d3a4a;
+      --secondary: #4a5568;
+      --accent: #e8a87c;
+      --border: #e3bba1;
+      --bg-tertiary: #f1dbb6;
+      --secondary-color: #5b8fa8;
+      --primary-rgb: 74, 124, 89;
+      --nav-bg: #4a5568;
+      --shadow: rgba(74, 124, 89, 0.12);
+      --shadow-lg: rgba(74, 124, 89, 0.18);
+      --skeleton-base: #f1dbb6;
+      --skeleton-shine: #f5f0e8;
+      --indicator-inactive: #e3bba1;
+      --frame-bg: #1a1a2e;
+      --status-bar-text: #fff;
+      --fab-gradient-from: #4a7c59;
+      --fab-gradient-to: #3d6b4b;
+      /* Insight type colors */
+      --insight-quirky-bg: #fef3c7;
+      --insight-quirky-icon: #92400e;
+      --insight-celebration-bg: #d4e5d9;
+      --insight-celebration-icon: #4a7c59;
+      --insight-actionable-bg: #dcfce7;
+      --insight-actionable-icon: #7d9b5f;
+      --insight-tradeoff-bg: #f8ebe8;
+      --insight-tradeoff-icon: #b85c4a;
+      --insight-trend-bg: #e8e4f0;
+      --insight-trend-icon: #6b5b95;
+      --error: #ef4444;
+    }
+
+    /* ── Normal Dark ── */
+    [data-theme="normal"][data-mode="dark"] {
+      --bg: #1a2420;
+      --surface: #243028;
+      --primary: #6b9e7a;
+      --text: #e8e4dc;
+      --secondary: #b8c4a8;
+      --border: #3d4d42;
+      --bg-tertiary: #2d3a30;
+      --secondary-color: #7ab5cc;
+      --primary-rgb: 107, 158, 122;
+      --nav-bg: #1e2a22;
+      --shadow: rgba(0,0,0,0.3);
+      --shadow-lg: rgba(0,0,0,0.4);
+      --skeleton-base: #2d3a30;
+      --skeleton-shine: #3d4d42;
+      --indicator-inactive: #3d4d42;
+      --frame-bg: #0a0f0c;
+      --status-bar-text: #e8e4dc;
+      --accent: #d4a574;
+      --fab-gradient-from: #6b9e7a;
+      --fab-gradient-to: #5a8a68;
+      --insight-quirky-bg: #423a1e;
+      --insight-quirky-icon: #f0c860;
+      --insight-celebration-bg: #253028;
+      --insight-celebration-icon: #6b9e7a;
+      --insight-actionable-bg: #1e3028;
+      --insight-actionable-icon: #8eb87a;
+      --insight-tradeoff-bg: #342824;
+      --insight-tradeoff-icon: #d4826a;
+      --insight-trend-bg: #2d2838;
+      --insight-trend-icon: #9a8cc0;
+      --error: #ef4444;
+    }
+
+    /* ── Professional Light ── */
+    [data-theme="professional"][data-mode="light"] {
+      --bg: #f8fafc;
+      --surface: #fff;
+      --primary: #2563eb;
+      --text: #0f172a;
+      --secondary: #64748b;
+      --accent: #3b82f6;
+      --border: #e2e8f0;
+      --bg-tertiary: #f1f5f9;
+      --secondary-color: #0ea5e9;
+      --primary-rgb: 37, 99, 235;
+      --nav-bg: #1e293b;
+      --shadow: rgba(37, 99, 235, 0.08);
+      --shadow-lg: rgba(37, 99, 235, 0.12);
+      --skeleton-base: #f1f5f9;
+      --skeleton-shine: #f8fafc;
+      --indicator-inactive: #e2e8f0;
+      --frame-bg: #1e293b;
+      --status-bar-text: #fff;
+      --fab-gradient-from: #2563eb;
+      --fab-gradient-to: #1d4ed8;
+      --insight-quirky-bg: #fef9c3;
+      --insight-quirky-icon: #854d0e;
+      --insight-celebration-bg: #dbeafe;
+      --insight-celebration-icon: #2563eb;
+      --insight-actionable-bg: #dcfce7;
+      --insight-actionable-icon: #16a34a;
+      --insight-tradeoff-bg: #fee2e2;
+      --insight-tradeoff-icon: #dc2626;
+      --insight-trend-bg: #ede9fe;
+      --insight-trend-icon: #7c3aed;
+      --error: #ef4444;
+    }
+
+    /* ── Professional Dark ── */
+    [data-theme="professional"][data-mode="dark"] {
+      --bg: #0f172a;
+      --surface: #1e293b;
+      --primary: #3b82f6;
+      --text: #f1f5f9;
+      --secondary: #94a3b8;
+      --accent: #60a5fa;
+      --border: #334155;
+      --bg-tertiary: #1e293b;
+      --secondary-color: #38bdf8;
+      --primary-rgb: 59, 130, 246;
+      --nav-bg: #0f172a;
+      --shadow: rgba(0,0,0,0.3);
+      --shadow-lg: rgba(0,0,0,0.4);
+      --skeleton-base: #1e293b;
+      --skeleton-shine: #334155;
+      --indicator-inactive: #334155;
+      --frame-bg: #020617;
+      --status-bar-text: #f1f5f9;
+      --fab-gradient-from: #3b82f6;
+      --fab-gradient-to: #2563eb;
+      --insight-quirky-bg: #3b3210;
+      --insight-quirky-icon: #fbbf24;
+      --insight-celebration-bg: #1e2d4a;
+      --insight-celebration-icon: #60a5fa;
+      --insight-actionable-bg: #142e1e;
+      --insight-actionable-icon: #4ade80;
+      --insight-tradeoff-bg: #3b1c1c;
+      --insight-tradeoff-icon: #f87171;
+      --insight-trend-bg: #2a1f42;
+      --insight-trend-icon: #a78bfa;
+      --error: #f87171;
+    }
+
+    /* ── Mono Light ── */
+    [data-theme="mono"][data-mode="light"] {
+      --bg: #fafafa;
+      --surface: #fff;
+      --primary: #18181b;
+      --text: #18181b;
+      --secondary: #71717a;
+      --accent: #52525b;
+      --border: #e4e4e7;
+      --bg-tertiary: #f4f4f5;
+      --secondary-color: #3f3f46;
+      --primary-rgb: 24, 24, 27;
+      --nav-bg: #27272a;
+      --shadow: rgba(0,0,0,0.06);
+      --shadow-lg: rgba(0,0,0,0.1);
+      --skeleton-base: #f4f4f5;
+      --skeleton-shine: #fafafa;
+      --indicator-inactive: #e4e4e7;
+      --frame-bg: #18181b;
+      --status-bar-text: #fff;
+      --fab-gradient-from: #18181b;
+      --fab-gradient-to: #27272a;
+      --insight-quirky-bg: #f4f4f5;
+      --insight-quirky-icon: #3f3f46;
+      --insight-celebration-bg: #f4f4f5;
+      --insight-celebration-icon: #18181b;
+      --insight-actionable-bg: #f4f4f5;
+      --insight-actionable-icon: #3f3f46;
+      --insight-tradeoff-bg: #f4f4f5;
+      --insight-tradeoff-icon: #52525b;
+      --insight-trend-bg: #f4f4f5;
+      --insight-trend-icon: #71717a;
+      --error: #71717a;
+    }
+
+    /* ── Mono Dark ── */
+    [data-theme="mono"][data-mode="dark"] {
+      --bg: #09090b;
+      --surface: #18181b;
+      --primary: #a1a1aa;
+      --text: #fafafa;
+      --secondary: #a1a1aa;
+      --accent: #71717a;
+      --border: #27272a;
+      --bg-tertiary: #18181b;
+      --secondary-color: #71717a;
+      --primary-rgb: 63, 63, 70;
+      --nav-bg: #09090b;
+      --shadow: rgba(0,0,0,0.4);
+      --shadow-lg: rgba(0,0,0,0.5);
+      --skeleton-base: #18181b;
+      --skeleton-shine: #27272a;
+      --indicator-inactive: #27272a;
+      --frame-bg: #000;
+      --status-bar-text: #fafafa;
+      --fab-gradient-from: #3f3f46;
+      --fab-gradient-to: #27272a;
+      --insight-quirky-bg: #1c1c1f;
+      --insight-quirky-icon: #a1a1aa;
+      --insight-celebration-bg: #1c1c1f;
+      --insight-celebration-icon: #d4d4d8;
+      --insight-actionable-bg: #1c1c1f;
+      --insight-actionable-icon: #a1a1aa;
+      --insight-tradeoff-bg: #1c1c1f;
+      --insight-tradeoff-icon: #71717a;
+      --insight-trend-bg: #1c1c1f;
+      --insight-trend-icon: #a1a1aa;
+      --error: #a1a1aa;
+    }
+
+    /* ══════════════════════════════════════════
+       BASE STYLES
+       ══════════════════════════════════════════ */
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #1a1a2e;
+      font-family: 'Outfit', 'Segoe UI', system-ui, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      gap: 40px;
+      color: var(--text);
+    }
+
+    /* ══════════════════════════════════════════
+       CONTROLS (outside phone frame)
+       ══════════════════════════════════════════ */
+
+    .controls {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      width: 100%;
+      max-width: 520px;
+    }
+
+    .controls-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .theme-tabs {
+      display: flex;
+      background: rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 4px;
+      gap: 2px;
+    }
+
+    .theme-tab {
+      padding: 8px 20px;
+      border: none;
+      background: transparent;
+      color: var(--secondary); opacity: 0.5;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 500;
+      font-size: 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .theme-tab:hover {
+      color: rgba(255,255,255,0.8);
+    }
+
+    .theme-tab.active {
+      background: rgba(255,255,255,0.15);
+      color: #fff;
+    }
+
+    .mode-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: rgba(255,255,255,0.7);
+      font-family: 'Outfit', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .toggle-switch {
+      width: 44px;
+      height: 24px;
+      background: rgba(255,255,255,0.15);
+      border-radius: 12px;
+      cursor: pointer;
+      position: relative;
+      transition: background 0.2s;
+    }
+
+    .toggle-switch.dark {
+      background: rgba(255,255,255,0.3);
+    }
+
+    .toggle-switch::after {
+      content: '';
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      background: #fff;
+      border-radius: 50%;
+      top: 3px;
+      left: 3px;
+      transition: transform 0.2s;
+    }
+
+    .toggle-switch.dark::after {
+      transform: translateX(20px);
+    }
+
+    .variant-tabs {
+      display: flex;
+      background: rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 4px;
+      gap: 2px;
+    }
+
+    .variant-tab {
+      padding: 6px 16px;
+      border: none;
+      background: transparent;
+      color: var(--secondary); opacity: 0.5;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 500;
+      font-size: 13px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .variant-tab:hover {
+      color: rgba(255,255,255,0.8);
+    }
+
+    .variant-tab.active {
+      background: rgba(255,255,255,0.15);
+      color: #fff;
+    }
+
+    /* ══════════════════════════════════════════
+       PHONE FRAME
+       ══════════════════════════════════════════ */
+
+    .phone-frame {
+      width: 360px;
+      height: 860px;
+      background: var(--frame-bg);
+      border-radius: 44px;
+      padding: 12px;
+      position: relative;
+      box-shadow: 0 25px 80px rgba(0,0,0,0.4), inset 0 0 0 2px rgba(255,255,255,0.08);
+    }
+
+    .phone-screen {
+      width: 100%;
+      height: 100%;
+      background: var(--bg);
+      border-radius: 34px;
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Notch ── */
+    .phone-notch {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 150px;
+      height: 28px;
+      background: var(--frame-bg);
+      border-radius: 0 0 20px 20px;
+      z-index: 100;
+    }
+
+    /* ── Status Bar ── */
+    .status-bar {
+      height: 48px;
+      padding: 14px 24px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text);
+      position: relative;
+      z-index: 99;
+      flex-shrink: 0;
+      background: var(--bg);
+    }
+
+    .status-bar-left {
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .status-bar-right {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .status-bar-right svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    /* ── Home Indicator ── */
+    .home-indicator {
+      position: absolute;
+      bottom: 6px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 134px;
+      height: 5px;
+      background: var(--secondary);
+      border-radius: 3px;
+      opacity: 0.3;
+      z-index: 100;
+    }
+
+    /* ══════════════════════════════════════════
+       TOP HEADER
+       ══════════════════════════════════════════ */
+
+    .top-header {
+      height: 56px;
+      padding: 0 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+      background: var(--bg);
+    }
+
+    .header-back {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      background: none;
+      border: none;
+      transition: background 0.15s;
+    }
+
+    .header-back:hover {
+      background: var(--bg-tertiary);
+    }
+
+    .header-back svg {
+      width: 24px;
+      height: 24px;
+      stroke: var(--text);
+      stroke-width: 2;
+      fill: none;
+    }
+
+    .header-title {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      font-size: 18px;
+      color: var(--text);
+    }
+
+    /* ══════════════════════════════════════════
+       VIEW SWITCHER (3-pill tabs)
+       ══════════════════════════════════════════ */
+
+    .view-switcher {
+      margin: 0 16px 12px;
+      background: var(--bg-tertiary);
+      border-radius: 999px;
+      padding: 4px;
+      display: flex;
+      position: relative;
+      flex-shrink: 0;
+    }
+
+    .view-switcher-indicator {
+      position: absolute;
+      top: 4px;
+      left: 4px;
+      height: calc(100% - 8px);
+      width: calc(33.333% - 4px);
+      background: var(--primary);
+      border-radius: 999px;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 0;
+    }
+
+    .view-switcher-indicator[data-pos="1"] {
+      transform: translateX(calc(100% + 4px));
+    }
+
+    .view-switcher-indicator[data-pos="2"] {
+      transform: translateX(calc(200% + 8px));
+    }
+
+    .view-pill {
+      flex: 1;
+      padding: 8px 0;
+      border: none;
+      background: transparent;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--secondary);
+      border-radius: 999px;
+      cursor: pointer;
+      position: relative;
+      z-index: 1;
+      transition: color 0.2s;
+      min-height: 36px;
+    }
+
+    .view-pill.active {
+      color: #fff;
+    }
+
+    /* ══════════════════════════════════════════
+       SCROLLABLE CONTENT
+       ══════════════════════════════════════════ */
+
+    .scroll-content {
+      flex: 1;
+      overflow-y: auto;
+      padding-bottom: 100px;
+    }
+
+    .scroll-content::-webkit-scrollbar {
+      display: none;
+    }
+
+    /* ══════════════════════════════════════════
+       LISTA VIEW — HIGHLIGHTED SECTION
+       ══════════════════════════════════════════ */
+
+    .highlighted-section {
+      padding: 0 16px;
+      margin-bottom: 20px;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .section-label {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--secondary);
+    }
+
+    .temporal-dropdown {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 500;
+      font-size: 12px;
+      color: var(--primary);
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 4px 8px;
+      border-radius: 8px;
+      transition: background 0.15s;
+    }
+
+    .temporal-dropdown:hover {
+      background: rgba(var(--primary-rgb), 0.08);
+    }
+
+    .temporal-dropdown svg {
+      width: 14px;
+      height: 14px;
+      stroke: var(--primary);
+      fill: none;
+      stroke-width: 2;
+    }
+
+    /* ── Insights Carousel ── */
+    .insights-carousel {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: 4px;
+      margin: 0 -16px;
+      padding-left: 16px;
+      padding-right: 16px;
+    }
+
+    .insights-carousel::-webkit-scrollbar {
+      display: none;
+    }
+
+    .carousel-card {
+      min-width: 160px;
+      max-width: 180px;
+      flex-shrink: 0;
+      border-radius: 12px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      scroll-snap-align: start;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .carousel-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px var(--shadow-lg);
+    }
+
+    .carousel-card.celebration {
+      background: var(--insight-celebration-bg);
+    }
+
+    .carousel-card.quirky {
+      background: var(--insight-quirky-bg);
+    }
+
+    .carousel-card.actionable {
+      background: var(--insight-actionable-bg);
+    }
+
+    .carousel-card.tradeoff {
+      background: var(--insight-tradeoff-bg);
+    }
+
+    .carousel-card.trend {
+      background: var(--insight-trend-bg);
+    }
+
+    .carousel-emoji {
+      font-size: 24px;
+      line-height: 1;
+    }
+
+    .carousel-text {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+      font-size: 13px;
+      line-height: 1.35;
+      color: var(--text);
+    }
+
+    .carousel-sparkle {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-size: 16px;
+      opacity: 0.6;
+    }
+
+    /* ── Dot Indicators ── */
+    .carousel-dots {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      padding: 12px 0 4px;
+    }
+
+    .carousel-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      transition: all 0.2s;
+    }
+
+    .carousel-dot.active {
+      background: var(--primary);
+    }
+
+    .carousel-dot.inactive {
+      background: var(--indicator-inactive);
+    }
+
+    /* ══════════════════════════════════════════
+       LISTA VIEW — GROUPED HISTORY
+       ══════════════════════════════════════════ */
+
+    .history-group {
+      padding: 0 16px;
+      margin-bottom: 8px;
+    }
+
+    .group-header {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--secondary);
+      padding: 8px 0 8px;
+    }
+
+    .insight-history-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+      box-shadow: 0 1px 4px var(--shadow);
+      cursor: pointer;
+      transition: transform 0.1s, box-shadow 0.1s;
+    }
+
+    .insight-history-card:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 3px 10px var(--shadow-lg);
+    }
+
+    .insight-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .insight-icon svg {
+      width: 18px;
+      height: 18px;
+      stroke-width: 2;
+      fill: none;
+    }
+
+    .insight-icon.celebration {
+      background: var(--insight-celebration-bg);
+    }
+
+    .insight-icon.celebration svg {
+      stroke: var(--insight-celebration-icon);
+    }
+
+    .insight-icon.trend {
+      background: var(--insight-trend-bg);
+    }
+
+    .insight-icon.trend svg {
+      stroke: var(--insight-trend-icon);
+    }
+
+    .insight-icon.actionable {
+      background: var(--insight-actionable-bg);
+    }
+
+    .insight-icon.actionable svg {
+      stroke: var(--insight-actionable-icon);
+    }
+
+    .insight-icon.quirky {
+      background: var(--insight-quirky-bg);
+    }
+
+    .insight-icon.quirky svg {
+      stroke: var(--insight-quirky-icon);
+    }
+
+    .insight-icon.tradeoff {
+      background: var(--insight-tradeoff-bg);
+    }
+
+    .insight-icon.tradeoff svg {
+      stroke: var(--insight-tradeoff-icon);
+    }
+
+    .insight-body {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .insight-title {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--text);
+      line-height: 1.3;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .insight-subtitle {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 400;
+      font-size: 11px;
+      color: var(--secondary);
+      line-height: 1.3;
+      margin-top: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .insight-meta {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+
+    .insight-date {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 500;
+      font-size: 11px;
+      color: var(--secondary);
+      white-space: nowrap;
+    }
+
+    .insight-chevron {
+      width: 16px;
+      height: 16px;
+      stroke: var(--secondary);
+      stroke-width: 2;
+      fill: none;
+      opacity: 0.5;
+    }
+
+    /* ══════════════════════════════════════════
+       AIRLOCK PLACEHOLDER VIEW
+       ══════════════════════════════════════════ */
+
+    .placeholder-view {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 60px 32px;
+      gap: 16px;
+      flex: 1;
+    }
+
+    .placeholder-emoji {
+      font-size: 48px;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .placeholder-heading {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      font-size: 20px;
+      color: var(--text);
+    }
+
+    .placeholder-subtitle {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 400;
+      font-size: 14px;
+      color: var(--secondary);
+      line-height: 1.5;
+      max-width: 260px;
+    }
+
+    .placeholder-badge {
+      display: inline-block;
+      background: var(--bg-tertiary);
+      border-radius: 999px;
+      padding: 6px 16px;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 500;
+      font-size: 12px;
+      color: var(--secondary);
+      margin-top: 8px;
+    }
+
+    /* ══════════════════════════════════════════
+       SELECTION MODE
+       ══════════════════════════════════════════ */
+
+    .selection-toolbar {
+      display: none;
+      position: absolute;
+      bottom: 64px;
+      left: 0;
+      right: 0;
+      height: 56px;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      padding: 0 16px;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 60;
+      box-shadow: 0 -2px 8px var(--shadow);
+    }
+
+    .selection-close {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      background: none;
+      border: none;
+    }
+
+    .selection-close svg {
+      width: 20px;
+      height: 20px;
+      stroke: var(--text);
+      stroke-width: 2;
+      fill: none;
+    }
+
+    .selection-count {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+      font-size: 14px;
+      color: var(--text);
+    }
+
+    .selection-delete {
+      background: var(--error);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 16px;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+
+    .selection-delete:hover {
+      opacity: 0.9;
+    }
+
+    .selection-checkbox {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: all 0.15s;
+    }
+
+    .selection-checkbox.checked {
+      background: var(--primary);
+      border-color: var(--primary);
+    }
+
+    .selection-checkbox.checked::after {
+      content: '';
+      width: 10px;
+      height: 6px;
+      border-left: 2px solid #fff;
+      border-bottom: 2px solid #fff;
+      transform: rotate(-45deg);
+      margin-top: -2px;
+    }
+
+    /* ══════════════════════════════════════════
+       EMPTY STATE
+       ══════════════════════════════════════════ */
+
+    .empty-state {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 60px 32px;
+      gap: 16px;
+      flex: 1;
+    }
+
+    .empty-icon-area {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background: rgba(var(--primary-rgb), 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 8px;
+    }
+
+    .empty-icon-area svg {
+      width: 48px;
+      height: 48px;
+      stroke: var(--primary);
+      stroke-width: 1.5;
+      fill: none;
+    }
+
+    .empty-heading {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      font-size: 18px;
+      color: var(--text);
+    }
+
+    .empty-subtitle {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 400;
+      font-size: 14px;
+      color: var(--secondary);
+      line-height: 1.5;
+      max-width: 260px;
+    }
+
+    /* ══════════════════════════════════════════
+       BOTTOM NAVIGATION
+       ══════════════════════════════════════════ */
+
+    .bottom-nav {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 56px;
+      padding-bottom: 6px;
+      background: var(--nav-bg);
+      border-top: 1px solid var(--nav-border);
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-around;
+      z-index: 50;
+      border-radius: 0 0 30px 30px;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1px;
+      cursor: pointer;
+      padding: 4px 0 2px;
+      position: relative;
+      width: 48px;
+    }
+
+    .nav-icon {
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .nav-icon svg {
+      width: 22px;
+      height: 22px;
+      stroke-width: 2;
+    }
+
+    .nav-label {
+      font-family: 'Outfit', sans-serif;
+      font-size: 10px;
+      font-weight: 500;
+      color: var(--secondary); opacity: 0.5;
+    }
+
+    .nav-item.active .nav-label {
+      color: var(--primary);
+      font-weight: 600;
+      opacity: 1;
+    }
+
+    .nav-item.active .nav-icon svg {
+      stroke: var(--primary);
+    }
+
+    .nav-item:not(.active) .nav-icon svg {
+      stroke: var(--secondary); opacity: 0.45;
+    }
+
+    /* ══════════════════════════════════════════
+       VARIANT VISIBILITY
+       ══════════════════════════════════════════ */
+
+    /* Default: Lista hero visible */
+    .lista-view { display: block; }
+    .airlock-view { display: none; }
+    .logro-view { display: none; }
+
+    /* Variant: Airlock */
+    body.variant-airlock .lista-view { display: none; }
+    body.variant-airlock .airlock-view { display: flex; }
+
+    /* Variant: Logro */
+    body.variant-logro .lista-view { display: none; }
+    body.variant-logro .logro-view { display: flex; }
+
+    /* Variant: Selection */
+    body.variant-selection .selection-toolbar { display: flex; }
+    body.variant-selection .selection-checkbox { display: flex; }
+
+    /* Variant: Empty */
+    body.variant-empty .lista-view { display: none; }
+    body.variant-empty .empty-state { display: flex; }
+
+    /* ══════════════════════════════════════════
+       RESPONSIVE
+       ══════════════════════════════════════════ */
+
+    @media (max-width: 460px) {
+      .phone-frame {
+        width: 100%;
+        border-radius: 0;
+        padding: 0;
+      }
+      .phone-screen {
+        border-radius: 0;
+      }
+      .phone-notch { display: none; }
+      .bottom-nav { border-radius: 0; }
+    }
+  </style>
+</head>
+<body data-theme="normal" data-mode="light">
+  <!-- ⚠️ DEPRECATED: This screen has been merged into Gastos (woven into Graficos+Resumen). Kept for reference only. -->
+  <div style="position:fixed;top:0;left:0;right:0;background:#f59e0b;color:#78350f;padding:8px 16px;font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;text-align:center;z-index:9999;">
+    MERGED into Gastos (woven into Graficos+Resumen) — this file is for reference only
+  </div>
+
+
+  <!-- ════════════════════════════════════════
+       CONTROLS (outside phone frame)
+       ════════════════════════════════════════ -->
+  <div class="controls">
+    <div class="controls-row">
+      <div class="theme-tabs">
+        <button class="theme-tab active" data-theme-val="normal">Normal</button>
+        <button class="theme-tab" data-theme-val="professional">Professional</button>
+        <button class="theme-tab" data-theme-val="mono">Mono</button>
+      </div>
+      <div class="mode-toggle">
+        <span>Light</span>
+        <div class="toggle-switch" id="modeToggle"></div>
+        <span>Dark</span>
+      </div>
+    </div>
+    <div class="controls-row">
+      <div class="variant-tabs">
+        <button class="variant-tab active" data-variant="hero">Hero</button>
+        <button class="variant-tab" data-variant="airlock">Airlock</button>
+        <button class="variant-tab" data-variant="logro">Logro</button>
+        <button class="variant-tab" data-variant="selection">Selection</button>
+        <button class="variant-tab" data-variant="empty">Empty</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════
+       PHONE FRAME
+       ════════════════════════════════════════ -->
+  <div class="phone-frame">
+    <div class="phone-notch"></div>
+    <div class="phone-screen">
+
+      <!-- Status Bar -->
+      <div class="status-bar">
+        <span class="status-bar-left">9:41</span>
+        <div class="status-bar-right">
+          <svg viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="11" width="2.5" height="4" rx="0.5"/><rect x="5" y="8" width="2.5" height="7" rx="0.5"/><rect x="9" y="5" width="2.5" height="10" rx="0.5"/><rect x="13" y="1" width="2.5" height="14" rx="0.5"/></svg>
+          <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 12.5a1.25 1.25 0 110 2.5 1.25 1.25 0 010-2.5zM8 8.5c2.07 0 3.94.84 5.3 2.2l-1.42 1.42A5.48 5.48 0 008 10.5c-1.52 0-2.9.62-3.88 1.62L2.7 10.7A7.47 7.47 0 018 8.5zM8 4.5c3.18 0 6.07 1.29 8.16 3.38l-1.42 1.42A9.47 9.47 0 008 6.5c-2.62 0-5 1.06-6.74 2.8L-.16 7.88A11.47 11.47 0 018 4.5z"/></svg>
+          <svg viewBox="0 0 24 12" fill="currentColor"><rect x="0" y="0" width="20" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="2" y="2" width="14" height="8" rx="1"/><rect x="21" y="3.5" width="2.5" height="5" rx="1"/></svg>
+        </div>
+      </div>
+
+      <!-- Top Header -->
+      <div class="top-header">
+        <button class="header-back">
+          <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6"/>
+          </svg>
+        </button>
+        <span class="header-title">Insights</span>
+        <div class="header-bell" style="position:relative;cursor:pointer;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--secondary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+            </svg>
+            <span style="position:absolute;top:-4px;right:-6px;background:#ef4444;color:#fff;font-size:9px;font-weight:700;font-family:'Outfit',sans-serif;border-radius:999px;padding:1px 5px;line-height:1.3;">3</span>
+          </div>
+      </div>
+
+      <!-- View Switcher -->
+      <div class="view-switcher">
+        <div class="view-switcher-indicator" data-pos="0" id="switcherIndicator"></div>
+        <button class="view-pill active" data-view="lista">Lista</button>
+        <button class="view-pill" data-view="airlock">Airlock</button>
+        <button class="view-pill" data-view="logro">Logro</button>
+      </div>
+
+      <!-- Scrollable Content -->
+      <div class="scroll-content">
+
+        <!-- ═══ LISTA VIEW (Hero) ═══ -->
+        <div class="lista-view">
+
+          <!-- Highlighted Section -->
+          <div class="highlighted-section">
+            <div class="section-header">
+              <span class="section-label">Destacados</span>
+              <button class="temporal-dropdown">
+                Esta Semana
+                <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="6 9 12 15 18 9"/>
+                </svg>
+              </button>
+            </div>
+
+            <!-- Insights Carousel -->
+            <div class="insights-carousel">
+              <!-- Card 1: Celebration -->
+              <div class="carousel-card celebration">
+                <span class="carousel-sparkle">&#10024;</span>
+                <span class="carousel-emoji">&#127881;</span>
+                <span class="carousel-text">&#161;Record de ahorro!</span>
+              </div>
+              <!-- Card 2: Quirky -->
+              <div class="carousel-card quirky">
+                <span class="carousel-emoji">&#129300;</span>
+                <span class="carousel-text">&#191;Sabias que...?</span>
+              </div>
+              <!-- Card 3: Actionable -->
+              <div class="carousel-card actionable">
+                <span class="carousel-emoji">&#128161;</span>
+                <span class="carousel-text">Oportunidad de ahorro</span>
+              </div>
+            </div>
+
+            <!-- Dot Indicators -->
+            <div class="carousel-dots">
+              <div class="carousel-dot active"></div>
+              <div class="carousel-dot inactive"></div>
+              <div class="carousel-dot inactive"></div>
+            </div>
+          </div>
+
+          <!-- Grouped History -->
+
+          <!-- Esta Semana -->
+          <div class="history-group">
+            <div class="group-header">Esta Semana</div>
+
+            <!-- InsightHistoryCard 1: Celebration -->
+            <div class="insight-history-card">
+              <div class="selection-checkbox checked"></div>
+              <div class="insight-icon celebration">
+                <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                </svg>
+              </div>
+              <div class="insight-body">
+                <div class="insight-title">Nuevo record de escaneo</div>
+                <div class="insight-subtitle">Escaneaste 5 boletas en un dia</div>
+              </div>
+              <div class="insight-meta">
+                <span class="insight-date">Hoy</span>
+                <svg class="insight-chevron" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="9 18 15 12 9 6"/>
+                </svg>
+              </div>
+            </div>
+
+            <!-- InsightHistoryCard 2: Trend -->
+            <div class="insight-history-card">
+              <div class="selection-checkbox checked"></div>
+              <div class="insight-icon trend">
+                <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+                  <polyline points="17 6 23 6 23 12"/>
+                </svg>
+              </div>
+              <div class="insight-body">
+                <div class="insight-title">Tendencia en restaurantes</div>
+                <div class="insight-subtitle">Tus gastos en restaurantes subieron 45%</div>
+              </div>
+              <div class="insight-meta">
+                <span class="insight-date">Ayer</span>
+                <svg class="insight-chevron" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="9 18 15 12 9 6"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- Semana Pasada -->
+          <div class="history-group">
+            <div class="group-header">Semana Pasada</div>
+
+            <!-- InsightHistoryCard 3: Actionable -->
+            <div class="insight-history-card">
+              <div class="selection-checkbox"></div>
+              <div class="insight-icon actionable">
+                <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="12" y1="1" x2="12" y2="23"/>
+                  <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                </svg>
+              </div>
+              <div class="insight-body">
+                <div class="insight-title">Ahorro en supermercado</div>
+                <div class="insight-subtitle">Cambiaste a marcas mas economicas</div>
+              </div>
+              <div class="insight-meta">
+                <span class="insight-date">Lun</span>
+                <svg class="insight-chevron" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="9 18 15 12 9 6"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- Anterior -->
+          <div class="history-group">
+            <div class="group-header">Anterior</div>
+
+            <!-- InsightHistoryCard 4: Quirky -->
+            <div class="insight-history-card">
+              <div class="selection-checkbox checked"></div>
+              <div class="insight-icon quirky">
+                <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"/>
+                  <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                  <line x1="12" y1="17" x2="12.01" y2="17"/>
+                </svg>
+              </div>
+              <div class="insight-body">
+                <div class="insight-title">Dato curioso</div>
+                <div class="insight-subtitle">Compraste leche 12 veces este mes</div>
+              </div>
+              <div class="insight-meta">
+                <span class="insight-date">8 mar</span>
+                <svg class="insight-chevron" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="9 18 15 12 9 6"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /lista-view -->
+
+        <!-- ═══ AIRLOCK PLACEHOLDER ═══ -->
+        <div class="placeholder-view airlock-view">
+          <span class="placeholder-emoji">&#128302;</span>
+          <h2 class="placeholder-heading">Insights con IA</h2>
+          <p class="placeholder-subtitle">Estamos desarrollando insights potenciados por inteligencia artificial</p>
+          <span class="placeholder-badge">Proximamente disponible</span>
+        </div>
+
+        <!-- ═══ LOGRO PLACEHOLDER ═══ -->
+        <div class="placeholder-view logro-view">
+          <span class="placeholder-emoji">&#127942;</span>
+          <h2 class="placeholder-heading">Logros y Records</h2>
+          <p class="placeholder-subtitle">Aqui podras celebrar tus hitos financieros</p>
+          <span class="placeholder-badge">Proximamente disponible</span>
+        </div>
+
+        <!-- ═══ EMPTY STATE ═══ -->
+        <div class="empty-state">
+          <div class="empty-icon-area">
+            <!-- Lightbulb icon -->
+            <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 18h6"/>
+              <path d="M10 22h4"/>
+              <path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/>
+            </svg>
+          </div>
+          <h2 class="empty-heading">No hay insights aun</h2>
+          <p class="empty-subtitle">Escanea mas boletas para obtener insights personalizados</p>
+        </div>
+
+      </div><!-- /scroll-content -->
+
+      <!-- Selection Toolbar (sticky at bottom) -->
+      <div class="selection-toolbar">
+        <button class="selection-close">
+          <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+        <span class="selection-count">3 seleccionados</span>
+        <button class="selection-delete">Eliminar</button>
+      </div>
+
+      <!-- Bottom Navigation -->
+            <div class="bottom-nav">
+        <!-- Inicio -->
+        <div class="nav-item">
+          <div class="nav-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+              <polyline points="9 22 9 12 15 12 15 22"/>
+            </svg>
+          </div>
+          <span class="nav-label">Inicio</span>
+        </div>
+        <!-- Compras -->
+        <div class="nav-item">
+          <div class="nav-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="16" y1="13" x2="8" y2="13"/>
+              <line x1="16" y1="17" x2="8" y2="17"/>
+            </svg>
+          </div>
+          <span class="nav-label">Compras</span>
+        </div>
+        <!-- Escanear -->
+        <div class="nav-item">
+          <div class="nav-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+              <circle cx="12" cy="13" r="4"/>
+            </svg>
+          </div>
+          <span class="nav-label">Escanear</span>
+        </div>
+        <!-- Gastos -->
+        <div class="nav-item active">
+          <div class="nav-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="20" x2="18" y2="10"/>
+              <line x1="12" y1="20" x2="12" y2="4"/>
+              <line x1="6" y1="20" x2="6" y2="14"/>
+            </svg>
+          </div>
+          <span class="nav-label">Gastos</span>
+        </div>
+        <!-- Perfil -->
+        <div class="nav-item">
+          <div class="nav-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+          </div>
+          <span class="nav-label">Perfil</span>
+        </div>
+      </div>
+<!-- Home Indicator -->
+      <div class="home-indicator"></div>
+
+    </div><!-- /phone-screen -->
+  </div><!-- /phone-frame -->
+
+  <!-- ════════════════════════════════════════
+       JAVASCRIPT — Theme / Mode / Variant / View Switcher
+       ════════════════════════════════════════ -->
+  <script>
+    (function() {
+      var body = document.body;
+      var themeTabs = document.querySelectorAll('.theme-tab');
+      var modeToggle = document.getElementById('modeToggle');
+      var variantTabs = document.querySelectorAll('.variant-tab');
+      var viewPills = document.querySelectorAll('.view-pill');
+      var switcherIndicator = document.getElementById('switcherIndicator');
+
+      var currentTheme = 'normal';
+      var currentMode = 'light';
+      var currentView = 'lista';
+
+      function applyTheme() {
+        body.setAttribute('data-theme', currentTheme);
+        body.setAttribute('data-mode', currentMode);
+      }
+
+      // Theme tabs
+      themeTabs.forEach(function(tab) {
+        tab.addEventListener('click', function() {
+          themeTabs.forEach(function(t) { t.classList.remove('active'); });
+          tab.classList.add('active');
+          currentTheme = tab.dataset.themeVal;
+          applyTheme();
+        });
+      });
+
+      // Mode toggle
+      modeToggle.addEventListener('click', function() {
+        currentMode = currentMode === 'light' ? 'dark' : 'light';
+        modeToggle.classList.toggle('dark', currentMode === 'dark');
+        applyTheme();
+      });
+
+      // Variant tabs
+      variantTabs.forEach(function(tab) {
+        tab.addEventListener('click', function() {
+          variantTabs.forEach(function(t) { t.classList.remove('active'); });
+          tab.classList.add('active');
+          body.classList.remove('variant-airlock', 'variant-logro', 'variant-selection', 'variant-empty');
+
+          var variant = tab.dataset.variant;
+
+          if (variant === 'hero') {
+            // Reset view switcher to Lista
+            setView('lista');
+          } else if (variant === 'airlock') {
+            body.classList.add('variant-airlock');
+            setView('airlock');
+          } else if (variant === 'logro') {
+            body.classList.add('variant-logro');
+            setView('logro');
+          } else if (variant === 'selection') {
+            body.classList.add('variant-selection');
+            setView('lista');
+          } else if (variant === 'empty') {
+            body.classList.add('variant-empty');
+            setView('lista');
+          }
+        });
+      });
+
+      // View switcher pills (inside the phone)
+      function setView(view) {
+        currentView = view;
+        var viewIndex = view === 'lista' ? 0 : view === 'airlock' ? 1 : 2;
+        switcherIndicator.setAttribute('data-pos', viewIndex);
+
+        viewPills.forEach(function(p) {
+          p.classList.toggle('active', p.dataset.view === view);
+        });
+      }
+
+      viewPills.forEach(function(pill) {
+        pill.addEventListener('click', function() {
+          var view = pill.dataset.view;
+          setView(view);
+
+          // Sync body classes to show the right content
+          body.classList.remove('variant-airlock', 'variant-logro', 'variant-selection', 'variant-empty');
+
+          if (view === 'airlock') {
+            body.classList.add('variant-airlock');
+          } else if (view === 'logro') {
+            body.classList.add('variant-logro');
+          }
+
+          // Update variant tabs to match
+          variantTabs.forEach(function(t) { t.classList.remove('active'); });
+          if (view === 'lista') {
+            variantTabs[0].classList.add('active'); // Hero
+          } else if (view === 'airlock') {
+            variantTabs[1].classList.add('active'); // Airlock
+          } else if (view === 'logro') {
+            variantTabs[2].classList.add('active'); // Logro
+          }
+        });
+      });
+
+      // Selection toolbar close button
+      var selectionClose = document.querySelector('.selection-close');
+      if (selectionClose) {
+        selectionClose.addEventListener('click', function() {
+          body.classList.remove('variant-selection');
+          variantTabs.forEach(function(t) { t.classList.remove('active'); });
+          variantTabs[0].classList.add('active');
+        });
+      }
+
+      // Initial apply
+      applyTheme();
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,1836 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gastify — Flujo 6: QuickSave → Learning → Trust</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #1a1a2e;
+    --bg-lighter: #22224a;
+    --surface: #2a2a4a;
+    --border: #3a3a6a;
+    --text: #e8e8f0;
+    --muted: #8888aa;
+    --primary: #4a7c59;
+    --primary-dim: #1a3a24;
+    --primary-border: #5a9c6a;
+    --accent: #e8a87c;
+    --accent-dim: #4a3020;
+    --accent-border: #d4956a;
+    --secondary: #5b8fa8;
+    --secondary-dim: #1e3a4a;
+    --secondary-border: #4a7a96;
+    --green: #34d399;
+    --green-dim: #064e3b;
+    --green-border: #10b981;
+    --amber: #fbbf24;
+    --amber-dim: #78350f;
+    --amber-border: #f59e0b;
+    --blue: #60a5fa;
+    --blue-dim: #1e3a5f;
+    --blue-border: #3b82f6;
+    --purple: #a78bfa;
+    --purple-dim: #3b1f7a;
+    --purple-border: #8b5cf6;
+    --red: #f87171;
+    --red-dim: #5b1a1a;
+    --red-border: #ef4444;
+    --gold: #fde68a;
+    --gold-dim: #4a3f1a;
+    --gold-border: #fbbf24;
+  }
+
+  body {
+    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background:
+      radial-gradient(ellipse at 20% 20%, rgba(74, 124, 89, 0.08) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 60%, rgba(232, 168, 124, 0.06) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 90%, rgba(91, 143, 168, 0.05) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 20px 100px;
+  }
+
+  /* -- Brand Header -- */
+  .brand-header {
+    text-align: center;
+    margin-bottom: 12px;
+  }
+  .brand-name {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--primary);
+    opacity: 0.7;
+  }
+
+  /* -- Flow Header -- */
+  .flow-header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+  .flow-header h1 {
+    font-size: 32px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin-bottom: 12px;
+    line-height: 1.2;
+    background: linear-gradient(135deg, var(--primary-border), var(--accent), var(--green));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .flow-header .subtitle {
+    font-size: 15px;
+    font-weight: 400;
+    color: var(--muted);
+    line-height: 1.7;
+    max-width: 680px;
+    margin: 0 auto;
+  }
+  .flow-header .subtitle strong {
+    color: var(--text);
+    font-weight: 600;
+  }
+  .flow-header .value-tag {
+    display: inline-block;
+    margin-top: 16px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 6px 18px;
+    border-radius: 20px;
+    background: var(--primary-dim);
+    border: 1px solid var(--primary-border);
+    color: var(--primary-border);
+  }
+
+  /* -- Nav Reference Bar -- */
+  .nav-ref {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0;
+    margin-bottom: 36px;
+    padding: 10px 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    max-width: 420px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    padding: 6px 16px;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--muted);
+    letter-spacing: 0.03em;
+    position: relative;
+  }
+  .nav-item .nav-icon { font-size: 18px; }
+  .nav-fab {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary), var(--primary-border));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(74, 124, 89, 0.4);
+    margin: 0 8px;
+    flex-shrink: 0;
+  }
+
+  /* -- Legend -- */
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    justify-content: center;
+    margin-bottom: 36px;
+    padding: 16px 24px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 12px;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--muted);
+  }
+  .legend-swatch {
+    width: 14px;
+    height: 14px;
+    border-radius: 4px;
+    border: 2px solid;
+    flex-shrink: 0;
+  }
+  .legend-swatch.red { border-color: var(--red-border); background: var(--red-dim); }
+  .legend-swatch.amber { border-color: var(--amber-border); background: var(--amber-dim); }
+  .legend-swatch.blue { border-color: var(--blue-border); background: var(--blue-dim); }
+  .legend-swatch.green { border-color: var(--green-border); background: var(--green-dim); }
+  .legend-swatch.purple {
+    border-color: var(--purple-border);
+    background: var(--purple-dim);
+    border-radius: 50%;
+    transform: rotate(45deg);
+  }
+
+  /* -- Flow Container -- */
+  .flow {
+    width: 100%;
+    position: relative;
+  }
+
+  /* -- Timeline -- */
+  .timeline {
+    position: relative;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 24px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: linear-gradient(to bottom,
+      var(--amber) 0%,
+      var(--amber) 25%,
+      var(--blue) 35%,
+      var(--blue) 50%,
+      var(--purple) 60%,
+      var(--purple) 72%,
+      var(--green) 82%,
+      var(--green) 100%
+    );
+    opacity: 0.25;
+    border-radius: 1px;
+  }
+
+  /* -- Phase Dividers -- */
+  .phase-divider {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 36px 0 20px;
+    padding-left: 0;
+    position: relative;
+  }
+  .phase-divider:first-child { margin-top: 0; }
+  .phase-day {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-weight: 700;
+    font-size: 10px;
+    letter-spacing: 0.05em;
+    line-height: 1.2;
+    position: relative;
+    z-index: 2;
+  }
+  .phase-day .day-num {
+    font-size: 16px;
+    font-weight: 800;
+    line-height: 1;
+  }
+  .phase-day.amber-phase {
+    background: var(--amber-dim);
+    border: 2px solid var(--amber-border);
+    color: var(--amber);
+  }
+  .phase-day.blue-phase {
+    background: var(--blue-dim);
+    border: 2px solid var(--blue-border);
+    color: var(--blue);
+  }
+  .phase-day.purple-phase {
+    background: var(--purple-dim);
+    border: 2px solid var(--purple-border);
+    color: var(--purple);
+  }
+  .phase-day.green-phase {
+    background: var(--green-dim);
+    border: 2px solid var(--green-border);
+    color: var(--green);
+  }
+  .phase-info {
+    flex: 1;
+  }
+  .phase-title {
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+  .phase-title.amber-text { color: var(--amber); }
+  .phase-title.blue-text { color: var(--blue); }
+  .phase-title.purple-text { color: var(--purple); }
+  .phase-title.green-text { color: var(--green); }
+  .phase-subtitle {
+    font-size: 12px;
+    color: var(--muted);
+    font-weight: 400;
+    margin-top: 2px;
+  }
+  .phase-line {
+    flex: 0;
+    height: 2px;
+    min-width: 40px;
+    flex-grow: 1;
+    border-radius: 1px;
+    opacity: 0.3;
+  }
+  .phase-line.amber-line { background: var(--amber); }
+  .phase-line.blue-line { background: var(--blue); }
+  .phase-line.purple-line { background: var(--purple); }
+  .phase-line.green-line { background: var(--green); }
+
+  /* -- Nodes -- */
+  .node {
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: 16px;
+    padding: 20px 24px;
+    position: relative;
+    margin-bottom: 0;
+    margin-left: 50px;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .node:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+  }
+  .node-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  .node-step {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    font-size: 12px;
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .node-title {
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.4;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .node-screen {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 2px 8px;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    background: rgba(255,255,255,0.06);
+    color: var(--muted);
+  }
+  .node-state {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 10px;
+    line-height: 1.5;
+    font-weight: 400;
+  }
+  .node-thought {
+    font-size: 12px;
+    font-style: italic;
+    color: #9999bb;
+    padding: 8px 12px;
+    background: rgba(255,255,255,0.03);
+    border-radius: 8px;
+    border-left: 3px solid;
+    line-height: 1.5;
+    font-weight: 400;
+  }
+
+  /* Node variants */
+  .node.action-node {
+    border-color: var(--red-border);
+    background: linear-gradient(135deg, var(--red-dim), #3a1a2a);
+  }
+  .node.action-node .node-title { color: var(--red); }
+  .node.action-node .node-thought { border-left-color: var(--red); }
+  .node.action-node .node-step { background: var(--red); color: #111; }
+
+  .node.processing-node {
+    border-color: var(--amber-border);
+    background: linear-gradient(135deg, var(--amber-dim), #3a2a10);
+  }
+  .node.processing-node .node-title { color: var(--amber); }
+  .node.processing-node .node-thought { border-left-color: var(--amber); }
+  .node.processing-node .node-step { background: var(--amber); color: #111; }
+
+  .node.screen-node {
+    border-color: var(--blue-border);
+    background: linear-gradient(135deg, var(--blue-dim), #1a2a4a);
+  }
+  .node.screen-node .node-title { color: var(--blue); }
+  .node.screen-node .node-thought { border-left-color: var(--blue); }
+  .node.screen-node .node-step { background: var(--blue); color: #111; }
+
+  .node.success-node {
+    border-color: var(--green-border);
+    background: linear-gradient(135deg, var(--green-dim), #0a3a2a);
+  }
+  .node.success-node .node-title { color: var(--green); }
+  .node.success-node .node-thought { border-left-color: var(--green); }
+  .node.success-node .node-step { background: var(--green); color: #111; }
+
+  .node.key-moment-node {
+    border-color: var(--purple-border);
+    border-width: 3px;
+    background: linear-gradient(135deg, var(--purple-dim), #2a1a4a);
+  }
+  .node.key-moment-node .node-title { color: var(--purple); }
+  .node.key-moment-node .node-thought { border-left-color: var(--purple); }
+  .node.key-moment-node .node-step {
+    background: var(--purple);
+    color: #111;
+    width: 28px;
+    height: 28px;
+    transform: rotate(45deg);
+    border-radius: 6px;
+  }
+  .node.key-moment-node .node-step span {
+    display: inline-block;
+    transform: rotate(-45deg);
+  }
+
+  .node.auto-node {
+    border-color: var(--green-border);
+    border-width: 3px;
+    background: linear-gradient(135deg, var(--green-dim), var(--primary-dim));
+  }
+  .node.auto-node .node-title { color: var(--green); }
+  .node.auto-node .node-thought { border-left-color: var(--green); }
+  .node.auto-node .node-step {
+    background: linear-gradient(135deg, var(--green), var(--primary-border));
+    color: #111;
+  }
+
+  /* -- Callout Badge -- */
+  .callout {
+    position: absolute;
+    top: -10px;
+    right: -8px;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 12px;
+    border-radius: 10px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    z-index: 2;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    white-space: nowrap;
+  }
+  .callout.key-moment { background: var(--purple); color: #fff; }
+  .callout.auto { background: var(--green); color: #111; }
+  .callout.learning { background: var(--accent); color: #111; }
+  .callout.trust { background: linear-gradient(135deg, var(--purple), var(--green)); color: #fff; }
+
+  /* -- Connectors -- */
+  .connector {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px 0;
+    position: relative;
+    margin-left: 50px;
+  }
+  .connector-line {
+    width: 3px;
+    height: 32px;
+    border-radius: 2px;
+  }
+  .connector-line.red { background: var(--red); }
+  .connector-line.amber { background: var(--amber); }
+  .connector-line.blue { background: var(--blue); }
+  .connector-line.green { background: var(--green); }
+  .connector-line.purple { background: var(--purple); }
+  .connector-line.neutral { background: var(--border); }
+  .connector-line.grad-ra { background: linear-gradient(to bottom, var(--red), var(--amber)); }
+  .connector-line.grad-ab { background: linear-gradient(to bottom, var(--amber), var(--blue)); }
+  .connector-line.grad-bp { background: linear-gradient(to bottom, var(--blue), var(--purple)); }
+  .connector-line.grad-pg { background: linear-gradient(to bottom, var(--purple), var(--green)); }
+  .connector-line.grad-rp { background: linear-gradient(to bottom, var(--red), var(--purple)); }
+  .connector-line.grad-bg { background: linear-gradient(to bottom, var(--blue), var(--green)); }
+  .connector-line.grad-ag { background: linear-gradient(to bottom, var(--amber), var(--green)); }
+  .connector-line.grad-gg { background: linear-gradient(to bottom, var(--green), var(--green)); }
+
+  .connector-arrow {
+    width: 0;
+    height: 0;
+    border-left: 7px solid transparent;
+    border-right: 7px solid transparent;
+  }
+  .connector-arrow.red { border-top: 9px solid var(--red); }
+  .connector-arrow.amber { border-top: 9px solid var(--amber); }
+  .connector-arrow.blue { border-top: 9px solid var(--blue); }
+  .connector-arrow.green { border-top: 9px solid var(--green); }
+  .connector-arrow.purple { border-top: 9px solid var(--purple); }
+
+  .connector-label {
+    position: absolute;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 10px;
+    border-radius: 10px;
+    white-space: nowrap;
+  }
+  .connector-label.right { left: calc(50% + 20px); }
+  .connector-label.left { right: calc(50% + 20px); }
+  .connector-label.red { color: var(--red); background: var(--red-dim); }
+  .connector-label.amber { color: var(--amber); background: var(--amber-dim); }
+  .connector-label.blue { color: var(--blue); background: var(--blue-dim); }
+  .connector-label.green { color: var(--green); background: var(--green-dim); }
+  .connector-label.purple { color: var(--purple); background: var(--purple-dim); }
+
+  /* -- Mini UI (inline mockups) -- */
+  .mini-ui {
+    background: rgba(0,0,0,0.25);
+    border-radius: 12px;
+    padding: 12px;
+    margin: 10px 0;
+  }
+  .mini-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 10px;
+    border-radius: 8px;
+    margin-bottom: 4px;
+    font-size: 12px;
+    font-weight: 500;
+  }
+  .mini-row:last-child { margin-bottom: 0; }
+  .mini-row .mini-label { flex: 1; }
+  .mini-row .mini-value {
+    font-weight: 600;
+    font-size: 11px;
+  }
+
+  .mini-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin-bottom: 6px;
+  }
+  .mini-card:last-child { margin-bottom: 0; }
+
+  .mini-btn {
+    display: block;
+    width: 100%;
+    padding: 9px 12px;
+    border-radius: 10px;
+    border: none;
+    font-family: 'Outfit', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    text-align: center;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: transform 0.15s, opacity 0.15s;
+  }
+  .mini-btn:hover { transform: scale(1.02); }
+  .mini-btn:active { transform: scale(0.98); }
+  .mini-btn.primary-btn { background: var(--primary-border); color: #fff; }
+  .mini-btn.accent-btn { background: var(--accent); color: #111; }
+  .mini-btn.green-btn { background: var(--green); color: #111; }
+  .mini-btn.muted-btn {
+    background: rgba(255,255,255,0.08);
+    color: var(--muted);
+    font-weight: 500;
+  }
+  .mini-btn-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+  }
+  .mini-btn-row .mini-btn {
+    margin-top: 0;
+    flex: 1;
+  }
+
+  .mini-merchant {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+  }
+  .mini-merchant-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .mini-merchant-info { flex: 1; }
+  .mini-merchant-name {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .mini-merchant-cat {
+    font-size: 11px;
+    font-weight: 500;
+    margin-top: 1px;
+  }
+
+  .mini-item-list {
+    margin-top: 6px;
+  }
+  .mini-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 8px;
+    font-size: 11px;
+    color: var(--muted);
+    font-weight: 400;
+  }
+  .mini-item .item-name { flex: 1; }
+  .mini-item .item-price { font-weight: 600; color: var(--text); }
+
+  .mini-total {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 8px 2px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    margin-top: 4px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .mini-selector {
+    margin: 8px 0;
+  }
+  .mini-selector-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+  .mini-check-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 8px;
+    font-size: 11px;
+    color: var(--text);
+    font-weight: 400;
+  }
+  .mini-checkbox {
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+    border: 2px solid var(--primary-border);
+    background: var(--primary-dim);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    color: var(--green);
+    flex-shrink: 0;
+  }
+  .mini-checkbox.checked { background: var(--primary-border); }
+
+  .mini-toast {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .mini-toast.success {
+    background: var(--green-dim);
+    border: 1px solid var(--green-border);
+    color: var(--green);
+  }
+  .mini-toast.auto {
+    background: linear-gradient(135deg, var(--green-dim), var(--primary-dim));
+    border: 1px solid var(--green-border);
+    color: var(--green);
+  }
+
+  .mini-confidence {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 6px;
+    margin-left: 4px;
+  }
+  .mini-confidence.learned {
+    background: rgba(74, 124, 89, 0.2);
+    color: var(--primary-border);
+    border: 1px solid rgba(74, 124, 89, 0.3);
+  }
+  .mini-confidence.trusted {
+    background: rgba(52, 211, 153, 0.15);
+    color: var(--green);
+    border: 1px solid rgba(52, 211, 153, 0.3);
+  }
+
+  .mini-handshake {
+    text-align: center;
+    padding: 8px 0;
+  }
+  .mini-handshake .shake-icon {
+    font-size: 36px;
+    display: block;
+    margin-bottom: 6px;
+    animation: gentle-shake 3s infinite;
+  }
+  @keyframes gentle-shake {
+    0%, 100% { transform: rotate(0deg); }
+    15% { transform: rotate(-8deg); }
+    30% { transform: rotate(8deg); }
+    45% { transform: rotate(0deg); }
+  }
+  .mini-handshake .shake-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--purple);
+    margin-bottom: 4px;
+  }
+  .mini-handshake .shake-desc {
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  .mini-dashboard-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 8px;
+    font-size: 12px;
+    margin-bottom: 4px;
+    border-left: 3px solid var(--green);
+  }
+  .mini-dashboard-row .dash-icon { font-size: 16px; flex-shrink: 0; }
+  .mini-dashboard-row .dash-info { flex: 1; }
+  .mini-dashboard-row .dash-label { font-weight: 600; color: var(--text); }
+  .mini-dashboard-row .dash-meta { font-size: 10px; color: var(--muted); }
+  .mini-dashboard-row .dash-amount { font-weight: 700; color: var(--text); }
+
+  /* -- Hover details -- */
+  .node-detail-expand {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease, padding 0.3s ease;
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+  .node:hover .node-detail-expand,
+  .node:focus-within .node-detail-expand {
+    max-height: 120px;
+    padding-top: 8px;
+  }
+  .node-detail-expand code {
+    font-size: 11px;
+    background: rgba(255,255,255,0.06);
+    padding: 1px 6px;
+    border-radius: 4px;
+    color: var(--text);
+    font-family: 'Courier New', monospace;
+  }
+
+  /* -- Effort Indicator (visual weight shift) -- */
+  .effort-bar {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin: 6px 0 0;
+  }
+  .effort-label {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--muted);
+    min-width: 60px;
+  }
+  .effort-track {
+    flex: 1;
+    height: 4px;
+    border-radius: 2px;
+    background: rgba(255,255,255,0.06);
+    overflow: hidden;
+    display: flex;
+  }
+  .effort-seg {
+    height: 100%;
+    transition: width 0.6s ease;
+  }
+  .effort-seg.user { background: var(--red); }
+  .effort-seg.system { background: var(--green); }
+
+  /* -- Emotional Arc -- */
+  .arc-section {
+    margin-top: 48px;
+    padding: 28px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+  }
+  .arc-title {
+    text-align: center;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    margin-bottom: 24px;
+  }
+  .arc-track {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 4px;
+    height: 140px;
+    padding: 0 8px 1px;
+    position: relative;
+  }
+  .arc-track::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0; right: 0;
+    height: 1px;
+    background: var(--border);
+  }
+  .arc-point {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    flex: 1;
+    min-width: 0;
+  }
+  .arc-emoji { font-size: 20px; }
+  .arc-bar-seg {
+    width: 100%;
+    max-width: 50px;
+    border-radius: 6px 6px 0 0;
+    transition: height 0.8s ease;
+  }
+  .arc-point-label {
+    font-size: 9px;
+    font-weight: 600;
+    color: var(--muted);
+    text-align: center;
+    line-height: 1.2;
+    margin-top: 6px;
+    max-width: 72px;
+  }
+
+  /* -- Summary -- */
+  .summary-bar {
+    margin-top: 24px;
+    padding: 28px;
+    background: var(--surface);
+    border-radius: 16px;
+    border: 1px solid var(--border);
+  }
+  .summary-title {
+    text-align: center;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    margin-bottom: 20px;
+  }
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 16px;
+    text-align: center;
+  }
+  .summary-num {
+    font-size: 30px;
+    font-weight: 800;
+  }
+  .summary-label {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  /* -- Responsive -- */
+  @media (max-width: 640px) {
+    .flow-header h1 { font-size: 24px; }
+    .node { padding: 16px 18px; margin-left: 40px; }
+    .connector { margin-left: 40px; }
+    .timeline::before { left: 18px; }
+    .phase-day { width: 38px; height: 38px; font-size: 9px; }
+    .phase-day .day-num { font-size: 13px; }
+    .phase-title { font-size: 14px; }
+    .nav-ref { max-width: 340px; }
+    .nav-item { padding: 6px 10px; font-size: 9px; }
+    .arc-point-label { font-size: 8px; max-width: 50px; }
+    .summary-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* -- Entrance animation -- */
+  .node, .phase-divider, .connector {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  .node.visible, .phase-divider.visible, .connector.visible {
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+
+  /* -- Session separator sparkle -- */
+  .session-gap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 10px 0;
+    margin-left: 50px;
+  }
+  .session-gap-line {
+    height: 1px;
+    flex: 1;
+    background: linear-gradient(to right, transparent, var(--border), transparent);
+  }
+  .session-gap-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    opacity: 0.6;
+    white-space: nowrap;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- Brand Header -->
+  <div class="brand-header">
+    <div class="brand-name">Gastify</div>
+  </div>
+
+  <!-- Flow Header -->
+  <header class="flow-header">
+    <h1>Flujo 6: QuickSave &rarr; Learning &rarr; Trust</h1>
+    <p class="subtitle">
+      Como la app <strong>se vuelve mas inteligente</strong> con cada escaneo.
+      Desde la primera correccion manual hasta el guardado automatico sin tocar nada &mdash;
+      la evolucion de <strong>desconocido</strong> a <strong>confianza total</strong>, a traves de multiples sesiones.
+    </p>
+    <span class="value-tag">Aprendizaje Progresivo &mdash; "La app que te conoce"</span>
+  </header>
+
+  <!-- Nav Reference Bar -->
+  <div class="nav-ref">
+        <div class="nav-item" data-nav="home">Home</div>
+        <div class="nav-item" data-nav="trends">Trends</div>
+        <div class="nav-item fab" data-nav="fab">FAB Scan</div>
+        <div class="nav-item" data-nav="reports">Reports</div>
+        <div class="nav-item" data-nav="alerts">Alerts</div>
+      </div>
+
+  <!-- Legend -->
+  <div class="legend">
+    <div class="legend-item"><div class="legend-swatch red"></div> Accion del usuario</div>
+    <div class="legend-item"><div class="legend-swatch amber"></div> Procesamiento</div>
+    <div class="legend-item"><div class="legend-swatch blue"></div> Pantalla</div>
+    <div class="legend-item"><div class="legend-swatch green"></div> Exito / Auto</div>
+    <div class="legend-item"><div class="legend-swatch purple"></div> Momento clave</div>
+  </div>
+
+  <!-- Flow -->
+  <div class="flow">
+    <div class="timeline">
+
+      <!-- ════════════════════════════════════════════ -->
+      <!-- PHASE 1: Primer Contacto — Session 1        -->
+      <!-- ════════════════════════════════════════════ -->
+
+      <div class="phase-divider" id="phase1">
+        <div class="phase-day amber-phase">
+          <span>Dia</span>
+          <span class="day-num">1</span>
+        </div>
+        <div class="phase-info">
+          <div class="phase-title amber-text">Fase 1: Primer Contacto</div>
+          <div class="phase-subtitle">Primera visita al comercio &mdash; el usuario hace el trabajo</div>
+        </div>
+        <div class="phase-line amber-line"></div>
+      </div>
+
+      <!-- STEP 1: Scan → QuickSaveCard -->
+      <div class="node screen-node" tabindex="0">
+        <div class="node-screen">QuickSaveCard</div>
+        <div class="node-header">
+          <div class="node-step"><span>1</span></div>
+          <div class="node-title">
+            <span>&#x1F4F7;</span> Scan &rarr; QuickSaveCard
+          </div>
+        </div>
+        <div class="node-state">
+          Primera visita a "Lider Express". El escaneo detecta items correctamente,
+          pero la categoria queda en "Otros" &mdash; el sistema no conoce este comercio aun.
+        </div>
+        <div class="mini-ui">
+          <div class="mini-merchant">
+            <div class="mini-merchant-icon" style="background: var(--amber-dim); border: 1px solid var(--amber-border);">&#x1F6D2;</div>
+            <div class="mini-merchant-info">
+              <div class="mini-merchant-name">Lider Express</div>
+              <div class="mini-merchant-cat" style="color: var(--amber);">&#x2753; Otros</div>
+            </div>
+          </div>
+          <div class="mini-item-list">
+            <div class="mini-item">
+              <span>&#x2022;</span>
+              <span class="item-name">Leche descremada</span>
+              <span class="item-price">$1.290</span>
+            </div>
+            <div class="mini-item">
+              <span>&#x2022;</span>
+              <span class="item-name">Pan molde integral</span>
+              <span class="item-price">$2.190</span>
+            </div>
+            <div class="mini-item">
+              <span>&#x2022;</span>
+              <span class="item-name">Queso laminado</span>
+              <span class="item-price">$3.490</span>
+            </div>
+          </div>
+          <div class="mini-total">
+            <span>Total</span>
+            <span>$6.970</span>
+          </div>
+          <div class="mini-btn-row">
+            <button class="mini-btn accent-btn" id="btnEdit1">&#x270F;&#xFE0F; Editar</button>
+            <button class="mini-btn primary-btn">&#x1F4BE; Guardar</button>
+          </div>
+        </div>
+        <div class="node-thought" style="border-left-color: var(--amber);">
+          "El total esta bien, pero la categoria deberia ser 'Alimentacion'."
+        </div>
+        <div class="effort-bar">
+          <span class="effort-label">Esfuerzo:</span>
+          <div class="effort-track">
+            <div class="effort-seg user" style="width: 70%;"></div>
+            <div class="effort-seg system" style="width: 30%;"></div>
+          </div>
+        </div>
+        <div class="node-detail-expand">
+          Estado: <code>firstVisit</code>. Categoria por defecto: <code>"Otros"</code>.
+          Sin mappings aprendidos para este comercio.
+        </div>
+      </div>
+
+      <div class="connector">
+        <div style="display:flex;flex-direction:column;align-items:center;">
+          <div class="connector-line red"></div>
+          <div class="connector-arrow red"></div>
+        </div>
+        <span class="connector-label right red">Toca "Editar"</span>
+      </div>
+
+      <!-- STEP 2: User Edits Category -->
+      <div class="node action-node" tabindex="0">
+        <div class="node-screen">Transaction Editor</div>
+        <div class="node-header">
+          <div class="node-step"><span>2</span></div>
+          <div class="node-title">
+            <span>&#x270F;&#xFE0F;</span> Usuario corrige categoria
+          </div>
+        </div>
+        <div class="node-state">
+          Abre el editor de transacciones y cambia la categoria
+          de "Otros" a "Alimentacion y Bebidas".
+        </div>
+        <div class="mini-ui">
+          <div class="mini-row" style="background: var(--red-dim); border: 1px solid rgba(239,68,68,0.3);">
+            <span style="color:var(--red);">&#x274C;</span>
+            <span class="mini-label" style="color:var(--red); text-decoration: line-through;">Otros</span>
+          </div>
+          <div class="mini-row" style="background: var(--green-dim); border: 1px solid rgba(16,185,129,0.3); margin-top: 4px;">
+            <span style="color:var(--green);">&#x2705;</span>
+            <span class="mini-label" style="color:var(--green); font-weight: 600;">Alimentacion y Bebidas</span>
+            <span style="font-size:10px;color:var(--green);">&#x2190; nueva</span>
+          </div>
+        </div>
+        <div class="node-thought">
+          "Lider siempre es alimentacion. Ojala la app lo recuerde."
+        </div>
+      </div>
+
+      <div class="connector">
+        <div style="display:flex;flex-direction:column;align-items:center;">
+          <div class="connector-line grad-rp"></div>
+          <div class="connector-arrow purple"></div>
+        </div>
+        <span class="connector-label right amber">Al guardar cambio</span>
+      </div>
+
+      <!-- STEP 3: CategoryLearningPrompt -->
+      <div class="node key-moment-node" tabindex="0">
+        <span class="callout key-moment">Momento clave</span>
+        <div class="node-screen">CategoryLearningPrompt</div>
+        <div class="node-header">
+          <div class="node-step"><span>3</span></div>
+          <div class="node-title">
+            <span>&#x1F9E0;</span> Oferta de aprendizaje
+          </div>
+        </div>
+        <div class="node-state">
+          La app detecta la correccion y ofrece aprender el mapeo.
+          Selector multi-item permite aplicar la categoria a items de esta boleta.
+        </div>
+        <div class="mini-ui">
+          <div style="text-align:center; margin-bottom:8px;">
+            <div style="font-size:14px; font-weight:700; color:var(--purple);">
+              &#x1F4A1; &iquest;Guardar mapeo para futuros escaneos?
+            </div>
+            <div style="font-size:11px; color:var(--muted); margin-top:4px;">
+              "Lider Express" &rarr; "Alimentacion y Bebidas"
+            </div>
+          </div>
+          <div class="mini-selector">
+            <div class="mini-selector-title">Aplicar a items de esta boleta:</div>
+            <div class="mini-check-item">
+              <div class="mini-checkbox checked">&#x2713;</div>
+              <span>Leche descremada</span>
+            </div>
+            <div class="mini-check-item">
+              <div class="mini-checkbox checked">&#x2713;</div>
+              <span>Pan molde integral</span>
+            </div>
+            <div class="mini-check-item">
+              <div class="mini-checkbox checked">&#x2713;</div>
+              <span>Queso laminado</span>
+            </div>
+          </div>
+          <div class="mini-btn-row">
+            <button class="mini-btn muted-btn">No</button>
+            <button class="mini-btn primary-btn" id="btnLearn">&#x2705; Si, guardar</button>
+          </div>
+        </div>
+        <div class="node-thought" style="border-left-color: var(--purple);">
+          "Si, Lider siempre es alimentacion. Que bueno que la app pregunta."
+        </div>
+        <div class="node-detail-expand">
+          Primera interaccion de aprendizaje &mdash; la app se vuelve personal.
+          Mapeo: <code>merchantMappings["Lider Express"] = "Alimentacion y Bebidas"</code>
+        </div>
+      </div>
+
+      <div class="connector">
+        <div style="display:flex;flex-direction:column;align-items:center;">
+          <div class="connector-line grad-pg"></div>
+          <div class="connector-arrow green"></div>
+        </div>
+        <span class="connector-label right green">Mapeo guardado</span>
+      </div>
+
+      <!-- STEP 4: Save -->
+      <div class="node success-node" tabindex="0">
+        <div class="node-screen">Guardado</div>
+        <div class="node-header">
+          <div class="node-step"><span>4</span></div>
+          <div class="node-title">
+            <span>&#x1F4BE;</span> Transaccion guardada + mapeo aprendido
+          </div>
+        </div>
+        <div class="node-state">
+          Transaccion guardada con categoria corregida.
+          Mapeo almacenado: Lider Express &rarr; Alimentacion y Bebidas.
+          Contador de confianza: 1 escaneo exitoso.
+        </div>
+        <div class="mini-ui">
+          <div class="mini-toast success">
+            <span>&#x2705;</span>
+            <span>&iexcl;Guardado! Mapeo aprendido para Lider Express.</span>
+          </div>
+        </div>
+        <div class="node-thought">
+          "Listo, la proxima deberia venir con la categoria correcta."
+        </div>
+        <div class="effort-bar">
+          <span class="effort-label">Esfuerzo:</span>
+          <div class="effort-track">
+            <div class="effort-seg user" style="width: 65%;"></div>
+            <div class="effort-seg system" style="width: 35%;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ════════════════════════════════════════════ -->
+      <!-- PHASE 2: Reconocimiento — Session 2         -->
+      <!-- ════════════════════════════════════════════ -->
+
+      <div class="session-gap">
+        <div class="session-gap-line"></div>
+        <span class="session-gap-label">&#x23F0; 2 dias despues</span>
+        <div class="session-gap-line"></div>
+      </div>
+
+      <div class="phase-divider" id="phase2">
+        <div class="phase-day blue-phase">
+          <span>Dia</span>
+          <span class="day-num">3</span>
+        </div>
+        <div class="phase-info">
+          <div class="phase-title blue-text">Fase 2: Reconocimiento</div>
+          <div class="phase-subtitle">Segunda visita &mdash; el sistema ya ayuda</div>
+        </div>
+        <div class="phase-line blue-line"></div>
+      </div>
+
+      <!-- STEP 5: Second scan — auto-categorized -->
+      <div class="node screen-node" tabindex="0">
+        <span class="callout learning">Aprendizaje activo</span>
+        <div class="node-screen">QuickSaveCard</div>
+        <div class="node-header">
+          <div class="node-step"><span>5</span></div>
+          <div class="node-title">
+            <span>&#x1F4F7;</span> Scan &rarr; Categoria auto-asignada
+          </div>
+        </div>
+        <div class="node-state">
+          Segunda visita a "Lider Express". Esta vez la categoria llega pre-asignada
+          como "Alimentacion y Bebidas" gracias al mapeo aprendido. El usuario no necesita corregir nada.
+        </div>
+        <div class="mini-ui">
+          <div class="mini-merchant">
+            <div class="mini-merchant-icon" style="background: var(--green-dim); border: 1px solid var(--green-border);">&#x1F6D2;</div>
+            <div class="mini-merchant-info">
+              <div class="mini-merchant-name">
+                Lider Express
+                <span class="mini-confidence learned">&#x1F9E0; Aprendido</span>
+              </div>
+              <div class="mini-merchant-cat" style="color: var(--green);">&#x2705; Alimentacion y Bebidas</div>
+            </div>
+          </div>
+          <div class="mini-item-list">
+            <div class="mini-item">
+              <span>&#x2022;</span>
+              <span class="item-name">Yogurt natural</span>
+              <span class="item-price">$890</span>
+            </div>
+            <div class="mini-item">
+              <span>&#x2022;</span>
+              <span class="item-name">Cereal integral</span>
+              <span class="item-price">$3.990</span>
+            </div>
+            <div class="mini-item">
+              <span>&#x2022;</span>
+              <span class="item-name">Platanos</span>
+              <span class="item-price">$1.290</span>
+            </div>
+          </div>
+          <div class="mini-total">
+            <span>Total</span>
+            <span>$6.170</span>
+          </div>
+          <div class="mini-btn-row">
+            <button class="mini-btn muted-btn">&#x270F;&#xFE0F; Editar</button>
+            <button class="mini-btn green-btn" id="btnSave2">&#x1F4BE; Guardar</button>
+          </div>
+        </div>
+        <div class="node-thought" style="border-left-color: var(--green);">
+          "&iexcl;Ya lo aprendio! La categoria esta bien. Directo a guardar."
+        </div>
+        <div class="effort-bar">
+          <span class="effort-label">Esfuerzo:</span>
+          <div class="effort-track">
+            <div class="effort-seg user" style="width: 30%;"></div>
+            <div class="effort-seg system" style="width: 70%;"></div>
+          </div>
+        </div>
+        <div class="node-detail-expand">
+          Payoff del aprendizaje: <code>merchantMappings["Lider Express"]</code> aplica categoria automaticamente.
+          Confianza interna sube: 2 escaneos exitosos.
+        </div>
+      </div>
+
+      <div class="connector">
+        <div style="display:flex;flex-direction:column;align-items:center;">
+          <div class="connector-line grad-bg"></div>
+          <div class="connector-arrow green"></div>
+        </div>
+        <span class="connector-label right green">Toca "Guardar" directo</span>
+      </div>
+
+      <!-- STEP 6: Direct save -->
+      <div class="node success-node" tabindex="0">
+        <div class="node-screen">Guardado</div>
+        <div class="node-header">
+          <div class="node-step"><span>6</span></div>
+          <div class="node-title">
+            <span>&#x2728;</span> QuickSave sin edicion
+          </div>
+        </div>
+        <div class="node-state">
+          Sin edicion necesaria &mdash; QuickSave funciona perfecto.
+          Spring animation: "&iexcl;Guardado!" con efecto de rebote satisfactorio.
+        </div>
+        <div class="mini-ui">
+          <div class="mini-toast success">
+            <span style="font-size: 18px;">&#x2728;</span>
+            <span>&iexcl;Guardado!</span>
+          </div>
+        </div>
+        <div class="node-thought">
+          "Dos toques: escanear y guardar. Asi de facil."
+        </div>
+        <div class="effort-bar">
+          <span class="effort-label">Esfuerzo:</span>
+          <div class="effort-track">
+            <div class="effort-seg user" style="width: 20%;"></div>
+            <div class="effort-seg system" style="width: 80%;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ════════════════════════════════════════════ -->
+      <!-- PHASE 3: Confianza — Session 3              -->
+      <!-- ════════════════════════════════════════════ -->
+
+      <div class="session-gap">
+        <div class="session-gap-line"></div>
+        <span class="session-gap-label">&#x23F0; 4 dias despues</span>
+        <div class="session-gap-line"></div>
+      </div>
+
+      <div class="phase-divider" id="phase3">
+        <div class="phase-day purple-phase">
+          <span>Dia</span>
+          <span class="day-num">7</span>
+        </div>
+        <div class="phase-info">
+          <div class="phase-title purple-text">Fase 3: Confianza</div>
+          <div class="phase-subtitle">Umbral de confianza alcanzado &mdash; momento de decision</div>
+        </div>
+        <div class="phase-line purple-line"></div>
+      </div>
+
+      <!-- STEP 7: Third scan -->
+      <div class="node screen-node" tabindex="0">
+        <div class="node-screen">QuickSaveCard</div>
+        <div class="node-header">
+          <div class="node-step"><span>7</span></div>
+          <div class="node-title">
+            <span>&#x1F4F7;</span> Tercer escaneo exitoso
+          </div>
+        </div>
+        <div class="node-state">
+          Todo correcto de nuevo. Contador interno: 3 escaneos exitosos
+          en este comercio sin correcciones. El umbral de confianza se activa.
+        </div>
+        <div class="mini-ui">
+          <div class="mini-merchant">
+            <div class="mini-merchant-icon" style="background: var(--green-dim); border: 1px solid var(--green-border);">&#x1F6D2;</div>
+            <div class="mini-merchant-info">
+              <div class="mini-merchant-name">
+                Lider Express
+                <span class="mini-confidence learned">&#x1F9E0; 3/3 exitosos</span>
+              </div>
+              <div class="mini-merchant-cat" style="color: var(--green);">&#x2705; Alimentacion y Bebidas</div>
+            </div>
+          </div>
+          <div class="mini-item-list">
+            <div class="mini-item">
+              <span>&#x2022;</span>
+              <span class="item-name">Arroz largo</span>
+              <span class="item-price">$1.590</span>
+            </div>
+            <div class="mini-item">
+              <span>&#x2022;</span>
+              <span class="item-name">Aceite vegetal</span>
+              <span class="item-price">$2.890</span>
+            </div>
+          </div>
+          <div class="mini-total">
+            <span>Total</span>
+            <span>$4.480</span>
+          </div>
+          <div class="mini-btn-row">
+            <button class="mini-btn muted-btn">&#x270F;&#xFE0F; Editar</button>
+            <button class="mini-btn green-btn">&#x1F4BE; Guardar</button>
+          </div>
+        </div>
+        <div class="node-thought">
+          "Otro escaneo perfecto en Lider. Ya ni necesito revisar."
+        </div>
+        <div class="effort-bar">
+          <span class="effort-label">Esfuerzo:</span>
+          <div class="effort-track">
+            <div class="effort-seg user" style="width: 20%;"></div>
+            <div class="effort-seg system" style="width: 80%;"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="connector">
+        <div style="display:flex;flex-direction:column;align-items:center;">
+          <div class="connector-line grad-bp"></div>
+          <div class="connector-arrow purple"></div>
+        </div>
+        <span class="connector-label right green">Despues de guardar</span>
+      </div>
+
+      <!-- STEP 8: TrustMerchantPrompt -->
+      <div class="node key-moment-node" tabindex="0">
+        <span class="callout trust">Umbral de confianza</span>
+        <div class="node-screen">TrustMerchantPrompt</div>
+        <div class="node-header">
+          <div class="node-step"><span>&#x2B50;</span></div>
+          <div class="node-title">
+            <span>&#x1F91D;</span> Oferta de confianza
+          </div>
+        </div>
+        <div class="node-state">
+          Despues de 3 escaneos exitosos consecutivos, la app ofrece activar
+          QuickSave automatico para este comercio. Confianza ganada, no impuesta.
+        </div>
+        <div class="mini-ui">
+          <div class="mini-handshake">
+            <span class="shake-icon">&#x1F91D;</span>
+            <div class="shake-title">&iquest;Confiar en "Lider Express"?</div>
+            <div class="shake-desc">
+              Despues de 3 escaneos exitosos, podemos guardar automaticamente.<br>
+              Sin revisar la tarjeta &mdash; directo al historial.
+            </div>
+          </div>
+          <div class="mini-btn-row">
+            <button class="mini-btn muted-btn">Ahora no</button>
+            <button class="mini-btn primary-btn" id="btnTrust">&#x2705; Si, confiar</button>
+          </div>
+        </div>
+        <div class="node-thought" style="border-left-color: var(--purple);">
+          "&iexcl;Claro! Si siempre esta bien, que lo guarde solo."
+        </div>
+        <div class="node-detail-expand">
+          Momento decisivo: confianza ganada a traves de exito repetido.
+          <code>trustedMerchants.add("Lider Express")</code>.
+          Umbral configurable: <code>TRUST_THRESHOLD = 3</code>.
+        </div>
+      </div>
+
+      <div class="connector">
+        <div style="display:flex;flex-direction:column;align-items:center;">
+          <div class="connector-line grad-pg"></div>
+          <div class="connector-arrow green"></div>
+        </div>
+        <span class="connector-label right purple">Acepta confianza</span>
+      </div>
+
+      <!-- STEP 9: Trust Accepted -->
+      <div class="node success-node" tabindex="0">
+        <div class="node-screen">Confirmacion</div>
+        <div class="node-header">
+          <div class="node-step"><span>9</span></div>
+          <div class="node-title">
+            <span>&#x1F512;</span> Comercio marcado como confiable
+          </div>
+        </div>
+        <div class="node-state">
+          Lider Express ahora es un comercio confiable.
+          Los proximos escaneos se guardaran automaticamente
+          cuando la confianza sea mayor a 70%.
+        </div>
+        <div class="mini-ui">
+          <div class="mini-toast success">
+            <span>&#x1F91D;</span>
+            <span>Lider Express ahora es de confianza. &iexcl;Auto-guardado activado!</span>
+          </div>
+        </div>
+        <div class="node-thought">
+          "Perfecto, la app ya me conoce."
+        </div>
+        <div class="effort-bar">
+          <span class="effort-label">Esfuerzo:</span>
+          <div class="effort-track">
+            <div class="effort-seg user" style="width: 10%;"></div>
+            <div class="effort-seg system" style="width: 90%;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ════════════════════════════════════════════ -->
+      <!-- PHASE 4: Automatizacion — Session 4+        -->
+      <!-- ════════════════════════════════════════════ -->
+
+      <div class="session-gap">
+        <div class="session-gap-line"></div>
+        <span class="session-gap-label">&#x23F0; 3 dias despues</span>
+        <div class="session-gap-line"></div>
+      </div>
+
+      <div class="phase-divider" id="phase4">
+        <div class="phase-day green-phase">
+          <span>Dia</span>
+          <span class="day-num">10+</span>
+        </div>
+        <div class="phase-info">
+          <div class="phase-title green-text">Fase 4: Automatizacion</div>
+          <div class="phase-subtitle">El sistema hace todo &mdash; cero esfuerzo del usuario</div>
+        </div>
+        <div class="phase-line green-line"></div>
+      </div>
+
+      <!-- STEP 10: Auto-save -->
+      <div class="node auto-node" tabindex="0">
+        <span class="callout auto">Auto-guardado</span>
+        <div class="node-screen">Scan &rarr; Auto</div>
+        <div class="node-header">
+          <div class="node-step"><span>10</span></div>
+          <div class="node-title">
+            <span>&#x26A1;</span> Escaneo en comercio confiable
+          </div>
+        </div>
+        <div class="node-state">
+          Boleta escaneada en Lider Express. Confianza > 70% + comercio confiable.
+          Se guarda automaticamente SIN mostrar la tarjeta QuickSave.
+          Solo un toast discreto confirma la accion.
+        </div>
+        <div class="mini-ui">
+          <div style="text-align:center; padding: 12px 0 8px;">
+            <div style="font-size:40px; margin-bottom:8px; animation: fadeInScale 0.6s ease;">&#x26A1;</div>
+            <div style="font-size:11px; color:var(--muted); font-weight:500;">Escaneado &rarr; Guardado automaticamente</div>
+          </div>
+          <div class="mini-toast auto" style="margin-top: 8px;">
+            <span>&#x2705;</span>
+            <span>&iexcl;Guardado automaticamente! (Lider Express)</span>
+            <span class="mini-confidence trusted">&#x1F91D; Confiable</span>
+          </div>
+        </div>
+        <div class="node-thought" style="border-left-color: var(--green);">
+          "Wow, ni tuve que tocar nada. La app ya me conoce."
+        </div>
+        <div class="effort-bar">
+          <span class="effort-label">Esfuerzo:</span>
+          <div class="effort-track">
+            <div class="effort-seg user" style="width: 5%;"></div>
+            <div class="effort-seg system" style="width: 95%;"></div>
+          </div>
+        </div>
+        <div class="node-detail-expand">
+          Pipeline: scan &rarr; <code>confidence > 0.7 && trustedMerchants.has(merchant)</code>
+          &rarr; auto-save sin UI intermedia. Toast efimero de 3s.
+        </div>
+      </div>
+
+      <div class="connector">
+        <div style="display:flex;flex-direction:column;align-items:center;">
+          <div class="connector-line grad-gg"></div>
+          <div class="connector-arrow green"></div>
+        </div>
+        <span class="connector-label right green">Automatico</span>
+      </div>
+
+      <!-- STEP 11: Dashboard Updated -->
+      <div class="node auto-node" tabindex="0">
+        <div class="node-screen">Dashboard</div>
+        <div class="node-header">
+          <div class="node-step"><span>11</span></div>
+          <div class="node-title">
+            <span>&#x1F3E0;</span> Dashboard actualizado &mdash; sin esfuerzo
+          </div>
+        </div>
+        <div class="node-state">
+          La transaccion aparece automaticamente en el dashboard.
+          Cero toques despues de capturar la imagen. El habito esta completo.
+        </div>
+        <div class="mini-ui">
+          <div class="mini-dashboard-row">
+            <span class="dash-icon">&#x1F6D2;</span>
+            <div class="dash-info">
+              <div class="dash-label">Lider Express</div>
+              <div class="dash-meta">Hace 2 min &middot; Alimentacion y Bebidas &middot; &#x26A1; Auto</div>
+            </div>
+            <span class="dash-amount">-$8.350</span>
+          </div>
+          <div class="mini-dashboard-row" style="opacity: 0.5; border-left-color: var(--border);">
+            <span class="dash-icon">&#x2615;</span>
+            <div class="dash-info">
+              <div class="dash-label">Cafe Haiti</div>
+              <div class="dash-meta">Ayer &middot; Entretenimiento</div>
+            </div>
+            <span class="dash-amount">-$3.200</span>
+          </div>
+        </div>
+        <div class="node-thought" style="border-left-color: var(--green);">
+          "Esto es como tener un asistente personal. La app simplemente funciona."
+        </div>
+        <div class="effort-bar">
+          <span class="effort-label">Esfuerzo:</span>
+          <div class="effort-track">
+            <div class="effort-seg user" style="width: 0%;"></div>
+            <div class="effort-seg system" style="width: 100%;"></div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /timeline -->
+  </div><!-- /flow -->
+
+  <!-- Emotional Arc Visualization -->
+  <div class="arc-section">
+    <div class="arc-title">Arco de Aprendizaje &mdash; Esfuerzo del Usuario vs Sistema</div>
+    <div class="arc-track" id="arcTrack">
+      <div class="arc-point">
+        <div class="arc-emoji">&#x1F612;</div>
+        <div class="arc-bar-seg" data-h="90" style="height:0; background: linear-gradient(to top, var(--red-dim), var(--red));"></div>
+        <div class="arc-point-label">Correccion manual</div>
+      </div>
+      <div class="arc-point">
+        <div class="arc-emoji">&#x1F9E0;</div>
+        <div class="arc-bar-seg" data-h="70" style="height:0; background: linear-gradient(to top, var(--purple-dim), var(--purple));"></div>
+        <div class="arc-point-label">Aprendizaje ofrecido</div>
+      </div>
+      <div class="arc-point">
+        <div class="arc-emoji">&#x1F60A;</div>
+        <div class="arc-bar-seg" data-h="55" style="height:0; background: linear-gradient(to top, var(--blue-dim), var(--blue));"></div>
+        <div class="arc-point-label">Auto-categoria</div>
+      </div>
+      <div class="arc-point">
+        <div class="arc-emoji">&#x1F44D;</div>
+        <div class="arc-bar-seg" data-h="40" style="height:0; background: linear-gradient(to top, var(--blue-dim), var(--green));"></div>
+        <div class="arc-point-label">QuickSave directo</div>
+      </div>
+      <div class="arc-point">
+        <div class="arc-emoji">&#x1F91D;</div>
+        <div class="arc-bar-seg" data-h="25" style="height:0; background: linear-gradient(to top, var(--purple-dim), var(--purple));"></div>
+        <div class="arc-point-label">Confianza ganada</div>
+      </div>
+      <div class="arc-point">
+        <div class="arc-emoji">&#x26A1;</div>
+        <div class="arc-bar-seg" data-h="8" style="height:0; background: linear-gradient(to top, var(--green-dim), var(--green));"></div>
+        <div class="arc-point-label">Auto-guardado</div>
+      </div>
+    </div>
+    <div style="display:flex; justify-content:center; gap:20px; margin-top:16px; font-size:11px;">
+      <div style="display:flex; align-items:center; gap:6px;">
+        <div style="width:12px; height:12px; border-radius:3px; background:var(--red);"></div>
+        <span style="color:var(--muted);">Alto = mas esfuerzo usuario</span>
+      </div>
+      <div style="display:flex; align-items:center; gap:6px;">
+        <div style="width:12px; height:12px; border-radius:3px; background:var(--green);"></div>
+        <span style="color:var(--muted);">Bajo = sistema hace mas</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Summary -->
+  <div class="summary-bar">
+    <div class="summary-title">Evolucion del Flujo</div>
+    <div class="summary-grid">
+      <div>
+        <div class="summary-num" style="color:var(--red);">4</div>
+        <div class="summary-label">Sesiones para confianza total</div>
+      </div>
+      <div>
+        <div class="summary-num" style="color:var(--amber);">5 &rarr; 1</div>
+        <div class="summary-label">Pasos: sesion 1 vs sesion 4</div>
+      </div>
+      <div>
+        <div class="summary-num" style="color:var(--green);">0</div>
+        <div class="summary-label">Toques en auto-guardado</div>
+      </div>
+      <div>
+        <div class="summary-num" style="color:var(--purple);">2</div>
+        <div class="summary-label">Momentos clave de decision</div>
+      </div>
+      <div>
+        <div class="summary-num" style="color:var(--primary-border);">100%</div>
+        <div class="summary-label">Precision lograda</div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+<script>
+(function() {
+  // Staggered entrance animation
+  var animTargets = document.querySelectorAll('.node, .phase-divider, .connector');
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        var el = entry.target;
+        var d = parseInt(el.dataset.delay || '0', 10);
+        setTimeout(function() { el.classList.add('visible'); }, d);
+        observer.unobserve(el);
+      }
+    });
+  }, { threshold: 0.12 });
+
+  animTargets.forEach(function(el, i) {
+    el.dataset.delay = String(i * 70);
+    observer.observe(el);
+  });
+
+  // Emotional arc bar animation (bars shrink to show decreasing effort)
+  var arcBars = document.querySelectorAll('.arc-bar-seg');
+  var arcObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        var el = entry.target;
+        var h = el.getAttribute('data-h');
+        el.style.height = '0px';
+        requestAnimationFrame(function() {
+          requestAnimationFrame(function() {
+            el.style.height = h + 'px';
+          });
+        });
+        arcObserver.unobserve(el);
+      }
+    });
+  }, { threshold: 0.3 });
+
+  arcBars.forEach(function(bar) { arcObserver.observe(bar); });
+
+  // Interactive: Edit button scrolls to editor node
+  var btnEdit1 = document.getElementById('btnEdit1');
+  if (btnEdit1) {
+    btnEdit1.addEventListener('click', function() {
+      var nodes = document.querySelectorAll('.node');
+      if (nodes[1]) {
+        nodes[1].scrollIntoView({ behavior: 'smooth', block: 'center' });
+        nodes[1].style.transition = 'box-shadow 0.3s';
+        nodes[1].style.boxShadow = '0 0 30px rgba(248,113,113,0.4)';
+        setTimeout(function() { nodes[1].style.boxShadow = ''; }, 1200);
+      }
+    });
+  }
+
+  // Interactive: Learn button pulse
+  var btnLearn = document.getElementById('btnLearn');
+  if (btnLearn) {
+    btnLearn.addEventListener('click', function() {
+      var nodes = document.querySelectorAll('.node');
+      if (nodes[3]) {
+        nodes[3].scrollIntoView({ behavior: 'smooth', block: 'center' });
+        nodes[3].style.transition = 'box-shadow 0.3s';
+        nodes[3].style.boxShadow = '0 0 30px rgba(52,211,153,0.4)';
+        setTimeout(function() { nodes[3].style.boxShadow = ''; }, 1200);
+      }
+    });
+  }
+
+  // Interactive: Save button on session 2
+  var btnSave2 = document.getElementById('btnSave2');
+  if (btnSave2) {
+    btnSave2.addEventListener('click', function() {
+      var nodes = document.querySelectorAll('.node');
+      if (nodes[5]) {
+        nodes[5].scrollIntoView({ behavior: 'smooth', block: 'center' });
+        nodes[5].style.transition = 'box-shadow 0.3s';
+        nodes[5].style.boxShadow = '0 0 30px rgba(52,211,153,0.4)';
+        setTimeout(function() { nodes[5].style.boxShadow = ''; }, 1200);
+      }
+    });
+  }
+
+  // Interactive: Trust button
+  var btnTrust = document.getElementById('btnTrust');
+  if (btnTrust) {
+    btnTrust.addEventListener('click', function() {
+      var nodes = document.querySelectorAll('.node');
+      if (nodes[7]) {
+        nodes[7].scrollIntoView({ behavior: 'smooth', block: 'center' });
+        nodes[7].style.transition = 'box-shadow 0.3s';
+        nodes[7].style.boxShadow = '0 0 30px rgba(52,211,153,0.4)';
+        setTimeout(function() { nodes[7].style.boxShadow = ''; }, 1200);
+      }
+    });
+  }
+
+  // Phase navigation: clicking phase days scrolls to that phase's first node
+  document.querySelectorAll('.phase-day').forEach(function(day) {
+    day.style.cursor = 'pointer';
+    day.addEventListener('click', function() {
+      var divider = day.closest('.phase-divider');
+      var next = divider.nextElementSibling;
+      while (next && !next.classList.contains('node')) {
+        next = next.nextElementSibling;
+      }
+      if (next) {
+        next.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    });
+  });
+})();
+</script>
+
+</body>
+</html>

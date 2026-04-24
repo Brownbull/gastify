@@ -1,0 +1,1483 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flujo 4: Estado de Cuenta &rarr; Conciliacion — Gastify</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+
+  :root {
+    --bg: var(--bg);
+    --bg-lighter: var(--bg-lighter);
+    --surface: var(--surface);
+    --border: var(--border);
+    --text: #e8e8f0;
+    --muted: #8888aa;
+    --primary: var(--primary);
+    --primary-dim: var(--primary-dim);
+    --primary-border: var(--primary-border);
+    --accent: var(--accent);
+    --accent-dim: #4a3020;
+    --accent-border: var(--accent-border);
+    --secondary: var(--secondary);
+    --secondary-dim: #1e3a4a;
+    --secondary-border: var(--secondary-border);
+    --green: var(--green);
+    --green-dim: #064e3b;
+    --green-border: var(--green-border);
+    --amber: var(--amber);
+    --amber-dim: #78350f;
+    --amber-border: var(--amber-border);
+    --blue: var(--blue);
+    --blue-dim: #1e3a5f;
+    --blue-border: var(--blue-border);
+    --purple: var(--purple);
+    --purple-dim: #3b1f7a;
+    --purple-border: var(--purple-border);
+    --red: var(--red);
+    --red-dim: #5b1a1a;
+    --red-border: var(--red-border);
+    --gold: #fde68a;
+    --gold-dim: #4a3f1a;
+    --gold-border: var(--amber);
+  }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Outfit', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background:
+        radial-gradient(ellipse at 20% 15%, rgba(139,92,246,0.09) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 25%, rgba(74,124,89,0.07) 0%, transparent 50%),
+        radial-gradient(ellipse at 35% 65%, rgba(91,143,168,0.06) 0%, transparent 55%),
+        radial-gradient(ellipse at 75% 85%, rgba(232,168,124,0.05) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: 0;
+      animation: bg-drift 22s ease-in-out infinite alternate;
+    }
+
+    @keyframes bg-drift {
+      0% { opacity: 1; }
+      50% { opacity: 0.75; }
+      100% { opacity: 1; }
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 36px 20px 80px;
+    }
+
+    /* ════════════════ HEADER ════════════════ */
+    .header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .header .brand {
+      font-size: 12px;
+      font-weight: 600;
+      color: #6a7a6a;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .header h1 {
+      font-size: 34px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 12px;
+      line-height: 1.2;
+    }
+
+    .header h1 .accent {
+      background: linear-gradient(135deg, #8B5CF6, var(--purple), #c4b5fd);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .header .subtitle {
+      font-size: 14px;
+      color: var(--muted);
+      max-width: 620px;
+      margin: 0 auto;
+      line-height: 1.7;
+      font-weight: 400;
+    }
+
+      /* -- Nav Reference Bar (canonical — matches flow-06+) -- */
+  .nav-ref {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0;
+    margin-bottom: 36px;
+    padding: 10px 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    max-width: 420px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    padding: 6px 16px;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--muted);
+    letter-spacing: 0.03em;
+    position: relative;
+  }
+  .nav-item .nav-icon { font-size: 18px; }
+  .nav-fab {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary), var(--primary-border));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(74, 124, 89, 0.4);
+    margin: 0 8px;
+    flex-shrink: 0;
+  }
+
+
+    /* ════════════════ LEGEND ════════════════ */
+    .legend {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 28px;
+      padding: 12px 20px;
+      background: rgba(255,255,255,0.025);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 12px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 11px;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .legend-dot {
+      width: 11px;
+      height: 11px;
+      border-radius: 3px;
+      flex-shrink: 0;
+    }
+
+    .legend-dot.red { background: var(--red); }
+    .legend-dot.amber { background: #d4a03c; }
+    .legend-dot.blue { background: var(--secondary); }
+    .legend-dot.green { background: var(--primary); }
+    .legend-dot.violet { background: #8B5CF6; }
+    .legend-dot.diamond {
+      background: #8B5CF6;
+      transform: rotate(45deg);
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+    }
+
+    /* ════════════════ FLOW ════════════════ */
+    .flow {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+      position: relative;
+    }
+
+    /* ════════════════ PHASE DIVIDERS ════════════════ */
+    .phase-divider {
+      width: 100%;
+      max-width: 600px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin: 24px 0 14px;
+    }
+
+    .phase-divider .line {
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(to right, transparent, rgba(139,92,246,0.18), transparent);
+    }
+
+    .phase-divider .label {
+      font-size: 12px;
+      color: #8B5CF6;
+      font-weight: 700;
+      white-space: nowrap;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      opacity: 0.7;
+    }
+
+    /* ════════════════ CONNECTORS ════════════════ */
+    .connector {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 3px 0;
+    }
+
+    .connector .line {
+      width: 2px;
+      height: 22px;
+      background: linear-gradient(to bottom, rgba(255,255,255,0.10), rgba(255,255,255,0.20));
+    }
+
+    .connector .arrow {
+      width: 0; height: 0;
+      border-left: 5px solid transparent;
+      border-right: 5px solid transparent;
+      border-top: 7px solid rgba(255,255,255,0.20);
+    }
+
+    .connector .label {
+      font-size: 10px;
+      color: #7a7a96;
+      margin: 3px 0;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+    }
+
+    .connector.violet .line {
+      background: linear-gradient(to bottom, rgba(139,92,246,0.2), rgba(139,92,246,0.35));
+    }
+
+    .connector.violet .arrow {
+      border-top-color: rgba(139,92,246,0.35);
+    }
+
+    .connector.violet .label {
+      color: var(--purple);
+    }
+
+    /* ════════════════ NODE CARDS ════════════════ */
+    .node {
+      width: 100%;
+      max-width: 520px;
+      border-radius: 14px;
+      padding: 22px 24px;
+      position: relative;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      cursor: pointer;
+    }
+
+    .node:hover {
+      transform: translateY(-2px);
+    }
+
+    .node .step-badge {
+      position: absolute;
+      top: -9px;
+      left: 22px;
+      background: var(--bg);
+      border: 2px solid;
+      border-radius: 16px;
+      padding: 1px 10px;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+    }
+
+    .node .screen-name {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 3px;
+    }
+
+    .node .screen-state {
+      font-size: 12px;
+      opacity: 0.6;
+      margin-bottom: 10px;
+      font-weight: 500;
+    }
+
+    .node .description {
+      font-size: 12px;
+      line-height: 1.55;
+      opacity: 0.7;
+      margin-bottom: 10px;
+    }
+
+    .node .user-thought {
+      font-size: 12px;
+      font-style: italic;
+      line-height: 1.5;
+      padding: 10px 14px;
+      border-radius: 8px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .node .user-thought::before {
+      content: '\201C';
+      font-size: 28px;
+      position: absolute;
+      top: -2px;
+      left: 5px;
+      opacity: 0.2;
+      font-style: normal;
+      font-weight: 700;
+    }
+
+    .node .user-thought .thought-text {
+      padding-left: 12px;
+    }
+
+    .node .nav-highlight {
+      margin-top: 8px;
+      font-size: 10px;
+      opacity: 0.4;
+      font-weight: 600;
+    }
+
+    .node .nav-highlight span {
+      opacity: 1;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    /* Key moment badge */
+    .key-moment {
+      position: absolute;
+      top: -9px;
+      right: 18px;
+      background: linear-gradient(135deg, #8B5CF6, var(--purple));
+      color: #fff;
+      font-size: 9px;
+      font-weight: 800;
+      padding: 3px 10px;
+      border-radius: 10px;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+      box-shadow: 0 2px 10px rgba(139,92,246,0.35);
+      animation: badge-pulse 3s ease-in-out infinite;
+    }
+
+    @keyframes badge-pulse {
+      0%, 100% { box-shadow: 0 2px 10px rgba(139,92,246,0.3); }
+      50% { box-shadow: 0 3px 16px rgba(139,92,246,0.55); }
+    }
+
+    /* Expandable details */
+    .screen-details {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(255,255,255,0.05);
+      max-height: 0;
+      overflow: hidden;
+      opacity: 0;
+      transition: max-height 0.4s ease, opacity 0.3s ease;
+    }
+
+    .node.expanded .screen-details {
+      max-height: 400px;
+      opacity: 1;
+    }
+
+    .screen-details .detail-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 5px;
+      line-height: 1.4;
+    }
+
+    .screen-details .detail-icon {
+      width: 16px;
+      text-align: center;
+      flex-shrink: 0;
+      font-size: 12px;
+    }
+
+    .expand-hint {
+      font-size: 9px;
+      color: #444460;
+      margin-top: 8px;
+      text-align: right;
+      transition: opacity 0.2s ease;
+    }
+
+    .node.expanded .expand-hint { opacity: 0.3; }
+
+    /* ── Node color variants ── */
+    .node.red {
+      background: linear-gradient(135deg, rgba(224,85,85,0.10), rgba(224,85,85,0.03));
+      border: 1px solid rgba(224,85,85,0.20);
+      box-shadow: 0 3px 20px rgba(224,85,85,0.05);
+    }
+    .node.red:hover { box-shadow: 0 6px 30px rgba(224,85,85,0.12); }
+    .node.red .step-badge { border-color: var(--red); color: var(--red); }
+    .node.red .screen-name { color: #f0a0a0; }
+    .node.red .user-thought { background: rgba(224,85,85,0.06); color: #d4a8a8; }
+
+    .node.amber {
+      background: linear-gradient(135deg, rgba(212,160,60,0.10), rgba(212,160,60,0.03));
+      border: 1px solid rgba(212,160,60,0.20);
+      box-shadow: 0 3px 20px rgba(212,160,60,0.05);
+    }
+    .node.amber:hover { box-shadow: 0 6px 30px rgba(212,160,60,0.12); }
+    .node.amber .step-badge { border-color: #d4a03c; color: #d4a03c; }
+    .node.amber .screen-name { color: #f0d8a0; }
+    .node.amber .user-thought { background: rgba(212,160,60,0.06); color: #d4c8a8; }
+
+    .node.blue {
+      background: linear-gradient(135deg, rgba(91,143,168,0.10), rgba(91,143,168,0.03));
+      border: 1px solid rgba(91,143,168,0.20);
+      box-shadow: 0 3px 20px rgba(91,143,168,0.05);
+    }
+    .node.blue:hover { box-shadow: 0 6px 30px rgba(91,143,168,0.12); }
+    .node.blue .step-badge { border-color: var(--secondary); color: var(--secondary); }
+    .node.blue .screen-name { color: #a0cce0; }
+    .node.blue .user-thought { background: rgba(91,143,168,0.06); color: #a0b8c4; }
+
+    .node.green {
+      background: linear-gradient(135deg, rgba(74,124,89,0.12), rgba(74,124,89,0.04));
+      border: 1px solid rgba(74,124,89,0.25);
+      box-shadow: 0 3px 20px rgba(74,124,89,0.06);
+    }
+    .node.green:hover { box-shadow: 0 6px 30px rgba(74,124,89,0.16); }
+    .node.green .step-badge { border-color: var(--primary); color: var(--primary); }
+    .node.green .screen-name { color: #a0d4b0; }
+    .node.green .user-thought { background: rgba(74,124,89,0.07); color: #a0c8b0; }
+
+    .node.violet {
+      background: linear-gradient(135deg, rgba(139,92,246,0.12), rgba(139,92,246,0.04));
+      border: 1px solid rgba(139,92,246,0.25);
+      box-shadow: 0 3px 20px rgba(139,92,246,0.06);
+    }
+    .node.violet:hover { box-shadow: 0 6px 30px rgba(139,92,246,0.16); }
+    .node.violet .step-badge { border-color: #8B5CF6; color: #8B5CF6; }
+    .node.violet .screen-name { color: #c4b5fd; }
+    .node.violet .user-thought { background: rgba(139,92,246,0.07); color: #bfb0d8; }
+    .node.violet .description { color: #a8a0c0; }
+
+    /* Celebration ring for green success nodes */
+    .celebration {
+      position: absolute;
+      top: -3px; left: -3px; right: -3px; bottom: -3px;
+      border-radius: 17px;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .node.green:hover .celebration { opacity: 1; }
+
+    .celebration::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 17px;
+      border: 2px solid rgba(74,124,89,0.3);
+      animation: celebration-ring 2s ease-in-out infinite;
+    }
+
+    @keyframes celebration-ring {
+      0%, 100% { transform: scale(1); opacity: 0.4; }
+      50% { transform: scale(1.01); opacity: 1; }
+    }
+
+    .celebration::after {
+      content: '';
+      position: absolute;
+      inset: -6px;
+      border-radius: 22px;
+      background:
+        radial-gradient(circle 2px at 12% 18%, rgba(74,124,89,0.5) 0%, transparent 100%),
+        radial-gradient(circle 2px at 88% 22%, rgba(139,92,246,0.4) 0%, transparent 100%),
+        radial-gradient(circle 1.5px at 85% 78%, rgba(74,124,89,0.4) 0%, transparent 100%),
+        radial-gradient(circle 1.5px at 10% 80%, rgba(232,168,124,0.4) 0%, transparent 100%),
+        radial-gradient(circle 2px at 50% 8%, rgba(139,92,246,0.35) 0%, transparent 100%);
+      animation: sparkle-float 4s ease-in-out infinite;
+    }
+
+    @keyframes sparkle-float {
+      0%, 100% { opacity: 0.3; transform: scale(1); }
+      50% { opacity: 0.8; transform: scale(1.02); }
+    }
+
+    /* ════════════════ DECISION DIAMONDS ════════════════ */
+    .decision {
+      width: 100%;
+      max-width: 520px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .diamond-wrapper {
+      position: relative;
+      width: 200px;
+      height: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .diamond-shape {
+      position: absolute;
+      width: 170px;
+      height: 80px;
+      background: linear-gradient(135deg, rgba(139,92,246,0.16), rgba(139,92,246,0.05));
+      border: 1.5px solid rgba(139,92,246,0.35);
+      clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+    }
+
+    .diamond-text {
+      position: relative;
+      z-index: 1;
+      font-size: 11px;
+      font-weight: 700;
+      color: #c4b5fd;
+      text-align: center;
+      line-height: 1.3;
+    }
+
+    .decision-branches {
+      display: flex;
+      justify-content: center;
+      gap: 60px;
+      width: 100%;
+      margin-top: 4px;
+    }
+
+    .branch {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .branch-label {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 10px;
+      border-radius: 8px;
+    }
+
+    .branch-label.yes {
+      background: rgba(74,124,89,0.18);
+      color: var(--primary);
+    }
+
+    .branch-label.no {
+      background: rgba(224,85,85,0.12);
+      color: var(--red);
+    }
+
+    .branch-desc {
+      font-size: 10px;
+      color: #7a7a96;
+      margin-top: 3px;
+      text-align: center;
+      max-width: 140px;
+    }
+
+    .branch .line {
+      width: 2px;
+      height: 14px;
+      background: rgba(255,255,255,0.14);
+    }
+
+    .branch .arrow {
+      width: 0; height: 0;
+      border-left: 5px solid transparent;
+      border-right: 5px solid transparent;
+      border-top: 6px solid rgba(255,255,255,0.18);
+    }
+
+    /* ════════════════ BRANCHING LAYOUT ════════════════ */
+    .branch-container {
+      width: 100%;
+      max-width: 560px;
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+      position: relative;
+    }
+
+    .branch-container::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 50%;
+      width: 1px;
+      height: 100%;
+      background: linear-gradient(to bottom, rgba(139,92,246,0.15), transparent);
+    }
+
+    .branch-path {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+    }
+
+    .branch-path .node {
+      max-width: 100%;
+    }
+
+    .branch-path-label {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 12px;
+      border-radius: 8px;
+      margin-bottom: 6px;
+    }
+
+    .branch-path-label.yes {
+      background: rgba(74,124,89,0.15);
+      color: var(--primary);
+    }
+
+    .branch-path-label.no {
+      background: rgba(224,85,85,0.10);
+      color: var(--red);
+    }
+
+    /* ════════════════ INLINE DECISION (compact) ════════════════ */
+    .inline-decision {
+      width: 100%;
+      max-width: 520px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 8px 0;
+    }
+
+    .inline-diamond {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 24px;
+      background: linear-gradient(135deg, rgba(139,92,246,0.10), rgba(139,92,246,0.03));
+      border: 1px solid rgba(139,92,246,0.25);
+      border-radius: 10px;
+      width: 100%;
+    }
+
+    .inline-diamond .diamond-icon {
+      width: 18px;
+      height: 18px;
+      background: rgba(139,92,246,0.3);
+      transform: rotate(45deg);
+      border-radius: 3px;
+      flex-shrink: 0;
+      margin-right: 12px;
+    }
+
+    .inline-diamond .diamond-content {
+      flex: 1;
+    }
+
+    .inline-diamond .diamond-question {
+      font-size: 12px;
+      font-weight: 700;
+      color: #c4b5fd;
+      margin-bottom: 2px;
+    }
+
+    .inline-diamond .diamond-outcomes {
+      font-size: 10px;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    .inline-diamond .outcome-tag {
+      display: inline-block;
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-weight: 600;
+      margin: 0 2px;
+    }
+
+    .inline-diamond .outcome-tag.if-yes {
+      background: rgba(74,124,89,0.15);
+      color: #6aad7a;
+    }
+
+    .inline-diamond .outcome-tag.if-no {
+      background: rgba(224,85,85,0.10);
+      color: #e08888;
+    }
+
+    /* ════════════════ PULSING DOT (FAB indicator) ════════════════ */
+    @keyframes pulse-dot {
+      0%, 100% { transform: scale(1); opacity: 0.8; }
+      50% { transform: scale(1.5); opacity: 1; }
+    }
+
+    .pulse-indicator {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #8B5CF6;
+      animation: pulse-dot 1.5s ease-in-out infinite;
+      vertical-align: middle;
+      margin-left: 4px;
+    }
+
+    /* ════════════════ FOOTER ════════════════ */
+    .footer {
+      text-align: center;
+      margin-top: 48px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(255,255,255,0.04);
+    }
+
+    .footer p {
+      font-size: 11px;
+      color: #444460;
+      line-height: 1.7;
+    }
+
+    .footer .app-name {
+      color: #6a6a86;
+      font-weight: 600;
+    }
+
+    /* ════════════════ RESPONSIVE ════════════════ */
+    @media (max-width: 600px) {
+      .container { padding: 20px 10px 60px; }
+      .header h1 { font-size: 26px; }
+      .node { padding: 18px 16px; max-width: 100%; }
+      .node .screen-name { font-size: 16px; }
+      .legend { gap: 10px; padding: 10px 12px; }
+      .decision-branches { gap: 40px; }
+      .diamond-wrapper { width: 160px; height: 86px; }
+      .diamond-shape { width: 140px; height: 68px; }
+      .branch-container { flex-direction: column; gap: 8px; }
+      .branch-container::before { display: none; }
+      .nav-ref .nav-item { font-size: 10px; padding: 4px 10px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <!-- ═══════════════ HEADER ═══════════════ -->
+    <div class="header">
+      <div class="brand">Khujta AI &middot; Gastify</div>
+      <h1>Flujo 4: <span class="accent">Estado de Cuenta</span></h1>
+      <p class="subtitle">
+        El flujo mas complejo de la app. El usuario sube un PDF de su estado de cuenta,
+        el sistema lo procesa con IA, extrae transacciones, las concilia con gastos existentes,
+        y deja todo reconciliado. Multiples puntos de decision y procesamiento asincrono.
+      </p>
+      <div class="nav-ref">
+        <div class="nav-item" data-nav="home">Home</div>
+        <div class="nav-item" data-nav="trends">Trends</div>
+        <div class="nav-item fab" data-nav="fab">FAB Scan</div>
+        <div class="nav-item" data-nav="reports">Reports</div>
+        <div class="nav-item" data-nav="alerts">Alerts</div>
+      </div>
+    </div>
+
+    <!-- ═══════════════ LEGEND ═══════════════ -->
+    <div class="legend">
+      <div class="legend-item">
+        <div class="legend-dot red"></div>
+        Accion
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot amber"></div>
+        Procesamiento
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot blue"></div>
+        Pantalla
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot green"></div>
+        Exito
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot violet"></div>
+        Statement-specific
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot diamond"></div>
+        Momento clave
+      </div>
+    </div>
+
+    <!-- ═══════════════ FLOW ═══════════════ -->
+    <div class="flow">
+
+      <!-- ════ FASE 1: Preparacion ════ -->
+      <div class="phase-divider">
+        <div class="line"></div>
+        <div class="label">Fase 1 &mdash; Preparacion</div>
+        <div class="line"></div>
+      </div>
+
+      <!-- 01. Dashboard -->
+      <div class="node blue" onclick="this.classList.toggle('expanded')">
+        <div class="step-badge">01</div>
+        <div class="screen-name">Dashboard</div>
+        <div class="screen-state">populated &middot; recientes + treemap visibles</div>
+        <div class="description">
+          El usuario quiere reconciliar su estado de cuenta de tarjeta de credito con sus gastos registrados.
+        </div>
+        <div class="user-thought">
+          <div class="thought-text">Me llego el estado de cuenta, voy a subirlo.</div>
+        </div>
+        <div class="nav-highlight">Tab: <span>Home</span></div>
+        <div class="screen-details">
+          <div class="detail-row"><span class="detail-icon">&#128200;</span> Treemap de gastos recientes visible</div>
+          <div class="detail-row"><span class="detail-icon">&#128179;</span> Usuario tiene transacciones previas de boletas</div>
+          <div class="detail-row"><span class="detail-icon">&#10132;</span> Accion: long-press en FAB para opciones avanzadas</div>
+        </div>
+        <div class="expand-hint">clic para detalles</div>
+      </div>
+
+      <div class="connector">
+        <div class="line"></div>
+        <div class="label">long-press FAB</div>
+        <div class="arrow"></div>
+      </div>
+
+      <!-- 02. FAB Mode Selector -->
+      <div class="node red" onclick="this.classList.toggle('expanded')">
+        <div class="step-badge">02</div>
+        <div class="screen-name">FAB &rarr; Selector de Modo</div>
+        <div class="screen-state">accion &middot; menu expandido</div>
+        <div class="description">
+          El long-press en el FAB revela las opciones avanzadas. El usuario selecciona "Estado de Cuenta" (tarjeta violeta).
+        </div>
+        <div class="user-thought">
+          <div class="thought-text">Ahi esta la opcion violeta de Estado de Cuenta.</div>
+        </div>
+        <div class="screen-details">
+          <div class="detail-row"><span class="detail-icon">&#128248;</span> Opcion 1: Escanear Boleta (verde, flujo normal)</div>
+          <div class="detail-row"><span class="detail-icon">&#128179;</span> Opcion 2: Estado de Cuenta (violeta, este flujo)</div>
+          <div class="detail-row"><span class="detail-icon">&#9997;</span> Opcion 3: Manual (gris, ingreso manual)</div>
+        </div>
+        <div class="expand-hint">clic para detalles</div>
+      </div>
+
+      <div class="connector violet">
+        <div class="line"></div>
+        <div class="label">selecciona "Estado de Cuenta"</div>
+        <div class="arrow"></div>
+      </div>
+
+      <!-- Decision 3: First Time? -->
+      <div class="decision">
+        <div class="diamond-wrapper">
+          <div class="diamond-shape"></div>
+          <div class="diamond-text">Primera vez<br>del usuario?</div>
+        </div>
+        <div class="decision-branches">
+          <div class="branch">
+            <div class="branch-label yes">Si</div>
+            <div class="branch-desc">Mostrar consentimiento</div>
+            <div class="line"></div>
+            <div class="arrow"></div>
+          </div>
+          <div class="branch">
+            <div class="branch-label no">No</div>
+            <div class="branch-desc">Saltar al paso 5</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="connector violet">
+        <div class="line"></div>
+        <div class="arrow"></div>
+      </div>
+
+      <!-- 04. Consent Dialog -->
+      <div class="node violet" onclick="this.classList.toggle('expanded')">
+        <div class="step-badge">04</div>
+        <div class="key-moment">Confianza</div>
+        <div class="screen-name">StatementConsentDialog</div>
+        <div class="screen-state">first-time disclosure &middot; transparencia AI</div>
+        <div class="description">
+          Explica que el PDF sera procesado por Google AI (Gemini). Detalla politica de retencion de datos y privacidad.
+          El consentimiento se guarda en Firestore y no se vuelve a preguntar.
+        </div>
+        <div class="user-thought">
+          <div class="thought-text">OK, entiendo. Google procesa el PDF pero no lo guarda.</div>
+        </div>
+        <div class="screen-details">
+          <div class="detail-row"><span class="detail-icon">&#128274;</span> Disclosure: "Tu PDF sera procesado por Google AI (Gemini)"</div>
+          <div class="detail-row"><span class="detail-icon">&#128220;</span> Detalles de privacidad y retencion de datos</div>
+          <div class="detail-row"><span class="detail-icon">&#9989;</span> Botones: "Acepto" | "Cancelar"</div>
+          <div class="detail-row"><span class="detail-icon">&#128293;</span> Consentimiento guardado en Firestore (una vez)</div>
+          <div class="detail-row"><span class="detail-icon">&#128161;</span> Momento clave: transparencia construye confianza</div>
+        </div>
+        <div class="expand-hint">clic para detalles</div>
+      </div>
+
+      <div class="connector violet">
+        <div class="line"></div>
+        <div class="label">acepta</div>
+        <div class="arrow"></div>
+      </div>
+
+      <!-- ════ FASE 2: Carga y Procesamiento ════ -->
+      <div class="phase-divider">
+        <div class="line"></div>
+        <div class="label">Fase 2 &mdash; Carga y Procesamiento</div>
+        <div class="line"></div>
+      </div>
+
+      <!-- 05. Upload View -->
+      <div class="node violet" onclick="this.classList.toggle('expanded')">
+        <div class="step-badge">05</div>
+        <div class="screen-name">StatementUploadView</div>
+        <div class="screen-state">file picker &middot; PDF max 7MB</div>
+        <div class="description">
+          Picker de archivos para seleccionar el PDF del estado de cuenta. Header tematico violeta.
+        </div>
+        <div class="user-thought">
+          <div class="thought-text">Voy a buscar el PDF en mis descargas...</div>
+        </div>
+        <div class="screen-details">
+          <div class="detail-row"><span class="detail-icon">&#128196;</span> Acepta solo PDF, maximo 7MB</div>
+          <div class="detail-row"><span class="detail-icon">&#127912;</span> Header con tema violeta para diferenciar de boletas</div>
+          <div class="detail-row"><span class="detail-icon">&#128241;</span> Input nativo del dispositivo para seleccionar archivo</div>
+        </div>
+        <div class="expand-hint">clic para detalles</div>
+      </div>
+
+      <div class="connector violet">
+        <div class="line"></div>
+        <div class="label">PDF seleccionado</div>
+        <div class="arrow"></div>
+      </div>
+
+      <!-- Decision 6: PDF Hash Exists? -->
+      <div class="inline-decision">
+        <div class="inline-diamond">
+          <div class="diamond-icon"></div>
+          <div class="diamond-content">
+            <div class="diamond-question">Paso 6: PDF ya importado? (hash check)</div>
+            <div class="diamond-outcomes">
+              <span class="outcome-tag if-yes">Hash encontrado</span> "Ya importaste este PDF. Importar de nuevo?"
+              <span class="outcome-tag if-no">Hash nuevo</span> Continuar
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="connector violet">
+        <div class="line"></div>
+        <div class="arrow"></div>
+      </div>
+
+      <!-- Decision 7: PDF Encrypted? -->
+      <div class="inline-decision">
+        <div class="inline-diamond">
+          <div class="diamond-icon"></div>
+          <div class="diamond-content">
+            <div class="diamond-question">Paso 7: PDF encriptado?</div>
+            <div class="diamond-outcomes">
+              <span class="outcome-tag if-yes">Encriptado</span> Mostrar dialogo de contrasena (7b)
+              <span class="outcome-tag if-no">Sin proteccion</span> Continuar al paso 8
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="connector violet">
+        <div class="line"></div>
+        <div class="arrow"></div>
+      </div>
+
+      <!-- 7b. Password Dialog (conditional) -->
+      <div class="node violet" onclick="this.classList.toggle('expanded')" style="max-width: 460px; opacity: 0.85; border-style: dashed;">
+        <div class="step-badge">7b</div>
+        <div class="screen-name">StatementPasswordDialog</div>
+        <div class="screen-state">condicional &middot; solo si PDF protegido</div>
+        <div class="description">
+          "Este PDF esta protegido. Ingresa la contrasena."
+        </div>
+        <div class="user-thought">
+          <div class="thought-text">Ah, mi banco le pone clave. Es mi RUT.</div>
+        </div>
+        <div class="screen-details">
+          <div class="detail-row"><span class="detail-icon">&#128272;</span> Input de contrasena con toggle visibilidad</div>
+          <div class="detail-row"><span class="detail-icon">&#9989;</span> Botones: "Enviar" | "Cancelar"</div>
+          <div class="detail-row"><span class="detail-icon">&#128274;</span> Contrasena no se almacena, solo se usa para desencriptar</div>
+        </div>
+        <div class="expand-hint">clic para detalles</div>
+      </div>
+
+      <div class="connector violet">
+        <div class="line"></div>
+        <div class="arrow"></div>
+      </div>
+
+      <!-- 08. Upload to Storage + Queue -->
+      <div class="node red" onclick="this.classList.toggle('expanded')">
+        <div class="step-badge">08</div>
+        <div class="screen-name">Upload &rarr; Storage + Queue</div>
+        <div class="screen-state">accion sistema &middot; 1 super credito</div>
+        <div class="description">
+          PDF se sube a Firebase Storage. Se llama queueStatementScan. Se deduce 1 super credito.
+        </div>
+        <div class="user-thought">
+          <div class="thought-text">Uso 1 super credito, OK.</div>
+        </div>
+        <div class="screen-details">
+          <div class="detail-row"><span class="detail-icon">&#9729;</span> PDF subido a Firebase Storage (evita limite 10MB de callable)</div>
+          <div class="detail-row"><span class="detail-icon">&#128293;</span> queueStatementScan() llamado</div>
+          <div class="detail-row"><span class="detail-icon">&#128176;</span> 1 super credito deducido al encolar</div>
+          <div class="detail-row"><span class="detail-icon">&#128260;</span> Si falla: super credito reembolsado automaticamente</div>
+          <div class="detail-row"><span class="detail-icon">&#128640;</span> Patron asincrono: igual que receipt scan (18-13a/b)</div>
+        </div>
+        <div class="expand-hint">clic para detalles</div>
+      </div>
+
+      <div class="connector violet">
+        <div class="line"></div>
+        <div class="label">procesando</div>
+        <div class="arrow"></div>
+      </div>
+
+      <!-- 09. Processing Overlay (NON-BLOCKING) -->
+      <div class="node amber" onclick="this.classList.toggle('expanded')">
+        <div class="step-badge">09</div>
+        <div class="screen-name">StatementProcessingOverlay</div>
+        <div class="screen-state">async processing &middot; NON-BLOCKING</div>
+        <div class="description">
+          Indicador de progreso. El usuario PUEDE navegar libremente mientras se procesa.
+        </div>
+        <div class="user-thought">
+          <div class="thought-text">Voy a ver mis gastos mientras tanto.</div>
+        </div>
+        <div class="screen-details">
+          <div class="detail-row"><span class="detail-icon">&#9203;</span> Barra de progreso o spinner con estado</div>
+          <div class="detail-row"><span class="detail-icon">&#128690;</span> "Puedes navegar mientras procesamos tu estado de cuenta"</div>
+          <div class="detail-row"><span class="detail-icon">&#128161;</span> Diferenciador clave: NO bloquea la app</div>
+          <div class="detail-row"><span class="detail-icon">&#128276;</span> Procesamiento backend via processStatementScan CF</div>
+        </div>
+        <div class="expand-hint">clic para detalles</div>
+      </div>
+
+      <div class="connector violet">
+        <div class="line"></div>
+        <div class="label">navega libremente</div>
+        <div class="arrow"></div>
+      </div>
+
+      <!-- 10. Pulsing FAB Indicator -->
+      <div class="node violet" onclick="this.classList.toggle('expanded')">
+        <div class="step-badge">10</div>
+        <div class="screen-name">
+          FAB con Indicador Pulsante <span class="pulse-indicator"></span>
+        </div>
+        <div class="screen-state">background processing &middot; punto violeta 8px</div>
+        <div class="description">
+          Un punto violeta pulsante (8px) en el FAB indica procesamiento en curso.
+          El usuario navega normalmente. Si la app se reinicia, aparece un banner de reanudacion.
+        </div>
+        <div class="user-thought">
+          <div class="thought-text">Veo el puntito violeta en el boton. Sigue procesando.</div>
+        </div>
+        <div class="screen-details">
+          <div class="detail-row"><span class="detail-icon">&#128308;</span> Punto violeta 8px con animacion pulse en FAB</div>
+          <div class="detail-row"><span class="detail-icon">&#128241;</span> Usuario navega por Home, Trends, Reports normalmente</div>
+          <div class="detail-row"><span class="detail-icon">&#128260;</span> Si app se reinicia: "Escaneo en progreso — toca para ver"</div>
+          <div class="detail-row"><span class="detail-icon">&#128276;</span> Notificacion cuando termina el procesamiento</div>
+        </div>
+        <div class="expand-hint">clic para detalles</div>
+      </div>
+
+      <div class="connector violet">
+        <div class="line"></div>
+        <div class="label">procesamiento completo</div>
+        <div class="arrow"></div>
+      </div>
+
+      <!-- ════ FASE 3: Revision ════ -->
+      <div class="phase-divider">
+        <div class="line"></div>
+        <div class="label">Fase 3 &mdash; Revision</div>
+        <div class="line"></div>
+      </div>
+
+      <!-- 11. Statement Review List -->
+      <div class="node violet" onclick="this.classList.toggle('expanded')">
+        <div class="step-badge">11</div>
+        <div class="key-moment">Poder del AI</div>
+        <div class="screen-name">StatementReviewList</div>
+        <div class="screen-state">80+ transacciones extraidas &middot; lista virtualizada</div>
+        <div class="description">
+          Lista de todas las transacciones extraidas del PDF. Cada fila muestra comercio, monto, fecha,
+          tipo de cargo y cuotas. Advertencias de confianza baja y desviacion de totales.
+        </div>
+        <div class="user-thought">
+          <div class="thought-text">Son 47 transacciones, parece que las reconocio bien.</div>
+        </div>
+        <div class="screen-details">
+          <div class="detail-row"><span class="detail-icon">&#128195;</span> Lista virtualizada para rendimiento (80+ items)</div>
+          <div class="detail-row"><span class="detail-icon">&#128179;</span> StatementTransactionCard: comercio, monto, fecha, chargeType, cuotas</div>
+          <div class="detail-row"><span class="detail-icon">&#9888;</span> Warning en items con confianza &lt;70%</div>
+          <div class="detail-row"><span class="detail-icon">&#128200;</span> Warning si desviacion de total &gt;5%</div>
+          <div class="detail-row"><span class="detail-icon">&#128221;</span> Disclaimer si &gt;150 transacciones (limite)</div>
+          <div class="detail-row"><span class="detail-icon">&#10024;</span> Momento clave: ver tu estado de cuenta parseado se siente poderoso</div>
+        </div>
+        <div class="expand-hint">clic para detalles</div>
+      </div>
+
+      <div class="connector violet">
+        <div class="line"></div>
+        <div class="arrow"></div>
+      </div>
+
+      <!-- Decision 12: User Has Existing Transactions? -->
+      <div class="decision">
+        <div class="diamond-wrapper">
+          <div class="diamond-shape"></div>
+          <div class="diamond-text">Tiene txns<br>existentes?</div>
+        </div>
+        <div class="decision-branches">
+          <div class="branch">
+            <div class="branch-label no">0 existentes</div>
+            <div class="branch-desc">Saltar matching, guardar todas como nuevas</div>
+          </div>
+          <div class="branch">
+            <div class="branch-label yes">Si</div>
+            <div class="branch-desc">Ir a conciliacion</div>
+            <div class="line"></div>
+            <div class="arrow"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="connector violet">
+        <div class="line"></div>
+        <div class="arrow"></div>
+      </div>
+
+      <!-- ════ FASE 4: Conciliacion ════ -->
+      <div class="phase-divider">
+        <div class="line"></div>
+        <div class="label">Fase 4 &mdash; Conciliacion</div>
+        <div class="line"></div>
+      </div>
+
+      <!-- 13. Matching Review View -->
+      <div class="node violet" onclick="this.classList.toggle('expanded')">
+        <div class="step-badge">13</div>
+        <div class="screen-name">MatchingReviewView</div>
+        <div class="screen-state">matching suggestions &middot; verde/amarillo/rojo</div>
+        <div class="description">
+          Cada transaccion del estado muestra su estado de match: coincidencia (verde),
+          sin match (amarillo), conflicto (rojo). Acciones por fila: Aprobar | Rechazar | Crear Nueva.
+        </div>
+        <div class="user-thought">
+          <div class="thought-text">La mayoria coinciden, solo unas pocas nuevas.</div>
+        </div>
+        <div class="screen-details">
+          <div class="detail-row"><span class="detail-icon">&#9989;</span> <span style="color:#6aad7a">Verde:</span> Match encontrado — aprobar para fusionar</div>
+          <div class="detail-row"><span class="detail-icon">&#9888;</span> <span style="color:#d4a03c">Amarillo:</span> Sin match — crear como nueva transaccion</div>
+          <div class="detail-row"><span class="detail-icon">&#10060;</span> <span style="color:var(--red)">Rojo:</span> Conflicto de datos — requiere decision</div>
+          <div class="detail-row"><span class="detail-icon">&#128260;</span> matchStatementTransactions() acepta cualquier Transaction[]</div>
+          <div class="detail-row"><span class="detail-icon">&#128640;</span> Extensible a grupos compartidos (Epic 19 Phase 2)</div>
+        </div>
+        <div class="expand-hint">clic para detalles</div>
+      </div>
+
+      <div class="connector violet">
+        <div class="line"></div>
+        <div class="arrow"></div>
+      </div>
+
+      <!-- Decision 14: Amount Differs? (inline) -->
+      <div class="inline-decision">
+        <div class="inline-diamond">
+          <div class="diamond-icon"></div>
+          <div class="diamond-content">
+            <div class="diamond-question">Paso 14: Monto difiere? (por transaccion)</div>
+            <div class="diamond-outcomes">
+              <span class="outcome-tag if-yes">Montos distintos</span> Dialogo: "Tu boleta dice $15.000, el estado dice $14.500. Cual usar?"
+              <span class="outcome-tag if-no">Montos iguales</span> Match automatico
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="connector violet">
+        <div class="line"></div>
+        <div class="arrow"></div>
+      </div>
+
+      <!-- Decision 15: No Match Found? (inline) -->
+      <div class="inline-decision">
+        <div class="inline-diamond">
+          <div class="diamond-icon"></div>
+          <div class="diamond-content">
+            <div class="diamond-question">Paso 15: Sin coincidencia?</div>
+            <div class="diamond-outcomes">
+              <span class="outcome-tag if-yes">Sin match</span> Dialogo de busqueda: buscar transaccion existente o "Crear Nueva"
+              <span class="outcome-tag if-no">Match encontrado</span> Listo para guardar
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="connector violet">
+        <div class="line"></div>
+        <div class="label">todas las txns resueltas</div>
+        <div class="arrow"></div>
+      </div>
+
+      <!-- ════ FASE 5: Confirmacion ════ -->
+      <div class="phase-divider">
+        <div class="line"></div>
+        <div class="label">Fase 5 &mdash; Confirmacion</div>
+        <div class="line"></div>
+      </div>
+
+      <!-- 16. Save All -->
+      <div class="node red" onclick="this.classList.toggle('expanded')">
+        <div class="step-badge">16</div>
+        <div class="screen-name">Guardar Todo</div>
+        <div class="screen-state">accion &middot; batch save + lock</div>
+        <div class="description">
+          Todas las transacciones matcheadas y creadas se guardan. Las transacciones fusionadas
+          se bloquean con statementVerified=true (editor completamente bloqueado, boton explicito de "Desbloquear" requerido).
+        </div>
+        <div class="user-thought">
+          <div class="thought-text">Listo, guardando todo de una vez.</div>
+        </div>
+        <div class="screen-details">
+          <div class="detail-row"><span class="detail-icon">&#128190;</span> Batch save de todas las transacciones resueltas</div>
+          <div class="detail-row"><span class="detail-icon">&#128274;</span> statementVerified=true en transacciones fusionadas</div>
+          <div class="detail-row"><span class="detail-icon">&#128683;</span> Editor bloqueado — boton explicito "Desbloquear" para editar</div>
+          <div class="detail-row"><span class="detail-icon">&#9989;</span> Nuevas transacciones creadas con source: 'statement'</div>
+        </div>
+        <div class="expand-hint">clic para detalles</div>
+      </div>
+
+      <div class="connector">
+        <div class="line"></div>
+        <div class="label">guardado exitoso</div>
+        <div class="arrow"></div>
+      </div>
+
+      <!-- 17. Dashboard — Merged -->
+      <div class="node green" onclick="this.classList.toggle('expanded')">
+        <div class="celebration"></div>
+        <div class="step-badge">17</div>
+        <div class="key-moment">Reconciliado</div>
+        <div class="screen-name">Dashboard &mdash; Reconciliado</div>
+        <div class="screen-state">statement transactions integradas &middot; treemap actualizado</div>
+        <div class="description">
+          Recientes actualizados, treemap recalculado. Las transacciones fusionadas muestran
+          un badge de fuente "statement". El estado de cuenta completo queda reconciliado.
+        </div>
+        <div class="user-thought">
+          <div class="thought-text">Increible! Todo mi estado de cuenta reconciliado.</div>
+        </div>
+        <div class="nav-highlight">Tab: <span>Home</span></div>
+        <div class="screen-details">
+          <div class="detail-row"><span class="detail-icon">&#128200;</span> Treemap recalculado con nuevas transacciones</div>
+          <div class="detail-row"><span class="detail-icon">&#128179;</span> Badge "Statement" visible en transacciones fusionadas</div>
+          <div class="detail-row"><span class="detail-icon">&#127881;</span> Momento clave: reconciliacion completa — sensacion poderosa</div>
+          <div class="detail-row"><span class="detail-icon">&#128260;</span> Transacciones source:'statement' diferenciadas visualmente</div>
+          <div class="detail-row"><span class="detail-icon">&#128274;</span> Editor bloqueado en txns verificadas (proteccion de integridad)</div>
+        </div>
+        <div class="expand-hint">clic para detalles</div>
+      </div>
+
+      <!-- ════ Flujo Completo ════ -->
+      <div class="phase-divider" style="margin-top: 32px;">
+        <div class="line"></div>
+        <div class="label">Flujo completo</div>
+        <div class="line"></div>
+      </div>
+
+      <!-- Summary architecture box -->
+      <div style="width: 100%; max-width: 520px; position: relative;">
+        <div style="
+          border: 1.5px dashed rgba(139,92,246,0.25);
+          border-radius: 14px;
+          padding: 20px 24px;
+          background: linear-gradient(135deg, rgba(139,92,246,0.05), rgba(74,124,89,0.03));
+          cursor: pointer;
+          transition: transform 0.3s ease, box-shadow 0.3s ease;
+        " onclick="this.querySelector('.arch-details').classList.toggle('visible')">
+          <div style="font-size: 16px; font-weight: 700; color: #c4b5fd; margin-bottom: 4px;">
+            Arquitectura del Pipeline
+          </div>
+          <div style="font-size: 12px; color: var(--muted); font-weight: 500; margin-bottom: 10px;">
+            4 Cloud Functions &middot; Async &middot; Non-blocking
+          </div>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px;">
+            <span style="
+              font-size: 10px; padding: 3px 10px; border-radius: 6px;
+              background: rgba(224,85,85,0.12); color: #e08888; font-weight: 600;
+            ">queueStatementScan</span>
+            <span style="
+              font-size: 10px; padding: 3px 10px; border-radius: 6px;
+              background: rgba(212,160,60,0.12); color: #d4c088; font-weight: 600;
+            ">processStatementScan</span>
+            <span style="
+              font-size: 10px; padding: 3px 10px; border-radius: 6px;
+              background: rgba(91,143,168,0.12); color: #88b8cc; font-weight: 600;
+            ">deleteStatementTrigger</span>
+            <span style="
+              font-size: 10px; padding: 3px 10px; border-radius: 6px;
+              background: rgba(139,92,246,0.12); color: #b0a0d8; font-weight: 600;
+            ">cleanupStatements</span>
+          </div>
+          <div class="arch-details" style="
+            max-height: 0; overflow: hidden; opacity: 0;
+            transition: max-height 0.4s ease, opacity 0.3s ease;
+          ">
+            <div style="border-top: 1px solid rgba(255,255,255,0.05); padding-top: 10px; margin-top: 4px;">
+              <div style="display: flex; align-items: flex-start; gap: 8px; font-size: 11px; color: var(--muted); margin-bottom: 5px; line-height: 1.4;">
+                <span style="width: 16px; text-align: center; flex-shrink: 0;">&#128640;</span>
+                Backend transformer corre dentro de processStatementScan CF
+              </div>
+              <div style="display: flex; align-items: flex-start; gap: 8px; font-size: 11px; color: var(--muted); margin-bottom: 5px; line-height: 1.4;">
+                <span style="width: 16px; text-align: center; flex-shrink: 0;">&#128176;</span>
+                1 super credito: deducido al queue, reembolsado si falla
+              </div>
+              <div style="display: flex; align-items: flex-start; gap: 8px; font-size: 11px; color: var(--muted); margin-bottom: 5px; line-height: 1.4;">
+                <span style="width: 16px; text-align: center; flex-shrink: 0;">&#128274;</span>
+                Hard lock: statementVerified=true bloquea editor
+              </div>
+              <div style="display: flex; align-items: flex-start; gap: 8px; font-size: 11px; color: var(--muted); margin-bottom: 5px; line-height: 1.4;">
+                <span style="width: 16px; text-align: center; flex-shrink: 0;">&#128269;</span>
+                Re-import fast path: PDF hash check antes de llamar Gemini
+              </div>
+              <div style="display: flex; align-items: flex-start; gap: 8px; font-size: 11px; color: var(--muted); margin-bottom: 5px; line-height: 1.4;">
+                <span style="width: 16px; text-align: center; flex-shrink: 0;">&#128197;</span>
+                Solo 1 mes por PDF — disclaimer sobre limites
+              </div>
+            </div>
+          </div>
+          <div style="font-size: 9px; color: #444460; text-align: right; margin-top: 6px;">clic para detalles</div>
+        </div>
+      </div>
+
+    </div><!-- /flow -->
+
+    <!-- ═══════════════ FOOTER ═══════════════ -->
+    <div class="footer">
+      <p>
+        <span class="app-name">Gastify</span> &mdash; Smart expense tracker
+        <br>Flujo de usuario v1.0 &middot; Khujta AI &middot; 2026
+      </p>
+    </div>
+
+  </div><!-- /container -->
+
+  <script>
+    // ── Toggle arch-details visibility ──
+    document.querySelectorAll('.arch-details').forEach(el => {
+      el.parentElement.addEventListener('click', () => {
+        const isVisible = el.classList.contains('visible');
+        if (isVisible) {
+          el.style.maxHeight = '0';
+          el.style.opacity = '0';
+        } else {
+          el.style.maxHeight = '300px';
+          el.style.opacity = '1';
+        }
+        el.classList.toggle('visible');
+      });
+    });
+
+    // ── Smooth scroll for expanded nodes ──
+    document.querySelectorAll('.node').forEach(node => {
+      node.addEventListener('click', () => {
+        setTimeout(() => {
+          if (node.classList.contains('expanded')) {
+            node.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          }
+        }, 80);
+      });
+    });
+
+    // ── Entrance animations on scroll (IntersectionObserver) ──
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.style.opacity = '1';
+          entry.target.style.transform = 'translateY(0)';
+        }
+      });
+    }, { threshold: 0.06, rootMargin: '0px 0px -30px 0px' });
+
+    document.querySelectorAll('.node, .decision, .inline-decision, .phase-divider').forEach((el, i) => {
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(20px)';
+      el.style.transition = `opacity 0.5s ease ${i * 0.025}s, transform 0.5s ease ${i * 0.025}s`;
+      observer.observe(el);
+    });
+
+    // ── Preserve hover transitions after entrance animation ──
+    document.querySelectorAll('.node').forEach(node => {
+      node.addEventListener('mouseenter', () => {
+        node.style.transition = 'opacity 0.5s ease, transform 0.3s ease, box-shadow 0.3s ease';
+      });
+    });
+
+    // ── Highlight active nav item on node hover ──
+    const navItems = document.querySelectorAll('.nav-ref .nav-item');
+    const navMap = { 'Home': 0, 'Trends': 1, 'FAB': 2, 'Reports': 3, 'Alerts': 4 };
+
+    document.querySelectorAll('.node').forEach(node => {
+      const highlight = node.querySelector('.nav-highlight span');
+      if (!highlight) return;
+      const tabName = highlight.textContent.trim();
+      const idx = navMap[tabName];
+
+      node.addEventListener('mouseenter', () => {
+        if (idx !== undefined) {
+          navItems[idx].classList.add('active-in-step');
+        }
+      });
+
+      node.addEventListener('mouseleave', () => {
+        navItems.forEach(n => n.classList.remove('active-in-step'));
+      });
+    });
+  </script>
+</body>
+</html>
