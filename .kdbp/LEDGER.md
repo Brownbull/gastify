@@ -81,3 +81,31 @@ REINSTATED: design-system.{Token-architecture, Platform-frames, Stress-test-brea
 DISCARDED: 5 hand-rolled theme dashboard HTMLs (uncommitted, zero-cost rollback)
 REPLAN: 7-task list (port 6 legacy prompts + author 3 new + stress-test spec + external render handoff + user pick + lock tokens/design-system)
 EXEC STATE: 🔄 (continues)
+
+## 2026-04-23 14:39 — [main b71a7be] docs(mockups): scaffold Phase 1 multi-theme design brief + 6 style prompts
+
+## 2026-04-23 20:12 — [main a6193f0] docs(mockups): bundle self-hosted Outfit + Baloo 2 fonts + 200 pixel-art icons for Claude Design
+
+## 2026-04-23 20:16 — [main 045f340] docs(mockups): pin wordmark as brand-invariant Baloo 2 700 @ 24px across all themes
+
+## 2026-04-23 20:22 — [main c6c7929] docs(mockups): port canonical V4 taxonomy + category colors from BoletApp
+
+## 2026-04-23 20:54 — [main afb533b] docs(mockups): port legacy BoletApp mockup tree as reference (29 screens + 13 flows + hub)
+
+## 2026-04-23 21:17 — [main c950442] docs(mockups): dual-track setup — frozen legacy-reference + active editable working surface
+
+## 2026-04-23 21:25 — [main 36baf7d] docs(mockups): AUDIT.md + gap-matrix index.html
+
+## 2026-04-23 21:32 — [main 603b66f] docs(mockups): T9 anchor — Dashboard desktop variant (1440 responsive, 3-column)
+
+## 2026-04-23 21:45 — [main 31e53a9] docs(mockups): T9b template extract — shared desktop shell CSS + template HTML
+
+## 2026-04-23 21:51 — [main c61cd92] docs(mockups): T9c — History desktop variant (first template application)
+
+## 2026-04-23 22:01 — [main ff88026] docs(mockups): T9d — Transaction Editor desktop (split-panel pattern)
+
+## 2026-04-23 22:04 — [main 7da65b5] docs(mockups): desktop cross-nav — quick-nav dropdown + mobile-link in controls
+
+## 2026-04-23 22:08 — [main 0452994] docs(mockups): T9e — Settings desktop (nested-subnav pattern, 4/29)
+
+## 2026-04-23 22:11 — [main 4bd5b87] docs(mockups): T9f — Trends desktop (donut + drill + sparklines, 5/29)

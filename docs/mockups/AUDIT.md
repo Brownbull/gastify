@@ -301,3 +301,27 @@ Required: **8+ surfaces**  ·  Present: **2**  ·  Coverage: **25%** 🔴
 - **REQ coverage:** 13 fully covered / 5 partial-verify / 4 partial / 5 missing / 5 not-user-facing
 
 **Next action:** T8 rewrite `index.html` to visually reflect this gap matrix — present legacy screens as "baseline" with rebuild-gap overlays (missing screens as ghosted cards, desktop-variant badge, REQ coverage chips). Then T9 iterate starting from P0 desktop variants.
+
+---
+
+## 8. Canonical filter system (added 2026-04-23)
+
+**Trigger:** User flagged that the filter UX (timeframe pills, period-nav, category/location modal) applies across all views that calculate on tx/items — Dashboard, History, Trends, Insights, Items, Reports — not just Trends "Explora" where it currently lives in legacy.
+
+**Implementation plan:**
+
+1. Extracted canonical CSS to `assets/css/desktop-shell.css` under `FILTER STRIP` + `FILTER MODAL` blocks — single source of truth for every desktop screen
+2. Created `screens/_filter-dropdowns.html` — reference partial with 4 paste-ready blocks (Strip / TimeModal / CategoryModal / JS wiring)
+3. **Category modal uses 4 taxonomy-level chips** specific to gastify V4 taxonomy: **L1 Rubro (12) / L2 Giro (44) / L3 Familia (9) / L4 Categoría (42)** + `📍 Lugar` tab — replaces legacy's 3-tab (Receipt/Package/MapPin)
+4. Retrofitted 3 shipped desktops: Dashboard, History, Trends
+5. Filter strip baked into all future desktops (Insights, Reports, Items) from creation — not a retrofit
+
+**Behavioral model** (ported from BoletApp `useHistoryFiltersStore`):
+
+- **Temporal axis:** `all | year | quarter | month | week | day`, 5 slider rows in calendar modal (Año/Trimestre/Mes/Semana/Día), click label to commit, chevrons adjust pending
+- **Category axis:** `all | L1 | L2 | L3 | L4 | location`, level switched via 4 taxonomy chips + Lugar, multi-select per level, `Aplicar` to commit
+- **3-state visuals:** original / `.pending` (warning + pulse) / `.active` (primary-soft) — consistent everywhere
+
+**Screens needing retrofit next:** none currently shipped lack it (the 3 above are the only calculating views shipped). Insights/Reports/Items will ship with strip pre-wired per FS6 acceptance in the queue.
+
+**Screens that DON'T get filter strip:** Transaction Editor (item editor), Settings (config form), Scan flows (capture), Auth (onboarding), Groups (admin — except Group Home which does need temporal filter for its tx feed).

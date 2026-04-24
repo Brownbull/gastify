@@ -43,15 +43,17 @@
   .chart-tab.active { background: var(--surface); color: var(--primary); box-shadow: 0 1px 3px var(--shadow); }
   .chart-tab img { width: 14px; height: 14px; image-rendering: pixelated; }
 
-  .timeframe-group { display: flex; gap: 6px; align-items: center; }
-  .timeframe-pill {
+  /* Legacy timeframe-pill kept as .range-pill (chart-range 7D/30D/3M/1A/Todo) —
+     does not clash with canonical .timeframe-pill from shell */
+  .range-group { display: flex; gap: 6px; align-items: center; }
+  .range-pill {
     padding: 5px 10px; border-radius: 8px;
     background: transparent; border: 1px solid var(--line);
     font-size: 12px; font-weight: 600; color: var(--ink-2);
-    transition: all 0.15s;
+    transition: all 0.15s; cursor: pointer;
   }
-  .timeframe-pill:hover { border-color: var(--primary); color: var(--primary); }
-  .timeframe-pill.active {
+  .range-pill:hover { border-color: var(--primary); color: var(--primary); }
+  .range-pill.active {
     background: var(--primary); color: var(--primary-ink); border-color: var(--primary);
   }
 
@@ -332,7 +334,93 @@
       </div>
     </div>
 
-    <!-- CONTROL STRIP: chart type + timeframe + group-by -->
+    <!-- CANONICAL FILTER STRIP (period + date-nav + filter icons) -->
+    <section class="filter-strip" aria-label="Filtros">
+      <div class="filter-strip-row">
+        <div class="timeframe-pills" role="tablist" aria-label="Periodo">
+          <button class="timeframe-pill" data-period="year">Año</button>
+          <button class="timeframe-pill" data-period="quarter">Trimestre</button>
+          <button class="timeframe-pill active" data-period="month">Mes</button>
+          <button class="timeframe-pill" data-period="week">Semana</button>
+        </div>
+        <div class="period-nav">
+          <button class="period-nav-btn" aria-label="Periodo anterior"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" width="16" height="16"><polyline points="15 18 9 12 15 6"/></svg></button>
+          <span class="period-label">Abril 2026</span>
+          <button class="period-nav-btn" aria-label="Periodo siguiente"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" width="16" height="16"><polyline points="9 18 15 12 9 6"/></svg></button>
+        </div>
+        <div class="filter-icons">
+          <div class="filter-icon-wrap">
+            <button class="filter-icon-btn active" aria-label="Filtro de tiempo" data-modal-toggle="time-modal">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            </button>
+            <div class="filter-modal" id="time-modal" role="dialog" aria-label="Filtro de tiempo">
+              <div class="filter-modal-header">
+                <div class="filter-modal-title">Tiempo</div>
+                <button class="filter-modal-btn ghost" data-action="close-modal">✕</button>
+              </div>
+              <div class="filter-modal-body">
+                <div class="time-slider-row"><button class="time-slider-label">Año</button><div class="time-slider-ctrl"><button class="time-slider-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg></button><span class="time-slider-value">2026</span><button class="time-slider-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" width="14" height="14"><polyline points="9 18 15 12 9 6"/></svg></button></div></div>
+                <div class="time-slider-row"><button class="time-slider-label">Trimestre</button><div class="time-slider-ctrl"><button class="time-slider-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg></button><span class="time-slider-value">T2</span><button class="time-slider-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" width="14" height="14"><polyline points="9 18 15 12 9 6"/></svg></button></div></div>
+                <div class="time-slider-row"><button class="time-slider-label active">Mes</button><div class="time-slider-ctrl"><button class="time-slider-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg></button><span class="time-slider-value active">Abr</span><button class="time-slider-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" width="14" height="14"><polyline points="9 18 15 12 9 6"/></svg></button></div></div>
+                <div class="time-slider-row"><button class="time-slider-label">Semana</button><div class="time-slider-ctrl"><button class="time-slider-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg></button><span class="time-slider-value">Sem 1</span><button class="time-slider-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" width="14" height="14"><polyline points="9 18 15 12 9 6"/></svg></button></div></div>
+                <div class="time-slider-row"><button class="time-slider-label">Día</button><div class="time-slider-ctrl"><button class="time-slider-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg></button><span class="time-slider-value">1</span><button class="time-slider-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" width="14" height="14"><polyline points="9 18 15 12 9 6"/></svg></button></div></div>
+              </div>
+              <div class="filter-modal-footer">
+                <button class="filter-modal-btn ghost">✕ Limpiar</button>
+                <button class="filter-modal-btn primary">Aplicar</button>
+              </div>
+            </div>
+          </div>
+          <div class="filter-icon-wrap">
+            <button class="filter-icon-btn active" aria-label="Filtro de categoría" data-modal-toggle="cat-modal">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+              <span class="filter-dot"></span>
+            </button>
+            <div class="filter-modal wide" id="cat-modal" role="dialog" aria-label="Filtro de categoría">
+              <div class="filter-modal-header">
+                <div class="taxonomy-chips">
+                  <button class="taxonomy-chip active" data-cat-level="L1" title="Rubros (12)"><img src="../assets/icons/app-icons/rubros/rubro-supermercados.png" alt=""><span class="chip-label">L1</span></button>
+                  <button class="taxonomy-chip" data-cat-level="L2" title="Giros (44)"><img src="../assets/icons/app-icons/financial/fin-receipt.png" alt=""><span class="chip-label">L2</span></button>
+                  <button class="taxonomy-chip" data-cat-level="L3" title="Familias (9)"><img src="../assets/icons/app-icons/familias/familia-productos-generales.png" alt=""><span class="chip-label">L3</span></button>
+                  <button class="taxonomy-chip" data-cat-level="L4" title="Categorías (42)"><img src="../assets/icons/app-icons/item-categories/item-frozen.png" alt=""><span class="chip-label">L4</span></button>
+                  <div class="taxonomy-chip-sep"></div>
+                  <button class="taxonomy-chip" data-cat-level="location" title="Ubicación" style="min-width: 52px;"><span style="font-size: 16px;">📍</span><span class="chip-label">Lugar</span></button>
+                </div>
+                <button class="filter-modal-btn ghost" data-action="close-modal">✕</button>
+              </div>
+              <div class="filter-modal-body">
+                <div class="cat-filter-flat" data-cat-pane="L1">
+                  <label class="cat-filter-row selected"><span class="row-check">✓</span><span class="row-icon"><img src="../assets/icons/app-icons/rubros/rubro-supermercados.png" alt=""></span><span class="row-label">Supermercados</span><span class="row-count">48 tx</span></label>
+                  <label class="cat-filter-row"><span class="row-check"></span><span class="row-icon"><img src="../assets/icons/app-icons/rubros/rubro-restaurantes.png" alt=""></span><span class="row-label">Restaurantes</span><span class="row-count">12 tx</span></label>
+                  <label class="cat-filter-row"><span class="row-check"></span><span class="row-icon"><img src="../assets/icons/app-icons/rubros/rubro-comercio-barrio.png" alt=""></span><span class="row-label">Comercio de Barrio</span><span class="row-count">8 tx</span></label>
+                  <label class="cat-filter-row"><span class="row-check"></span><span class="row-icon"><img src="../assets/icons/app-icons/rubros/rubro-salud-bienestar.png" alt=""></span><span class="row-label">Salud y Bienestar</span><span class="row-count">6 tx</span></label>
+                </div>
+                <div class="cat-filter-flat" data-cat-pane="L2" hidden>
+                  <div class="cat-filter-group"><div class="cat-filter-group-header">Supermercados<span style="font-size: 10px; color: var(--ink-3); font-weight: 600;">3 giros</span><svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="6 9 12 15 18 9"/></svg></div><div class="cat-filter-group-items"><button class="cat-filter-chip selected">✓ Supermercado Premium</button><button class="cat-filter-chip">Supermercado Regular</button><button class="cat-filter-chip">Mayorista</button></div></div>
+                </div>
+                <div class="cat-filter-flat" data-cat-pane="L3" hidden>
+                  <label class="cat-filter-row"><span class="row-check"></span><span class="row-icon"><img src="../assets/icons/app-icons/familias/familia-food-fresh.png" alt=""></span><span class="row-label">Alimentos Frescos</span><span class="row-count">42 items</span></label>
+                  <label class="cat-filter-row"><span class="row-check"></span><span class="row-icon"><img src="../assets/icons/app-icons/familias/familia-food-packaged.png" alt=""></span><span class="row-label">Alimentos Envasados</span><span class="row-count">38 items</span></label>
+                </div>
+                <div class="cat-filter-flat" data-cat-pane="L4" hidden>
+                  <div class="cat-filter-group"><div class="cat-filter-group-header">Alimentos Frescos<span style="font-size: 10px; color: var(--ink-3); font-weight: 600;">4 categorías</span><svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="6 9 12 15 18 9"/></svg></div><div class="cat-filter-group-items"><button class="cat-filter-chip">Frutas y Verduras</button><button class="cat-filter-chip">Carnes y Mariscos</button><button class="cat-filter-chip">Pan y Repostería</button><button class="cat-filter-chip">Lácteos y Huevos</button></div></div>
+                </div>
+                <div class="loc-tree" data-cat-pane="location" hidden>
+                  <div class="loc-country"><svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="6 9 12 15 18 9"/></svg><span>🇨🇱 Chile</span><span class="loc-count">4</span></div>
+                  <div class="loc-cities"><label class="loc-city selected"><span class="row-check">✓</span><span>Pucón</span></label><label class="loc-city selected"><span class="row-check">✓</span><span>Santiago</span></label></div>
+                </div>
+              </div>
+              <div class="filter-modal-footer">
+                <button class="filter-modal-btn ghost">✕ Limpiar</button>
+                <button class="filter-modal-btn primary">Aplicar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CHART CONTROLS (chart-type + zoom range + group-by) — Trends-specific -->
     <div class="control-strip">
       <div class="chart-tabs">
         <button class="chart-tab active">
@@ -353,13 +441,14 @@
         </button>
       </div>
 
-      <div class="timeframe-group">
-        <button class="timeframe-pill">7D</button>
-        <button class="timeframe-pill">30D</button>
-        <button class="timeframe-pill active">Mes</button>
-        <button class="timeframe-pill">3M</button>
-        <button class="timeframe-pill">1A</button>
-        <button class="timeframe-pill">Todo</button>
+      <!-- Range zoom (renamed from timeframe to avoid clash — zooms chart x-axis within filter strip period) -->
+      <div class="range-group">
+        <button class="range-pill">7D</button>
+        <button class="range-pill">30D</button>
+        <button class="range-pill active">Mes</button>
+        <button class="range-pill">3M</button>
+        <button class="range-pill">1A</button>
+        <button class="range-pill">Todo</button>
       </div>
 
       <div class="group-by">
@@ -591,10 +680,17 @@
       tab.classList.add('active');
     });
   });
-  // Timeframe pills
-  document.querySelectorAll('.timeframe-pill').forEach(p => {
+  // Timeframe pills (canonical — period granularity)
+  document.querySelectorAll('.timeframe-pills .timeframe-pill').forEach(p => {
     p.addEventListener('click', () => {
-      document.querySelectorAll('.timeframe-pill').forEach(x => x.classList.remove('active'));
+      document.querySelectorAll('.timeframe-pills .timeframe-pill').forEach(x => x.classList.remove('active'));
+      p.classList.add('active');
+    });
+  });
+  // Chart range pills (7D/30D/3M/1A/Todo — Trends-only zoom)
+  document.querySelectorAll('.range-pill').forEach(p => {
+    p.addEventListener('click', () => {
+      document.querySelectorAll('.range-pill').forEach(x => x.classList.remove('active'));
       p.classList.add('active');
     });
   });
@@ -620,6 +716,80 @@
       e.preventDefault();
       document.querySelector('.scan-btn').click();
     }
+    if (e.key === 'Escape') {
+      document.querySelectorAll('.filter-modal.open').forEach(m => m.classList.remove('open'));
+    }
+  });
+
+  // ===== CANONICAL FILTER STRIP WIRING =====
+  document.querySelectorAll('[data-modal-toggle]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const modal = document.getElementById(btn.dataset.modalToggle);
+      const wasOpen = modal.classList.contains('open');
+      document.querySelectorAll('.filter-modal.open').forEach(m => m.classList.remove('open'));
+      if (!wasOpen) modal.classList.add('open');
+    });
+  });
+  document.querySelectorAll('[data-action="close-modal"]').forEach(btn => {
+    btn.addEventListener('click', (e) => { e.stopPropagation(); btn.closest('.filter-modal').classList.remove('open'); });
+  });
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.filter-modal') && !e.target.closest('[data-modal-toggle]')) {
+      document.querySelectorAll('.filter-modal.open').forEach(m => m.classList.remove('open'));
+    }
+  });
+  document.querySelectorAll('.taxonomy-chip').forEach(c => {
+    c.addEventListener('click', () => {
+      const level = c.dataset.catLevel;
+      const modal = c.closest('.filter-modal');
+      modal.querySelectorAll('.taxonomy-chip').forEach(x => x.classList.remove('active'));
+      c.classList.add('active');
+      modal.querySelectorAll('[data-cat-pane]').forEach(p => { p.hidden = (p.dataset.catPane !== level); });
+    });
+  });
+  document.querySelectorAll('.cat-filter-row').forEach(r => {
+    r.addEventListener('click', () => {
+      r.classList.toggle('selected');
+      const check = r.querySelector('.row-check');
+      if (check) check.textContent = r.classList.contains('selected') ? '✓' : '';
+    });
+  });
+  document.querySelectorAll('.cat-filter-chip').forEach(c => {
+    c.addEventListener('click', () => c.classList.toggle('selected'));
+  });
+  document.querySelectorAll('.cat-filter-group-header, .loc-country').forEach(h => {
+    h.addEventListener('click', () => {
+      h.classList.toggle('collapsed');
+      const items = h.nextElementSibling;
+      if (items && (items.classList.contains('cat-filter-group-items') || items.classList.contains('loc-cities'))) {
+        items.style.display = h.classList.contains('collapsed') ? 'none' : '';
+      }
+    });
+  });
+  document.querySelectorAll('.loc-city').forEach(c => {
+    c.addEventListener('click', () => {
+      c.classList.toggle('selected');
+      const check = c.querySelector('.row-check');
+      if (check) check.textContent = c.classList.contains('selected') ? '✓' : '';
+    });
+  });
+  document.querySelectorAll('.time-slider-label').forEach(lbl => {
+    lbl.addEventListener('click', () => {
+      const modal = lbl.closest('.filter-modal');
+      modal.querySelectorAll('.time-slider-label, .time-slider-value').forEach(x => { x.classList.remove('active'); x.classList.remove('pending'); });
+      const row = lbl.closest('.time-slider-row');
+      row.querySelector('.time-slider-label').classList.add('active');
+      row.querySelector('.time-slider-value').classList.add('active');
+      modal.classList.remove('open');
+    });
+  });
+  document.querySelectorAll('.time-slider-arrow').forEach(a => {
+    a.addEventListener('click', () => {
+      const row = a.closest('.time-slider-row');
+      row.querySelector('.time-slider-label').classList.add('pending');
+      row.querySelector('.time-slider-value').classList.add('pending');
+    });
   });
 </script>
 

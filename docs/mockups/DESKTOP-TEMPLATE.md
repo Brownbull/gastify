@@ -48,6 +48,26 @@ cp docs/mockups/screens/_desktop-template.html docs/mockups/screens/gastify-{scr
 
 If a screen-specific pattern gets reused across 2+ screens → promote to shared CSS.
 
+## Canonical filter strip (for views that calculate on tx/items)
+
+Dashboard, History, Trends, Insights, Items, Reports all show the same filter strip at the top of `<main class="main">`, driven by the same filter-state model (ported from BoletApp legacy `useHistoryFiltersStore`). Full reference markup lives in [`screens/_filter-dropdowns.html`](screens/_filter-dropdowns.html) — copy-paste Blocks A/B/C into `<main>` and Block D into `<script>`.
+
+**Three axes:**
+- **Temporal** — `Año / Trimestre / Mes / Semana` timeframe pills + `< Abril 2026 >` period navigator + calendar-icon modal (5 rows: Año/Trimestre/Mes/Semana/Día)
+- **Category** — funnel-icon modal with **4 taxonomy-level chips (L1 Rubro / L2 Giro / L3 Familia / L4 Categoría)** + Lugar tab for location tree
+- **Location** — Country → Cities checkbox tree nested inside category modal as 5th chip
+
+**3-state visual convention** (propagated throughout):
+- `.active` — committed filter (primary-soft bg)
+- `.pending` — user changed via chevron, not yet applied (warning bg + pulse)
+- no class — original / empty
+
+**Commit mechanics:** clicking the row LABEL or `.timeframe-pill` applies the change and closes the modal. Chevrons (`<` `>`) only change pending values. Keeps accidental clicks from re-filtering mid-navigation.
+
+**CSS lives in** `assets/css/desktop-shell.css` under `FILTER STRIP` + `FILTER MODAL` blocks — never duplicate per screen.
+
+**Screens that DON'T need filter strip:** Transaction Editor, Settings, Scan flows, Auth, Groups (Group Switcher needs temporal filter only — partial strip OK).
+
 ## Theme switcher wiring
 
 Copy from `_desktop-template.html` `<script>` block at bottom. 3 responsibilities:
@@ -57,9 +77,13 @@ Copy from `_desktop-template.html` `<script>` block at bottom. 3 responsibilitie
 
 ## Known-good screens (desktop variants shipped)
 
-| Screen | Status |
-|--------|--------|
-| Dashboard | ✅ `gastify-dashboard-desktop.html` — reference |
+| Screen | Status | Filter strip? |
+|--------|--------|----------------|
+| Dashboard | ✅ `gastify-dashboard-desktop.html` | ✅ (drives balance/stats/tx list) |
+| History | ✅ `gastify-history-desktop.html` | ✅ canonical |
+| Transaction editor | ✅ `gastify-transaction-editor-desktop.html` | n/a (split-panel item editor) |
+| Settings | ✅ `gastify-settings-desktop.html` | n/a (form) |
+| Trends | ✅ `gastify-trends-desktop.html` | ✅ canonical + chart-range zoom |
 
 ## Pending queue (P0 — apply template to all)
 
