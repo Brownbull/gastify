@@ -1,0 +1,1687 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gastify — Flujo 9: Offline → Reconnect</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #1a1a2e;
+    --bg-lighter: #22224a;
+    --surface: #2a2a4a;
+    --border: #3a3a6a;
+    --text: #e8e8f0;
+    --muted: #8888aa;
+    --primary: #4a7c59;
+    --primary-dim: #1a3a24;
+    --primary-border: #5a9c6a;
+    --accent: #e8a87c;
+    --accent-dim: #4a3020;
+    --accent-border: #d4956a;
+    --secondary: #5b8fa8;
+    --secondary-dim: #1e3a4a;
+    --secondary-border: #4a7a96;
+    --green: #34d399;
+    --green-dim: #064e3b;
+    --green-border: #10b981;
+    --amber: #fbbf24;
+    --amber-dim: #78350f;
+    --amber-border: #f59e0b;
+    --blue: #60a5fa;
+    --blue-dim: #1e3a5f;
+    --blue-border: #3b82f6;
+    --purple: #a78bfa;
+    --purple-dim: #3b1f7a;
+    --purple-border: #8b5cf6;
+    --red: #f87171;
+    --red-dim: #5b1a1a;
+    --red-border: #ef4444;
+    --gold: #fde68a;
+    --gold-dim: #4a3f1a;
+    --gold-border: #fbbf24;
+    /* Offline-specific */
+    --offline-border: #f59e0b;
+    --offline-dim: #2a2520;
+    --offline-surface: #262230;
+    --offline-muted: #777790;
+    --sync-cyan: #22d3ee;
+    --sync-cyan-dim: #083344;
+    --sync-cyan-border: #06b6d4;
+  }
+
+  body {
+    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background:
+      radial-gradient(ellipse at 20% 20%, rgba(74, 124, 89, 0.08) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 60%, rgba(232, 168, 124, 0.06) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 90%, rgba(91, 143, 168, 0.05) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 20px 100px;
+  }
+
+  /* -- Brand Header -- */
+  .brand-header {
+    text-align: center;
+    margin-bottom: 12px;
+  }
+  .brand-name {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--primary);
+    opacity: 0.7;
+  }
+
+  /* -- Flow Header -- */
+  .flow-header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+  .flow-header h1 {
+    font-size: 32px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin-bottom: 12px;
+    line-height: 1.2;
+    background: linear-gradient(135deg, var(--primary-border), var(--amber), var(--sync-cyan));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .flow-header .subtitle {
+    font-size: 15px;
+    font-weight: 400;
+    color: var(--muted);
+    line-height: 1.7;
+    max-width: 680px;
+    margin: 0 auto;
+  }
+  .flow-header .subtitle strong {
+    color: var(--text);
+    font-weight: 600;
+  }
+  .flow-header .value-tag {
+    display: inline-block;
+    margin-top: 16px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 6px 18px;
+    border-radius: 20px;
+    background: var(--primary-dim);
+    border: 1px solid var(--primary-border);
+    color: var(--primary-border);
+  }
+
+  /* -- Nav Reference Bar -- */
+  .nav-ref {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0;
+    margin-bottom: 36px;
+    padding: 10px 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    max-width: 420px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    padding: 6px 16px;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--muted);
+    letter-spacing: 0.03em;
+    position: relative;
+  }
+  .nav-item .nav-icon { font-size: 18px; }
+  .nav-item.active { color: var(--primary-border); }
+  .nav-item.active::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 20px;
+    height: 3px;
+    border-radius: 2px;
+    background: var(--primary-border);
+  }
+  .nav-fab {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary), var(--primary-border));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(74, 124, 89, 0.4);
+    margin: 0 8px;
+    flex-shrink: 0;
+  }
+
+  /* -- Legend -- */
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    justify-content: center;
+    margin-bottom: 36px;
+    padding: 16px 24px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 12px;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--muted);
+  }
+  .legend-swatch {
+    width: 14px;
+    height: 14px;
+    border-radius: 4px;
+    border: 2px solid;
+    flex-shrink: 0;
+  }
+  .legend-swatch.green { border-color: var(--green-border); background: var(--green-dim); }
+  .legend-swatch.amber { border-color: var(--amber-border); background: var(--amber-dim); }
+  .legend-swatch.blue { border-color: var(--blue-border); background: var(--blue-dim); }
+  .legend-swatch.cyan { border-color: var(--sync-cyan-border); background: var(--sync-cyan-dim); }
+  .legend-swatch.purple {
+    border-color: var(--purple-border);
+    background: var(--purple-dim);
+    border-radius: 50%;
+    transform: rotate(45deg);
+  }
+  .legend-swatch.offline {
+    border-color: var(--amber-border);
+    background: var(--offline-dim);
+    border-style: dashed;
+  }
+  .legend-swatch.system-event {
+    border-color: var(--secondary-border);
+    background: var(--secondary-dim);
+    border-radius: 50%;
+    width: 14px;
+    height: 14px;
+  }
+
+  /* -- Flow Container -- */
+  .flow {
+    width: 100%;
+    position: relative;
+  }
+
+  /* -- Timeline -- */
+  .timeline {
+    position: relative;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 24px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: linear-gradient(to bottom,
+      var(--green) 0%,
+      var(--green) 8%,
+      var(--amber) 16%,
+      var(--amber) 52%,
+      var(--sync-cyan) 64%,
+      var(--sync-cyan) 82%,
+      var(--green) 90%,
+      var(--green) 100%
+    );
+    opacity: 0.25;
+    border-radius: 1px;
+  }
+
+  /* -- Phase Dividers -- */
+  .phase-divider {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 36px 0 20px;
+    padding-left: 0;
+    position: relative;
+  }
+  .phase-divider:first-child { margin-top: 0; }
+  .phase-num {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-weight: 700;
+    font-size: 10px;
+    letter-spacing: 0.05em;
+    line-height: 1.2;
+    position: relative;
+    z-index: 2;
+  }
+  .phase-num .num-val {
+    font-size: 16px;
+    font-weight: 800;
+    line-height: 1;
+  }
+  .phase-num.green-phase {
+    background: var(--green-dim);
+    border: 2px solid var(--green-border);
+    color: var(--green);
+  }
+  .phase-num.amber-phase {
+    background: var(--amber-dim);
+    border: 2px solid var(--amber-border);
+    color: var(--amber);
+  }
+  .phase-num.cyan-phase {
+    background: var(--sync-cyan-dim);
+    border: 2px solid var(--sync-cyan-border);
+    color: var(--sync-cyan);
+  }
+  .phase-num.final-phase {
+    background: var(--green-dim);
+    border: 2px solid var(--green-border);
+    color: var(--green);
+  }
+  .phase-info {
+    flex: 1;
+  }
+  .phase-title {
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+  .phase-title.green-text { color: var(--green); }
+  .phase-title.amber-text { color: var(--amber); }
+  .phase-title.cyan-text { color: var(--sync-cyan); }
+  .phase-subtitle {
+    font-size: 12px;
+    color: var(--muted);
+    font-weight: 400;
+    margin-top: 2px;
+  }
+  .phase-line {
+    flex: 0;
+    height: 2px;
+    min-width: 40px;
+    flex-grow: 1;
+    border-radius: 1px;
+    opacity: 0.3;
+  }
+  .phase-line.green-line { background: var(--green); }
+  .phase-line.amber-line { background: var(--amber); }
+  .phase-line.cyan-line { background: var(--sync-cyan); }
+
+  /* -- Nodes -- */
+  .node {
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: 16px;
+    padding: 20px 24px;
+    position: relative;
+    margin-bottom: 0;
+    margin-left: 50px;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .node:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+  }
+  .node-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  .node-step {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    font-size: 12px;
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .node-title {
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.4;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .node-screen {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 2px 8px;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    background: rgba(255,255,255,0.06);
+    color: var(--muted);
+  }
+  .node-state {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 10px;
+    line-height: 1.5;
+    font-weight: 400;
+  }
+  .node-thought {
+    font-size: 12px;
+    font-style: italic;
+    color: #9999bb;
+    padding: 8px 12px;
+    background: rgba(255,255,255,0.03);
+    border-radius: 8px;
+    border-left: 3px solid;
+    line-height: 1.5;
+    font-weight: 400;
+  }
+
+  /* Node variants */
+  /* Online / Normal state — green */
+  .node.online-node {
+    border-color: var(--green-border);
+    background: linear-gradient(135deg, var(--green-dim), #0a3a2a);
+  }
+  .node.online-node .node-title { color: var(--green); }
+  .node.online-node .node-thought { border-left-color: var(--green); }
+  .node.online-node .node-step { background: var(--green); color: #111; }
+
+  /* System event — pill shaped node, secondary blue */
+  .node.system-event-node {
+    border-color: var(--secondary-border);
+    border-radius: 60px;
+    background: linear-gradient(135deg, var(--secondary-dim), #1a2a3a);
+    text-align: center;
+    padding: 16px 28px;
+  }
+  .node.system-event-node .node-title { color: var(--secondary); justify-content: center; }
+  .node.system-event-node .node-thought { border-left-color: var(--secondary); text-align: left; }
+  .node.system-event-node .node-step {
+    background: var(--secondary);
+    color: #111;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+  }
+  .node.system-event-node .node-header { justify-content: center; }
+  .node.system-event-node .node-state { text-align: center; }
+  .node.system-event-node .node-screen { display: none; }
+
+  /* Offline nodes — dashed borders, desaturated, amber accents */
+  .node.offline-node {
+    border-color: var(--amber-border);
+    border-style: dashed;
+    border-width: 2px;
+    background: linear-gradient(135deg, var(--offline-dim), #222030);
+  }
+  .node.offline-node .node-title { color: var(--amber); }
+  .node.offline-node .node-thought { border-left-color: var(--amber); color: var(--offline-muted); }
+  .node.offline-node .node-step { background: var(--amber); color: #111; }
+  .node.offline-node .node-state { color: var(--offline-muted); }
+
+  /* Pending/queued node — amber with pulsing accent */
+  .node.pending-node {
+    border-color: var(--amber-border);
+    border-style: dashed;
+    border-width: 2px;
+    background: linear-gradient(135deg, var(--amber-dim), #3a2a10);
+  }
+  .node.pending-node .node-title { color: var(--amber); }
+  .node.pending-node .node-thought { border-left-color: var(--amber); }
+  .node.pending-node .node-step { background: var(--amber); color: #111; }
+
+  /* Sync node — cyan/teal */
+  .node.sync-node {
+    border-color: var(--sync-cyan-border);
+    background: linear-gradient(135deg, var(--sync-cyan-dim), #0a2a3a);
+  }
+  .node.sync-node .node-title { color: var(--sync-cyan); }
+  .node.sync-node .node-thought { border-left-color: var(--sync-cyan); }
+  .node.sync-node .node-step { background: var(--sync-cyan); color: #111; }
+
+  /* Success / synced node */
+  .node.success-node {
+    border-color: var(--green-border);
+    background: linear-gradient(135deg, var(--green-dim), #0a3a2a);
+  }
+  .node.success-node .node-title { color: var(--green); }
+  .node.success-node .node-thought { border-left-color: var(--green); }
+  .node.success-node .node-step { background: var(--green); color: #111; }
+
+  /* Key moment node */
+  .node.key-moment-node {
+    border-color: var(--purple-border);
+    border-width: 3px;
+    background: linear-gradient(135deg, var(--purple-dim), #2a1a4a);
+  }
+  .node.key-moment-node .node-title { color: var(--purple); }
+  .node.key-moment-node .node-thought { border-left-color: var(--purple); }
+  .node.key-moment-node .node-step {
+    background: var(--purple);
+    color: #111;
+    width: 28px;
+    height: 28px;
+    transform: rotate(45deg);
+    border-radius: 6px;
+  }
+  .node.key-moment-node .node-step span {
+    display: inline-block;
+    transform: rotate(-45deg);
+  }
+
+  /* -- Callout Badge -- */
+  .callout {
+    position: absolute;
+    top: -10px;
+    right: -8px;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 12px;
+    border-radius: 10px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    z-index: 2;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    white-space: nowrap;
+  }
+  .callout.key-moment { background: var(--purple); color: #fff; }
+  .callout.offline { background: var(--amber); color: #111; }
+  .callout.sync { background: var(--sync-cyan); color: #111; }
+  .callout.success { background: var(--green); color: #111; }
+  .callout.system { background: var(--secondary); color: #fff; }
+
+  /* -- Connectors -- */
+  .connector {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px 0;
+    position: relative;
+    margin-left: 50px;
+  }
+  .connector-line {
+    width: 3px;
+    height: 32px;
+    border-radius: 2px;
+  }
+  .connector-line.green { background: var(--green); }
+  .connector-line.amber { background: var(--amber); }
+  .connector-line.blue { background: var(--blue); }
+  .connector-line.cyan { background: var(--sync-cyan); }
+  .connector-line.secondary { background: var(--secondary); }
+  .connector-line.neutral { background: var(--border); }
+  .connector-line.dashed {
+    background: none;
+    border-left: 3px dashed var(--amber-border);
+    width: 0;
+    margin-left: 1px;
+  }
+  .connector-line.grad-ga { background: linear-gradient(to bottom, var(--green), var(--amber)); }
+  .connector-line.grad-as { background: linear-gradient(to bottom, var(--amber), var(--secondary)); }
+  .connector-line.grad-sa { background: linear-gradient(to bottom, var(--secondary), var(--amber)); }
+  .connector-line.grad-ac { background: linear-gradient(to bottom, var(--amber), var(--sync-cyan)); }
+  .connector-line.grad-sc { background: linear-gradient(to bottom, var(--secondary), var(--sync-cyan)); }
+  .connector-line.grad-cg { background: linear-gradient(to bottom, var(--sync-cyan), var(--green)); }
+  .connector-line.grad-sg { background: linear-gradient(to bottom, var(--secondary), var(--green)); }
+
+  .connector-arrow {
+    width: 0;
+    height: 0;
+    border-left: 7px solid transparent;
+    border-right: 7px solid transparent;
+  }
+  .connector-arrow.green { border-top: 9px solid var(--green); }
+  .connector-arrow.amber { border-top: 9px solid var(--amber); }
+  .connector-arrow.blue { border-top: 9px solid var(--blue); }
+  .connector-arrow.cyan { border-top: 9px solid var(--sync-cyan); }
+  .connector-arrow.secondary { border-top: 9px solid var(--secondary); }
+
+  .connector-label {
+    position: absolute;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 10px;
+    border-radius: 10px;
+    white-space: nowrap;
+  }
+  .connector-label.right { left: calc(50% + 20px); }
+  .connector-label.left { right: calc(50% + 20px); }
+  .connector-label.green { color: var(--green); background: var(--green-dim); }
+  .connector-label.amber { color: var(--amber); background: var(--amber-dim); }
+  .connector-label.blue { color: var(--blue); background: var(--blue-dim); }
+  .connector-label.cyan { color: var(--sync-cyan); background: var(--sync-cyan-dim); }
+  .connector-label.secondary { color: var(--secondary); background: var(--secondary-dim); }
+
+  /* -- Mini UI (inline mockups) -- */
+  .mini-ui {
+    background: rgba(0,0,0,0.25);
+    border-radius: 12px;
+    padding: 12px;
+    margin: 10px 0;
+  }
+
+  .mini-banner {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .mini-banner.offline-banner {
+    background: var(--amber-dim);
+    border: 1px dashed var(--amber-border);
+    color: var(--amber);
+  }
+  .mini-banner.sync-banner {
+    background: var(--sync-cyan-dim);
+    border: 1px solid var(--sync-cyan-border);
+    color: var(--sync-cyan);
+  }
+
+  .mini-toast {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .mini-toast.success {
+    background: var(--green-dim);
+    border: 1px solid var(--green-border);
+    color: var(--green);
+  }
+  .mini-toast.amber-toast {
+    background: var(--amber-dim);
+    border: 1px solid var(--amber-border);
+    color: var(--amber);
+  }
+  .mini-toast.sync-toast {
+    background: var(--sync-cyan-dim);
+    border: 1px solid var(--sync-cyan-border);
+    color: var(--sync-cyan);
+  }
+
+  .mini-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin-bottom: 6px;
+  }
+  .mini-card:last-child { margin-bottom: 0; }
+
+  .mini-dashboard-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 8px;
+    font-size: 12px;
+    margin-bottom: 4px;
+    border-left: 3px solid var(--green);
+  }
+  .mini-dashboard-row:last-child { margin-bottom: 0; }
+  .mini-dashboard-row .dash-icon { font-size: 16px; flex-shrink: 0; }
+  .mini-dashboard-row .dash-info { flex: 1; }
+  .mini-dashboard-row .dash-label { font-weight: 600; color: var(--text); }
+  .mini-dashboard-row .dash-meta { font-size: 10px; color: var(--muted); }
+  .mini-dashboard-row .dash-amount { font-weight: 700; color: var(--text); }
+
+  .mini-dashboard-row.offline-row {
+    border-left-color: var(--amber);
+    border-left-style: dashed;
+    opacity: 0.7;
+  }
+
+  .mini-nav-row {
+    display: flex;
+    gap: 6px;
+    margin-top: 8px;
+  }
+  .mini-nav-tab {
+    flex: 1;
+    text-align: center;
+    padding: 6px 4px;
+    border-radius: 8px;
+    font-size: 10px;
+    font-weight: 600;
+    background: rgba(255,255,255,0.04);
+    color: var(--muted);
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+  .mini-nav-tab.active-tab {
+    background: var(--primary-dim);
+    border-color: var(--primary-border);
+    color: var(--primary-border);
+  }
+
+  .mini-status-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    font-size: 11px;
+    flex-shrink: 0;
+  }
+  .mini-status-icon.online {
+    background: var(--green-dim);
+    border: 1px solid var(--green-border);
+  }
+  .mini-status-icon.offline {
+    background: var(--amber-dim);
+    border: 1px dashed var(--amber-border);
+  }
+
+  .mini-cache-label {
+    display: inline-block;
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: rgba(251, 191, 36, 0.15);
+    color: var(--amber);
+    border: 1px dashed rgba(251, 191, 36, 0.3);
+  }
+
+  .pending-dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--amber);
+    animation: pulse-amber 1.5s infinite;
+    vertical-align: middle;
+    margin-left: 4px;
+  }
+  @keyframes pulse-amber {
+    0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.5); }
+    50% { opacity: 0.7; box-shadow: 0 0 0 6px rgba(251, 191, 36, 0); }
+  }
+
+  .sync-spinner {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--sync-cyan-dim);
+    border-top-color: var(--sync-cyan);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    vertical-align: middle;
+    margin-right: 4px;
+  }
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  /* Connection status indicator */
+  .connection-indicator {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 10px;
+    width: fit-content;
+  }
+  .connection-indicator.online {
+    background: var(--green-dim);
+    border: 1px solid var(--green-border);
+    color: var(--green);
+  }
+  .connection-indicator.offline {
+    background: var(--amber-dim);
+    border: 1px dashed var(--amber-border);
+    color: var(--amber);
+  }
+  .connection-indicator .status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+  }
+  .connection-indicator.online .status-dot { background: var(--green); }
+  .connection-indicator.offline .status-dot { background: var(--amber); animation: pulse-amber 1.5s infinite; }
+
+  /* -- Hover details -- */
+  .node-detail-expand {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease, padding 0.3s ease;
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+  .node:hover .node-detail-expand,
+  .node:focus-within .node-detail-expand {
+    max-height: 120px;
+    padding-top: 8px;
+  }
+  .node-detail-expand code {
+    font-size: 11px;
+    background: rgba(255,255,255,0.06);
+    padding: 1px 6px;
+    border-radius: 4px;
+    color: var(--text);
+    font-family: 'Courier New', monospace;
+  }
+
+  /* -- Emotional Arc -- */
+  .arc-section {
+    margin-top: 48px;
+    padding: 28px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+  }
+  .arc-title {
+    text-align: center;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    margin-bottom: 24px;
+  }
+  .arc-track {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 4px;
+    height: 160px;
+    padding: 0 8px 1px;
+    position: relative;
+  }
+  .arc-track::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0; right: 0;
+    height: 1px;
+    background: var(--border);
+  }
+  .arc-point {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    flex: 1;
+    min-width: 0;
+  }
+  .arc-emoji { font-size: 20px; }
+  .arc-bar-seg {
+    width: 100%;
+    max-width: 50px;
+    border-radius: 6px 6px 0 0;
+    transition: height 0.8s ease;
+  }
+  .arc-point-label {
+    font-size: 9px;
+    font-weight: 600;
+    color: var(--muted);
+    text-align: center;
+    line-height: 1.2;
+    margin-top: 6px;
+    max-width: 72px;
+  }
+
+  /* -- Summary -- */
+  .summary-bar {
+    margin-top: 24px;
+    padding: 28px;
+    background: var(--surface);
+    border-radius: 16px;
+    border: 1px solid var(--border);
+  }
+  .summary-title {
+    text-align: center;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    margin-bottom: 20px;
+  }
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 16px;
+    text-align: center;
+  }
+  .summary-num {
+    font-size: 30px;
+    font-weight: 800;
+  }
+  .summary-label {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  /* -- Responsive -- */
+  @media (max-width: 640px) {
+    .flow-header h1 { font-size: 24px; }
+    .node { padding: 16px 18px; margin-left: 40px; }
+    .connector { margin-left: 40px; }
+    .timeline::before { left: 18px; }
+    .phase-num { width: 38px; height: 38px; font-size: 9px; }
+    .phase-num .num-val { font-size: 13px; }
+    .phase-title { font-size: 14px; }
+    .nav-ref { max-width: 340px; }
+    .nav-item { padding: 6px 10px; font-size: 9px; }
+    .arc-point-label { font-size: 8px; max-width: 50px; }
+    .summary-grid { grid-template-columns: repeat(2, 1fr); }
+    .node.system-event-node { border-radius: 40px; padding: 14px 20px; }
+  }
+
+  /* -- Entrance animation -- */
+  .node, .phase-divider, .connector {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  .node.visible, .phase-divider.visible, .connector.visible {
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- Brand Header -->
+  <div class="brand-header">
+    <div class="brand-name">Gastify</div>
+  </div>
+
+  <!-- Flow Header -->
+  <header class="flow-header">
+    <h1>Flujo 9: Offline &rarr; Reconnect</h1>
+    <p class="subtitle">
+      El usuario usa la app sin internet &mdash; la PWA <strong>guarda todo localmente</strong>
+      y se <strong>sincroniza automaticamente</strong> cuando la conexion vuelve.
+      Cero datos perdidos, cero esfuerzo de recuperacion.
+    </p>
+    <span class="value-tag">Resiliencia Offline &mdash; "Nunca se pierde nada"</span>
+  </header>
+
+  <!-- Nav Reference Bar -->
+  <div class="nav-ref">
+        <div class="nav-item" data-nav="home">Home</div>
+        <div class="nav-item" data-nav="trends">Trends</div>
+        <div class="nav-item fab" data-nav="fab">FAB Scan</div>
+        <div class="nav-item" data-nav="reports">Reports</div>
+        <div class="nav-item" data-nav="alerts">Alerts</div>
+      </div>
+
+  <!-- Legend -->
+  <div class="legend">
+    <div class="legend-item"><div class="legend-swatch green"></div> Online / Exito</div>
+    <div class="legend-item"><div class="legend-swatch offline"></div> Offline (borde punteado)</div>
+    <div class="legend-item"><div class="legend-swatch system-event"></div> Evento del sistema</div>
+    <div class="legend-item"><div class="legend-swatch amber"></div> Pendiente / En cola</div>
+    <div class="legend-item"><div class="legend-swatch cyan"></div> Sincronizacion</div>
+    <div class="legend-item"><div class="legend-swatch purple"></div> Momento clave</div>
+  </div>
+
+  <!-- Flow -->
+  <div class="flow">
+    <div class="timeline">
+
+      <!-- ════════════════════════════════════════════ -->
+      <!-- PHASE 1: Conexion Normal                     -->
+      <!-- ════════════════════════════════════════════ -->
+
+      <div class="phase-divider" id="phase1">
+        <div class="phase-num green-phase">
+          <span>Fase</span>
+          <span class="num-val">1</span>
+        </div>
+        <div class="phase-info">
+          <div class="phase-title green-text">Conexion Normal</div>
+          <div class="phase-subtitle">Todo funciona con normalidad &mdash; la app esta conectada</div>
+        </div>
+        <div class="phase-line green-line"></div>
+      </div>
+
+      <!-- STEP 1: Dashboard — Online -->
+      <div class="node online-node" tabindex="0">
+        <div class="node-screen">Dashboard</div>
+        <div class="node-header">
+          <div class="node-step"><span>1</span></div>
+          <div class="node-title">
+            <span>&#x1F3E0;</span> Dashboard &mdash; Online
+          </div>
+        </div>
+        <div class="connection-indicator online">
+          <div class="status-dot"></div> Conectado
+        </div>
+        <div class="node-state">
+          Todo funciona normalmente. Datos frescos del servidor,
+          escaneos disponibles, sincronizacion en tiempo real.
+        </div>
+        <div class="mini-ui">
+          <div class="mini-dashboard-row">
+            <span class="dash-icon">&#x1F6D2;</span>
+            <div class="dash-info">
+              <div class="dash-label">Lider Express</div>
+              <div class="dash-meta">Hace 2 hrs &middot; Alimentacion</div>
+            </div>
+            <span class="dash-amount">-$12.450</span>
+          </div>
+          <div class="mini-dashboard-row">
+            <span class="dash-icon">&#x2615;</span>
+            <div class="dash-info">
+              <div class="dash-label">Starbucks</div>
+              <div class="dash-meta">Ayer &middot; Entretenimiento</div>
+            </div>
+            <span class="dash-amount">-$4.800</span>
+          </div>
+          <div style="text-align:center; margin-top:10px; font-size:11px; color:var(--muted);">
+            <span style="color:var(--green);">&#x25CF;</span> Sincronizado &middot; Ultima actualizacion: ahora
+          </div>
+        </div>
+        <div class="node-thought">
+          "Todo bien, voy a escanear."
+        </div>
+        <div class="node-detail-expand">
+          Estado: <code>navigator.onLine === true</code>.
+          Firestore listener activo, datos en tiempo real.
+          Service Worker cacheando paginas para uso offline.
+        </div>
+      </div>
+
+      <div class="connector">
+        <div style="display:flex;flex-direction:column;align-items:center;">
+          <div class="connector-line grad-ga"></div>
+          <div class="connector-arrow secondary"></div>
+        </div>
+        <span class="connector-label right secondary">WiFi/cellular cae</span>
+      </div>
+
+      <!-- ════════════════════════════════════════════ -->
+      <!-- PHASE 2: Modo Offline                        -->
+      <!-- ════════════════════════════════════════════ -->
+
+      <div class="phase-divider" id="phase2">
+        <div class="phase-num amber-phase">
+          <span>Fase</span>
+          <span class="num-val">2</span>
+        </div>
+        <div class="phase-info">
+          <div class="phase-title amber-text">Modo Offline</div>
+          <div class="phase-subtitle">Sin conexion &mdash; la PWA sigue funcionando con datos locales</div>
+        </div>
+        <div class="phase-line amber-line"></div>
+      </div>
+
+      <!-- STEP 2: Network Drops (system event) -->
+      <div class="node system-event-node" tabindex="0">
+        <span class="callout system">Evento del sistema</span>
+        <div class="node-header">
+          <div class="node-step"><span>2</span></div>
+          <div class="node-title">
+            <span>&#x1F4E1;</span> Se pierde la conexion
+          </div>
+        </div>
+        <div class="node-state">
+          WiFi o datos celulares dejan de funcionar.<br>
+          La app detecta el cambio y activa el modo offline.
+        </div>
+        <div class="node-detail-expand">
+          Detectado via <code>window.addEventListener('offline')</code>.
+          Firestore activa persistencia local. Service Worker sirve paginas cacheadas.
+        </div>
+      </div>
+
+      <div class="connector">
+        <div style="display:flex;flex-direction:column;align-items:center;">
+          <div class="connector-line dashed" style="height:32px;"></div>
+          <div class="connector-arrow amber"></div>
+        </div>
+        <span class="connector-label right amber">Modo offline activado</span>
+      </div>
+
+      <!-- STEP 3: Dashboard — Offline -->
+      <div class="node offline-node" tabindex="0">
+        <span class="callout offline">Offline</span>
+        <div class="node-screen">Dashboard</div>
+        <div class="node-header">
+          <div class="node-step"><span>3</span></div>
+          <div class="node-title">
+            <span>&#x1F3E0;</span> Dashboard &mdash; Offline
+          </div>
+        </div>
+        <div class="connection-indicator offline">
+          <div class="status-dot"></div> Sin conexion
+        </div>
+        <div class="node-state">
+          Banner offline visible. La app sigue siendo funcional
+          para navegar datos cacheados. No alarma al usuario &mdash;
+          el mensaje es informativo y tranquilo.
+        </div>
+        <div class="mini-ui">
+          <div class="mini-banner offline-banner">
+            <span>&#x1F4E1;</span>
+            <span>Sin conexion &mdash; los cambios se guardaran localmente</span>
+          </div>
+          <div style="margin-top:8px;">
+            <div class="mini-dashboard-row offline-row">
+              <span class="dash-icon">&#x1F6D2;</span>
+              <div class="dash-info">
+                <div class="dash-label">Lider Express</div>
+                <div class="dash-meta">Hace 2 hrs &middot; Alimentacion</div>
+              </div>
+              <span class="dash-amount">-$12.450</span>
+            </div>
+            <div class="mini-dashboard-row offline-row">
+              <span class="dash-icon">&#x2615;</span>
+              <div class="dash-info">
+                <div class="dash-label">Starbucks</div>
+                <div class="dash-meta">Ayer &middot; Entretenimiento</div>
+              </div>
+              <span class="dash-amount">-$4.800</span>
+            </div>
+          </div>
+        </div>
+        <div class="node-thought">
+          "Ah, estoy sin internet. Pero puedo ver mis gastos."
+        </div>
+        <div class="node-detail-expand">
+          Indicador sutil: banner no intrusivo. <code>isOffline</code> state activo.
+          Datos de Firestore servidos desde cache local.
+          Navegacion entre vistas funciona normalmente.
+        </div>
+      </div>
+
+      <div class="connector">
+        <div style="display:flex;flex-direction:column;align-items:center;">
+          <div class="connector-line dashed" style="height:32px;"></div>
+          <div class="connector-arrow amber"></div>
+        </div>
+        <span class="connector-label right amber">Toca FAB para escanear</span>
+      </div>
+
+      <!-- STEP 4: User Tries to Scan -->
+      <div class="node offline-node" tabindex="0">
+        <div class="node-screen">Camara</div>
+        <div class="node-header">
+          <div class="node-step"><span>4</span></div>
+          <div class="node-title">
+            <span>&#x1F4F7;</span> Usuario intenta escanear
+          </div>
+        </div>
+        <div class="node-state">
+          El usuario toca el FAB &mdash; la camara abre normalmente.
+          La foto se captura y almacena localmente en IndexedDB.
+          El escaneo AI no puede ejecutarse sin internet,
+          pero la imagen queda a salvo.
+        </div>
+        <div class="mini-ui">
+          <div style="text-align:center; padding:16px 0;">
+            <div style="font-size:48px; margin-bottom:8px; opacity:0.8;">&#x1F4F7;</div>
+            <div style="font-size:13px; font-weight:600; color:var(--text);">Foto capturada</div>
+            <div style="font-size:11px; color:var(--amber); margin-top:4px;">
+              &#x1F4BE; Guardada en almacenamiento local
+            </div>
+          </div>
+        </div>
+        <div class="node-thought">
+          "La camara funciona, bien. Espero que no se pierda."
+        </div>
+        <div class="node-detail-expand">
+          Imagen almacenada en <code>IndexedDB</code> via Service Worker.
+          Se agrega a la cola de sincronizacion: <code>syncQueue.push({ type: 'scan', blob })</code>.
+        </div>
+      </div>
+
+      <div class="connector">
+        <div style="display:flex;flex-direction:column;align-items:center;">
+          <div class="connector-line dashed" style="height:32px;"></div>
+          <div class="connector-arrow amber"></div>
+        </div>
+        <span class="connector-label right amber">Se encola para despues</span>
+      </div>
+
+      <!-- STEP 5: Scan Queued -->
+      <div class="node pending-node" tabindex="0">
+        <div class="node-screen">Toast + FAB indicator</div>
+        <div class="node-header">
+          <div class="node-step"><span>5</span></div>
+          <div class="node-title">
+            <span>&#x23F3;</span> Escaneo en cola
+            <span class="pending-dot"></span>
+          </div>
+        </div>
+        <div class="node-state">
+          Toast confirma que la boleta fue guardada localmente.
+          Un punto ambar pulsante aparece sobre el FAB indicando
+          que hay acciones pendientes de sincronizar.
+        </div>
+        <div class="mini-ui">
+          <div class="mini-toast amber-toast">
+            <span>&#x1F4BE;</span>
+            <span>Boleta guardada localmente. Se procesara cuando vuelvas a conectarte.</span>
+          </div>
+          <div style="display:flex; align-items:center; justify-content:center; gap:8px; margin-top:12px;">
+            <div style="width:44px; height:44px; border-radius:50%; background:linear-gradient(135deg, var(--primary), var(--primary-border)); display:flex; align-items:center; justify-content:center; font-size:22px; color:#fff; position:relative; box-shadow:0 4px 16px rgba(74,124,89,0.3);">
+              +
+              <div style="position:absolute; top:-2px; right:-2px; width:12px; height:12px; border-radius:50%; background:var(--amber); border:2px solid var(--bg); animation:pulse-amber 1.5s infinite;"></div>
+            </div>
+            <div style="font-size:11px; color:var(--amber); font-weight:600;">
+              &#x2190; Indicador pendiente (1 boleta en cola)
+            </div>
+          </div>
+        </div>
+        <div class="node-thought">
+          "OK, la guardo para despues."
+        </div>
+        <div class="node-detail-expand">
+          Cola de sincronizacion: <code>pendingSync: [{ type: 'scan', status: 'queued' }]</code>.
+          FAB badge muestra conteo de items pendientes.
+        </div>
+      </div>
+
+      <div class="connector">
+        <div style="display:flex;flex-direction:column;align-items:center;">
+          <div class="connector-line dashed" style="height:32px;"></div>
+          <div class="connector-arrow amber"></div>
+        </div>
+        <span class="connector-label right amber">Sigue navegando offline</span>
+      </div>
+
+      <!-- STEP 6: User Browses Offline -->
+      <div class="node offline-node" tabindex="0">
+        <span class="callout key-moment">Momento clave</span>
+        <div class="node-screen">Varias vistas</div>
+        <div class="node-header">
+          <div class="node-step"><span>6</span></div>
+          <div class="node-title">
+            <span>&#x1F4CB;</span> Navegacion offline
+          </div>
+        </div>
+        <div class="node-state">
+          El usuario puede navegar Historial, Items y Trends con datos cacheados.
+          Algunas funciones estan limitadas (no hay datos frescos del servidor).
+          Reportes muestran una etiqueta sutil indicando que son datos en cache.
+        </div>
+        <div class="mini-ui">
+          <div class="mini-nav-row">
+            <div class="mini-nav-tab">&#x1F4CB; Historial</div>
+            <div class="mini-nav-tab active-tab">&#x1F4A1; Trends</div>
+            <div class="mini-nav-tab">&#x1F4CA; Reports</div>
+          </div>
+          <div style="margin-top:10px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+              <span style="font-size:13px; font-weight:700; color:var(--text);">Gastos del mes</span>
+              <span class="mini-cache-label">Datos en cache</span>
+            </div>
+            <div class="mini-card" style="border-style:dashed; border-color:rgba(251,191,36,0.2);">
+              <div style="display:flex; justify-content:space-between; font-size:12px;">
+                <span style="color:var(--muted);">Alimentacion</span>
+                <span style="color:var(--text); font-weight:600;">$89.450</span>
+              </div>
+              <div style="margin-top:6px; height:6px; background:rgba(255,255,255,0.06); border-radius:3px; overflow:hidden;">
+                <div style="width:65%; height:100%; background:linear-gradient(to right, var(--primary), var(--primary-border)); border-radius:3px; opacity:0.7;"></div>
+              </div>
+            </div>
+            <div class="mini-card" style="border-style:dashed; border-color:rgba(251,191,36,0.2);">
+              <div style="display:flex; justify-content:space-between; font-size:12px;">
+                <span style="color:var(--muted);">Transporte</span>
+                <span style="color:var(--text); font-weight:600;">$32.100</span>
+              </div>
+              <div style="margin-top:6px; height:6px; background:rgba(255,255,255,0.06); border-radius:3px; overflow:hidden;">
+                <div style="width:35%; height:100%; background:linear-gradient(to right, var(--secondary), var(--secondary-border)); border-radius:3px; opacity:0.7;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="node-thought">
+          "Al menos puedo ver mis gastos anteriores."
+        </div>
+        <div class="node-detail-expand">
+          Firestore <code>enablePersistence()</code> sirve datos del cache IndexedDB.
+          Vistas de solo lectura funcionan perfectamente.
+          Escrituras se encolan automaticamente.
+        </div>
+      </div>
+
+      <div class="connector">
+        <div style="display:flex;flex-direction:column;align-items:center;">
+          <div class="connector-line grad-as"></div>
+          <div class="connector-arrow secondary"></div>
+        </div>
+        <span class="connector-label right secondary">Conexion restaurada</span>
+      </div>
+
+      <!-- ════════════════════════════════════════════ -->
+      <!-- PHASE 3: Reconexion                          -->
+      <!-- ════════════════════════════════════════════ -->
+
+      <div class="phase-divider" id="phase3">
+        <div class="phase-num cyan-phase">
+          <span>Fase</span>
+          <span class="num-val">3</span>
+        </div>
+        <div class="phase-info">
+          <div class="phase-title cyan-text">Reconexion</div>
+          <div class="phase-subtitle">La conexion vuelve &mdash; sincronizacion automatica</div>
+        </div>
+        <div class="phase-line cyan-line"></div>
+      </div>
+
+      <!-- STEP 7: Network Reconnects (system event) -->
+      <div class="node system-event-node" tabindex="0">
+        <span class="callout system">Evento del sistema</span>
+        <div class="node-header">
+          <div class="node-step"><span>7</span></div>
+          <div class="node-title">
+            <span>&#x1F4F6;</span> Conexion restaurada
+          </div>
+        </div>
+        <div class="node-state">
+          WiFi o datos celulares se reconectan.<br>
+          La app detecta el cambio e inicia la sincronizacion automaticamente.
+        </div>
+        <div class="node-detail-expand">
+          Detectado via <code>window.addEventListener('online')</code>.
+          Service Worker ejecuta <code>BackgroundSync</code>.
+          Firestore re-establece conexion con el servidor.
+        </div>
+      </div>
+
+      <div class="connector">
+        <div style="display:flex;flex-direction:column;align-items:center;">
+          <div class="connector-line cyan"></div>
+          <div class="connector-arrow cyan"></div>
+        </div>
+        <span class="connector-label right cyan">Auto-sync inicia</span>
+      </div>
+
+      <!-- STEP 8: Syncing Overlay -->
+      <div class="node sync-node" tabindex="0">
+        <span class="callout sync">Sincronizando</span>
+        <div class="node-screen">Background sync</div>
+        <div class="node-header">
+          <div class="node-step"><span>8</span></div>
+          <div class="node-title">
+            <span class="sync-spinner"></span> Sincronizando...
+          </div>
+        </div>
+        <div class="node-state">
+          Indicador sutil de sincronizacion (icono de flechas rotando).
+          El escaneo en cola se sube al servidor y se procesa con Gemini AI.
+          El usuario no necesita hacer nada.
+        </div>
+        <div class="mini-ui">
+          <div class="mini-banner sync-banner">
+            <span class="sync-spinner"></span>
+            <span>Sincronizando...</span>
+          </div>
+          <div style="margin-top:10px;">
+            <div style="display:flex; align-items:center; gap:8px; padding:8px 10px; background:rgba(34,211,238,0.08); border-radius:8px; border-left:3px solid var(--sync-cyan);">
+              <span style="font-size:14px;">&#x1F4F7;</span>
+              <div style="flex:1;">
+                <div style="font-size:12px; font-weight:600; color:var(--sync-cyan);">Boleta pendiente</div>
+                <div style="font-size:10px; color:var(--muted);">Subiendo imagen... procesando con AI...</div>
+              </div>
+              <div style="width:32px; height:32px; border-radius:50%; border:3px solid var(--sync-cyan-dim); border-top-color:var(--sync-cyan); animation:spin 0.8s linear infinite;"></div>
+            </div>
+          </div>
+        </div>
+        <div class="node-thought" style="border-left-color:var(--sync-cyan);">
+          "Se esta sincronizando, que bueno que no tuve que hacer nada."
+        </div>
+        <div class="node-detail-expand">
+          Pipeline: <code>syncQueue.process()</code> &rarr; upload blob &rarr;
+          <code>queueReceiptScan()</code> &rarr; Gemini procesa &rarr;
+          resultado sincronizado via Firestore listener.
+        </div>
+      </div>
+
+      <div class="connector">
+        <div style="display:flex;flex-direction:column;align-items:center;">
+          <div class="connector-line grad-cg"></div>
+          <div class="connector-arrow green"></div>
+        </div>
+        <span class="connector-label right green">Sync completo</span>
+      </div>
+
+      <!-- STEP 9: Sync Complete -->
+      <div class="node key-moment-node" tabindex="0">
+        <span class="callout key-moment">Momento clave</span>
+        <div class="node-screen">Toast de exito</div>
+        <div class="node-header">
+          <div class="node-step"><span>9</span></div>
+          <div class="node-title">
+            <span>&#x2728;</span> Sincronizacion completa
+          </div>
+        </div>
+        <div class="node-state">
+          Toast de exito confirma que todo esta sincronizado.
+          Banner offline desaparece. Datos refrescados desde el servidor.
+          Recuperacion automatica &mdash; cero esfuerzo del usuario.
+        </div>
+        <div class="mini-ui">
+          <div class="mini-toast success">
+            <span>&#x2705;</span>
+            <span>&iexcl;Todo sincronizado! 1 boleta procesada.</span>
+          </div>
+          <div style="text-align:center; margin-top:12px; padding:8px;">
+            <div style="font-size:36px; margin-bottom:6px;">&#x2728;</div>
+            <div style="font-size:13px; font-weight:600; color:var(--green);">Auto-recuperacion completa</div>
+            <div style="font-size:11px; color:var(--muted); margin-top:4px;">Sin intervencion del usuario</div>
+          </div>
+        </div>
+        <div class="node-thought" style="border-left-color:var(--purple);">
+          "&iexcl;Genial! Se sincronizo solo."
+        </div>
+        <div class="node-detail-expand">
+          <code>syncQueue.length === 0</code>. Todos los items procesados.
+          Firestore cache actualizado con datos frescos del servidor.
+          FAB badge removido (no mas items pendientes).
+        </div>
+      </div>
+
+      <div class="connector">
+        <div style="display:flex;flex-direction:column;align-items:center;">
+          <div class="connector-line green"></div>
+          <div class="connector-arrow green"></div>
+        </div>
+        <span class="connector-label right green">Datos actualizados</span>
+      </div>
+
+      <!-- ════════════════════════════════════════════ -->
+      <!-- PHASE 4: Sincronizado                        -->
+      <!-- ════════════════════════════════════════════ -->
+
+      <div class="phase-divider" id="phase4">
+        <div class="phase-num final-phase">
+          <span>Fase</span>
+          <span class="num-val">4</span>
+        </div>
+        <div class="phase-info">
+          <div class="phase-title green-text">Sincronizado</div>
+          <div class="phase-subtitle">De vuelta online &mdash; como si nunca se hubiera perdido la conexion</div>
+        </div>
+        <div class="phase-line green-line"></div>
+      </div>
+
+      <!-- STEP 10: Dashboard — Updated -->
+      <div class="node success-node" tabindex="0">
+        <span class="callout success">Todo al dia</span>
+        <div class="node-screen">Dashboard</div>
+        <div class="node-header">
+          <div class="node-step"><span>10</span></div>
+          <div class="node-title">
+            <span>&#x1F3E0;</span> Dashboard &mdash; Actualizado
+          </div>
+        </div>
+        <div class="connection-indicator online">
+          <div class="status-dot"></div> Conectado
+        </div>
+        <div class="node-state">
+          La transaccion del escaneo offline aparece en el historial.
+          Todos los datos estan al dia. No hay indicios de que hubo
+          una interrupcion &mdash; la experiencia es transparente.
+        </div>
+        <div class="mini-ui">
+          <div class="mini-dashboard-row" style="border-left-color:var(--primary-border); background:rgba(74,124,89,0.1);">
+            <span class="dash-icon">&#x1F6D2;</span>
+            <div class="dash-info">
+              <div class="dash-label">Jumbo &#x1F195;</div>
+              <div class="dash-meta">Hace 5 min &middot; Alimentacion &middot; &#x1F4F7; Escaneada offline</div>
+            </div>
+            <span class="dash-amount" style="color:var(--green);">-$8.990</span>
+          </div>
+          <div class="mini-dashboard-row">
+            <span class="dash-icon">&#x1F6D2;</span>
+            <div class="dash-info">
+              <div class="dash-label">Lider Express</div>
+              <div class="dash-meta">Hace 3 hrs &middot; Alimentacion</div>
+            </div>
+            <span class="dash-amount">-$12.450</span>
+          </div>
+          <div class="mini-dashboard-row" style="opacity:0.6; border-left-color:var(--border);">
+            <span class="dash-icon">&#x2615;</span>
+            <div class="dash-info">
+              <div class="dash-label">Starbucks</div>
+              <div class="dash-meta">Ayer &middot; Entretenimiento</div>
+            </div>
+            <span class="dash-amount">-$4.800</span>
+          </div>
+          <div style="text-align:center; margin-top:10px; font-size:11px; color:var(--muted);">
+            <span style="color:var(--green);">&#x25CF;</span> Sincronizado &middot; Ultima actualizacion: ahora
+          </div>
+        </div>
+        <div class="node-thought">
+          "Como si nunca hubiera perdido la conexion."
+        </div>
+        <div class="node-detail-expand">
+          Estado final: <code>navigator.onLine === true</code>,
+          <code>syncQueue.length === 0</code>,
+          <code>pendingScans === 0</code>.
+          Experiencia completamente transparente para el usuario.
+        </div>
+      </div>
+
+    </div><!-- /timeline -->
+  </div><!-- /flow -->
+
+  <!-- Emotional Arc Visualization -->
+  <div class="arc-section">
+    <div class="arc-title">Arco Emocional &mdash; Confianza del Usuario durante la Desconexion</div>
+    <div class="arc-track" id="arcTrack">
+      <div class="arc-point">
+        <div class="arc-emoji">&#x1F60A;</div>
+        <div class="arc-bar-seg" data-h="120" style="height:0; background: linear-gradient(to top, var(--green-dim), var(--green));"></div>
+        <div class="arc-point-label">Online normal</div>
+      </div>
+      <div class="arc-point">
+        <div class="arc-emoji">&#x26A0;&#xFE0F;</div>
+        <div class="arc-bar-seg" data-h="55" style="height:0; background: linear-gradient(to top, var(--secondary-dim), var(--secondary));"></div>
+        <div class="arc-point-label">Se cae la red</div>
+      </div>
+      <div class="arc-point">
+        <div class="arc-emoji">&#x1F914;</div>
+        <div class="arc-bar-seg" data-h="65" style="height:0; background: linear-gradient(to top, var(--amber-dim), var(--amber));"></div>
+        <div class="arc-point-label">Offline pero funcional</div>
+      </div>
+      <div class="arc-point">
+        <div class="arc-emoji">&#x1F4F7;</div>
+        <div class="arc-bar-seg" data-h="70" style="height:0; background: linear-gradient(to top, var(--amber-dim), var(--amber));"></div>
+        <div class="arc-point-label">Escaneo guardado</div>
+      </div>
+      <div class="arc-point">
+        <div class="arc-emoji">&#x1F44D;</div>
+        <div class="arc-bar-seg" data-h="75" style="height:0; background: linear-gradient(to top, var(--amber-dim), var(--amber-border));"></div>
+        <div class="arc-point-label">Navega con cache</div>
+      </div>
+      <div class="arc-point">
+        <div class="arc-emoji">&#x1F4F6;</div>
+        <div class="arc-bar-seg" data-h="85" style="height:0; background: linear-gradient(to top, var(--sync-cyan-dim), var(--sync-cyan));"></div>
+        <div class="arc-point-label">Reconecta</div>
+      </div>
+      <div class="arc-point">
+        <div class="arc-emoji">&#x1F504;</div>
+        <div class="arc-bar-seg" data-h="95" style="height:0; background: linear-gradient(to top, var(--sync-cyan-dim), var(--sync-cyan-border));"></div>
+        <div class="arc-point-label">Auto-sync</div>
+      </div>
+      <div class="arc-point">
+        <div class="arc-emoji">&#x2728;</div>
+        <div class="arc-bar-seg" data-h="110" style="height:0; background: linear-gradient(to top, var(--purple-dim), var(--purple));"></div>
+        <div class="arc-point-label">Sync completo</div>
+      </div>
+      <div class="arc-point">
+        <div class="arc-emoji">&#x1F929;</div>
+        <div class="arc-bar-seg" data-h="130" style="height:0; background: linear-gradient(to top, var(--green-dim), var(--green));"></div>
+        <div class="arc-point-label">De vuelta normal</div>
+      </div>
+    </div>
+    <div style="display:flex; justify-content:center; gap:20px; margin-top:16px; font-size:11px;">
+      <div style="display:flex; align-items:center; gap:6px;">
+        <div style="width:12px; height:12px; border-radius:3px; background:var(--green);"></div>
+        <span style="color:var(--muted);">Alto = confianza alta</span>
+      </div>
+      <div style="display:flex; align-items:center; gap:6px;">
+        <div style="width:12px; height:12px; border-radius:3px; background:var(--amber);"></div>
+        <span style="color:var(--muted);">Bajo = incertidumbre</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Summary -->
+  <div class="summary-bar">
+    <div class="summary-title">Resumen del Flujo Offline</div>
+    <div class="summary-grid">
+      <div>
+        <div class="summary-num" style="color:var(--green);">0</div>
+        <div class="summary-label">Datos perdidos</div>
+      </div>
+      <div>
+        <div class="summary-num" style="color:var(--amber);">1</div>
+        <div class="summary-label">Scan encolado offline</div>
+      </div>
+      <div>
+        <div class="summary-num" style="color:var(--sync-cyan);">Auto</div>
+        <div class="summary-label">Sincronizacion sin tocar nada</div>
+      </div>
+      <div>
+        <div class="summary-num" style="color:var(--purple);">10</div>
+        <div class="summary-label">Pasos en el flujo</div>
+      </div>
+      <div>
+        <div class="summary-num" style="color:var(--primary-border);">100%</div>
+        <div class="summary-label">Transparencia para el usuario</div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+<script>
+(function() {
+  // Staggered entrance animation
+  var animTargets = document.querySelectorAll('.node, .phase-divider, .connector');
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        var el = entry.target;
+        var d = parseInt(el.dataset.delay || '0', 10);
+        setTimeout(function() { el.classList.add('visible'); }, d);
+        observer.unobserve(el);
+      }
+    });
+  }, { threshold: 0.12 });
+
+  animTargets.forEach(function(el, i) {
+    el.dataset.delay = String(i * 70);
+    observer.observe(el);
+  });
+
+  // Emotional arc bar animation
+  var arcBars = document.querySelectorAll('.arc-bar-seg');
+  var arcObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        var el = entry.target;
+        var h = el.getAttribute('data-h');
+        el.style.height = '0px';
+        requestAnimationFrame(function() {
+          requestAnimationFrame(function() {
+            el.style.height = h + 'px';
+          });
+        });
+        arcObserver.unobserve(el);
+      }
+    });
+  }, { threshold: 0.3 });
+
+  arcBars.forEach(function(bar) { arcObserver.observe(bar); });
+
+  // Phase navigation: clicking phase numbers scrolls to first node in that phase
+  document.querySelectorAll('.phase-num').forEach(function(num) {
+    num.style.cursor = 'pointer';
+    num.addEventListener('click', function() {
+      var divider = num.closest('.phase-divider');
+      var next = divider.nextElementSibling;
+      while (next && !next.classList.contains('node')) {
+        next = next.nextElementSibling;
+      }
+      if (next) {
+        next.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        next.style.transition = 'box-shadow 0.3s';
+        next.style.boxShadow = '0 0 30px rgba(255,255,255,0.15)';
+        setTimeout(function() { next.style.boxShadow = ''; }, 1200);
+      }
+    });
+  });
+})();
+</script>
+
+</body>
+</html>

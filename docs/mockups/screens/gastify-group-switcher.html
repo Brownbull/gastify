@@ -1,0 +1,1855 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Group Context Switcher — Gastify (Production Design System)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Baloo+2:wght@700&display=swap" rel="stylesheet">
+  <style>
+    /* ══════════════════════════════════════════
+       GASTIFY — PRODUCTION DESIGN SYSTEM
+       Themes: Normal / Professional / Mono
+       Modes: Light / Dark
+       Screen: Group Context Switcher (Epic 19)
+       Phone: 360x780 (Samsung S23)
+       ══════════════════════════════════════════ */
+
+    /* ── Normal Light (default) ── */
+    :root {
+      --bg: #f5f0e8;
+      --surface: #fff;
+      --primary: #4a7c59;
+      --text: #2d3a4a;
+      --secondary: #4a5568;
+      --accent: #e8a87c;
+      --border: #e3bba1;
+      --bg-tertiary: #f1dbb6;
+      --secondary-color: #5b8fa8;
+      --primary-rgb: 74, 124, 89;
+      --nav-bg: #ffffff;
+      --nav-border: #e3bba1;
+      --shadow: rgba(74, 124, 89, 0.12);
+      --shadow-lg: rgba(74, 124, 89, 0.18);
+      --frame-bg: #1a1a2e;
+      --status-bar-text: #fff;
+      --fab-gradient-from: #4a7c59;
+      --fab-gradient-to: #3d6b4b;
+    }
+
+    /* ── Normal Dark ── */
+    [data-theme="normal"][data-mode="dark"] {
+      --bg: #1a2420;
+      --surface: #243028;
+      --primary: #6b9e7a;
+      --text: #e8e4dc;
+      --secondary: #b8c4a8;
+      --border: #3d4d42;
+      --bg-tertiary: #2d3a30;
+      --secondary-color: #7ab5cc;
+      --primary-rgb: 107, 158, 122;
+      --nav-bg: #1e2a22;
+      --nav-border: #3d4d42;
+      --shadow: rgba(0,0,0,0.3);
+      --shadow-lg: rgba(0,0,0,0.4);
+      --frame-bg: #0a0f0c;
+      --status-bar-text: #e8e4dc;
+      --accent: #d4a574;
+      --fab-gradient-from: #6b9e7a;
+      --fab-gradient-to: #5a8a68;
+    }
+
+    /* ── Professional Light ── */
+    [data-theme="professional"][data-mode="light"] {
+      --bg: #f8fafc;
+      --surface: #fff;
+      --primary: #2563eb;
+      --text: #0f172a;
+      --secondary: #64748b;
+      --accent: #3b82f6;
+      --border: #e2e8f0;
+      --bg-tertiary: #f1f5f9;
+      --secondary-color: #0ea5e9;
+      --primary-rgb: 37, 99, 235;
+      --nav-bg: #ffffff;
+      --nav-border: #e2e8f0;
+      --shadow: rgba(37, 99, 235, 0.08);
+      --shadow-lg: rgba(37, 99, 235, 0.12);
+      --frame-bg: #1e293b;
+      --status-bar-text: #fff;
+      --fab-gradient-from: #2563eb;
+      --fab-gradient-to: #1d4ed8;
+    }
+
+    /* ── Professional Dark ── */
+    [data-theme="professional"][data-mode="dark"] {
+      --bg: #0f172a;
+      --surface: #1e293b;
+      --primary: #3b82f6;
+      --text: #f1f5f9;
+      --secondary: #94a3b8;
+      --accent: #60a5fa;
+      --border: #334155;
+      --bg-tertiary: #1e293b;
+      --secondary-color: #38bdf8;
+      --primary-rgb: 59, 130, 246;
+      --nav-bg: #0f172a;
+      --nav-border: #334155;
+      --shadow: rgba(0,0,0,0.3);
+      --shadow-lg: rgba(0,0,0,0.4);
+      --frame-bg: #020617;
+      --status-bar-text: #f1f5f9;
+      --fab-gradient-from: #3b82f6;
+      --fab-gradient-to: #2563eb;
+    }
+
+    /* ── Mono Light ── */
+    [data-theme="mono"][data-mode="light"] {
+      --bg: #fafafa;
+      --surface: #fff;
+      --primary: #18181b;
+      --text: #18181b;
+      --secondary: #71717a;
+      --accent: #52525b;
+      --border: #e4e4e7;
+      --bg-tertiary: #f4f4f5;
+      --secondary-color: #3f3f46;
+      --primary-rgb: 24, 24, 27;
+      --nav-bg: #ffffff;
+      --nav-border: #e4e4e7;
+      --shadow: rgba(0,0,0,0.06);
+      --shadow-lg: rgba(0,0,0,0.1);
+      --frame-bg: #18181b;
+      --status-bar-text: #fff;
+      --fab-gradient-from: #18181b;
+      --fab-gradient-to: #27272a;
+    }
+
+    /* ── Mono Dark ── */
+    [data-theme="mono"][data-mode="dark"] {
+      --bg: #09090b;
+      --surface: #18181b;
+      --primary: #a1a1aa;
+      --text: #fafafa;
+      --secondary: #a1a1aa;
+      --accent: #71717a;
+      --border: #27272a;
+      --bg-tertiary: #18181b;
+      --secondary-color: #71717a;
+      --primary-rgb: 63, 63, 70;
+      --nav-bg: #09090b;
+      --nav-border: #27272a;
+      --shadow: rgba(0,0,0,0.4);
+      --shadow-lg: rgba(0,0,0,0.5);
+      --frame-bg: #000;
+      --status-bar-text: #fafafa;
+      --fab-gradient-from: #3f3f46;
+      --fab-gradient-to: #27272a;
+    }
+
+    /* ══════════════════════════════════════════
+       BASE STYLES
+       ══════════════════════════════════════════ */
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #1a1a2e;
+      font-family: 'Outfit', 'Segoe UI', system-ui, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      gap: 32px;
+      color: var(--text);
+    }
+
+    /* ══════════════════════════════════════════
+       CONTROLS (outside phone frame)
+       ══════════════════════════════════════════ */
+
+    .controls {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      width: 100%;
+      max-width: 520px;
+    }
+
+    .controls-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .theme-tabs {
+      display: flex;
+      background: rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 4px;
+      gap: 2px;
+    }
+
+    .theme-tab {
+      padding: 8px 20px;
+      border: none;
+      background: transparent;
+      color: rgba(255,255,255,0.5);
+      font-family: 'Outfit', sans-serif;
+      font-weight: 500;
+      font-size: 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .theme-tab:hover {
+      color: rgba(255,255,255,0.8);
+    }
+
+    .theme-tab.active {
+      background: rgba(255,255,255,0.15);
+      color: #fff;
+    }
+
+    .mode-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: rgba(255,255,255,0.7);
+      font-family: 'Outfit', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .toggle-switch {
+      width: 44px;
+      height: 24px;
+      background: rgba(255,255,255,0.15);
+      border-radius: 12px;
+      cursor: pointer;
+      position: relative;
+      transition: background 0.2s;
+    }
+
+    .toggle-switch.dark {
+      background: rgba(255,255,255,0.3);
+    }
+
+    .toggle-switch::after {
+      content: '';
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      background: #fff;
+      border-radius: 50%;
+      top: 3px;
+      left: 3px;
+      transition: transform 0.2s;
+    }
+
+    .toggle-switch.dark::after {
+      transform: translateX(20px);
+    }
+
+    .variant-tabs {
+      display: flex;
+      background: rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 4px;
+      gap: 2px;
+    }
+
+    .variant-tab {
+      padding: 6px 16px;
+      border: none;
+      background: transparent;
+      color: rgba(255,255,255,0.5);
+      font-family: 'Outfit', sans-serif;
+      font-weight: 500;
+      font-size: 13px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .variant-tab:hover {
+      color: rgba(255,255,255,0.8);
+    }
+
+    .variant-tab.active {
+      background: rgba(255,255,255,0.15);
+      color: #fff;
+    }
+
+    /* ══════════════════════════════════════════
+       PHONE FRAME — 360x780 (Samsung S23)
+       ══════════════════════════════════════════ */
+
+    .phone-frame {
+      width: 384px;
+      height: 804px;
+      background: var(--frame-bg);
+      border-radius: 40px;
+      padding: 12px;
+      position: relative;
+      box-shadow: 0 25px 80px rgba(0,0,0,0.4), inset 0 0 0 2px rgba(255,255,255,0.08);
+    }
+
+    .phone-screen {
+      width: 360px;
+      height: 780px;
+      background: var(--bg);
+      border-radius: 30px;
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Notch ── */
+    .phone-notch {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 120px;
+      height: 26px;
+      background: var(--frame-bg);
+      border-radius: 0 0 16px 16px;
+      z-index: 100;
+    }
+
+    /* ── Status Bar ── */
+    .status-bar {
+      height: 44px;
+      padding: 12px 20px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text);
+      position: relative;
+      z-index: 99;
+      flex-shrink: 0;
+      background: var(--bg);
+    }
+
+    .status-bar-left {
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .status-bar-right {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .status-bar-right svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    /* ── Home Indicator ── */
+    .home-indicator {
+      position: absolute;
+      bottom: 6px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 120px;
+      height: 4px;
+      background: var(--secondary);
+      border-radius: 2px;
+      opacity: 0.3;
+      z-index: 200;
+    }
+
+    /* ══════════════════════════════════════════
+       TOP HEADER
+       ══════════════════════════════════════════ */
+
+    .top-header {
+      height: 56px;
+      padding: 0 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+      background: var(--bg);
+      position: relative;
+      z-index: 160;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+    }
+
+    .logo-circle {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: transform 0.15s;
+      flex-shrink: 0;
+    }
+
+    .logo-circle:hover {
+      transform: scale(1.05);
+    }
+
+    .logo-circle img { display: block; }
+
+    .wordmark {
+      font-family: 'Baloo 2', cursive;
+      font-weight: 700;
+      font-size: 24px;
+      color: var(--text);
+      line-height: 1;
+    }
+
+    .avatar-circle {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--bg-tertiary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: transform 0.15s;
+      flex-shrink: 0;
+    }
+
+    .avatar-circle:hover {
+      transform: scale(1.05);
+    }
+
+    .avatar-circle span {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--text);
+      line-height: 1;
+    }
+
+    /* ══════════════════════════════════════════
+       SCROLLABLE CONTENT (dashboard placeholder)
+       ══════════════════════════════════════════ */
+
+    .scroll-content {
+      flex: 1;
+      overflow-y: auto;
+      padding-bottom: 90px;
+    }
+
+    .scroll-content::-webkit-scrollbar {
+      display: none;
+    }
+
+    /* ── Placeholder dashboard cards ── */
+    .dashboard-placeholder {
+      padding: 0 12px;
+    }
+
+    .placeholder-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      margin-bottom: 12px;
+      overflow: hidden;
+    }
+
+    .placeholder-card-header {
+      padding: 14px 16px 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .month-label {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+      font-size: 15px;
+      color: var(--text);
+    }
+
+    .month-label .inactive {
+      color: var(--secondary);
+      font-weight: 400;
+    }
+
+    .month-nav-arrow {
+      background: none;
+      border: none;
+      color: var(--secondary);
+      cursor: pointer;
+      padding: 4px;
+      font-size: 18px;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+    }
+
+    .month-nav-arrow svg {
+      width: 20px;
+      height: 20px;
+      stroke: var(--secondary);
+    }
+
+    /* Treemap placeholder */
+    .treemap-placeholder {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr 1fr 1fr;
+      gap: 4px;
+      height: 200px;
+      padding: 4px 12px 8px;
+    }
+
+    .treemap-placeholder .tp-cell {
+      border-radius: 8px;
+      padding: 8px 10px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      color: #fff;
+    }
+
+    .tp-cell:nth-child(1) {
+      grid-row: 1 / 3;
+      background: var(--primary);
+    }
+
+    .tp-cell:nth-child(2) {
+      background: var(--secondary-color);
+    }
+
+    .tp-cell:nth-child(3) {
+      background: var(--accent);
+    }
+
+    .tp-cell:nth-child(4) {
+      background: #5b7fb8;
+    }
+
+    .tp-cell:nth-child(5) {
+      background: #8b7ea8;
+    }
+
+    .tp-cell-name {
+      font-size: 11px;
+      font-weight: 600;
+      opacity: 0.9;
+    }
+
+    .tp-cell-amount {
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .tp-cell-emoji {
+      font-size: 16px;
+      line-height: 1;
+    }
+
+    .placeholder-card-footer {
+      padding: 10px 16px 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-top: 1px solid var(--border);
+    }
+
+    .footer-label {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 500;
+      font-size: 12px;
+      color: var(--secondary);
+      white-space: nowrap;
+    }
+
+    .progress-bar {
+      flex: 1;
+      height: 6px;
+      background: var(--border);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 60%;
+      background: var(--primary);
+      border-radius: 3px;
+    }
+
+    .footer-total {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--text);
+      white-space: nowrap;
+    }
+
+    /* Recientes placeholder */
+    .recientes-placeholder {
+      padding: 16px 12px 0;
+    }
+
+    .recientes-title {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+      font-size: 15px;
+      color: var(--text);
+      margin-bottom: 12px;
+    }
+
+    .txn-card-placeholder {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .txn-thumb {
+      width: 40px;
+      height: 46px;
+      border-radius: 8px;
+      background: var(--bg-tertiary);
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .txn-thumb-lines {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      align-items: center;
+    }
+
+    .txn-thumb-line {
+      height: 2px;
+      background: var(--border);
+      border-radius: 1px;
+    }
+
+    .txn-thumb-line:nth-child(1) { width: 22px; }
+    .txn-thumb-line:nth-child(2) { width: 18px; }
+    .txn-thumb-line:nth-child(3) { width: 24px; }
+    .txn-thumb-line:nth-child(4) { width: 16px; }
+
+    .txn-body-placeholder {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .txn-merchant-ph {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .txn-pills-ph {
+      display: flex;
+      gap: 4px;
+      margin-top: 4px;
+    }
+
+    .txn-pill-ph {
+      background: var(--bg-tertiary);
+      border-radius: 999px;
+      padding: 2px 8px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 10px;
+      font-weight: 500;
+      color: var(--secondary);
+    }
+
+    .txn-amount-ph {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--text);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    /* ══════════════════════════════════════════
+       BOTTOM NAVIGATION (from dashboard)
+       ══════════════════════════════════════════ */
+
+    .bottom-nav {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 56px;
+      padding-bottom: 6px;
+      background: var(--nav-bg);
+      border-top: 1px solid var(--nav-border);
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-around;
+      z-index: 50;
+      border-radius: 0 0 30px 30px;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1px;
+      cursor: pointer;
+      padding: 4px 0 2px;
+      position: relative;
+      width: 48px;
+    }
+
+    .nav-icon {
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .nav-icon svg {
+      width: 22px;
+      height: 22px;
+      stroke-width: 2;
+    }
+
+    .nav-label {
+      font-family: 'Outfit', sans-serif;
+      font-size: 10px;
+      font-weight: 500;
+      color: var(--secondary);
+      opacity: 0.5;
+    }
+
+    .nav-item.active .nav-label {
+      color: var(--primary);
+      font-weight: 600;
+      opacity: 1;
+    }
+
+    .nav-item.active .nav-icon svg {
+      stroke: var(--primary);
+    }
+
+    .nav-item:not(.active) .nav-icon svg {
+      stroke: var(--secondary);
+      opacity: 0.45;
+    }
+
+    /* ── Alert badge ── */
+
+    /* ══════════════════════════════════════════
+       DIMMING OVERLAY (backdrop)
+       ══════════════════════════════════════════ */
+
+    .dim-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.35);
+      z-index: 110;
+      border-radius: 30px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+
+    .dim-overlay.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    /* ══════════════════════════════════════════
+       GROUP SWITCHER DROPDOWN
+       ══════════════════════════════════════════ */
+
+    .group-dropdown {
+      position: absolute;
+      top: 108px;
+      left: 14px;
+      width: 280px;
+      background: var(--surface);
+      border-radius: 16px;
+      padding: 0;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.2), 0 4px 12px rgba(0,0,0,0.1);
+      z-index: 150;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(-8px);
+      transition: opacity 0.25s ease, transform 0.25s ease;
+      overflow: hidden;
+    }
+
+    .group-dropdown.visible {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0);
+    }
+
+    /* ── Personal row ── */
+    .dropdown-personal {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 16px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .dropdown-personal:hover {
+      background: rgba(var(--primary-rgb), 0.04);
+    }
+
+    .dropdown-personal.active {
+      background: rgba(var(--primary-rgb), 0.06);
+    }
+
+    .dropdown-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .dropdown-icon img {
+      display: block;
+    }
+
+    .dropdown-icon-emoji {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 18px;
+      line-height: 1;
+      background: var(--bg-tertiary);
+    }
+
+    .dropdown-text {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .dropdown-name {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--text);
+      line-height: 1.2;
+    }
+
+    .dropdown-sublabel {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 400;
+      font-size: 11px;
+      color: var(--secondary);
+      line-height: 1.3;
+    }
+
+    .radio-indicator {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: border-color 0.15s;
+    }
+
+    .radio-indicator.checked {
+      border-color: var(--primary);
+    }
+
+    .radio-indicator.checked::after {
+      content: '';
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--primary);
+    }
+
+    /* ── Divider with label ── */
+    .dropdown-divider {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px 6px;
+      border-top: 1px solid var(--border);
+    }
+
+    .dropdown-divider-label {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+      font-size: 11px;
+      color: var(--secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+    }
+
+    .dropdown-divider-line {
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* ── Group rows ── */
+    .dropdown-group-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 16px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .dropdown-group-row:hover {
+      background: rgba(var(--primary-rgb), 0.04);
+    }
+
+    .group-color-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .group-row-text {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .group-row-name {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--text);
+      line-height: 1.2;
+    }
+
+    .group-row-meta {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 2px;
+    }
+
+    .group-member-count {
+      font-family: 'Outfit', sans-serif;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--secondary);
+      display: flex;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .group-member-count svg {
+      width: 12px;
+      height: 12px;
+      stroke: var(--secondary);
+      fill: none;
+      stroke-width: 2;
+    }
+
+    /* ── Auto-copy toggle ── */
+    .autocopy-toggle {
+      width: 36px;
+      height: 20px;
+      border-radius: 10px;
+      background: var(--border);
+      cursor: pointer;
+      position: relative;
+      transition: background 0.2s;
+      flex-shrink: 0;
+    }
+
+    .autocopy-toggle.on {
+      background: #4ade80;
+    }
+
+    .autocopy-toggle::after {
+      content: '';
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      background: #fff;
+      border-radius: 50%;
+      top: 2px;
+      left: 2px;
+      transition: transform 0.2s;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+    }
+
+    .autocopy-toggle.on::after {
+      transform: translateX(16px);
+    }
+
+    .autocopy-label {
+      font-family: 'Outfit', sans-serif;
+      font-size: 9px;
+      font-weight: 500;
+      color: var(--secondary);
+      white-space: nowrap;
+    }
+
+    .autocopy-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1px;
+      flex-shrink: 0;
+    }
+
+    /* ── Dropdown footer ── */
+    .dropdown-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 16px 12px;
+      border-top: 1px solid var(--border);
+      gap: 8px;
+    }
+
+    .btn-create-group {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 6px 12px;
+      border: 1.5px solid var(--primary);
+      border-radius: 999px;
+      background: transparent;
+      color: var(--primary);
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+      font-size: 12px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .btn-create-group:hover {
+      background: rgba(var(--primary-rgb), 0.06);
+    }
+
+    .btn-create-group svg {
+      width: 14px;
+      height: 14px;
+      stroke: var(--primary);
+      fill: none;
+      stroke-width: 2;
+    }
+
+    .link-join {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 500;
+      font-size: 12px;
+      color: var(--secondary);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      cursor: pointer;
+    }
+
+    .link-join:hover {
+      color: var(--primary);
+    }
+
+    /* ── Primary full-width button (for empty state) ── */
+    .btn-create-primary {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      width: 100%;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 999px;
+      background: var(--primary);
+      color: #fff;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+
+    .btn-create-primary:hover {
+      opacity: 0.9;
+    }
+
+    .btn-create-primary svg {
+      width: 16px;
+      height: 16px;
+      stroke: #fff;
+      fill: none;
+      stroke-width: 2;
+    }
+
+    /* ── Empty state ── */
+    .dropdown-empty {
+      padding: 20px 16px 16px;
+      text-align: center;
+    }
+
+    .empty-icon {
+      font-size: 36px;
+      line-height: 1;
+      margin-bottom: 8px;
+      opacity: 0.5;
+    }
+
+    .empty-title {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+      font-size: 14px;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+
+    .empty-desc {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 400;
+      font-size: 12px;
+      color: var(--secondary);
+      line-height: 1.4;
+      margin-bottom: 14px;
+    }
+
+    .empty-footer {
+      padding: 0 16px 14px;
+      text-align: center;
+    }
+
+    .empty-footer .link-join {
+      font-size: 12px;
+    }
+
+    /* ══════════════════════════════════════════
+       GROUP CONTEXT HEADER (variant: group-selected)
+       ══════════════════════════════════════════ */
+
+    .group-header-emoji {
+      font-size: 20px;
+      line-height: 1;
+    }
+
+    .group-pill {
+      position: absolute;
+      top: 50px;
+      right: 16px;
+      background: var(--primary);
+      color: #fff;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+      font-size: 10px;
+      padding: 3px 10px;
+      border-radius: 999px;
+      z-index: 160;
+      opacity: 0;
+      transition: opacity 0.25s;
+    }
+
+    .group-pill.visible {
+      opacity: 1;
+    }
+
+    /* ── Group dashboard placeholder card ── */
+    .group-dashboard-card {
+      margin: 0 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px 16px;
+      text-align: center;
+    }
+
+    .group-dashboard-emoji {
+      font-size: 32px;
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+
+    .group-dashboard-title {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+      font-size: 14px;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+
+    .group-dashboard-meta {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 400;
+      font-size: 12px;
+      color: var(--secondary);
+    }
+
+    /* ══════════════════════════════════════════
+       VARIANT VISIBILITY
+       ══════════════════════════════════════════ */
+
+    /* Default (variant-open): dropdown visible, dim visible */
+
+    /* Group Selected: hide dropdown + dim, show group header */
+    body.variant-group-selected .dim-overlay,
+    body.variant-group-selected .group-dropdown {
+      opacity: 0 !important;
+      pointer-events: none !important;
+    }
+
+    body.variant-group-selected .content-personal { display: none; }
+    body.variant-group-selected .content-group { display: block; }
+
+    /* Empty: show empty dropdown content */
+    body.variant-empty .content-groups { display: none; }
+    body.variant-empty .content-empty { display: block; }
+    body.variant-empty .dropdown-footer-normal { display: none; }
+    body.variant-empty .dropdown-footer-empty { display: block; }
+
+    /* Default hide states */
+    .content-group { display: none; }
+    .content-empty { display: none; }
+    .dropdown-footer-empty { display: none; }
+
+    /* ══════════════════════════════════════════
+       NAV TINT (group context)
+       ══════════════════════════════════════════ */
+
+    body.variant-group-selected .bottom-nav {
+      background: linear-gradient(180deg, rgba(74, 200, 120, 0.06) 0%, var(--nav-bg) 100%);
+    }
+
+    /* ══════════════════════════════════════════
+       RESPONSIVE
+       ══════════════════════════════════════════ */
+
+    @media (max-width: 460px) {
+      .phone-frame {
+        width: 100%;
+        border-radius: 0;
+        padding: 0;
+      }
+      .phone-screen {
+        border-radius: 0;
+      }
+      .phone-notch { display: none; }
+      .bottom-nav { border-radius: 0; }
+      .dim-overlay { border-radius: 0; }
+    }
+  </style>
+</head>
+<body data-theme="normal" data-mode="light">
+
+  <!-- ════════════════════════════════════════
+       CONTROLS (outside phone frame)
+       ════════════════════════════════════════ -->
+  <div class="controls">
+    <div class="controls-row">
+      <div class="theme-tabs">
+        <button class="theme-tab active" data-theme-val="normal">Normal</button>
+        <button class="theme-tab" data-theme-val="professional">Professional</button>
+        <button class="theme-tab" data-theme-val="mono">Mono</button>
+      </div>
+      <div class="mode-toggle">
+        <span>Light</span>
+        <div class="toggle-switch" id="modeToggle"></div>
+        <span>Dark</span>
+      </div>
+    </div>
+    <div class="controls-row">
+      <div class="variant-tabs">
+        <button class="variant-tab active" data-variant="open">Dropdown Open</button>
+        <button class="variant-tab" data-variant="group-selected">Group Selected</button>
+        <button class="variant-tab" data-variant="empty">Empty</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════
+       PHONE FRAME
+       ════════════════════════════════════════ -->
+  <div class="phone-frame">
+    <div class="phone-notch"></div>
+    <div class="phone-screen">
+
+      <!-- Status Bar -->
+      <div class="status-bar">
+        <span class="status-bar-left">9:41</span>
+        <div class="status-bar-right">
+          <svg viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="11" width="2.5" height="4" rx="0.5"/><rect x="5" y="8" width="2.5" height="7" rx="0.5"/><rect x="9" y="5" width="2.5" height="10" rx="0.5"/><rect x="13" y="1" width="2.5" height="14" rx="0.5"/></svg>
+          <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 12.5a1.25 1.25 0 110 2.5 1.25 1.25 0 010-2.5zM8 8.5c2.07 0 3.94.84 5.3 2.2l-1.42 1.42A5.48 5.48 0 008 10.5c-1.52 0-2.9.62-3.88 1.62L2.7 10.7A7.47 7.47 0 018 8.5zM8 4.5c3.18 0 6.07 1.29 8.16 3.38l-1.42 1.42A9.47 9.47 0 008 6.5c-2.62 0-5 1.06-6.74 2.8L-.16 7.88A11.47 11.47 0 018 4.5z"/></svg>
+          <svg viewBox="0 0 24 12" fill="currentColor"><rect x="0" y="0" width="20" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="2" y="2" width="14" height="8" rx="1"/><rect x="21" y="3.5" width="2.5" height="5" rx="1"/></svg>
+        </div>
+      </div>
+
+      <!-- Top Header -->
+      <div class="top-header" id="topHeader">
+        <div class="header-left" id="headerLeft">
+          <div class="logo-circle" id="logoCircle">
+            <img src="piggy-bank.png" style="width:28px;height:28px;image-rendering:pixelated;">
+          </div>
+          <span class="wordmark" id="headerWordmark">Gastify</span>
+        </div>
+        <div class="avatar-circle"><span>GA</span></div>
+      </div>
+
+      <!-- Scrollable Content (dashboard behind overlay) -->
+      <div class="scroll-content">
+
+        <!-- Personal context content -->
+        <div class="content-personal">
+          <div class="dashboard-placeholder">
+            <!-- Main card placeholder -->
+            <div class="placeholder-card">
+              <div class="placeholder-card-header">
+                <button class="month-nav-arrow">
+                  <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                </button>
+                <span class="month-label">
+                  <span class="inactive">Feb</span> |
+                  <strong>Marzo 2026</strong> |
+                  <span class="inactive" style="opacity:0.3">Abr</span>
+                </span>
+                <button class="month-nav-arrow">
+                  <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                </button>
+              </div>
+
+              <!-- Treemap -->
+              <div class="treemap-placeholder">
+                <div class="tp-cell">
+                  <span class="tp-cell-emoji">&#x1F6D2;</span>
+                  <div>
+                    <div class="tp-cell-name">Alimentacion</div>
+                    <div class="tp-cell-amount">$234.500</div>
+                  </div>
+                </div>
+                <div class="tp-cell">
+                  <span class="tp-cell-emoji">&#x1F37D;&#xFE0F;</span>
+                  <div>
+                    <div class="tp-cell-name">Restaurantes</div>
+                    <div class="tp-cell-amount">$115.000</div>
+                  </div>
+                </div>
+                <div class="tp-cell">
+                  <span class="tp-cell-emoji">&#x1F697;</span>
+                  <div>
+                    <div class="tp-cell-name">Transporte</div>
+                    <div class="tp-cell-amount">$78.000</div>
+                  </div>
+                </div>
+                <div class="tp-cell">
+                  <span class="tp-cell-emoji">&#x1F48A;</span>
+                  <div>
+                    <div class="tp-cell-name">Salud</div>
+                    <div class="tp-cell-amount">$52.300</div>
+                  </div>
+                </div>
+                <div class="tp-cell">
+                  <span class="tp-cell-emoji">&#x1F4E6;</span>
+                  <div>
+                    <div class="tp-cell-name">Otros</div>
+                    <div class="tp-cell-amount">$41.800</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="placeholder-card-footer">
+                <span class="footer-label">Total del mes</span>
+                <div class="progress-bar"><div class="progress-fill"></div></div>
+                <span class="footer-total">$521.600</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Recientes placeholder -->
+          <div class="recientes-placeholder">
+            <div class="recientes-title">Ultimos Escaneados</div>
+
+            <div class="txn-card-placeholder">
+              <div class="txn-thumb">
+                <div class="txn-thumb-lines">
+                  <div class="txn-thumb-line"></div>
+                  <div class="txn-thumb-line"></div>
+                  <div class="txn-thumb-line"></div>
+                  <div class="txn-thumb-line"></div>
+                </div>
+              </div>
+              <div class="txn-body-placeholder">
+                <div class="txn-merchant-ph">Supermercado Lider</div>
+                <div class="txn-pills-ph">
+                  <span class="txn-pill-ph">Hoy</span>
+                  <span class="txn-pill-ph">14:30</span>
+                </div>
+              </div>
+              <span class="txn-amount-ph">$45.230</span>
+            </div>
+
+            <div class="txn-card-placeholder">
+              <div class="txn-thumb">
+                <div class="txn-thumb-lines">
+                  <div class="txn-thumb-line"></div>
+                  <div class="txn-thumb-line"></div>
+                  <div class="txn-thumb-line"></div>
+                  <div class="txn-thumb-line"></div>
+                </div>
+              </div>
+              <div class="txn-body-placeholder">
+                <div class="txn-merchant-ph">Farmacia Cruz Verde</div>
+                <div class="txn-pills-ph">
+                  <span class="txn-pill-ph">Ayer</span>
+                  <span class="txn-pill-ph">10:15</span>
+                </div>
+              </div>
+              <span class="txn-amount-ph">$12.890</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Group context content (hidden by default, shown in group-selected variant) -->
+        <div class="content-group">
+          <div class="group-dashboard-card">
+            <div class="group-dashboard-emoji">&#x1F3E0;</div>
+            <div class="group-dashboard-title">Casa Temuco</div>
+            <div class="group-dashboard-meta">3 transacciones del grupo</div>
+          </div>
+
+          <div class="recientes-placeholder" style="margin-top: 4px;">
+            <div class="recientes-title">Gastos del Grupo</div>
+
+            <div class="txn-card-placeholder">
+              <div class="txn-thumb">
+                <div class="txn-thumb-lines">
+                  <div class="txn-thumb-line"></div>
+                  <div class="txn-thumb-line"></div>
+                  <div class="txn-thumb-line"></div>
+                  <div class="txn-thumb-line"></div>
+                </div>
+              </div>
+              <div class="txn-body-placeholder">
+                <div class="txn-merchant-ph">Sodimac Temuco</div>
+                <div class="txn-pills-ph">
+                  <span class="txn-pill-ph">Hoy</span>
+                  <span class="txn-pill-ph">GA</span>
+                </div>
+              </div>
+              <span class="txn-amount-ph">$78.500</span>
+            </div>
+
+            <div class="txn-card-placeholder">
+              <div class="txn-thumb">
+                <div class="txn-thumb-lines">
+                  <div class="txn-thumb-line"></div>
+                  <div class="txn-thumb-line"></div>
+                  <div class="txn-thumb-line"></div>
+                  <div class="txn-thumb-line"></div>
+                </div>
+              </div>
+              <div class="txn-body-placeholder">
+                <div class="txn-merchant-ph">Easy Hogar</div>
+                <div class="txn-pills-ph">
+                  <span class="txn-pill-ph">Ayer</span>
+                  <span class="txn-pill-ph">MR</span>
+                </div>
+              </div>
+              <span class="txn-amount-ph">$42.100</span>
+            </div>
+
+            <div class="txn-card-placeholder">
+              <div class="txn-thumb">
+                <div class="txn-thumb-lines">
+                  <div class="txn-thumb-line"></div>
+                  <div class="txn-thumb-line"></div>
+                  <div class="txn-thumb-line"></div>
+                  <div class="txn-thumb-line"></div>
+                </div>
+              </div>
+              <div class="txn-body-placeholder">
+                <div class="txn-merchant-ph">Lider Express</div>
+                <div class="txn-pills-ph">
+                  <span class="txn-pill-ph">27 mar</span>
+                  <span class="txn-pill-ph">GA</span>
+                </div>
+              </div>
+              <span class="txn-amount-ph">$23.900</span>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /scroll-content -->
+
+      <!-- Dimming Overlay -->
+      <div class="dim-overlay visible" id="dimOverlay"></div>
+
+      <!-- Group Switcher Dropdown -->
+      <div class="group-dropdown visible" id="groupDropdown">
+
+        <!-- Personal row -->
+        <div class="dropdown-personal active" id="personalRow">
+          <div class="dropdown-icon">
+            <img src="piggy-bank.png" style="width:22px;height:22px;image-rendering:pixelated;">
+          </div>
+          <div class="dropdown-text">
+            <div class="dropdown-name">Gastify</div>
+            <div class="dropdown-sublabel">Personal</div>
+          </div>
+          <div class="radio-indicator checked" id="personalRadio"></div>
+        </div>
+
+        <!-- Groups section (shown in open + group-selected variants) -->
+        <div class="content-groups">
+          <!-- Divider -->
+          <div class="dropdown-divider">
+            <span class="dropdown-divider-label">Mis Grupos</span>
+            <div class="dropdown-divider-line"></div>
+          </div>
+
+          <!-- Group 1: Casa Temuco -->
+          <div class="dropdown-group-row" data-group="casa-temuco">
+            <div class="dropdown-icon-emoji" style="background: rgba(74, 222, 128, 0.12);">&#x1F3E0;</div>
+            <div class="group-row-text">
+              <div class="group-row-name">Casa Temuco</div>
+              <div class="group-row-meta">
+                <span class="group-color-dot" style="background: #4ade80;"></span>
+                <span class="group-member-count">
+                  <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                  3
+                </span>
+              </div>
+            </div>
+            <div class="autocopy-wrap">
+              <div class="autocopy-toggle on"></div>
+              <span class="autocopy-label">Auto-copia</span>
+            </div>
+          </div>
+
+          <!-- Group 2: Amigos Pizza -->
+          <div class="dropdown-group-row" data-group="amigos-pizza">
+            <div class="dropdown-icon-emoji" style="background: rgba(59, 130, 246, 0.12);">&#x1F355;</div>
+            <div class="group-row-text">
+              <div class="group-row-name">Amigos Pizza</div>
+              <div class="group-row-meta">
+                <span class="group-color-dot" style="background: #3b82f6;"></span>
+                <span class="group-member-count">
+                  <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                  5
+                </span>
+              </div>
+            </div>
+            <div class="autocopy-wrap">
+              <div class="autocopy-toggle"></div>
+              <span class="autocopy-label">Auto-copia</span>
+            </div>
+          </div>
+
+          <!-- Group 3: Oficina -->
+          <div class="dropdown-group-row" data-group="oficina">
+            <div class="dropdown-icon-emoji" style="background: rgba(245, 158, 11, 0.12);">&#x1F4BC;</div>
+            <div class="group-row-text">
+              <div class="group-row-name">Oficina</div>
+              <div class="group-row-meta">
+                <span class="group-color-dot" style="background: #f59e0b;"></span>
+                <span class="group-member-count">
+                  <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                  8
+                </span>
+              </div>
+            </div>
+            <div class="autocopy-wrap">
+              <div class="autocopy-toggle"></div>
+              <span class="autocopy-label">Auto-copia</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Empty state (hidden by default, shown in empty variant) -->
+        <div class="content-empty">
+          <div class="dropdown-divider">
+            <span class="dropdown-divider-label">Mis Grupos</span>
+            <div class="dropdown-divider-line"></div>
+          </div>
+          <div class="dropdown-empty">
+            <div class="empty-icon">&#x1F4BC;</div>
+            <div class="empty-title">No tienes grupos</div>
+            <div class="empty-desc">Crea o unete a un grupo para compartir gastos</div>
+            <button class="btn-create-primary">
+              <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Crear grupo
+            </button>
+          </div>
+          <div class="empty-footer">
+            <span class="link-join">Tengo un enlace de invitacion</span>
+          </div>
+        </div>
+
+        <!-- Footer: normal (with groups) -->
+        <div class="dropdown-footer dropdown-footer-normal">
+          <button class="btn-create-group">
+            <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Crear grupo
+          </button>
+          <span class="link-join">Unirse a grupo</span>
+        </div>
+
+        <!-- Footer: empty (handled inside content-empty) -->
+        <div class="dropdown-footer dropdown-footer-empty"></div>
+      </div>
+
+      <!-- Group context pill badge -->
+      <div class="group-pill" id="groupPill">Grupo</div>
+
+      <!-- Bottom Navigation -->
+            <div class="bottom-nav">
+        <!-- Inicio -->
+        <div class="nav-item active">
+          <div class="nav-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+              <polyline points="9 22 9 12 15 12 15 22"/>
+            </svg>
+          </div>
+          <span class="nav-label">Inicio</span>
+        </div>
+        <!-- Compras -->
+        <div class="nav-item">
+          <div class="nav-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="16" y1="13" x2="8" y2="13"/>
+              <line x1="16" y1="17" x2="8" y2="17"/>
+            </svg>
+          </div>
+          <span class="nav-label">Compras</span>
+        </div>
+        <!-- Escanear -->
+        <div class="nav-item">
+          <div class="nav-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+              <circle cx="12" cy="13" r="4"/>
+            </svg>
+          </div>
+          <span class="nav-label">Escanear</span>
+        </div>
+        <!-- Gastos -->
+        <div class="nav-item">
+          <div class="nav-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="20" x2="18" y2="10"/>
+              <line x1="12" y1="20" x2="12" y2="4"/>
+              <line x1="6" y1="20" x2="6" y2="14"/>
+            </svg>
+          </div>
+          <span class="nav-label">Gastos</span>
+        </div>
+        <!-- Perfil -->
+        <div class="nav-item">
+          <div class="nav-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+          </div>
+          <span class="nav-label">Perfil</span>
+        </div>
+      </div>
+<!-- Home Indicator -->
+      <div class="home-indicator"></div>
+
+    </div><!-- /phone-screen -->
+  </div><!-- /phone-frame -->
+
+  <!-- ════════════════════════════════════════
+       JAVASCRIPT — Theme / Mode / Variant
+       ════════════════════════════════════════ -->
+  <script>
+    (function() {
+      var body = document.body;
+      var themeTabs = document.querySelectorAll('.theme-tab');
+      var modeToggle = document.getElementById('modeToggle');
+      var variantTabs = document.querySelectorAll('.variant-tab');
+      var dimOverlay = document.getElementById('dimOverlay');
+      var groupDropdown = document.getElementById('groupDropdown');
+      var groupPill = document.getElementById('groupPill');
+      var headerWordmark = document.getElementById('headerWordmark');
+      var logoCircle = document.getElementById('logoCircle');
+      var personalRadio = document.getElementById('personalRadio');
+
+      var currentTheme = 'normal';
+      var currentMode = 'light';
+      var currentVariant = 'open';
+
+      function applyTheme() {
+        body.setAttribute('data-theme', currentTheme);
+        body.setAttribute('data-mode', currentMode);
+      }
+
+      function applyVariant(variant) {
+        currentVariant = variant;
+        body.classList.remove('variant-group-selected', 'variant-empty');
+
+        // Reset header to personal
+        headerWordmark.textContent = 'Gastify';
+        logoCircle.innerHTML = '<img src="piggy-bank.png" style="width:28px;height:28px;image-rendering:pixelated;">';
+        logoCircle.style.background = 'var(--primary)';
+
+        // Reset radio
+        personalRadio.classList.add('checked');
+
+        // Hide group pill
+        groupPill.classList.remove('visible');
+
+        if (variant === 'open') {
+          // Dropdown open with groups
+          dimOverlay.classList.add('visible');
+          groupDropdown.classList.add('visible');
+        } else if (variant === 'group-selected') {
+          // Group context active
+          body.classList.add('variant-group-selected');
+          dimOverlay.classList.remove('visible');
+          groupDropdown.classList.remove('visible');
+
+          // Change header to group context
+          headerWordmark.textContent = 'Casa Temuco';
+          logoCircle.innerHTML = '<span style="font-size:20px;line-height:1;">&#x1F3E0;</span>';
+          logoCircle.style.background = 'rgba(74, 222, 128, 0.15)';
+
+          // Show group pill
+          groupPill.classList.add('visible');
+
+          // Uncheck personal radio
+          personalRadio.classList.remove('checked');
+        } else if (variant === 'empty') {
+          // Empty state dropdown
+          body.classList.add('variant-empty');
+          dimOverlay.classList.add('visible');
+          groupDropdown.classList.add('visible');
+        }
+      }
+
+      // Theme tabs
+      themeTabs.forEach(function(tab) {
+        tab.addEventListener('click', function() {
+          themeTabs.forEach(function(t) { t.classList.remove('active'); });
+          tab.classList.add('active');
+          currentTheme = tab.dataset.themeVal;
+          applyTheme();
+        });
+      });
+
+      // Mode toggle
+      modeToggle.addEventListener('click', function() {
+        currentMode = currentMode === 'light' ? 'dark' : 'light';
+        modeToggle.classList.toggle('dark', currentMode === 'dark');
+        applyTheme();
+      });
+
+      // Variant tabs
+      variantTabs.forEach(function(tab) {
+        tab.addEventListener('click', function() {
+          variantTabs.forEach(function(t) { t.classList.remove('active'); });
+          tab.classList.add('active');
+          applyVariant(tab.dataset.variant);
+        });
+      });
+
+      // Interactive: clicking backdrop closes dropdown
+      dimOverlay.addEventListener('click', function() {
+        dimOverlay.classList.remove('visible');
+        groupDropdown.classList.remove('visible');
+      });
+
+      // Interactive: clicking logo toggles dropdown
+      document.getElementById('headerLeft').addEventListener('click', function() {
+        if (currentVariant === 'group-selected') {
+          // Switch back to open
+          variantTabs.forEach(function(t) { t.classList.remove('active'); });
+          document.querySelector('[data-variant="open"]').classList.add('active');
+          applyVariant('open');
+        } else if (groupDropdown.classList.contains('visible')) {
+          dimOverlay.classList.remove('visible');
+          groupDropdown.classList.remove('visible');
+        } else {
+          dimOverlay.classList.add('visible');
+          groupDropdown.classList.add('visible');
+        }
+      });
+
+      // Interactive: clicking auto-copy toggles
+      document.querySelectorAll('.autocopy-toggle').forEach(function(toggle) {
+        toggle.addEventListener('click', function(e) {
+          e.stopPropagation();
+          toggle.classList.toggle('on');
+        });
+      });
+
+      // Interactive: clicking a group row selects it
+      document.querySelectorAll('.dropdown-group-row').forEach(function(row) {
+        row.addEventListener('click', function() {
+          variantTabs.forEach(function(t) { t.classList.remove('active'); });
+          document.querySelector('[data-variant="group-selected"]').classList.add('active');
+          applyVariant('group-selected');
+        });
+      });
+
+      // Interactive: clicking personal row goes back to personal
+      document.getElementById('personalRow').addEventListener('click', function() {
+        if (currentVariant !== 'open') {
+          variantTabs.forEach(function(t) { t.classList.remove('active'); });
+          document.querySelector('[data-variant="open"]').classList.add('active');
+          applyVariant('open');
+        }
+        dimOverlay.classList.remove('visible');
+        groupDropdown.classList.remove('visible');
+      });
+
+      // Initial apply
+      applyTheme();
+      applyVariant('open');
+    })();
+  </script>
+</body>
+</html>

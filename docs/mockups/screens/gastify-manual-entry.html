@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manual Entry — Gastify (Production Design System)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Baloo+2:wght@700&display=swap" rel="stylesheet">
+  <style>
+    /* GASTIFY DESIGN SYSTEM — Manual Entry (Full Screen) */
+
+    :root {
+      --bg: #f5f0e8; --surface: #ffffff; --primary: #4a7c59; --text: #2d3a4a;
+      --text-secondary: #4a5568; --accent: #e8a87c; --border: #e3bba1; --bg-tertiary: #f1dbb6;
+      --error: #ef4444; --success: #7d9b5f; --primary-rgb: 74, 124, 89; --frame-bg: #1a1a2e;
+    }
+    [data-theme="normal"][data-mode="dark"] {
+      --bg: #1a2420; --surface: #243028; --primary: #6b9e7a; --text: #e8e4dc;
+      --text-secondary: #b8c4a8; --border: #3d4d42; --bg-tertiary: #2d3d33; --accent: #d4a574;
+      --error: #f87171; --success: #9bbd7a; --primary-rgb: 107, 158, 122; --frame-bg: #0a0f0c;
+    }
+    [data-theme="professional"][data-mode="light"] {
+      --bg: #f8fafc; --surface: #ffffff; --primary: #2563eb; --text: #0f172a;
+      --text-secondary: #64748b; --accent: #3b82f6; --border: #e2e8f0; --bg-tertiary: #f1f5f9;
+      --error: #ef4444; --success: #22c55e; --primary-rgb: 37, 99, 235; --frame-bg: #1e293b;
+    }
+    [data-theme="professional"][data-mode="dark"] {
+      --bg: #0f172a; --surface: #1e293b; --primary: #3b82f6; --text: #f1f5f9;
+      --text-secondary: #94a3b8; --accent: #60a5fa; --border: #334155; --bg-tertiary: #1e293b;
+      --error: #f87171; --success: #4ade80; --primary-rgb: 59, 130, 246; --frame-bg: #020617;
+    }
+    [data-theme="mono"][data-mode="light"] {
+      --bg: #fafafa; --surface: #ffffff; --primary: #18181b; --text: #18181b;
+      --text-secondary: #71717a; --accent: #52525b; --border: #e4e4e7; --bg-tertiary: #f4f4f5;
+      --error: #71717a; --success: #52525b; --primary-rgb: 24, 24, 27; --frame-bg: #18181b;
+    }
+    [data-theme="mono"][data-mode="dark"] {
+      --bg: #09090b; --surface: #18181b; --primary: #3f3f46; --text: #fafafa;
+      --text-secondary: #a1a1aa; --accent: #71717a; --border: #27272a; --bg-tertiary: #18181b;
+      --error: #a1a1aa; --success: #71717a; --primary-rgb: 63, 63, 70; --frame-bg: #000000;
+    }
+
+    /* BASE */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #1a1a2e; font-family: 'Outfit', 'Segoe UI', system-ui, sans-serif; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 20px; gap: 24px; color: var(--text); }
+
+    /* CONTROLS */
+    .controls { display: flex; flex-direction: column; align-items: center; gap: 14px; width: 100%; max-width: 520px; }
+    .controls-row { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; justify-content: center; }
+    .theme-tabs, .variant-tabs { display: flex; background: rgba(255,255,255,0.08); border-radius: 12px; padding: 4px; gap: 2px; }
+    .theme-tab, .variant-tab { padding: 7px 18px; border: none; background: transparent; color: rgba(255,255,255,0.5); font-family: 'Outfit', sans-serif; font-weight: 500; font-size: 13px; border-radius: 10px; cursor: pointer; transition: all 0.2s ease; }
+    .theme-tab:hover, .variant-tab:hover { color: rgba(255,255,255,0.8); }
+    .theme-tab.active, .variant-tab.active { background: rgba(255,255,255,0.15); color: #fff; }
+    .mode-toggle { display: flex; align-items: center; gap: 8px; color: rgba(255,255,255,0.7); font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 500; }
+    .toggle-switch { width: 44px; height: 24px; background: rgba(255,255,255,0.15); border-radius: 12px; cursor: pointer; position: relative; transition: background 0.2s; }
+    .toggle-switch.dark { background: rgba(255,255,255,0.3); }
+    .toggle-switch::after { content: ''; position: absolute; width: 18px; height: 18px; background: #fff; border-radius: 50%; top: 3px; left: 3px; transition: transform 0.2s; }
+    .toggle-switch.dark::after { transform: translateX(20px); }
+
+    /* PHONE FRAME */
+    .phone-frame { width: 360px; min-height: 780px; background: var(--frame-bg); border-radius: 44px; padding: 12px; position: relative; box-shadow: 0 25px 80px rgba(0,0,0,0.4), inset 0 0 0 2px rgba(255,255,255,0.08); }
+    .phone-screen { width: 100%; min-height: 756px; background: var(--bg); border-radius: 34px; overflow: hidden; position: relative; display: flex; flex-direction: column; }
+    .phone-notch { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); width: 150px; height: 28px; background: var(--frame-bg); border-radius: 0 0 20px 20px; z-index: 100; }
+    .status-bar { height: 48px; padding: 14px 24px 0; display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-weight: 600; color: var(--text); position: relative; z-index: 99; flex-shrink: 0; background: var(--bg); }
+    .status-bar-left { font-size: 14px; font-weight: 700; }
+    .status-bar-right { display: flex; align-items: center; gap: 6px; }
+    .status-bar-right svg { width: 16px; height: 16px; }
+    .home-indicator { width: 134px; height: 5px; background: var(--text-secondary); border-radius: 3px; opacity: 0.3; margin: 8px auto 6px; flex-shrink: 0; }
+
+    /* HEADER */
+    .editor-header { height: 52px; padding: 0 12px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; background: var(--bg); }
+    .editor-header-left { display: flex; align-items: center; gap: 2px; }
+    .editor-back-btn { width: 36px; height: 36px; border-radius: 50%; border: none; background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.15s; }
+    .editor-back-btn:hover { background: var(--bg-tertiary); }
+    .editor-back-btn svg { width: 22px; height: 22px; stroke: var(--text); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .editor-title { font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 17px; color: var(--text); }
+    .editor-header-right { display: flex; align-items: center; gap: 6px; }
+    .header-bell-btn { width: 36px; height: 36px; border-radius: 50%; border: none; background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.15s; }
+    .header-bell-btn:hover { background: var(--bg-tertiary); }
+    .header-bell-btn svg { width: 20px; height: 20px; stroke: var(--text-secondary); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+    /* FORM */
+    .scroll-content { flex: 1; overflow-y: auto; padding: 0 16px 8px; }
+    .scroll-content::-webkit-scrollbar { display: none; }
+    .form-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 16px; box-shadow: 0 2px 8px rgba(var(--primary-rgb), 0.06); }
+    .field-group { margin-bottom: 16px; }
+    .field-group:last-child { margin-bottom: 0; }
+    .field-label { font-family: 'Outfit', sans-serif; font-weight: 600; font-size: 12px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; display: block; }
+    .field-input { width: 100%; height: 44px; padding: 0 14px; border-radius: 10px; border: 1.5px solid var(--border); background: var(--bg); font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 500; color: var(--text); outline: none; transition: border-color 0.15s; }
+    .field-input::placeholder { color: var(--text-secondary); opacity: 0.5; }
+    .field-input:focus { border-color: var(--primary); }
+    .field-input.filled { border-color: var(--primary); background: var(--surface); }
+    .amount-wrapper { position: relative; }
+    .amount-prefix { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 16px; color: var(--text); }
+    .field-input.amount { padding-left: 28px; font-weight: 700; font-size: 16px; }
+    .date-wrapper, .dropdown-wrapper { position: relative; }
+    .date-icon, .dropdown-icon { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); pointer-events: none; }
+    .date-icon svg { width: 18px; height: 18px; stroke: var(--text-secondary); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .dropdown-icon svg { width: 16px; height: 16px; stroke: var(--text-secondary); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .field-textarea { width: 100%; min-height: 60px; padding: 10px 14px; border-radius: 10px; border: 1.5px solid var(--border); background: var(--bg); font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 500; color: var(--text); outline: none; resize: none; transition: border-color 0.15s; }
+    .field-textarea::placeholder { color: var(--text-secondary); opacity: 0.5; }
+    .field-textarea:focus { border-color: var(--primary); }
+
+    /* ITEMS SECTION */
+    .items-divider { display: flex; align-items: center; gap: 10px; margin: 20px 0 14px; }
+    .items-divider-line { flex: 1; height: 1px; background: var(--border); }
+    .items-divider-label { font-family: 'Outfit', sans-serif; font-weight: 600; font-size: 12px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
+    .add-item-btn { width: 100%; height: 40px; border: 1.5px dashed var(--border); border-radius: 10px; background: transparent; display: flex; align-items: center; justify-content: center; gap: 6px; font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 600; color: var(--primary); cursor: pointer; transition: all 0.15s; }
+    .add-item-btn:hover { background: rgba(var(--primary-rgb), 0.06); border-color: var(--primary); }
+    .add-item-btn svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2.5; stroke-linecap: round; }
+    .item-row { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: var(--bg-tertiary); border-radius: 10px; margin-bottom: 8px; }
+    .item-name { flex: 1; font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 500; color: var(--text); min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .item-price { font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 600; color: var(--text); flex-shrink: 0; }
+    .item-remove-btn { width: 28px; height: 28px; border-radius: 50%; border: none; background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.15s; flex-shrink: 0; }
+    .item-remove-btn:hover { background: rgba(239, 68, 68, 0.08); }
+    .item-remove-btn svg { width: 16px; height: 16px; stroke: var(--error); fill: none; stroke-width: 2; stroke-linecap: round; opacity: 0.6; }
+
+    /* SAVE BUTTON */
+    .save-bar { padding: 12px 16px 4px; flex-shrink: 0; background: var(--bg); }
+    .save-btn { width: 100%; height: 48px; border: none; border-radius: 12px; background: var(--primary); color: #fff; font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 15px; cursor: pointer; transition: opacity 0.15s, transform 0.1s; box-shadow: 0 4px 14px rgba(var(--primary-rgb), 0.3); }
+    .save-btn:hover { opacity: 0.92; }
+    .save-btn:active { transform: scale(0.98); }
+    .save-btn.disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
+
+    /* VARIANTS */
+    .variant-hero, .variant-empty { display: none; }
+    body.show-hero .variant-hero { display: flex; }
+    body.show-empty .variant-empty { display: flex; }
+
+    /* RESPONSIVE */
+    @media (max-width: 460px) {
+      .phone-frame { width: 100%; border-radius: 0; padding: 0; }
+      .phone-screen { border-radius: 0; }
+      .phone-notch { display: none; }
+    }
+  </style>
+</head>
+<body data-theme="normal" data-mode="light" class="show-hero">
+
+  <!-- CONTROLS -->
+  <div class="controls">
+    <div class="controls-row">
+      <div class="theme-tabs">
+        <button class="theme-tab active" data-theme-val="normal">Normal</button>
+        <button class="theme-tab" data-theme-val="professional">Professional</button>
+        <button class="theme-tab" data-theme-val="mono">Mono</button>
+      </div>
+      <div class="mode-toggle">
+        <span>Light</span>
+        <div class="toggle-switch" id="modeToggle"></div>
+        <span>Dark</span>
+      </div>
+    </div>
+    <div class="controls-row">
+      <div class="variant-tabs">
+        <button class="variant-tab active" data-variant="hero">Hero</button>
+        <button class="variant-tab" data-variant="empty">Empty</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHONE: HERO (filled form) -->
+  <div class="phone-frame variant-hero" style="flex-direction:column;">
+    <div class="phone-notch"></div>
+    <div class="phone-screen">
+      <div class="status-bar">
+        <span class="status-bar-left">9:41</span>
+        <div class="status-bar-right">
+          <svg viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="11" width="2.5" height="4" rx="0.5"/><rect x="5" y="8" width="2.5" height="7" rx="0.5"/><rect x="9" y="5" width="2.5" height="10" rx="0.5"/><rect x="13" y="1" width="2.5" height="14" rx="0.5"/></svg>
+          <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 12.5a1.25 1.25 0 110 2.5 1.25 1.25 0 010-2.5zM8 8.5c2.07 0 3.94.84 5.3 2.2l-1.42 1.42A5.48 5.48 0 008 10.5c-1.52 0-2.9.62-3.88 1.62L2.7 10.7A7.47 7.47 0 018 8.5z"/></svg>
+          <svg viewBox="0 0 24 12" fill="currentColor"><rect x="0" y="0" width="20" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="2" y="2" width="14" height="8" rx="1"/><rect x="21" y="3.5" width="2.5" height="5" rx="1"/></svg>
+        </div>
+      </div>
+      <div class="editor-header">
+        <div class="editor-header-left">
+          <button class="editor-back-btn"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></button>
+          <span class="editor-title">Ingreso manual</span>
+        </div>
+        <div class="editor-header-right">
+          <button class="header-bell-btn"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></button>
+        </div>
+      </div>
+      <div class="scroll-content">
+        <div class="form-card">
+          <div class="field-group">
+            <label class="field-label">Comercio</label>
+            <input type="text" class="field-input filled" value="Jumbo Las Condes">
+          </div>
+          <div class="field-group">
+            <label class="field-label">Monto total</label>
+            <div class="amount-wrapper">
+              <span class="amount-prefix">$</span>
+              <input type="text" class="field-input amount filled" value="45.890">
+            </div>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Fecha</label>
+            <div class="date-wrapper">
+              <input type="text" class="field-input filled" value="Hoy, 31 Mar 2026" readonly>
+              <div class="date-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+            </div>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Categoria</label>
+            <div class="dropdown-wrapper">
+              <input type="text" class="field-input filled" value="&#x1F6D2; Supermercado" readonly>
+              <div class="dropdown-icon"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
+            </div>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Notas</label>
+            <textarea class="field-textarea" rows="2">Compras de la semana</textarea>
+          </div>
+        </div>
+        <div class="items-divider">
+          <div class="items-divider-line"></div>
+          <span class="items-divider-label">Items (opcional)</span>
+          <div class="items-divider-line"></div>
+        </div>
+        <div class="item-row">
+          <span class="item-name">Pan de molde</span>
+          <span class="item-price">$2.450</span>
+          <button class="item-remove-btn"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+        </div>
+        <button class="add-item-btn">
+          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Agregar item
+        </button>
+      </div>
+      <div class="save-bar"><button class="save-btn">Guardar</button></div>
+      <div class="home-indicator"></div>
+    </div>
+  </div>
+
+  <!-- PHONE: EMPTY (blank form) -->
+  <div class="phone-frame variant-empty" style="flex-direction:column;">
+    <div class="phone-notch"></div>
+    <div class="phone-screen">
+      <div class="status-bar">
+        <span class="status-bar-left">9:41</span>
+        <div class="status-bar-right">
+          <svg viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="11" width="2.5" height="4" rx="0.5"/><rect x="5" y="8" width="2.5" height="7" rx="0.5"/><rect x="9" y="5" width="2.5" height="10" rx="0.5"/><rect x="13" y="1" width="2.5" height="14" rx="0.5"/></svg>
+          <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 12.5a1.25 1.25 0 110 2.5 1.25 1.25 0 010-2.5zM8 8.5c2.07 0 3.94.84 5.3 2.2l-1.42 1.42A5.48 5.48 0 008 10.5c-1.52 0-2.9.62-3.88 1.62L2.7 10.7A7.47 7.47 0 018 8.5z"/></svg>
+          <svg viewBox="0 0 24 12" fill="currentColor"><rect x="0" y="0" width="20" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="2" y="2" width="14" height="8" rx="1"/><rect x="21" y="3.5" width="2.5" height="5" rx="1"/></svg>
+        </div>
+      </div>
+      <div class="editor-header">
+        <div class="editor-header-left">
+          <button class="editor-back-btn"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></button>
+          <span class="editor-title">Ingreso manual</span>
+        </div>
+        <div class="editor-header-right">
+          <button class="header-bell-btn"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></button>
+        </div>
+      </div>
+      <div class="scroll-content">
+        <div class="form-card">
+          <div class="field-group">
+            <label class="field-label">Comercio</label>
+            <input type="text" class="field-input" placeholder="Nombre del comercio">
+          </div>
+          <div class="field-group">
+            <label class="field-label">Monto total</label>
+            <div class="amount-wrapper">
+              <span class="amount-prefix">$</span>
+              <input type="text" class="field-input amount" placeholder="0">
+            </div>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Fecha</label>
+            <div class="date-wrapper">
+              <input type="text" class="field-input" value="Hoy, 31 Mar 2026" readonly>
+              <div class="date-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+            </div>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Categoria</label>
+            <div class="dropdown-wrapper">
+              <input type="text" class="field-input" placeholder="Seleccionar categoria" readonly>
+              <div class="dropdown-icon"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
+            </div>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Notas</label>
+            <textarea class="field-textarea" rows="2" placeholder="Agregar nota..."></textarea>
+          </div>
+        </div>
+        <div class="items-divider">
+          <div class="items-divider-line"></div>
+          <span class="items-divider-label">Items (opcional)</span>
+          <div class="items-divider-line"></div>
+        </div>
+        <button class="add-item-btn">
+          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Agregar item
+        </button>
+      </div>
+      <div class="save-bar"><button class="save-btn disabled">Guardar</button></div>
+      <div class="home-indicator"></div>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT -->
+  <script>
+    (function() {
+      var body = document.body, themeTabs = document.querySelectorAll('.theme-tab'),
+          modeToggle = document.getElementById('modeToggle'), variantTabs = document.querySelectorAll('.variant-tab');
+      var currentTheme = 'normal', currentMode = 'light', allVariants = ['hero', 'empty'];
+
+      function applyTheme() { body.setAttribute('data-theme', currentTheme); body.setAttribute('data-mode', currentMode); }
+      function showVariant(v) { allVariants.forEach(function(x) { body.classList.remove('show-' + x); }); body.classList.add('show-' + v); }
+
+      themeTabs.forEach(function(t) { t.addEventListener('click', function() { themeTabs.forEach(function(x) { x.classList.remove('active'); }); t.classList.add('active'); currentTheme = t.dataset.themeVal; applyTheme(); }); });
+      modeToggle.addEventListener('click', function() { currentMode = currentMode === 'light' ? 'dark' : 'light'; modeToggle.classList.toggle('dark', currentMode === 'dark'); applyTheme(); });
+      variantTabs.forEach(function(t) { t.addEventListener('click', function() { variantTabs.forEach(function(x) { x.classList.remove('active'); }); t.classList.add('active'); showVariant(t.dataset.variant); }); });
+      applyTheme();
+    })();
+  </script>
+</body>
+</html>

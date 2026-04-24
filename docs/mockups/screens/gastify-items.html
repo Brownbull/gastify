@@ -1,0 +1,1955 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Items (Productos) -- Gastify (Production Design System)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Baloo+2:wght@700&display=swap" rel="stylesheet">
+  <style>
+    /* ======================================================
+       GASTIFY -- PRODUCTION DESIGN SYSTEM
+       Themes: Normal / Professional / Mono
+       Modes: Light / Dark
+       Screen: Items (Productos)
+       Phone: 360x780 (Samsung S23)
+       ====================================================== */
+
+    /* -- Normal Light (default) -- */
+    :root {
+      --bg: #f5f0e8;
+      --surface: #fff;
+      --primary: #4a7c59;
+      --text: #2d3a4a;
+      --text-secondary: #4a5568;
+      --accent: #e8a87c;
+      --border: #e3bba1;
+      --bg-tertiary: #f1dbb6;
+      --error: #ef4444;
+      --success: #7d9b5f;
+      --warning: #f59e0b;
+      --primary-rgb: 74, 124, 89;
+      --nav-bg: #ffffff;
+      --nav-border: #e3bba1;
+      --shadow: rgba(74, 124, 89, 0.12);
+      --shadow-lg: rgba(74, 124, 89, 0.18);
+      --frame-bg: #1a1a2e;
+      --fab-gradient-from: #4a7c59;
+      --fab-gradient-to: #3d6b4b;
+      --cat-alimentos: #4a7c59;
+      --cat-farmacia: #dc2626;
+      --cat-mascotas: #d97706;
+      --cat-hogar: #0d9488;
+      --cat-limpieza: #7c3aed;
+      --skeleton-base: #f1dbb6;
+      --skeleton-shine: #f5f0e8;
+    }
+
+    /* -- Normal Dark -- */
+    [data-theme="normal"][data-mode="dark"] {
+      --bg: #1a2420;
+      --surface: #243028;
+      --primary: #6b9e7a;
+      --text: #e8e4dc;
+      --text-secondary: #b8c4a8;
+      --border: #3d4d42;
+      --bg-tertiary: #2d3d33;
+      --primary-rgb: 107, 158, 122;
+      --nav-bg: #1e2a22;
+      --nav-border: #3d4d42;
+      --shadow: rgba(0,0,0,0.3);
+      --shadow-lg: rgba(0,0,0,0.4);
+      --frame-bg: #0a0f0c;
+      --accent: #d4a574;
+      --fab-gradient-from: #6b9e7a;
+      --fab-gradient-to: #5a8a68;
+      --error: #f87171;
+      --warning: #fbbf24;
+      --cat-alimentos: #6b9e7a;
+      --cat-farmacia: #f87171;
+      --cat-mascotas: #fbbf24;
+      --cat-hogar: #2dd4bf;
+      --cat-limpieza: #a78bfa;
+      --skeleton-base: #2d3a30;
+      --skeleton-shine: #3d4d42;
+    }
+
+    /* -- Professional Light -- */
+    [data-theme="professional"][data-mode="light"] {
+      --bg: #f8fafc;
+      --surface: #fff;
+      --primary: #2563eb;
+      --text: #0f172a;
+      --text-secondary: #475569;
+      --accent: #3b82f6;
+      --border: #e2e8f0;
+      --bg-tertiary: #f1f5f9;
+      --primary-rgb: 37, 99, 235;
+      --nav-bg: #ffffff;
+      --nav-border: #e2e8f0;
+      --shadow: rgba(37, 99, 235, 0.08);
+      --shadow-lg: rgba(37, 99, 235, 0.12);
+      --frame-bg: #1e293b;
+      --fab-gradient-from: #2563eb;
+      --fab-gradient-to: #1d4ed8;
+      --error: #ef4444;
+      --warning: #f59e0b;
+      --cat-alimentos: #2563eb;
+      --cat-farmacia: #dc2626;
+      --cat-mascotas: #d97706;
+      --cat-hogar: #0d9488;
+      --cat-limpieza: #7c3aed;
+      --skeleton-base: #f1f5f9;
+      --skeleton-shine: #f8fafc;
+    }
+
+    /* -- Professional Dark -- */
+    [data-theme="professional"][data-mode="dark"] {
+      --bg: #0f172a;
+      --surface: #1e293b;
+      --primary: #3b82f6;
+      --text: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --accent: #60a5fa;
+      --border: #334155;
+      --bg-tertiary: #1e293b;
+      --primary-rgb: 59, 130, 246;
+      --nav-bg: #0f172a;
+      --nav-border: #334155;
+      --shadow: rgba(0,0,0,0.3);
+      --shadow-lg: rgba(0,0,0,0.4);
+      --frame-bg: #020617;
+      --fab-gradient-from: #3b82f6;
+      --fab-gradient-to: #2563eb;
+      --error: #f87171;
+      --warning: #fbbf24;
+      --cat-alimentos: #3b82f6;
+      --cat-farmacia: #f87171;
+      --cat-mascotas: #fbbf24;
+      --cat-hogar: #2dd4bf;
+      --cat-limpieza: #a78bfa;
+      --skeleton-base: #1e293b;
+      --skeleton-shine: #334155;
+    }
+
+    /* -- Mono Light -- */
+    [data-theme="mono"][data-mode="light"] {
+      --bg: #fafafa;
+      --surface: #fff;
+      --primary: #18181b;
+      --text: #18181b;
+      --text-secondary: #52525b;
+      --accent: #52525b;
+      --border: #e4e4e7;
+      --bg-tertiary: #f4f4f5;
+      --primary-rgb: 24, 24, 27;
+      --nav-bg: #ffffff;
+      --nav-border: #e4e4e7;
+      --shadow: rgba(0,0,0,0.06);
+      --shadow-lg: rgba(0,0,0,0.1);
+      --frame-bg: #18181b;
+      --fab-gradient-from: #18181b;
+      --fab-gradient-to: #27272a;
+      --error: #71717a;
+      --warning: #a1a1aa;
+      --cat-alimentos: #18181b;
+      --cat-farmacia: #3f3f46;
+      --cat-mascotas: #52525b;
+      --cat-hogar: #71717a;
+      --cat-limpieza: #a1a1aa;
+      --skeleton-base: #f4f4f5;
+      --skeleton-shine: #fafafa;
+    }
+
+    /* -- Mono Dark -- */
+    [data-theme="mono"][data-mode="dark"] {
+      --bg: #09090b;
+      --surface: #18181b;
+      --primary: #a1a1aa;
+      --text: #fafafa;
+      --text-secondary: #a1a1aa;
+      --accent: #71717a;
+      --border: #27272a;
+      --bg-tertiary: #18181b;
+      --primary-rgb: 63, 63, 70;
+      --nav-bg: #09090b;
+      --nav-border: #27272a;
+      --shadow: rgba(0,0,0,0.4);
+      --shadow-lg: rgba(0,0,0,0.5);
+      --frame-bg: #000;
+      --fab-gradient-from: #3f3f46;
+      --fab-gradient-to: #27272a;
+      --error: #a1a1aa;
+      --warning: #71717a;
+      --cat-alimentos: #a1a1aa;
+      --cat-farmacia: #71717a;
+      --cat-mascotas: #71717a;
+      --cat-hogar: #a1a1aa;
+      --cat-limpieza: #71717a;
+      --skeleton-base: #18181b;
+      --skeleton-shine: #27272a;
+    }
+
+    /* ======================================================
+       BASE STYLES
+       ====================================================== */
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #1a1a2e;
+      font-family: 'Outfit', 'Segoe UI', system-ui, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      gap: 32px;
+      color: var(--text);
+    }
+
+    /* ======================================================
+       CONTROLS (outside phone frame)
+       ====================================================== */
+
+    .controls {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      width: 100%;
+      max-width: 520px;
+    }
+
+    .controls-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .theme-tabs {
+      display: flex;
+      background: rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 4px;
+      gap: 2px;
+    }
+
+    .theme-tab {
+      padding: 8px 20px;
+      border: none;
+      background: transparent;
+      color: rgba(255,255,255,0.5);
+      font-family: 'Outfit', sans-serif;
+      font-weight: 500;
+      font-size: 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .theme-tab:hover {
+      color: rgba(255,255,255,0.8);
+    }
+
+    .theme-tab.active {
+      background: rgba(255,255,255,0.15);
+      color: #fff;
+    }
+
+    .mode-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: rgba(255,255,255,0.7);
+      font-family: 'Outfit', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .toggle-switch {
+      width: 44px;
+      height: 24px;
+      background: rgba(255,255,255,0.15);
+      border-radius: 12px;
+      cursor: pointer;
+      position: relative;
+      transition: background 0.2s;
+    }
+
+    .toggle-switch.dark {
+      background: rgba(255,255,255,0.3);
+    }
+
+    .toggle-switch::after {
+      content: '';
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      background: #fff;
+      border-radius: 50%;
+      top: 3px;
+      left: 3px;
+      transition: transform 0.2s;
+    }
+
+    .toggle-switch.dark::after {
+      transform: translateX(20px);
+    }
+
+    .variant-tabs {
+      display: flex;
+      background: rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 4px;
+      gap: 2px;
+    }
+
+    .variant-tab {
+      padding: 6px 16px;
+      border: none;
+      background: transparent;
+      color: rgba(255,255,255,0.5);
+      font-family: 'Outfit', sans-serif;
+      font-weight: 500;
+      font-size: 13px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .variant-tab:hover {
+      color: rgba(255,255,255,0.8);
+    }
+
+    .variant-tab.active {
+      background: rgba(255,255,255,0.15);
+      color: #fff;
+    }
+
+    /* ======================================================
+       PHONE FRAME -- 360x780 (Samsung S23)
+       ====================================================== */
+
+    .phone-frame {
+      width: 384px;
+      height: 804px;
+      background: var(--frame-bg);
+      border-radius: 40px;
+      padding: 12px;
+      position: relative;
+      box-shadow: 0 25px 80px rgba(0,0,0,0.4), inset 0 0 0 2px rgba(255,255,255,0.08);
+    }
+
+    .phone-screen {
+      width: 360px;
+      height: 780px;
+      background: var(--bg);
+      border-radius: 30px;
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* -- Notch -- */
+    .phone-notch {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 120px;
+      height: 26px;
+      background: var(--frame-bg);
+      border-radius: 0 0 16px 16px;
+      z-index: 100;
+    }
+
+    /* -- Status Bar -- */
+    .status-bar {
+      height: 44px;
+      padding: 12px 20px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text);
+      position: relative;
+      z-index: 99;
+      flex-shrink: 0;
+      background: var(--bg);
+    }
+
+    .status-bar-left {
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .status-bar-right {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .status-bar-right svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    /* -- Home Indicator -- */
+    .home-indicator {
+      position: absolute;
+      bottom: 6px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 120px;
+      height: 4px;
+      background: var(--text-secondary);
+      border-radius: 2px;
+      opacity: 0.3;
+      z-index: 100;
+    }
+
+    /* ======================================================
+       TOP HEADER (single row: back + title + calendar + filter + avatar)
+       ====================================================== */
+
+    .top-header {
+      height: 52px;
+      padding: 0 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+      background: var(--bg);
+    }
+
+    .header-back {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      border-radius: 50%;
+      flex-shrink: 0;
+      transition: background 0.15s;
+    }
+
+    .header-back:hover {
+      background: var(--bg-tertiary);
+    }
+
+    .header-back svg {
+      width: 22px;
+      height: 22px;
+      stroke: var(--text);
+      stroke-width: 2;
+      fill: none;
+    }
+
+    .header-title {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      font-size: 18px;
+      color: var(--text);
+      flex: 1;
+    }
+
+    .header-action {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      border-radius: 50%;
+      flex-shrink: 0;
+      transition: background 0.15s;
+    }
+
+    .header-action:hover {
+      background: var(--bg-tertiary);
+    }
+
+    .header-action svg {
+      width: 20px;
+      height: 20px;
+      stroke: var(--text-secondary);
+      stroke-width: 2;
+      fill: none;
+    }
+
+    /* ======================================================
+       SCROLLABLE CONTENT
+       ====================================================== */
+
+    .scroll-content {
+      flex: 1;
+      overflow-y: auto;
+      padding-bottom: 80px;
+    }
+
+    .scroll-content::-webkit-scrollbar {
+      display: none;
+    }
+
+    /* ======================================================
+       SEARCH BAR
+       ====================================================== */
+
+    .search-bar {
+      margin: 4px 14px 10px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 9px 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .search-bar.focused {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.12);
+    }
+
+    .search-bar svg {
+      width: 16px;
+      height: 16px;
+      stroke: var(--text-secondary);
+      stroke-width: 2;
+      fill: none;
+      flex-shrink: 0;
+    }
+
+    .search-text {
+      font-family: 'Outfit', sans-serif;
+      font-size: 13px;
+      font-weight: 400;
+      color: var(--text-secondary);
+      flex: 1;
+    }
+
+    .search-text.has-value {
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    /* ======================================================
+       TEMPORAL BREADCRUMB PILLS
+       ====================================================== */
+
+    .temporal-breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      padding: 0 14px;
+      margin-bottom: 10px;
+    }
+
+    .temporal-level {
+      font-family: 'Outfit', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      cursor: pointer;
+      padding: 4px 10px;
+      border-radius: 999px;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+
+    .temporal-level:hover {
+      background: var(--bg-tertiary);
+    }
+
+    .temporal-level.active {
+      background: var(--primary);
+      color: #fff;
+      font-weight: 600;
+    }
+
+    .temporal-sep {
+      font-family: 'Outfit', sans-serif;
+      font-size: 12px;
+      color: var(--text-secondary);
+      opacity: 0.5;
+      flex-shrink: 0;
+    }
+
+    /* ======================================================
+       RESULTS ROW
+       ====================================================== */
+
+    .results-row {
+      display: flex;
+      align-items: center;
+      padding: 0 14px;
+      margin-bottom: 8px;
+      gap: 8px;
+    }
+
+    .results-count {
+      font-family: 'Outfit', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      white-space: nowrap;
+    }
+
+    .results-spacer {
+      flex: 1;
+    }
+
+    .sort-dropdown {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      padding: 5px 10px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      font-family: 'Outfit', sans-serif;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s;
+    }
+
+    .sort-dropdown:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .sort-dropdown svg {
+      width: 12px;
+      height: 12px;
+      stroke: var(--text-secondary);
+      stroke-width: 2;
+      fill: none;
+    }
+
+    .icon-btn-sm {
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+      flex-shrink: 0;
+    }
+
+    .icon-btn-sm:hover {
+      background: var(--bg-tertiary);
+      border-color: var(--primary);
+    }
+
+    .icon-btn-sm svg {
+      width: 16px;
+      height: 16px;
+      stroke: var(--text-secondary);
+      stroke-width: 2;
+      fill: none;
+    }
+
+    .icon-btn-sm:hover svg {
+      stroke: var(--primary);
+    }
+
+    /* ======================================================
+       FILTER CHIPS ROW
+       ====================================================== */
+
+    .filter-chips-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 0 14px;
+      margin-bottom: 4px;
+      overflow-x: auto;
+      flex-wrap: nowrap;
+    }
+
+    .filter-chips-row::-webkit-scrollbar {
+      display: none;
+    }
+
+    .clear-all-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: all 0.15s;
+    }
+
+    .clear-all-btn:hover {
+      background: var(--error);
+      border-color: var(--error);
+    }
+
+    .clear-all-btn svg {
+      width: 14px;
+      height: 14px;
+      stroke: var(--text-secondary);
+      stroke-width: 2.5;
+      fill: none;
+    }
+
+    .clear-all-btn:hover svg {
+      stroke: #fff;
+    }
+
+    .filter-chip {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 12px;
+      border-radius: 999px;
+      background: var(--primary);
+      color: #fff;
+      font-family: 'Outfit', sans-serif;
+      font-size: 11px;
+      font-weight: 600;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: opacity 0.15s;
+      flex-shrink: 0;
+    }
+
+    .filter-chip:hover {
+      opacity: 0.9;
+    }
+
+    .filter-chip .chip-x {
+      width: 12px;
+      height: 12px;
+      stroke: #fff;
+      stroke-width: 2.5;
+      fill: none;
+      opacity: 0.8;
+    }
+
+    .clear-all-link {
+      font-family: 'Outfit', sans-serif;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--primary);
+      cursor: pointer;
+      text-decoration: underline;
+      padding: 0 14px;
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    .clear-all-link:hover {
+      opacity: 0.8;
+    }
+
+    /* ======================================================
+       SEARCH RESULTS LABEL
+       ====================================================== */
+
+    .search-results-label {
+      font-family: 'Outfit', sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--primary);
+      margin-bottom: 8px;
+      padding: 0 14px;
+    }
+
+    /* ======================================================
+       AGGREGATED ITEM CARD
+       ====================================================== */
+
+    .agg-item-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 0 14px 8px;
+      box-shadow: 0 1px 4px var(--shadow);
+      cursor: pointer;
+      transition: transform 0.1s, box-shadow 0.1s;
+    }
+
+    .agg-item-card:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 3px 10px var(--shadow-lg);
+    }
+
+    .agg-cat-circle {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      flex-shrink: 0;
+    }
+
+    .agg-body {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .agg-name {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--text);
+      line-height: 1.3;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .agg-pills {
+      display: flex;
+      gap: 4px;
+      margin-top: 4px;
+      flex-wrap: wrap;
+    }
+
+    .agg-pill {
+      background: var(--bg-tertiary);
+      border-radius: 999px;
+      padding: 2px 8px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 10px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      white-space: nowrap;
+    }
+
+    .agg-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      flex-shrink: 0;
+    }
+
+    .agg-total {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      font-size: 13px;
+      color: var(--text);
+      white-space: nowrap;
+    }
+
+    .agg-total-label {
+      font-family: 'Outfit', sans-serif;
+      font-size: 9px;
+      font-weight: 400;
+      color: var(--text-secondary);
+      margin-top: 1px;
+    }
+
+    /* ======================================================
+       FLAT ITEM CARD (Duplicates mode)
+       ====================================================== */
+
+    .flat-item-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 12px 10px 0;
+      display: flex;
+      align-items: flex-start;
+      margin: 0 14px 8px;
+      box-shadow: 0 1px 3px var(--shadow);
+      cursor: pointer;
+      transition: transform 0.1s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .flat-item-card:hover {
+      transform: translateY(-1px);
+    }
+
+    /* Left color strip */
+    .flat-color-strip {
+      width: 4px;
+      align-self: stretch;
+      border-radius: 12px 0 0 12px;
+      flex-shrink: 0;
+    }
+
+    .flat-body {
+      flex: 1;
+      min-width: 0;
+      padding-left: 10px;
+      padding-top: 2px;
+    }
+
+    .flat-name-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .flat-name {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+      font-size: 12px;
+      text-transform: uppercase;
+      line-height: 1.3;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .flat-amount {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      font-size: 13px;
+      color: var(--text);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .flat-pills {
+      display: flex;
+      gap: 4px;
+      margin-top: 5px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .flat-store-emoji {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      flex-shrink: 0;
+    }
+
+    .flat-pill {
+      background: var(--bg-tertiary);
+      border-radius: 999px;
+      padding: 2px 7px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 9px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      white-space: nowrap;
+      max-width: 100px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .flat-receipt-badge {
+      font-family: 'Outfit', sans-serif;
+      font-size: 9px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .flat-qty-badge {
+      background: rgba(var(--primary-rgb), 0.12);
+      color: var(--accent);
+      border-radius: 999px;
+      padding: 2px 7px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 9px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .flat-avg-row {
+      margin-top: 4px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 11px;
+      font-weight: 400;
+      color: var(--text-secondary);
+    }
+
+    .flat-avg-row .subcat {
+      font-style: italic;
+    }
+
+    /* ======================================================
+       PAGINATION
+       ====================================================== */
+
+    .pagination {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 14px 8px;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .page-info {
+      font-family: 'Outfit', sans-serif;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      white-space: nowrap;
+    }
+
+    .page-size-select {
+      display: flex;
+      gap: 2px;
+      background: var(--bg-tertiary);
+      border-radius: 6px;
+      padding: 2px;
+    }
+
+    .page-size-btn {
+      padding: 3px 8px;
+      border: none;
+      background: transparent;
+      font-family: 'Outfit', sans-serif;
+      font-size: 10px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .page-size-btn.active {
+      background: var(--surface);
+      color: var(--text);
+      font-weight: 600;
+      box-shadow: 0 1px 2px var(--shadow);
+    }
+
+    .page-nav-btns {
+      display: flex;
+      gap: 4px;
+    }
+
+    .page-nav-btn {
+      padding: 4px 10px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      border-radius: 6px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.15s;
+      min-height: 28px;
+      white-space: nowrap;
+    }
+
+    .page-nav-btn:hover:not(:disabled) {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .page-nav-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+        /* ======================================================
+       BOTTOM NAVIGATION (5 equal items — restructured)
+       ====================================================== */
+
+    .bottom-nav {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 56px;
+      padding-bottom: 6px;
+      background: var(--nav-bg);
+      border-top: 1px solid var(--nav-border);
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-around;
+      z-index: 50;
+      border-radius: 0 0 30px 30px;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1px;
+      cursor: pointer;
+      padding: 4px 0 2px;
+      position: relative;
+      width: 48px;
+    }
+
+    .nav-icon {
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .nav-icon svg {
+      width: 22px;
+      height: 22px;
+      stroke-width: 2;
+    }
+
+    .nav-label {
+      font-family: 'Outfit', sans-serif;
+      font-size: 10px;
+      font-weight: 500;
+      color: var(--secondary);
+      opacity: 0.5;
+    }
+
+    .nav-item.active .nav-label {
+      color: var(--primary);
+      font-weight: 600;
+      opacity: 1;
+    }
+
+    .nav-item.active .nav-icon svg {
+      stroke: var(--primary);
+    }
+
+    .nav-item:not(.active) .nav-icon svg {
+      stroke: var(--secondary);
+      opacity: 0.45;
+    }
+
+    /* ======================================================
+       EMPTY STATE
+       ====================================================== */
+
+    .empty-state {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 50px 28px;
+      gap: 14px;
+      flex: 1;
+    }
+
+    .empty-icon-area {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background: rgba(var(--primary-rgb), 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 8px;
+    }
+
+    .empty-icon-area svg {
+      width: 44px;
+      height: 44px;
+      stroke: var(--primary);
+      stroke-width: 1.5;
+      fill: none;
+    }
+
+    .empty-heading {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      font-size: 18px;
+      color: var(--text);
+    }
+
+    .empty-subtitle {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 400;
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      max-width: 240px;
+    }
+
+
+    /* ======================================================
+       SKELETON / LOADING STATE
+       ====================================================== */
+
+    .skeleton-state {
+      display: none;
+      padding: 0 12px;
+    }
+
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+
+    .skel {
+      border-radius: 8px;
+      background: linear-gradient(
+        90deg,
+        var(--skeleton-base) 25%,
+        var(--skeleton-shine) 50%,
+        var(--skeleton-base) 75%
+      );
+      background-size: 200% 100%;
+      animation: shimmer 1.8s ease-in-out infinite;
+    }
+
+    .skel-card {
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+    }
+
+    /* ======================================================
+       VARIANT VISIBILITY
+       ====================================================== */
+
+    /* Aggregated = default */
+    .aggregated-content { display: block; }
+    .duplicates-content { display: none; }
+    .empty-content { display: none; }
+    .search-content { display: none; }
+
+    body.variant-aggregated .aggregated-content { display: block; }
+    body.variant-aggregated .duplicates-content { display: none; }
+    body.variant-aggregated .empty-content { display: none; }
+    body.variant-aggregated .search-content { display: none; }
+
+    body.variant-duplicates .aggregated-content { display: none; }
+    body.variant-duplicates .duplicates-content { display: block; }
+    body.variant-duplicates .empty-content { display: none; }
+    body.variant-duplicates .search-content { display: none; }
+
+    body.variant-empty .aggregated-content { display: none; }
+    body.variant-empty .duplicates-content { display: none; }
+    body.variant-empty .empty-content { display: flex; }
+    body.variant-empty .search-content { display: none; }
+    body.variant-empty .temporal-breadcrumb { display: none; }
+    body.variant-empty .results-row { display: none; }
+    body.variant-empty .filter-chips-row { display: none; }
+    body.variant-empty .clear-all-link { display: none; }
+    body.variant-empty .pagination { display: none; }
+    body.variant-empty .search-bar { display: none; }
+
+    body.variant-search .aggregated-content { display: none; }
+    body.variant-search .duplicates-content { display: none; }
+    body.variant-search .empty-content { display: none; }
+    body.variant-search .search-content { display: block; }
+    body.variant-search .search-bar-default { display: none; }
+    body.variant-search .search-bar-active { display: flex; }
+    body.variant-search .pagination { display: none; }
+
+    /* Loading skeleton */
+    body.variant-loading .aggregated-content { display: none; }
+    body.variant-loading .duplicates-content { display: none; }
+    body.variant-loading .empty-content { display: none; }
+    body.variant-loading .search-content { display: none; }
+    body.variant-loading .temporal-breadcrumb { display: none; }
+    body.variant-loading .results-row { display: none; }
+    body.variant-loading .filter-chips-row { display: none; }
+    body.variant-loading .clear-all-link { display: none; }
+    body.variant-loading .pagination { display: none; }
+    body.variant-loading .search-bar { display: none; }
+    body.variant-loading .skeleton-state { display: block; }
+
+    /* Default search bar visibility */
+    .search-bar-active { display: none; }
+
+    /* ======================================================
+       RESPONSIVE
+       ====================================================== */
+
+    @media (max-width: 400px) {
+      .phone-frame {
+        width: 100%;
+        border-radius: 0;
+        padding: 0;
+      }
+      .phone-screen {
+        border-radius: 0;
+        width: 100%;
+      }
+      .phone-notch { display: none; }
+      .bottom-nav { border-radius: 0; }
+    }
+  </style>
+</head>
+<body data-theme="normal" data-mode="light">
+  <!-- ⚠️ DEPRECATED: This screen has been merged into Compras (Producto toggle). Kept for reference only. -->
+  <div style="position:fixed;top:0;left:0;right:0;background:#f59e0b;color:#78350f;padding:8px 16px;font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;text-align:center;z-index:9999;">
+    MERGED into Compras (Producto toggle) — this file is for reference only
+  </div>
+
+
+  <!-- ========================================
+       CONTROLS (outside phone frame)
+       ======================================== -->
+  <div class="controls">
+    <div class="controls-row">
+      <div class="theme-tabs">
+        <button class="theme-tab active" data-theme-val="normal">Normal</button>
+        <button class="theme-tab" data-theme-val="professional">Professional</button>
+        <button class="theme-tab" data-theme-val="mono">Mono</button>
+      </div>
+      <div class="mode-toggle">
+        <span>Light</span>
+        <div class="toggle-switch" id="modeToggle"></div>
+        <span>Dark</span>
+      </div>
+    </div>
+    <div class="controls-row">
+      <div class="variant-tabs">
+        <button class="variant-tab active" data-variant="aggregated">Aggregated</button>
+        <button class="variant-tab" data-variant="duplicates">Duplicates</button>
+        <button class="variant-tab" data-variant="empty">Empty</button>
+        <button class="variant-tab" data-variant="search">Search</button>
+        <button class="variant-tab" data-variant="loading">Loading</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================
+       PHONE FRAME (360x780)
+       ======================================== -->
+  <div class="phone-frame">
+    <div class="phone-notch"></div>
+    <div class="phone-screen">
+
+      <!-- Status Bar -->
+      <div class="status-bar">
+        <span class="status-bar-left">9:41</span>
+        <div class="status-bar-right">
+          <svg viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="11" width="2.5" height="4" rx="0.5"/><rect x="5" y="8" width="2.5" height="7" rx="0.5"/><rect x="9" y="5" width="2.5" height="10" rx="0.5"/><rect x="13" y="1" width="2.5" height="14" rx="0.5"/></svg>
+          <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 12.5a1.25 1.25 0 110 2.5 1.25 1.25 0 010-2.5zM8 8.5c2.07 0 3.94.84 5.3 2.2l-1.42 1.42A5.48 5.48 0 008 10.5c-1.52 0-2.9.62-3.88 1.62L2.7 10.7A7.47 7.47 0 018 8.5z"/></svg>
+          <svg viewBox="0 0 24 12" fill="currentColor"><rect x="0" y="0" width="20" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="2" y="2" width="14" height="8" rx="1"/><rect x="21" y="3.5" width="2.5" height="5" rx="1"/></svg>
+        </div>
+      </div>
+
+      <!-- Top Header: back + "Productos" + calendar + filter + avatar -->
+      <div class="top-header">
+        <div class="header-back">
+          <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6"/>
+          </svg>
+        </div>
+        <span class="header-title">Productos</span>
+        <!-- Calendar icon -->
+        <div class="header-action" title="Calendario">
+          <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+            <line x1="16" y1="2" x2="16" y2="6"/>
+            <line x1="8" y1="2" x2="8" y2="6"/>
+            <line x1="3" y1="10" x2="21" y2="10"/>
+          </svg>
+        </div>
+        <!-- Filter/funnel icon -->
+        <div class="header-action" title="Filtros">
+          <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+          </svg>
+        </div>
+        <div class="header-bell" style="position:relative;cursor:pointer;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--secondary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+            </svg>
+            <span style="position:absolute;top:-4px;right:-6px;background:#ef4444;color:#fff;font-size:9px;font-weight:700;font-family:'Outfit',sans-serif;border-radius:999px;padding:1px 5px;line-height:1.3;">3</span>
+          </div>
+      </div>
+
+      <!-- Scrollable Content -->
+      <div class="scroll-content">
+
+        <!-- Search Bar (default) -->
+        <div class="search-bar search-bar-default">
+          <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"/>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <span class="search-text">Buscar productos...</span>
+        </div>
+
+        <!-- Search Bar (active, for search variant) -->
+        <div class="search-bar search-bar-active focused">
+          <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"/>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <span class="search-text has-value">leche</span>
+        </div>
+
+        <!-- Temporal Breadcrumb Pills -->
+        <div class="temporal-breadcrumb">
+          <span class="temporal-level">2026</span>
+          <span class="temporal-sep">&#x203A;</span>
+          <span class="temporal-level">T1</span>
+          <span class="temporal-sep">&#x203A;</span>
+          <span class="temporal-level active">Mar</span>
+          <span class="temporal-sep">&#x203A;</span>
+          <span class="temporal-level">Sem</span>
+          <span class="temporal-sep">&#x203A;</span>
+          <span class="temporal-level">Dia</span>
+        </div>
+
+        <!-- Results Row -->
+        <div class="results-row">
+          <span class="results-count">20 productos</span>
+          <span class="results-spacer"></span>
+          <button class="sort-dropdown">
+            <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"/>
+              <polyline points="19 12 12 19 5 12"/>
+            </svg>
+            Fecha
+            <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" style="width:10px;height:10px">
+              <polyline points="6 9 12 15 18 9"/>
+            </svg>
+          </button>
+          <!-- Duplicate icon -->
+          <button class="icon-btn-sm" title="Duplicados">
+            <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+            </svg>
+          </button>
+          <!-- Download icon -->
+          <button class="icon-btn-sm" title="Exportar">
+            <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Filter Chips -->
+        <div class="filter-chips-row">
+          <button class="clear-all-btn" title="Limpiar todos">
+            <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+          <div class="filter-chip">
+            &#x1F4C5; 2026 &#x203A; mar
+            <svg class="chip-x" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </div>
+        </div>
+        <a class="clear-all-link">Limpiar todo</a>
+
+        <!-- ===================================================
+             AGGREGATED VARIANT
+             =================================================== -->
+        <div class="aggregated-content">
+
+          <!-- Item 1: Leche Entera 1L -->
+          <div class="agg-item-card">
+            <div class="agg-cat-circle" style="background: rgba(var(--primary-rgb), 0.12)">
+              &#x1F95B;
+            </div>
+            <div class="agg-body">
+              <div class="agg-name">Leche Entera 1L</div>
+              <div class="agg-pills">
+                <span class="agg-pill">Lider</span>
+                <span class="agg-pill">12 compras</span>
+                <span class="agg-pill">$2.390 avg</span>
+              </div>
+            </div>
+            <div class="agg-right">
+              <span class="agg-total">$28.680</span>
+              <span class="agg-total-label">total</span>
+            </div>
+          </div>
+
+          <!-- Item 2: Pan Molde Integral -->
+          <div class="agg-item-card">
+            <div class="agg-cat-circle" style="background: rgba(217, 119, 6, 0.12)">
+              &#x1F35E;
+            </div>
+            <div class="agg-body">
+              <div class="agg-name">Pan Molde Integral</div>
+              <div class="agg-pills">
+                <span class="agg-pill">Lider</span>
+                <span class="agg-pill">8 compras</span>
+                <span class="agg-pill">$1.890 avg</span>
+              </div>
+            </div>
+            <div class="agg-right">
+              <span class="agg-total">$15.120</span>
+              <span class="agg-total-label">total</span>
+            </div>
+          </div>
+
+          <!-- Item 3: Queso Gouda Laminado -->
+          <div class="agg-item-card">
+            <div class="agg-cat-circle" style="background: rgba(245, 158, 11, 0.12)">
+              &#x1F9C0;
+            </div>
+            <div class="agg-body">
+              <div class="agg-name">Queso Gouda Laminado</div>
+              <div class="agg-pills">
+                <span class="agg-pill">Jumbo</span>
+                <span class="agg-pill">5 compras</span>
+                <span class="agg-pill">$3.490 avg</span>
+              </div>
+            </div>
+            <div class="agg-right">
+              <span class="agg-total">$17.450</span>
+              <span class="agg-total-label">total</span>
+            </div>
+          </div>
+
+          <!-- Item 4: Pechuga de Pollo -->
+          <div class="agg-item-card">
+            <div class="agg-cat-circle" style="background: rgba(236, 72, 153, 0.12)">
+              &#x1F357;
+            </div>
+            <div class="agg-body">
+              <div class="agg-name">Pechuga de Pollo</div>
+              <div class="agg-pills">
+                <span class="agg-pill">Santa Isabel</span>
+                <span class="agg-pill">4 compras</span>
+                <span class="agg-pill">$5.990 avg</span>
+              </div>
+            </div>
+            <div class="agg-right">
+              <span class="agg-total">$23.960</span>
+              <span class="agg-total-label">total</span>
+            </div>
+          </div>
+
+        </div><!-- /aggregated-content -->
+
+        <!-- ===================================================
+             DUPLICATES VARIANT (flat list with color strips)
+             =================================================== -->
+        <div class="duplicates-content">
+
+          <!-- Item 1: LUBRICANTE ANTICORROSIVO WD-... -->
+          <div class="flat-item-card">
+            <div class="flat-color-strip" style="background: var(--cat-hogar)"></div>
+            <div class="flat-body">
+              <div class="flat-name-row">
+                <span class="flat-name" style="color: var(--cat-hogar)">LUBRICANTE ANTICORROSIVO WD-...</span>
+                <span class="flat-amount">$9.920</span>
+              </div>
+              <div class="flat-pills">
+                <div class="flat-store-emoji" style="background: rgba(13, 148, 136, 0.12)">&#x1F3E0;</div>
+                <span class="flat-pill">DOBLER CONST...</span>
+                <span class="flat-pill">17/03/2026</span>
+                <span class="flat-receipt-badge">&#x2460; 1</span>
+              </div>
+              <div class="flat-avg-row">Promedio: $9.920</div>
+            </div>
+          </div>
+
+          <!-- Item 2: Veterinary Services -->
+          <div class="flat-item-card">
+            <div class="flat-color-strip" style="background: var(--cat-mascotas)"></div>
+            <div class="flat-body">
+              <div class="flat-name-row">
+                <span class="flat-name" style="color: var(--cat-mascotas)">VETERINARY SERVICES</span>
+                <span class="flat-amount">$40.000</span>
+              </div>
+              <div class="flat-pills">
+                <div class="flat-store-emoji" style="background: rgba(217, 119, 6, 0.12)">&#x1F43E;</div>
+                <span class="flat-pill">Sociedad servic...</span>
+                <span class="flat-pill">16/03/2026</span>
+                <span class="flat-receipt-badge">&#x2460; 1</span>
+              </div>
+              <div class="flat-avg-row">Promedio: $40.000 <span class="subcat">&#x2022; Veterinary Consultation</span></div>
+            </div>
+          </div>
+
+          <!-- Item 3: PRED FTE.SOL.OFT.5ML -->
+          <div class="flat-item-card">
+            <div class="flat-color-strip" style="background: var(--cat-farmacia)"></div>
+            <div class="flat-body">
+              <div class="flat-name-row">
+                <span class="flat-name" style="color: var(--cat-farmacia)">PRED FTE.SOL.OFT.5ML.</span>
+                <span class="flat-amount">$28.832</span>
+              </div>
+              <div class="flat-pills">
+                <div class="flat-store-emoji" style="background: rgba(220, 38, 38, 0.12)">&#x1F48A;</div>
+                <span class="flat-pill">FARMACIAS CRU...</span>
+                <span class="flat-pill">16/03/2026</span>
+                <span class="flat-receipt-badge">&#x2460; 1</span>
+              </div>
+              <div class="flat-avg-row">Promedio: $28.832</div>
+            </div>
+          </div>
+
+          <!-- Item 4: VETGASTRIL 50 ml Arm -->
+          <div class="flat-item-card">
+            <div class="flat-color-strip" style="background: var(--cat-mascotas)"></div>
+            <div class="flat-body">
+              <div class="flat-name-row">
+                <span class="flat-name" style="color: var(--cat-mascotas)">VETGASTRIL 50 ML ARM</span>
+                <span class="flat-amount">$16.900</span>
+              </div>
+              <div class="flat-pills">
+                <div class="flat-store-emoji" style="background: rgba(217, 119, 6, 0.12)">&#x1F43E;</div>
+                <span class="flat-pill">VETERINARIA CO...</span>
+                <span class="flat-pill">16/03/2026</span>
+                <span class="flat-receipt-badge">&#x2460; 1</span>
+              </div>
+              <div class="flat-avg-row">Promedio: $16.900</div>
+            </div>
+          </div>
+
+          <!-- Item 5: CLINDABONE 165 MG X COMP -->
+          <div class="flat-item-card">
+            <div class="flat-color-strip" style="background: var(--cat-farmacia)"></div>
+            <div class="flat-body">
+              <div class="flat-name-row">
+                <span class="flat-name" style="color: var(--cat-farmacia)">CLINDABONE 165 MG X COMP</span>
+                <span class="flat-amount">$12.400</span>
+              </div>
+              <div class="flat-pills">
+                <div class="flat-store-emoji" style="background: rgba(220, 38, 38, 0.12)">&#x1F48A;</div>
+                <span class="flat-pill">VETERINARIA AR...</span>
+                <span class="flat-pill">16/03/2026</span>
+                <span class="flat-receipt-badge">&#x2460; 1</span>
+                <span class="flat-qty-badge">x8</span>
+              </div>
+              <div class="flat-avg-row">Promedio: $1.550</div>
+            </div>
+          </div>
+
+          <!-- Item 6: DERMISOLONA 0.4% SUSP. 30cc -->
+          <div class="flat-item-card">
+            <div class="flat-color-strip" style="background: var(--cat-mascotas)"></div>
+            <div class="flat-body">
+              <div class="flat-name-row">
+                <span class="flat-name" style="color: var(--cat-mascotas)">DERMISOLONA 0.4% SUSP. 30CC</span>
+                <span class="flat-amount">$11.500</span>
+              </div>
+              <div class="flat-pills">
+                <div class="flat-store-emoji" style="background: rgba(217, 119, 6, 0.12)">&#x1F43E;</div>
+                <span class="flat-pill">VETERINARIA CO...</span>
+                <span class="flat-pill">16/03/2026</span>
+                <span class="flat-receipt-badge">&#x2460; 1</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Item 7: MANTECA -->
+          <div class="flat-item-card">
+            <div class="flat-color-strip" style="background: var(--cat-farmacia)"></div>
+            <div class="flat-body">
+              <div class="flat-name-row">
+                <span class="flat-name" style="color: var(--cat-farmacia)">MANTECA</span>
+                <span class="flat-amount">$8.000</span>
+              </div>
+              <div class="flat-pills">
+                <div class="flat-store-emoji" style="background: rgba(220, 38, 38, 0.12)">&#x1F969;</div>
+                <span class="flat-pill">FABRICA DE CEC...</span>
+                <span class="flat-pill">12/03/2026</span>
+                <span class="flat-receipt-badge">&#x2460; 1</span>
+                <span class="flat-qty-badge">x4</span>
+              </div>
+              <div class="flat-avg-row">Promedio: $2.000</div>
+            </div>
+          </div>
+
+        </div><!-- /duplicates-content -->
+
+        <!-- ===================================================
+             EMPTY VARIANT
+             =================================================== -->
+        <div class="empty-state empty-content">
+          <div class="empty-icon-area">
+            <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="9" y1="18" x2="15" y2="18"/>
+              <line x1="10" y1="22" x2="14" y2="22"/>
+              <path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/>
+            </svg>
+          </div>
+          <h2 class="empty-heading">Agrega gastos para ver tus productos</h2>
+          <p class="empty-subtitle">Escanea boletas y tus productos apareceran aqui</p>
+        </div>
+
+        <!-- ===================================================
+             SEARCH VARIANT
+             =================================================== -->
+        <div class="search-content">
+          <div class="search-results-label">2 resultados para "leche"</div>
+
+          <div class="agg-item-card">
+            <div class="agg-cat-circle" style="background: rgba(var(--primary-rgb), 0.12)">
+              &#x1F95B;
+            </div>
+            <div class="agg-body">
+              <div class="agg-name">Leche Entera 1L</div>
+              <div class="agg-pills">
+                <span class="agg-pill">Lider</span>
+                <span class="agg-pill">12 compras</span>
+                <span class="agg-pill">$2.390 avg</span>
+              </div>
+            </div>
+            <div class="agg-right">
+              <span class="agg-total">$28.680</span>
+              <span class="agg-total-label">total</span>
+            </div>
+          </div>
+
+          <div class="agg-item-card">
+            <div class="agg-cat-circle" style="background: rgba(var(--primary-rgb), 0.12)">
+              &#x1F95B;
+            </div>
+            <div class="agg-body">
+              <div class="agg-name">Leche Descremada 1L</div>
+              <div class="agg-pills">
+                <span class="agg-pill">Jumbo</span>
+                <span class="agg-pill">6 compras</span>
+                <span class="agg-pill">$2.190 avg</span>
+              </div>
+            </div>
+            <div class="agg-right">
+              <span class="agg-total">$13.140</span>
+              <span class="agg-total-label">total</span>
+            </div>
+          </div>
+        </div><!-- /search-content -->
+
+        <!-- Pagination -->
+        <div class="pagination">
+          <span class="page-info">Pagina 1 de 3</span>
+          <div class="page-size-select">
+            <button class="page-size-btn active">10</button>
+            <button class="page-size-btn">25</button>
+            <button class="page-size-btn">50</button>
+          </div>
+          <div class="page-nav-btns">
+            <button class="page-nav-btn" disabled>&#x2039; Anterior</button>
+            <button class="page-nav-btn">Siguiente &#x203A;</button>
+          </div>
+        </div>
+
+      </div><!-- /scroll-content -->
+
+
+      <!-- === LOADING SKELETON === -->
+      <div class="skeleton-state">
+        <!-- Skeleton Product Card 1 -->
+        <div class="skel-card">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+            <div class="skel" style="width:44px;height:44px;border-radius:10px;flex-shrink:0"></div>
+            <div style="flex:1;display:flex;flex-direction:column;gap:6px">
+              <div class="skel" style="width:65%;height:14px;border-radius:4px"></div>
+              <div class="skel" style="width:40%;height:11px;border-radius:4px"></div>
+            </div>
+            <div class="skel" style="width:52px;height:14px;border-radius:4px;flex-shrink:0"></div>
+          </div>
+        </div>
+        <!-- Skeleton Product Card 2 -->
+        <div class="skel-card">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+            <div class="skel" style="width:44px;height:44px;border-radius:10px;flex-shrink:0"></div>
+            <div style="flex:1;display:flex;flex-direction:column;gap:6px">
+              <div class="skel" style="width:55%;height:14px;border-radius:4px"></div>
+              <div class="skel" style="width:35%;height:11px;border-radius:4px"></div>
+            </div>
+            <div class="skel" style="width:48px;height:14px;border-radius:4px;flex-shrink:0"></div>
+          </div>
+        </div>
+        <!-- Skeleton Product Card 3 -->
+        <div class="skel-card">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+            <div class="skel" style="width:44px;height:44px;border-radius:10px;flex-shrink:0"></div>
+            <div style="flex:1;display:flex;flex-direction:column;gap:6px">
+              <div class="skel" style="width:70%;height:14px;border-radius:4px"></div>
+              <div class="skel" style="width:45%;height:11px;border-radius:4px"></div>
+            </div>
+            <div class="skel" style="width:56px;height:14px;border-radius:4px;flex-shrink:0"></div>
+          </div>
+        </div>
+        <!-- Skeleton Product Card 4 -->
+        <div class="skel-card">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+            <div class="skel" style="width:44px;height:44px;border-radius:10px;flex-shrink:0"></div>
+            <div style="flex:1;display:flex;flex-direction:column;gap:6px">
+              <div class="skel" style="width:50%;height:14px;border-radius:4px"></div>
+              <div class="skel" style="width:30%;height:11px;border-radius:4px"></div>
+            </div>
+            <div class="skel" style="width:44px;height:14px;border-radius:4px;flex-shrink:0"></div>
+          </div>
+        </div>
+        <!-- Skeleton Product Card 5 -->
+        <div class="skel-card">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+            <div class="skel" style="width:44px;height:44px;border-radius:10px;flex-shrink:0"></div>
+            <div style="flex:1;display:flex;flex-direction:column;gap:6px">
+              <div class="skel" style="width:60%;height:14px;border-radius:4px"></div>
+              <div class="skel" style="width:38%;height:11px;border-radius:4px"></div>
+            </div>
+            <div class="skel" style="width:50px;height:14px;border-radius:4px;flex-shrink:0"></div>
+          </div>
+        </div>
+        <!-- Skeleton Product Card 6 -->
+        <div class="skel-card">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+            <div class="skel" style="width:44px;height:44px;border-radius:10px;flex-shrink:0"></div>
+            <div style="flex:1;display:flex;flex-direction:column;gap:6px">
+              <div class="skel" style="width:58%;height:14px;border-radius:4px"></div>
+              <div class="skel" style="width:42%;height:11px;border-radius:4px"></div>
+            </div>
+            <div class="skel" style="width:46px;height:14px;border-radius:4px;flex-shrink:0"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Navigation (no tab active -- Items accessed via menu) -->
+            <div class="bottom-nav">
+        <!-- Inicio -->
+        <div class="nav-item">
+          <div class="nav-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+              <polyline points="9 22 9 12 15 12 15 22"/>
+            </svg>
+          </div>
+          <span class="nav-label">Inicio</span>
+        </div>
+        <!-- Compras -->
+        <div class="nav-item active">
+          <div class="nav-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="16" y1="13" x2="8" y2="13"/>
+              <line x1="16" y1="17" x2="8" y2="17"/>
+            </svg>
+          </div>
+          <span class="nav-label">Compras</span>
+        </div>
+        <!-- Escanear -->
+        <div class="nav-item">
+          <div class="nav-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+              <circle cx="12" cy="13" r="4"/>
+            </svg>
+          </div>
+          <span class="nav-label">Escanear</span>
+        </div>
+        <!-- Gastos -->
+        <div class="nav-item">
+          <div class="nav-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="20" x2="18" y2="10"/>
+              <line x1="12" y1="20" x2="12" y2="4"/>
+              <line x1="6" y1="20" x2="6" y2="14"/>
+            </svg>
+          </div>
+          <span class="nav-label">Gastos</span>
+        </div>
+        <!-- Perfil -->
+        <div class="nav-item">
+          <div class="nav-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+          </div>
+          <span class="nav-label">Perfil</span>
+        </div>
+      </div>
+<!-- Home Indicator -->
+      <div class="home-indicator"></div>
+
+    </div><!-- /phone-screen -->
+  </div><!-- /phone-frame -->
+
+  <!-- ========================================
+       JAVASCRIPT -- Theme / Mode / Variant
+       ======================================== -->
+  <script>
+    (function() {
+      var body = document.body;
+      var themeTabs = document.querySelectorAll('.theme-tab');
+      var modeToggle = document.getElementById('modeToggle');
+      var variantTabs = document.querySelectorAll('.variant-tab');
+
+      var currentTheme = 'normal';
+      var currentMode = 'light';
+
+      function applyTheme() {
+        body.setAttribute('data-theme', currentTheme);
+        body.setAttribute('data-mode', currentMode);
+      }
+
+      // Theme tabs
+      themeTabs.forEach(function(tab) {
+        tab.addEventListener('click', function() {
+          themeTabs.forEach(function(t) { t.classList.remove('active'); });
+          tab.classList.add('active');
+          currentTheme = tab.dataset.themeVal;
+          applyTheme();
+        });
+      });
+
+      // Mode toggle
+      modeToggle.addEventListener('click', function() {
+        currentMode = currentMode === 'light' ? 'dark' : 'light';
+        modeToggle.classList.toggle('dark', currentMode === 'dark');
+        applyTheme();
+      });
+
+      // Variant tabs
+      variantTabs.forEach(function(tab) {
+        tab.addEventListener('click', function() {
+          variantTabs.forEach(function(t) { t.classList.remove('active'); });
+          tab.classList.add('active');
+          body.classList.remove('variant-aggregated', 'variant-duplicates', 'variant-empty', 'variant-search', 'variant-loading');
+          var variant = tab.dataset.variant;
+          body.classList.add('variant-' + variant);
+        });
+      });
+
+      // Initial state
+      body.classList.add('variant-aggregated');
+      applyTheme();
+    })();
+  </script>
+</body>
+</html>

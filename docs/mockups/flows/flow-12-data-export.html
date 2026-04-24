@@ -1,0 +1,1819 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gastify — Flujo 12: Exportar Datos</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #1a1a2e;
+    --bg-lighter: #22224a;
+    --surface: #2a2a4a;
+    --border: #3a3a6a;
+    --text: #e8e8f0;
+    --muted: #8888aa;
+    --primary: #4a7c59;
+    --primary-dim: #1a3a24;
+    --primary-border: #5a9c6a;
+    --accent: #e8a87c;
+    --accent-dim: #4a3020;
+    --accent-border: #d4956a;
+    --secondary: #5b8fa8;
+    --secondary-dim: #1e3a4a;
+    --secondary-border: #4a7a96;
+    --green: #34d399;
+    --green-dim: #064e3b;
+    --green-border: #10b981;
+    --amber: #fbbf24;
+    --amber-dim: #78350f;
+    --amber-border: #f59e0b;
+    --blue: #60a5fa;
+    --blue-dim: #1e3a5f;
+    --blue-border: #3b82f6;
+    --purple: #a78bfa;
+    --purple-dim: #3b1f7a;
+    --purple-border: #8b5cf6;
+    --red: #f87171;
+    --red-dim: #5b1a1a;
+    --red-border: #ef4444;
+    --gold: #fde68a;
+    --gold-dim: #4a3f1a;
+    --gold-border: #fbbf24;
+    /* Entry-point accents */
+    --pink: #f472b6;
+    --pink-dim: #4a1a3a;
+    --pink-border: #ec4899;
+  }
+
+  body {
+    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background:
+      radial-gradient(ellipse at 20% 20%, rgba(74, 124, 89, 0.08) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 60%, rgba(232, 168, 124, 0.06) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 90%, rgba(91, 143, 168, 0.05) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 20px 100px;
+  }
+
+  /* -- Brand Header -- */
+  .brand-header {
+    text-align: center;
+    margin-bottom: 12px;
+  }
+  .brand-name {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--primary);
+    opacity: 0.7;
+  }
+
+  /* -- Flow Header -- */
+  .flow-header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+  .flow-header h1 {
+    font-size: 32px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin-bottom: 12px;
+    line-height: 1.2;
+    background: linear-gradient(135deg, var(--primary-border), var(--accent), var(--secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .flow-header .subtitle {
+    font-size: 15px;
+    font-weight: 400;
+    color: var(--muted);
+    line-height: 1.7;
+    max-width: 700px;
+    margin: 0 auto;
+  }
+  .flow-header .subtitle strong {
+    color: var(--text);
+    font-weight: 600;
+  }
+  .flow-header .value-tag {
+    display: inline-block;
+    margin-top: 16px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 6px 18px;
+    border-radius: 20px;
+    background: var(--primary-dim);
+    border: 1px solid var(--primary-border);
+    color: var(--primary-border);
+  }
+  .flow-header .multi-entry-badge {
+    display: inline-block;
+    margin-top: 10px;
+    margin-left: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 6px 18px;
+    border-radius: 20px;
+    background: var(--accent-dim);
+    border: 1px solid var(--accent-border);
+    color: var(--accent);
+  }
+
+  /* -- Nav Reference Bar -- */
+  .nav-ref {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0;
+    margin-bottom: 36px;
+    padding: 10px 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    max-width: 420px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    padding: 6px 16px;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--muted);
+    letter-spacing: 0.03em;
+    position: relative;
+  }
+  .nav-item .nav-icon { font-size: 18px; }
+  .nav-item.active-nav {
+    color: var(--primary-border);
+  }
+  .nav-item.active-nav::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 20px;
+    height: 3px;
+    border-radius: 2px;
+    background: var(--primary-border);
+  }
+  .nav-fab {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary), var(--primary-border));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(74, 124, 89, 0.4);
+    margin: 0 8px;
+    flex-shrink: 0;
+  }
+
+  /* -- Legend -- */
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    justify-content: center;
+    margin-bottom: 36px;
+    padding: 16px 24px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 12px;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--muted);
+  }
+  .legend-swatch {
+    width: 14px;
+    height: 14px;
+    border-radius: 4px;
+    border: 2px solid;
+    flex-shrink: 0;
+  }
+  .legend-swatch.pink { border-color: var(--pink-border); background: var(--pink-dim); }
+  .legend-swatch.green { border-color: var(--green-border); background: var(--green-dim); }
+  .legend-swatch.blue { border-color: var(--blue-border); background: var(--blue-dim); }
+  .legend-swatch.amber { border-color: var(--amber-border); background: var(--amber-dim); }
+  .legend-swatch.red { border-color: var(--red-border); background: var(--red-dim); }
+  .legend-swatch.purple {
+    border-color: var(--purple-border);
+    background: var(--purple-dim);
+    border-radius: 50%;
+    transform: rotate(45deg);
+  }
+
+  /* -- Phase Dividers -- */
+  .phase-divider {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 36px 0 24px;
+    position: relative;
+  }
+  .phase-divider:first-child { margin-top: 0; }
+  .phase-num {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-weight: 700;
+    font-size: 10px;
+    letter-spacing: 0.05em;
+    line-height: 1.2;
+    position: relative;
+    z-index: 2;
+  }
+  .phase-num .num {
+    font-size: 16px;
+    font-weight: 800;
+    line-height: 1;
+  }
+  .phase-num.accent-phase {
+    background: var(--accent-dim);
+    border: 2px solid var(--accent-border);
+    color: var(--accent);
+  }
+  .phase-num.green-phase {
+    background: var(--green-dim);
+    border: 2px solid var(--green-border);
+    color: var(--green);
+  }
+  .phase-info {
+    flex: 1;
+  }
+  .phase-title {
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+  .phase-title.accent-text { color: var(--accent); }
+  .phase-title.green-text { color: var(--green); }
+  .phase-subtitle {
+    font-size: 12px;
+    color: var(--muted);
+    font-weight: 400;
+    margin-top: 2px;
+  }
+  .phase-line {
+    flex: 0;
+    height: 2px;
+    min-width: 40px;
+    flex-grow: 1;
+    border-radius: 1px;
+    opacity: 0.3;
+  }
+  .phase-line.accent-line { background: var(--accent); }
+  .phase-line.green-line { background: var(--green); }
+
+  /* ══════════════════════════════════════ TAB SYSTEM ══════════════════════════════════════ */
+  .tab-bar {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 0;
+    border-bottom: 2px solid var(--border);
+    position: relative;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .tab-btn {
+    flex: 1;
+    min-width: 0;
+    padding: 14px 10px 12px;
+    background: transparent;
+    border: none;
+    border-bottom: 3px solid transparent;
+    font-family: 'Outfit', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    cursor: pointer;
+    transition: color 0.25s, border-color 0.25s, background 0.25s;
+    letter-spacing: 0.02em;
+    text-align: center;
+    border-radius: 10px 10px 0 0;
+    position: relative;
+  }
+  .tab-btn:hover {
+    background: rgba(255,255,255,0.04);
+    color: var(--text);
+  }
+  .tab-btn .tab-icon {
+    display: block;
+    font-size: 20px;
+    margin-bottom: 4px;
+  }
+  .tab-btn .tab-label {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .tab-btn .tab-sub {
+    display: block;
+    font-size: 10px;
+    font-weight: 400;
+    color: var(--muted);
+    margin-top: 2px;
+    opacity: 0.7;
+  }
+  .tab-btn.active {
+    background: rgba(255,255,255,0.05);
+    color: var(--text);
+  }
+  .tab-btn[data-entry="A"].active { border-bottom-color: var(--pink); color: var(--pink); }
+  .tab-btn[data-entry="B"].active { border-bottom-color: var(--green); color: var(--green); }
+  .tab-btn[data-entry="C"].active { border-bottom-color: var(--blue); color: var(--blue); }
+  .tab-btn[data-entry="D"].active { border-bottom-color: var(--amber); color: var(--amber); }
+
+  .tab-panels {
+    position: relative;
+    min-height: 200px;
+  }
+  .tab-panel {
+    display: none;
+    padding-top: 24px;
+    animation: fadeIn 0.35s ease;
+  }
+  .tab-panel.active {
+    display: block;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ══════════════════════════════════════ NODES ══════════════════════════════════════ */
+  .node {
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: 16px;
+    padding: 20px 24px;
+    position: relative;
+    margin-bottom: 0;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .node:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+  }
+  .node-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  .node-step {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    font-size: 12px;
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .node-title {
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.4;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .node-screen {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 2px 8px;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    background: rgba(255,255,255,0.06);
+    color: var(--muted);
+  }
+  .node-state {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 10px;
+    line-height: 1.5;
+    font-weight: 400;
+  }
+  .node-thought {
+    font-size: 12px;
+    font-style: italic;
+    color: #9999bb;
+    padding: 8px 12px;
+    background: rgba(255,255,255,0.03);
+    border-radius: 8px;
+    border-left: 3px solid;
+    line-height: 1.5;
+    font-weight: 400;
+  }
+
+  /* Node color variants */
+  .node.pink-node {
+    border-color: var(--pink-border);
+    background: linear-gradient(135deg, var(--pink-dim), #3a1a30);
+  }
+  .node.pink-node .node-title { color: var(--pink); }
+  .node.pink-node .node-thought { border-left-color: var(--pink); }
+  .node.pink-node .node-step { background: var(--pink); color: #111; }
+
+  .node.green-node {
+    border-color: var(--green-border);
+    background: linear-gradient(135deg, var(--green-dim), #0a3a2a);
+  }
+  .node.green-node .node-title { color: var(--green); }
+  .node.green-node .node-thought { border-left-color: var(--green); }
+  .node.green-node .node-step { background: var(--green); color: #111; }
+
+  .node.blue-node {
+    border-color: var(--blue-border);
+    background: linear-gradient(135deg, var(--blue-dim), #1a2a4a);
+  }
+  .node.blue-node .node-title { color: var(--blue); }
+  .node.blue-node .node-thought { border-left-color: var(--blue); }
+  .node.blue-node .node-step { background: var(--blue); color: #111; }
+
+  .node.amber-node {
+    border-color: var(--amber-border);
+    background: linear-gradient(135deg, var(--amber-dim), #3a2a10);
+  }
+  .node.amber-node .node-title { color: var(--amber); }
+  .node.amber-node .node-thought { border-left-color: var(--amber); }
+  .node.amber-node .node-step { background: var(--amber); color: #111; }
+
+  .node.action-node {
+    border-color: var(--red-border);
+    background: linear-gradient(135deg, var(--red-dim), #3a1a2a);
+  }
+  .node.action-node .node-title { color: var(--red); }
+  .node.action-node .node-thought { border-left-color: var(--red); }
+  .node.action-node .node-step { background: var(--red); color: #111; }
+
+  .node.success-node {
+    border-color: var(--green-border);
+    background: linear-gradient(135deg, var(--green-dim), #0a3a2a);
+  }
+  .node.success-node .node-title { color: var(--green); }
+  .node.success-node .node-thought { border-left-color: var(--green); }
+  .node.success-node .node-step { background: var(--green); color: #111; }
+
+  .node.key-moment-node {
+    border-color: var(--purple-border);
+    border-width: 3px;
+    background: linear-gradient(135deg, var(--purple-dim), #2a1a4a);
+  }
+  .node.key-moment-node .node-title { color: var(--purple); }
+  .node.key-moment-node .node-thought { border-left-color: var(--purple); }
+  .node.key-moment-node .node-step {
+    background: var(--purple);
+    color: #111;
+    width: 28px;
+    height: 28px;
+    transform: rotate(45deg);
+    border-radius: 6px;
+  }
+  .node.key-moment-node .node-step span {
+    display: inline-block;
+    transform: rotate(-45deg);
+  }
+
+  /* -- Callout Badge -- */
+  .callout {
+    position: absolute;
+    top: -10px;
+    right: -8px;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 12px;
+    border-radius: 10px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    z-index: 2;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    white-space: nowrap;
+  }
+  .callout.key-moment { background: var(--purple); color: #fff; }
+  .callout.settings { background: var(--pink); color: #fff; }
+  .callout.history { background: var(--green); color: #111; }
+  .callout.trends { background: var(--blue); color: #fff; }
+  .callout.items { background: var(--amber); color: #111; }
+  .callout.security { background: var(--red); color: #fff; }
+
+  /* -- Connectors -- */
+  .connector {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px 0;
+    position: relative;
+  }
+  .connector-line {
+    width: 3px;
+    height: 32px;
+    border-radius: 2px;
+  }
+  .connector-line.pink { background: var(--pink); }
+  .connector-line.green { background: var(--green); }
+  .connector-line.blue { background: var(--blue); }
+  .connector-line.amber { background: var(--amber); }
+  .connector-line.red { background: var(--red); }
+  .connector-line.neutral { background: var(--border); }
+  .connector-line.grad-pg { background: linear-gradient(to bottom, var(--pink), var(--green)); }
+  .connector-line.grad-gg { background: linear-gradient(to bottom, var(--green), var(--green)); }
+  .connector-line.grad-bg { background: linear-gradient(to bottom, var(--blue), var(--green)); }
+  .connector-line.grad-ag { background: linear-gradient(to bottom, var(--amber), var(--green)); }
+
+  .connector-arrow {
+    width: 0;
+    height: 0;
+    border-left: 7px solid transparent;
+    border-right: 7px solid transparent;
+  }
+  .connector-arrow.pink { border-top: 9px solid var(--pink); }
+  .connector-arrow.green { border-top: 9px solid var(--green); }
+  .connector-arrow.blue { border-top: 9px solid var(--blue); }
+  .connector-arrow.amber { border-top: 9px solid var(--amber); }
+  .connector-arrow.red { border-top: 9px solid var(--red); }
+
+  .connector-label {
+    position: absolute;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 10px;
+    border-radius: 10px;
+    white-space: nowrap;
+  }
+  .connector-label.right { left: calc(50% + 20px); }
+  .connector-label.left { right: calc(50% + 20px); }
+  .connector-label.pink { color: var(--pink); background: var(--pink-dim); }
+  .connector-label.green { color: var(--green); background: var(--green-dim); }
+  .connector-label.blue { color: var(--blue); background: var(--blue-dim); }
+  .connector-label.amber { color: var(--amber); background: var(--amber-dim); }
+
+  /* -- Mini UI (inline mockups) -- */
+  .mini-ui {
+    background: rgba(0,0,0,0.25);
+    border-radius: 12px;
+    padding: 12px;
+    margin: 10px 0;
+  }
+  .mini-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 10px;
+    border-radius: 8px;
+    margin-bottom: 4px;
+    font-size: 12px;
+    font-weight: 500;
+  }
+  .mini-row:last-child { margin-bottom: 0; }
+  .mini-row .mini-label { flex: 1; }
+  .mini-row .mini-value {
+    font-weight: 600;
+    font-size: 11px;
+  }
+
+  .mini-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin-bottom: 6px;
+  }
+  .mini-card:last-child { margin-bottom: 0; }
+
+  .mini-btn {
+    display: block;
+    width: 100%;
+    padding: 9px 12px;
+    border-radius: 10px;
+    border: none;
+    font-family: 'Outfit', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    text-align: center;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: transform 0.15s, opacity 0.15s;
+  }
+  .mini-btn:hover { transform: scale(1.02); }
+  .mini-btn:active { transform: scale(0.98); }
+  .mini-btn.primary-btn { background: var(--primary-border); color: #fff; }
+  .mini-btn.accent-btn { background: var(--accent); color: #111; }
+  .mini-btn.green-btn { background: var(--green); color: #111; }
+  .mini-btn.blue-btn { background: var(--blue); color: #111; }
+  .mini-btn.amber-btn { background: var(--amber); color: #111; }
+  .mini-btn.pink-btn { background: var(--pink); color: #fff; }
+  .mini-btn.muted-btn {
+    background: rgba(255,255,255,0.08);
+    color: var(--muted);
+    font-weight: 500;
+  }
+  .mini-btn-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+  }
+  .mini-btn-row .mini-btn {
+    margin-top: 0;
+    flex: 1;
+  }
+
+  .mini-toast {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .mini-toast.success {
+    background: var(--green-dim);
+    border: 1px solid var(--green-border);
+    color: var(--green);
+  }
+
+  .mini-progress {
+    width: 100%;
+    height: 6px;
+    border-radius: 3px;
+    background: rgba(255,255,255,0.08);
+    overflow: hidden;
+    margin: 8px 0;
+  }
+  .mini-progress-bar {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 1.5s ease;
+  }
+
+  .mini-nav-path {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--muted);
+    padding: 6px 10px;
+    background: rgba(255,255,255,0.03);
+    border-radius: 8px;
+    margin-bottom: 8px;
+  }
+  .mini-nav-path .path-sep {
+    color: var(--border);
+    font-size: 14px;
+  }
+  .mini-nav-path .path-active {
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  .mini-filter-bar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.04);
+    margin-bottom: 8px;
+    font-size: 11px;
+  }
+  .mini-filter-chip {
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 10px;
+    font-weight: 600;
+  }
+  .mini-filter-chip.active {
+    background: var(--primary-border);
+    color: #fff;
+  }
+  .mini-filter-chip.inactive {
+    background: rgba(255,255,255,0.06);
+    color: var(--muted);
+  }
+
+  .mini-export-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px;
+    margin-bottom: 6px;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .mini-export-option:hover {
+    border-color: rgba(255,255,255,0.15);
+    background: rgba(255,255,255,0.06);
+  }
+  .mini-export-option .export-icon {
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+  .mini-export-option .export-info {
+    flex: 1;
+  }
+  .mini-export-option .export-name {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .mini-export-option .export-desc {
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: 1px;
+  }
+
+  /* Hover details */
+  .node-detail-expand {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease, padding 0.3s ease;
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+  .node:hover .node-detail-expand,
+  .node:focus-within .node-detail-expand {
+    max-height: 120px;
+    padding-top: 8px;
+  }
+  .node-detail-expand code {
+    font-size: 11px;
+    background: rgba(255,255,255,0.06);
+    padding: 1px 6px;
+    border-radius: 4px;
+    color: var(--text);
+    font-family: 'Courier New', monospace;
+  }
+
+  /* ══════════════════════════════════════ CONVERGENCE ══════════════════════════════════════ */
+  .convergence-graphic {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 0;
+    padding: 24px 0 0;
+    position: relative;
+  }
+  .convergence-line {
+    flex: 1;
+    height: 3px;
+    max-width: 120px;
+    border-radius: 2px;
+  }
+  .convergence-dot {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--primary-border);
+    border: 3px solid var(--primary-dim);
+    box-shadow: 0 0 16px rgba(74, 124, 89, 0.5);
+    flex-shrink: 0;
+    position: relative;
+    z-index: 2;
+  }
+  .convergence-arrows {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    margin-bottom: 4px;
+  }
+  .conv-arrow-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+  }
+  .conv-arrow-line {
+    width: 3px;
+    height: 20px;
+    border-radius: 2px;
+  }
+  .conv-arrow-head {
+    width: 0;
+    height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+  }
+
+  /* ══════════════════════════════════════ REFERENCE TABLE ══════════════════════════════════════ */
+  .ref-table-section {
+    margin-top: 40px;
+    padding: 28px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+  }
+  .ref-table-title {
+    text-align: center;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    margin-bottom: 20px;
+  }
+  .ref-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+  .ref-table th {
+    text-align: left;
+    padding: 10px 14px;
+    font-weight: 700;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    border-bottom: 2px solid var(--border);
+    white-space: nowrap;
+  }
+  .ref-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    color: var(--text);
+    font-weight: 400;
+    vertical-align: top;
+  }
+  .ref-table tr:last-child td {
+    border-bottom: none;
+  }
+  .ref-table .source-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 10px;
+    border-radius: 8px;
+  }
+  .source-badge.settings { background: var(--pink-dim); color: var(--pink); border: 1px solid rgba(236,72,153,0.3); }
+  .source-badge.history { background: var(--green-dim); color: var(--green); border: 1px solid rgba(16,185,129,0.3); }
+  .source-badge.trends { background: var(--blue-dim); color: var(--blue); border: 1px solid rgba(59,130,246,0.3); }
+  .source-badge.items { background: var(--amber-dim); color: var(--amber); border: 1px solid rgba(245,158,11,0.3); }
+
+  /* ══════════════════════════════════════ SECURITY NOTE ══════════════════════════════════════ */
+  .security-note {
+    margin-top: 20px;
+    padding: 16px 20px;
+    background: var(--red-dim);
+    border: 1px solid var(--red-border);
+    border-radius: 12px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .security-note .sec-icon {
+    font-size: 20px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .security-note .sec-content {
+    flex: 1;
+  }
+  .security-note .sec-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--red);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 4px;
+  }
+  .security-note .sec-desc {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+  .security-note .sec-desc code {
+    font-size: 11px;
+    background: rgba(255,255,255,0.06);
+    padding: 1px 6px;
+    border-radius: 4px;
+    color: var(--text);
+    font-family: 'Courier New', monospace;
+  }
+
+  /* ══════════════════════════════════════ SUMMARY ══════════════════════════════════════ */
+  .summary-bar {
+    margin-top: 24px;
+    padding: 28px;
+    background: var(--surface);
+    border-radius: 16px;
+    border: 1px solid var(--border);
+  }
+  .summary-title {
+    text-align: center;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    margin-bottom: 20px;
+  }
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 16px;
+    text-align: center;
+  }
+  .summary-num {
+    font-size: 30px;
+    font-weight: 800;
+  }
+  .summary-label {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  /* ══════════════════════════════════════ RESPONSIVE ══════════════════════════════════════ */
+  @media (max-width: 640px) {
+    .flow-header h1 { font-size: 24px; }
+    .node { padding: 16px 18px; }
+    .tab-btn { padding: 10px 6px; }
+    .tab-btn .tab-icon { font-size: 16px; }
+    .tab-btn .tab-label { font-size: 9px; }
+    .tab-btn .tab-sub { font-size: 8px; }
+    .nav-ref { max-width: 340px; }
+    .nav-item { padding: 6px 10px; font-size: 9px; }
+    .ref-table { font-size: 10px; }
+    .ref-table th, .ref-table td { padding: 8px 8px; }
+    .summary-grid { grid-template-columns: repeat(2, 1fr); }
+    .convergence-line { max-width: 60px; }
+  }
+
+  /* -- Entrance animation -- */
+  .node, .phase-divider, .connector, .tab-bar, .convergence-graphic {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  .node.visible, .phase-divider.visible, .connector.visible,
+  .tab-bar.visible, .convergence-graphic.visible {
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- Brand Header -->
+  <div class="brand-header">
+    <div class="brand-name">Gastify</div>
+  </div>
+
+  <!-- Flow Header -->
+  <header class="flow-header">
+    <h1>Flujo 12: Exportar Datos</h1>
+    <p class="subtitle">
+      Todas las formas en que el usuario puede <strong>exportar sus datos</strong> desde la app.
+      Un flujo <strong>multi-entrada</strong> &mdash; 4 puntos de inicio diferentes que convergen
+      en un resultado comun: el control total sobre los datos personales.
+    </p>
+    <span class="value-tag">Data Ownership &mdash; "Tus datos, tu control"</span>
+    <span class="multi-entry-badge">4 Puntos de Entrada</span>
+  </header>
+
+  <!-- Nav Reference Bar -->
+  <div class="nav-ref">
+        <div class="nav-item" data-nav="home">Home</div>
+        <div class="nav-item" data-nav="trends">Trends</div>
+        <div class="nav-item fab" data-nav="fab">FAB Scan</div>
+        <div class="nav-item" data-nav="reports">Reports</div>
+        <div class="nav-item" data-nav="alerts">Alerts</div>
+      </div>
+
+  <!-- Legend -->
+  <div class="legend">
+    <div class="legend-item"><div class="legend-swatch pink"></div> Settings (Entrada A)</div>
+    <div class="legend-item"><div class="legend-swatch green"></div> History (Entrada B)</div>
+    <div class="legend-item"><div class="legend-swatch blue"></div> Trends (Entrada C)</div>
+    <div class="legend-item"><div class="legend-swatch amber"></div> Items (Entrada D)</div>
+    <div class="legend-item"><div class="legend-swatch purple"></div> Momento clave</div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <!-- PHASE 1: Entry Points                                              -->
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+
+  <div class="phase-divider" id="phase1">
+    <div class="phase-num accent-phase">
+      <span>Fase</span>
+      <span class="num">1</span>
+    </div>
+    <div class="phase-info">
+      <div class="phase-title accent-text">4 Puntos de Entrada</div>
+      <div class="phase-subtitle">Cada vista de la app ofrece exportacion contextual</div>
+    </div>
+    <div class="phase-line accent-line"></div>
+  </div>
+
+  <!-- TAB SYSTEM for 4 entries -->
+  <div class="tab-bar" id="entryTabs">
+    <button class="tab-btn active" data-entry="A" data-panel="panelA">
+      <span class="tab-icon">&#x2699;&#xFE0F;</span>
+      <span class="tab-label">A: Settings</span>
+      <span class="tab-sub">Export completo</span>
+    </button>
+    <button class="tab-btn" data-entry="B" data-panel="panelB">
+      <span class="tab-icon">&#x1F4C5;</span>
+      <span class="tab-label">B: History</span>
+      <span class="tab-sub">Filtrado temporal</span>
+    </button>
+    <button class="tab-btn" data-entry="C" data-panel="panelC">
+      <span class="tab-icon">&#x1F4CA;</span>
+      <span class="tab-label">C: Trends</span>
+      <span class="tab-sub">Analytics</span>
+    </button>
+    <button class="tab-btn" data-entry="D" data-panel="panelD">
+      <span class="tab-icon">&#x1F6D2;</span>
+      <span class="tab-label">D: Items</span>
+      <span class="tab-sub">Catalogo mensual</span>
+    </button>
+  </div>
+
+  <div class="tab-panels">
+
+    <!-- ═══════════════════════ PANEL A: Full Export (Settings) ═══════════════════════ -->
+    <div class="tab-panel active" id="panelA">
+
+      <!-- Step 1a -->
+      <div class="node pink-node" tabindex="0">
+        <span class="callout settings">Settings</span>
+        <div class="node-screen">Settings &rarr; Cuenta</div>
+        <div class="node-header">
+          <div class="node-step"><span>1a</span></div>
+          <div class="node-title">
+            <span>&#x2699;&#xFE0F;</span> Settings &rarr; Cuenta
+          </div>
+        </div>
+        <div class="node-state">
+          El usuario navega: Profile Dropdown &rarr; Settings &rarr; seccion "Cuenta".
+          Visible el boton "Exportar todos mis datos".
+        </div>
+        <div class="mini-ui">
+          <div class="mini-nav-path">
+            <span>&#x1F464;</span>
+            <span class="path-sep">&#x203A;</span>
+            <span>Settings</span>
+            <span class="path-sep">&#x203A;</span>
+            <span class="path-active">Cuenta</span>
+          </div>
+          <div class="mini-card">
+            <div style="font-size:12px; font-weight:600; color:var(--text); margin-bottom:8px;">
+              &#x1F4E6; Mis Datos
+            </div>
+            <div style="font-size:11px; color:var(--muted); margin-bottom:8px; line-height:1.5;">
+              Exporta todas tus transacciones, items y categorias en formato CSV.
+              Incluye todo tu historial completo.
+            </div>
+            <button class="mini-btn pink-btn" style="margin-top:4px;">
+              &#x1F4E5; Exportar todos mis datos
+            </button>
+          </div>
+        </div>
+        <div class="node-thought" style="border-left-color: var(--pink);">
+          "Quiero un respaldo de todo."
+        </div>
+        <div class="node-detail-expand">
+          Navegacion: <code>ProfileDropdown &rarr; SettingsView &rarr; CuentaSection</code>.
+          Boton siempre visible, sin filtros.
+        </div>
+      </div>
+
+      <div class="connector">
+        <div style="display:flex;flex-direction:column;align-items:center;">
+          <div class="connector-line pink"></div>
+          <div class="connector-arrow pink"></div>
+        </div>
+        <span class="connector-label right pink">Toca "Exportar"</span>
+      </div>
+
+      <!-- Step 2a -->
+      <div class="node action-node" tabindex="0">
+        <div class="node-screen">Export All Data</div>
+        <div class="node-header">
+          <div class="node-step"><span>2a</span></div>
+          <div class="node-title">
+            <span>&#x1F4E5;</span> Exportar todos los datos
+          </div>
+        </div>
+        <div class="node-state">
+          Descarga CSV completa de TODAS las transacciones, items, y categorias.
+          Barra de progreso muestra el estado de la exportacion.
+        </div>
+        <div class="mini-ui">
+          <div style="text-align:center; padding: 8px 0;">
+            <div style="font-size:28px; margin-bottom:8px;">&#x1F4E5;</div>
+            <div style="font-size:12px; font-weight:600; color:var(--text);">Exportando datos completos...</div>
+            <div style="font-size:10px; color:var(--muted); margin-top:4px;">1,247 transacciones &middot; 4,832 items</div>
+          </div>
+          <div class="mini-progress">
+            <div class="mini-progress-bar" style="width: 85%; background: linear-gradient(90deg, var(--pink), var(--accent));" data-target="100"></div>
+          </div>
+          <div style="text-align:center; font-size:10px; color:var(--muted); margin-top:4px;">
+            gastify-export-completo-2026-03-19.csv
+          </div>
+        </div>
+        <div class="node-thought" style="border-left-color: var(--red);">
+          "Listo, tengo todo respaldado."
+        </div>
+        <div class="node-detail-expand">
+          Archivo: <code>gastify-export-completo-YYYY-MM-DD.csv</code>.
+          Incluye: fecha, comercio, categoria, items, montos, tipo, notas.
+        </div>
+      </div>
+
+      <div class="connector">
+        <div style="display:flex;flex-direction:column;align-items:center;">
+          <div class="connector-line grad-pg"></div>
+          <div class="connector-arrow green"></div>
+        </div>
+      </div>
+
+      <!-- Key moment: data ownership -->
+      <div class="node key-moment-node" tabindex="0">
+        <span class="callout key-moment">Momento clave</span>
+        <div class="node-header">
+          <div class="node-step"><span>&#x2B50;</span></div>
+          <div class="node-title">
+            <span>&#x1F512;</span> Data Ownership
+          </div>
+        </div>
+        <div class="node-state">
+          El usuario controla sus datos. Sin lock-in, sin restricciones.
+          CSV estandar que funciona en Excel, Google Sheets, o cualquier herramienta.
+        </div>
+        <div class="node-thought" style="border-left-color: var(--purple);">
+          "Mis datos son mios. Puedo llevarlos donde quiera."
+        </div>
+      </div>
+
+    </div><!-- /panelA -->
+
+    <!-- ═══════════════════════ PANEL B: History Export ═══════════════════════ -->
+    <div class="tab-panel" id="panelB">
+
+      <!-- Step 1b -->
+      <div class="node green-node" tabindex="0">
+        <span class="callout history">History</span>
+        <div class="node-screen">History View</div>
+        <div class="node-header">
+          <div class="node-step"><span>1b</span></div>
+          <div class="node-title">
+            <span>&#x1F4C5;</span> History View &mdash; filtrado por mes
+          </div>
+        </div>
+        <div class="node-state">
+          El usuario tiene un filtro temporal activo: "Marzo 2026".
+          Boton de export visible en el header (icono CSV).
+        </div>
+        <div class="mini-ui">
+          <div class="mini-filter-bar">
+            <span style="font-size:14px;">&#x1F4C5;</span>
+            <span class="mini-filter-chip inactive">2025</span>
+            <span class="mini-filter-chip inactive">Febrero</span>
+            <span class="mini-filter-chip active">Marzo</span>
+            <span style="margin-left:auto; font-size:14px; cursor:pointer;" title="Exportar CSV">&#x1F4E5;</span>
+          </div>
+          <div class="mini-card">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+              <span style="font-size:12px; font-weight:600;">Lider Express</span>
+              <span style="font-size:12px; font-weight:700; color:var(--text);">-$12.450</span>
+            </div>
+            <div style="font-size:10px; color:var(--muted);">15 Mar &middot; Alimentacion</div>
+          </div>
+          <div class="mini-card">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+              <span style="font-size:12px; font-weight:600;">Cafe Haiti</span>
+              <span style="font-size:12px; font-weight:700; color:var(--text);">-$3.200</span>
+            </div>
+            <div style="font-size:10px; color:var(--muted);">14 Mar &middot; Entretenimiento</div>
+          </div>
+          <div style="text-align:center; font-size:10px; color:var(--muted); margin-top:6px;">
+            23 transacciones en Marzo 2026
+          </div>
+        </div>
+        <div class="node-thought" style="border-left-color: var(--green);">
+          "Quiero exportar solo marzo."
+        </div>
+        <div class="node-detail-expand">
+          Filtro temporal determina el alcance del export:
+          <code>year</code> &rarr; annual CSV, <code>month</code> &rarr; monthly CSV, <code>week</code> &rarr; weekly CSV.
+        </div>
+      </div>
+
+      <div class="connector">
+        <div style="display:flex;flex-direction:column;align-items:center;">
+          <div class="connector-line green"></div>
+          <div class="connector-arrow green"></div>
+        </div>
+        <span class="connector-label right green">Toca icono CSV</span>
+      </div>
+
+      <!-- Step 2b -->
+      <div class="node action-node" tabindex="0">
+        <div class="node-screen">Filtered Export</div>
+        <div class="node-header">
+          <div class="node-step"><span>2b</span></div>
+          <div class="node-title">
+            <span>&#x1F4CB;</span> Export segun filtro temporal
+          </div>
+        </div>
+        <div class="node-state">
+          El tipo de export depende del nivel del filtro temporal activo.
+          CSV incluye: fecha, comercio, categoria, items, montos.
+        </div>
+        <div class="mini-ui">
+          <div style="font-size:11px; font-weight:600; color:var(--muted); margin-bottom:8px; text-transform:uppercase; letter-spacing:0.06em;">
+            Nivel de filtro &rarr; Tipo de export
+          </div>
+          <div class="mini-row" style="background: rgba(52,211,153,0.1); border: 1px solid rgba(52,211,153,0.2);">
+            <span style="font-size:14px;">&#x1F4C6;</span>
+            <span class="mini-label" style="color:var(--green);">Anual &rarr; CSV anual</span>
+            <span class="mini-value" style="color:var(--muted);">gastify-2026.csv</span>
+          </div>
+          <div class="mini-row" style="background: rgba(52,211,153,0.15); border: 1px solid rgba(52,211,153,0.3);">
+            <span style="font-size:14px;">&#x1F5D3;</span>
+            <span class="mini-label" style="color:var(--green); font-weight:700;">Mensual &rarr; CSV mensual</span>
+            <span class="mini-value" style="color:var(--green);">gastify-marzo-2026.csv</span>
+          </div>
+          <div class="mini-row" style="background: rgba(52,211,153,0.1); border: 1px solid rgba(52,211,153,0.2);">
+            <span style="font-size:14px;">&#x1F4C5;</span>
+            <span class="mini-label" style="color:var(--green);">Semanal &rarr; CSV semanal</span>
+            <span class="mini-value" style="color:var(--muted);">gastify-sem11-2026.csv</span>
+          </div>
+        </div>
+        <div class="node-thought" style="border-left-color: var(--red);">
+          "Perfecto, solo los datos que necesito."
+        </div>
+      </div>
+
+    </div><!-- /panelB -->
+
+    <!-- ═══════════════════════ PANEL C: Trends Export ═══════════════════════ -->
+    <div class="tab-panel" id="panelC">
+
+      <!-- Step 1c -->
+      <div class="node blue-node" tabindex="0">
+        <span class="callout trends">Trends</span>
+        <div class="node-screen">Trends View</div>
+        <div class="node-header">
+          <div class="node-step"><span>1c</span></div>
+          <div class="node-title">
+            <span>&#x1F4CA;</span> Trends View &mdash; donut chart, mensual
+          </div>
+        </div>
+        <div class="node-state">
+          El usuario explora datos de gasto con visualizaciones.
+          FAB flotante de descarga visible en la esquina inferior derecha.
+        </div>
+        <div class="mini-ui">
+          <div style="text-align:center; padding: 8px 0;">
+            <!-- Mini donut chart representation -->
+            <div style="position:relative; width:100px; height:100px; margin:0 auto 10px;">
+              <svg width="100" height="100" viewBox="0 0 100 100" style="transform:rotate(-90deg);">
+                <circle cx="50" cy="50" r="38" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="12"/>
+                <circle cx="50" cy="50" r="38" fill="none" stroke="#4a7c59" stroke-width="12"
+                  stroke-dasharray="96 143" stroke-dashoffset="0" stroke-linecap="round"/>
+                <circle cx="50" cy="50" r="38" fill="none" stroke="#e8a87c" stroke-width="12"
+                  stroke-dasharray="60 179" stroke-dashoffset="-96" stroke-linecap="round"/>
+                <circle cx="50" cy="50" r="38" fill="none" stroke="#5b8fa8" stroke-width="12"
+                  stroke-dasharray="48 191" stroke-dashoffset="-156" stroke-linecap="round"/>
+                <circle cx="50" cy="50" r="38" fill="none" stroke="#a78bfa" stroke-width="12"
+                  stroke-dasharray="35 204" stroke-dashoffset="-204" stroke-linecap="round"/>
+              </svg>
+              <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); font-size:14px; font-weight:800; color:var(--text);">
+                $387k
+              </div>
+            </div>
+            <div style="display:flex; justify-content:center; gap:12px; flex-wrap:wrap; font-size:10px;">
+              <span style="color:var(--primary-border);">&#x25CF; Alimentacion 40%</span>
+              <span style="color:var(--accent);">&#x25CF; Transporte 25%</span>
+              <span style="color:var(--secondary);">&#x25CF; Servicios 20%</span>
+              <span style="color:var(--purple);">&#x25CF; Otros 15%</span>
+            </div>
+          </div>
+          <!-- FAB preview -->
+          <div style="display:flex; justify-content:flex-end; margin-top:8px;">
+            <div style="width:40px; height:40px; border-radius:50%; background:linear-gradient(135deg, var(--blue), var(--secondary)); display:flex; align-items:center; justify-content:center; font-size:18px; box-shadow:0 4px 16px rgba(91,143,168,0.4); cursor:pointer;">
+              &#x1F4E5;
+            </div>
+          </div>
+        </div>
+        <div class="node-thought" style="border-left-color: var(--blue);">
+          "Quiero este reporte para mi presupuesto."
+        </div>
+      </div>
+
+      <div class="connector">
+        <div style="display:flex;flex-direction:column;align-items:center;">
+          <div class="connector-line blue"></div>
+          <div class="connector-arrow blue"></div>
+        </div>
+        <span class="connector-label right blue">Toca Download FAB</span>
+      </div>
+
+      <!-- Step 2c -->
+      <div class="node action-node" tabindex="0">
+        <div class="node-screen">Export Options</div>
+        <div class="node-header">
+          <div class="node-step"><span>2c</span></div>
+          <div class="node-title">
+            <span>&#x1F4C4;</span> Opciones de exportacion
+          </div>
+        </div>
+        <div class="node-state">
+          Dos opciones de formato: CSV para datos tabulares o PDF para compartir.
+          Incluye filtros actuales, datos del chart, y desglose por categorias.
+        </div>
+        <div class="mini-ui">
+          <div style="font-size:11px; font-weight:600; color:var(--muted); margin-bottom:8px; text-transform:uppercase; letter-spacing:0.06em;">
+            Selecciona formato
+          </div>
+          <div class="mini-export-option">
+            <span class="export-icon">&#x1F4CB;</span>
+            <div class="export-info">
+              <div class="export-name">CSV &mdash; Datos tabulares</div>
+              <div class="export-desc">Importable en Excel, Google Sheets, etc.</div>
+            </div>
+          </div>
+          <div class="mini-export-option" style="border-color: rgba(96,165,250,0.3);">
+            <span class="export-icon">&#x1F4C4;</span>
+            <div class="export-info">
+              <div class="export-name">PDF &mdash; Reporte visual</div>
+              <div class="export-desc">Con graficos y desglose. Ideal para compartir.</div>
+            </div>
+          </div>
+          <div style="font-size:10px; color:var(--muted); margin-top:8px; padding:0 4px;">
+            Incluye: filtros activos, datos del chart, categorias, totales
+          </div>
+        </div>
+        <div class="node-thought" style="border-left-color: var(--red);">
+          "Lo exporto en PDF para compartir."
+        </div>
+        <div class="node-detail-expand">
+          PDF usa <code>jsPDF</code> o server-side rendering.
+          CSV respeta el mismo formato que History export.
+        </div>
+      </div>
+
+    </div><!-- /panelC -->
+
+    <!-- ═══════════════════════ PANEL D: Items Export ═══════════════════════ -->
+    <div class="tab-panel" id="panelD">
+
+      <!-- Step 1d -->
+      <div class="node amber-node" tabindex="0">
+        <span class="callout items">Items</span>
+        <div class="node-screen">Items View</div>
+        <div class="node-header">
+          <div class="node-step"><span>1d</span></div>
+          <div class="node-title">
+            <span>&#x1F6D2;</span> Items View &mdash; vista mensual
+          </div>
+        </div>
+        <div class="node-state">
+          El usuario revisa su catalogo de productos del mes.
+          Boton CSV export visible (solo en vistas mensuales).
+        </div>
+        <div class="mini-ui">
+          <div class="mini-filter-bar">
+            <span style="font-size:14px;">&#x1F6D2;</span>
+            <span style="font-size:11px; font-weight:600; color:var(--text);">Items &mdash; Marzo 2026</span>
+            <span style="margin-left:auto; font-size:14px; cursor:pointer;" title="Exportar CSV">&#x1F4E5;</span>
+          </div>
+          <div class="mini-card">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <div>
+                <div style="font-size:12px; font-weight:600; color:var(--text);">Leche descremada</div>
+                <div style="font-size:10px; color:var(--muted);">Lider Express &middot; Alimentacion &middot; 2x</div>
+              </div>
+              <span style="font-size:12px; font-weight:700; color:var(--amber);">$1.290</span>
+            </div>
+          </div>
+          <div class="mini-card">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <div>
+                <div style="font-size:12px; font-weight:600; color:var(--text);">Pan molde integral</div>
+                <div style="font-size:10px; color:var(--muted);">Lider Express &middot; Alimentacion &middot; 1x</div>
+              </div>
+              <span style="font-size:12px; font-weight:700; color:var(--amber);">$2.190</span>
+            </div>
+          </div>
+          <div class="mini-card">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <div>
+                <div style="font-size:12px; font-weight:600; color:var(--text);">Bencina 95</div>
+                <div style="font-size:10px; color:var(--muted);">Copec &middot; Transporte &middot; 3x</div>
+              </div>
+              <span style="font-size:12px; font-weight:700; color:var(--amber);">$28.990</span>
+            </div>
+          </div>
+          <div style="text-align:center; font-size:10px; color:var(--muted); margin-top:6px;">
+            47 items en Marzo 2026
+          </div>
+        </div>
+        <div class="node-thought" style="border-left-color: var(--amber);">
+          "Quiero la lista de productos de este mes."
+        </div>
+      </div>
+
+      <div class="connector">
+        <div style="display:flex;flex-direction:column;align-items:center;">
+          <div class="connector-line amber"></div>
+          <div class="connector-arrow amber"></div>
+        </div>
+        <span class="connector-label right amber">Toca CSV Export</span>
+      </div>
+
+      <!-- Step 2d -->
+      <div class="node action-node" tabindex="0">
+        <div class="node-screen">Items CSV Export</div>
+        <div class="node-header">
+          <div class="node-step"><span>2d</span></div>
+          <div class="node-title">
+            <span>&#x1F4CB;</span> Descargar catalogo de items
+          </div>
+        </div>
+        <div class="node-state">
+          Descarga el catalogo de items para el mes seleccionado.
+          Incluye: nombre del item, precio, comercio, categoria, cantidad, fecha.
+        </div>
+        <div class="mini-ui">
+          <div style="text-align:center; padding: 8px 0;">
+            <div style="font-size:28px; margin-bottom:8px;">&#x1F4CB;</div>
+            <div style="font-size:12px; font-weight:600; color:var(--text);">Exportando items...</div>
+          </div>
+          <div class="mini-progress">
+            <div class="mini-progress-bar" style="width: 100%; background: linear-gradient(90deg, var(--amber), var(--accent));" data-target="100"></div>
+          </div>
+          <div style="text-align:center; font-size:10px; color:var(--muted); margin-top:4px;">
+            gastify-items-marzo-2026.csv
+          </div>
+          <div style="margin-top:8px; padding:8px 10px; background:rgba(255,255,255,0.04); border-radius:8px; font-size:10px; color:var(--muted); line-height:1.6;">
+            <strong style="color:var(--text);">Columnas:</strong> item, precio, comercio, categoria, cantidad, fecha
+          </div>
+        </div>
+        <div class="node-thought" style="border-left-color: var(--red);">
+          "Asi puedo comparar precios."
+        </div>
+        <div class="node-detail-expand">
+          Archivo: <code>gastify-items-MMMM-YYYY.csv</code>.
+          Solo disponible en vistas mensuales (no anuales ni semanales).
+        </div>
+      </div>
+
+    </div><!-- /panelD -->
+
+  </div><!-- /tab-panels -->
+
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <!-- CONVERGENCE VISUAL                                                  -->
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+
+  <div class="convergence-graphic" id="convergenceGraphic">
+    <div class="convergence-line" style="background: linear-gradient(90deg, var(--pink), var(--primary-border));"></div>
+    <div class="convergence-line" style="background: linear-gradient(90deg, var(--green), var(--primary-border));"></div>
+    <div class="convergence-dot"></div>
+    <div class="convergence-line" style="background: linear-gradient(90deg, var(--primary-border), var(--blue));"></div>
+    <div class="convergence-line" style="background: linear-gradient(90deg, var(--primary-border), var(--amber));"></div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <!-- PHASE 2: Common Result                                              -->
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+
+  <div class="phase-divider" id="phase2">
+    <div class="phase-num green-phase">
+      <span>Fase</span>
+      <span class="num">2</span>
+    </div>
+    <div class="phase-info">
+      <div class="phase-title green-text">Resultado</div>
+      <div class="phase-subtitle">Todas las rutas convergen en una descarga exitosa</div>
+    </div>
+    <div class="phase-line green-line"></div>
+  </div>
+
+  <!-- Step 3: Export Summary (common) -->
+  <div class="node success-node" tabindex="0">
+    <div class="node-screen">Export Complete</div>
+    <div class="node-header">
+      <div class="node-step"><span>3</span></div>
+      <div class="node-title">
+        <span>&#x2705;</span> Archivo descargado
+      </div>
+    </div>
+    <div class="node-state">
+      Todas las rutas resultan en un archivo descargado.
+      El archivo se guarda en la carpeta de descargas del dispositivo.
+    </div>
+    <div class="mini-ui">
+      <div class="mini-toast success">
+        <span style="font-size:18px;">&#x2705;</span>
+        <span>&iexcl;Exportacion completada!</span>
+      </div>
+      <div style="margin-top:8px; display:flex; gap:6px; flex-wrap:wrap;">
+        <div style="flex:1; min-width:100px; padding:8px 10px; background:rgba(255,255,255,0.04); border-radius:8px; text-align:center;">
+          <div style="font-size:16px; margin-bottom:2px;">&#x1F4C1;</div>
+          <div style="font-size:10px; color:var(--muted);">Guardado en</div>
+          <div style="font-size:11px; font-weight:600; color:var(--text);">Descargas</div>
+        </div>
+        <div style="flex:1; min-width:100px; padding:8px 10px; background:rgba(255,255,255,0.04); border-radius:8px; text-align:center;">
+          <div style="font-size:16px; margin-bottom:2px;">&#x1F4CA;</div>
+          <div style="font-size:10px; color:var(--muted);">Formatos</div>
+          <div style="font-size:11px; font-weight:600; color:var(--text);">CSV / PDF</div>
+        </div>
+        <div style="flex:1; min-width:100px; padding:8px 10px; background:rgba(255,255,255,0.04); border-radius:8px; text-align:center;">
+          <div style="font-size:16px; margin-bottom:2px;">&#x1F512;</div>
+          <div style="font-size:10px; color:var(--muted);">Seguridad</div>
+          <div style="font-size:11px; font-weight:600; color:var(--text);">Sanitizado</div>
+        </div>
+      </div>
+    </div>
+    <div class="node-thought" style="border-left-color: var(--green);">
+      "Tengo mis datos, puedo usarlos donde quiera."
+    </div>
+    <div class="node-detail-expand">
+      Todas las exportaciones pasan por <code>sanitizeCSV()</code> antes de generar el archivo.
+      Se elimina BOM, se sanitizan formulas, y se valida encoding UTF-8.
+    </div>
+  </div>
+
+  <!-- Security note -->
+  <div class="security-note">
+    <span class="sec-icon">&#x1F6E1;&#xFE0F;</span>
+    <div class="sec-content">
+      <div class="sec-title">Seguridad: CSV Injection Prevention</div>
+      <div class="sec-desc">
+        Los exports CSV sanitizan formulas potencialmente peligrosas.
+        Caracteres <code>=</code>, <code>+</code>, <code>-</code>, <code>@</code>
+        al inicio de celdas son prefijados con apostrofe para prevenir inyeccion
+        cuando el archivo se abre en Excel o Google Sheets.
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════ REFERENCE TABLE ═══════════════════════ -->
+
+  <div class="ref-table-section">
+    <div class="ref-table-title">Tipos de Exportacion &mdash; Referencia Rapida</div>
+    <div style="overflow-x:auto;">
+      <table class="ref-table">
+        <thead>
+          <tr>
+            <th>Fuente</th>
+            <th>Nivel de Filtro</th>
+            <th>Formato</th>
+            <th>Contenido</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="source-badge settings">&#x2699;&#xFE0F; Settings</span></td>
+            <td>Todos los datos</td>
+            <td>CSV completo</td>
+            <td>Transacciones, items, categorias &mdash; todo el historial</td>
+          </tr>
+          <tr>
+            <td><span class="source-badge history">&#x1F4C5; History</span></td>
+            <td>Anual / Mensual / Semanal</td>
+            <td>CSV filtrado</td>
+            <td>Transacciones del periodo seleccionado</td>
+          </tr>
+          <tr>
+            <td><span class="source-badge trends">&#x1F4CA; Trends</span></td>
+            <td>Vista actual</td>
+            <td>CSV o PDF</td>
+            <td>Charts, desglose por categorias, totales</td>
+          </tr>
+          <tr>
+            <td><span class="source-badge items">&#x1F6D2; Items</span></td>
+            <td>Mensual</td>
+            <td>Items CSV</td>
+            <td>Catalogo de productos: nombre, precio, comercio, qty</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Summary -->
+  <div class="summary-bar">
+    <div class="summary-title">Resumen del Flujo</div>
+    <div class="summary-grid">
+      <div>
+        <div class="summary-num" style="color:var(--accent);">4</div>
+        <div class="summary-label">Puntos de entrada</div>
+      </div>
+      <div>
+        <div class="summary-num" style="color:var(--green);">2</div>
+        <div class="summary-label">Formatos (CSV + PDF)</div>
+      </div>
+      <div>
+        <div class="summary-num" style="color:var(--blue);">1-2</div>
+        <div class="summary-label">Toques por export</div>
+      </div>
+      <div>
+        <div class="summary-num" style="color:var(--purple);">&#x1F512;</div>
+        <div class="summary-label">CSV sanitizado (anti-injection)</div>
+      </div>
+      <div>
+        <div class="summary-num" style="color:var(--primary-border);">100%</div>
+        <div class="summary-label">Datos del usuario exportables</div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+<script>
+(function() {
+  // ── Tab switching ──
+  var tabBtns = document.querySelectorAll('.tab-btn');
+  var tabPanels = document.querySelectorAll('.tab-panel');
+
+  tabBtns.forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      // Deactivate all
+      tabBtns.forEach(function(b) { b.classList.remove('active'); });
+      tabPanels.forEach(function(p) { p.classList.remove('active'); });
+
+      // Activate clicked
+      btn.classList.add('active');
+      var panelId = btn.getAttribute('data-panel');
+      var panel = document.getElementById(panelId);
+      if (panel) {
+        panel.classList.add('active');
+        // Re-trigger entrance animations for nodes inside the panel
+        var nodes = panel.querySelectorAll('.node, .connector');
+        nodes.forEach(function(n, i) {
+          n.classList.remove('visible');
+          setTimeout(function() { n.classList.add('visible'); }, i * 100);
+        });
+      }
+    });
+  });
+
+  // ── Staggered entrance animation ──
+  var animTargets = document.querySelectorAll('.node, .phase-divider, .connector, .tab-bar, .convergence-graphic');
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        var el = entry.target;
+        var d = parseInt(el.dataset.delay || '0', 10);
+        setTimeout(function() { el.classList.add('visible'); }, d);
+        observer.unobserve(el);
+      }
+    });
+  }, { threshold: 0.12 });
+
+  animTargets.forEach(function(el, i) {
+    el.dataset.delay = String(i * 70);
+    observer.observe(el);
+  });
+
+  // ── Auto-cycle tabs on load (subtle) ──
+  var currentTab = 0;
+  var tabCycleInterval = null;
+
+  function startTabCycle() {
+    tabCycleInterval = setInterval(function() {
+      currentTab = (currentTab + 1) % tabBtns.length;
+      tabBtns[currentTab].click();
+    }, 5000);
+  }
+
+  // Start cycling after 8s, stop on user interaction
+  var cycleTimeout = setTimeout(startTabCycle, 8000);
+
+  tabBtns.forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      clearTimeout(cycleTimeout);
+      if (tabCycleInterval) {
+        clearInterval(tabCycleInterval);
+        tabCycleInterval = null;
+      }
+    });
+  });
+
+  // ── Animate initial panel nodes ──
+  var initialPanel = document.getElementById('panelA');
+  if (initialPanel) {
+    var initialNodes = initialPanel.querySelectorAll('.node, .connector');
+    initialNodes.forEach(function(n, i) {
+      setTimeout(function() { n.classList.add('visible'); }, 400 + i * 120);
+    });
+  }
+
+  // ── Progress bar animation ──
+  var progressBars = document.querySelectorAll('.mini-progress-bar');
+  var progressObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        var bar = entry.target;
+        var target = bar.getAttribute('data-target');
+        if (target) {
+          bar.style.width = '0%';
+          requestAnimationFrame(function() {
+            requestAnimationFrame(function() {
+              bar.style.width = target + '%';
+            });
+          });
+        }
+        progressObserver.unobserve(bar);
+      }
+    });
+  }, { threshold: 0.3 });
+
+  progressBars.forEach(function(bar) { progressObserver.observe(bar); });
+
+  // ── Keyboard navigation for tabs ──
+  var tabContainer = document.getElementById('entryTabs');
+  if (tabContainer) {
+    tabContainer.addEventListener('keydown', function(e) {
+      var tabs = Array.from(tabBtns);
+      var activeIdx = tabs.findIndex(function(t) { return t.classList.contains('active'); });
+
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+        e.preventDefault();
+        var next = (activeIdx + 1) % tabs.length;
+        tabs[next].click();
+        tabs[next].focus();
+      } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        var prev = (activeIdx - 1 + tabs.length) % tabs.length;
+        tabs[prev].click();
+        tabs[prev].focus();
+      }
+    });
+  }
+})();
+</script>
+
+</body>
+</html>

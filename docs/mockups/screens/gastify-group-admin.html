@@ -1,0 +1,1495 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Group Admin — Gastify (Production Design System)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Baloo+2:wght@700&display=swap" rel="stylesheet">
+  <style>
+    /* ══════════════════════════════════════════
+       GASTIFY — PRODUCTION DESIGN SYSTEM
+       Themes: Normal / Professional / Mono
+       Modes: Light / Dark
+       ══════════════════════════════════════════ */
+
+    /* ── Normal Light (default) ── */
+    :root {
+      --bg: #f5f0e8;
+      --surface: #fff;
+      --primary: #4a7c59;
+      --text: #2d3a4a;
+      --secondary: #4a5568;
+      --accent: #e8a87c;
+      --border: #e3bba1;
+      --bg-tertiary: #f1dbb6;
+      --secondary-color: #5b8fa8;
+      --primary-rgb: 74, 124, 89;
+      --shadow: rgba(74, 124, 89, 0.12);
+      --shadow-lg: rgba(74, 124, 89, 0.18);
+      --frame-bg: #1a1a2e;
+      --status-bar-text: #fff;
+      --warning: #f59e0b;
+      --warning-rgb: 245, 158, 11;
+      --error: #ef4444;
+      --error-rgb: 239, 68, 68;
+      --success: #22c55e;
+      --success-rgb: 34, 197, 94;
+      --violet: #8b5cf6;
+      --violet-rgb: 139, 92, 246;
+    }
+
+    /* ── Normal Dark ── */
+    [data-theme="normal"][data-mode="dark"] {
+      --bg: #1a2420;
+      --surface: #243028;
+      --primary: #6b9e7a;
+      --text: #e8e4dc;
+      --secondary: #b8c4a8;
+      --border: #3d4d42;
+      --bg-tertiary: #2d3a30;
+      --secondary-color: #7ab5cc;
+      --primary-rgb: 107, 158, 122;
+      --shadow: rgba(0,0,0,0.3);
+      --shadow-lg: rgba(0,0,0,0.4);
+      --frame-bg: #0a0f0c;
+      --status-bar-text: #e8e4dc;
+      --accent: #d4a574;
+      --warning: #fbbf24;
+      --warning-rgb: 251, 191, 36;
+      --error: #f87171;
+      --error-rgb: 248, 113, 113;
+      --success: #4ade80;
+      --success-rgb: 74, 222, 128;
+      --violet: #a78bfa;
+      --violet-rgb: 167, 139, 250;
+    }
+
+    /* ── Professional Light ── */
+    [data-theme="professional"][data-mode="light"] {
+      --bg: #f8fafc;
+      --surface: #fff;
+      --primary: #2563eb;
+      --text: #0f172a;
+      --secondary: #64748b;
+      --accent: #3b82f6;
+      --border: #e2e8f0;
+      --bg-tertiary: #f1f5f9;
+      --secondary-color: #0ea5e9;
+      --primary-rgb: 37, 99, 235;
+      --shadow: rgba(37, 99, 235, 0.08);
+      --shadow-lg: rgba(37, 99, 235, 0.12);
+      --frame-bg: #1e293b;
+      --status-bar-text: #fff;
+      --warning: #f59e0b;
+      --warning-rgb: 245, 158, 11;
+      --error: #ef4444;
+      --error-rgb: 239, 68, 68;
+      --success: #22c55e;
+      --success-rgb: 34, 197, 94;
+      --violet: #8b5cf6;
+      --violet-rgb: 139, 92, 246;
+    }
+
+    /* ── Professional Dark ── */
+    [data-theme="professional"][data-mode="dark"] {
+      --bg: #0f172a;
+      --surface: #1e293b;
+      --primary: #3b82f6;
+      --text: #f1f5f9;
+      --secondary: #94a3b8;
+      --accent: #60a5fa;
+      --border: #334155;
+      --bg-tertiary: #1e293b;
+      --secondary-color: #38bdf8;
+      --primary-rgb: 59, 130, 246;
+      --shadow: rgba(0,0,0,0.3);
+      --shadow-lg: rgba(0,0,0,0.4);
+      --frame-bg: #020617;
+      --status-bar-text: #f1f5f9;
+      --warning: #fbbf24;
+      --warning-rgb: 251, 191, 36;
+      --error: #f87171;
+      --error-rgb: 248, 113, 113;
+      --success: #4ade80;
+      --success-rgb: 74, 222, 128;
+      --violet: #a78bfa;
+      --violet-rgb: 167, 139, 250;
+    }
+
+    /* ── Mono Light ── */
+    [data-theme="mono"][data-mode="light"] {
+      --bg: #fafafa;
+      --surface: #fff;
+      --primary: #18181b;
+      --text: #18181b;
+      --secondary: #71717a;
+      --accent: #52525b;
+      --border: #e4e4e7;
+      --bg-tertiary: #f4f4f5;
+      --secondary-color: #3f3f46;
+      --primary-rgb: 24, 24, 27;
+      --shadow: rgba(0,0,0,0.06);
+      --shadow-lg: rgba(0,0,0,0.1);
+      --frame-bg: #18181b;
+      --status-bar-text: #fff;
+      --warning: #a1a1aa;
+      --warning-rgb: 113, 113, 122;
+      --error: #52525b;
+      --error-rgb: 82, 82, 91;
+      --success: #3f3f46;
+      --success-rgb: 63, 63, 70;
+      --violet: #71717a;
+      --violet-rgb: 113, 113, 122;
+    }
+
+    /* ── Mono Dark ── */
+    [data-theme="mono"][data-mode="dark"] {
+      --bg: #09090b;
+      --surface: #18181b;
+      --primary: #a1a1aa;
+      --text: #fafafa;
+      --secondary: #a1a1aa;
+      --accent: #71717a;
+      --border: #27272a;
+      --bg-tertiary: #18181b;
+      --secondary-color: #71717a;
+      --primary-rgb: 63, 63, 70;
+      --shadow: rgba(0,0,0,0.4);
+      --shadow-lg: rgba(0,0,0,0.5);
+      --frame-bg: #000;
+      --status-bar-text: #fafafa;
+      --warning: #71717a;
+      --warning-rgb: 113, 113, 122;
+      --error: #a1a1aa;
+      --error-rgb: 161, 161, 170;
+      --success: #71717a;
+      --success-rgb: 113, 113, 122;
+      --violet: #52525b;
+      --violet-rgb: 82, 82, 91;
+    }
+
+    /* ══════════════════════════════════════════
+       BASE STYLES
+       ══════════════════════════════════════════ */
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #1a1a2e;
+      font-family: 'Outfit', 'Segoe UI', system-ui, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      gap: 40px;
+      color: var(--text);
+    }
+
+    /* ══════════════════════════════════════════
+       CONTROLS (outside phone frame)
+       ══════════════════════════════════════════ */
+
+    .controls {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      width: 100%;
+      max-width: 520px;
+    }
+
+    .controls-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .theme-tabs {
+      display: flex;
+      background: rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 4px;
+      gap: 2px;
+    }
+
+    .theme-tab {
+      padding: 8px 20px;
+      border: none;
+      background: transparent;
+      color: rgba(255,255,255,0.5);
+      font-family: 'Outfit', sans-serif;
+      font-weight: 500;
+      font-size: 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .theme-tab:hover {
+      color: rgba(255,255,255,0.8);
+    }
+
+    .theme-tab.active {
+      background: rgba(255,255,255,0.15);
+      color: #fff;
+    }
+
+    .mode-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: rgba(255,255,255,0.7);
+      font-family: 'Outfit', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .toggle-switch {
+      width: 44px;
+      height: 24px;
+      background: rgba(255,255,255,0.15);
+      border-radius: 12px;
+      cursor: pointer;
+      position: relative;
+      transition: background 0.2s;
+    }
+
+    .toggle-switch.dark {
+      background: rgba(255,255,255,0.3);
+    }
+
+    .toggle-switch::after {
+      content: '';
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      background: #fff;
+      border-radius: 50%;
+      top: 3px;
+      left: 3px;
+      transition: transform 0.2s;
+    }
+
+    .toggle-switch.dark::after {
+      transform: translateX(20px);
+    }
+
+    .variant-tabs {
+      display: flex;
+      background: rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 4px;
+      gap: 2px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .variant-tab {
+      padding: 6px 12px;
+      border: none;
+      background: transparent;
+      color: rgba(255,255,255,0.5);
+      font-family: 'Outfit', sans-serif;
+      font-weight: 500;
+      font-size: 12px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .variant-tab:hover {
+      color: rgba(255,255,255,0.8);
+    }
+
+    .variant-tab.active {
+      background: rgba(255,255,255,0.15);
+      color: #fff;
+    }
+
+    /* ══════════════════════════════════════════
+       PHONE FRAME
+       ══════════════════════════════════════════ */
+
+    .phone-frame {
+      width: 360px;
+      height: 860px;
+      background: var(--frame-bg);
+      border-radius: 44px;
+      padding: 12px;
+      position: relative;
+      box-shadow: 0 25px 80px rgba(0,0,0,0.4), inset 0 0 0 2px rgba(255,255,255,0.08);
+    }
+
+    .phone-screen {
+      width: 100%;
+      height: 100%;
+      background: var(--bg);
+      border-radius: 34px;
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Notch ── */
+    .phone-notch {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 150px;
+      height: 28px;
+      background: var(--frame-bg);
+      border-radius: 0 0 20px 20px;
+      z-index: 100;
+    }
+
+    /* ── Status Bar ── */
+    .status-bar {
+      height: 48px;
+      padding: 14px 24px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text);
+      position: relative;
+      z-index: 99;
+      flex-shrink: 0;
+      background: var(--bg);
+    }
+
+    .status-bar-left {
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .status-bar-right {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .status-bar-right svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    /* ── Home Indicator ── */
+    .home-indicator {
+      position: absolute;
+      bottom: 6px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 134px;
+      height: 5px;
+      background: var(--secondary);
+      border-radius: 3px;
+      opacity: 0.3;
+      z-index: 200;
+    }
+
+    /* ══════════════════════════════════════════
+       HEADER BAR (full-screen flow, no bottom nav)
+       ══════════════════════════════════════════ */
+
+    .capture-header {
+      height: 56px;
+      padding: 0 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .header-back-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      border: none;
+      background: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .header-back-btn svg {
+      width: 20px;
+      height: 20px;
+      stroke: var(--text);
+      stroke-width: 2;
+      fill: none;
+    }
+
+    .header-center {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .header-title {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      font-size: 15px;
+      color: var(--text);
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .avatar-circle {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--bg-tertiary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .avatar-circle span {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+      font-size: 12px;
+      color: var(--text);
+      line-height: 1;
+    }
+
+    /* ══════════════════════════════════════════
+       SCROLLABLE CONTENT
+       ══════════════════════════════════════════ */
+
+    .scroll-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px 16px;
+      padding-bottom: 40px;
+    }
+
+    .scroll-content::-webkit-scrollbar {
+      display: none;
+    }
+
+    /* ══════════════════════════════════════════
+       GROUP HEADER CARD
+       ══════════════════════════════════════════ */
+
+    .group-header-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .group-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      background: rgba(var(--success-rgb), 0.12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      flex-shrink: 0;
+    }
+
+    .group-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .group-name {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      font-size: 17px;
+      color: var(--text);
+    }
+
+    .group-meta {
+      font-family: 'Outfit', sans-serif;
+      font-size: 13px;
+      font-weight: 400;
+      color: var(--secondary);
+      margin-top: 2px;
+    }
+
+    .group-color-bar {
+      width: 4px;
+      height: 40px;
+      border-radius: 2px;
+      background: var(--success);
+      flex-shrink: 0;
+    }
+
+    /* ══════════════════════════════════════════
+       MEMBER LIST
+       ══════════════════════════════════════════ */
+
+    .member-list {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      margin-bottom: 20px;
+    }
+
+    .member-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+    }
+
+    .member-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--bg-tertiary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .member-avatar span {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+      font-size: 14px;
+      color: var(--text);
+      line-height: 1;
+    }
+
+    .member-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .member-name-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .member-name {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+      font-size: 14px;
+      color: var(--text);
+    }
+
+    .badge {
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .badge-admin {
+      background: rgba(var(--success-rgb), 0.15);
+      color: var(--success);
+    }
+
+    .badge-member {
+      background: var(--bg-tertiary);
+      color: var(--secondary);
+    }
+
+    .member-tag {
+      font-family: 'Outfit', sans-serif;
+      font-size: 11px;
+      font-weight: 400;
+      color: var(--secondary);
+      margin-top: 2px;
+    }
+
+    .member-menu-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      border: none;
+      background: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      position: relative;
+    }
+
+    .member-menu-btn svg {
+      width: 18px;
+      height: 18px;
+      fill: var(--secondary);
+    }
+
+    /* ── Context Menu ── */
+    .context-menu {
+      display: none;
+      position: absolute;
+      top: 100%;
+      right: 0;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 6px;
+      box-shadow: 0 8px 24px var(--shadow-lg);
+      z-index: 50;
+      min-width: 160px;
+    }
+
+    .context-menu.show {
+      display: block;
+    }
+
+    .context-menu-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: 8px;
+      border: none;
+      background: transparent;
+      width: 100%;
+      cursor: pointer;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 500;
+      font-size: 13px;
+      color: var(--text);
+      transition: background 0.15s;
+    }
+
+    .context-menu-item:hover {
+      background: var(--bg-tertiary);
+    }
+
+    .context-menu-item.danger {
+      color: var(--error);
+    }
+
+    .context-menu-item svg {
+      width: 16px;
+      height: 16px;
+      stroke: currentColor;
+      stroke-width: 2;
+      fill: none;
+      flex-shrink: 0;
+    }
+
+    /* ── Invite Button ── */
+    .invite-btn {
+      width: 100%;
+      padding: 12px 20px;
+      border-radius: 12px;
+      border: 1.5px solid var(--primary);
+      background: transparent;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+      font-size: 14px;
+      color: var(--primary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: background 0.15s, opacity 0.15s;
+      margin-bottom: 14px;
+    }
+
+    .invite-btn:hover {
+      background: rgba(var(--primary-rgb), 0.06);
+    }
+
+    .invite-btn svg {
+      width: 18px;
+      height: 18px;
+      stroke: var(--primary);
+      stroke-width: 2;
+      fill: none;
+    }
+
+    /* ── Limits Note ── */
+    .limits-note {
+      font-family: 'Outfit', sans-serif;
+      font-size: 12px;
+      font-weight: 400;
+      color: var(--secondary);
+      text-align: center;
+      padding: 0 8px;
+    }
+
+    /* ══════════════════════════════════════════
+       SETTINGS FORM
+       ══════════════════════════════════════════ */
+
+    .settings-content {
+      display: none;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-label {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--text);
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1.5px solid var(--border);
+      background: var(--surface);
+      font-family: 'Outfit', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .form-input:focus {
+      border-color: var(--primary);
+    }
+
+    /* ── Icon Picker ── */
+    .icon-picker-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+
+    .icon-picker-item {
+      width: 100%;
+      aspect-ratio: 1;
+      border-radius: 12px;
+      border: 2px solid var(--border);
+      background: var(--surface);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+    }
+
+    .icon-picker-item:hover {
+      border-color: var(--primary);
+      background: rgba(var(--primary-rgb), 0.04);
+    }
+
+    .icon-picker-item.selected {
+      border-color: var(--primary);
+      background: rgba(var(--primary-rgb), 0.1);
+      box-shadow: 0 0 0 2px rgba(var(--primary-rgb), 0.2);
+    }
+
+    /* ── Color Picker ── */
+    .color-picker-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .color-picker-item {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: 3px solid transparent;
+      cursor: pointer;
+      transition: border-color 0.15s, transform 0.1s;
+      position: relative;
+    }
+
+    .color-picker-item:hover {
+      transform: scale(1.1);
+    }
+
+    .color-picker-item.selected {
+      border-color: var(--text);
+    }
+
+    .color-picker-item.selected::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #fff;
+    }
+
+    /* ── Save Button ── */
+    .btn-save {
+      width: 100%;
+      padding: 14px 20px;
+      border-radius: 14px;
+      border: none;
+      background: var(--primary);
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      font-size: 15px;
+      color: #fff;
+      cursor: pointer;
+      transition: opacity 0.15s, transform 0.1s;
+      margin-bottom: 28px;
+    }
+
+    .btn-save:hover {
+      opacity: 0.92;
+    }
+
+    .btn-save:active {
+      transform: scale(0.98);
+    }
+
+    /* ── Danger Zone ── */
+    .danger-divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .danger-divider-line {
+      flex: 1;
+      height: 1px;
+      background: rgba(var(--error-rgb), 0.25);
+    }
+
+    .danger-divider-text {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+      font-size: 11px;
+      color: var(--error);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      white-space: nowrap;
+    }
+
+    .btn-danger-outline {
+      width: 100%;
+      padding: 12px 20px;
+      border-radius: 12px;
+      border: 1.5px solid var(--error);
+      background: transparent;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+      font-size: 14px;
+      color: var(--error);
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .btn-danger-outline:hover {
+      background: rgba(var(--error-rgb), 0.06);
+    }
+
+    /* ══════════════════════════════════════════
+       MODAL OVERLAY
+       ══════════════════════════════════════════ */
+
+    .modal-overlay {
+      display: none;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.55);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      border-radius: 34px;
+    }
+
+    .modal-card {
+      background: var(--surface);
+      border-radius: 20px;
+      padding: 28px 24px;
+      width: 100%;
+      max-width: 340px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      text-align: center;
+    }
+
+    .modal-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+    }
+
+    .modal-icon.warning-icon {
+      background: rgba(var(--warning-rgb), 0.12);
+    }
+
+    .modal-icon.error-icon {
+      background: rgba(var(--error-rgb), 0.12);
+    }
+
+    .modal-icon.primary-icon {
+      background: rgba(var(--primary-rgb), 0.12);
+    }
+
+    .modal-title {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      font-size: 18px;
+      color: var(--text);
+    }
+
+    .modal-subtitle {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 400;
+      font-size: 14px;
+      color: var(--secondary);
+      line-height: 1.5;
+    }
+
+    /* ── Confirmation Input ── */
+    .confirm-field {
+      width: 100%;
+    }
+
+    .confirm-input {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1.5px solid var(--border);
+      background: var(--bg);
+      font-family: 'Outfit', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.2s;
+      text-align: center;
+    }
+
+    .confirm-input:focus {
+      border-color: var(--error);
+    }
+
+    .confirm-input::placeholder {
+      color: var(--secondary);
+      font-weight: 400;
+    }
+
+    /* ── Modal Buttons ── */
+    .modal-buttons {
+      display: flex;
+      gap: 10px;
+      width: 100%;
+      margin-top: 4px;
+    }
+
+    .modal-btn {
+      flex: 1;
+      padding: 12px 16px;
+      border-radius: 12px;
+      border: none;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+
+    .modal-btn:hover {
+      opacity: 0.88;
+    }
+
+    .modal-btn.secondary {
+      background: var(--bg-tertiary);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .modal-btn.primary {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    .modal-btn.danger {
+      background: var(--error);
+      color: #fff;
+    }
+
+    .modal-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    /* ══════════════════════════════════════════
+       VARIANT VISIBILITY
+       ══════════════════════════════════════════ */
+
+    /* Members (default) */
+    .members-content { display: block; }
+    .settings-content { display: none; }
+    .modal-overlay { display: none; }
+
+    /* Members variant */
+    body.variant-members .members-content { display: block; }
+    body.variant-members .settings-content { display: none; }
+
+    /* Settings variant */
+    body.variant-settings .members-content { display: none; }
+    body.variant-settings .settings-content { display: block; }
+
+    /* Delete Group modal */
+    body.variant-delete .members-content { display: none; }
+    body.variant-delete .settings-content { display: block; }
+    body.variant-delete .modal-overlay.delete-modal { display: flex; }
+
+    /* Kick Member modal */
+    body.variant-kick .members-content { display: block; }
+    body.variant-kick .settings-content { display: none; }
+    body.variant-kick .modal-overlay.kick-modal { display: flex; }
+
+    /* Role Change modal */
+    body.variant-role .members-content { display: block; }
+    body.variant-role .settings-content { display: none; }
+    body.variant-role .modal-overlay.role-modal { display: flex; }
+
+    /* ══════════════════════════════════════════
+       RESPONSIVE
+       ══════════════════════════════════════════ */
+
+    @media (max-width: 460px) {
+      .phone-frame {
+        width: 100%;
+        border-radius: 0;
+        padding: 0;
+      }
+      .phone-screen {
+        border-radius: 0;
+      }
+      .phone-notch { display: none; }
+    }
+  </style>
+</head>
+<body data-theme="normal" data-mode="light">
+
+  <!-- ════════════════════════════════════════
+       CONTROLS (outside phone frame)
+       ════════════════════════════════════════ -->
+  <div class="controls">
+    <div class="controls-row">
+      <div class="theme-tabs">
+        <button class="theme-tab active" data-theme-val="normal">Normal</button>
+        <button class="theme-tab" data-theme-val="professional">Professional</button>
+        <button class="theme-tab" data-theme-val="mono">Mono</button>
+      </div>
+      <div class="mode-toggle">
+        <span>Light</span>
+        <div class="toggle-switch" id="modeToggle"></div>
+        <span>Dark</span>
+      </div>
+    </div>
+    <div class="controls-row">
+      <div class="variant-tabs">
+        <button class="variant-tab active" data-variant="members">Members</button>
+        <button class="variant-tab" data-variant="settings">Settings</button>
+        <button class="variant-tab" data-variant="delete">Delete Group</button>
+        <button class="variant-tab" data-variant="kick">Kick Member</button>
+        <button class="variant-tab" data-variant="role">Role Change</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════
+       PHONE FRAME
+       ════════════════════════════════════════ -->
+  <div class="phone-frame">
+    <div class="phone-notch"></div>
+    <div class="phone-screen">
+
+      <!-- Status Bar -->
+      <div class="status-bar">
+        <span class="status-bar-left">9:41</span>
+        <div class="status-bar-right">
+          <!-- Signal -->
+          <svg viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="11" width="2.5" height="4" rx="0.5"/><rect x="5" y="8" width="2.5" height="7" rx="0.5"/><rect x="9" y="5" width="2.5" height="10" rx="0.5"/><rect x="13" y="1" width="2.5" height="14" rx="0.5"/></svg>
+          <!-- WiFi -->
+          <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 12.5a1.25 1.25 0 110 2.5 1.25 1.25 0 010-2.5zM8 8.5c2.07 0 3.94.84 5.3 2.2l-1.42 1.42A5.48 5.48 0 008 10.5c-1.52 0-2.9.62-3.88 1.62L2.7 10.7A7.47 7.47 0 018 8.5zM8 4.5c3.18 0 6.07 1.29 8.16 3.38l-1.42 1.42A9.47 9.47 0 008 6.5c-2.62 0-5 1.06-6.74 2.8L-.16 7.88A11.47 11.47 0 018 4.5z"/></svg>
+          <!-- Battery -->
+          <svg viewBox="0 0 24 12" fill="currentColor"><rect x="0" y="0" width="20" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="2" y="2" width="14" height="8" rx="1"/><rect x="21" y="3.5" width="2.5" height="5" rx="1"/></svg>
+        </div>
+      </div>
+
+      <!-- Header (back nav + title + avatar) -->
+      <div class="capture-header">
+        <div class="header-left">
+          <button class="header-back-btn">
+            <!-- ChevronLeft icon -->
+            <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="15 18 9 12 15 6"/>
+            </svg>
+          </button>
+        </div>
+        <div class="header-center">
+          <span class="header-title">Admin · Casa Temuco</span>
+        </div>
+        <div class="header-right">
+          <div class="avatar-circle"><span>GA</span></div>
+        </div>
+      </div>
+
+      <!-- Scrollable Content -->
+      <div class="scroll-content">
+
+        <!-- ═══ MEMBERS CONTENT ═══ -->
+        <div class="members-content">
+
+          <!-- Group header card -->
+          <div class="group-header-card">
+            <div class="group-icon">&#x1F3E0;</div>
+            <div class="group-info">
+              <div class="group-name">Casa Temuco</div>
+              <div class="group-meta">3 miembros</div>
+            </div>
+            <div class="group-color-bar"></div>
+          </div>
+
+          <!-- Member list -->
+          <div class="member-list">
+
+            <!-- Gabriel A. — Admin (Creator) -->
+            <div class="member-item">
+              <div class="member-avatar"><span>GA</span></div>
+              <div class="member-info">
+                <div class="member-name-row">
+                  <span class="member-name">Gabriel A.</span>
+                  <span class="badge badge-admin">Admin</span>
+                </div>
+                <div class="member-tag">Creador</div>
+              </div>
+              <div class="member-menu-btn">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
+              </div>
+            </div>
+
+            <!-- Maria L. — Admin -->
+            <div class="member-item">
+              <div class="member-avatar"><span>ML</span></div>
+              <div class="member-info">
+                <div class="member-name-row">
+                  <span class="member-name">Maria L.</span>
+                  <span class="badge badge-admin">Admin</span>
+                </div>
+              </div>
+              <div class="member-menu-btn" style="position: relative;">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
+                <div class="context-menu" id="menuMaria">
+                  <button class="context-menu-item">
+                    <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4-4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/></svg>
+                    Quitar admin
+                  </button>
+                  <button class="context-menu-item danger">
+                    <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4-4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="18" y1="11" x2="23" y2="11"/></svg>
+                    Expulsar
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Carlos R. — Member -->
+            <div class="member-item">
+              <div class="member-avatar"><span>CR</span></div>
+              <div class="member-info">
+                <div class="member-name-row">
+                  <span class="member-name">Carlos R.</span>
+                  <span class="badge badge-member">Miembro</span>
+                </div>
+              </div>
+              <div class="member-menu-btn" style="position: relative;">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
+                <div class="context-menu" id="menuCarlos">
+                  <button class="context-menu-item">
+                    <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4-4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="17" y1="11" x2="23" y2="11"/></svg>
+                    Hacer admin
+                  </button>
+                  <button class="context-menu-item danger">
+                    <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4-4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="18" y1="11" x2="23" y2="11"/></svg>
+                    Expulsar
+                  </button>
+                </div>
+              </div>
+            </div>
+
+          </div><!-- /member-list -->
+
+          <!-- Invite button -->
+          <button class="invite-btn">
+            <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4-4v2"/>
+              <circle cx="8.5" cy="7" r="4"/>
+              <line x1="20" y1="8" x2="20" y2="14"/>
+              <line x1="17" y1="11" x2="23" y2="11"/>
+            </svg>
+            Invitar miembros
+          </button>
+
+          <!-- Limits note -->
+          <div class="limits-note">5 admins maximo · 50 miembros maximo</div>
+
+        </div><!-- /members-content -->
+
+        <!-- ═══ SETTINGS CONTENT ═══ -->
+        <div class="settings-content">
+
+          <!-- Name field -->
+          <div class="form-group">
+            <label class="form-label">Nombre del grupo</label>
+            <input type="text" class="form-input" value="Casa Temuco">
+          </div>
+
+          <!-- Icon picker -->
+          <div class="form-group">
+            <label class="form-label">Icono</label>
+            <div class="icon-picker-grid">
+              <div class="icon-picker-item selected">&#x1F3E0;</div>
+              <div class="icon-picker-item">&#x1F3E2;</div>
+              <div class="icon-picker-item">&#x1F3EB;</div>
+              <div class="icon-picker-item">&#x1F3D5;</div>
+              <div class="icon-picker-item">&#x2764;</div>
+              <div class="icon-picker-item">&#x2B50;</div>
+              <div class="icon-picker-item">&#x1F3AF;</div>
+              <div class="icon-picker-item">&#x1F37D;</div>
+              <div class="icon-picker-item">&#x1F697;</div>
+              <div class="icon-picker-item">&#x1F4BC;</div>
+              <div class="icon-picker-item">&#x1F3B5;</div>
+              <div class="icon-picker-item">&#x1F381;</div>
+            </div>
+          </div>
+
+          <!-- Color picker -->
+          <div class="form-group">
+            <label class="form-label">Color</label>
+            <div class="color-picker-row">
+              <div class="color-picker-item selected" style="background: #22c55e;" data-color="green"></div>
+              <div class="color-picker-item" style="background: #3b82f6;" data-color="blue"></div>
+              <div class="color-picker-item" style="background: #8b5cf6;" data-color="violet"></div>
+              <div class="color-picker-item" style="background: #ef4444;" data-color="red"></div>
+              <div class="color-picker-item" style="background: #f59e0b;" data-color="amber"></div>
+              <div class="color-picker-item" style="background: #ec4899;" data-color="pink"></div>
+              <div class="color-picker-item" style="background: #14b8a6;" data-color="teal"></div>
+              <div class="color-picker-item" style="background: #f97316;" data-color="orange"></div>
+            </div>
+          </div>
+
+          <!-- Save button -->
+          <button class="btn-save">Guardar cambios</button>
+
+          <!-- Danger zone -->
+          <div class="danger-divider">
+            <div class="danger-divider-line"></div>
+            <span class="danger-divider-text">Zona de peligro</span>
+            <div class="danger-divider-line"></div>
+          </div>
+
+          <button class="btn-danger-outline">Eliminar grupo</button>
+
+        </div><!-- /settings-content -->
+
+      </div><!-- /scroll-content -->
+
+      <!-- ═══ MODAL: Delete Group ═══ -->
+      <div class="modal-overlay delete-modal">
+        <div class="modal-card">
+          <div class="modal-icon warning-icon">&#x26A0;&#xFE0F;</div>
+          <div class="modal-title">Eliminar Casa Temuco?</div>
+          <div class="modal-subtitle">Se eliminaran todas las transacciones del grupo. Los miembros tienen 60 dias para descargar sus datos.</div>
+          <div class="confirm-field">
+            <input type="text" class="confirm-input" id="deleteConfirmInput" placeholder="Escribe ELIMINAR para confirmar">
+          </div>
+          <div class="modal-buttons">
+            <button class="modal-btn secondary">Cancelar</button>
+            <button class="modal-btn danger" id="deleteConfirmBtn" disabled>Eliminar grupo</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ MODAL: Kick Member ═══ -->
+      <div class="modal-overlay kick-modal">
+        <div class="modal-card">
+          <div class="modal-icon error-icon">&#x1F6AB;</div>
+          <div class="modal-title">Expulsar a Carlos R.?</div>
+          <div class="modal-subtitle">Carlos dejara de ver las transacciones del grupo.</div>
+          <div class="modal-buttons">
+            <button class="modal-btn secondary">Cancelar</button>
+            <button class="modal-btn danger">Expulsar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ MODAL: Role Change ═══ -->
+      <div class="modal-overlay role-modal">
+        <div class="modal-card">
+          <div class="modal-icon primary-icon">&#x1F451;</div>
+          <div class="modal-title">Hacer admin a Carlos R.?</div>
+          <div class="modal-subtitle">Carlos podra gestionar miembros y eliminar transacciones del grupo.</div>
+          <div class="modal-buttons">
+            <button class="modal-btn secondary">Cancelar</button>
+            <button class="modal-btn primary">Confirmar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Home Indicator -->
+      <div class="home-indicator"></div>
+
+    </div><!-- /phone-screen -->
+  </div><!-- /phone-frame -->
+
+  <!-- ════════════════════════════════════════
+       JAVASCRIPT — Theme / Mode / Variant
+       ════════════════════════════════════════ -->
+  <script>
+    (function() {
+      var body = document.body;
+      var themeTabs = document.querySelectorAll('.theme-tab');
+      var modeToggle = document.getElementById('modeToggle');
+      var variantTabs = document.querySelectorAll('.variant-tab');
+
+      var currentTheme = 'normal';
+      var currentMode = 'light';
+
+      function applyTheme() {
+        body.setAttribute('data-theme', currentTheme);
+        body.setAttribute('data-mode', currentMode);
+      }
+
+      // Theme tabs
+      themeTabs.forEach(function(tab) {
+        tab.addEventListener('click', function() {
+          themeTabs.forEach(function(t) { t.classList.remove('active'); });
+          tab.classList.add('active');
+          currentTheme = tab.dataset.themeVal;
+          applyTheme();
+        });
+      });
+
+      // Mode toggle
+      modeToggle.addEventListener('click', function() {
+        currentMode = currentMode === 'light' ? 'dark' : 'light';
+        modeToggle.classList.toggle('dark', currentMode === 'dark');
+        applyTheme();
+      });
+
+      // Variant tabs
+      variantTabs.forEach(function(tab) {
+        tab.addEventListener('click', function() {
+          variantTabs.forEach(function(t) { t.classList.remove('active'); });
+          tab.classList.add('active');
+          body.classList.remove('variant-members', 'variant-settings', 'variant-delete', 'variant-kick', 'variant-role');
+          var variant = tab.dataset.variant;
+          body.classList.add('variant-' + variant);
+        });
+      });
+
+      // Delete confirmation input enables/disables delete button
+      var deleteInput = document.getElementById('deleteConfirmInput');
+      var deleteBtn = document.getElementById('deleteConfirmBtn');
+      if (deleteInput && deleteBtn) {
+        deleteInput.addEventListener('input', function() {
+          deleteBtn.disabled = deleteInput.value.trim() !== 'ELIMINAR';
+        });
+      }
+
+      // Context menu toggle (3-dot menus)
+      var menuBtns = document.querySelectorAll('.member-menu-btn');
+      menuBtns.forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          var menu = btn.querySelector('.context-menu');
+          if (menu) {
+            // Close all other menus first
+            document.querySelectorAll('.context-menu.show').forEach(function(m) {
+              if (m !== menu) m.classList.remove('show');
+            });
+            menu.classList.toggle('show');
+          }
+        });
+      });
+
+      // Close menus on click outside
+      document.addEventListener('click', function() {
+        document.querySelectorAll('.context-menu.show').forEach(function(m) {
+          m.classList.remove('show');
+        });
+      });
+
+      // Icon picker selection
+      var iconItems = document.querySelectorAll('.icon-picker-item');
+      iconItems.forEach(function(item) {
+        item.addEventListener('click', function() {
+          iconItems.forEach(function(i) { i.classList.remove('selected'); });
+          item.classList.add('selected');
+        });
+      });
+
+      // Color picker selection
+      var colorItems = document.querySelectorAll('.color-picker-item');
+      colorItems.forEach(function(item) {
+        item.addEventListener('click', function() {
+          colorItems.forEach(function(c) { c.classList.remove('selected'); });
+          item.classList.add('selected');
+        });
+      });
+
+      // Initial apply
+      applyTheme();
+      body.classList.add('variant-members');
+    })();
+  </script>
+</body>
+</html>

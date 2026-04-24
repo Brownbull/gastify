@@ -1,0 +1,1624 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flujo 8: Recuperaci&oacute;n de Error (Scan Failure) &mdash; Gastify</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #1a1a2e;
+      --primary: #4a7c59;
+      --accent: #e8a87c;
+      --secondary: #5b8fa8;
+      --error: #ef4444;
+      --warning: #f59e0b;
+      --text: #e0e0e0;
+      --muted: #9a9ab0;
+      --surface: rgba(255,255,255,0.025);
+      --border: rgba(255,255,255,0.07);
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Outfit', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background:
+        radial-gradient(ellipse at 15% 10%, rgba(239,68,68,0.10) 0%, transparent 50%),
+        radial-gradient(ellipse at 85% 30%, rgba(232,168,124,0.07) 0%, transparent 50%),
+        radial-gradient(ellipse at 40% 70%, rgba(74,124,89,0.06) 0%, transparent 55%),
+        radial-gradient(ellipse at 70% 90%, rgba(91,143,168,0.05) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: 0;
+      animation: bg-drift 20s ease-in-out infinite alternate;
+    }
+
+    @keyframes bg-drift {
+      0% { opacity: 1; }
+      50% { opacity: 0.8; }
+      100% { opacity: 1; }
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 40px 20px 80px;
+    }
+
+    /* ════════════════ HEADER ════════════════ */
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .header .brand {
+      font-size: 13px;
+      color: #6a8a6a;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      font-weight: 600;
+    }
+
+    .header h1 {
+      font-size: 36px;
+      font-weight: 700;
+      color: #f0ebe3;
+      margin-bottom: 14px;
+      line-height: 1.15;
+    }
+
+    .header h1 span {
+      background: linear-gradient(135deg, var(--error), var(--accent), var(--primary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .header .subtitle {
+      font-size: 15px;
+      color: var(--muted);
+      max-width: 640px;
+      margin: 0 auto;
+      line-height: 1.7;
+      font-weight: 400;
+    }
+
+    /* Nav reference bar */
+    .nav-ref {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      margin-top: 22px;
+      flex-wrap: wrap;
+    }
+
+    .nav-ref .nav-item {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 6px 14px;
+      font-size: 12px;
+      color: #6e6e88;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+
+    .nav-ref .nav-item.fab {
+      background: linear-gradient(135deg, rgba(74,124,89,0.30), rgba(74,124,89,0.15));
+      border-color: rgba(74,124,89,0.45);
+      color: #a0d4b0;
+      font-weight: 700;
+    }
+
+    .nav-ref .nav-item.active-in-step {
+      background: rgba(74,124,89,0.18);
+      border-color: rgba(74,124,89,0.35);
+      color: var(--primary);
+    }
+
+    /* ════════════════ LEGEND ════════════════ */
+    .legend {
+      display: flex;
+      justify-content: center;
+      gap: 18px;
+      flex-wrap: wrap;
+      margin-bottom: 36px;
+      padding: 14px 24px;
+      background: var(--surface);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 14px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: #8888a0;
+    }
+
+    .legend-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 4px;
+      flex-shrink: 0;
+    }
+
+    .legend-dot.red { background: #e05555; }
+    .legend-dot.error { background: var(--error); }
+    .legend-dot.amber { background: var(--accent); }
+    .legend-dot.blue { background: var(--secondary); }
+    .legend-dot.green { background: var(--primary); }
+    .legend-dot.diamond {
+      background: #8b6fc0;
+      transform: rotate(45deg);
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+    }
+
+    /* ════════════════ FLOW ════════════════ */
+    .flow {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+      position: relative;
+    }
+
+    /* ════════════════ PHASE DIVIDERS ════════════════ */
+    .phase-divider {
+      width: 100%;
+      max-width: 620px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin: 30px 0 18px;
+    }
+
+    .phase-divider .line {
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(to right, transparent, rgba(255,255,255,0.10), transparent);
+    }
+
+    .phase-divider .label {
+      font-size: 13px;
+      color: #6a6a86;
+      font-weight: 700;
+      white-space: nowrap;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+    }
+
+    .phase-divider.error-phase .line {
+      background: linear-gradient(to right, transparent, rgba(239,68,68,0.18), transparent);
+    }
+
+    .phase-divider.error-phase .label {
+      color: var(--error);
+    }
+
+    .phase-divider.recovery-phase .line {
+      background: linear-gradient(to right, transparent, rgba(74,124,89,0.15), transparent);
+    }
+
+    .phase-divider.recovery-phase .label {
+      color: var(--primary);
+    }
+
+    /* ════════════════ CONNECTORS ════════════════ */
+    .connector {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 4px 0;
+    }
+
+    .connector .line {
+      width: 2px;
+      height: 28px;
+      background: linear-gradient(to bottom, rgba(255,255,255,0.12), rgba(255,255,255,0.22));
+    }
+
+    .connector .line.error-line {
+      background: linear-gradient(to bottom, rgba(239,68,68,0.25), rgba(239,68,68,0.45));
+    }
+
+    .connector .line.success-line {
+      background: linear-gradient(to bottom, rgba(74,124,89,0.25), rgba(74,124,89,0.45));
+    }
+
+    .connector .line.cancel-line {
+      background: linear-gradient(to bottom, rgba(245,158,11,0.25), rgba(245,158,11,0.45));
+    }
+
+    .connector .arrow {
+      width: 0;
+      height: 0;
+      border-left: 6px solid transparent;
+      border-right: 6px solid transparent;
+      border-top: 8px solid rgba(255,255,255,0.22);
+    }
+
+    .connector .arrow.error-arrow {
+      border-top-color: rgba(239,68,68,0.50);
+    }
+
+    .connector .arrow.success-arrow {
+      border-top-color: rgba(74,124,89,0.50);
+    }
+
+    .connector .arrow.cancel-arrow {
+      border-top-color: rgba(245,158,11,0.50);
+    }
+
+    .connector .label {
+      font-size: 11px;
+      color: #7a7a96;
+      margin: 4px 0;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+    }
+
+    .connector .label.error-label {
+      color: var(--error);
+    }
+
+    .connector .label.success-label {
+      color: var(--primary);
+    }
+
+    .connector .label.cancel-label {
+      color: var(--warning);
+    }
+
+    /* ════════════════ NODE CARDS ════════════════ */
+    .node {
+      width: 100%;
+      max-width: 540px;
+      border-radius: 16px;
+      padding: 26px 28px;
+      position: relative;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      cursor: pointer;
+    }
+
+    .node:hover {
+      transform: translateY(-3px);
+    }
+
+    .node .step-badge {
+      position: absolute;
+      top: -10px;
+      left: 24px;
+      background: var(--bg);
+      border: 2px solid;
+      border-radius: 20px;
+      padding: 2px 12px;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+    }
+
+    .node .screen-name {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .node .screen-state {
+      font-size: 13px;
+      opacity: 0.65;
+      margin-bottom: 14px;
+      font-weight: 500;
+    }
+
+    .node .description {
+      font-size: 13px;
+      line-height: 1.6;
+      color: #b0b0c8;
+      margin-bottom: 12px;
+      font-weight: 400;
+    }
+
+    .node .user-thought {
+      font-size: 13px;
+      font-style: italic;
+      line-height: 1.55;
+      padding: 12px 16px;
+      border-radius: 10px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .node .user-thought::before {
+      content: '\201C';
+      font-size: 32px;
+      position: absolute;
+      top: 0;
+      left: 6px;
+      opacity: 0.25;
+      font-style: normal;
+      font-weight: 700;
+    }
+
+    .node .user-thought .thought-text {
+      padding-left: 14px;
+    }
+
+    .node .nav-highlight {
+      margin-top: 12px;
+      font-size: 11px;
+      opacity: 0.45;
+      font-weight: 600;
+    }
+
+    .node .nav-highlight span {
+      opacity: 1;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    /* ════════════════ KEY MOMENT BADGE ════════════════ */
+    .key-moment {
+      position: absolute;
+      top: -10px;
+      right: 20px;
+      background: linear-gradient(135deg, var(--accent), #d48a5c);
+      color: var(--bg);
+      font-size: 10px;
+      font-weight: 800;
+      padding: 4px 12px;
+      border-radius: 12px;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+      box-shadow: 0 2px 10px rgba(232,168,124,0.3);
+      animation: badge-pulse 3s ease-in-out infinite;
+    }
+
+    .key-moment.error-badge {
+      background: linear-gradient(135deg, var(--error), #dc2626);
+      box-shadow: 0 2px 10px rgba(239,68,68,0.3);
+    }
+
+    @keyframes badge-pulse {
+      0%, 100% { box-shadow: 0 2px 10px rgba(232,168,124,0.3); }
+      50% { box-shadow: 0 3px 18px rgba(232,168,124,0.5); }
+    }
+
+    /* ════════════════ NODE VARIANTS ════════════════ */
+
+    /* Red: User action */
+    .node.red {
+      background: linear-gradient(135deg, rgba(224,85,85,0.11), rgba(224,85,85,0.04));
+      border: 1px solid rgba(224,85,85,0.22);
+      box-shadow: 0 4px 24px rgba(224,85,85,0.06);
+    }
+    .node.red:hover { box-shadow: 0 8px 36px rgba(224,85,85,0.14); }
+    .node.red .step-badge { border-color: #e05555; color: #e05555; }
+    .node.red .screen-name { color: #f0a0a0; }
+    .node.red .user-thought { background: rgba(224,85,85,0.07); color: #d4a8a8; }
+
+    /* Amber: Processing */
+    .node.amber {
+      background: linear-gradient(135deg, rgba(232,168,124,0.13), rgba(232,168,124,0.04));
+      border: 1px solid rgba(232,168,124,0.25);
+      box-shadow: 0 4px 24px rgba(232,168,124,0.07);
+    }
+    .node.amber:hover { box-shadow: 0 8px 36px rgba(232,168,124,0.16); }
+    .node.amber .step-badge { border-color: var(--accent); color: var(--accent); }
+    .node.amber .screen-name { color: #f0d8c0; }
+    .node.amber .user-thought { background: rgba(232,168,124,0.08); color: #d4c4b0; }
+
+    /* Blue: Screen display */
+    .node.blue {
+      background: linear-gradient(135deg, rgba(91,143,168,0.12), rgba(91,143,168,0.04));
+      border: 1px solid rgba(91,143,168,0.24);
+      box-shadow: 0 4px 24px rgba(91,143,168,0.06);
+    }
+    .node.blue:hover { box-shadow: 0 8px 36px rgba(91,143,168,0.15); }
+    .node.blue .step-badge { border-color: var(--secondary); color: var(--secondary); }
+    .node.blue .screen-name { color: #a0c8dc; }
+    .node.blue .user-thought { background: rgba(91,143,168,0.08); color: #a0bcc8; }
+
+    /* Green: Success */
+    .node.green {
+      background: linear-gradient(135deg, rgba(74,124,89,0.16), rgba(74,124,89,0.05));
+      border: 1px solid rgba(74,124,89,0.30);
+      box-shadow: 0 4px 24px rgba(74,124,89,0.08);
+    }
+    .node.green:hover { box-shadow: 0 8px 36px rgba(74,124,89,0.20); }
+    .node.green .step-badge { border-color: var(--primary); color: var(--primary); }
+    .node.green .screen-name { color: #a0dcb4; }
+    .node.green .user-thought { background: rgba(74,124,89,0.09); color: #a0d0b8; }
+
+    /* Error: Scan failure */
+    .node.error {
+      background: linear-gradient(135deg, rgba(239,68,68,0.14), rgba(239,68,68,0.04));
+      border: 2px solid rgba(239,68,68,0.35);
+      box-shadow: 0 4px 28px rgba(239,68,68,0.10);
+    }
+    .node.error:hover { box-shadow: 0 8px 40px rgba(239,68,68,0.20); }
+    .node.error .step-badge { border-color: var(--error); color: var(--error); }
+    .node.error .screen-name { color: #fca5a5; }
+    .node.error .user-thought { background: rgba(239,68,68,0.08); color: #fca5a5; }
+
+    /* Warning: Cancel/credit */
+    .node.warning {
+      background: linear-gradient(135deg, rgba(245,158,11,0.13), rgba(245,158,11,0.04));
+      border: 2px solid rgba(245,158,11,0.30);
+      box-shadow: 0 4px 24px rgba(245,158,11,0.08);
+    }
+    .node.warning:hover { box-shadow: 0 8px 36px rgba(245,158,11,0.18); }
+    .node.warning .step-badge { border-color: var(--warning); color: var(--warning); }
+    .node.warning .screen-name { color: #fde68a; }
+    .node.warning .user-thought { background: rgba(245,158,11,0.08); color: #fde68a; }
+
+    /* ════════════════ ACTION NODE ════════════════ */
+    .node.action {
+      max-width: 380px;
+      padding: 18px 24px;
+      text-align: center;
+    }
+
+    .node.action .step-badge {
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .node.action .screen-name {
+      font-size: 17px;
+    }
+
+    .node.action .screen-state {
+      margin-bottom: 0;
+    }
+
+    /* ════════════════ ABBREVIATED NODE ════════════════ */
+    .node.abbreviated {
+      max-width: 380px;
+      padding: 18px 24px;
+      text-align: center;
+      border-style: dashed;
+    }
+
+    .node.abbreviated .step-badge {
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .node.abbreviated .screen-name {
+      font-size: 16px;
+    }
+
+    /* ════════════════ MICRO NODE ════════════════ */
+    .node.micro {
+      max-width: 340px;
+      padding: 18px 24px;
+      text-align: center;
+    }
+
+    .node.micro .step-badge {
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .node.micro .screen-name {
+      font-size: 16px;
+    }
+
+    /* ════════════════ CELEBRATION RING ════════════════ */
+    .celebration {
+      position: absolute;
+      top: -4px; left: -4px; right: -4px; bottom: -4px;
+      border-radius: 20px;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .node.green:hover .celebration {
+      opacity: 1;
+    }
+
+    .celebration::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 20px;
+      border: 2px solid rgba(74,124,89,0.30);
+      animation: celebration-ring 2s ease-in-out infinite;
+    }
+
+    @keyframes celebration-ring {
+      0%, 100% { transform: scale(1); opacity: 0.4; }
+      50% { transform: scale(1.015); opacity: 1; }
+    }
+
+    /* ════════════════ DECISION DIAMOND ════════════════ */
+    .decision-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      width: 100%;
+      max-width: 700px;
+    }
+
+    .diamond {
+      width: 160px;
+      height: 160px;
+      position: relative;
+      margin: 10px 0;
+    }
+
+    .diamond-shape {
+      width: 120px;
+      height: 120px;
+      background: linear-gradient(135deg, rgba(139,111,192,0.20), rgba(139,111,192,0.08));
+      border: 2px solid rgba(139,111,192,0.45);
+      transform: rotate(45deg);
+      border-radius: 12px;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      margin-top: -60px;
+      margin-left: -60px;
+      box-shadow: 0 6px 30px rgba(139,111,192,0.12);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      cursor: pointer;
+    }
+
+    .diamond-shape:hover {
+      box-shadow: 0 10px 45px rgba(139,111,192,0.25);
+      transform: rotate(45deg) scale(1.05);
+    }
+
+    .diamond-content {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      pointer-events: none;
+      z-index: 2;
+      width: 140px;
+    }
+
+    .diamond-step {
+      font-size: 11px;
+      font-weight: 800;
+      color: #8b6fc0;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+
+    .diamond-text {
+      font-size: 14px;
+      font-weight: 700;
+      color: #c4b5fd;
+      line-height: 1.3;
+    }
+
+    .diamond-sub {
+      font-size: 10px;
+      color: #8888a0;
+      margin-top: 4px;
+      font-weight: 500;
+    }
+
+    /* ════════════════ BRANCH PATHS ════════════════ */
+    .branch-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+      width: 100%;
+      max-width: 700px;
+      position: relative;
+      margin: 0 auto;
+    }
+
+    .branch-container::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 50%;
+      width: 1px;
+      height: 100%;
+      background: linear-gradient(to bottom, rgba(139,111,192,0.20), rgba(255,255,255,0.04));
+    }
+
+    .branch {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+    }
+
+    .branch-label {
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding: 6px 18px;
+      border-radius: 20px;
+      margin-bottom: 16px;
+      text-align: center;
+    }
+
+    .branch-label.retry {
+      background: linear-gradient(135deg, rgba(74,124,89,0.20), rgba(74,124,89,0.08));
+      border: 1px solid rgba(74,124,89,0.35);
+      color: #a0dcb4;
+    }
+
+    .branch-label.cancel {
+      background: linear-gradient(135deg, rgba(245,158,11,0.20), rgba(245,158,11,0.08));
+      border: 1px solid rgba(245,158,11,0.35);
+      color: #fde68a;
+    }
+
+    .branch .node {
+      max-width: 100%;
+      width: 100%;
+    }
+
+    .branch .node.action,
+    .branch .node.micro,
+    .branch .node.abbreviated {
+      max-width: 100%;
+    }
+
+    .branch .connector {
+      padding: 2px 0;
+    }
+
+    .branch .connector .line {
+      height: 22px;
+    }
+
+    /* ════════════════ BRANCH FORK CONNECTORS ════════════════ */
+    .fork-connector {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      width: 100%;
+      max-width: 700px;
+      height: 50px;
+      position: relative;
+      margin: 0 auto;
+    }
+
+    .fork-connector::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 2px;
+      height: 12px;
+      background: rgba(139,111,192,0.30);
+    }
+
+    .fork-connector::after {
+      content: '';
+      position: absolute;
+      top: 12px;
+      left: 25%;
+      width: 50%;
+      height: 2px;
+      background: linear-gradient(to right, rgba(74,124,89,0.40), rgba(139,111,192,0.20), rgba(245,158,11,0.40));
+    }
+
+    .fork-left, .fork-right {
+      position: absolute;
+      top: 14px;
+      width: 2px;
+      height: 30px;
+    }
+
+    .fork-left {
+      left: 25%;
+      background: linear-gradient(to bottom, rgba(74,124,89,0.40), rgba(74,124,89,0.25));
+    }
+
+    .fork-right {
+      right: 25%;
+      background: linear-gradient(to bottom, rgba(245,158,11,0.40), rgba(245,158,11,0.25));
+    }
+
+    .fork-left-arrow, .fork-right-arrow {
+      position: absolute;
+      top: 44px;
+      width: 0;
+      height: 0;
+      border-left: 5px solid transparent;
+      border-right: 5px solid transparent;
+    }
+
+    .fork-left-arrow {
+      left: calc(25% - 4px);
+      border-top: 7px solid rgba(74,124,89,0.45);
+    }
+
+    .fork-right-arrow {
+      right: calc(25% - 4px);
+      border-top: 7px solid rgba(245,158,11,0.45);
+    }
+
+    .fork-label {
+      position: absolute;
+      top: 18px;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+
+    .fork-label.left-label {
+      left: calc(25% + 12px);
+      color: var(--primary);
+    }
+
+    .fork-label.right-label {
+      right: calc(25% + 12px);
+      color: var(--warning);
+    }
+
+    /* ════════════════ MINI ERROR UI ════════════════ */
+    .mini-error-ui {
+      background: rgba(0,0,0,0.30);
+      border-radius: 14px;
+      padding: 18px;
+      margin: 12px 0;
+      text-align: center;
+    }
+
+    .mini-error-icon {
+      font-size: 40px;
+      margin-bottom: 10px;
+      display: block;
+      animation: error-shake 3s ease-in-out infinite;
+    }
+
+    @keyframes error-shake {
+      0%, 100% { transform: rotate(0); }
+      10% { transform: rotate(-6deg); }
+      20% { transform: rotate(6deg); }
+      30% { transform: rotate(-4deg); }
+      40% { transform: rotate(4deg); }
+      50%, 100% { transform: rotate(0); }
+    }
+
+    .mini-error-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #fca5a5;
+      margin-bottom: 6px;
+    }
+
+    .mini-error-msg {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.5;
+      margin-bottom: 14px;
+    }
+
+    .mini-btn-row {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+    }
+
+    .mini-btn {
+      padding: 9px 20px;
+      border-radius: 10px;
+      border: none;
+      font-family: 'Outfit', sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s, opacity 0.15s;
+    }
+
+    .mini-btn:hover { transform: scale(1.04); }
+
+    .mini-btn.primary-btn {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    .mini-btn.secondary-btn {
+      background: rgba(255,255,255,0.08);
+      color: var(--muted);
+      border: 1px solid rgba(255,255,255,0.12);
+    }
+
+    .mini-btn.warning-btn {
+      background: rgba(245,158,11,0.15);
+      color: var(--warning);
+      border: 1px solid rgba(245,158,11,0.30);
+    }
+
+    /* ════════════════ MINI PROGRESS UI ════════════════ */
+    .mini-progress {
+      background: rgba(0,0,0,0.25);
+      border-radius: 14px;
+      padding: 18px;
+      margin: 12px 0;
+      text-align: center;
+    }
+
+    .progress-ring {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      border: 4px solid rgba(255,255,255,0.06);
+      border-top-color: var(--accent);
+      margin: 0 auto 12px;
+      animation: spin 1.5s linear infinite;
+      position: relative;
+    }
+
+    .progress-ring::after {
+      content: '45%';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .progress-text {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--accent);
+    }
+
+    .progress-sub {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    /* ════════════════ MINI CANCEL CONFIRM ════════════════ */
+    .mini-cancel-ui {
+      background: rgba(0,0,0,0.30);
+      border-radius: 14px;
+      padding: 18px;
+      margin: 12px 0;
+      text-align: center;
+    }
+
+    .mini-cancel-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #fde68a;
+      margin-bottom: 8px;
+    }
+
+    .mini-cancel-msg {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.6;
+      margin-bottom: 6px;
+    }
+
+    .credit-safe {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(74,124,89,0.15);
+      border: 1px solid rgba(74,124,89,0.30);
+      border-radius: 8px;
+      padding: 6px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #a0dcb4;
+      margin: 10px 0 14px;
+    }
+
+    /* ════════════════ MINI SUCCESS UI ════════════════ */
+    .mini-success {
+      background: rgba(0,0,0,0.25);
+      border-radius: 14px;
+      padding: 18px;
+      margin: 12px 0;
+      text-align: center;
+    }
+
+    .success-check {
+      font-size: 44px;
+      display: block;
+      margin-bottom: 8px;
+      animation: success-bounce 0.8s ease;
+    }
+
+    @keyframes success-bounce {
+      0% { transform: scale(0.3); opacity: 0; }
+      50% { transform: scale(1.15); }
+      70% { transform: scale(0.95); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .success-text {
+      font-size: 16px;
+      font-weight: 700;
+      color: #a0dcb4;
+    }
+
+    /* ════════════════ EXPANDABLE DETAILS ════════════════ */
+    .screen-details {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      max-height: 0;
+      overflow: hidden;
+      opacity: 0;
+      transition: max-height 0.4s ease, opacity 0.3s ease;
+    }
+
+    .node.expanded .screen-details {
+      max-height: 300px;
+      opacity: 1;
+    }
+
+    .screen-details .detail-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 12px;
+      color: #8888a0;
+      margin-bottom: 6px;
+      line-height: 1.4;
+    }
+
+    .screen-details .detail-icon {
+      width: 18px;
+      text-align: center;
+      flex-shrink: 0;
+      font-size: 13px;
+    }
+
+    .expand-hint {
+      font-size: 10px;
+      color: #444460;
+      margin-top: 10px;
+      text-align: right;
+      transition: opacity 0.2s ease;
+    }
+
+    .node.expanded .expand-hint {
+      opacity: 0.3;
+    }
+
+    /* ════════════════ ERROR TYPES REFERENCE ════════════════ */
+    .error-reference {
+      width: 100%;
+      max-width: 620px;
+      margin: 48px auto 0;
+      padding: 28px;
+      background: linear-gradient(135deg, rgba(239,68,68,0.06), rgba(239,68,68,0.02));
+      border: 1px solid rgba(239,68,68,0.18);
+      border-radius: 16px;
+    }
+
+    .error-reference-title {
+      text-align: center;
+      font-size: 14px;
+      font-weight: 700;
+      color: #fca5a5;
+      margin-bottom: 20px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .error-ref-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0 6px;
+    }
+
+    .error-ref-table thead th {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      padding: 0 12px 10px;
+      text-align: left;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .error-ref-table tbody tr {
+      background: rgba(255,255,255,0.03);
+      border-radius: 10px;
+      transition: background 0.2s ease;
+    }
+
+    .error-ref-table tbody tr:hover {
+      background: rgba(255,255,255,0.06);
+    }
+
+    .error-ref-table tbody td {
+      padding: 10px 12px;
+      font-size: 13px;
+      color: #b0b0c8;
+      vertical-align: middle;
+    }
+
+    .error-ref-table tbody td:first-child {
+      border-radius: 10px 0 0 10px;
+      font-size: 20px;
+      text-align: center;
+      width: 50px;
+    }
+
+    .error-ref-table tbody td:nth-child(2) {
+      font-weight: 600;
+      color: var(--text);
+      white-space: nowrap;
+    }
+
+    .error-ref-table tbody td:last-child {
+      border-radius: 0 10px 10px 0;
+      font-size: 12px;
+      font-style: italic;
+      color: var(--muted);
+    }
+
+    /* ════════════════ FOOTER ════════════════ */
+    .footer {
+      text-align: center;
+      margin-top: 56px;
+      padding-top: 24px;
+      border-top: 1px solid rgba(255,255,255,0.04);
+    }
+
+    .footer p {
+      font-size: 12px;
+      color: #444460;
+      line-height: 1.7;
+    }
+
+    .footer .app-name {
+      color: #6a8a6a;
+      font-weight: 700;
+    }
+
+    /* ════════════════ RESPONSIVE ════════════════ */
+    @media (max-width: 700px) {
+      .container { padding: 24px 12px 60px; }
+      .header h1 { font-size: 26px; }
+      .node { padding: 20px 18px; max-width: 100%; }
+      .node.action, .node.micro, .node.abbreviated { max-width: 100%; }
+      .node .screen-name { font-size: 17px; }
+      .legend { gap: 10px; padding: 12px 14px; }
+      .nav-ref { gap: 4px; }
+      .nav-ref .nav-item { padding: 5px 10px; font-size: 11px; }
+      .branch-container {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+      .branch-container::before { display: none; }
+      .fork-connector { display: none; }
+      .diamond { width: 140px; height: 140px; }
+      .diamond-shape { width: 100px; height: 100px; margin-top: -50px; margin-left: -50px; }
+      .diamond-content { width: 120px; }
+      .diamond-text { font-size: 12px; }
+      .error-ref-table tbody td:last-child { font-size: 11px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <!-- ═══════════ HEADER ═══════════ -->
+    <div class="header">
+      <div class="brand">Khujta AI &middot; Gastify</div>
+      <h1>Flujo 8: <span>Recuperaci&oacute;n de Error</span></h1>
+      <p class="subtitle">
+        El usuario encuentra un error durante el escaneo y tiene opciones para reintentar
+        o cancelar. Muestra el manejo de errores UX y la transparencia en el camino
+        de devoluci&oacute;n de cr&eacute;ditos.
+      </p>
+      <div class="nav-ref">
+        <div class="nav-item" data-nav="home">Home</div>
+        <div class="nav-item" data-nav="trends">Trends</div>
+        <div class="nav-item fab" data-nav="fab">FAB Scan</div>
+        <div class="nav-item" data-nav="reports">Reports</div>
+        <div class="nav-item" data-nav="alerts">Alerts</div>
+      </div>
+    </div>
+
+    <!-- ═══════════ LEGEND ═══════════ -->
+    <div class="legend">
+      <div class="legend-item">
+        <div class="legend-dot red"></div>
+        Acci&oacute;n del usuario
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot amber"></div>
+        Procesamiento
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot blue"></div>
+        Pantalla (vista)
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot green"></div>
+        &Eacute;xito / celebraci&oacute;n
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot error"></div>
+        Error
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot diamond"></div>
+        Decisi&oacute;n
+      </div>
+    </div>
+
+    <!-- ═══════════ FLOW ═══════════ -->
+    <div class="flow">
+
+      <!-- ──── FASE 1: Escaneo ──── -->
+      <div class="phase-divider">
+        <div class="line"></div>
+        <div class="label">Fase 1 &mdash; Escaneo</div>
+        <div class="line"></div>
+      </div>
+
+      <!-- 01. Dashboard (populated) -->
+      <div class="node blue" data-nav-active="home" onclick="this.classList.toggle('expanded')">
+        <div class="step-badge">01</div>
+        <div class="screen-name">Dashboard</div>
+        <div class="screen-state">populated &middot; estado normal</div>
+        <div class="description">
+          El usuario ve su dashboard con transacciones existentes.
+          Decide escanear una nueva boleta.
+        </div>
+        <div class="user-thought">
+          <div class="thought-text">Voy a escanear esta boleta.</div>
+        </div>
+        <div class="nav-highlight">Tab: <span>Home</span></div>
+        <div class="screen-details">
+          <div class="detail-row"><span class="detail-icon">&#128200;</span> Dashboard con treemap y recientes visibles</div>
+          <div class="detail-row"><span class="detail-icon">&#128176;</span> Resumen del mes actualizado</div>
+          <div class="detail-row"><span class="detail-icon">&#128273;</span> Badge de cr&eacute;ditos visible en header</div>
+        </div>
+        <div class="expand-hint">clic para detalles</div>
+      </div>
+
+      <div class="connector">
+        <div class="line"></div>
+        <div class="label">toca el FAB</div>
+        <div class="arrow"></div>
+      </div>
+
+      <!-- 02. Tap FAB → Camera → Capture -->
+      <div class="node red action" data-nav-active="fab" onclick="this.classList.toggle('expanded')">
+        <div class="step-badge">02</div>
+        <div class="screen-name">FAB &rarr; C&aacute;mara &rarr; Captura</div>
+        <div class="screen-state">acci&oacute;n &middot; foto de boleta</div>
+        <div class="description" style="text-align:center; margin-bottom:0;">
+          El usuario toma una foto de la boleta de compra.
+        </div>
+        <div class="screen-details">
+          <div class="detail-row"><span class="detail-icon">&#128248;</span> Abre c&aacute;mara nativa o file picker</div>
+          <div class="detail-row"><span class="detail-icon">&#128308;</span> Captura imagen de la boleta</div>
+        </div>
+        <div class="expand-hint">clic para detalles</div>
+      </div>
+
+      <div class="connector">
+        <div class="line"></div>
+        <div class="label">foto capturada</div>
+        <div class="arrow"></div>
+      </div>
+
+      <!-- 03. ScanOverlay — Uploading -->
+      <div class="node amber" data-nav-active="fab" onclick="this.classList.toggle('expanded')">
+        <div class="step-badge">03</div>
+        <div class="screen-name">ScanOverlay &mdash; Subiendo</div>
+        <div class="screen-state">upload progress &middot; conexi&oacute;n cae</div>
+        <div class="description">
+          Barra de progreso circular muestra "Subiendo... 45%".
+          De repente, la conexi&oacute;n de red se cae.
+        </div>
+        <div class="mini-progress">
+          <div class="progress-ring"></div>
+          <div class="progress-text">Subiendo... 45%</div>
+          <div class="progress-sub">Red perdida &#x26a0;&#xfe0f;</div>
+        </div>
+        <div class="user-thought">
+          <div class="thought-text">Estaba subiendo bien... &iquest;qu&eacute; pas&oacute;?</div>
+        </div>
+        <div class="screen-details">
+          <div class="detail-row"><span class="detail-icon">&#128246;</span> Upload a Firebase Storage interrumpido</div>
+          <div class="detail-row"><span class="detail-icon">&#128268;</span> Network listener detecta desconexi&oacute;n</div>
+          <div class="detail-row"><span class="detail-icon">&#9888;</span> Transici&oacute;n autom&aacute;tica a estado de error</div>
+        </div>
+        <div class="expand-hint">clic para detalles</div>
+      </div>
+
+      <div class="connector">
+        <div class="line error-line"></div>
+        <div class="label error-label">red perdida</div>
+        <div class="arrow error-arrow"></div>
+      </div>
+
+      <!-- ──── FASE 2: Error ──── -->
+      <div class="phase-divider error-phase">
+        <div class="line"></div>
+        <div class="label">Fase 2 &mdash; Error</div>
+        <div class="line"></div>
+      </div>
+
+      <!-- 04. ScanOverlay — Error -->
+      <div class="node error" data-nav-active="fab" onclick="this.classList.toggle('expanded')">
+        <div class="step-badge">04</div>
+        <div class="key-moment error-badge">Error espec&iacute;fico</div>
+        <div class="screen-name">ScanOverlay &mdash; Error</div>
+        <div class="screen-state">network error &middot; acci&oacute;n requerida</div>
+        <div class="description">
+          &Iacute;cono de WifiOff espec&iacute;fico para errores de red.
+          T&iacute;tulo claro, mensaje accionable, y dos opciones expl&iacute;citas.
+          El error debe ser espec&iacute;fico y nunca gen&eacute;rico.
+        </div>
+        <div class="mini-error-ui">
+          <span class="mini-error-icon">&#128246;</span>
+          <div class="mini-error-title">Algo sali&oacute; mal</div>
+          <div class="mini-error-msg">
+            No pudimos conectar con el servidor.<br>
+            Verifica tu conexi&oacute;n.
+          </div>
+          <div class="mini-btn-row">
+            <button class="mini-btn primary-btn">&#x21BB; Reintentar</button>
+            <button class="mini-btn secondary-btn">Cancelar</button>
+          </div>
+        </div>
+        <div class="user-thought">
+          <div class="thought-text">Se me cay&oacute; el WiFi...</div>
+        </div>
+        <div class="screen-details">
+          <div class="detail-row"><span class="detail-icon">&#128246;</span> &Iacute;cono WifiOff (espec&iacute;fico para errores de red)</div>
+          <div class="detail-row"><span class="detail-icon">&#128221;</span> Mensaje accionable: "Verifica tu conexi&oacute;n"</div>
+          <div class="detail-row"><span class="detail-icon">&#128161;</span> Nunca mostrar errores gen&eacute;ricos o c&oacute;digos</div>
+          <div class="detail-row"><span class="detail-icon">&#128260;</span> Bot&oacute;n primario: "Reintentar", secundario: "Cancelar"</div>
+        </div>
+        <div class="expand-hint">clic para detalles</div>
+      </div>
+
+      <div class="connector">
+        <div class="line error-line"></div>
+        <div class="arrow error-arrow"></div>
+      </div>
+
+      <!-- 05. Decision Diamond -->
+      <div class="decision-wrapper">
+        <div class="diamond">
+          <div class="diamond-shape"></div>
+          <div class="diamond-content">
+            <div class="diamond-step">PASO 05</div>
+            <div class="diamond-text">&iquest;Reintentar o Cancelar?</div>
+            <div class="diamond-sub">Decisi&oacute;n del usuario</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Fork connectors -->
+      <div class="fork-connector">
+        <div class="fork-left"></div>
+        <div class="fork-right"></div>
+        <div class="fork-left-arrow"></div>
+        <div class="fork-right-arrow"></div>
+        <div class="fork-label left-label">Reintentar</div>
+        <div class="fork-label right-label">Cancelar</div>
+      </div>
+
+      <!-- ──── FASE 3: Recuperaci&oacute;n ──── -->
+      <div class="phase-divider recovery-phase">
+        <div class="line"></div>
+        <div class="label">Fase 3 &mdash; Recuperaci&oacute;n</div>
+        <div class="line"></div>
+      </div>
+
+      <!-- ════════ BRANCH CONTAINER ════════ -->
+      <div class="branch-container">
+
+        <!-- ──── PATH A: Retry ──── -->
+        <div class="branch">
+          <div class="branch-label retry">Path A: Reintentar</div>
+
+          <!-- 06. Processing (retry) -->
+          <div class="node amber" onclick="this.classList.toggle('expanded')">
+            <div class="step-badge">06</div>
+            <div class="screen-name">ScanOverlay &mdash; Procesando</div>
+            <div class="screen-state">retry &middot; red restaurada</div>
+            <div class="description">
+              Spinner con "Procesando boleta..." &mdash; la red fue restaurada.
+            </div>
+            <div class="user-thought">
+              <div class="thought-text">OK, reconect&eacute; el WiFi, a ver si funciona.</div>
+            </div>
+            <div class="screen-details">
+              <div class="detail-row"><span class="detail-icon">&#128268;</span> Upload se reanuda desde el punto de fallo</div>
+              <div class="detail-row"><span class="detail-icon">&#129302;</span> Gemini AI procesa la imagen</div>
+            </div>
+            <div class="expand-hint">clic para detalles</div>
+          </div>
+
+          <div class="connector">
+            <div class="line success-line"></div>
+            <div class="label success-label">procesado</div>
+            <div class="arrow success-arrow"></div>
+          </div>
+
+          <!-- 07. Ready (success on retry) -->
+          <div class="node green micro" onclick="this.classList.toggle('expanded')">
+            <div class="celebration"></div>
+            <div class="step-badge">07</div>
+            <div class="key-moment">Alivio del usuario</div>
+            <div class="screen-name">ScanOverlay &mdash; &iexcl;Listo!</div>
+            <div class="screen-state">success on retry &middot; auto-transici&oacute;n</div>
+            <div class="mini-success">
+              <span class="success-check">&#9989;</span>
+              <div class="success-text">&iexcl;Listo!</div>
+            </div>
+            <div class="user-thought">
+              <div class="thought-text">&iexcl;Funcion&oacute;!</div>
+            </div>
+            <div class="screen-details">
+              <div class="detail-row"><span class="detail-icon">&#9989;</span> Checkmark verde con bounce animation</div>
+              <div class="detail-row"><span class="detail-icon">&#9202;</span> Auto-transiciona al QuickSave en 2-3s</div>
+            </div>
+            <div class="expand-hint">clic para detalles</div>
+          </div>
+
+          <div class="connector">
+            <div class="line success-line"></div>
+            <div class="label success-label">auto</div>
+            <div class="arrow success-arrow"></div>
+          </div>
+
+          <!-- 7b. Abbreviated: QuickSave → Save → Dashboard -->
+          <div class="node green abbreviated" onclick="this.classList.toggle('expanded')">
+            <div class="step-badge">7b</div>
+            <div class="screen-name">QuickSave &rarr; Guardar &rarr; Dashboard</div>
+            <div class="screen-state">flujo normal completo &middot; sin cr&eacute;dito perdido</div>
+            <div class="description" style="text-align:center;">
+              Flujo normal de QuickSave se completa exitosamente.<br>
+              <strong style="color:#a0dcb4;">Sin cr&eacute;dito perdido</strong> &mdash; el reintento funcion&oacute;.
+            </div>
+            <div class="screen-details">
+              <div class="detail-row"><span class="detail-icon">&#128176;</span> Transacci&oacute;n guardada en Firestore</div>
+              <div class="detail-row"><span class="detail-icon">&#127942;</span> Cr&eacute;dito consumido normalmente (1 scan = 1 cr&eacute;dito)</div>
+            </div>
+            <div class="expand-hint">clic para detalles</div>
+          </div>
+        </div>
+
+        <!-- ──── PATH B: Cancel ──── -->
+        <div class="branch">
+          <div class="branch-label cancel">Path B: Cancelar</div>
+
+          <!-- 08. Cancel Confirmation -->
+          <div class="node warning" onclick="this.classList.toggle('expanded')">
+            <div class="step-badge">08</div>
+            <div class="key-moment">Transparencia de cr&eacute;dito</div>
+            <div class="screen-name">Confirmaci&oacute;n de Cancelaci&oacute;n</div>
+            <div class="screen-state">cancel dialog &middot; info de cr&eacute;dito</div>
+            <div class="description">
+              Di&aacute;logo de confirmaci&oacute;n con informaci&oacute;n expl&iacute;cita
+              sobre el estado del cr&eacute;dito.
+            </div>
+            <div class="mini-cancel-ui">
+              <div class="mini-cancel-title">&iquest;Cancelar escaneo?</div>
+              <div class="mini-cancel-msg">
+                Tu proceso de escaneo se detendr&aacute;.<br>
+                Puedes intentar de nuevo cuando quieras.
+              </div>
+              <div class="credit-safe">
+                &#x1F6E1; Tu cr&eacute;dito NO ser&aacute; cobrado si cancelas ahora.
+              </div>
+              <div class="mini-btn-row">
+                <button class="mini-btn secondary-btn">Volver</button>
+                <button class="mini-btn warning-btn">Cancelar de todos modos</button>
+              </div>
+            </div>
+            <div class="user-thought">
+              <div class="thought-text">Al menos no pierdo el cr&eacute;dito.</div>
+            </div>
+            <div class="screen-details">
+              <div class="detail-row"><span class="detail-icon">&#128176;</span> Cr&eacute;dito refundido autom&aacute;ticamente al cancelar</div>
+              <div class="detail-row"><span class="detail-icon">&#128161;</span> "Volver" regresa al estado de error (paso 4)</div>
+              <div class="detail-row"><span class="detail-icon">&#9888;</span> Sin penalizaci&oacute;n por cancelar</div>
+            </div>
+            <div class="expand-hint">clic para detalles</div>
+          </div>
+
+          <div class="connector">
+            <div class="line cancel-line"></div>
+            <div class="label cancel-label">confirma cancelar</div>
+            <div class="arrow cancel-arrow"></div>
+          </div>
+
+          <!-- 09. Dashboard — No Charge -->
+          <div class="node blue" data-nav-active="home" onclick="this.classList.toggle('expanded')">
+            <div class="step-badge">09</div>
+            <div class="screen-name">Dashboard &mdash; Sin Cobro</div>
+            <div class="screen-state">returned &middot; cr&eacute;dito intacto</div>
+            <div class="description">
+              El usuario vuelve al dashboard. Su badge de cr&eacute;ditos
+              no ha cambiado &mdash; ninguna penalizaci&oacute;n por el fallo.
+            </div>
+            <div class="user-thought">
+              <div class="thought-text">OK, lo intento despu&eacute;s.</div>
+            </div>
+            <div class="nav-highlight">Tab: <span>Home</span></div>
+            <div class="screen-details">
+              <div class="detail-row"><span class="detail-icon">&#128273;</span> Badge de cr&eacute;ditos sin cambios</div>
+              <div class="detail-row"><span class="detail-icon">&#128161;</span> No se registra ning&uacute;n consumo fallido</div>
+              <div class="detail-row"><span class="detail-icon">&#128260;</span> El usuario puede reintentar cuando quiera</div>
+            </div>
+            <div class="expand-hint">clic para detalles</div>
+          </div>
+        </div>
+
+      </div><!-- /branch-container -->
+
+    </div><!-- /flow -->
+
+    <!-- ═══════════ ERROR TYPES REFERENCE ═══════════ -->
+    <div class="error-reference">
+      <div class="error-reference-title">Referencia de Tipos de Error</div>
+      <table class="error-ref-table">
+        <thead>
+          <tr>
+            <th>&Iacute;cono</th>
+            <th>Tipo</th>
+            <th>Mensaje</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>&#128246;</td>
+            <td>Network</td>
+            <td>"No pudimos conectar con el servidor"</td>
+          </tr>
+          <tr>
+            <td>&#9201;</td>
+            <td>Timeout</td>
+            <td>"El procesamiento tard&oacute; demasiado"</td>
+          </tr>
+          <tr>
+            <td>&#9888;</td>
+            <td>Processing</td>
+            <td>"Error al procesar la imagen"</td>
+          </tr>
+          <tr>
+            <td>&#9888;&#65039;</td>
+            <td>Unknown</td>
+            <td>"Error inesperado"</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ═══════════ FOOTER ═══════════ -->
+    <div class="footer">
+      <p>
+        <span class="app-name">Gastify</span> &mdash; Tu tracker de gastos inteligente
+        <br>Flujo de usuario v1.0 &middot; Khujta AI &middot; 2026
+      </p>
+    </div>
+
+  </div><!-- /container -->
+
+  <script>
+    // ── Smooth scroll for expanded nodes ──
+    document.querySelectorAll('.node').forEach(function(node) {
+      node.addEventListener('click', function() {
+        setTimeout(function() {
+          if (node.classList.contains('expanded')) {
+            node.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          }
+        }, 80);
+      });
+    });
+
+    // ── Entrance animations on scroll (IntersectionObserver) ──
+    var observer = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          entry.target.style.opacity = '1';
+          entry.target.style.transform = 'translateY(0)';
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+
+    var animTargets = document.querySelectorAll('.node, .phase-divider, .decision-wrapper, .branch-label, .error-reference');
+    animTargets.forEach(function(el, i) {
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(24px)';
+      el.style.transition = 'opacity 0.6s ease ' + (i * 0.05) + 's, transform 0.6s ease ' + (i * 0.05) + 's';
+      observer.observe(el);
+    });
+
+    // ── Preserve hover transitions after entrance animation ──
+    document.querySelectorAll('.node').forEach(function(node) {
+      node.addEventListener('mouseenter', function() {
+        node.style.transition = 'opacity 0.6s ease, transform 0.3s ease, box-shadow 0.3s ease';
+      });
+    });
+
+    // ── Highlight active nav item on node hover ──
+    var navItems = document.querySelectorAll('.nav-ref .nav-item');
+    var navDataMap = {};
+    navItems.forEach(function(item) {
+      navDataMap[item.dataset.nav] = item;
+    });
+
+    document.querySelectorAll('.node').forEach(function(node) {
+      var activeNav = node.dataset.navActive;
+      if (!activeNav || activeNav === 'none') return;
+
+      node.addEventListener('mouseenter', function() {
+        var target = navDataMap[activeNav];
+        if (target) target.classList.add('active-in-step');
+      });
+
+      node.addEventListener('mouseleave', function() {
+        navItems.forEach(function(n) { n.classList.remove('active-in-step'); });
+      });
+    });
+
+    // ── Diamond hover pulse ──
+    var diamond = document.querySelector('.diamond-shape');
+    if (diamond) {
+      diamond.addEventListener('mouseenter', function() {
+        diamond.style.borderColor = 'rgba(139,111,192,0.70)';
+        diamond.style.background = 'linear-gradient(135deg, rgba(139,111,192,0.30), rgba(139,111,192,0.15))';
+      });
+      diamond.addEventListener('mouseleave', function() {
+        diamond.style.borderColor = 'rgba(139,111,192,0.45)';
+        diamond.style.background = 'linear-gradient(135deg, rgba(139,111,192,0.20), rgba(139,111,192,0.08))';
+      });
+    }
+
+    // ── Error reference table row highlight ──
+    document.querySelectorAll('.error-ref-table tbody tr').forEach(function(row) {
+      row.addEventListener('mouseenter', function() {
+        row.style.background = 'rgba(239,68,68,0.08)';
+      });
+      row.addEventListener('mouseleave', function() {
+        row.style.background = 'rgba(255,255,255,0.03)';
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,1574 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Batch Capture — Gastify (Production Design System)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Baloo+2:wght@700&display=swap" rel="stylesheet">
+  <style>
+    /* ══════════════════════════════════════════
+       GASTIFY — PRODUCTION DESIGN SYSTEM
+       Themes: Normal / Professional / Mono
+       Modes: Light / Dark
+       ══════════════════════════════════════════ */
+
+    /* ── Normal Light (default) ── */
+    :root {
+      --bg: #f5f0e8;
+      --surface: #fff;
+      --primary: #4a7c59;
+      --text: #2d3a4a;
+      --secondary: #4a5568;
+      --accent: #e8a87c;
+      --border: #e3bba1;
+      --bg-tertiary: #f1dbb6;
+      --secondary-color: #5b8fa8;
+      --primary-rgb: 74, 124, 89;
+      --shadow: rgba(74, 124, 89, 0.12);
+      --shadow-lg: rgba(74, 124, 89, 0.18);
+      --frame-bg: #1a1a2e;
+      --status-bar-text: #fff;
+      --warning: #f59e0b;
+      --warning-rgb: 245, 158, 11;
+      --error: #ef4444;
+      --error-rgb: 239, 68, 68;
+      --success: #22c55e;
+      --success-rgb: 34, 197, 94;
+      --violet: #8b5cf6;
+      --violet-rgb: 139, 92, 246;
+    }
+
+    /* ── Normal Dark ── */
+    [data-theme="normal"][data-mode="dark"] {
+      --bg: #1a2420;
+      --surface: #243028;
+      --primary: #6b9e7a;
+      --text: #e8e4dc;
+      --secondary: #b8c4a8;
+      --border: #3d4d42;
+      --bg-tertiary: #2d3a30;
+      --secondary-color: #7ab5cc;
+      --primary-rgb: 107, 158, 122;
+      --shadow: rgba(0,0,0,0.3);
+      --shadow-lg: rgba(0,0,0,0.4);
+      --frame-bg: #0a0f0c;
+      --status-bar-text: #e8e4dc;
+      --accent: #d4a574;
+      --warning: #fbbf24;
+      --warning-rgb: 251, 191, 36;
+      --error: #f87171;
+      --error-rgb: 248, 113, 113;
+      --success: #4ade80;
+      --success-rgb: 74, 222, 128;
+      --violet: #a78bfa;
+      --violet-rgb: 167, 139, 250;
+    }
+
+    /* ── Professional Light ── */
+    [data-theme="professional"][data-mode="light"] {
+      --bg: #f8fafc;
+      --surface: #fff;
+      --primary: #2563eb;
+      --text: #0f172a;
+      --secondary: #64748b;
+      --accent: #3b82f6;
+      --border: #e2e8f0;
+      --bg-tertiary: #f1f5f9;
+      --secondary-color: #0ea5e9;
+      --primary-rgb: 37, 99, 235;
+      --shadow: rgba(37, 99, 235, 0.08);
+      --shadow-lg: rgba(37, 99, 235, 0.12);
+      --frame-bg: #1e293b;
+      --status-bar-text: #fff;
+      --warning: #f59e0b;
+      --warning-rgb: 245, 158, 11;
+      --error: #ef4444;
+      --error-rgb: 239, 68, 68;
+      --success: #22c55e;
+      --success-rgb: 34, 197, 94;
+      --violet: #8b5cf6;
+      --violet-rgb: 139, 92, 246;
+    }
+
+    /* ── Professional Dark ── */
+    [data-theme="professional"][data-mode="dark"] {
+      --bg: #0f172a;
+      --surface: #1e293b;
+      --primary: #3b82f6;
+      --text: #f1f5f9;
+      --secondary: #94a3b8;
+      --accent: #60a5fa;
+      --border: #334155;
+      --bg-tertiary: #1e293b;
+      --secondary-color: #38bdf8;
+      --primary-rgb: 59, 130, 246;
+      --shadow: rgba(0,0,0,0.3);
+      --shadow-lg: rgba(0,0,0,0.4);
+      --frame-bg: #020617;
+      --status-bar-text: #f1f5f9;
+      --warning: #fbbf24;
+      --warning-rgb: 251, 191, 36;
+      --error: #f87171;
+      --error-rgb: 248, 113, 113;
+      --success: #4ade80;
+      --success-rgb: 74, 222, 128;
+      --violet: #a78bfa;
+      --violet-rgb: 167, 139, 250;
+    }
+
+    /* ── Mono Light ── */
+    [data-theme="mono"][data-mode="light"] {
+      --bg: #fafafa;
+      --surface: #fff;
+      --primary: #18181b;
+      --text: #18181b;
+      --secondary: #71717a;
+      --accent: #52525b;
+      --border: #e4e4e7;
+      --bg-tertiary: #f4f4f5;
+      --secondary-color: #3f3f46;
+      --primary-rgb: 24, 24, 27;
+      --shadow: rgba(0,0,0,0.06);
+      --shadow-lg: rgba(0,0,0,0.1);
+      --frame-bg: #18181b;
+      --status-bar-text: #fff;
+      --warning: #a1a1aa;
+      --warning-rgb: 113, 113, 122;
+      --error: #52525b;
+      --error-rgb: 82, 82, 91;
+      --success: #3f3f46;
+      --success-rgb: 63, 63, 70;
+      --violet: #71717a;
+      --violet-rgb: 113, 113, 122;
+    }
+
+    /* ── Mono Dark ── */
+    [data-theme="mono"][data-mode="dark"] {
+      --bg: #09090b;
+      --surface: #18181b;
+      --primary: #a1a1aa;
+      --text: #fafafa;
+      --secondary: #a1a1aa;
+      --accent: #71717a;
+      --border: #27272a;
+      --bg-tertiary: #18181b;
+      --secondary-color: #71717a;
+      --primary-rgb: 63, 63, 70;
+      --shadow: rgba(0,0,0,0.4);
+      --shadow-lg: rgba(0,0,0,0.5);
+      --frame-bg: #000;
+      --status-bar-text: #fafafa;
+      --warning: #71717a;
+      --warning-rgb: 113, 113, 122;
+      --error: #a1a1aa;
+      --error-rgb: 161, 161, 170;
+      --success: #71717a;
+      --success-rgb: 113, 113, 122;
+      --violet: #52525b;
+      --violet-rgb: 82, 82, 91;
+    }
+
+    /* ══════════════════════════════════════════
+       BASE STYLES
+       ══════════════════════════════════════════ */
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #1a1a2e;
+      font-family: 'Outfit', 'Segoe UI', system-ui, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      gap: 40px;
+      color: var(--text);
+    }
+
+    /* ══════════════════════════════════════════
+       CONTROLS (outside phone frame)
+       ══════════════════════════════════════════ */
+
+    .controls {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      width: 100%;
+      max-width: 520px;
+    }
+
+    .controls-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .theme-tabs {
+      display: flex;
+      background: rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 4px;
+      gap: 2px;
+    }
+
+    .theme-tab {
+      padding: 8px 20px;
+      border: none;
+      background: transparent;
+      color: rgba(255,255,255,0.5);
+      font-family: 'Outfit', sans-serif;
+      font-weight: 500;
+      font-size: 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .theme-tab:hover {
+      color: rgba(255,255,255,0.8);
+    }
+
+    .theme-tab.active {
+      background: rgba(255,255,255,0.15);
+      color: #fff;
+    }
+
+    .mode-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: rgba(255,255,255,0.7);
+      font-family: 'Outfit', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .toggle-switch {
+      width: 44px;
+      height: 24px;
+      background: rgba(255,255,255,0.15);
+      border-radius: 12px;
+      cursor: pointer;
+      position: relative;
+      transition: background 0.2s;
+    }
+
+    .toggle-switch.dark {
+      background: rgba(255,255,255,0.3);
+    }
+
+    .toggle-switch::after {
+      content: '';
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      background: #fff;
+      border-radius: 50%;
+      top: 3px;
+      left: 3px;
+      transition: transform 0.2s;
+    }
+
+    .toggle-switch.dark::after {
+      transform: translateX(20px);
+    }
+
+    .variant-tabs {
+      display: flex;
+      background: rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 4px;
+      gap: 2px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .variant-tab {
+      padding: 6px 12px;
+      border: none;
+      background: transparent;
+      color: rgba(255,255,255,0.5);
+      font-family: 'Outfit', sans-serif;
+      font-weight: 500;
+      font-size: 12px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .variant-tab:hover {
+      color: rgba(255,255,255,0.8);
+    }
+
+    .variant-tab.active {
+      background: rgba(255,255,255,0.15);
+      color: #fff;
+    }
+
+    /* ══════════════════════════════════════════
+       PHONE FRAME
+       ══════════════════════════════════════════ */
+
+    .phone-frame {
+      width: 360px;
+      height: 860px;
+      background: var(--frame-bg);
+      border-radius: 44px;
+      padding: 12px;
+      position: relative;
+      box-shadow: 0 25px 80px rgba(0,0,0,0.4), inset 0 0 0 2px rgba(255,255,255,0.08);
+    }
+
+    .phone-screen {
+      width: 100%;
+      height: 100%;
+      background: var(--bg);
+      border-radius: 34px;
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Notch ── */
+    .phone-notch {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 150px;
+      height: 28px;
+      background: var(--frame-bg);
+      border-radius: 0 0 20px 20px;
+      z-index: 100;
+    }
+
+    /* ── Status Bar ── */
+    .status-bar {
+      height: 48px;
+      padding: 14px 24px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text);
+      position: relative;
+      z-index: 99;
+      flex-shrink: 0;
+      background: var(--bg);
+    }
+
+    .status-bar-left {
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .status-bar-right {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .status-bar-right svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    /* ── Home Indicator ── */
+    .home-indicator {
+      position: absolute;
+      bottom: 6px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 134px;
+      height: 5px;
+      background: var(--secondary);
+      border-radius: 3px;
+      opacity: 0.3;
+      z-index: 100;
+    }
+
+    /* ══════════════════════════════════════════
+       HEADER BAR (full-screen capture view)
+       ══════════════════════════════════════════ */
+
+    .capture-header {
+      height: 56px;
+      padding: 0 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .header-back-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      border: none;
+      background: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .header-back-btn svg {
+      width: 20px;
+      height: 20px;
+      stroke: var(--text);
+      stroke-width: 2;
+      fill: none;
+    }
+
+    .header-center {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .header-title {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      font-size: 16px;
+      color: var(--text);
+    }
+
+    .header-icon {
+      width: 22px;
+      height: 22px;
+      color: var(--warning);
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .credit-badge {
+      border-radius: 999px;
+      padding: 3px 10px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 1.3;
+    }
+
+    .credit-badge.green {
+      background: rgba(var(--success-rgb), 0.15);
+      color: var(--success);
+      border: 1px solid rgba(var(--success-rgb), 0.3);
+    }
+
+    .credit-badge.violet {
+      background: rgba(var(--violet-rgb), 0.15);
+      color: var(--violet);
+      border: 1px solid rgba(var(--violet-rgb), 0.3);
+    }
+
+    .header-close-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      border: none;
+      background: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .header-close-btn svg {
+      width: 18px;
+      height: 18px;
+      stroke: var(--secondary);
+      stroke-width: 2;
+      fill: none;
+    }
+
+    /* ══════════════════════════════════════════
+       SCROLLABLE CONTENT
+       ══════════════════════════════════════════ */
+
+    .scroll-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      padding-bottom: 140px;
+    }
+
+    .scroll-content::-webkit-scrollbar {
+      display: none;
+    }
+
+    /* ══════════════════════════════════════════
+       IMAGE GALLERY SECTION
+       ══════════════════════════════════════════ */
+
+    .gallery-section {
+      margin-bottom: 16px;
+    }
+
+    .gallery-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 0;
+      cursor: pointer;
+    }
+
+    .gallery-toggle-left {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+      font-size: 14px;
+      color: var(--text);
+    }
+
+    .gallery-toggle-icon {
+      font-size: 16px;
+    }
+
+    .gallery-toggle-chevron {
+      width: 18px;
+      height: 18px;
+      stroke: var(--secondary);
+      stroke-width: 2;
+      fill: none;
+      transition: transform 0.2s ease;
+    }
+
+    .gallery-toggle.collapsed .gallery-toggle-chevron {
+      transform: rotate(-90deg);
+    }
+
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .gallery-thumb {
+      width: 100%;
+      aspect-ratio: 4/5;
+      border-radius: 8px;
+      position: relative;
+      overflow: hidden;
+      border: 1.5px solid var(--border);
+    }
+
+    .gallery-thumb-img {
+      width: 100%;
+      height: 100%;
+      background: var(--bg-tertiary);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+
+    .gallery-thumb-img .receipt-lines {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      align-items: center;
+    }
+
+    .gallery-thumb-img .receipt-line {
+      height: 2px;
+      background: var(--border);
+      border-radius: 1px;
+    }
+
+    .gallery-thumb-img .receipt-line:nth-child(1) { width: 36px; }
+    .gallery-thumb-img .receipt-line:nth-child(2) { width: 28px; }
+    .gallery-thumb-img .receipt-line:nth-child(3) { width: 32px; }
+    .gallery-thumb-img .receipt-line:nth-child(4) { width: 24px; }
+
+    .gallery-remove-btn {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--error);
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .gallery-remove-btn svg {
+      width: 10px;
+      height: 10px;
+      stroke: #fff;
+      stroke-width: 2.5;
+      fill: none;
+    }
+
+    .gallery-add-placeholder {
+      width: 100%;
+      aspect-ratio: 4/5;
+      border-radius: 8px;
+      border: 2px dashed var(--border);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      cursor: pointer;
+      background: transparent;
+      transition: background 0.15s;
+    }
+
+    .gallery-add-placeholder:hover {
+      background: rgba(var(--primary-rgb), 0.05);
+    }
+
+    .gallery-add-placeholder svg {
+      width: 20px;
+      height: 20px;
+      stroke: var(--secondary);
+      stroke-width: 1.5;
+      fill: none;
+    }
+
+    .gallery-add-placeholder .add-icon {
+      width: 14px;
+      height: 14px;
+      stroke: var(--secondary);
+      stroke-width: 2;
+    }
+
+    .gallery-add-text {
+      font-family: 'Outfit', sans-serif;
+      font-size: 9px;
+      font-weight: 500;
+      color: var(--secondary);
+      text-align: center;
+      line-height: 1.2;
+    }
+
+    /* ══════════════════════════════════════════
+       COUNTER SECTION
+       ══════════════════════════════════════════ */
+
+    .counter-section {
+      margin-bottom: 16px;
+    }
+
+    .counter-text {
+      font-family: 'Outfit', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--secondary);
+      margin-bottom: 8px;
+    }
+
+    .counter-bar {
+      width: 100%;
+      height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .counter-bar-fill {
+      height: 100%;
+      border-radius: 2px;
+      background: var(--warning);
+      transition: width 0.3s ease;
+    }
+
+    /* ══════════════════════════════════════════
+       CREDIT SECTION
+       ══════════════════════════════════════════ */
+
+    .credit-section {
+      background: var(--bg-tertiary);
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 20px;
+    }
+
+    .credit-title {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+      font-size: 14px;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+
+    .credit-calc-text {
+      font-family: 'Outfit', sans-serif;
+      font-size: 13px;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+
+    .credit-detail {
+      font-family: 'Outfit', sans-serif;
+      font-size: 12px;
+      color: var(--secondary);
+      line-height: 1.6;
+    }
+
+    .credit-detail.success-text {
+      color: var(--success);
+    }
+
+    /* ══════════════════════════════════════════
+       SWITCH MODE LINK
+       ══════════════════════════════════════════ */
+
+    .switch-mode-link {
+      display: block;
+      text-align: center;
+      font-family: 'Outfit', sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--secondary);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+
+    /* ══════════════════════════════════════════
+       BOTTOM ACTION BUTTONS (fixed)
+       ══════════════════════════════════════════ */
+
+    .bottom-actions {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 16px;
+      padding-bottom: 28px;
+      background: linear-gradient(to top, var(--bg) 70%, transparent);
+      z-index: 50;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 12px;
+      width: 100%;
+    }
+
+    .btn-cancel {
+      flex: 1;
+      padding: 14px 16px;
+      border-radius: 14px;
+      border: 1.5px solid var(--border);
+      background: transparent;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+      font-size: 14px;
+      color: var(--text);
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .btn-cancel:hover {
+      background: rgba(var(--primary-rgb), 0.05);
+    }
+
+    .btn-process {
+      flex: 2;
+      padding: 14px 20px;
+      border-radius: 14px;
+      border: none;
+      background: var(--warning);
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      font-size: 15px;
+      color: #1a1a2e;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: opacity 0.15s, transform 0.1s;
+    }
+
+    .btn-process:hover {
+      opacity: 0.92;
+    }
+
+    .btn-process:active {
+      transform: scale(0.98);
+    }
+
+    .btn-process svg {
+      width: 18px;
+      height: 18px;
+      stroke: #1a1a2e;
+      stroke-width: 2.5;
+      fill: none;
+    }
+
+    .btn-process:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* ══════════════════════════════════════════
+       EMPTY STATE
+       ══════════════════════════════════════════ */
+
+    .empty-capture-area {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 32px 24px;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .empty-capture-zone {
+      width: 100%;
+      min-height: 200px;
+      border: 2.5px dashed var(--border);
+      border-radius: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      padding: 32px;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+
+    .empty-capture-zone:hover {
+      background: rgba(var(--primary-rgb), 0.04);
+      border-color: var(--primary);
+    }
+
+    .empty-capture-zone svg {
+      width: 48px;
+      height: 48px;
+      stroke: var(--secondary);
+      stroke-width: 1.5;
+      fill: none;
+    }
+
+    .empty-capture-title {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+      font-size: 16px;
+      color: var(--text);
+    }
+
+    .empty-capture-subtitle {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 400;
+      font-size: 13px;
+      color: var(--secondary);
+      line-height: 1.5;
+    }
+
+    .empty-add-btn {
+      padding: 12px 28px;
+      border-radius: 14px;
+      border: none;
+      background: var(--warning);
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      font-size: 15px;
+      color: #1a1a2e;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .empty-add-btn svg {
+      width: 20px;
+      height: 20px;
+      stroke: #1a1a2e;
+      stroke-width: 2;
+      fill: none;
+    }
+
+    /* ══════════════════════════════════════════
+       MAX REACHED WARNING
+       ══════════════════════════════════════════ */
+
+    .max-warning-banner {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      background: rgba(var(--warning-rgb), 0.12);
+      border: 1px solid rgba(var(--warning-rgb), 0.3);
+      margin-bottom: 12px;
+    }
+
+    .max-warning-banner svg {
+      width: 18px;
+      height: 18px;
+      stroke: var(--warning);
+      stroke-width: 2;
+      fill: none;
+      flex-shrink: 0;
+    }
+
+    .max-warning-text {
+      font-family: 'Outfit', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--warning);
+    }
+
+    /* ══════════════════════════════════════════
+       MODAL OVERLAY
+       ══════════════════════════════════════════ */
+
+    .modal-overlay {
+      display: none;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.55);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      border-radius: 34px;
+    }
+
+    .modal-card {
+      background: var(--surface);
+      border-radius: 20px;
+      padding: 28px 24px;
+      width: 100%;
+      max-width: 340px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      text-align: center;
+    }
+
+    .modal-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-icon.success-icon {
+      background: rgba(var(--success-rgb), 0.12);
+    }
+
+    .modal-icon.success-icon svg {
+      width: 28px;
+      height: 28px;
+      stroke: var(--success);
+      stroke-width: 2.5;
+      fill: none;
+    }
+
+    .modal-icon.error-icon {
+      background: rgba(var(--error-rgb), 0.12);
+    }
+
+    .modal-icon.error-icon svg {
+      width: 28px;
+      height: 28px;
+      stroke: var(--error);
+      stroke-width: 2.5;
+      fill: none;
+    }
+
+    .modal-title {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      font-size: 18px;
+      color: var(--text);
+    }
+
+    .modal-subtitle {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 400;
+      font-size: 14px;
+      color: var(--secondary);
+      line-height: 1.5;
+    }
+
+    .modal-cost-breakdown {
+      width: 100%;
+      background: var(--bg-tertiary);
+      border-radius: 10px;
+      padding: 12px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .modal-cost-row {
+      display: flex;
+      justify-content: space-between;
+      font-family: 'Outfit', sans-serif;
+      font-size: 13px;
+    }
+
+    .modal-cost-row .label {
+      color: var(--secondary);
+    }
+
+    .modal-cost-row .value {
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .modal-cost-row.total {
+      border-top: 1px solid var(--border);
+      padding-top: 6px;
+      margin-top: 2px;
+    }
+
+    .modal-cost-row.total .label {
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .modal-cost-row.remaining .value {
+      color: var(--success);
+      font-weight: 700;
+    }
+
+    .modal-cost-row.insufficient .value {
+      color: var(--error);
+      font-weight: 700;
+    }
+
+    .modal-buttons {
+      display: flex;
+      gap: 10px;
+      width: 100%;
+      margin-top: 4px;
+    }
+
+    .modal-btn {
+      flex: 1;
+      padding: 12px 16px;
+      border-radius: 12px;
+      border: none;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+
+    .modal-btn:hover {
+      opacity: 0.88;
+    }
+
+    .modal-btn.secondary {
+      background: var(--bg-tertiary);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .modal-btn.confirm {
+      background: var(--success);
+      color: #fff;
+    }
+
+    .modal-btn.warning-btn {
+      background: var(--warning);
+      color: #1a1a2e;
+    }
+
+    .modal-btn.error-btn {
+      background: var(--error);
+      color: #fff;
+    }
+
+    /* ══════════════════════════════════════════
+       MAX REACHED — gallery overrides
+       ══════════════════════════════════════════ */
+
+    .gallery-add-placeholder.disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    /* ══════════════════════════════════════════
+       VARIANT VISIBILITY
+       ══════════════════════════════════════════ */
+
+    /* Hero: default — gallery + content visible */
+    .hero-content { display: block; }
+    .empty-capture-area { display: none; }
+    .max-warning-banner { display: none; }
+    .modal-overlay { display: none; }
+
+    /* Empty */
+    body.variant-empty .hero-content { display: none; }
+    body.variant-empty .empty-capture-area { display: flex; }
+    body.variant-empty .counter-section { display: none; }
+    body.variant-empty .credit-section { display: none; }
+    body.variant-empty .switch-mode-link { display: none; }
+    body.variant-empty .btn-process { opacity: 0.4; cursor: not-allowed; }
+
+    /* Max Reached */
+    body.variant-max .max-warning-banner { display: flex; }
+    body.variant-max .gallery-add-placeholder { display: none; }
+    body.variant-max .counter-bar-fill { width: 100% !important; }
+    body.variant-max .counter-text { color: var(--warning); }
+
+    /* Credit Warning — Sufficient */
+    body.variant-credit-ok .modal-overlay.credit-sufficient { display: flex; }
+
+    /* Credit Warning — Insufficient */
+    body.variant-credit-low .modal-overlay.credit-insufficient { display: flex; }
+
+    /* ══════════════════════════════════════════
+       RESPONSIVE
+       ══════════════════════════════════════════ */
+
+    @media (max-width: 460px) {
+      .phone-frame {
+        width: 100%;
+        border-radius: 0;
+        padding: 0;
+      }
+      .phone-screen {
+        border-radius: 0;
+      }
+      .phone-notch { display: none; }
+    }
+  </style>
+</head>
+<body data-theme="normal" data-mode="light">
+
+  <!-- ════════════════════════════════════════
+       CONTROLS (outside phone frame)
+       ════════════════════════════════════════ -->
+  <div class="controls">
+    <div class="controls-row">
+      <div class="theme-tabs">
+        <button class="theme-tab active" data-theme-val="normal">Normal</button>
+        <button class="theme-tab" data-theme-val="professional">Professional</button>
+        <button class="theme-tab" data-theme-val="mono">Mono</button>
+      </div>
+      <div class="mode-toggle">
+        <span>Light</span>
+        <div class="toggle-switch" id="modeToggle"></div>
+        <span>Dark</span>
+      </div>
+    </div>
+    <div class="controls-row">
+      <div class="variant-tabs">
+        <button class="variant-tab active" data-variant="hero">Hero</button>
+        <button class="variant-tab" data-variant="empty">Empty</button>
+        <button class="variant-tab" data-variant="max">Max Reached</button>
+        <button class="variant-tab" data-variant="credit-ok">Credit OK</button>
+        <button class="variant-tab" data-variant="credit-low">Credit Low</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════
+       PHONE FRAME
+       ════════════════════════════════════════ -->
+  <div class="phone-frame">
+    <div class="phone-notch"></div>
+    <div class="phone-screen">
+
+      <!-- Status Bar -->
+      <div class="status-bar">
+        <span class="status-bar-left">9:41</span>
+        <div class="status-bar-right">
+          <!-- Signal -->
+          <svg viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="11" width="2.5" height="4" rx="0.5"/><rect x="5" y="8" width="2.5" height="7" rx="0.5"/><rect x="9" y="5" width="2.5" height="10" rx="0.5"/><rect x="13" y="1" width="2.5" height="14" rx="0.5"/></svg>
+          <!-- WiFi -->
+          <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 12.5a1.25 1.25 0 110 2.5 1.25 1.25 0 010-2.5zM8 8.5c2.07 0 3.94.84 5.3 2.2l-1.42 1.42A5.48 5.48 0 008 10.5c-1.52 0-2.9.62-3.88 1.62L2.7 10.7A7.47 7.47 0 018 8.5zM8 4.5c3.18 0 6.07 1.29 8.16 3.38l-1.42 1.42A9.47 9.47 0 008 6.5c-2.62 0-5 1.06-6.74 2.8L-.16 7.88A11.47 11.47 0 018 4.5z"/></svg>
+          <!-- Battery -->
+          <svg viewBox="0 0 24 12" fill="currentColor"><rect x="0" y="0" width="20" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="2" y="2" width="14" height="8" rx="1"/><rect x="21" y="3.5" width="2.5" height="5" rx="1"/></svg>
+        </div>
+      </div>
+
+      <!-- Capture Header (replaces standard header — full-screen, no bottom nav) -->
+      <div class="capture-header">
+        <div class="header-left">
+          <button class="header-back-btn">
+            <!-- X icon -->
+            <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+        <div class="header-center">
+          <!-- Layers icon -->
+          <svg class="header-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="12 2 2 7 12 12 22 7 12 2"/>
+            <polyline points="2 17 12 22 22 17"/>
+            <polyline points="2 12 12 17 22 12"/>
+          </svg>
+          <span class="header-title">Lote de Escaneo</span>
+        </div>
+        <div class="header-right">
+          <span class="credit-badge green">12</span>
+          <span class="credit-badge violet">3</span>
+        </div>
+      </div>
+
+      <!-- Scrollable Content -->
+      <div class="scroll-content">
+
+        <!-- ═══ MAX REACHED WARNING BANNER ═══ -->
+        <div class="max-warning-banner">
+          <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+            <line x1="12" y1="9" x2="12" y2="13"/>
+            <line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+          <span class="max-warning-text">Maximo alcanzado (50/50)</span>
+        </div>
+
+        <!-- ═══ HERO CONTENT (3 images captured) ═══ -->
+        <div class="hero-content">
+
+          <!-- Image Gallery -->
+          <div class="gallery-section">
+            <div class="gallery-toggle" id="galleryToggle">
+              <div class="gallery-toggle-left">
+                <span class="gallery-toggle-icon">&#128247;</span>
+                <span>Imagenes (3 de 50)</span>
+              </div>
+              <svg class="gallery-toggle-chevron" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 12 15 18 9"/>
+              </svg>
+            </div>
+            <div class="gallery-grid" id="galleryGrid">
+              <!-- Thumbnail 1 -->
+              <div class="gallery-thumb">
+                <div class="gallery-thumb-img">
+                  <div class="receipt-lines">
+                    <div class="receipt-line"></div>
+                    <div class="receipt-line"></div>
+                    <div class="receipt-line"></div>
+                    <div class="receipt-line"></div>
+                  </div>
+                </div>
+                <button class="gallery-remove-btn">
+                  <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"/>
+                    <line x1="6" y1="6" x2="18" y2="18"/>
+                  </svg>
+                </button>
+              </div>
+              <!-- Thumbnail 2 -->
+              <div class="gallery-thumb">
+                <div class="gallery-thumb-img">
+                  <div class="receipt-lines">
+                    <div class="receipt-line"></div>
+                    <div class="receipt-line"></div>
+                    <div class="receipt-line"></div>
+                    <div class="receipt-line"></div>
+                  </div>
+                </div>
+                <button class="gallery-remove-btn">
+                  <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"/>
+                    <line x1="6" y1="6" x2="18" y2="18"/>
+                  </svg>
+                </button>
+              </div>
+              <!-- Thumbnail 3 -->
+              <div class="gallery-thumb">
+                <div class="gallery-thumb-img">
+                  <div class="receipt-lines">
+                    <div class="receipt-line"></div>
+                    <div class="receipt-line"></div>
+                    <div class="receipt-line"></div>
+                    <div class="receipt-line"></div>
+                  </div>
+                </div>
+                <button class="gallery-remove-btn">
+                  <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"/>
+                    <line x1="6" y1="6" x2="18" y2="18"/>
+                  </svg>
+                </button>
+              </div>
+              <!-- Add placeholder -->
+              <div class="gallery-add-placeholder">
+                <!-- Camera icon -->
+                <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                  <circle cx="12" cy="13" r="4"/>
+                </svg>
+                <!-- Plus icon -->
+                <svg class="add-icon" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="12" y1="5" x2="12" y2="19"/>
+                  <line x1="5" y1="12" x2="19" y2="12"/>
+                </svg>
+                <span class="gallery-add-text">Agregar<br>imagen</span>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /hero-content -->
+
+        <!-- ═══ EMPTY STATE ═══ -->
+        <div class="empty-capture-area">
+          <div class="empty-capture-zone">
+            <!-- Camera icon -->
+            <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+              <circle cx="12" cy="13" r="4"/>
+            </svg>
+            <h3 class="empty-capture-title">Toma fotos de tus boletas</h3>
+            <p class="empty-capture-subtitle">Agrega hasta 50 boletas para escanearlas todas de una vez</p>
+          </div>
+          <button class="empty-add-btn">
+            <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+              <circle cx="12" cy="13" r="4"/>
+            </svg>
+            Agregar imagen
+          </button>
+        </div>
+
+        <!-- Counter Section -->
+        <div class="counter-section">
+          <div class="counter-text" id="counterText">3 de 50 imagenes</div>
+          <div class="counter-bar">
+            <div class="counter-bar-fill" id="counterBarFill" style="width: 6%;"></div>
+          </div>
+        </div>
+
+        <!-- Credit Section -->
+        <div class="credit-section">
+          <div class="credit-title">Costo estimado</div>
+          <div class="credit-calc-text">3 boletas &times; 1 credito = 3 creditos</div>
+          <div class="credit-detail">Creditos disponibles: 12</div>
+          <div class="credit-detail success-text">Creditos restantes: 9</div>
+        </div>
+
+        <!-- Switch to Single Mode -->
+        <div class="switch-mode-link">Cambiar a modo individual</div>
+
+      </div><!-- /scroll-content -->
+
+      <!-- Bottom Action Buttons -->
+      <div class="bottom-actions">
+        <div class="action-buttons">
+          <button class="btn-cancel">Cancelar</button>
+          <button class="btn-process" id="btnProcess">
+            Procesar Lote
+            <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12"/>
+              <polyline points="12 5 19 12 12 19"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- ═══ MODAL: Credit Warning — Sufficient ═══ -->
+      <div class="modal-overlay credit-sufficient">
+        <div class="modal-card">
+          <div class="modal-icon success-icon">
+            <!-- Checkmark -->
+            <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+          </div>
+          <div class="modal-title">Confirmar procesamiento</div>
+          <div class="modal-subtitle">3 creditos seran utilizados para procesar este lote</div>
+          <div class="modal-cost-breakdown">
+            <div class="modal-cost-row">
+              <span class="label">Boletas</span>
+              <span class="value">3</span>
+            </div>
+            <div class="modal-cost-row">
+              <span class="label">Costo por boleta</span>
+              <span class="value">1 credito</span>
+            </div>
+            <div class="modal-cost-row total">
+              <span class="label">Total</span>
+              <span class="value">3 creditos</span>
+            </div>
+            <div class="modal-cost-row remaining">
+              <span class="label">Creditos restantes</span>
+              <span class="value">9</span>
+            </div>
+          </div>
+          <div class="modal-buttons">
+            <button class="modal-btn secondary">Cancelar</button>
+            <button class="modal-btn confirm">Continuar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ MODAL: Credit Warning — Insufficient ═══ -->
+      <div class="modal-overlay credit-insufficient">
+        <div class="modal-card">
+          <div class="modal-icon error-icon">
+            <!-- AlertTriangle -->
+            <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+              <line x1="12" y1="9" x2="12" y2="13"/>
+              <line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+          </div>
+          <div class="modal-title">Creditos insuficientes</div>
+          <div class="modal-subtitle">Reduce el lote o obtiene mas creditos para continuar</div>
+          <div class="modal-cost-breakdown">
+            <div class="modal-cost-row">
+              <span class="label">Boletas en lote</span>
+              <span class="value">8</span>
+            </div>
+            <div class="modal-cost-row">
+              <span class="label">Creditos necesarios</span>
+              <span class="value">8</span>
+            </div>
+            <div class="modal-cost-row total insufficient">
+              <span class="label">Creditos disponibles</span>
+              <span class="value">3</span>
+            </div>
+            <div class="modal-cost-row insufficient">
+              <span class="label">Faltan</span>
+              <span class="value">5 creditos</span>
+            </div>
+          </div>
+          <div class="modal-buttons">
+            <button class="modal-btn secondary">Reducir lote</button>
+            <button class="modal-btn warning-btn">Obtener creditos</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Home Indicator -->
+      <div class="home-indicator"></div>
+
+    </div><!-- /phone-screen -->
+  </div><!-- /phone-frame -->
+
+  <!-- ════════════════════════════════════════
+       JAVASCRIPT — Theme / Mode / Variant
+       ════════════════════════════════════════ -->
+  <script>
+    (function() {
+      const body = document.body;
+      const themeTabs = document.querySelectorAll('.theme-tab');
+      const modeToggle = document.getElementById('modeToggle');
+      const variantTabs = document.querySelectorAll('.variant-tab');
+
+      let currentTheme = 'normal';
+      let currentMode = 'light';
+
+      function applyTheme() {
+        body.setAttribute('data-theme', currentTheme);
+        body.setAttribute('data-mode', currentMode);
+      }
+
+      // Theme tabs
+      themeTabs.forEach(function(tab) {
+        tab.addEventListener('click', function() {
+          themeTabs.forEach(function(t) { t.classList.remove('active'); });
+          tab.classList.add('active');
+          currentTheme = tab.dataset.themeVal;
+          applyTheme();
+        });
+      });
+
+      // Mode toggle
+      modeToggle.addEventListener('click', function() {
+        currentMode = currentMode === 'light' ? 'dark' : 'light';
+        modeToggle.classList.toggle('dark', currentMode === 'dark');
+        applyTheme();
+      });
+
+      // Variant tabs
+      variantTabs.forEach(function(tab) {
+        tab.addEventListener('click', function() {
+          variantTabs.forEach(function(t) { t.classList.remove('active'); });
+          tab.classList.add('active');
+          body.classList.remove('variant-empty', 'variant-max', 'variant-credit-ok', 'variant-credit-low');
+          var variant = tab.dataset.variant;
+          if (variant !== 'hero') {
+            body.classList.add('variant-' + variant);
+          }
+
+          // Update dynamic content per variant
+          var counterText = document.getElementById('counterText');
+          var counterBarFill = document.getElementById('counterBarFill');
+          var galleryToggleLeft = document.querySelector('.gallery-toggle-left span:last-child');
+
+          if (variant === 'max') {
+            if (counterText) counterText.textContent = '50 de 50 imagenes';
+            if (counterBarFill) counterBarFill.style.width = '100%';
+            if (galleryToggleLeft) galleryToggleLeft.textContent = 'Imagenes (50 de 50)';
+          } else {
+            if (counterText) counterText.textContent = '3 de 50 imagenes';
+            if (counterBarFill) counterBarFill.style.width = '6%';
+            if (galleryToggleLeft) galleryToggleLeft.textContent = 'Imagenes (3 de 50)';
+          }
+        });
+      });
+
+      // Gallery toggle collapse/expand
+      var galleryToggle = document.getElementById('galleryToggle');
+      var galleryGrid = document.getElementById('galleryGrid');
+      if (galleryToggle && galleryGrid) {
+        galleryToggle.addEventListener('click', function() {
+          galleryToggle.classList.toggle('collapsed');
+          galleryGrid.style.display = galleryToggle.classList.contains('collapsed') ? 'none' : 'grid';
+        });
+      }
+
+      // Initial apply
+      applyTheme();
+    })();
+  </script>
+</body>
+</html>

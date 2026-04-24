@@ -1,0 +1,2027 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — Gastify (Production Design System)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Baloo+2:wght@700&display=swap" rel="stylesheet">
+  <style>
+    /* ======================================================
+       GASTIFY — PRODUCTION DESIGN SYSTEM
+       Themes: Normal / Professional / Mono
+       Modes: Light / Dark
+       Screen: Dashboard (Inicio)
+       Phone: 360x780 (Samsung S23)
+       ====================================================== */
+
+    /* -- Normal Light (default) -- */
+    :root {
+      --bg: #f5f0e8;
+      --surface: #fff;
+      --primary: #4a7c59;
+      --text: #2d3a4a;
+      --secondary: #4a5568;
+      --accent: #e8a87c;
+      --border: #e3bba1;
+      --border-medium: #d4a574;
+      --bg-tertiary: #f1dbb6;
+      --secondary-color: #5b8fa8;
+      --success: #7d9b5f;
+      --warning: #f59e0b;
+      --error: #ef4444;
+      --primary-rgb: 74, 124, 89;
+      --nav-bg: #ffffff;
+      --nav-border: #e3bba1;
+      --shadow: rgba(74, 124, 89, 0.12);
+      --shadow-lg: rgba(74, 124, 89, 0.18);
+      --skeleton-base: #f1dbb6;
+      --skeleton-shine: #f5f0e8;
+      --progress-track: #e3bba1;
+      --indicator-inactive: #e3bba1;
+      --treemap-text: #fff;
+      --frame-bg: #1a1a2e;
+      --status-bar-text: #fff;
+      --fab-gradient-from: #4a7c59;
+      --fab-gradient-to: #3d6b4b;
+      --recent-indicator: #d4a574;
+      --cat-hogar: #4a7c59;
+      --cat-hogar-tint: rgba(74, 124, 89, 0.15);
+      --cat-medicamento: #dc2626;
+      --cat-medicamento-tint: rgba(220, 38, 38, 0.12);
+      --cat-cargo: #d97706;
+      --cat-cargo-tint: rgba(217, 119, 6, 0.12);
+      --cat-otros-green: #2d8659;
+      --cat-otros-green-tint: rgba(45, 134, 89, 0.12);
+      --cat-mascotas: #5b8fa8;
+      --cat-mascotas-tint: rgba(91, 143, 168, 0.12);
+      --cat-construccion: #4a7c59;
+      --cat-farmacia: #dc2626;
+      --cat-vet: #5b8fa8;
+    }
+
+    /* -- Normal Dark -- */
+    [data-theme="normal"][data-mode="dark"] {
+      --bg: #1a2420;
+      --surface: #243028;
+      --primary: #6b9e7a;
+      --text: #e8e4dc;
+      --secondary: #b8c4a8;
+      --border: #3d4d42;
+      --border-medium: #4d5d52;
+      --bg-tertiary: #2d3a30;
+      --secondary-color: #7ab5cc;
+      --success: #9bbd7f;
+      --primary-rgb: 107, 158, 122;
+      --nav-bg: #1e2a22;
+      --nav-border: #3d4d42;
+      --shadow: rgba(0,0,0,0.3);
+      --shadow-lg: rgba(0,0,0,0.4);
+      --skeleton-base: #2d3a30;
+      --skeleton-shine: #3d4d42;
+      --progress-track: #3d4d42;
+      --indicator-inactive: #3d4d42;
+      --frame-bg: #0a0f0c;
+      --status-bar-text: #e8e4dc;
+      --accent: #d4a574;
+      --fab-gradient-from: #6b9e7a;
+      --fab-gradient-to: #5a8a68;
+      --recent-indicator: #d4a574;
+      --cat-hogar: #6b9e7a;
+      --cat-hogar-tint: rgba(107, 158, 122, 0.2);
+      --cat-medicamento: #f87171;
+      --cat-medicamento-tint: rgba(248, 113, 113, 0.15);
+      --cat-cargo: #fbbf24;
+      --cat-cargo-tint: rgba(251, 191, 36, 0.15);
+      --cat-otros-green: #5a9b6e;
+      --cat-otros-green-tint: rgba(90, 155, 110, 0.15);
+      --cat-mascotas: #7ab5cc;
+      --cat-mascotas-tint: rgba(122, 181, 204, 0.15);
+      --cat-construccion: #6b9e7a;
+      --cat-farmacia: #f87171;
+      --cat-vet: #7ab5cc;
+    }
+
+    /* -- Professional Light -- */
+    [data-theme="professional"][data-mode="light"] {
+      --bg: #f8fafc;
+      --surface: #fff;
+      --primary: #2563eb;
+      --text: #0f172a;
+      --secondary: #475569;
+      --accent: #3b82f6;
+      --border: #e2e8f0;
+      --border-medium: #cbd5e1;
+      --bg-tertiary: #f1f5f9;
+      --secondary-color: #0ea5e9;
+      --success: #16a34a;
+      --primary-rgb: 37, 99, 235;
+      --nav-bg: #ffffff;
+      --nav-border: #e2e8f0;
+      --shadow: rgba(37, 99, 235, 0.08);
+      --shadow-lg: rgba(37, 99, 235, 0.12);
+      --skeleton-base: #f1f5f9;
+      --skeleton-shine: #f8fafc;
+      --progress-track: #e2e8f0;
+      --indicator-inactive: #e2e8f0;
+      --frame-bg: #1e293b;
+      --status-bar-text: #fff;
+      --fab-gradient-from: #2563eb;
+      --fab-gradient-to: #1d4ed8;
+      --recent-indicator: #3b82f6;
+      --cat-hogar: #2563eb;
+      --cat-hogar-tint: rgba(37, 99, 235, 0.1);
+      --cat-medicamento: #dc2626;
+      --cat-medicamento-tint: rgba(220, 38, 38, 0.1);
+      --cat-cargo: #d97706;
+      --cat-cargo-tint: rgba(217, 119, 6, 0.1);
+      --cat-otros-green: #059669;
+      --cat-otros-green-tint: rgba(5, 150, 105, 0.1);
+      --cat-mascotas: #7c3aed;
+      --cat-mascotas-tint: rgba(124, 58, 237, 0.1);
+      --cat-construccion: #2563eb;
+      --cat-farmacia: #dc2626;
+      --cat-vet: #7c3aed;
+    }
+
+    /* -- Professional Dark -- */
+    [data-theme="professional"][data-mode="dark"] {
+      --bg: #0f172a;
+      --surface: #1e293b;
+      --primary: #3b82f6;
+      --text: #f1f5f9;
+      --secondary: #94a3b8;
+      --accent: #60a5fa;
+      --border: #334155;
+      --border-medium: #475569;
+      --bg-tertiary: #1e293b;
+      --secondary-color: #38bdf8;
+      --success: #22c55e;
+      --primary-rgb: 59, 130, 246;
+      --nav-bg: #0f172a;
+      --nav-border: #334155;
+      --shadow: rgba(0,0,0,0.3);
+      --shadow-lg: rgba(0,0,0,0.4);
+      --skeleton-base: #1e293b;
+      --skeleton-shine: #334155;
+      --progress-track: #334155;
+      --indicator-inactive: #334155;
+      --frame-bg: #020617;
+      --status-bar-text: #f1f5f9;
+      --fab-gradient-from: #3b82f6;
+      --fab-gradient-to: #2563eb;
+      --recent-indicator: #60a5fa;
+      --cat-hogar: #3b82f6;
+      --cat-hogar-tint: rgba(59, 130, 246, 0.15);
+      --cat-medicamento: #f87171;
+      --cat-medicamento-tint: rgba(248, 113, 113, 0.15);
+      --cat-cargo: #fbbf24;
+      --cat-cargo-tint: rgba(251, 191, 36, 0.15);
+      --cat-otros-green: #34d399;
+      --cat-otros-green-tint: rgba(52, 211, 153, 0.15);
+      --cat-mascotas: #a78bfa;
+      --cat-mascotas-tint: rgba(167, 139, 250, 0.15);
+      --cat-construccion: #3b82f6;
+      --cat-farmacia: #f87171;
+      --cat-vet: #a78bfa;
+    }
+
+    /* -- Mono Light -- */
+    [data-theme="mono"][data-mode="light"] {
+      --bg: #fafafa;
+      --surface: #fff;
+      --primary: #18181b;
+      --text: #18181b;
+      --secondary: #52525b;
+      --accent: #52525b;
+      --border: #e4e4e7;
+      --border-medium: #d4d4d8;
+      --bg-tertiary: #f4f4f5;
+      --secondary-color: #3f3f46;
+      --success: #52525b;
+      --primary-rgb: 24, 24, 27;
+      --nav-bg: #ffffff;
+      --nav-border: #e4e4e7;
+      --shadow: rgba(0,0,0,0.06);
+      --shadow-lg: rgba(0,0,0,0.1);
+      --skeleton-base: #f4f4f5;
+      --skeleton-shine: #fafafa;
+      --progress-track: #e4e4e7;
+      --indicator-inactive: #e4e4e7;
+      --frame-bg: #18181b;
+      --status-bar-text: #fff;
+      --fab-gradient-from: #18181b;
+      --fab-gradient-to: #27272a;
+      --recent-indicator: #52525b;
+      --cat-hogar: #18181b;
+      --cat-hogar-tint: rgba(24, 24, 27, 0.08);
+      --cat-medicamento: #3f3f46;
+      --cat-medicamento-tint: rgba(63, 63, 70, 0.08);
+      --cat-cargo: #52525b;
+      --cat-cargo-tint: rgba(82, 82, 91, 0.08);
+      --cat-otros-green: #71717a;
+      --cat-otros-green-tint: rgba(113, 113, 122, 0.08);
+      --cat-mascotas: #a1a1aa;
+      --cat-mascotas-tint: rgba(161, 161, 170, 0.08);
+      --cat-construccion: #18181b;
+      --cat-farmacia: #3f3f46;
+      --cat-vet: #a1a1aa;
+    }
+
+    /* -- Mono Dark -- */
+    [data-theme="mono"][data-mode="dark"] {
+      --bg: #09090b;
+      --surface: #18181b;
+      --primary: #a1a1aa;
+      --text: #fafafa;
+      --secondary: #a1a1aa;
+      --accent: #71717a;
+      --border: #27272a;
+      --border-medium: #3f3f46;
+      --bg-tertiary: #18181b;
+      --secondary-color: #71717a;
+      --success: #a1a1aa;
+      --primary-rgb: 63, 63, 70;
+      --nav-bg: #09090b;
+      --nav-border: #27272a;
+      --shadow: rgba(0,0,0,0.4);
+      --shadow-lg: rgba(0,0,0,0.5);
+      --skeleton-base: #18181b;
+      --skeleton-shine: #27272a;
+      --progress-track: #27272a;
+      --indicator-inactive: #27272a;
+      --frame-bg: #000;
+      --status-bar-text: #fafafa;
+      --fab-gradient-from: #3f3f46;
+      --fab-gradient-to: #27272a;
+      --recent-indicator: #71717a;
+      --cat-hogar: #a1a1aa;
+      --cat-hogar-tint: rgba(161, 161, 170, 0.12);
+      --cat-medicamento: #71717a;
+      --cat-medicamento-tint: rgba(113, 113, 122, 0.12);
+      --cat-cargo: #52525b;
+      --cat-cargo-tint: rgba(82, 82, 91, 0.12);
+      --cat-otros-green: #a1a1aa;
+      --cat-otros-green-tint: rgba(161, 161, 170, 0.12);
+      --cat-mascotas: #71717a;
+      --cat-mascotas-tint: rgba(113, 113, 122, 0.12);
+      --cat-construccion: #a1a1aa;
+      --cat-farmacia: #71717a;
+      --cat-vet: #71717a;
+    }
+
+    /* ======================================================
+       BASE STYLES
+       ====================================================== */
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #1a1a2e;
+      font-family: 'Outfit', 'Segoe UI', system-ui, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      gap: 32px;
+      color: var(--text);
+    }
+
+    /* ======================================================
+       CONTROLS (outside phone frame)
+       ====================================================== */
+
+    .controls {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      width: 100%;
+      max-width: 520px;
+    }
+
+    .controls-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .theme-tabs {
+      display: flex;
+      background: rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 4px;
+      gap: 2px;
+    }
+
+    .theme-tab {
+      padding: 8px 20px;
+      border: none;
+      background: transparent;
+      color: rgba(255,255,255,0.5);
+      font-family: 'Outfit', sans-serif;
+      font-weight: 500;
+      font-size: 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .theme-tab:hover {
+      color: rgba(255,255,255,0.8);
+    }
+
+    .theme-tab.active {
+      background: rgba(255,255,255,0.15);
+      color: #fff;
+    }
+
+    .mode-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: rgba(255,255,255,0.7);
+      font-family: 'Outfit', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .toggle-switch {
+      width: 44px;
+      height: 24px;
+      background: rgba(255,255,255,0.15);
+      border-radius: 12px;
+      cursor: pointer;
+      position: relative;
+      transition: background 0.2s;
+    }
+
+    .toggle-switch.dark {
+      background: rgba(255,255,255,0.3);
+    }
+
+    .toggle-switch::after {
+      content: '';
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      background: #fff;
+      border-radius: 50%;
+      top: 3px;
+      left: 3px;
+      transition: transform 0.2s;
+    }
+
+    .toggle-switch.dark::after {
+      transform: translateX(20px);
+    }
+
+    .variant-tabs {
+      display: flex;
+      background: rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 4px;
+      gap: 2px;
+    }
+
+    .variant-tab {
+      padding: 6px 16px;
+      border: none;
+      background: transparent;
+      color: rgba(255,255,255,0.5);
+      font-family: 'Outfit', sans-serif;
+      font-weight: 500;
+      font-size: 13px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .variant-tab:hover {
+      color: rgba(255,255,255,0.8);
+    }
+
+    .variant-tab.active {
+      background: rgba(255,255,255,0.15);
+      color: #fff;
+    }
+
+    /* ======================================================
+       PHONE FRAME — 360x780 (Samsung S23)
+       ====================================================== */
+
+    .phone-frame {
+      width: 384px; /* 360 + 24 padding */
+      height: 804px; /* 780 + 24 padding */
+      background: var(--frame-bg);
+      border-radius: 40px;
+      padding: 12px;
+      position: relative;
+      box-shadow: 0 25px 80px rgba(0,0,0,0.4), inset 0 0 0 2px rgba(255,255,255,0.08);
+    }
+
+    .phone-screen {
+      width: 360px;
+      height: 780px;
+      background: var(--bg);
+      border-radius: 30px;
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* -- Notch (pill-shaped, centered) -- */
+    .phone-notch {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 120px;
+      height: 26px;
+      background: var(--frame-bg);
+      border-radius: 0 0 16px 16px;
+      z-index: 100;
+    }
+
+    /* -- Status Bar -- */
+    .status-bar {
+      height: 44px;
+      padding: 12px 20px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text);
+      position: relative;
+      z-index: 99;
+      flex-shrink: 0;
+      background: var(--bg);
+    }
+
+    .status-bar-left {
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .status-bar-right {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .status-bar-right svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    /* -- Home Indicator -- */
+    .home-indicator {
+      position: absolute;
+      bottom: 6px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 120px;
+      height: 4px;
+      background: var(--secondary);
+      border-radius: 2px;
+      opacity: 0.3;
+      z-index: 100;
+    }
+
+    /* ======================================================
+       TOP HEADER (fixed, ~60px)
+       ====================================================== */
+
+    .top-header {
+      height: 56px;
+      padding: 0 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+      background: var(--bg);
+    }
+
+    .logo-circle {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: transform 0.15s;
+      flex-shrink: 0;
+    }
+
+    .logo-circle:hover {
+      transform: scale(1.05);
+    }
+
+    .logo-circle img { display:block; }
+    .logo-circle span {
+      display:none;
+      font-family: 'Baloo 2', cursive;
+      font-weight: 700;
+      font-size: 18px;
+      color: #fff;
+      line-height: 1;
+    }
+
+    .wordmark {
+      font-family: 'Baloo 2', cursive;
+      font-weight: 700;
+      font-size: 24px;
+      color: var(--text);
+      line-height: 1;
+    }
+
+    .header-bell {
+      position: relative;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      flex-shrink: 0;
+      transition: transform 0.15s;
+    }
+
+    .header-bell:hover {
+      transform: scale(1.05);
+    }
+
+    .header-bell .bell-badge {
+      position: absolute;
+      top: 2px;
+      right: 0;
+      background: #ef4444;
+      color: #fff;
+      font-size: 9px;
+      font-weight: 700;
+      font-family: 'Outfit', sans-serif;
+      border-radius: 999px;
+      padding: 1px 5px;
+      line-height: 1.3;
+    }
+
+    /* ======================================================
+       SCROLLABLE CONTENT
+       ====================================================== */
+
+    .scroll-content {
+      flex: 1;
+      overflow-y: auto;
+      padding-bottom: 90px;
+    }
+
+    .scroll-content::-webkit-scrollbar {
+      display: none;
+    }
+
+    /* ======================================================
+       MAIN CAROUSEL CARD
+       ====================================================== */
+
+    .main-card {
+      margin: 0 12px 8px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      box-shadow: 0 2px 8px var(--shadow);
+      overflow: hidden;
+      padding-bottom: 10px;
+    }
+
+    /* -- Card Header (Fix 1: month left-aligned, category pill centered, view toggles right) -- */
+    .card-header {
+      padding: 10px 12px 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .month-nav {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      flex-shrink: 0;
+    }
+
+    .month-nav-arrow {
+      background: none;
+      border: none;
+      color: var(--secondary);
+      cursor: pointer;
+      padding: 2px;
+      font-size: 14px;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+    }
+
+    .month-nav-arrow svg {
+      width: 16px;
+      height: 16px;
+      stroke: var(--secondary);
+    }
+
+    .month-label {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+      font-size: 14px;
+      color: var(--text);
+      white-space: nowrap;
+    }
+
+    /* Category toggles pill (centered in remaining space) */
+    .header-center {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+    }
+
+    .cat-toggles-pill {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 3px 6px;
+    }
+
+    .cat-view-btn {
+      width: 26px;
+      height: 26px;
+      border-radius: 6px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+      padding: 0;
+    }
+
+    .cat-view-btn.active {
+      background: var(--surface);
+      box-shadow: 0 1px 3px var(--shadow);
+    }
+
+    /* View toggle icons (right side) */
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+
+    .view-toggle-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+    }
+
+    .view-toggle-btn svg {
+      width: 16px;
+      height: 16px;
+      stroke: var(--secondary);
+      opacity: 0.5;
+    }
+
+    .view-toggle-btn.active svg {
+      stroke: var(--primary);
+      opacity: 1;
+    }
+
+    /* -- Treemap (Squarified) -- */
+    .treemap {
+      padding: 0 10px 6px;
+    }
+
+    .treemap-grid {
+      display: grid;
+      gap: 3px;
+      height: 220px;
+      /* Squarified: large cell left ~50%, right column split into 3+bottom */
+      grid-template-columns: 55% 45%;
+      grid-template-rows: 38% 30% 32%;
+    }
+
+    /* Fix 2: Treemap cell layout — title TOP, count+amount MIDDLE, pct BOTTOM-RIGHT */
+    .treemap-cell {
+      border-radius: 8px;
+      padding: 6px 8px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.15s;
+    }
+
+    .treemap-cell:hover {
+      transform: scale(0.98);
+    }
+
+    /* Cell 1: Articulos del Hogar (top-left, spans 2 rows, ~50%) */
+    .treemap-cell.cell-hogar {
+      grid-row: 1 / 3;
+      grid-column: 1;
+      background: var(--cat-hogar);
+    }
+
+    /* Cell 2: Medicamento (top-right, ~15%) */
+    .treemap-cell.cell-medicamento {
+      grid-row: 1;
+      grid-column: 2;
+      background: var(--cat-medicamento);
+    }
+
+    /* Cell 3: Cargo por Servicio (mid-right, ~14%) */
+    .treemap-cell.cell-cargo {
+      grid-row: 2;
+      grid-column: 2;
+      background: var(--cat-cargo);
+    }
+
+    /* Cell 4: Otros (bottom-left, ~23%) */
+    .treemap-cell.cell-otros {
+      grid-row: 3;
+      grid-column: 1;
+      background: var(--cat-otros-green);
+    }
+
+    /* Cell 5: Productos para Mascotas (bottom-right, ~10%) */
+    .treemap-cell.cell-mascotas {
+      grid-row: 3;
+      grid-column: 2;
+      background: var(--cat-mascotas);
+    }
+
+    /* TOP: emoji + title */
+    .treemap-title-row {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+    }
+
+    .treemap-emoji {
+      font-size: 12px;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+
+    .treemap-name {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 500;
+      font-size: 10px;
+      color: var(--treemap-text);
+      opacity: 0.95;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* MIDDLE: count badge + amount (grows to fill) */
+    .treemap-middle {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding-top: 2px;
+    }
+
+    .treemap-count-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(255,255,255,0.6);
+      font-family: 'Outfit', sans-serif;
+      font-size: 9px;
+      font-weight: 600;
+      color: var(--treemap-text);
+      flex-shrink: 0;
+    }
+
+    .treemap-amount {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--treemap-text);
+    }
+
+    .treemap-amount.small {
+      font-size: 12px;
+    }
+
+    /* BOTTOM-RIGHT: percentage circle badge */
+    .treemap-pct-badge {
+      background: rgba(255,255,255,0.25);
+      border-radius: 999px;
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Outfit', sans-serif;
+      font-size: 9px;
+      font-weight: 700;
+      color: var(--treemap-text);
+      position: absolute;
+      bottom: 6px;
+      right: 6px;
+    }
+
+    .treemap-pct-badge.small {
+      width: 24px;
+      height: 24px;
+      font-size: 8px;
+    }
+
+    /* Overflow indicator for largest cell */
+    .treemap-overflow {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      padding-top: 3px;
+      border-top: 1px solid rgba(255,255,255,0.15);
+    }
+
+    .treemap-overflow-text {
+      font-family: 'Outfit', sans-serif;
+      font-size: 10px;
+      font-weight: 500;
+      color: var(--treemap-text);
+      opacity: 0.8;
+    }
+
+    /* -- Card Footer (Fix 3: pill with icon + count together) -- */
+    .card-footer {
+      padding: 8px 12px 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-top: 1px solid var(--border);
+    }
+
+    .footer-label {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 400;
+      font-size: 12px;
+      color: var(--secondary);
+      white-space: nowrap;
+    }
+
+    .footer-count-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      background: var(--bg-tertiary);
+      border-radius: 999px;
+      padding: 3px 8px;
+      flex-shrink: 0;
+    }
+
+    .footer-count-pill svg {
+      width: 12px;
+      height: 12px;
+      stroke: var(--secondary);
+      stroke-width: 2;
+      fill: none;
+    }
+
+    .footer-count-number {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      border: 1.5px solid var(--border-medium);
+      font-family: 'Outfit', sans-serif;
+      font-size: 9px;
+      font-weight: 600;
+      color: var(--secondary);
+    }
+
+    .progress-wrapper {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .progress-bar {
+      flex: 1;
+      height: 5px;
+      background: var(--progress-track);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 61%;
+      background: var(--primary);
+      border-radius: 3px;
+      transition: width 0.3s;
+    }
+
+    .progress-label {
+      font-family: 'Outfit', sans-serif;
+      font-size: 10px;
+      font-weight: 500;
+      color: var(--secondary);
+      white-space: nowrap;
+    }
+
+    .footer-total {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--text);
+      white-space: nowrap;
+    }
+
+    /* -- Slide Indicator (Fix 4: INSIDE the card) -- */
+    .slide-indicator {
+      display: flex;
+      justify-content: center;
+      gap: 4px;
+      padding: 4px 0 2px;
+    }
+
+    .slide-seg {
+      height: 5px;
+      width: 36px;
+      border-radius: 3px;
+      transition: all 0.2s;
+    }
+
+    .slide-seg.active {
+      background: var(--primary);
+    }
+
+    .slide-seg.inactive {
+      background: var(--indicator-inactive);
+    }
+
+    /* ======================================================
+       RECIENTES SECTION (Fix 5: wrapped in container card)
+       ====================================================== */
+
+    .recientes-section {
+      padding: 0 12px;
+    }
+
+    /* Recientes container card */
+    .recientes-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 1px 4px var(--shadow);
+    }
+
+    .recientes-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 12px 8px;
+    }
+
+    .recientes-title {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+      font-size: 14px;
+      color: var(--text);
+    }
+
+    .ver-todo-link {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 500;
+      font-size: 12px;
+      color: var(--primary);
+      text-decoration: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .ver-todo-link:hover {
+      text-decoration: underline;
+    }
+
+    .recientes-body {
+      padding: 0 10px;
+    }
+
+    /* -- Transaction Card -- */
+    .txn-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: transform 0.1s, box-shadow 0.1s;
+    }
+
+    .txn-card:last-child {
+      margin-bottom: 0;
+    }
+
+    .txn-card:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 3px 10px var(--shadow-lg);
+    }
+
+    .txn-thumb {
+      width: 40px;
+      height: 52px;
+      border-radius: 8px;
+      background: var(--bg-tertiary);
+      position: relative;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: visible;
+    }
+
+    .txn-thumb-inner {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      align-items: center;
+      opacity: 0.5;
+    }
+
+    .txn-thumb-line {
+      height: 2px;
+      background: var(--border-medium);
+      border-radius: 1px;
+    }
+
+    .txn-thumb-line:nth-child(1) { width: 20px; }
+    .txn-thumb-line:nth-child(2) { width: 16px; }
+    .txn-thumb-line:nth-child(3) { width: 22px; }
+    .txn-thumb-line:nth-child(4) { width: 14px; }
+
+    .txn-cat-badge {
+      position: absolute;
+      bottom: -3px;
+      right: -3px;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      border: 2px solid var(--surface);
+    }
+
+    .txn-body {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .txn-merchant {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+      font-size: 13px;
+      line-height: 1.3;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      text-transform: uppercase;
+    }
+
+    .txn-pills {
+      display: flex;
+      gap: 3px;
+      margin-top: 4px;
+      flex-wrap: wrap;
+    }
+
+    .txn-pill {
+      background: var(--bg-tertiary);
+      border-radius: 999px;
+      padding: 2px 6px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 10px;
+      font-weight: 500;
+      color: var(--secondary);
+      white-space: nowrap;
+    }
+
+    .txn-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+
+    .txn-amount {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--text);
+      white-space: nowrap;
+    }
+
+    .txn-chevron {
+      width: 16px;
+      height: 16px;
+      color: var(--secondary);
+      opacity: 0.5;
+    }
+
+    .txn-chevron svg {
+      width: 16px;
+      height: 16px;
+      stroke: var(--secondary);
+    }
+
+    /* Recientes slide indicator (Fix 6: inside recientes card) */
+    .recientes-indicator {
+      display: flex;
+      justify-content: center;
+      gap: 4px;
+      padding: 8px 0 10px;
+    }
+
+    .recientes-seg {
+      height: 5px;
+      width: 36px;
+      border-radius: 3px;
+      transition: all 0.2s;
+    }
+
+    .recientes-seg.active {
+      background: var(--recent-indicator);
+    }
+
+    .recientes-seg.inactive {
+      background: var(--indicator-inactive);
+    }
+
+        /* ======================================================
+       BOTTOM NAVIGATION (5 equal items — restructured)
+       ====================================================== */
+
+    .bottom-nav {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 56px;
+      padding-bottom: 6px;
+      background: var(--nav-bg);
+      border-top: 1px solid var(--nav-border);
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-around;
+      z-index: 50;
+      border-radius: 0 0 30px 30px;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1px;
+      cursor: pointer;
+      padding: 4px 0 2px;
+      position: relative;
+      width: 48px;
+    }
+
+    .nav-icon {
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .nav-icon svg {
+      width: 22px;
+      height: 22px;
+      stroke-width: 2;
+    }
+
+    .nav-label {
+      font-family: 'Outfit', sans-serif;
+      font-size: 10px;
+      font-weight: 500;
+      color: var(--secondary);
+      opacity: 0.5;
+    }
+
+    .nav-item.active .nav-label {
+      color: var(--primary);
+      font-weight: 600;
+      opacity: 1;
+    }
+
+    .nav-item.active .nav-icon svg {
+      stroke: var(--primary);
+    }
+
+    .nav-item:not(.active) .nav-icon svg {
+      stroke: var(--secondary);
+      opacity: 0.45;
+    }
+
+    /* ======================================================
+       EMPTY STATE
+       ====================================================== */
+
+    .empty-state {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 40px 28px 60px;
+      gap: 14px;
+      flex: 1;
+    }
+
+    .empty-icon-area {
+      width: 110px;
+      height: 110px;
+      border-radius: 50%;
+      background: rgba(var(--primary-rgb), 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 8px;
+    }
+
+    .empty-icon-area svg {
+      width: 50px;
+      height: 50px;
+      stroke: var(--primary);
+      stroke-width: 1.5;
+      fill: none;
+    }
+
+    .empty-heading {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      font-size: 18px;
+      color: var(--text);
+    }
+
+    .empty-subtitle {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 400;
+      font-size: 13px;
+      color: var(--secondary);
+      line-height: 1.5;
+      max-width: 240px;
+    }
+
+    .empty-arrow {
+      margin-top: 20px;
+      color: var(--primary);
+      animation: bounce-down 1.5s infinite;
+    }
+
+    .empty-arrow svg {
+      width: 28px;
+      height: 28px;
+      stroke: var(--primary);
+      stroke-width: 2;
+      fill: none;
+    }
+
+    @keyframes bounce-down {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(8px); }
+    }
+
+    /* ======================================================
+       LOADING SKELETON
+       ====================================================== */
+
+    .skeleton-state {
+      display: none;
+      padding: 0 12px;
+    }
+
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+
+    .skel {
+      border-radius: 8px;
+      background: linear-gradient(
+        90deg,
+        var(--skeleton-base) 25%,
+        var(--skeleton-shine) 50%,
+        var(--skeleton-base) 75%
+      );
+      background-size: 200% 100%;
+      animation: shimmer 1.8s ease-in-out infinite;
+    }
+
+    .skel-card {
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+    }
+
+    .skel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .skel-treemap {
+      display: grid;
+      grid-template-columns: 55% 45%;
+      grid-template-rows: 38% 30% 32%;
+      gap: 3px;
+      height: 220px;
+      margin-bottom: 12px;
+    }
+
+    .skel-treemap-big {
+      grid-row: 1 / 3;
+    }
+
+    .skel-footer {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border);
+    }
+
+    .skel-txn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      margin-bottom: 8px;
+    }
+
+    .skel-txn-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    /* ======================================================
+       VARIANT VISIBILITY
+       ====================================================== */
+
+    .hero-state { display: block; }
+
+    body.variant-empty .hero-state { display: none; }
+    body.variant-empty .empty-state { display: flex; }
+    body.variant-empty .recientes-section { display: none; }
+
+    body.variant-skeleton .hero-state { display: none; }
+    body.variant-skeleton .skeleton-state { display: block; }
+    body.variant-skeleton .recientes-section { display: none; }
+
+
+    /* -- Pending Scan Variant -- */
+    .pending-dot {
+      position: absolute;
+      top: -2px;
+      right: -2px;
+      width: 8px;
+      height: 8px;
+      background: #8b5cf6;
+      border-radius: 50%;
+      animation: pending-pulse 1.5s ease-in-out infinite;
+      z-index: 10;
+    }
+    @keyframes pending-pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(1.3); }
+    }
+    .resume-banner {
+      display: none;
+      margin: 8px 16px;
+      padding: 12px 16px;
+      background: rgba(139, 92, 246, 0.08);
+      border: 1px solid rgba(139, 92, 246, 0.25);
+      border-radius: 12px;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+    }
+    .resume-banner-icon { font-size: 20px; }
+    .resume-banner-text { flex: 1; }
+    .resume-banner-title {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+      font-size: 13px;
+      color: #8b5cf6;
+    }
+    .resume-banner-subtitle {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 400;
+      font-size: 11px;
+      color: var(--secondary);
+    }
+    .resume-banner-arrow {
+      color: #8b5cf6;
+      font-size: 16px;
+    }
+    body.variant-pending .pending-dot { display: block; }
+    body.variant-pending .resume-banner { display: flex; }
+
+    /* ======================================================
+       RESPONSIVE (just in case)
+       ====================================================== */
+
+    @media (max-width: 400px) {
+      .phone-frame {
+        width: 100%;
+        border-radius: 0;
+        padding: 0;
+      }
+      .phone-screen {
+        border-radius: 0;
+        width: 100%;
+      }
+      .phone-notch { display: none; }
+      .bottom-nav { border-radius: 0; }
+    }
+  </style>
+</head>
+<body data-theme="normal" data-mode="light">
+
+  <!-- ========================================
+       CONTROLS (outside phone frame)
+       ======================================== -->
+  <div class="controls">
+    <div class="controls-row">
+      <div class="theme-tabs">
+        <button class="theme-tab active" data-theme-val="normal">Normal</button>
+        <button class="theme-tab" data-theme-val="professional">Professional</button>
+        <button class="theme-tab" data-theme-val="mono">Mono</button>
+      </div>
+      <div class="mode-toggle">
+        <span>Light</span>
+        <div class="toggle-switch" id="modeToggle"></div>
+        <span>Dark</span>
+      </div>
+    </div>
+    <div class="controls-row">
+      <div class="variant-tabs">
+        <button class="variant-tab active" data-variant="hero">Hero</button>
+        <button class="variant-tab" data-variant="empty">Empty State</button>
+        <button class="variant-tab" data-variant="skeleton">Loading</button>
+        <button class="variant-tab" data-variant="pending">Pending Scan</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================
+       PHONE FRAME (360x780)
+       ======================================== -->
+  <div class="phone-frame">
+    <div class="phone-notch"></div>
+    <div class="phone-screen">
+
+      <!-- Status Bar -->
+      <div class="status-bar">
+        <span class="status-bar-left">9:41</span>
+        <div class="status-bar-right">
+          <!-- Signal -->
+          <svg viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="11" width="2.5" height="4" rx="0.5"/><rect x="5" y="8" width="2.5" height="7" rx="0.5"/><rect x="9" y="5" width="2.5" height="10" rx="0.5"/><rect x="13" y="1" width="2.5" height="14" rx="0.5"/></svg>
+          <!-- WiFi -->
+          <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 12.5a1.25 1.25 0 110 2.5 1.25 1.25 0 010-2.5zM8 8.5c2.07 0 3.94.84 5.3 2.2l-1.42 1.42A5.48 5.48 0 008 10.5c-1.52 0-2.9.62-3.88 1.62L2.7 10.7A7.47 7.47 0 018 8.5z"/></svg>
+          <!-- Battery -->
+          <svg viewBox="0 0 24 12" fill="currentColor"><rect x="0" y="0" width="20" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="2" y="2" width="14" height="8" rx="1"/><rect x="21" y="3.5" width="2.5" height="5" rx="1"/></svg>
+        </div>
+      </div>
+
+      <!-- Top Header -->
+      <div class="top-header">
+        <div class="logo-circle"><img src="piggy-bank.png" style="width:80%;height:80%;object-fit:contain;image-rendering:pixelated"></div>
+        <span class="wordmark">Gastify</span>
+        <div class="header-bell">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--secondary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+          </svg>
+          <span class="bell-badge">3</span>
+        </div>
+      </div>
+
+      <!-- Scrollable Content -->
+      <div class="scroll-content">
+
+        <!-- Resume banner (visible in pending variant) -->
+        <div class="resume-banner">
+          <div class="resume-banner-icon">📋</div>
+          <div class="resume-banner-text">
+            <div class="resume-banner-title">Estado de cuenta procesandose...</div>
+            <div class="resume-banner-subtitle">Toca para ver el progreso</div>
+          </div>
+          <div class="resume-banner-arrow">›</div>
+        </div>
+
+        <!-- === HERO STATE === -->
+        <div class="hero-state">
+
+          <!-- Main Carousel Card -->
+          <div class="main-card">
+            <!-- Header: Fix 1 — month left, category pill centered, view toggles right -->
+            <div class="card-header">
+              <div class="month-nav">
+                <button class="month-nav-arrow">
+                  <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                </button>
+                <span class="month-label">Mar '26</span>
+                <button class="month-nav-arrow">
+                  <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                </button>
+              </div>
+              <div class="header-center">
+                <div class="cat-toggles-pill">
+                  <button class="cat-view-btn active" title="Tienda">&#x1F3EC;</button>
+                  <button class="cat-view-btn" title="Carrito">&#x1F6D2;</button>
+                  <button class="cat-view-btn" title="Producto">&#x1F9C3;</button>
+                  <button class="cat-view-btn" title="Limpieza">&#x1F9F9;</button>
+                </div>
+              </div>
+              <div class="header-right">
+                <!-- Transaction/Items view toggle -->
+                <button class="view-toggle-btn active" title="Vista transacciones / items" onclick="this.classList.toggle('active'); var s=this.querySelectorAll('svg'); if(s[1]){s[0].style.display=s[0].style.display==='none'?'block':'none'; s[1].style.display=s[1].style.display==='none'?'block':'none';}">
+                  <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+                    <rect x="2" y="3" width="20" height="5" rx="1"/>
+                    <rect x="2" y="10" width="20" height="5" rx="1"/>
+                    <rect x="2" y="17" width="20" height="5" rx="1"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- Treemap (Squarified) — Fix 2: title top, count+amount middle, pct bottom-right -->
+            <div class="treemap">
+              <div class="treemap-grid">
+                <!-- Cell 1: Articulos del Hogar — 38%, largest, top-left spanning 2 rows -->
+                <div class="treemap-cell cell-hogar">
+                  <div class="treemap-title-row">
+                    <span class="treemap-emoji">&#x1F3E0;</span>
+                    <span class="treemap-name">Articulos del Hogar</span>
+                  </div>
+                  <div class="treemap-middle">
+                    <span class="treemap-count-badge">2</span>
+                    <span class="treemap-amount">$110k</span>
+                  </div>
+                  <div class="treemap-overflow">
+                    <span class="treemap-overflow-text">&#x1F6D2; Mas</span>
+                    <span class="treemap-count-badge" style="width:16px;height:16px;font-size:8px;">8</span>
+                  </div>
+                  <div class="treemap-pct-badge">38%</div>
+                </div>
+
+                <!-- Cell 2: Medicamento — 14%, top-right -->
+                <div class="treemap-cell cell-medicamento">
+                  <div class="treemap-title-row">
+                    <span class="treemap-emoji">&#x1F48A;</span>
+                    <span class="treemap-name">Medicamento</span>
+                  </div>
+                  <div class="treemap-middle">
+                    <span class="treemap-count-badge">2</span>
+                    <span class="treemap-amount small">$41k</span>
+                  </div>
+                  <div class="treemap-pct-badge small">14%</div>
+                </div>
+
+                <!-- Cell 3: Cargo por Servicio — 14%, mid-right -->
+                <div class="treemap-cell cell-cargo">
+                  <div class="treemap-title-row">
+                    <span class="treemap-emoji">&#x1F4E6;</span>
+                    <span class="treemap-name">Cargo por Ser</span>
+                  </div>
+                  <div class="treemap-middle">
+                    <span class="treemap-count-badge">1</span>
+                    <span class="treemap-amount small">$40k</span>
+                  </div>
+                  <div class="treemap-pct-badge small">14%</div>
+                </div>
+
+                <!-- Cell 4: Other green category — 23%, bottom-left -->
+                <div class="treemap-cell cell-otros">
+                  <div class="treemap-title-row">
+                    <span class="treemap-emoji">&#x1F4B0;</span>
+                    <span class="treemap-name">Otros</span>
+                  </div>
+                  <div class="treemap-middle">
+                    <span class="treemap-count-badge">3</span>
+                    <span class="treemap-amount">$66k</span>
+                  </div>
+                  <div class="treemap-pct-badge">23%</div>
+                </div>
+
+                <!-- Cell 5: Productos para Mascotas — 10%, bottom-right -->
+                <div class="treemap-cell cell-mascotas">
+                  <div class="treemap-title-row">
+                    <span class="treemap-emoji" style="font-size:11px;">&#x1F43E;</span>
+                    <span class="treemap-name" style="font-size:9px;">Productos pa...</span>
+                  </div>
+                  <div class="treemap-middle">
+                    <span class="treemap-count-badge">1</span>
+                    <span class="treemap-amount small">$28k</span>
+                  </div>
+                  <div class="treemap-pct-badge small">10%</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Footer — Fix 3: pill with icon + count together -->
+            <div class="card-footer">
+              <span class="footer-label">Total del mes</span>
+              <div class="footer-count-pill">
+                <!-- Receipt icon (transaction view) -->
+                <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16l2-1.5 2 1.5 2-1.5 2 1.5 2-1.5 2 1.5V4a2 2 0 0 0-2-2z"/>
+                  <line x1="8" y1="7" x2="14" y2="7"/>
+                  <line x1="8" y1="11" x2="14" y2="11"/>
+                </svg>
+                <span class="footer-count-number">9</span>
+              </div>
+              <div class="progress-wrapper">
+                <div class="progress-bar"><div class="progress-fill"></div></div>
+                <span class="progress-label">19/31</span>
+              </div>
+              <span class="footer-total">$283.477</span>
+            </div>
+
+            <!-- Fix 4: Slide Indicator INSIDE the card -->
+            <div class="slide-indicator">
+              <div class="slide-seg active"></div>
+              <div class="slide-seg inactive"></div>
+              <div class="slide-seg inactive"></div>
+            </div>
+          </div>
+
+        </div><!-- /hero-state -->
+
+        <!-- === EMPTY STATE === -->
+        <div class="empty-state">
+          <div class="empty-icon-area">
+            <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="12" y1="18" x2="12" y2="12"/>
+              <line x1="9" y1="15" x2="15" y2="15"/>
+            </svg>
+          </div>
+          <h2 class="empty-heading">Escanea tu primera boleta</h2>
+          <p class="empty-subtitle">Toca el boton de camara para comenzar a registrar tus gastos</p>
+          <div class="empty-arrow">
+            <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"/>
+              <polyline points="19 12 12 19 5 12"/>
+            </svg>
+          </div>
+        </div>
+
+        <!-- === LOADING SKELETON === -->
+        <div class="skeleton-state">
+          <!-- Skeleton Main Card -->
+          <div class="skel-card">
+            <div class="skel-header">
+              <div class="skel" style="width:80px;height:16px;border-radius:6px"></div>
+              <div style="display:flex;gap:4px">
+                <div class="skel" style="width:28px;height:28px;border-radius:6px"></div>
+                <div class="skel" style="width:28px;height:28px;border-radius:6px"></div>
+                <div class="skel" style="width:28px;height:28px;border-radius:6px"></div>
+                <div class="skel" style="width:28px;height:28px;border-radius:6px"></div>
+              </div>
+            </div>
+            <div class="skel-treemap">
+              <div class="skel skel-treemap-big" style="border-radius:8px"></div>
+              <div class="skel" style="border-radius:8px"></div>
+              <div class="skel" style="border-radius:8px"></div>
+              <div class="skel" style="border-radius:8px"></div>
+              <div class="skel" style="border-radius:8px"></div>
+            </div>
+            <div class="skel-footer">
+              <div class="skel" style="width:70px;height:12px;border-radius:4px"></div>
+              <div class="skel" style="flex:1;height:5px;border-radius:3px"></div>
+              <div class="skel" style="width:65px;height:14px;border-radius:4px"></div>
+            </div>
+          </div>
+          <!-- Skeleton Section Title -->
+          <div style="padding:6px 4px 10px">
+            <div class="skel" style="width:140px;height:14px;border-radius:6px"></div>
+          </div>
+          <!-- Skeleton Transaction Cards -->
+          <div class="skel-txn">
+            <div class="skel" style="width:40px;height:52px;border-radius:8px;flex-shrink:0"></div>
+            <div class="skel-txn-body">
+              <div class="skel" style="width:70%;height:13px;border-radius:4px"></div>
+              <div style="display:flex;gap:3px">
+                <div class="skel" style="width:56px;height:18px;border-radius:999px"></div>
+                <div class="skel" style="width:36px;height:18px;border-radius:999px"></div>
+                <div class="skel" style="width:48px;height:18px;border-radius:999px"></div>
+              </div>
+            </div>
+            <div class="skel" style="width:50px;height:13px;border-radius:4px;flex-shrink:0"></div>
+          </div>
+          <div class="skel-txn">
+            <div class="skel" style="width:40px;height:52px;border-radius:8px;flex-shrink:0"></div>
+            <div class="skel-txn-body">
+              <div class="skel" style="width:60%;height:13px;border-radius:4px"></div>
+              <div style="display:flex;gap:3px">
+                <div class="skel" style="width:56px;height:18px;border-radius:999px"></div>
+                <div class="skel" style="width:30px;height:18px;border-radius:999px"></div>
+                <div class="skel" style="width:50px;height:18px;border-radius:999px"></div>
+              </div>
+            </div>
+            <div class="skel" style="width:46px;height:13px;border-radius:4px;flex-shrink:0"></div>
+          </div>
+          <div class="skel-txn">
+            <div class="skel" style="width:40px;height:52px;border-radius:8px;flex-shrink:0"></div>
+            <div class="skel-txn-body">
+              <div class="skel" style="width:55%;height:13px;border-radius:4px"></div>
+              <div style="display:flex;gap:3px">
+                <div class="skel" style="width:56px;height:18px;border-radius:999px"></div>
+                <div class="skel" style="width:30px;height:18px;border-radius:999px"></div>
+                <div class="skel" style="width:50px;height:18px;border-radius:999px"></div>
+              </div>
+            </div>
+            <div class="skel" style="width:46px;height:13px;border-radius:4px;flex-shrink:0"></div>
+          </div>
+        </div>
+
+        <!-- === RECIENTES (shown in hero only) === -->
+        <!-- Fix 5 & 6: Wrapped in container card with indicator inside -->
+        <div class="recientes-section">
+          <div class="recientes-card">
+            <div class="recientes-header">
+              <span class="recientes-title">Ultimos Escaneados</span>
+              <a class="ver-todo-link">Ver todos &#x2192;</a>
+            </div>
+
+            <div class="recientes-body">
+              <!-- Transaction 1: DOBLER CONSTRUCCION -->
+              <div class="txn-card">
+                <div class="txn-thumb">
+                  <div class="txn-thumb-inner">
+                    <div class="txn-thumb-line"></div>
+                    <div class="txn-thumb-line"></div>
+                    <div class="txn-thumb-line"></div>
+                    <div class="txn-thumb-line"></div>
+                  </div>
+                  <div class="txn-cat-badge" style="background:var(--cat-construccion)">&#x1F3E0;</div>
+                </div>
+                <div class="txn-body">
+                  <div class="txn-merchant" style="color:var(--cat-construccion)">DOBLER CONSTRUCCION &amp; ...</div>
+                  <div class="txn-pills">
+                    <span class="txn-pill">17/03/2026</span>
+                    <span class="txn-pill">Villarrica</span>
+                    <span class="txn-pill">&#x2460;1</span>
+                  </div>
+                </div>
+                <div class="txn-right">
+                  <span class="txn-amount">$9.920</span>
+                  <div class="txn-chevron">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+                      <polyline points="6 9 12 15 18 9"/>
+                    </svg>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Transaction 2: FARMACIAS CRUZ VERDE -->
+              <div class="txn-card">
+                <div class="txn-thumb">
+                  <div class="txn-thumb-inner">
+                    <div class="txn-thumb-line"></div>
+                    <div class="txn-thumb-line"></div>
+                    <div class="txn-thumb-line"></div>
+                    <div class="txn-thumb-line"></div>
+                  </div>
+                  <div class="txn-cat-badge" style="background:var(--cat-farmacia)">&#x1F48A;</div>
+                </div>
+                <div class="txn-body">
+                  <div class="txn-merchant" style="color:var(--cat-farmacia)">FARMACIAS CRUZ VERDE ...</div>
+                  <div class="txn-pills">
+                    <span class="txn-pill">16/03/2026</span>
+                    <span class="txn-pill">18:31</span>
+                    <span class="txn-pill">Villarrica</span>
+                    <span class="txn-pill">&#x2460;1</span>
+                  </div>
+                </div>
+                <div class="txn-right">
+                  <span class="txn-amount">$28.832</span>
+                  <div class="txn-chevron">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+                      <polyline points="6 9 12 15 18 9"/>
+                    </svg>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Transaction 3: Sociedad servicios vet -->
+              <div class="txn-card">
+                <div class="txn-thumb">
+                  <div class="txn-thumb-inner">
+                    <div class="txn-thumb-line"></div>
+                    <div class="txn-thumb-line"></div>
+                    <div class="txn-thumb-line"></div>
+                    <div class="txn-thumb-line"></div>
+                  </div>
+                  <div class="txn-cat-badge" style="background:var(--cat-vet)">&#x1F43E;</div>
+                </div>
+                <div class="txn-body">
+                  <div class="txn-merchant" style="color:var(--cat-vet)">Sociedad servicios vet C...</div>
+                  <div class="txn-pills">
+                    <span class="txn-pill">16/03/2026</span>
+                    <span class="txn-pill">17:54</span>
+                    <span class="txn-pill">Villarrica</span>
+                    <span class="txn-pill">&#x2460;1</span>
+                  </div>
+                </div>
+                <div class="txn-right">
+                  <span class="txn-amount">$40.000</span>
+                  <div class="txn-chevron">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+                      <polyline points="6 9 12 15 18 9"/>
+                    </svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Fix 6: Recientes indicator INSIDE the container card -->
+            <div class="recientes-indicator">
+              <div class="recientes-seg active"></div>
+              <div class="recientes-seg inactive"></div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /scroll-content -->
+
+      <!-- Bottom Navigation -->
+            <div class="bottom-nav">
+        <!-- Inicio -->
+        <div class="nav-item active">
+          <div class="nav-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+              <polyline points="9 22 9 12 15 12 15 22"/>
+            </svg>
+          </div>
+          <span class="nav-label">Inicio</span>
+        </div>
+        <!-- Compras -->
+        <div class="nav-item">
+          <div class="nav-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="16" y1="13" x2="8" y2="13"/>
+              <line x1="16" y1="17" x2="8" y2="17"/>
+            </svg>
+          </div>
+          <span class="nav-label">Compras</span>
+        </div>
+        <!-- Escanear -->
+        <div class="nav-item">
+          <div class="nav-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+              <circle cx="12" cy="13" r="4"/>
+            </svg>
+          </div>
+          <span class="nav-label">Escanear</span>
+        </div>
+        <!-- Gastos -->
+        <div class="nav-item">
+          <div class="nav-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="20" x2="18" y2="10"/>
+              <line x1="12" y1="20" x2="12" y2="4"/>
+              <line x1="6" y1="20" x2="6" y2="14"/>
+            </svg>
+          </div>
+          <span class="nav-label">Gastos</span>
+        </div>
+        <!-- Perfil -->
+        <div class="nav-item">
+          <div class="nav-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+          </div>
+          <span class="nav-label">Perfil</span>
+        </div>
+      </div>
+<!-- Home Indicator -->
+      <div class="home-indicator"></div>
+
+    </div><!-- /phone-screen -->
+  </div><!-- /phone-frame -->
+
+  <!-- ========================================
+       JAVASCRIPT — Theme / Mode / Variant
+       ======================================== -->
+  <script>
+    (function() {
+      const body = document.body;
+      const themeTabs = document.querySelectorAll('.theme-tab');
+      const modeToggle = document.getElementById('modeToggle');
+      const variantTabs = document.querySelectorAll('.variant-tab');
+
+      let currentTheme = 'normal';
+      let currentMode = 'light';
+
+      function applyTheme() {
+        body.setAttribute('data-theme', currentTheme);
+        body.setAttribute('data-mode', currentMode);
+      }
+
+      // Theme tabs
+      themeTabs.forEach(function(tab) {
+        tab.addEventListener('click', function() {
+          themeTabs.forEach(function(t) { t.classList.remove('active'); });
+          tab.classList.add('active');
+          currentTheme = tab.dataset.themeVal;
+          applyTheme();
+        });
+      });
+
+      // Mode toggle
+      modeToggle.addEventListener('click', function() {
+        currentMode = currentMode === 'light' ? 'dark' : 'light';
+        modeToggle.classList.toggle('dark', currentMode === 'dark');
+        applyTheme();
+      });
+
+      // Variant tabs
+      variantTabs.forEach(function(tab) {
+        tab.addEventListener('click', function() {
+          variantTabs.forEach(function(t) { t.classList.remove('active'); });
+          tab.classList.add('active');
+          body.classList.remove('variant-empty', 'variant-skeleton', 'variant-pending');
+          var variant = tab.dataset.variant;
+          if (variant !== 'hero') {
+            body.classList.add('variant-' + variant);
+          }
+        });
+      });
+
+      // Initial apply
+      applyTheme();
+    })();
+  </script>
+</body>
+</html>

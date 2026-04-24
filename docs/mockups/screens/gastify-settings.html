@@ -1,0 +1,1860 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Settings — Gastify (Production Design System)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Baloo+2:wght@700&display=swap" rel="stylesheet">
+<style>
+  /* ===== RESET ===== */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  /* ===== PAGE ===== */
+  body {
+    font-family: 'Outfit', sans-serif;
+    background: #e8e8e8;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 16px 40px;
+  }
+
+  /* ===== THEME VARIABLES ===== */
+  :root {
+    /* Normal Light (default) */
+    --bg: #f5f0e8;
+    --surface: #ffffff;
+    --primary: #4a7c59;
+    --primary-hover: #3d6a4b;
+    --text: #2d3a4a;
+    --text-secondary: #4a5568;
+    --accent: #e8a87c;
+    --border: #e3bba1;
+    --bg-tertiary: #f1dbb6;
+    --error: #ef4444;
+    --error-bg: rgba(239, 68, 68, 0.10);
+    --warning: #f59e0b;
+    --success: #7d9b5f;
+    --primary-bg: rgba(74, 124, 89, 0.10);
+    --primary-border-tint: rgba(74, 124, 89, 0.25);
+    --secondary: #5b8fa8;
+    --nav-bg: rgba(255, 255, 255, 0.95);
+    --nav-border: #e3bba1;
+    --nav-text: #9ca3af;
+    --nav-active: #4a7c59;
+    --overlay-bg: rgba(0, 0, 0, 0.5);
+  }
+
+  [data-theme="normal"][data-mode="dark"] {
+    --bg: #1a2420;
+    --surface: #243028;
+    --primary: #6b9e7a;
+    --primary-hover: #5a8d69;
+    --text: #e8e4dc;
+    --text-secondary: #b8c4a8;
+    --border: #3d4d42;
+    --bg-tertiary: #2d3d33;
+    --error: #ef4444;
+    --error-bg: rgba(239, 68, 68, 0.12);
+    --warning: #f59e0b;
+    --success: #7d9b5f;
+    --accent: #e8a87c;
+    --primary-bg: rgba(107, 158, 122, 0.12);
+    --primary-border-tint: rgba(107, 158, 122, 0.30);
+    --secondary: #7eb8d0;
+    --nav-bg: rgba(36, 48, 40, 0.95);
+    --nav-border: #3d4d42;
+    --nav-text: #6b7a6e;
+    --nav-active: #6b9e7a;
+    --overlay-bg: rgba(0, 0, 0, 0.7);
+  }
+
+  [data-theme="professional"][data-mode="light"] {
+    --bg: #f8fafc;
+    --surface: #ffffff;
+    --primary: #2563eb;
+    --primary-hover: #1d4ed8;
+    --text: #0f172a;
+    --text-secondary: #475569;
+    --border: #e2e8f0;
+    --bg-tertiary: #f1f5f9;
+    --error: #ef4444;
+    --error-bg: rgba(239, 68, 68, 0.08);
+    --warning: #f59e0b;
+    --success: #16a34a;
+    --accent: #f59e0b;
+    --primary-bg: rgba(37, 99, 235, 0.08);
+    --primary-border-tint: rgba(37, 99, 235, 0.25);
+    --secondary: #6366f1;
+    --nav-bg: rgba(255, 255, 255, 0.95);
+    --nav-border: #e2e8f0;
+    --nav-text: #94a3b8;
+    --nav-active: #2563eb;
+    --overlay-bg: rgba(0, 0, 0, 0.5);
+  }
+
+  [data-theme="professional"][data-mode="dark"] {
+    --bg: #0f172a;
+    --surface: #1e293b;
+    --primary: #3b82f6;
+    --primary-hover: #2563eb;
+    --text: #f1f5f9;
+    --text-secondary: #94a3b8;
+    --border: #334155;
+    --bg-tertiary: #253347;
+    --error: #ef4444;
+    --error-bg: rgba(239, 68, 68, 0.12);
+    --warning: #f59e0b;
+    --success: #4ade80;
+    --accent: #f59e0b;
+    --primary-bg: rgba(59, 130, 246, 0.12);
+    --primary-border-tint: rgba(59, 130, 246, 0.30);
+    --secondary: #818cf8;
+    --nav-bg: rgba(30, 41, 59, 0.95);
+    --nav-border: #334155;
+    --nav-text: #64748b;
+    --nav-active: #3b82f6;
+    --overlay-bg: rgba(0, 0, 0, 0.7);
+  }
+
+  [data-theme="mono"][data-mode="light"] {
+    --bg: #fafafa;
+    --surface: #ffffff;
+    --primary: #18181b;
+    --primary-hover: #27272a;
+    --text: #18181b;
+    --text-secondary: #52525b;
+    --border: #e4e4e7;
+    --bg-tertiary: #f4f4f5;
+    --error: #71717a;
+    --error-bg: rgba(113, 113, 122, 0.08);
+    --warning: #a1a1aa;
+    --success: #3f3f46;
+    --accent: #71717a;
+    --primary-bg: rgba(24, 24, 27, 0.06);
+    --primary-border-tint: rgba(24, 24, 27, 0.18);
+    --secondary: #52525b;
+    --nav-bg: rgba(255, 255, 255, 0.95);
+    --nav-border: #e4e4e7;
+    --nav-text: #a1a1aa;
+    --nav-active: #18181b;
+    --overlay-bg: rgba(0, 0, 0, 0.5);
+  }
+
+  [data-theme="mono"][data-mode="dark"] {
+    --bg: #09090b;
+    --surface: #18181b;
+    --primary: #a1a1aa;
+    --primary-hover: #d4d4d8;
+    --text: #fafafa;
+    --text-secondary: #a1a1aa;
+    --border: #27272a;
+    --bg-tertiary: #1c1c1f;
+    --error: #a1a1aa;
+    --error-bg: rgba(161, 161, 170, 0.08);
+    --warning: #71717a;
+    --success: #a1a1aa;
+    --accent: #71717a;
+    --primary-bg: rgba(161, 161, 170, 0.08);
+    --primary-border-tint: rgba(161, 161, 170, 0.20);
+    --secondary: #71717a;
+    --nav-bg: rgba(24, 24, 27, 0.95);
+    --nav-border: #27272a;
+    --nav-text: #52525b;
+    --nav-active: #a1a1aa;
+    --overlay-bg: rgba(0, 0, 0, 0.7);
+  }
+
+  /* ===== CONTROLS (outside phone frame) ===== */
+  .controls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+    width: 100%;
+    max-width: 480px;
+  }
+
+  .controls-title {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    color: #333;
+    letter-spacing: 0.02em;
+  }
+
+  .controls-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .theme-tabs {
+    display: flex;
+    background: #e5e5e5;
+    border-radius: 10px;
+    padding: 3px;
+    gap: 2px;
+  }
+
+  .theme-tab {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    font-size: 0.8125rem;
+    padding: 6px 16px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    background: transparent;
+    color: #666;
+    transition: all 0.2s;
+  }
+
+  .theme-tab.active {
+    background: #ffffff;
+    color: #111;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+  }
+
+  .mode-toggle {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    font-size: 0.8125rem;
+    padding: 6px 16px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    cursor: pointer;
+    background: #fff;
+    color: #333;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .mode-toggle:hover { background: #f3f4f6; }
+
+  /* ===== PHONE FRAME ===== */
+  .phone-frame {
+    width: 100%;
+    max-width: 360px;
+    background: #1a1a2e;
+    border-radius: 40px;
+    padding: 12px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.05);
+    position: relative;
+  }
+
+  .phone-screen {
+    background: var(--bg);
+    border-radius: 30px;
+    overflow: hidden;
+    position: relative;
+    min-height: 780px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ===== NOTCH ===== */
+  .notch {
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 120px;
+    height: 28px;
+    background: #1a1a2e;
+    border-radius: 14px;
+    z-index: 10;
+  }
+
+  /* ===== STATUS BAR ===== */
+  .status-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 24px 6px;
+    position: relative;
+    z-index: 5;
+  }
+
+  .status-bar-time {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    font-size: 0.875rem;
+    color: var(--text);
+  }
+
+  .status-bar-icons {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .status-bar-icons svg {
+    width: 16px;
+    height: 16px;
+    fill: var(--text);
+  }
+
+  /* ===== HOME INDICATOR ===== */
+  .home-indicator {
+    display: flex;
+    justify-content: center;
+    padding: 8px 0 6px;
+  }
+
+  .home-indicator-bar {
+    width: 134px;
+    height: 5px;
+    background: var(--text);
+    opacity: 0.2;
+    border-radius: 3px;
+  }
+
+  /* ===== TOP HEADER ===== */
+  .top-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px 16px 10px;
+    position: relative;
+    z-index: 5;
+  }
+
+  .top-header-back {
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border-radius: 12px;
+    transition: background 0.15s;
+  }
+
+  .top-header-back:hover {
+    background: var(--primary-bg);
+  }
+
+  .top-header-back svg {
+    width: 28px;
+    height: 28px;
+    color: var(--text);
+    stroke: var(--text);
+  }
+
+  .top-header-center {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+  }
+
+  .top-header-title {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    font-size: 20px;
+    color: var(--text);
+    line-height: 1.2;
+  }
+
+  .top-header-subtitle {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 400;
+    font-size: 11px;
+    color: var(--text-secondary);
+    line-height: 1.2;
+  }
+
+  .top-header-spacer {
+    width: 44px;
+    height: 44px;
+  }
+
+  /* ===== BREADCRUMB HEADER ===== */
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+  }
+
+  .breadcrumb-segment {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--text-secondary);
+  }
+
+  .breadcrumb-segment.active {
+    color: var(--text);
+    font-weight: 700;
+  }
+
+  .breadcrumb-chevron {
+    width: 14px;
+    height: 14px;
+    stroke: var(--text-secondary);
+    flex-shrink: 0;
+  }
+
+  /* ===== SETTINGS MENU ===== */
+  .settings-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 16px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .settings-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    background: var(--surface);
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .settings-row:hover {
+    border-color: var(--primary-border-tint);
+  }
+
+  .settings-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 15px;
+    line-height: 1;
+  }
+
+  .settings-icon.icon-red { background: rgba(239, 68, 68, 0.12); }
+  .settings-icon.icon-primary { background: var(--primary-bg); }
+  .settings-icon.icon-indigo { background: rgba(99, 102, 241, 0.12); }
+  .settings-icon.icon-blue { background: rgba(59, 130, 246, 0.12); }
+  .settings-icon.icon-green { background: rgba(34, 197, 94, 0.12); }
+  .settings-icon.icon-amber { background: rgba(245, 158, 11, 0.12); }
+  .settings-icon.icon-purple { background: rgba(139, 92, 246, 0.12); }
+  .settings-icon.icon-pink { background: rgba(236, 72, 153, 0.12); }
+
+  .settings-text {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .settings-name {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--text);
+    line-height: 1.3;
+  }
+
+  .settings-desc {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 400;
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.3;
+  }
+
+  .settings-chevron {
+    width: 16px;
+    height: 16px;
+    stroke: var(--text-secondary);
+    flex-shrink: 0;
+  }
+
+  .settings-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: var(--bg-tertiary);
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    font-size: 10px;
+    color: var(--text-secondary);
+    letter-spacing: 0.02em;
+    margin-left: 6px;
+    line-height: 1.4;
+  }
+
+  /* ===== SIGN OUT BUTTON ===== */
+  .signout-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin: 0 16px 8px;
+    padding: 14px 16px;
+    background: transparent;
+    border-radius: 12px;
+    border: 1px solid var(--error);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .signout-btn:hover {
+    background: var(--error-bg);
+  }
+
+  .signout-btn-text {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--error);
+  }
+
+  .signout-btn svg {
+    width: 18px;
+    height: 18px;
+    stroke: var(--error);
+  }
+
+  /* ===== FOOTER ===== */
+  .settings-footer {
+    text-align: center;
+    padding: 8px 0 4px;
+  }
+
+  .settings-footer-text {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 400;
+    font-size: 11px;
+    color: var(--text-secondary);
+    opacity: 0.7;
+  }
+
+  /* Legacy nav CSS removed — canonical version below */
+
+  
+
+  
+
+  /* ===== PREFERENCIAS SUBVIEW ===== */
+  .pref-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 16px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .pref-card {
+    background: var(--surface);
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    padding: 16px;
+  }
+
+  .pref-label {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--text);
+    margin-bottom: 10px;
+  }
+
+  .pref-pills {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .pref-pill {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 500;
+    font-size: 13px;
+    padding: 8px 16px;
+    border-radius: 999px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.15s;
+    background: var(--bg-tertiary);
+    color: var(--text-secondary);
+    line-height: 1.2;
+  }
+
+  .pref-pill.active {
+    background: var(--primary);
+    color: #ffffff;
+  }
+
+  .pref-pill-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 4px;
+    vertical-align: middle;
+  }
+
+  /* Toggle switch */
+  .pref-toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .toggle-switch {
+    width: 48px;
+    height: 24px;
+    border-radius: 999px;
+    background: var(--border);
+    position: relative;
+    cursor: pointer;
+    transition: background 0.2s;
+    flex-shrink: 0;
+  }
+
+  .toggle-switch.on {
+    background: var(--primary);
+  }
+
+  .toggle-knob {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #ffffff;
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    transition: transform 0.2s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  }
+
+  .toggle-switch.on .toggle-knob {
+    transform: translateX(24px);
+  }
+
+  /* ===== MODAL OVERLAY ===== */
+  .modal-overlay {
+    position: absolute;
+    inset: 0;
+    background: var(--overlay-bg);
+    border-radius: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 20;
+    padding: 24px;
+  }
+
+  .modal-card {
+    background: var(--surface);
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    padding: 24px;
+    width: 100%;
+    max-width: 300px;
+    text-align: center;
+  }
+
+  .modal-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--error-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+  }
+
+  .modal-icon svg {
+    width: 24px;
+    height: 24px;
+    stroke: var(--error);
+  }
+
+  .modal-title {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+
+  .modal-desc {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 400;
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 20px;
+    line-height: 1.4;
+  }
+
+  .modal-actions {
+    display: flex;
+    gap: 10px;
+  }
+
+  .modal-btn {
+    flex: 1;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    padding: 12px 16px;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.15s;
+    line-height: 1.2;
+  }
+
+  .modal-btn.secondary {
+    background: var(--bg-tertiary);
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+
+  .modal-btn.secondary:hover {
+    background: var(--border);
+  }
+
+  .modal-btn.danger {
+    background: var(--error);
+    color: #ffffff;
+  }
+
+  .modal-btn.danger:hover {
+    opacity: 0.9;
+  }
+
+  /* ===== VARIANT SECTIONS (outside phone) ===== */
+  .page-section-title {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 800;
+    font-size: 1.125rem;
+    color: #333;
+    text-align: center;
+    margin-top: 48px;
+    margin-bottom: 8px;
+    letter-spacing: 0.01em;
+  }
+
+  .page-section-desc {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 400;
+    font-size: 0.8125rem;
+    color: #888;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  .variants-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 24px;
+    width: 100%;
+    max-width: 480px;
+  }
+
+  .variant-section {
+    width: 100%;
+    max-width: 480px;
+    margin-top: 8px;
+  }
+
+  .variant-section-title {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    font-size: 0.875rem;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 12px;
+    padding-left: 4px;
+  }
+
+  .variant-phone-frame {
+    width: 100%;
+    max-width: 360px;
+    background: #1a1a2e;
+    border-radius: 40px;
+    padding: 12px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.05);
+  }
+
+  .variant-phone-screen {
+    background: var(--bg);
+    border-radius: 30px;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .variant-label {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    font-size: 0.6875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 16px 16px 0;
+  }
+
+  .variant-label-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+
+  .variant-label-dot.dot-blue { background: #3b82f6; }
+  .variant-label-dot.dot-amber { background: #f59e0b; }
+  .variant-label-dot.dot-red { background: #ef4444; }
+
+    .bottom-nav {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 56px;
+      padding-bottom: 6px;
+      background: var(--nav-bg);
+      border-top: 1px solid var(--nav-border);
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-around;
+      z-index: 50;
+      border-radius: 0 0 30px 30px;
+    }
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1px;
+      cursor: pointer;
+      padding: 4px 0 2px;
+      position: relative;
+      width: 48px;
+    }
+    .nav-icon {
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .nav-icon svg {
+      width: 22px;
+      height: 22px;
+      stroke-width: 2;
+    }
+    .nav-label {
+      font-family: 'Outfit', sans-serif;
+      font-size: 10px;
+      font-weight: 500;
+      color: var(--secondary);
+      opacity: 0.5;
+    }
+    .nav-item.active .nav-label {
+      color: var(--primary);
+      font-weight: 600;
+      opacity: 1;
+    }
+    .nav-item.active .nav-icon svg {
+      stroke: var(--primary);
+    }
+    .nav-item:not(.active) .nav-icon svg {
+      stroke: var(--secondary);
+      opacity: 0.45;
+    }
+
+  /* ===== GRUPOS SUBVIEW ===== */
+  .grupo-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 16px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .grupo-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    background: var(--surface);
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .grupo-row:hover {
+    border-color: var(--primary-border-tint);
+  }
+
+  .grupo-emoji {
+    font-size: 24px;
+    line-height: 1;
+    flex-shrink: 0;
+    width: 36px;
+    text-align: center;
+  }
+
+  .grupo-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .grupo-name-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .grupo-name {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--text);
+    line-height: 1.3;
+  }
+
+  .grupo-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    font-size: 10px;
+    letter-spacing: 0.02em;
+    line-height: 1.4;
+  }
+
+  .grupo-badge.badge-admin {
+    background: var(--primary-bg);
+    color: var(--primary);
+  }
+
+  .grupo-badge.badge-member {
+    background: var(--bg-tertiary);
+    color: var(--text-secondary);
+  }
+
+  .grupo-toggle-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    flex-shrink: 0;
+  }
+
+  .grupo-toggle-label {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 500;
+    font-size: 9px;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .grupo-chevron {
+    width: 16px;
+    height: 16px;
+    stroke: var(--text-secondary);
+    flex-shrink: 0;
+  }
+
+  .grupo-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 0 16px 16px;
+    margin-top: 4px;
+  }
+
+  .grupo-btn-create {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 16px;
+    background: transparent;
+    border-radius: 12px;
+    border: 1px solid var(--primary);
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--primary);
+  }
+
+  .grupo-btn-create:hover {
+    background: var(--primary-bg);
+  }
+
+  .grupo-link {
+    display: block;
+    text-align: center;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 500;
+    font-size: 13px;
+    color: var(--secondary);
+    cursor: pointer;
+    padding: 4px;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .grupo-count {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 400;
+    font-size: 11px;
+    color: var(--text-secondary);
+    text-align: center;
+    padding: 4px 0;
+    opacity: 0.7;
+  }
+
+  /* ===== LEAVE GROUP DIALOG ===== */
+  .leave-modal-emoji {
+    font-size: 40px;
+    line-height: 1;
+    margin-bottom: 12px;
+  }
+
+  .leave-note-card {
+    background: var(--surface);
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    padding: 16px;
+    margin: 16px;
+  }
+
+  .leave-note-title {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    font-size: 12px;
+    color: var(--text);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .leave-note-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .leave-note-item {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 400;
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.4;
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .leave-note-bullet {
+    flex-shrink: 0;
+    font-size: 11px;
+    line-height: 1.5;
+  }
+
+  .avatar-circle svg {
+    width: 16px;
+    height: 16px;
+    stroke: var(--primary);
+  }
+  </style>
+</head>
+<body data-theme="normal" data-mode="light">
+
+<!-- ===== CONTROLS ===== -->
+<div class="controls">
+  <span class="controls-title">Gastify Settings - Design Mockup</span>
+  <div class="controls-row">
+    <div class="theme-tabs">
+      <button class="theme-tab active" data-theme-select="normal" onclick="setTheme('normal')">Normal</button>
+      <button class="theme-tab" data-theme-select="professional" onclick="setTheme('professional')">Professional</button>
+      <button class="theme-tab" data-theme-select="mono" onclick="setTheme('mono')">Mono</button>
+    </div>
+    <button class="mode-toggle" onclick="toggleMode()">
+      <span class="mode-icon">&#9788;</span>
+      <span class="mode-label">Light</span>
+    </button>
+  </div>
+</div>
+
+<!-- ========================================
+     HERO STATE: Main Settings Menu
+     ======================================== -->
+<div class="phone-frame">
+  <div class="phone-screen">
+    <!-- Notch -->
+    <div class="notch"></div>
+
+    <!-- Status Bar -->
+    <div class="status-bar">
+      <span class="status-bar-time">9:41</span>
+      <div class="status-bar-icons">
+        <!-- Signal -->
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <rect x="1" y="16" width="4" height="6" rx="1"/>
+          <rect x="7" y="12" width="4" height="10" rx="1"/>
+          <rect x="13" y="7" width="4" height="15" rx="1"/>
+          <rect x="19" y="2" width="4" height="20" rx="1"/>
+        </svg>
+        <!-- WiFi -->
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 18c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zM4.93 7.36l1.41 1.41C8.18 7.11 10 6.2 12 6.2s3.82.91 5.66 2.57l1.41-1.41C16.85 5.15 14.53 4 12 4S7.15 5.15 4.93 7.36zM12 10c-1.63 0-3.12.55-4.24 1.46l1.41 1.41C10.05 12.33 11 12 12 12s1.95.33 2.83.87l1.41-1.41C15.12 10.55 13.63 10 12 10z"/>
+        </svg>
+        <!-- Battery -->
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <rect x="2" y="7" width="18" height="10" rx="2" stroke="currentColor" stroke-width="1.5" fill="none"/>
+          <rect x="4" y="9" width="14" height="6" rx="1"/>
+          <rect x="21" y="10" width="2" height="4" rx="0.5"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- TopHeader: Settings variant -->
+    <div class="top-header">
+      <div class="top-header-back">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m15 18-6-6 6-6"/>
+        </svg>
+      </div>
+      <div class="top-header-center">
+        <div class="top-header-title">Configuracion</div>
+        <div class="top-header-subtitle">v1.0.0-beta.5</div>
+      </div>
+      <div class="top-header-spacer"></div>
+    </div>
+
+    <!-- Settings Menu -->
+    <div class="settings-list">
+
+      <!-- 1. Limites -->
+      <div class="settings-row">
+        <div class="settings-icon icon-red">
+          <span>&#127919;</span>
+        </div>
+        <div class="settings-text">
+          <div class="settings-name">Limites</div>
+          <div class="settings-desc">Presupuestos y alertas de gasto</div>
+        </div>
+        <svg class="settings-chevron" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m9 18 6-6-6-6"/>
+        </svg>
+      </div>
+
+      <!-- 2. Perfil -->
+      <div class="settings-row">
+        <div class="settings-icon icon-primary">
+          <span>&#128100;</span>
+        </div>
+        <div class="settings-text">
+          <div class="settings-name">Perfil</div>
+          <div class="settings-desc">Nombre, email y foto de perfil</div>
+        </div>
+        <svg class="settings-chevron" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m9 18 6-6-6-6"/>
+        </svg>
+      </div>
+
+      <!-- 3. Preferencias -->
+      <div class="settings-row">
+        <div class="settings-icon icon-indigo">
+          <span>&#9881;&#65039;</span>
+        </div>
+        <div class="settings-text">
+          <div class="settings-name">Preferencias</div>
+          <div class="settings-desc">Idioma, moneda, tema y formato</div>
+        </div>
+        <svg class="settings-chevron" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m9 18 6-6-6-6"/>
+        </svg>
+      </div>
+
+      <!-- 4. Escaneo -->
+      <div class="settings-row">
+        <div class="settings-icon icon-blue">
+          <span>&#128248;</span>
+        </div>
+        <div class="settings-text">
+          <div class="settings-name">Escaneo</div>
+          <div class="settings-desc">Calidad de imagen y IA</div>
+        </div>
+        <svg class="settings-chevron" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m9 18 6-6-6-6"/>
+        </svg>
+      </div>
+
+      <!-- 5. Suscripcion -->
+      <div class="settings-row">
+        <div class="settings-icon icon-green">
+          <span>&#128142;</span>
+        </div>
+        <div class="settings-text">
+          <div class="settings-name">Suscripcion</div>
+          <div class="settings-desc">Plan actual y creditos</div>
+        </div>
+        <svg class="settings-chevron" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m9 18 6-6-6-6"/>
+        </svg>
+      </div>
+
+      <!-- 6. Datos -->
+      <div class="settings-row">
+        <div class="settings-icon icon-amber">
+          <span>&#128202;</span>
+        </div>
+        <div class="settings-text">
+          <div class="settings-name">Datos</div>
+          <div class="settings-desc">Exportar, importar y respaldo</div>
+        </div>
+        <svg class="settings-chevron" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m9 18 6-6-6-6"/>
+        </svg>
+      </div>
+
+      <!-- 7. Grupos -->
+      <div class="settings-row">
+        <div class="settings-icon icon-blue">
+          <span>&#128101;</span>
+        </div>
+        <div class="settings-text">
+          <div class="settings-name">
+            Grupos
+            <span class="settings-badge">Pronto</span>
+          </div>
+          <div class="settings-desc">Gastos compartidos con amigos</div>
+        </div>
+        <svg class="settings-chevron" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m9 18 6-6-6-6"/>
+        </svg>
+      </div>
+
+      <!-- 8. App -->
+      <div class="settings-row">
+        <div class="settings-icon icon-purple">
+          <span>&#128241;</span>
+        </div>
+        <div class="settings-text">
+          <div class="settings-name">App</div>
+          <div class="settings-desc">Notificaciones y permisos</div>
+        </div>
+        <svg class="settings-chevron" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m9 18 6-6-6-6"/>
+        </svg>
+      </div>
+
+      <!-- 9. Cuenta -->
+      <div class="settings-row">
+        <div class="settings-icon icon-pink">
+          <span>&#128450;&#65039;</span>
+        </div>
+        <div class="settings-text">
+          <div class="settings-name">Cuenta</div>
+          <div class="settings-desc">Seguridad y datos de cuenta</div>
+        </div>
+        <svg class="settings-chevron" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m9 18 6-6-6-6"/>
+        </svg>
+      </div>
+
+    </div><!-- /settings-list -->
+
+    <!-- Sign Out Button -->
+    <div class="signout-btn">
+      <!-- LogOut icon -->
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+        <polyline points="16,17 21,12 16,7"/>
+        <line x1="21" y1="12" x2="9" y2="12"/>
+      </svg>
+      <span class="signout-btn-text">Cerrar Sesion</span>
+    </div>
+
+    <!-- Footer -->
+    <div class="settings-footer">
+      <span class="settings-footer-text">Khujta AI</span>
+    </div>
+
+    <!-- Bottom Navigation (no tab active) -->
+          <div class="bottom-nav">
+        <!-- Inicio -->
+        <div class="nav-item">
+          <div class="nav-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+              <polyline points="9 22 9 12 15 12 15 22"/>
+            </svg>
+          </div>
+          <span class="nav-label">Inicio</span>
+        </div>
+        <!-- Compras -->
+        <div class="nav-item">
+          <div class="nav-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="16" y1="13" x2="8" y2="13"/>
+              <line x1="16" y1="17" x2="8" y2="17"/>
+            </svg>
+          </div>
+          <span class="nav-label">Compras</span>
+        </div>
+        <!-- Escanear -->
+        <div class="nav-item">
+          <div class="nav-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+              <circle cx="12" cy="13" r="4"/>
+            </svg>
+          </div>
+          <span class="nav-label">Escanear</span>
+        </div>
+        <!-- Gastos -->
+        <div class="nav-item">
+          <div class="nav-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="20" x2="18" y2="10"/>
+              <line x1="12" y1="20" x2="12" y2="4"/>
+              <line x1="6" y1="20" x2="6" y2="14"/>
+            </svg>
+          </div>
+          <span class="nav-label">Gastos</span>
+        </div>
+        <!-- Perfil -->
+        <div class="nav-item active">
+          <div class="nav-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+          </div>
+          <span class="nav-label">Perfil</span>
+        </div>
+      </div>
+<!-- Home Indicator -->
+    <div class="home-indicator">
+      <div class="home-indicator-bar"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== VARIANT STATES ===== -->
+<div class="page-section-title">Estados Variantes</div>
+<div class="page-section-desc">Subvistas de Preferencias, Grupos y dialogos de cierre de sesion y salida de grupo</div>
+
+<div class="variants-grid">
+
+  <!-- ===============================
+       VARIANT 2: Preferencias Subview
+       =============================== -->
+  <div class="variant-section">
+    <div class="variant-section-title">2. Preferencias</div>
+    <div class="variant-phone-frame">
+      <div class="variant-phone-screen">
+        <div class="variant-label">
+          <span class="variant-label-dot dot-blue"></span>
+          PREFERENCIAS SUBVIEW
+        </div>
+
+        <!-- TopHeader with breadcrumb -->
+        <div class="top-header" style="padding-top: 8px;">
+          <div class="top-header-back">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--text)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m15 18-6-6 6-6"/>
+            </svg>
+          </div>
+          <div class="breadcrumb">
+            <span class="breadcrumb-segment">Configuracion</span>
+            <svg class="breadcrumb-chevron" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m9 18 6-6-6-6"/>
+            </svg>
+            <span class="breadcrumb-segment active">Preferencias</span>
+          </div>
+          <div class="top-header-spacer"></div>
+        </div>
+
+        <!-- Preferencias cards -->
+        <div class="pref-list">
+
+          <!-- Idioma -->
+          <div class="pref-card">
+            <div class="pref-label">Idioma</div>
+            <div class="pref-pills">
+              <button class="pref-pill active">Espanol</button>
+              <button class="pref-pill">English</button>
+            </div>
+          </div>
+
+          <!-- Moneda -->
+          <div class="pref-card">
+            <div class="pref-label">Moneda predeterminada</div>
+            <div class="pref-pills">
+              <button class="pref-pill active">CLP</button>
+              <button class="pref-pill">USD</button>
+              <button class="pref-pill">EUR</button>
+            </div>
+          </div>
+
+          <!-- Formato de Fecha -->
+          <div class="pref-card">
+            <div class="pref-label">Formato de Fecha</div>
+            <div class="pref-pills">
+              <button class="pref-pill active">LatAm (15/03/2026)</button>
+              <button class="pref-pill">US (03/15/2026)</button>
+            </div>
+          </div>
+
+          <!-- Tema -->
+          <div class="pref-card">
+            <div class="pref-label">Tema de color</div>
+            <div class="pref-pills">
+              <button class="pref-pill active">
+                <span class="pref-pill-dot" style="background: #4a7c59;"></span>Normal
+              </button>
+              <button class="pref-pill">
+                <span class="pref-pill-dot" style="background: #2563eb;"></span>Professional
+              </button>
+              <button class="pref-pill">
+                <span class="pref-pill-dot" style="background: #71717a;"></span>Mono
+              </button>
+            </div>
+          </div>
+
+          <!-- Modo Oscuro -->
+          <div class="pref-card">
+            <div class="pref-toggle-row">
+              <div class="pref-label" style="margin-bottom: 0;">Modo oscuro</div>
+              <div class="toggle-switch on">
+                <div class="toggle-knob"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tamano de Fuente -->
+          <div class="pref-card">
+            <div class="pref-label">Tamano de Fuente</div>
+            <div class="pref-pills">
+              <button class="pref-pill">Pequeno</button>
+              <button class="pref-pill active">Normal</button>
+            </div>
+          </div>
+
+        </div><!-- /pref-list -->
+
+        <!-- Bottom Nav (no tab active) -->
+              <div class="bottom-nav">
+        <!-- Inicio -->
+        <div class="nav-item">
+          <div class="nav-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+              <polyline points="9 22 9 12 15 12 15 22"/>
+            </svg>
+          </div>
+          <span class="nav-label">Inicio</span>
+        </div>
+        <!-- Compras -->
+        <div class="nav-item">
+          <div class="nav-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="16" y1="13" x2="8" y2="13"/>
+              <line x1="16" y1="17" x2="8" y2="17"/>
+            </svg>
+          </div>
+          <span class="nav-label">Compras</span>
+        </div>
+        <!-- Escanear -->
+        <div class="nav-item">
+          <div class="nav-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+              <circle cx="12" cy="13" r="4"/>
+            </svg>
+          </div>
+          <span class="nav-label">Escanear</span>
+        </div>
+        <!-- Gastos -->
+        <div class="nav-item">
+          <div class="nav-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="20" x2="18" y2="10"/>
+              <line x1="12" y1="20" x2="12" y2="4"/>
+              <line x1="6" y1="20" x2="6" y2="14"/>
+            </svg>
+          </div>
+          <span class="nav-label">Gastos</span>
+        </div>
+        <!-- Perfil -->
+        <div class="nav-item active">
+          <div class="nav-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+          </div>
+          <span class="nav-label">Perfil</span>
+        </div>
+      </div>
+</div>
+</div>
+        <div class="home-indicator">
+          <div class="home-indicator-bar"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===============================
+       VARIANT 3: Sign Out Dialog
+       =============================== -->
+  <div class="variant-section">
+    <div class="variant-section-title">3. Dialogo de Cerrar Sesion</div>
+    <div class="variant-phone-frame">
+      <div class="variant-phone-screen" style="min-height: 600px;">
+        <div class="variant-label">
+          <span class="variant-label-dot dot-red"></span>
+          SIGN OUT CONFIRMATION
+        </div>
+
+        <!-- Dimmed background content -->
+        <div class="top-header" style="padding-top: 8px; opacity: 0.3;">
+          <div class="top-header-back">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--text)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m15 18-6-6 6-6"/>
+            </svg>
+          </div>
+          <div class="top-header-center">
+            <div class="top-header-title">Configuracion</div>
+            <div class="top-header-subtitle">v1.0.0-beta.5</div>
+          </div>
+          <div class="top-header-spacer"></div>
+        </div>
+
+        <div class="settings-list" style="opacity: 0.3;">
+          <div class="settings-row" style="pointer-events: none;">
+            <div class="settings-icon icon-red"><span>&#127919;</span></div>
+            <div class="settings-text">
+              <div class="settings-name">Limites</div>
+              <div class="settings-desc">Presupuestos y alertas de gasto</div>
+            </div>
+          </div>
+          <div class="settings-row" style="pointer-events: none;">
+            <div class="settings-icon icon-primary"><span>&#128100;</span></div>
+            <div class="settings-text">
+              <div class="settings-name">Perfil</div>
+              <div class="settings-desc">Nombre, email y foto de perfil</div>
+            </div>
+          </div>
+          <div class="settings-row" style="pointer-events: none;">
+            <div class="settings-icon icon-indigo"><span>&#9881;&#65039;</span></div>
+            <div class="settings-text">
+              <div class="settings-name">Preferencias</div>
+              <div class="settings-desc">Idioma, moneda, tema y formato</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Modal overlay -->
+        <div class="modal-overlay">
+          <div class="modal-card">
+            <div class="modal-icon">
+              <!-- LogOut icon -->
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                <polyline points="16,17 21,12 16,7"/>
+                <line x1="21" y1="12" x2="9" y2="12"/>
+              </svg>
+            </div>
+            <div class="modal-title">Cerrar sesion?</div>
+            <div class="modal-desc">Se cerrara tu sesion en este dispositivo</div>
+            <div class="modal-actions">
+              <button class="modal-btn secondary">Cancelar</button>
+              <button class="modal-btn danger">Cerrar Sesion</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Home Indicator -->
+        <div class="home-indicator" style="opacity: 0.3;">
+          <div class="home-indicator-bar"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ===============================
+       VARIANT 4: Grupos Subview
+       =============================== -->
+  <div class="variant-section">
+    <div class="variant-section-title">4. Grupos</div>
+    <div class="variant-phone-frame">
+      <div class="variant-phone-screen">
+        <div class="variant-label">
+          <span class="variant-label-dot dot-blue"></span>
+          GRUPOS SUBVIEW
+        </div>
+
+        <!-- TopHeader: Back + Grupos + Avatar -->
+        <div class="top-header" style="padding-top: 8px;">
+          <div class="top-header-back">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--text)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m15 18-6-6 6-6"/>
+            </svg>
+          </div>
+          <div class="top-header-center">
+            <div class="top-header-title">Grupos</div>
+          </div>
+          <div class="header-bell" style="position:relative;cursor:pointer;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--secondary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+            </svg>
+            <span style="position:absolute;top:-4px;right:-6px;background:#ef4444;color:#fff;font-size:9px;font-weight:700;font-family:Outfit,sans-serif;border-radius:999px;padding:1px 5px;line-height:1.3;">3</span>
+          </div>
+        </div>
+
+        <!-- Group list -->
+        <div class="grupo-list">
+
+          <!-- Group 1: Casa Temuco (Admin, auto-copy ON) -->
+          <div class="grupo-row">
+            <span class="grupo-emoji">&#127968;</span>
+            <div class="grupo-info">
+              <div class="grupo-name-row">
+                <span class="grupo-name">Casa Temuco</span>
+                <span class="grupo-badge badge-admin">Admin</span>
+              </div>
+            </div>
+            <div class="grupo-toggle-area">
+              <span class="grupo-toggle-label">Auto-copy</span>
+              <div class="toggle-switch on" style="width: 40px; height: 20px;">
+                <div class="toggle-knob" style="width: 16px; height: 16px;"></div>
+              </div>
+            </div>
+            <svg class="grupo-chevron" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m9 18 6-6-6-6"/>
+            </svg>
+          </div>
+
+          <!-- Group 2: Amigos Pizza (Miembro, auto-copy OFF) -->
+          <div class="grupo-row">
+            <span class="grupo-emoji">&#127829;</span>
+            <div class="grupo-info">
+              <div class="grupo-name-row">
+                <span class="grupo-name">Amigos Pizza</span>
+                <span class="grupo-badge badge-member">Miembro</span>
+              </div>
+            </div>
+            <div class="grupo-toggle-area">
+              <span class="grupo-toggle-label">Auto-copy</span>
+              <div class="toggle-switch" style="width: 40px; height: 20px;">
+                <div class="toggle-knob" style="width: 16px; height: 16px;"></div>
+              </div>
+            </div>
+            <svg class="grupo-chevron" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m9 18 6-6-6-6"/>
+            </svg>
+          </div>
+
+          <!-- Group 3: Oficina (Miembro, auto-copy OFF) -->
+          <div class="grupo-row">
+            <span class="grupo-emoji">&#128188;</span>
+            <div class="grupo-info">
+              <div class="grupo-name-row">
+                <span class="grupo-name">Oficina</span>
+                <span class="grupo-badge badge-member">Miembro</span>
+              </div>
+            </div>
+            <div class="grupo-toggle-area">
+              <span class="grupo-toggle-label">Auto-copy</span>
+              <div class="toggle-switch" style="width: 40px; height: 20px;">
+                <div class="toggle-knob" style="width: 16px; height: 16px;"></div>
+              </div>
+            </div>
+            <svg class="grupo-chevron" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m9 18 6-6-6-6"/>
+            </svg>
+          </div>
+
+        </div><!-- /grupo-list -->
+
+        <!-- Actions -->
+        <div class="grupo-actions">
+          <button class="grupo-btn-create">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 18px; height: 18px;">
+              <line x1="12" y1="5" x2="12" y2="19"/>
+              <line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            Crear grupo
+          </button>
+          <span class="grupo-link">Unirse con enlace</span>
+        </div>
+
+        <!-- Count -->
+        <div class="grupo-count">3 de 5 grupos</div>
+
+        <!-- Home Indicator -->
+        <div class="home-indicator">
+          <div class="home-indicator-bar"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===============================
+       VARIANT 5: Salir de Grupo
+       =============================== -->
+  <div class="variant-section">
+    <div class="variant-section-title">5. Salir de Grupo</div>
+    <div class="variant-phone-frame">
+      <div class="variant-phone-screen" style="min-height: 700px;">
+        <div class="variant-label">
+          <span class="variant-label-dot dot-red"></span>
+          LEAVE GROUP CONFIRMATION
+        </div>
+
+        <!-- Dimmed background content -->
+        <div class="top-header" style="padding-top: 8px; opacity: 0.3;">
+          <div class="top-header-back">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--text)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m15 18-6-6 6-6"/>
+            </svg>
+          </div>
+          <div class="top-header-center">
+            <div class="top-header-title">Grupos</div>
+          </div>
+          <div class="top-header-spacer"></div>
+        </div>
+
+        <div class="grupo-list" style="opacity: 0.3;">
+          <div class="grupo-row" style="pointer-events: none;">
+            <span class="grupo-emoji">&#127968;</span>
+            <div class="grupo-info">
+              <div class="grupo-name-row">
+                <span class="grupo-name">Casa Temuco</span>
+                <span class="grupo-badge badge-admin">Admin</span>
+              </div>
+            </div>
+          </div>
+          <div class="grupo-row" style="pointer-events: none;">
+            <span class="grupo-emoji">&#127829;</span>
+            <div class="grupo-info">
+              <div class="grupo-name-row">
+                <span class="grupo-name">Amigos Pizza</span>
+                <span class="grupo-badge badge-member">Miembro</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Modal overlay -->
+        <div class="modal-overlay">
+          <div class="modal-card">
+            <div class="leave-modal-emoji">&#127968;</div>
+            <div class="modal-title">Salir de Casa Temuco?</div>
+            <div class="modal-desc">
+              Dejaras de ver las transacciones compartidas.<br><br>
+              Tus transacciones copiadas al grupo se mantendran.
+            </div>
+            <div class="modal-actions">
+              <button class="modal-btn secondary">Cancelar</button>
+              <button class="modal-btn danger">Salir del grupo</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Leave scenarios note card (below the modal, inside the phone) -->
+        <div class="leave-note-card" style="position: absolute; bottom: 16px; left: 0; right: 0; margin: 0 16px; z-index: 25;">
+          <div class="leave-note-title">Escenarios al salir</div>
+          <ul class="leave-note-list">
+            <li class="leave-note-item">
+              <span class="leave-note-bullet">&#8226;</span>
+              Ultimo miembro &rarr; grupo se elimina automaticamente
+            </li>
+            <li class="leave-note-item">
+              <span class="leave-note-bullet">&#8226;</span>
+              Admin (unico) &rarr; debes asignar un nuevo admin primero
+            </li>
+            <li class="leave-note-item">
+              <span class="leave-note-bullet">&#8226;</span>
+              Admin (con otros admins) &rarr; puedes salir libremente
+            </li>
+          </ul>
+        </div>
+
+        <!-- Home Indicator -->
+        <div class="home-indicator" style="opacity: 0.3;">
+          <div class="home-indicator-bar"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /variants-grid -->
+
+<script>
+  function setTheme(theme) {
+    document.body.setAttribute('data-theme', theme);
+    document.querySelectorAll('.theme-tab').forEach(function(tab) {
+      tab.classList.toggle('active', tab.getAttribute('data-theme-select') === theme);
+    });
+  }
+
+  function toggleMode() {
+    var body = document.body;
+    var currentMode = body.getAttribute('data-mode');
+    var newMode = currentMode === 'light' ? 'dark' : 'light';
+    body.setAttribute('data-mode', newMode);
+
+    var btn = document.querySelector('.mode-toggle');
+    var icon = btn.querySelector('.mode-icon');
+    var label = btn.querySelector('.mode-label');
+
+    if (newMode === 'dark') {
+      icon.innerHTML = '&#9790;';
+      label.textContent = 'Dark';
+    } else {
+      icon.innerHTML = '&#9788;';
+      label.textContent = 'Light';
+    }
+  }
+</script>
+
+</body>
+</html>

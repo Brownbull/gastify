@@ -1,61 +1,62 @@
 # gastify Mockups
 
-Multi-theme runtime design surface. 3 platform targets (Desktop Web / Mobile Web PWA / Native Mobile React-Native). 6 theme candidates in P1, runtime-switchable subset ships in app.
+Multi-theme runtime design surface. 3 platform targets (Desktop Web / Mobile Web PWA / Native Mobile React-Native). Dual-track structure: frozen BoletApp legacy snapshot as baseline + editable working copies for gastify-rebuild iteration.
 
 ## Structure
 
-| Path | Purpose |
-|------|---------|
-| `styles/*.prompt` | Claude-input design spec per theme — consumed by frontend-design skill / external Claude design pass |
-| `styles/_PROMPT-TEMPLATE.md` | Required sections + token list every prompt must cover |
-| `STRESS-TEST-SPEC.md` | Canonical 4-screen × 3-platform × 2-mode matrix + state variants + interaction-note template |
-| `assets/fonts/` | Self-hosted Outfit + Baloo 2 woff2 + `gastify-fonts.css` — drag into Claude Design "fonts" field |
-| `assets/icons/` | 200+ pixel-art PNG icons (nav, actions, scan, categories, mascots) ported from BoletApp PixelLab generator |
-| `assets/tokens/` | Canonical V4 taxonomy + category-color maps (12 L1 + 44 L2 + 9 L3 + 42 L4) × 3 themes × 2 modes — production-proven from BoletApp |
-| `legacy-reference/` | Frozen snapshot of BoletApp legacy mockups — 29 screens + 13 flows + design-system-hub index. Layout + state-matrix reference for rebuild (not prescriptive port) |
-| `explorations/output/` | External render outputs — `{style}-{screen}-{platform}.html` |
-| `screens/` | P5–P12 screen mockups (added after P3) |
-| `components/` | P2–P3 component library HTML (added in P3) |
-| `flows/` | P4 flow walkthrough skeletons |
-| `tokens.json` | Locked multi-theme token JSON (P1 exit) |
-| `design-system.html` | Switcher demo across 4 stress screens × 3 platforms (P1 exit) |
-| `index.html` | Browseable gallery (P13 handoff) |
+| Path | Status | Purpose |
+|------|--------|---------|
+| `screens/` | **Active, editable** | 29 HTMLs + nav reference — working surface, iterate freely here |
+| `flows/` | **Active, editable** | 13 end-to-end walkthroughs (F1–F13) — working surface |
+| `index.html` | **Active, editable** | Design-system hub gallery — iterate to reflect current state + surface gaps |
+| `legacy-reference/` | **Frozen baseline** | Immutable BoletApp snapshot 2026-04-23. Do NOT edit — use as diff source to track how rebuild evolves vs legacy |
+| `styles/*.prompt` | Author-ready | Design briefs per theme (normal, professional, mono, organic, playful-geometric, sketch) — available for future Claude Design retry or manual theme authoring |
+| `styles/_PROMPT-TEMPLATE.md` | — | Required sections + token list every prompt must cover |
+| `STRESS-TEST-SPEC.md` | — | 4-screen × 3-platform × 2-mode matrix + state variants + interaction-note template |
+| `assets/fonts/` | — | Outfit + Baloo 2 self-hosted woff2 + `gastify-fonts.css` |
+| `assets/icons/` | — | 200+ pixel-art PNG icons (nav, actions, scan, categories, mascots) |
+| `assets/tokens/` | — | V4 taxonomy + category-color maps (12 L1 + 44 L2 + 9 L3 + 42 L4) × 3 themes × 2 modes |
+| `explorations/output/` | Empty | Reserved for new exploration-theme renders (organic / playful-geo / sketch) |
+| `tokens.json` | Phase 1 exit | Locked multi-theme token JSON — written at T10 |
+| `design-system.html` | Phase 1 exit | Switcher demo across stress screens × platforms — written at T10 |
 
-## Phase 1 — Active (ent tier, escalated from mvp 2026-04-23 — see DECISIONS D7)
+## Dual-track semantic
 
-6 theme candidates, each defined as a self-contained prompt file:
+- **Edit `screens/` / `flows/` / `index.html`** for rebuild work. These start as legacy copies but diverge as gastify rebuild fills gaps (desktop responsive, new themes, new consent surfaces, etc.).
+- **NEVER edit `legacy-reference/`** — it's the frozen 2026-04-23 baseline. Use `diff -r legacy-reference/screens/ screens/` to see exactly what changed since the fork.
+- **When a screen is complete** for gastify intent, mark it in `index.html` (active). Legacy-reference keeps the baseline for comparison until P13 handoff.
 
-### Legacy (port from bmad/boletapp/docs/mockups/screens/gastify-dashboard.html tokens)
-1. **Normal** — warm forest (`#4a7c59` primary, cream `#f5f0e8` bg, amber accent)
-2. **Professional** — cool steel-blue (`#2563eb` primary, ice `#f8fafc` bg, tabular-nums)
-3. **Mono** — grayscale (`#18181b` primary, paper `#fafafa` bg, hairline borders)
+## Phase 1 — Active (ent tier, escalated from mvp — see DECISIONS D7)
 
-### Exploration (port from bmad/boletapp/docs/mockups/styles/ + gastify-adaptation header)
-4. **Organic** — botanical/earth-tones/soft curves
-5. **Playful Geometric** — Memphis-inspired shapes + hard shadows + pop colors
-6. **Sketch** — handcrafted/draft-feel/pencil annotations
+6 theme candidates documented as style prompts. Legacy ships 3 themes (Normal / Professional / Mono) × 2 modes runtime-switchable. Exploration candidates (Organic / Playful-Geometric / Sketch) are design-brief-only until promoted.
 
-All 6 must render in BOTH light + dark mode with full token parity.
+### Workflow (revised post Claude-Design pivot)
 
-## Phase 1 Workflow
+| # | Task | Status |
+|---|------|--------|
+| T1–T4 | Scaffolding + style prompts + stress-test spec | ✅ |
+| Side-tasks | Fonts + icons + wordmark pin + taxonomy + legacy-reference | ✅ |
+| T5 | Dual-track setup — frozen `legacy-reference/` + active editable copies at top level | 🔄 |
+| T6 | Audit consistency (visual language) + continuity (cross-screen flow) + coverage (vs SCOPE + PLAN) | ⬜ |
+| T7 | Gap matrix — active mockup inventory vs SCOPE 27 REQs + PLAN P5–P12 screens | ⬜ |
+| T8 | Rewrite `index.html` to reflect current state + surface gaps | ⬜ |
+| T9 | Iterate `screens/` + `flows/` to close priority gaps (desktop responsive, missing screens) | ⬜ |
+| T10 | Lock `tokens.json` + `design-system.html` as Phase 1 exit | ⬜ |
 
-| # | Task | Owner |
-|---|------|-------|
-| T1–T4 | Scaffold + port prompts + stress-test spec | agent (done) |
-| T5 | External render pass — Claude design / frontend-design skill on 6 prompts × 4 screens × 3 platforms × 2 modes | **user** |
-| T6 | Pick runtime multi-theme set (subset of 6 themes × 2 modes to ship in-app) | **user** |
-| T7 | Lock `tokens.json` + `design-system.html` with switcher demo | agent |
+### Platform targets (all 3 required for final rebuild screens)
 
-Expected P1 exit: 3+ themes × 2 modes runtime-switchable, token JSON + design system HTML checked in, referenced by P2/P3/P5–P12.
+- **Desktop Web (1440 responsive)** — sidebar nav, top-bar scan with ⌘K, hover + focus states
+- **Mobile Web (PWA 390×844)** — bottom nav + FAB, limited platform APIs
+- **Native Mobile (React-Native + Expo, 390×844 shared iOS+Android)** — full camera + haptics + biometrics + push
 
-## Platform targets (all 3 required per theme)
+## Known gaps vs PLAN intent
 
-- **Desktop Web (1440 responsive)** — sidebar nav, top-bar scan with ⌘K, hover + focus states, no FAB
-- **Mobile Web (PWA 390×844)** — bottom nav + FAB, `<input capture=environment>` camera, limited platform APIs
-- **Native Mobile (React-Native + Expo, 390×844 shared iOS+Android)** — full camera viewfinder, haptics, biometrics, push, platform divergence notes
+Legacy covers ~70% of gastify P5–P12 scope. Missing (new surface for rebuild):
+- Jurisdiction consent screens (CL/LATAM/EU/US/CA — 4-way) — **P5**
+- PWA install prompt + Push permission prompt — **P5**
+- Register, Forgot PW, Email Verify — **P5** (only Login exists in legacy)
+- Desktop responsive variants — ALL screens (legacy mobile-only)
+- Native Mobile platform divergence notes — ALL screens
+- Missing group subviews: Leave Confirm, Delete Confirm, Read-Only Detail — **P10**
 
-## References
-
-- Legacy production gastify dashboard (3 themes × 2 modes, 2026 lines): `/home/khujta/projects/bmad/boletapp/docs/mockups/screens/gastify-dashboard.html`
-- Legacy style exploration prompts (6 files, 8–24KB): `/home/khujta/projects/bmad/boletapp/docs/mockups/styles/*.prompt`
-- Sister project methodology (gustify cooking app, same prompt pattern): `/home/khujta/projects/apps/gustify/docs/mockups/MOCKUP-PLAN.md`
+Full gap matrix landed at T7.

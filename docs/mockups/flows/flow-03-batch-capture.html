@@ -1,0 +1,1338 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flujo 3: Captura en Lote — Gastify</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+
+  :root {
+    --bg: var(--bg);
+    --bg-lighter: var(--bg-lighter);
+    --surface: var(--surface);
+    --border: var(--border);
+    --text: #e8e8f0;
+    --muted: #8888aa;
+    --primary: var(--primary);
+    --primary-dim: var(--primary-dim);
+    --primary-border: var(--primary-border);
+    --accent: var(--accent);
+    --accent-dim: #4a3020;
+    --accent-border: var(--accent-border);
+    --secondary: var(--secondary);
+    --secondary-dim: #1e3a4a;
+    --secondary-border: var(--secondary-border);
+    --green: var(--green);
+    --green-dim: #064e3b;
+    --green-border: var(--green-border);
+    --amber: var(--amber);
+    --amber-dim: #78350f;
+    --amber-border: var(--amber-border);
+    --blue: var(--blue);
+    --blue-dim: #1e3a5f;
+    --blue-border: var(--blue-border);
+    --purple: var(--purple);
+    --purple-dim: #3b1f7a;
+    --purple-border: var(--purple-border);
+    --red: var(--red);
+    --red-dim: #5b1a1a;
+    --red-border: var(--red-border);
+    --gold: #fde68a;
+    --gold-dim: #4a3f1a;
+    --gold-border: var(--amber);
+  }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Outfit', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Animated background gradients */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background:
+        radial-gradient(ellipse at 20% 25%, rgba(74,124,89,0.08) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 55%, rgba(232,168,124,0.06) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 85%, rgba(91,143,168,0.05) 0%, transparent 50%),
+        radial-gradient(ellipse at 65% 10%, rgba(168,130,220,0.04) 0%, transparent 45%);
+      pointer-events: none;
+      z-index: 0;
+      animation: bg-drift 20s ease-in-out infinite alternate;
+    }
+    @keyframes bg-drift {
+      0% { opacity: 0.8; }
+      100% { opacity: 1; }
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 40px 20px 80px;
+    }
+
+    /* ======================== HEADER ======================== */
+    .header {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+
+    .header .brand {
+      font-size: 13px;
+      color: #6a7a6a;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+
+    .header h1 {
+      font-size: 36px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 12px;
+      line-height: 1.2;
+    }
+
+    .header h1 span {
+      background: linear-gradient(135deg, var(--primary), var(--accent), var(--secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .header .subtitle {
+      font-size: 16px;
+      color: var(--muted);
+      max-width: 640px;
+      margin: 0 auto;
+      line-height: 1.7;
+      font-weight: 400;
+    }
+
+    /* -- Nav Reference Bar (canonical — matches flow-06+) -- */
+    .nav-ref {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0;
+      margin-bottom: 36px;
+      padding: 10px 0;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      max-width: 420px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      padding: 6px 16px;
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--muted);
+      letter-spacing: 0.03em;
+      position: relative;
+    }
+    .nav-item .nav-icon { font-size: 18px; }
+    .nav-fab {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), var(--primary-border));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      color: #fff;
+      box-shadow: 0 4px 16px rgba(74, 124, 89, 0.4);
+      margin: 0 8px;
+      flex-shrink: 0;
+    }
+
+    /* ======================== LEGEND ======================== */
+    .legend {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-bottom: 40px;
+      padding: 16px 24px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 12px;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 500;
+    }
+    .legend-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 4px;
+      flex-shrink: 0;
+    }
+    .legend-dot.red { background: var(--red); }
+    .legend-dot.amber { background: var(--accent); }
+    .legend-dot.blue { background: var(--secondary); }
+    .legend-dot.green { background: var(--primary); }
+    .legend-dot.purple { background: #a078d0; }
+    .legend-dot.diamond {
+      background: #a078d0;
+      transform: rotate(45deg);
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+    }
+
+    /* ======================== FLOW ======================== */
+    .flow {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+    }
+
+    /* Connector arrows */
+    .connector {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 4px 0;
+    }
+    .connector .line {
+      width: 2px;
+      height: 28px;
+      background: linear-gradient(to bottom, rgba(255,255,255,0.10), rgba(255,255,255,0.20));
+    }
+    .connector .arrow {
+      width: 0; height: 0;
+      border-left: 6px solid transparent;
+      border-right: 6px solid transparent;
+      border-top: 8px solid rgba(255,255,255,0.20);
+    }
+    .connector .label {
+      font-size: 11px;
+      color: #7a7a96;
+      margin: 4px 0;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    /* Phase dividers */
+    .phase-divider {
+      width: 100%;
+      max-width: 600px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin: 32px 0 20px;
+    }
+    .phase-divider .line {
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(to right, transparent, rgba(255,255,255,0.1), transparent);
+    }
+    .phase-divider .phase-label {
+      font-size: 13px;
+      color: #6a6a86;
+      font-weight: 700;
+      white-space: nowrap;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+    .phase-divider .phase-number {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 22px;
+      height: 22px;
+      background: rgba(74,124,89,0.2);
+      border: 1px solid rgba(74,124,89,0.3);
+      border-radius: 50%;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--primary);
+      margin-right: 6px;
+    }
+
+    /* ======================== NODES ======================== */
+    .node {
+      width: 100%;
+      max-width: 520px;
+      border-radius: 16px;
+      padding: 24px 28px;
+      position: relative;
+      cursor: default;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .node:hover {
+      transform: translateY(-3px);
+    }
+
+    .node .step-badge {
+      position: absolute;
+      top: -10px;
+      left: 24px;
+      background: var(--bg);
+      border: 2px solid;
+      border-radius: 20px;
+      padding: 2px 12px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    .node .screen-name {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 4px;
+      letter-spacing: -0.3px;
+    }
+
+    .node .screen-state {
+      font-size: 13px;
+      opacity: 0.7;
+      margin-bottom: 12px;
+      font-weight: 500;
+    }
+
+    .node .description {
+      font-size: 13px;
+      line-height: 1.6;
+      color: #b0b0c4;
+      margin-bottom: 10px;
+    }
+
+    .node .description ul {
+      list-style: none;
+      padding: 0;
+    }
+    .node .description ul li {
+      padding: 3px 0;
+      padding-left: 18px;
+      position: relative;
+    }
+    .node .description ul li::before {
+      content: '';
+      position: absolute;
+      left: 4px;
+      top: 10px;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.15);
+    }
+
+    .node .user-thought {
+      font-size: 13px;
+      font-style: italic;
+      line-height: 1.5;
+      padding: 10px 14px;
+      border-radius: 10px;
+      position: relative;
+      margin-top: 8px;
+    }
+    .node .user-thought::before {
+      content: '\201C';
+      font-size: 28px;
+      position: absolute;
+      top: 2px; left: 6px;
+      opacity: 0.3;
+      font-weight: 700;
+    }
+    .node .user-thought .thought-text {
+      padding-left: 12px;
+    }
+
+    .node .nav-highlight {
+      margin-top: 10px;
+      font-size: 11px;
+      opacity: 0.5;
+      font-weight: 600;
+    }
+    .node .nav-highlight span {
+      opacity: 1;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    /* Key moment badge */
+    .key-moment {
+      position: absolute;
+      top: -10px;
+      right: 20px;
+      background: linear-gradient(135deg, #a078d0, #7c5aad);
+      color: #f0e8ff;
+      font-size: 10px;
+      font-weight: 800;
+      padding: 4px 10px;
+      border-radius: 12px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      box-shadow: 0 2px 8px rgba(160,120,208,0.3);
+      animation: pulse-glow 3s ease-in-out infinite;
+    }
+    @keyframes pulse-glow {
+      0%, 100% { box-shadow: 0 2px 8px rgba(160,120,208,0.3); }
+      50% { box-shadow: 0 2px 16px rgba(160,120,208,0.5); }
+    }
+
+    /* Celebration ring */
+    .celebration {
+      position: absolute;
+      top: -4px; left: -4px; right: -4px; bottom: -4px;
+      border-radius: 20px;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    .node:hover .celebration { opacity: 1; }
+    .celebration::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 20px;
+      border: 2px solid rgba(74,124,89,0.3);
+      animation: celebration-ring 2s ease-in-out infinite;
+    }
+    @keyframes celebration-ring {
+      0%, 100% { transform: scale(1); opacity: 0.5; }
+      50% { transform: scale(1.02); opacity: 1; }
+    }
+
+    /* ======================== NODE COLOR THEMES ======================== */
+
+    /* Screen (green border — primary) */
+    .node.screen {
+      background: linear-gradient(135deg, rgba(74,124,89,0.15), rgba(74,124,89,0.06));
+      border: 1px solid rgba(74,124,89,0.3);
+      box-shadow: 0 4px 20px rgba(74,124,89,0.1);
+    }
+    .node.screen:hover { box-shadow: 0 8px 30px rgba(74,124,89,0.2); }
+    .node.screen .step-badge { border-color: var(--primary); color: var(--primary); }
+    .node.screen .screen-name { color: #a0d4b0; }
+    .node.screen .user-thought { background: rgba(74,124,89,0.08); color: #a0d4b8; }
+    .node.screen .description ul li::before { background: rgba(74,124,89,0.4); }
+
+    /* Action (amber/accent border) */
+    .node.action {
+      background: linear-gradient(135deg, rgba(232,168,124,0.14), rgba(232,168,124,0.05));
+      border: 1px solid rgba(232,168,124,0.3);
+      box-shadow: 0 4px 20px rgba(232,168,124,0.08);
+    }
+    .node.action:hover { box-shadow: 0 8px 30px rgba(232,168,124,0.18); }
+    .node.action .step-badge { border-color: var(--accent); color: var(--accent); }
+    .node.action .screen-name { color: #f0d4b8; }
+    .node.action .user-thought { background: rgba(232,168,124,0.08); color: #e0c8b0; }
+    .node.action .description ul li::before { background: rgba(232,168,124,0.4); }
+
+    /* Processing/Overlay (blue/secondary border) */
+    .node.overlay {
+      background: linear-gradient(135deg, rgba(91,143,168,0.14), rgba(91,143,168,0.05));
+      border: 1px solid rgba(91,143,168,0.3);
+      box-shadow: 0 4px 20px rgba(91,143,168,0.08);
+    }
+    .node.overlay:hover { box-shadow: 0 8px 30px rgba(91,143,168,0.18); }
+    .node.overlay .step-badge { border-color: var(--secondary); color: var(--secondary); }
+    .node.overlay .screen-name { color: #a0d0e8; }
+    .node.overlay .user-thought { background: rgba(91,143,168,0.08); color: #a0c0d4; }
+    .node.overlay .description ul li::before { background: rgba(91,143,168,0.4); }
+
+    /* Modal (purple border) */
+    .node.modal {
+      background: linear-gradient(135deg, rgba(160,120,208,0.14), rgba(160,120,208,0.05));
+      border: 1px solid rgba(160,120,208,0.3);
+      box-shadow: 0 4px 20px rgba(160,120,208,0.08);
+    }
+    .node.modal:hover { box-shadow: 0 8px 30px rgba(160,120,208,0.18); }
+    .node.modal .step-badge { border-color: #a078d0; color: #a078d0; }
+    .node.modal .screen-name { color: #c8b0e0; }
+    .node.modal .user-thought { background: rgba(160,120,208,0.08); color: #c0b0d8; }
+    .node.modal .description ul li::before { background: rgba(160,120,208,0.4); }
+
+    /* Success (green tint, stronger) */
+    .node.success {
+      background: linear-gradient(135deg, rgba(74,124,89,0.22), rgba(74,124,89,0.10));
+      border: 1px solid rgba(74,124,89,0.45);
+      box-shadow: 0 4px 24px rgba(74,124,89,0.15);
+    }
+    .node.success:hover { box-shadow: 0 8px 32px rgba(74,124,89,0.25); }
+    .node.success .step-badge { border-color: #5fa870; color: #5fa870; }
+    .node.success .screen-name { color: #b8e8c8; }
+    .node.success .user-thought { background: rgba(74,124,89,0.12); color: #b0dcc0; }
+    .node.success .description ul li::before { background: rgba(74,124,89,0.5); }
+    .node.success .celebration::before { border-color: rgba(74,124,89,0.4); }
+
+    /* ======================== INLINE ELEMENTS ======================== */
+
+    /* Scan mode popup card */
+    .scan-modes {
+      display: flex;
+      gap: 10px;
+      margin: 12px 0;
+      flex-wrap: wrap;
+    }
+    .scan-mode-chip {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      border: 1.5px solid;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .scan-mode-chip:hover {
+      transform: scale(1.04);
+    }
+    .scan-mode-chip.green-mode {
+      background: rgba(74,124,89,0.15);
+      border-color: rgba(74,124,89,0.4);
+      color: #a0d4b0;
+    }
+    .scan-mode-chip.amber-mode {
+      background: rgba(232,168,124,0.15);
+      border-color: rgba(232,168,124,0.4);
+      color: #f0d4b8;
+    }
+    .scan-mode-chip.amber-mode.selected {
+      background: rgba(232,168,124,0.3);
+      border-color: rgba(232,168,124,0.7);
+      box-shadow: 0 0 16px rgba(232,168,124,0.2);
+    }
+    .scan-mode-chip.violet-mode {
+      background: rgba(160,120,208,0.15);
+      border-color: rgba(160,120,208,0.4);
+      color: #c8b0e0;
+    }
+
+    /* Image gallery mockup */
+    .gallery-strip {
+      display: flex;
+      gap: 8px;
+      margin: 12px 0;
+      overflow-x: auto;
+      padding: 4px 0;
+    }
+    .gallery-thumb {
+      width: 52px;
+      height: 52px;
+      border-radius: 8px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      border: 1.5px solid rgba(255,255,255,0.12);
+    }
+    .gallery-thumb.filled {
+      background: rgba(74,124,89,0.15);
+      border-color: rgba(74,124,89,0.3);
+    }
+    .gallery-thumb.empty {
+      background: rgba(255,255,255,0.03);
+      border-color: rgba(255,255,255,0.08);
+      border-style: dashed;
+      color: #555;
+      font-size: 20px;
+    }
+
+    /* Credit display */
+    .credit-box {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.06);
+      margin: 10px 0;
+      font-size: 13px;
+    }
+    .credit-box .credit-icon {
+      font-size: 18px;
+    }
+    .credit-box .credit-calc {
+      flex: 1;
+      color: #b0b0c4;
+      font-weight: 500;
+    }
+    .credit-box .credit-remaining {
+      color: var(--primary);
+      font-weight: 700;
+    }
+
+    /* Progress bar mockup */
+    .progress-container {
+      margin: 12px 0;
+    }
+    .progress-bar-mock {
+      width: 100%;
+      height: 8px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 8px;
+    }
+    .progress-fill-mock {
+      height: 100%;
+      border-radius: 4px;
+      background: linear-gradient(90deg, var(--secondary), #7ab8d4);
+      transition: width 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+    .progress-status {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 500;
+    }
+    .progress-indicators {
+      display: flex;
+      gap: 6px;
+      margin-top: 8px;
+    }
+    .receipt-indicator {
+      width: 32px;
+      height: 6px;
+      border-radius: 3px;
+      transition: background 0.5s ease;
+    }
+    .receipt-indicator.done { background: var(--primary); }
+    .receipt-indicator.active { background: var(--secondary); animation: pulse-bar 1.2s ease-in-out infinite; }
+    .receipt-indicator.pending { background: rgba(255,255,255,0.08); }
+    @keyframes pulse-bar {
+      0%, 100% { opacity: 0.6; }
+      50% { opacity: 1; }
+    }
+
+    /* Batch review card list */
+    .batch-cards {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin: 12px 0;
+    }
+    .batch-card {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.06);
+      transition: background 0.2s ease;
+    }
+    .batch-card:hover {
+      background: rgba(255,255,255,0.06);
+    }
+    .batch-card .bc-icon {
+      font-size: 20px;
+      width: 32px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+    .batch-card .bc-info {
+      flex: 1;
+    }
+    .batch-card .bc-merchant {
+      font-size: 13px;
+      font-weight: 600;
+      color: #d0d0e0;
+    }
+    .batch-card .bc-category {
+      font-size: 11px;
+      color: var(--muted);
+      font-weight: 500;
+    }
+    .batch-card .bc-amount {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+    .batch-card .bc-actions {
+      display: flex;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+    .bc-btn {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 6px;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+    }
+    .bc-btn.edit { background: rgba(91,143,168,0.2); color: var(--secondary); }
+    .bc-btn.discard { background: rgba(224,85,85,0.15); color: var(--red); }
+
+    /* Button mockups */
+    .btn-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+    .btn-mock {
+      padding: 8px 18px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), #3d6b4a);
+      color: #fff;
+      box-shadow: 0 2px 12px rgba(74,124,89,0.3);
+    }
+    .btn-secondary {
+      background: rgba(255,255,255,0.06);
+      color: #b0b0c4;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .btn-cancel {
+      background: rgba(255,255,255,0.04);
+      color: var(--muted);
+    }
+
+    /* Summary stat row */
+    .summary-stats {
+      display: flex;
+      gap: 20px;
+      margin: 12px 0;
+      flex-wrap: wrap;
+    }
+    .stat-item {
+      text-align: center;
+    }
+    .stat-value {
+      font-size: 22px;
+      font-weight: 700;
+      color: #a0d4b0;
+    }
+    .stat-label {
+      font-size: 11px;
+      color: var(--muted);
+      font-weight: 500;
+      margin-top: 2px;
+    }
+
+    /* Conditional branch indicator */
+    .conditional-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 8px;
+      background: rgba(91,143,168,0.15);
+      color: var(--secondary);
+      margin-bottom: 8px;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+    }
+
+    /* ======================== FOOTER ======================== */
+    .footer {
+      text-align: center;
+      margin-top: 60px;
+      padding-top: 24px;
+      border-top: 1px solid rgba(255,255,255,0.05);
+    }
+    .footer p {
+      font-size: 12px;
+      color: #55556a;
+      line-height: 1.6;
+    }
+    .footer .app-name {
+      color: #7a7a96;
+      font-weight: 700;
+    }
+
+    /* ======================== RESPONSIVE ======================== */
+    @media (max-width: 640px) {
+      .container { padding: 24px 12px 60px; }
+      .header h1 { font-size: 28px; }
+      .node { padding: 20px 20px; max-width: 100%; }
+      .legend { gap: 12px; padding: 12px 16px; }
+      .scan-modes { flex-direction: column; }
+      .batch-card .bc-actions { flex-direction: column; gap: 4px; }
+      .summary-stats { justify-content: center; }
+      .btn-row { flex-direction: column; }
+      .btn-mock { text-align: center; }
+    }
+
+    /* ======================== ENTRANCE ANIMATION ======================== */
+    .animate-in {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+    .animate-in.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <!-- ============================================================ -->
+    <!-- HEADER                                                        -->
+    <!-- ============================================================ -->
+    <div class="header">
+      <div class="brand">Khujta AI &middot; Gastify</div>
+      <h1>Flujo 3: <span>Captura en Lote</span></h1>
+      <p class="subtitle">
+        El usuario ha acumulado varias boletas de la semana y quiere escanearlas todas de una vez.
+        Desde la seleccion del modo lote hasta la confirmacion final, este flujo muestra
+        la eficiencia del escaneo por lote y la revision rapida.
+      </p>
+      <div class="nav-ref">
+        <div class="nav-item" data-nav="home">Home</div>
+        <div class="nav-item" data-nav="trends">Trends</div>
+        <div class="nav-item fab" data-nav="fab">FAB Scan</div>
+        <div class="nav-item" data-nav="reports">Reports</div>
+        <div class="nav-item" data-nav="alerts">Alerts</div>
+      </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- LEGEND                                                        -->
+    <!-- ============================================================ -->
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot red"></div>Action</div>
+      <div class="legend-item"><div class="legend-dot amber"></div>Processing</div>
+      <div class="legend-item"><div class="legend-dot blue"></div>Screen</div>
+      <div class="legend-item"><div class="legend-dot green"></div>Success</div>
+      <div class="legend-item"><div class="legend-dot diamond"></div>Key Moment</div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- FLOW                                                          -->
+    <!-- ============================================================ -->
+    <div class="flow">
+
+      <!-- ======================== PHASE 1: SELECCION DE MODO ======================== -->
+      <div class="phase-divider animate-in">
+        <div class="line"></div>
+        <div class="phase-label"><span class="phase-number">1</span>Seleccion de Modo</div>
+        <div class="line"></div>
+      </div>
+
+      <!-- 01. DASHBOARD (populated) -->
+      <div class="node screen animate-in">
+        <div class="step-badge">01</div>
+        <div class="screen-name">Dashboard</div>
+        <div class="screen-state">estado: populated &mdash; con datos existentes</div>
+        <div class="description">
+          <ul>
+            <li>Recientes carousel con transacciones de la semana</li>
+            <li>Treemap de categorias visible</li>
+            <li>Usuario tiene varias boletas fisicas acumuladas</li>
+          </ul>
+        </div>
+        <div class="user-thought">
+          <div class="thought-text">Tengo como 5 boletas de esta semana, las escaneo todas de una.</div>
+        </div>
+        <div class="nav-highlight">Nav: <span>Home</span> activo</div>
+      </div>
+
+      <div class="connector">
+        <div class="line"></div>
+        <div class="label">long-press FAB</div>
+        <div class="arrow"></div>
+      </div>
+
+      <!-- 02. LONG-PRESS FAB -->
+      <div class="node action animate-in">
+        <div class="step-badge">02</div>
+        <div class="screen-name">Long-press FAB</div>
+        <div class="screen-state">accion: menu popup aparece</div>
+        <div class="description">
+          <ul>
+            <li>El usuario mantiene presionado el boton central (+)</li>
+            <li>Menu flotante se despliega con tres opciones de escaneo</li>
+            <li>Animacion suave de entrada desde el boton</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="connector">
+        <div class="line"></div>
+        <div class="label">popup visible</div>
+        <div class="arrow"></div>
+      </div>
+
+      <!-- 03. SCAN MODE SELECTOR -->
+      <div class="node modal animate-in">
+        <div class="step-badge">03</div>
+        <div class="key-moment">Momento clave</div>
+        <div class="screen-name">Scan Mode Selector</div>
+        <div class="screen-state">estado: 3 modos visibles</div>
+        <div class="scan-modes">
+          <div class="scan-mode-chip green-mode">
+            <span>&#129534;</span> Recibo
+          </div>
+          <div class="scan-mode-chip amber-mode selected">
+            <span>&#128230;</span> Lote
+          </div>
+          <div class="scan-mode-chip violet-mode">
+            <span>&#128196;</span> Estado de Cuenta
+          </div>
+        </div>
+        <div class="description">
+          <ul>
+            <li>Popup flotante con tres modos de escaneo diferenciados por color</li>
+            <li>Recibo (verde) &mdash; escaneo individual rapido</li>
+            <li>Lote (amber) &mdash; multiples boletas de una vez</li>
+            <li>Estado de Cuenta (violeta) &mdash; extracto bancario/tarjeta</li>
+          </ul>
+        </div>
+        <div class="user-thought">
+          <div class="thought-text">Modo lote, perfecto.</div>
+        </div>
+      </div>
+
+      <div class="connector">
+        <div class="line"></div>
+        <div class="label">toca &ldquo;Lote&rdquo;</div>
+        <div class="arrow"></div>
+      </div>
+
+      <!-- ======================== PHASE 2: CAPTURA EN LOTE ======================== -->
+      <div class="phase-divider animate-in">
+        <div class="line"></div>
+        <div class="phase-label"><span class="phase-number">2</span>Captura en Lote</div>
+        <div class="line"></div>
+      </div>
+
+      <!-- 04. BATCH CAPTURE VIEW -->
+      <div class="node screen animate-in">
+        <div class="step-badge">04</div>
+        <div class="screen-name">BatchCaptureView</div>
+        <div class="screen-state">estado: gallery building &mdash; construyendo el lote</div>
+        <div class="description">
+          <ul>
+            <li>Header: &ldquo;Lote de escaneo&rdquo; + icono de lote</li>
+            <li>Galeria de imagenes con thumbnails (colapsable)</li>
+            <li>Contador de imagenes con limite maximo</li>
+            <li>Agrega fotos una por una (camara o galeria)</li>
+            <li>Seccion de creditos mostrando costo por boleta</li>
+          </ul>
+        </div>
+        <div class="gallery-strip">
+          <div class="gallery-thumb filled">&#129534;</div>
+          <div class="gallery-thumb filled">&#129534;</div>
+          <div class="gallery-thumb filled">&#129534;</div>
+          <div class="gallery-thumb filled">&#129534;</div>
+          <div class="gallery-thumb filled">&#129534;</div>
+          <div class="gallery-thumb empty">+</div>
+        </div>
+        <div style="font-size:12px; color:var(--muted); font-weight:600; margin-bottom:8px;">5 de 50 imagenes</div>
+        <div class="credit-box">
+          <span class="credit-icon">&#11088;</span>
+          <span class="credit-calc">5 boletas &times; 1 credito = 5 creditos</span>
+          <span class="credit-remaining">Saldo: 20</span>
+        </div>
+        <div class="user-thought">
+          <div class="thought-text">Ya van 5, creo que son todas.</div>
+        </div>
+        <div class="nav-highlight">Nav: <span>full-screen</span> (sin barra inferior)</div>
+      </div>
+
+      <div class="connector">
+        <div class="line"></div>
+        <div class="label">toca &ldquo;Escanear lote&rdquo;</div>
+        <div class="arrow"></div>
+      </div>
+
+      <!-- 05. CREDIT WARNING DIALOG -->
+      <div class="node overlay animate-in">
+        <div class="step-badge">05</div>
+        <div class="screen-name">CreditWarningDialog</div>
+        <div class="screen-state">estado: green &mdash; creditos suficientes</div>
+        <div class="credit-box" style="border-color:rgba(74,124,89,0.25); background:rgba(74,124,89,0.06);">
+          <span class="credit-icon">&#9989;</span>
+          <span class="credit-calc" style="color:#a0d4b0;">5 boletas &times; 1 credito = <strong>5 creditos</strong></span>
+          <span class="credit-remaining" style="color:var(--primary);">Restantes: 15</span>
+        </div>
+        <div class="btn-row">
+          <div class="btn-mock btn-cancel">Cancelar</div>
+          <div class="btn-mock btn-primary">Continuar</div>
+        </div>
+        <div class="user-thought">
+          <div class="thought-text">OK, tengo suficientes creditos.</div>
+        </div>
+      </div>
+
+      <div class="connector">
+        <div class="line"></div>
+        <div class="label">confirma</div>
+        <div class="arrow"></div>
+      </div>
+
+      <!-- ======================== PHASE 3: PROCESAMIENTO ======================== -->
+      <div class="phase-divider animate-in">
+        <div class="line"></div>
+        <div class="phase-label"><span class="phase-number">3</span>Procesamiento</div>
+        <div class="line"></div>
+      </div>
+
+      <!-- 06. BATCH PROCESSING OVERLAY -->
+      <div class="node overlay animate-in" id="processing-node">
+        <div class="step-badge">06</div>
+        <div class="screen-name">BatchProcessingOverlay</div>
+        <div class="screen-state">estado: processing all &mdash; procesando lote completo</div>
+        <div class="progress-container">
+          <div class="progress-bar-mock">
+            <div class="progress-fill-mock" id="progress-fill" data-target="60" style="width: 0%;"></div>
+          </div>
+          <div class="progress-status">
+            <span id="progress-text">Procesando 3 de 5...</span>
+            <span>60%</span>
+          </div>
+          <div class="progress-indicators">
+            <div class="receipt-indicator done"></div>
+            <div class="receipt-indicator done"></div>
+            <div class="receipt-indicator active"></div>
+            <div class="receipt-indicator pending"></div>
+            <div class="receipt-indicator pending"></div>
+          </div>
+        </div>
+        <div class="description">
+          <ul>
+            <li>Barra de progreso general del lote</li>
+            <li>Indicadores individuales por boleta</li>
+            <li>Estado en tiempo real de cada procesamiento</li>
+          </ul>
+        </div>
+        <div class="user-thought">
+          <div class="thought-text">Esto va a tomar un poco mas...</div>
+        </div>
+      </div>
+
+      <div class="connector">
+        <div class="line"></div>
+        <div class="label">lote completo</div>
+        <div class="arrow"></div>
+      </div>
+
+      <!-- ======================== PHASE 4: REVISION ======================== -->
+      <div class="phase-divider animate-in">
+        <div class="line"></div>
+        <div class="phase-label"><span class="phase-number">4</span>Revision</div>
+        <div class="line"></div>
+      </div>
+
+      <!-- 07. BATCH REVIEW VIEW -->
+      <div class="node screen animate-in">
+        <div class="step-badge">07</div>
+        <div class="key-moment">Momento clave</div>
+        <div class="screen-name">BatchReviewView</div>
+        <div class="screen-state">estado: 5 receipts to review</div>
+        <div class="summary-stats">
+          <div class="stat-item">
+            <div class="stat-value">5</div>
+            <div class="stat-label">boletas</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value" style="color:var(--accent);">$45.230</div>
+            <div class="stat-label">total</div>
+          </div>
+        </div>
+        <div class="batch-cards">
+          <div class="batch-card">
+            <div class="bc-icon">&#127790;</div>
+            <div class="bc-info">
+              <div class="bc-merchant">Jumbo Alto Las Condes</div>
+              <div class="bc-category">Supermercado</div>
+            </div>
+            <div class="bc-amount">$18.450</div>
+            <div class="bc-actions">
+              <span class="bc-btn edit">Edit</span>
+              <span class="bc-btn discard">&#10005;</span>
+            </div>
+          </div>
+          <div class="batch-card">
+            <div class="bc-icon">&#9749;</div>
+            <div class="bc-info">
+              <div class="bc-merchant">Starbucks Costanera</div>
+              <div class="bc-category">Cafe</div>
+            </div>
+            <div class="bc-amount">$6.290</div>
+            <div class="bc-actions">
+              <span class="bc-btn edit">Edit</span>
+              <span class="bc-btn discard">&#10005;</span>
+            </div>
+          </div>
+          <div class="batch-card">
+            <div class="bc-icon">&#128137;</div>
+            <div class="bc-info">
+              <div class="bc-merchant">Farmacia Ahumada</div>
+              <div class="bc-category">Salud</div>
+            </div>
+            <div class="bc-amount">$12.890</div>
+            <div class="bc-actions">
+              <span class="bc-btn edit">Edit</span>
+              <span class="bc-btn discard">&#10005;</span>
+            </div>
+          </div>
+          <div class="batch-card" style="opacity:0.6;">
+            <div class="bc-icon">&#128661;</div>
+            <div class="bc-info">
+              <div class="bc-merchant">Shell Vitacura</div>
+              <div class="bc-category">Transporte</div>
+            </div>
+            <div class="bc-amount">$4.100</div>
+            <div class="bc-actions">
+              <span class="bc-btn edit">Edit</span>
+              <span class="bc-btn discard">&#10005;</span>
+            </div>
+          </div>
+          <div class="batch-card" style="opacity:0.5;">
+            <div class="bc-icon">&#127831;</div>
+            <div class="bc-info">
+              <div class="bc-merchant">Panaderia La Rosa</div>
+              <div class="bc-category">Alimentacion</div>
+            </div>
+            <div class="bc-amount">$3.500</div>
+            <div class="bc-actions">
+              <span class="bc-btn edit">Edit</span>
+              <span class="bc-btn discard">&#10005;</span>
+            </div>
+          </div>
+        </div>
+        <div class="user-thought">
+          <div class="thought-text">Voy revisando una por una...</div>
+        </div>
+      </div>
+
+      <div class="connector">
+        <div class="line"></div>
+        <div class="label">toca &ldquo;Edit&rdquo; en una tarjeta</div>
+        <div class="arrow"></div>
+      </div>
+
+      <!-- 08. EDIT ONE RECEIPT (conditional) -->
+      <div class="node overlay animate-in">
+        <div class="step-badge">08</div>
+        <div class="conditional-badge">&#8644; Opcional</div>
+        <div class="screen-name">Transaction Editor</div>
+        <div class="screen-state">condicional: edicion individual de una boleta</div>
+        <div class="description">
+          <ul>
+            <li>Se abre el editor para la boleta seleccionada</li>
+            <li>Corrige nombre del comercio, monto, o categoria</li>
+            <li>CategoryLearningPrompt si cambia la categoria</li>
+            <li>Al guardar, vuelve a BatchReviewView</li>
+          </ul>
+        </div>
+        <div class="user-thought">
+          <div class="thought-text">Esta estaba mal, la corrijo rapido.</div>
+        </div>
+      </div>
+
+      <div class="connector">
+        <div class="line"></div>
+        <div class="label">vuelve a revision</div>
+        <div class="arrow"></div>
+      </div>
+
+      <!-- ======================== PHASE 5: CONFIRMACION ======================== -->
+      <div class="phase-divider animate-in">
+        <div class="line"></div>
+        <div class="phase-label"><span class="phase-number">5</span>Confirmacion</div>
+        <div class="line"></div>
+      </div>
+
+      <!-- 09. SAVE ALL -->
+      <div class="node action animate-in">
+        <div class="step-badge">09</div>
+        <div class="screen-name">&ldquo;Guardar todo&rdquo;</div>
+        <div class="screen-state">accion: guardando 5 transacciones</div>
+        <div class="description">
+          <ul>
+            <li>Boton &ldquo;Guardar todo&rdquo; prominente al final de la revision</li>
+            <li>Las 5 transacciones se guardan en batch a Firestore</li>
+            <li>Creditos se descuentan del saldo del usuario</li>
+          </ul>
+        </div>
+        <div class="btn-row" style="justify-content:center;">
+          <div class="btn-mock btn-primary" style="font-size:15px; padding:10px 32px;">
+            Guardar todo (5)
+          </div>
+        </div>
+      </div>
+
+      <div class="connector">
+        <div class="line"></div>
+        <div class="label">guardado exitoso</div>
+        <div class="arrow"></div>
+      </div>
+
+      <!-- 10. BATCH COMPLETE MODAL -->
+      <div class="node success animate-in">
+        <div class="celebration"></div>
+        <div class="step-badge">10</div>
+        <div class="key-moment" style="background:linear-gradient(135deg,var(--primary),#3d6b4a); color:#fff;">Momento clave</div>
+        <div class="screen-name">BatchCompleteModal</div>
+        <div class="screen-state">estado: summary &mdash; resumen final del lote</div>
+        <div class="summary-stats" style="justify-content:center; gap:32px; margin:16px 0;">
+          <div class="stat-item">
+            <div class="stat-value" style="font-size:28px;">5</div>
+            <div class="stat-label">transacciones guardadas</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value" style="font-size:28px; color:var(--accent);">$45.230</div>
+            <div class="stat-label">total</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value" style="font-size:28px; color:var(--secondary);">5</div>
+            <div class="stat-label">creditos usados</div>
+          </div>
+        </div>
+        <div class="btn-row" style="justify-content:center;">
+          <div class="btn-mock btn-secondary">Ver Historial</div>
+          <div class="btn-mock btn-primary">Ir al Inicio</div>
+        </div>
+        <div class="user-thought">
+          <div class="thought-text">Listo! 5 boletas en 2 minutos.</div>
+        </div>
+      </div>
+
+      <div class="connector">
+        <div class="line"></div>
+        <div class="label">toca &ldquo;Ir al Inicio&rdquo;</div>
+        <div class="arrow"></div>
+      </div>
+
+      <!-- 11. DASHBOARD UPDATED -->
+      <div class="node success animate-in">
+        <div class="celebration"></div>
+        <div class="step-badge">11</div>
+        <div class="screen-name">Dashboard &mdash; Actualizado</div>
+        <div class="screen-state">estado: 5 nuevas transacciones visibles</div>
+        <div class="description">
+          <ul>
+            <li>Recientes carousel muestra las nuevas transacciones</li>
+            <li>Treemap actualizado con las nuevas categorias</li>
+            <li>Saldo de creditos actualizado en el perfil</li>
+            <li>El usuario ve el impacto inmediato del escaneo</li>
+          </ul>
+        </div>
+        <div class="user-thought">
+          <div class="thought-text">Todo al dia. Ahora puedo ver como voy con el presupuesto.</div>
+        </div>
+        <div class="nav-highlight">Nav: <span>Home</span> activo</div>
+      </div>
+
+    </div><!-- /flow -->
+
+    <!-- ============================================================ -->
+    <!-- FOOTER                                                        -->
+    <!-- ============================================================ -->
+    <div class="footer">
+      <p>
+        <span class="app-name">Gastify</span> &mdash; Smart Expense Tracker
+        <br>Flujo de captura en lote v1.0 &middot; Khujta AI &middot; 2026
+      </p>
+    </div>
+
+  </div><!-- /container -->
+
+  <!-- ============================================================ -->
+  <!-- JAVASCRIPT                                                     -->
+  <!-- ============================================================ -->
+  <script>
+    // === Scroll-triggered entrance animations ===
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.animate-in').forEach(el => observer.observe(el));
+
+    // === Animated progress bar ===
+    const progressObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const fill = entry.target.querySelector('.progress-fill-mock');
+          if (fill) {
+            setTimeout(() => {
+              fill.style.width = fill.dataset.target + '%';
+            }, 400);
+          }
+          progressObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.3 });
+
+    const processingNode = document.getElementById('processing-node');
+    if (processingNode) progressObserver.observe(processingNode);
+
+    // === Hover lift for nodes ===
+    document.querySelectorAll('.node').forEach(node => {
+      node.addEventListener('mouseenter', () => {
+        node.style.transition = 'transform 0.3s ease, box-shadow 0.3s ease';
+      });
+    });
+
+    // === Interactive batch cards ===
+    document.querySelectorAll('.batch-card').forEach(card => {
+      card.addEventListener('mouseenter', () => {
+        card.style.transform = 'translateX(4px)';
+        card.style.transition = 'transform 0.2s ease, background 0.2s ease';
+      });
+      card.addEventListener('mouseleave', () => {
+        card.style.transform = 'translateX(0)';
+      });
+    });
+
+    // === Scan mode chip interaction ===
+    document.querySelectorAll('.scan-mode-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        document.querySelectorAll('.scan-mode-chip').forEach(c => c.classList.remove('selected'));
+        chip.classList.add('selected');
+      });
+    });
+
+    // === Gallery thumb add animation ===
+    const emptyThumb = document.querySelector('.gallery-thumb.empty');
+    if (emptyThumb) {
+      emptyThumb.addEventListener('click', () => {
+        emptyThumb.style.transform = 'scale(0.9)';
+        setTimeout(() => {
+          emptyThumb.style.transform = 'scale(1)';
+        }, 150);
+      });
+    }
+  </script>
+
+</body>
+</html>

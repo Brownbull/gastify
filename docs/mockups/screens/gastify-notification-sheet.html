@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Notification Sheet — Gastify (Production Design System)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Baloo+2:wght@700&display=swap" rel="stylesheet">
+  <style>
+    /* GASTIFY DESIGN SYSTEM — Notification Sheet */
+
+    :root {
+      --bg: #f5f0e8; --surface: #fff; --primary: #4a7c59; --text: #2d3a4a;
+      --secondary: #4a5568; --accent: #e8a87c; --border: #e3bba1; --bg-tertiary: #f1dbb6;
+      --primary-rgb: 74, 124, 89; --nav-bg: #4a5568; --frame-bg: #1a1a2e;
+      --error: #ef4444; --overlay-bg: rgba(0, 0, 0, 0.4);
+    }
+    [data-theme="normal"][data-mode="dark"] {
+      --bg: #1a2420; --surface: #243028; --primary: #6b9e7a; --text: #e8e4dc;
+      --secondary: #b8c4a8; --border: #3d4d42; --bg-tertiary: #2d3a30; --accent: #d4a574;
+      --primary-rgb: 107, 158, 122; --nav-bg: #1e2a22; --frame-bg: #0a0f0c;
+      --error: #ef4444; --overlay-bg: rgba(0, 0, 0, 0.55);
+    }
+    [data-theme="professional"][data-mode="light"] {
+      --bg: #f8fafc; --surface: #fff; --primary: #2563eb; --text: #0f172a;
+      --secondary: #64748b; --accent: #3b82f6; --border: #e2e8f0; --bg-tertiary: #f1f5f9;
+      --primary-rgb: 37, 99, 235; --nav-bg: #1e293b; --frame-bg: #1e293b;
+      --error: #ef4444; --overlay-bg: rgba(0, 0, 0, 0.4);
+    }
+    [data-theme="professional"][data-mode="dark"] {
+      --bg: #0f172a; --surface: #1e293b; --primary: #3b82f6; --text: #f1f5f9;
+      --secondary: #94a3b8; --accent: #60a5fa; --border: #334155; --bg-tertiary: #1e293b;
+      --primary-rgb: 59, 130, 246; --nav-bg: #0f172a; --frame-bg: #020617;
+      --error: #ef4444; --overlay-bg: rgba(0, 0, 0, 0.55);
+    }
+    [data-theme="mono"][data-mode="light"] {
+      --bg: #fafafa; --surface: #fff; --primary: #18181b; --text: #18181b;
+      --secondary: #71717a; --accent: #52525b; --border: #e4e4e7; --bg-tertiary: #f4f4f5;
+      --primary-rgb: 24, 24, 27; --nav-bg: #27272a; --frame-bg: #18181b;
+      --error: #ef4444; --overlay-bg: rgba(0, 0, 0, 0.4);
+    }
+    [data-theme="mono"][data-mode="dark"] {
+      --bg: #09090b; --surface: #18181b; --primary: #a1a1aa; --text: #fafafa;
+      --secondary: #a1a1aa; --accent: #71717a; --border: #27272a; --bg-tertiary: #18181b;
+      --primary-rgb: 63, 63, 70; --nav-bg: #09090b; --frame-bg: #000;
+      --error: #ef4444; --overlay-bg: rgba(0, 0, 0, 0.6);
+    }
+
+    /* BASE */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #1a1a2e; font-family: 'Outfit', 'Segoe UI', system-ui, sans-serif; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 20px; gap: 40px; color: var(--text); }
+
+    /* CONTROLS */
+    .controls { display: flex; flex-direction: column; align-items: center; gap: 16px; width: 100%; max-width: 620px; }
+    .controls-row { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; justify-content: center; }
+    .theme-tabs, .variant-tabs { display: flex; background: rgba(255,255,255,0.08); border-radius: 12px; padding: 4px; gap: 2px; flex-wrap: wrap; justify-content: center; }
+    .theme-tab, .variant-tab { padding: 7px 18px; border: none; background: transparent; color: rgba(255,255,255,0.5); font-family: 'Outfit', sans-serif; font-weight: 500; font-size: 13px; border-radius: 10px; cursor: pointer; transition: all 0.2s ease; white-space: nowrap; }
+    .theme-tab:hover, .variant-tab:hover { color: rgba(255,255,255,0.8); }
+    .theme-tab.active, .variant-tab.active { background: rgba(255,255,255,0.15); color: #fff; }
+    .mode-toggle { display: flex; align-items: center; gap: 8px; color: rgba(255,255,255,0.7); font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 500; }
+    .toggle-switch { width: 44px; height: 24px; background: rgba(255,255,255,0.15); border-radius: 12px; cursor: pointer; position: relative; transition: background 0.2s; }
+    .toggle-switch.dark { background: rgba(255,255,255,0.3); }
+    .toggle-switch::after { content: ''; position: absolute; width: 18px; height: 18px; background: #fff; border-radius: 50%; top: 3px; left: 3px; transition: transform 0.2s; }
+    .toggle-switch.dark::after { transform: translateX(20px); }
+
+    /* PHONE FRAME */
+    .phone-frame { width: 360px; height: 860px; background: var(--frame-bg); border-radius: 44px; padding: 12px; position: relative; box-shadow: 0 25px 80px rgba(0,0,0,0.4), inset 0 0 0 2px rgba(255,255,255,0.08); }
+    .phone-screen { width: 100%; height: 100%; background: var(--bg); border-radius: 34px; overflow: hidden; position: relative; display: flex; flex-direction: column; }
+    .phone-notch { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 150px; height: 28px; background: var(--frame-bg); border-radius: 0 0 20px 20px; z-index: 100; }
+    .status-bar { height: 48px; padding: 14px 24px 0; display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-weight: 600; color: var(--text); position: relative; z-index: 99; flex-shrink: 0; background: var(--bg); }
+    .status-bar-left { font-size: 14px; font-weight: 700; }
+    .status-bar-right { display: flex; align-items: center; gap: 6px; }
+    .status-bar-right svg { width: 16px; height: 16px; }
+    .home-indicator { position: absolute; bottom: 6px; left: 50%; transform: translateX(-50%); width: 134px; height: 5px; background: var(--secondary); border-radius: 3px; opacity: 0.3; z-index: 300; }
+
+    /* DASHBOARD BACKDROP */
+    .dashboard-backdrop { flex: 1; display: flex; flex-direction: column; position: relative; }
+    .top-header { height: 72px; padding: 0 16px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; background: var(--bg); }
+    .logo-circle { width: 36px; height: 36px; border-radius: 50%; background: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 20px; }
+    .wordmark { font-family: 'Baloo 2', cursive; font-weight: 700; font-size: 22px; color: var(--text); }
+    .header-bell { position: relative; cursor: pointer; }
+    .bell-badge { position: absolute; top: -4px; right: -6px; background: var(--error); color: #fff; font-size: 9px; font-weight: 700; font-family: 'Outfit', sans-serif; border-radius: 999px; padding: 1px 5px; line-height: 1.3; }
+    .dashboard-content { flex: 1; padding: 0 16px; opacity: 0.35; }
+    .dash-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 20px; margin-bottom: 12px; }
+    .dash-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .dash-card-title { font-weight: 600; font-size: 14px; color: var(--text); }
+    .dash-amount-label { font-size: 11px; color: var(--secondary); }
+    .dash-amount-big { font-weight: 800; font-size: 28px; color: var(--text); }
+    .dash-treemap { display: grid; grid-template-columns: 1.2fr 1fr; grid-template-rows: 1fr 1fr; gap: 4px; height: 80px; margin-top: 12px; border-radius: 8px; overflow: hidden; }
+    .dash-treemap-cell { border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+    .dash-treemap-cell:first-child { grid-row: 1 / 3; }
+    .dash-txn { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+    .dash-txn:last-child { border-bottom: none; }
+    .dash-txn-icon { width: 32px; height: 32px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 16px; background: rgba(var(--primary-rgb), 0.1); }
+    .dash-txn-name { flex: 1; font-size: 13px; font-weight: 500; color: var(--text); }
+    .dash-txn-amount { font-size: 13px; font-weight: 600; color: var(--text); }
+
+    /* BOTTOM NAV */
+    .bottom-nav { position: absolute; bottom: 0; left: 0; right: 0; height: 56px; padding-bottom: 6px; background: var(--nav-bg); display: flex; align-items: flex-end; justify-content: space-around; z-index: 50; border-radius: 0 0 30px 30px; }
+    .nav-item { display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 4px 0 2px; width: 48px; }
+    .nav-icon { width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; }
+    .nav-icon svg { width: 22px; height: 22px; stroke-width: 2; stroke: var(--secondary); opacity: 0.45; fill: none; }
+    .nav-item.active .nav-icon svg { stroke: var(--primary); opacity: 1; }
+    .nav-label { font-family: 'Outfit', sans-serif; font-size: 10px; font-weight: 500; color: var(--secondary); opacity: 0.5; }
+    .nav-item.active .nav-label { color: var(--primary); font-weight: 600; opacity: 1; }
+
+    /* BOTTOM SHEET */
+    .sheet-overlay { position: absolute; inset: 0; background: var(--overlay-bg); z-index: 200; border-radius: 34px; display: flex; align-items: flex-end; }
+    .bottom-sheet { width: 100%; max-height: 75%; background: var(--surface); border-radius: 24px 24px 34px 34px; display: flex; flex-direction: column; box-shadow: 0 -8px 40px rgba(0,0,0,0.2); animation: sheet-slide-up 0.35s cubic-bezier(0.32, 0.72, 0, 1); }
+    @keyframes sheet-slide-up { from { transform: translateY(100%); } to { transform: translateY(0); } }
+    .sheet-handle { width: 36px; height: 4px; background: var(--secondary); opacity: 0.25; border-radius: 2px; margin: 10px auto 0; flex-shrink: 0; }
+    .sheet-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 20px 10px; flex-shrink: 0; }
+    .sheet-title { font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 17px; color: var(--text); }
+    .sheet-action { font-family: 'Outfit', sans-serif; font-weight: 600; font-size: 12px; color: var(--primary); cursor: pointer; background: none; border: none; padding: 4px 8px; border-radius: 6px; transition: background 0.15s; }
+    .sheet-action:hover { background: rgba(var(--primary-rgb), 0.08); }
+    .sheet-body { flex: 1; overflow-y: auto; padding: 0 16px 24px; }
+    .sheet-body::-webkit-scrollbar { display: none; }
+
+    /* NOTIFICATION ITEMS */
+    .notif-item { display: flex; align-items: flex-start; gap: 12px; padding: 14px 4px; border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.15s; border-radius: 8px; }
+    .notif-item:hover { background: rgba(var(--primary-rgb), 0.04); }
+    .notif-item:last-child { border-bottom: none; }
+    .notif-icon-circle { width: 40px; height: 40px; border-radius: 50%; background: rgba(var(--primary-rgb), 0.1); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+    .notif-content { flex: 1; min-width: 0; }
+    .notif-title { font-family: 'Outfit', sans-serif; font-weight: 600; font-size: 13px; color: var(--text); margin-bottom: 2px; }
+    .notif-subtitle { font-family: 'Outfit', sans-serif; font-weight: 400; font-size: 12px; color: var(--secondary); margin-bottom: 3px; }
+    .notif-time { font-family: 'Outfit', sans-serif; font-weight: 500; font-size: 11px; color: var(--secondary); opacity: 0.7; }
+    .notif-unread-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--primary); flex-shrink: 0; margin-top: 6px; }
+
+    /* EMPTY STATE */
+    .notif-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 48px 20px; gap: 12px; }
+    .notif-empty-icon { width: 56px; height: 56px; border-radius: 50%; background: var(--bg-tertiary); display: flex; align-items: center; justify-content: center; }
+    .notif-empty-icon svg { width: 28px; height: 28px; stroke: var(--secondary); fill: none; stroke-width: 1.5; opacity: 0.5; }
+    .notif-empty-text { font-family: 'Outfit', sans-serif; font-weight: 500; font-size: 14px; color: var(--secondary); }
+
+    /* VARIANTS */
+    .variant-hero, .variant-empty { display: none; }
+    body.show-hero .variant-hero { display: flex; }
+    body.show-empty .variant-empty { display: flex; }
+
+    /* RESPONSIVE */
+    @media (max-width: 460px) {
+      .phone-frame { width: 100%; border-radius: 0; padding: 0; }
+      .phone-screen { border-radius: 0; }
+      .phone-notch { display: none; }
+      .bottom-nav { border-radius: 0; }
+      .sheet-overlay { border-radius: 0; }
+      .bottom-sheet { border-radius: 24px 24px 0 0; }
+    }
+  </style>
+</head>
+<body data-theme="normal" data-mode="light" class="show-hero">
+
+  <!-- CONTROLS -->
+  <div class="controls">
+    <div class="controls-row">
+      <div class="theme-tabs">
+        <button class="theme-tab active" data-theme-val="normal">Normal</button>
+        <button class="theme-tab" data-theme-val="professional">Professional</button>
+        <button class="theme-tab" data-theme-val="mono">Mono</button>
+      </div>
+      <div class="mode-toggle">
+        <span>Light</span>
+        <div class="toggle-switch" id="modeToggle"></div>
+        <span>Dark</span>
+      </div>
+    </div>
+    <div class="controls-row">
+      <div class="variant-tabs">
+        <button class="variant-tab active" data-variant="hero">Hero</button>
+        <button class="variant-tab" data-variant="empty">Empty</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHONE FRAME -->
+  <div class="phone-frame">
+    <div class="phone-notch"></div>
+    <div class="phone-screen">
+
+      <!-- Status Bar -->
+      <div class="status-bar">
+        <span class="status-bar-left">9:41</span>
+        <div class="status-bar-right">
+          <svg viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="11" width="2.5" height="4" rx="0.5"/><rect x="5" y="8" width="2.5" height="7" rx="0.5"/><rect x="9" y="5" width="2.5" height="10" rx="0.5"/><rect x="13" y="1" width="2.5" height="14" rx="0.5"/></svg>
+          <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 12.5a1.25 1.25 0 110 2.5 1.25 1.25 0 010-2.5zM8 8.5c2.07 0 3.94.84 5.3 2.2l-1.42 1.42A5.48 5.48 0 008 10.5c-1.52 0-2.9.62-3.88 1.62L2.7 10.7A7.47 7.47 0 018 8.5z"/></svg>
+          <svg viewBox="0 0 24 12" fill="currentColor"><rect x="0" y="0" width="20" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="2" y="2" width="14" height="8" rx="1"/><rect x="21" y="3.5" width="2.5" height="5" rx="1"/></svg>
+        </div>
+      </div>
+
+      <!-- Dashboard Backdrop (dimmed) -->
+      <div class="dashboard-backdrop">
+        <div class="top-header">
+          <div class="logo-circle">&#x1F437;</div>
+          <span class="wordmark">Gastify</span>
+          <div class="header-bell">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--secondary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+            </svg>
+            <span class="bell-badge">3</span>
+          </div>
+        </div>
+        <div class="dashboard-content">
+          <div class="dash-card">
+            <div class="dash-card-header">
+              <div>
+                <div class="dash-card-title">Marzo 2026</div>
+                <div class="dash-amount-label">Gasto total</div>
+              </div>
+              <div class="dash-amount-big">$342.180</div>
+            </div>
+            <div class="dash-treemap">
+              <div class="dash-treemap-cell" style="background:rgba(var(--primary-rgb),0.15);">&#x1F6D2;</div>
+              <div class="dash-treemap-cell" style="background:rgba(var(--primary-rgb),0.08);">&#x1F37D;&#xFE0F;</div>
+              <div class="dash-treemap-cell" style="background:rgba(var(--primary-rgb),0.05);">&#x1F697;</div>
+            </div>
+          </div>
+          <div style="margin-top:8px;">
+            <div class="dash-txn">
+              <div class="dash-txn-icon">&#x1F6D2;</div>
+              <span class="dash-txn-name">Jumbo</span>
+              <span class="dash-txn-amount">$28.450</span>
+            </div>
+            <div class="dash-txn">
+              <div class="dash-txn-icon">&#x1F37D;&#xFE0F;</div>
+              <span class="dash-txn-name">Dominos Pizza</span>
+              <span class="dash-txn-amount">$15.990</span>
+            </div>
+          </div>
+        </div>
+        <!-- Bottom Nav -->
+        <div class="bottom-nav">
+          <div class="nav-item active">
+            <div class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
+            <span class="nav-label">Inicio</span>
+          </div>
+          <div class="nav-item">
+            <div class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
+            <span class="nav-label">Compras</span>
+          </div>
+          <div class="nav-item">
+            <div class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div>
+            <span class="nav-label">Escanear</span>
+          </div>
+          <div class="nav-item">
+            <div class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
+            <span class="nav-label">Gastos</span>
+          </div>
+          <div class="nav-item">
+            <div class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+            <span class="nav-label">Perfil</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- VARIANT: HERO (with notifications) -->
+      <div class="sheet-overlay variant-hero">
+        <div class="bottom-sheet">
+          <div class="sheet-handle"></div>
+          <div class="sheet-header">
+            <span class="sheet-title">Notificaciones</span>
+            <button class="sheet-action">Marcar todo leido</button>
+          </div>
+          <div class="sheet-body">
+            <div class="notif-item">
+              <div class="notif-icon-circle">&#x1F514;</div>
+              <div class="notif-content">
+                <div class="notif-title">Gasto alto detectado</div>
+                <div class="notif-subtitle">$128.500 en una compra</div>
+                <div class="notif-time">Hace 2 hrs</div>
+              </div>
+              <div class="notif-unread-dot"></div>
+            </div>
+            <div class="notif-item">
+              <div class="notif-icon-circle">&#x1F4CA;</div>
+              <div class="notif-content">
+                <div class="notif-title">Resumen semanal listo</div>
+                <div class="notif-subtitle">Semana 12: $234.500</div>
+                <div class="notif-time">Ayer</div>
+              </div>
+              <div class="notif-unread-dot"></div>
+            </div>
+            <div class="notif-item">
+              <div class="notif-icon-circle">&#x1F4A1;</div>
+              <div class="notif-content">
+                <div class="notif-title">Patron de transporte</div>
+                <div class="notif-subtitle">Descubrimos un patron en tus gastos</div>
+                <div class="notif-time">Lun, 14:00</div>
+              </div>
+              <div class="notif-unread-dot"></div>
+            </div>
+            <div class="notif-item">
+              <div class="notif-icon-circle">&#x1F4B3;</div>
+              <div class="notif-content">
+                <div class="notif-title">Creditos bajos</div>
+                <div class="notif-subtitle">Te quedan 5 creditos normales</div>
+                <div class="notif-time">Vie, 09:00</div>
+              </div>
+            </div>
+            <div class="notif-item">
+              <div class="notif-icon-circle">&#x2705;</div>
+              <div class="notif-content">
+                <div class="notif-title">Escaneo completado</div>
+                <div class="notif-subtitle">3 boletas procesadas correctamente</div>
+                <div class="notif-time">Jue, 18:30</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- VARIANT: EMPTY -->
+      <div class="sheet-overlay variant-empty">
+        <div class="bottom-sheet">
+          <div class="sheet-handle"></div>
+          <div class="sheet-header">
+            <span class="sheet-title">Notificaciones</span>
+          </div>
+          <div class="sheet-body">
+            <div class="notif-empty">
+              <div class="notif-empty-icon">
+                <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                </svg>
+              </div>
+              <span class="notif-empty-text">No tienes notificaciones</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="home-indicator"></div>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT -->
+  <script>
+    (function() {
+      var body = document.body, themeTabs = document.querySelectorAll('.theme-tab'),
+          modeToggle = document.getElementById('modeToggle'), variantTabs = document.querySelectorAll('.variant-tab');
+      var currentTheme = 'normal', currentMode = 'light', allVariants = ['hero', 'empty'];
+
+      function applyTheme() { body.setAttribute('data-theme', currentTheme); body.setAttribute('data-mode', currentMode); }
+      function showVariant(v) { allVariants.forEach(function(x) { body.classList.remove('show-' + x); }); body.classList.add('show-' + v); }
+
+      themeTabs.forEach(function(t) { t.addEventListener('click', function() { themeTabs.forEach(function(x) { x.classList.remove('active'); }); t.classList.add('active'); currentTheme = t.dataset.themeVal; applyTheme(); }); });
+      modeToggle.addEventListener('click', function() { currentMode = currentMode === 'light' ? 'dark' : 'light'; modeToggle.classList.toggle('dark', currentMode === 'dark'); applyTheme(); });
+      variantTabs.forEach(function(t) { t.addEventListener('click', function() { variantTabs.forEach(function(x) { x.classList.remove('active'); }); t.classList.add('active'); showVariant(t.dataset.variant); }); });
+      applyTheme();
+    })();
+  </script>
+</body>
+</html>
