@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="es-CL">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Modo de escaneo — gastify Desktop Web (1440 responsive)</title>
+<link rel="stylesheet" href="../assets/fonts/gastify-fonts.css">
+<link rel="stylesheet" href="../assets/css/desktop-shell.css">
+<style>
+  .scan-head {
+    margin: 8px 0 18px;
+    text-align: center;
+  }
+  .scan-head h1 {
+    font-family: 'Baloo 2', cursive;
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+  }
+  .scan-head p { font-size: 14px; color: var(--ink-2); margin-top: 6px; }
+
+  /* Credit banner */
+  .credit-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 14px 20px;
+    background: var(--primary-soft);
+    border: 1px solid var(--primary);
+    border-radius: 14px;
+    margin-bottom: 24px;
+  }
+  .credit-banner-left { display: flex; align-items: center; gap: 14px; }
+  .credit-icon {
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    background: var(--primary);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .credit-icon img { width: 28px; height: 28px; image-rendering: pixelated; }
+  .credit-count {
+    font-family: 'Baloo 2', cursive;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--primary);
+  }
+  .credit-sub { font-size: 12px; color: var(--ink-2); margin-top: 2px; }
+  .credit-cta {
+    padding: 8px 18px;
+    background: var(--primary);
+    color: var(--primary-ink);
+    border-radius: 999px;
+    border: none;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    transition: opacity .15s;
+  }
+  .credit-cta:hover { opacity: 0.9; }
+
+  /* 3-card grid */
+  .mode-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+  .mode-card {
+    background: var(--surface);
+    border: 2px solid var(--line);
+    border-radius: 18px;
+    padding: 28px 24px;
+    cursor: pointer;
+    transition: all .2s;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 2px 6px var(--shadow);
+  }
+  .mode-card:hover {
+    border-color: var(--primary);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 28px var(--shadow-lg);
+  }
+  .mode-card.selected {
+    border-color: var(--primary);
+    background: var(--primary-soft);
+    box-shadow: 0 12px 28px var(--shadow-lg);
+  }
+  .mode-card.selected::after {
+    content: '✓';
+    position: absolute;
+    top: 16px; right: 16px;
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: var(--primary-ink);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+  }
+
+  .mode-icon-big {
+    width: 72px; height: 72px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+  .mode-icon-big.green { background: var(--primary-soft); color: var(--primary); }
+  .mode-icon-big.amber { background: #fef3c7; color: #d97706; }
+  .mode-icon-big.violet { background: rgba(139, 92, 246, 0.15); color: #8b5cf6; }
+  [data-mode="dark"] .mode-icon-big.amber { background: rgba(217, 119, 6, 0.2); color: #fbbf24; }
+  [data-mode="dark"] .mode-icon-big.violet { background: rgba(167, 139, 250, 0.2); color: #a78bfa; }
+  .mode-icon-big svg { width: 40px; height: 40px; fill: none; stroke: currentColor; stroke-width: 2; }
+
+  .mode-title {
+    font-family: 'Baloo 2', cursive;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 6px;
+  }
+  .mode-desc {
+    font-size: 13px;
+    color: var(--ink-2);
+    line-height: 1.5;
+    margin-bottom: 18px;
+    flex: 1;
+  }
+  .mode-meta-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 20px;
+    padding-top: 14px;
+    border-top: 1px solid var(--line);
+  }
+  .mode-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--ink-2);
+  }
+  .mode-meta .check { color: var(--success); flex-shrink: 0; }
+  .mode-credit {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    align-self: flex-start;
+  }
+  .mode-credit.green { background: var(--primary-soft); color: var(--primary); }
+  .mode-credit.amber { background: #fef3c7; color: #854d0e; }
+  .mode-credit.violet { background: rgba(139, 92, 246, 0.15); color: #6d28d9; }
+  [data-mode="dark"] .mode-credit.amber { background: rgba(217, 119, 6, 0.2); color: #fbbf24; }
+  [data-mode="dark"] .mode-credit.violet { background: rgba(167, 139, 250, 0.2); color: #c4b5fd; }
+
+  /* Action bar */
+  .scan-action-bar {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 32px;
+    padding: 20px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    box-shadow: 0 2px 6px var(--shadow);
+  }
+  .scan-btn-primary {
+    padding: 14px 36px;
+    background: var(--primary);
+    color: var(--primary-ink);
+    border: none;
+    border-radius: 12px;
+    font-family: 'Baloo 2', cursive;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    transition: opacity .15s;
+  }
+  .scan-btn-primary:hover { opacity: 0.9; }
+  .scan-btn-primary img { width: 20px; height: 20px; image-rendering: pixelated; }
+  .scan-btn-secondary {
+    padding: 14px 24px;
+    background: transparent;
+    color: var(--ink-2);
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .scan-btn-secondary:hover { border-color: var(--primary); color: var(--primary); }
+
+  /* Recent scans */
+  .recent-head {
+    font-family: 'Baloo 2', cursive;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--ink);
+    margin: 32px 0 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+  .recent-head a { font-size: 12px; color: var(--primary); font-weight: 700; font-family: 'Outfit', sans-serif; }
+
+  .recent-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+  }
+  .recent-card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 14px 16px;
+    cursor: pointer;
+    transition: all .15s;
+    box-shadow: 0 1px 3px var(--shadow);
+  }
+  .recent-card:hover { border-color: var(--primary); transform: translateY(-2px); }
+  .recent-card-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .recent-card-time {
+    font-size: 11px;
+    color: var(--ink-3);
+    font-weight: 600;
+  }
+  .recent-card-status {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: var(--primary-soft);
+    color: var(--primary);
+  }
+  .recent-card-store {
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--ink);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .recent-card-amount {
+    font-family: 'Baloo 2', cursive;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--primary);
+    font-variant-numeric: tabular-nums;
+    margin-top: 4px;
+  }
+  .recent-card-items {
+    font-size: 11px;
+    color: var(--ink-3);
+    margin-top: 2px;
+  }
+
+  /* Responsive */
+  @media (max-width: 1280px) {
+    .mode-grid { grid-template-columns: 1fr; }
+    .recent-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+
+<body data-theme="normal" data-mode="light">
+
+<!-- CONTROLS -->
+<div class="controls">
+  <div class="controls-group"><span class="controls-label">Theme</span><button class="theme-tab active" data-theme-val="normal">Normal</button><button class="theme-tab" data-theme-val="professional">Professional</button><button class="theme-tab" data-theme-val="mono">Mono</button></div>
+  <div class="controls-group"><span class="controls-label">Mode</span><div class="mode-toggle"><span>Light</span><div class="toggle-switch" id="modeToggle"></div><span>Dark</span></div></div>
+  <div class="controls-group"><span class="controls-label">Platform</span><span style="color: var(--primary); font-weight: 600;">Desktop Web 1440</span><a class="platform-switch" href="gastify-scan-mode-selector.html" title="Ver versión mobile"><span class="dot">●</span> Mobile ↗</a></div>
+  <div class="controls-group">
+    <div class="quick-nav" id="quickNav">
+      <button class="quick-nav-btn" onclick="document.getElementById('quickNav').classList.toggle('open')">☰ Desktop screens</button>
+      <div class="quick-nav-menu">
+        <div class="qn-section">Available (10)</div>
+        <a href="gastify-dashboard-desktop.html">🏠 Dashboard</a>
+        <a href="gastify-history-desktop.html">📜 Historial</a>
+        <a href="gastify-transaction-editor-desktop.html">✎ Transaction editor</a>
+        <a href="gastify-settings-desktop.html">⚙ Ajustes</a>
+        <a href="gastify-trends-desktop.html">📊 Tendencias</a>
+        <a href="gastify-insights-desktop.html">💡 Insights</a>
+        <a href="gastify-reports-desktop.html">📄 Reportes</a>
+        <a href="gastify-items-desktop.html">📦 Ítems</a>
+        <a class="current" href="gastify-scan-mode-selector-desktop.html">📸 Scan modes <span class="qn-badge">current</span></a>
+        <a href="gastify-single-scan-states-desktop.html">📷 Escaneo</a>
+        <a href="gastify-quicksave-card-desktop.html">⚡ Quicksave</a>
+        <a href="../index.html" style="color: var(--primary); font-weight: 600; margin-top: 4px;">→ See full gap matrix</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="app-shell">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-brand"><div class="brand-mark"><img src="../assets/icons/piggy-bank.png" alt=""></div><span class="wordmark">gastify</span></div>
+    <ul class="nav-list">
+      <li><a class="nav-item" href="gastify-dashboard-desktop.html"><img class="nav-icon" src="../assets/icons/app-icons/navigation/nav-home.png" alt=""><span>Inicio</span></a></li>
+      <li><a class="nav-item" href="gastify-history-desktop.html"><img class="nav-icon" src="../assets/icons/app-icons/navigation/nav-history.png" alt=""><span>Historial</span></a></li>
+      <li><a class="nav-item" href="gastify-trends-desktop.html"><img class="nav-icon" src="../assets/icons/app-icons/navigation/nav-trends.png" alt=""><span>Tendencias</span></a></li>
+      <li><a class="nav-item" href="gastify-insights-desktop.html"><img class="nav-icon" src="../assets/icons/app-icons/navigation/nav-insights.png" alt=""><span>Insights</span></a></li>
+      <li><a class="nav-item" href="gastify-reports-desktop.html"><img class="nav-icon" src="../assets/icons/app-icons/navigation/nav-reports.png" alt=""><span>Reportes</span></a></li>
+      <li><a class="nav-item" href="gastify-group-switcher.html"><img class="nav-icon" src="../assets/icons/app-icons/navigation/nav-scan.png" alt=""><span>Grupos</span></a></li>
+      <li><a class="nav-item" href="gastify-settings-desktop.html"><img class="nav-icon" src="../assets/icons/app-icons/navigation/nav-settings.png" alt=""><span>Ajustes</span></a></li>
+    </ul>
+    <div class="sidebar-footer"><div class="user-chip"><div class="user-avatar">JG</div><div style="flex: 1; min-width: 0;"><div class="user-name">Juan García</div><div class="user-email">juan@ejemplo.cl</div></div></div></div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div class="search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        <input type="text" placeholder="Buscar..." aria-label="Buscar">
+        <span class="kbd-hint">/</span>
+      </div>
+      <button class="scan-btn" aria-label="Escanear boleta"><img src="../assets/icons/app-icons/scan-features/scan-single.png" alt=""><span>Escanear</span><span class="kbd-hint" style="background: rgba(255,255,255,0.22); color: #fff; border: none;">⌘K</span></button>
+      <button class="icon-btn" aria-label="Alertas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span class="bell-badge">3</span></button>
+      <div class="topbar-avatar" aria-label="Perfil">JG</div>
+    </div>
+
+    <!-- HEADER -->
+    <div class="scan-head">
+      <h1>Escanear boletas</h1>
+      <p>Selecciona cómo quieres capturar tus gastos</p>
+    </div>
+
+    <!-- CREDIT BANNER -->
+    <div class="credit-banner">
+      <div class="credit-banner-left">
+        <div class="credit-icon"><img src="../assets/icons/app-icons/credits/credit-normal.png" alt=""></div>
+        <div>
+          <div class="credit-count">47 créditos</div>
+          <div class="credit-sub">Plan Normal · Se renuevan el 1 de mayo · 3 super créditos disponibles</div>
+        </div>
+      </div>
+      <button class="credit-cta">Comprar más</button>
+    </div>
+
+    <!-- 3-CARD MODE GRID -->
+    <div class="mode-grid">
+
+      <!-- Card 1: Boleta individual (SELECTED) -->
+      <div class="mode-card selected" data-mode="boleta">
+        <div class="mode-icon-big green">
+          <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+        </div>
+        <div class="mode-title">Boleta individual</div>
+        <p class="mode-desc">Escanea una boleta o ticket con la cámara o sube una foto. Extracción automática de ítem por ítem.</p>
+        <div class="mode-meta-list">
+          <div class="mode-meta"><svg class="check" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="14" height="14"><polyline points="20 6 9 17 4 12"/></svg>Cámara en vivo o carga de archivo</div>
+          <div class="mode-meta"><svg class="check" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="14" height="14"><polyline points="20 6 9 17 4 12"/></svg>QR/CAF boletas electrónicas SII</div>
+          <div class="mode-meta"><svg class="check" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="14" height="14"><polyline points="20 6 9 17 4 12"/></svg>Reconciliación matemática</div>
+          <div class="mode-meta"><svg class="check" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="14" height="14"><polyline points="20 6 9 17 4 12"/></svg>~8s por boleta</div>
+        </div>
+        <span class="mode-credit green">💎 1 crédito</span>
+      </div>
+
+      <!-- Card 2: Lote -->
+      <div class="mode-card" data-mode="lote">
+        <div class="mode-icon-big amber">
+          <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+        </div>
+        <div class="mode-title">Lote de boletas</div>
+        <p class="mode-desc">Escanea hasta 50 boletas seguidas. Ideal para procesar el mes entero o una caja de tickets acumulados.</p>
+        <div class="mode-meta-list">
+          <div class="mode-meta"><svg class="check" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="14" height="14"><polyline points="20 6 9 17 4 12"/></svg>Hasta 50 boletas / lote</div>
+          <div class="mode-meta"><svg class="check" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="14" height="14"><polyline points="20 6 9 17 4 12"/></svg>Procesamiento en segundo plano</div>
+          <div class="mode-meta"><svg class="check" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="14" height="14"><polyline points="20 6 9 17 4 12"/></svg>Revisa todos al final</div>
+          <div class="mode-meta"><svg class="check" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="14" height="14"><polyline points="20 6 9 17 4 12"/></svg>~6s por boleta (paralelo)</div>
+        </div>
+        <span class="mode-credit amber">💎 1 c/boleta</span>
+      </div>
+
+      <!-- Card 3: Estado de cuenta -->
+      <div class="mode-card" data-mode="estado">
+        <div class="mode-icon-big violet">
+          <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        </div>
+        <div class="mode-title">Estado de cuenta</div>
+        <p class="mode-desc">Sube el PDF de tu banco o tarjeta. Extrae cargos + fechas + comercios automáticamente. Sin fotografiar nada.</p>
+        <div class="mode-meta-list">
+          <div class="mode-meta"><svg class="check" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="14" height="14"><polyline points="20 6 9 17 4 12"/></svg>PDF de cualquier banco CL</div>
+          <div class="mode-meta"><svg class="check" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="14" height="14"><polyline points="20 6 9 17 4 12"/></svg>Detección de duplicados</div>
+          <div class="mode-meta"><svg class="check" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="14" height="14"><polyline points="20 6 9 17 4 12"/></svg>Match con boletas existentes</div>
+          <div class="mode-meta"><svg class="check" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="14" height="14"><polyline points="20 6 9 17 4 12"/></svg>~30s por PDF</div>
+        </div>
+        <span class="mode-credit violet">💎 1 super crédito</span>
+      </div>
+    </div>
+
+    <!-- ACTION BAR -->
+    <div class="scan-action-bar">
+      <button class="scan-btn-secondary">Cancelar</button>
+      <button class="scan-btn-primary" onclick="window.location.href='gastify-single-scan-states-desktop.html'">
+        <img src="../assets/icons/app-icons/scan-features/scan-single.png" alt="">
+        Continuar con Boleta individual
+      </button>
+    </div>
+
+    <!-- RECENT SCANS -->
+    <div class="recent-head">
+      <span>Escaneos recientes</span>
+      <a href="gastify-history-desktop.html">Ver todos →</a>
+    </div>
+    <div class="recent-grid">
+      <div class="recent-card">
+        <div class="recent-card-head">
+          <span class="recent-card-time">Hace 2 min</span>
+          <span class="recent-card-status">Listo</span>
+        </div>
+        <div class="recent-card-store">Jumbo Apumanque</div>
+        <div class="recent-card-amount">$23.490</div>
+        <div class="recent-card-items">12 ítems · Alimentos Frescos</div>
+      </div>
+      <div class="recent-card">
+        <div class="recent-card-head">
+          <span class="recent-card-time">Hace 18 min</span>
+          <span class="recent-card-status">Listo</span>
+        </div>
+        <div class="recent-card-store">Copec Pucón</div>
+        <div class="recent-card-amount">$89.420</div>
+        <div class="recent-card-items">1 ítem · Combustible</div>
+      </div>
+      <div class="recent-card">
+        <div class="recent-card-head">
+          <span class="recent-card-time">Hoy 10:14</span>
+          <span class="recent-card-status">Listo</span>
+        </div>
+        <div class="recent-card-store">Farmacia Cruz Verde</div>
+        <div class="recent-card-amount">$14.870</div>
+        <div class="recent-card-items">4 ítems · Salud y Cuidado</div>
+      </div>
+      <div class="recent-card">
+        <div class="recent-card-head">
+          <span class="recent-card-time">Ayer</span>
+          <span class="recent-card-status">Listo</span>
+        </div>
+        <div class="recent-card-store">Café Altura</div>
+        <div class="recent-card-amount">$6.780</div>
+        <div class="recent-card-items">2 ítems · Restaurantes</div>
+      </div>
+    </div>
+
+    <!-- PLATFORM NOTES -->
+    <aside class="platform-notes">
+      <h3>Desktop Web — Scan mode selector</h3>
+      <ul>
+        <li>No filter strip — capture action, not data view</li>
+        <li>3-card horizontal grid (mobile = vertical stack). Cards equal height via flex; selected state = primary-soft bg + ✓ badge + elevated shadow</li>
+        <li>Credit banner at top shows current plan + regular + super credit balance + "Comprar más" CTA (routes to Settings → Plan)</li>
+        <li>Primary CTA text updates per selected mode (Continuar con <code>Boleta individual</code> | <code>Lote</code> | <code>Estado de cuenta</code>)</li>
+        <li>Recent scans grid shows 4 newest (click card → tx editor pre-loaded). Mobile = single column list</li>
+        <li>Desktop adds drag-and-drop onto any mode card as shortcut — drop files onto selected mode → advance to scan state</li>
+      </ul>
+    </aside>
+
+  </main>
+
+</div>
+
+<script>
+  const body = document.body;
+  document.querySelectorAll('.theme-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.theme-tab').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+      body.dataset.theme = btn.dataset.themeVal;
+    });
+  });
+  document.getElementById('modeToggle').addEventListener('click', () => {
+    body.dataset.mode = body.dataset.mode === 'dark' ? 'light' : 'dark';
+  });
+
+  // Mode card selection + update CTA text
+  const modeNames = { boleta: 'Boleta individual', lote: 'Lote de boletas', estado: 'Estado de cuenta' };
+  document.querySelectorAll('.mode-card').forEach(card => {
+    card.addEventListener('click', () => {
+      document.querySelectorAll('.mode-card').forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+      const btn = document.querySelector('.scan-btn-primary');
+      const mode = card.dataset.mode;
+      btn.childNodes[btn.childNodes.length - 1].nodeValue = ' Continuar con ' + modeNames[mode];
+    });
+  });
+
+  document.addEventListener('click', (e) => {
+    const qn = document.getElementById('quickNav');
+    if (qn && !qn.contains(e.target)) qn.classList.remove('open');
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === '/' && document.activeElement.tagName !== 'INPUT') {
+      e.preventDefault();
+      document.querySelector('.search input').focus();
+    }
+    if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      e.preventDefault();
+      document.querySelector('.scan-btn').click();
+    }
+  });
+</script>
+
+</body>
+</html>

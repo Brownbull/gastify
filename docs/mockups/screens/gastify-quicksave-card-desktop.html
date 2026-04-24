@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="es-CL">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quicksave — gastify Desktop Web (1440 responsive)</title>
+<link rel="stylesheet" href="../assets/fonts/gastify-fonts.css">
+<link rel="stylesheet" href="../assets/css/desktop-shell.css">
+<style>
+  .qs-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin: 8px 0 16px;
+  }
+  .qs-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--ink-2);
+    font-weight: 600;
+    padding: 6px 10px;
+    border-radius: 8px;
+    transition: background .15s;
+  }
+  .qs-back:hover { background: var(--surface-2); color: var(--ink); }
+  .qs-head h1 {
+    font-family: 'Baloo 2', cursive;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--ink);
+  }
+
+  /* Quicksave hero card */
+  .qs-card {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--success) 100%);
+    color: var(--primary-ink);
+    border-radius: 20px;
+    padding: 32px 36px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 12px 32px var(--shadow-lg);
+    margin-bottom: 18px;
+  }
+  [data-theme="professional"] .qs-card { background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%); }
+  [data-theme="mono"] .qs-card { background: linear-gradient(135deg, #2d3a4a 0%, #4a5568 100%); }
+  .qs-card::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 220px; height: 220px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 50%;
+  }
+  .qs-card-content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+  }
+  .qs-card-ico {
+    width: 72px; height: 72px;
+    border-radius: 20px;
+    background: rgba(255,255,255,0.22);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .qs-card-ico svg { width: 40px; height: 40px; fill: none; stroke: currentColor; stroke-width: 2; }
+  .qs-store {
+    font-family: 'Baloo 2', cursive;
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1.1;
+  }
+  .qs-meta { font-size: 13px; opacity: 0.92; margin-top: 6px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .qs-total-box {
+    margin-left: auto;
+    text-align: right;
+    white-space: nowrap;
+  }
+  .qs-total-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    opacity: 0.85;
+    font-weight: 700;
+  }
+  .qs-total {
+    font-family: 'Baloo 2', cursive;
+    font-size: 42px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1;
+    margin-top: 4px;
+    font-variant-numeric: tabular-nums;
+  }
+  .qs-total-sub {
+    font-size: 12px;
+    opacity: 0.85;
+    margin-top: 4px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Split: items + categorization */
+  .qs-split {
+    display: grid;
+    grid-template-columns: 1fr 420px;
+    gap: 18px;
+    align-items: start;
+  }
+
+  /* Left: categorized items */
+  .qs-panel {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 2px 6px var(--shadow);
+  }
+  .qs-panel-head {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--line);
+    background: var(--surface-2);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .qs-panel-title {
+    font-family: 'Baloo 2', cursive;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .qs-panel-sub { font-size: 11px; color: var(--ink-3); font-weight: 700; }
+
+  /* Category group (auto-grouped by L4 after extraction) */
+  .qs-cat-group {
+    border-bottom: 1px solid var(--line);
+  }
+  .qs-cat-group:last-child { border-bottom: none; }
+  .qs-cat-head {
+    display: grid;
+    grid-template-columns: 32px 1fr auto;
+    gap: 10px;
+    align-items: center;
+    padding: 12px 20px;
+    background: var(--surface-2);
+    cursor: pointer;
+    user-select: none;
+  }
+  .qs-cat-head:hover { background: var(--primary-soft); }
+  .qs-cat-head .cat-ico {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    background: var(--surface);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .qs-cat-head .cat-ico img { width: 22px; height: 22px; image-rendering: pixelated; }
+  .qs-cat-name {
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--ink);
+  }
+  .qs-cat-sub { font-size: 11px; color: var(--ink-3); margin-top: 1px; }
+  .qs-cat-total {
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--primary);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .qs-item {
+    display: grid;
+    grid-template-columns: 32px 1fr 60px 90px;
+    gap: 10px;
+    align-items: center;
+    padding: 10px 20px 10px 56px;
+    border-top: 1px solid var(--line);
+    font-size: 13px;
+  }
+  .qs-item .qs-item-ico {
+    width: 26px; height: 26px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .qs-item .qs-item-ico img { width: 20px; height: 20px; image-rendering: pixelated; }
+  .qs-item-name { font-weight: 600; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .qs-item-brand { font-size: 11px; color: var(--ink-3); margin-top: 1px; }
+  .qs-item-qty { font-size: 11px; color: var(--ink-2); font-weight: 700; text-align: center; font-variant-numeric: tabular-nums; }
+  .qs-item-price { font-weight: 700; color: var(--ink); font-variant-numeric: tabular-nums; text-align: right; }
+
+  .qs-totals {
+    padding: 14px 20px;
+    background: var(--bg);
+    border-top: 1px solid var(--line);
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    color: var(--ink-2);
+    font-variant-numeric: tabular-nums;
+  }
+  .qs-totals .recon {
+    color: var(--success);
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  /* Right rail: actions + metadata */
+  .qs-rail {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    position: sticky;
+    top: 80px;
+  }
+  .qs-rail-box {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 18px 20px;
+    box-shadow: 0 2px 4px var(--shadow);
+  }
+  .qs-rail-title {
+    font-family: 'Baloo 2', cursive;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 12px;
+  }
+
+  /* Metadata form rows */
+  .qs-field { margin-bottom: 14px; }
+  .qs-field:last-child { margin-bottom: 0; }
+  .qs-field-label {
+    font-size: 10px;
+    color: var(--ink-3);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .qs-field-value {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink);
+    cursor: pointer;
+    transition: border-color .15s;
+  }
+  .qs-field-value:hover { border-color: var(--primary); }
+  .qs-field-value .chev { margin-left: auto; color: var(--ink-3); font-size: 12px; }
+  .qs-field-value img { width: 20px; height: 20px; image-rendering: pixelated; }
+
+  /* Group-assignment tags */
+  .qs-tag-input {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 8px 10px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--surface-2);
+  }
+  .qs-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 10px;
+    background: var(--primary);
+    color: var(--primary-ink);
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .qs-tag .x { cursor: pointer; opacity: 0.8; }
+  .qs-tag .x:hover { opacity: 1; }
+  .qs-tag-input input {
+    border: none;
+    background: transparent;
+    flex: 1;
+    min-width: 80px;
+    outline: none;
+    font-family: inherit;
+    font-size: 12px;
+    color: var(--ink);
+  }
+
+  /* Note textarea */
+  .qs-note {
+    width: 100%;
+    padding: 10px 12px;
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 13px;
+    color: var(--ink);
+    resize: vertical;
+    min-height: 60px;
+    outline: none;
+    transition: border-color .15s;
+  }
+  .qs-note:focus { border-color: var(--primary); }
+
+  /* Action stack */
+  .qs-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .qs-btn {
+    width: 100%;
+    padding: 12px 18px;
+    border-radius: 12px;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: opacity .15s;
+  }
+  .qs-btn.primary { background: var(--primary); color: var(--primary-ink); font-size: 16px; padding: 14px; }
+  .qs-btn.primary:hover { opacity: 0.9; }
+  .qs-btn.ghost {
+    background: transparent;
+    color: var(--ink-2);
+    border: 1px solid var(--line-strong);
+  }
+  .qs-btn.ghost:hover { border-color: var(--primary); color: var(--primary); }
+  .qs-btn.danger-ghost {
+    background: transparent;
+    color: var(--error);
+    border: 1px solid var(--line-strong);
+  }
+  .qs-btn.danger-ghost:hover { border-color: var(--error); background: var(--danger-soft); }
+
+  .qs-shortcut-hint {
+    font-size: 11px;
+    color: var(--ink-3);
+    text-align: center;
+    margin-top: 8px;
+  }
+  .qs-shortcut-hint kbd {
+    padding: 2px 6px;
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--ink-2);
+  }
+
+  @media (max-width: 1280px) {
+    .qs-split { grid-template-columns: 1fr; }
+    .qs-rail { position: static; }
+  }
+</style>
+</head>
+
+<body data-theme="normal" data-mode="light">
+
+<!-- CONTROLS -->
+<div class="controls">
+  <div class="controls-group"><span class="controls-label">Theme</span><button class="theme-tab active" data-theme-val="normal">Normal</button><button class="theme-tab" data-theme-val="professional">Professional</button><button class="theme-tab" data-theme-val="mono">Mono</button></div>
+  <div class="controls-group"><span class="controls-label">Mode</span><div class="mode-toggle"><span>Light</span><div class="toggle-switch" id="modeToggle"></div><span>Dark</span></div></div>
+  <div class="controls-group"><span class="controls-label">Platform</span><span style="color: var(--primary); font-weight: 600;">Desktop Web 1440</span><a class="platform-switch" href="gastify-quicksave-card.html" title="Ver versión mobile"><span class="dot">●</span> Mobile ↗</a></div>
+  <div class="controls-group">
+    <div class="quick-nav" id="quickNav">
+      <button class="quick-nav-btn" onclick="document.getElementById('quickNav').classList.toggle('open')">☰ Desktop screens</button>
+      <div class="quick-nav-menu">
+        <div class="qn-section">Available (10)</div>
+        <a href="gastify-dashboard-desktop.html">🏠 Dashboard</a>
+        <a href="gastify-history-desktop.html">📜 Historial</a>
+        <a href="gastify-transaction-editor-desktop.html">✎ Transaction editor</a>
+        <a href="gastify-settings-desktop.html">⚙ Ajustes</a>
+        <a href="gastify-trends-desktop.html">📊 Tendencias</a>
+        <a href="gastify-insights-desktop.html">💡 Insights</a>
+        <a href="gastify-reports-desktop.html">📄 Reportes</a>
+        <a href="gastify-items-desktop.html">📦 Ítems</a>
+        <a href="gastify-scan-mode-selector-desktop.html">📸 Scan modes</a>
+        <a href="gastify-single-scan-states-desktop.html">📷 Escaneo</a>
+        <a class="current" href="gastify-quicksave-card-desktop.html">⚡ Quicksave <span class="qn-badge">current</span></a>
+        <a href="../index.html" style="color: var(--primary); font-weight: 600; margin-top: 4px;">→ See full gap matrix</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="app-shell">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-brand"><div class="brand-mark"><img src="../assets/icons/piggy-bank.png" alt=""></div><span class="wordmark">gastify</span></div>
+    <ul class="nav-list">
+      <li><a class="nav-item" href="gastify-dashboard-desktop.html"><img class="nav-icon" src="../assets/icons/app-icons/navigation/nav-home.png" alt=""><span>Inicio</span></a></li>
+      <li><a class="nav-item" href="gastify-history-desktop.html"><img class="nav-icon" src="../assets/icons/app-icons/navigation/nav-history.png" alt=""><span>Historial</span></a></li>
+      <li><a class="nav-item" href="gastify-trends-desktop.html"><img class="nav-icon" src="../assets/icons/app-icons/navigation/nav-trends.png" alt=""><span>Tendencias</span></a></li>
+      <li><a class="nav-item" href="gastify-insights-desktop.html"><img class="nav-icon" src="../assets/icons/app-icons/navigation/nav-insights.png" alt=""><span>Insights</span></a></li>
+      <li><a class="nav-item" href="gastify-reports-desktop.html"><img class="nav-icon" src="../assets/icons/app-icons/navigation/nav-reports.png" alt=""><span>Reportes</span></a></li>
+      <li><a class="nav-item" href="gastify-group-switcher.html"><img class="nav-icon" src="../assets/icons/app-icons/navigation/nav-scan.png" alt=""><span>Grupos</span></a></li>
+      <li><a class="nav-item" href="gastify-settings-desktop.html"><img class="nav-icon" src="../assets/icons/app-icons/navigation/nav-settings.png" alt=""><span>Ajustes</span></a></li>
+    </ul>
+    <div class="sidebar-footer"><div class="user-chip"><div class="user-avatar">JG</div><div style="flex: 1; min-width: 0;"><div class="user-name">Juan García</div><div class="user-email">juan@ejemplo.cl</div></div></div></div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div class="search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        <input type="text" placeholder="Buscar..." aria-label="Buscar">
+        <span class="kbd-hint">/</span>
+      </div>
+      <button class="scan-btn" aria-label="Escanear boleta"><img src="../assets/icons/app-icons/scan-features/scan-single.png" alt=""><span>Escanear</span><span class="kbd-hint" style="background: rgba(255,255,255,0.22); color: #fff; border: none;">⌘K</span></button>
+      <button class="icon-btn" aria-label="Alertas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span class="bell-badge">3</span></button>
+      <div class="topbar-avatar" aria-label="Perfil">JG</div>
+    </div>
+
+    <!-- HEAD -->
+    <div class="qs-head">
+      <a class="qs-back" href="gastify-single-scan-states-desktop.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg>
+        Volver al escaneo
+      </a>
+      <h1>Quicksave ⚡</h1>
+      <span style="font-size: 12px; color: var(--ink-3); font-weight: 700;">Revisión rápida · 1-click para guardar</span>
+    </div>
+
+    <!-- HERO CARD -->
+    <div class="qs-card">
+      <div class="qs-card-content">
+        <div class="qs-card-ico">
+          <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        </div>
+        <div style="flex: 1; min-width: 0;">
+          <div class="qs-store">Jumbo Apumanque</div>
+          <div class="qs-meta">
+            <span>📅 23 abr 2026 · 14:22</span>
+            <span>🏪 Supermercado Premium</span>
+            <span>📦 12 ítems</span>
+            <span>⚡ 8.2s</span>
+          </div>
+        </div>
+        <div class="qs-total-box">
+          <div class="qs-total-label">Total</div>
+          <div class="qs-total">$23.490</div>
+          <div class="qs-total-sub">≈ USD 24.75 · IVA $3.745</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SPLIT: items left + metadata right -->
+    <div class="qs-split">
+
+      <!-- LEFT: ITEMS GROUPED BY L4 -->
+      <div class="qs-panel">
+        <div class="qs-panel-head">
+          <div>
+            <div class="qs-panel-title">Ítems detectados</div>
+            <div class="qs-panel-sub">12 ítems · 5 categorías L4 · Autoagrupado</div>
+          </div>
+          <button class="qs-btn ghost" style="width: auto; padding: 8px 14px; font-size: 12px;">Editar en Tx Editor →</button>
+        </div>
+
+        <!-- Cat: Lácteos y Huevos -->
+        <div class="qs-cat-group">
+          <div class="qs-cat-head">
+            <div class="cat-ico"><img src="../assets/icons/app-icons/item-categories/item-dairy-eggs.png" alt=""></div>
+            <div>
+              <div class="qs-cat-name">Lácteos y Huevos</div>
+              <div class="qs-cat-sub">L4 · 3 ítems · Alimentos Frescos</div>
+            </div>
+            <span class="qs-cat-total">$11.760</span>
+          </div>
+          <div class="qs-item">
+            <div class="qs-item-ico"><img src="../assets/icons/app-icons/item-categories/item-dairy-eggs.png" alt=""></div>
+            <div>
+              <div class="qs-item-name">Leche Entera 1L</div>
+              <div class="qs-item-brand">Colun</div>
+            </div>
+            <span class="qs-item-qty">×2</span>
+            <span class="qs-item-price">$4.780</span>
+          </div>
+          <div class="qs-item">
+            <div class="qs-item-ico"><img src="../assets/icons/app-icons/item-categories/item-dairy-eggs.png" alt=""></div>
+            <div>
+              <div class="qs-item-name">Queso Gouda Laminado</div>
+              <div class="qs-item-brand">Soprole</div>
+            </div>
+            <span class="qs-item-qty">×1</span>
+            <span class="qs-item-price">$3.490</span>
+          </div>
+          <div class="qs-item">
+            <div class="qs-item-ico"><img src="../assets/icons/app-icons/item-categories/item-dairy-eggs.png" alt=""></div>
+            <div>
+              <div class="qs-item-name">Huevos Docena</div>
+              <div class="qs-item-brand">Santa Rosa</div>
+            </div>
+            <span class="qs-item-qty">×1</span>
+            <span class="qs-item-price">$3.490</span>
+          </div>
+        </div>
+
+        <!-- Cat: Carnes y Mariscos -->
+        <div class="qs-cat-group">
+          <div class="qs-cat-head">
+            <div class="cat-ico"><img src="../assets/icons/app-icons/item-categories/item-meat-seafood.png" alt=""></div>
+            <div>
+              <div class="qs-cat-name">Carnes y Mariscos</div>
+              <div class="qs-cat-sub">L4 · 2 ítems · Alimentos Frescos</div>
+            </div>
+            <span class="qs-cat-total">$7.782</span>
+          </div>
+          <div class="qs-item">
+            <div class="qs-item-ico"><img src="../assets/icons/app-icons/item-categories/item-meat-seafood.png" alt=""></div>
+            <div>
+              <div class="qs-item-name">Pechuga de Pollo (0.8 kg)</div>
+              <div class="qs-item-brand">Súper Pollo</div>
+            </div>
+            <span class="qs-item-qty">×1</span>
+            <span class="qs-item-price">$4.792</span>
+          </div>
+          <div class="qs-item">
+            <div class="qs-item-ico"><img src="../assets/icons/app-icons/item-categories/item-meat-seafood.png" alt=""></div>
+            <div>
+              <div class="qs-item-name">Jamón de Pavo 200g</div>
+              <div class="qs-item-brand">PF</div>
+            </div>
+            <span class="qs-item-qty">×1</span>
+            <span class="qs-item-price">$2.990</span>
+          </div>
+        </div>
+
+        <!-- Cat: Bebidas -->
+        <div class="qs-cat-group">
+          <div class="qs-cat-head">
+            <div class="cat-ico"><img src="../assets/icons/app-icons/item-categories/item-beverages.png" alt=""></div>
+            <div>
+              <div class="qs-cat-name">Bebidas</div>
+              <div class="qs-cat-sub">L4 · 2 ítems · Alimentos Envasados</div>
+            </div>
+            <span class="qs-cat-total">$4.290</span>
+          </div>
+          <div class="qs-item">
+            <div class="qs-item-ico"><img src="../assets/icons/app-icons/item-categories/item-beverages.png" alt=""></div>
+            <div>
+              <div class="qs-item-name">Café Granulado 170g</div>
+              <div class="qs-item-brand">Nescafé</div>
+            </div>
+            <span class="qs-item-qty">×1</span>
+            <span class="qs-item-price">$4.290</span>
+          </div>
+        </div>
+
+        <div class="qs-totals">
+          <span>Subtotal: <strong style="color: var(--ink);">$23.490</strong></span>
+          <span>IVA: <strong style="color: var(--ink);">$3.745</strong></span>
+          <span class="recon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="14" height="14"><polyline points="20 6 9 17 4 12"/></svg>
+            Reconciliación: exacto
+          </span>
+        </div>
+      </div>
+
+      <!-- RIGHT: METADATA + ACTIONS -->
+      <aside class="qs-rail">
+
+        <!-- Metadata editable -->
+        <div class="qs-rail-box">
+          <div class="qs-rail-title">Metadata</div>
+          <div class="qs-field">
+            <div class="qs-field-label">Comercio</div>
+            <div class="qs-field-value">
+              <img src="../assets/icons/app-icons/store-categories/store-bazaar.png" alt="">
+              <span>Jumbo Apumanque</span>
+              <span class="chev">▼</span>
+            </div>
+          </div>
+          <div class="qs-field">
+            <div class="qs-field-label">Categoría comercio (L1)</div>
+            <div class="qs-field-value">
+              <img src="../assets/icons/app-icons/rubros/rubro-supermercados.png" alt="">
+              <span>Supermercados · Premium (L2)</span>
+              <span class="chev">▼</span>
+            </div>
+          </div>
+          <div class="qs-field">
+            <div class="qs-field-label">Fecha y hora</div>
+            <div class="qs-field-value">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="18" height="18"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/></svg>
+              <span>23 abr 2026 · 14:22</span>
+              <span class="chev">▼</span>
+            </div>
+          </div>
+          <div class="qs-field">
+            <div class="qs-field-label">Moneda (USD shadow auto)</div>
+            <div class="qs-field-value">
+              <span>CLP $ · USD $24.75</span>
+              <span class="chev">▼</span>
+            </div>
+          </div>
+          <div class="qs-field">
+            <div class="qs-field-label">Ubicación</div>
+            <div class="qs-field-value">
+              <span>🇨🇱 Santiago</span>
+              <span class="chev">▼</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Groups / tags -->
+        <div class="qs-rail-box">
+          <div class="qs-rail-title">Etiquetas + grupos</div>
+          <div class="qs-field">
+            <div class="qs-field-label">Grupo compartido</div>
+            <div class="qs-tag-input">
+              <span class="qs-tag">Hogar <span class="x">×</span></span>
+              <input type="text" placeholder="+ agregar grupo...">
+            </div>
+          </div>
+          <div class="qs-field">
+            <div class="qs-field-label">Etiquetas</div>
+            <div class="qs-tag-input">
+              <span class="qs-tag" style="background: var(--surface-2); color: var(--ink-2);"># mensual <span class="x">×</span></span>
+              <span class="qs-tag" style="background: var(--surface-2); color: var(--ink-2);"># esencial <span class="x">×</span></span>
+              <input type="text" placeholder="+ tag...">
+            </div>
+          </div>
+          <div class="qs-field">
+            <div class="qs-field-label">Nota (opcional)</div>
+            <textarea class="qs-note" placeholder="Agregar contexto..."></textarea>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="qs-rail-box">
+          <div class="qs-actions">
+            <button class="qs-btn primary">
+              ⚡ Guardar (Quicksave)
+            </button>
+            <button class="qs-btn ghost" onclick="window.location.href='gastify-transaction-editor-desktop.html'">
+              ✎ Abrir en Tx Editor
+            </button>
+            <button class="qs-btn danger-ghost">
+              🗑 Descartar escaneo
+            </button>
+          </div>
+          <div class="qs-shortcut-hint">
+            <kbd>⌘+Enter</kbd> guardar · <kbd>Esc</kbd> descartar
+          </div>
+        </div>
+
+      </aside>
+    </div>
+
+    <!-- PLATFORM NOTES -->
+    <aside class="platform-notes">
+      <h3>Desktop Web — Quicksave</h3>
+      <ul>
+        <li>Hero gradient card matches Insights + Dashboard patterns — Normal (primary→success), Pro (primary→accent), Mono (ink→gray)</li>
+        <li>Items auto-grouped by L4 Categoría after extraction (category group header shows count + parent L3 + subtotal)</li>
+        <li>Right rail: Metadata (editable dropdowns for all fields) + Groups/tags + Actions (Quicksave primary / Tx Editor ghost / Discard danger-ghost)</li>
+        <li>Shortcuts: <code>⌘+Enter</code> = Quicksave · <code>Esc</code> = discard · <code>⌘+E</code> = open Tx Editor</li>
+        <li>USD shadow auto-computed at tx save time using that date's BCCh rate — visible in header (CLP $23.490 · USD $24.75) + moneda field</li>
+        <li>Reconciliación check: if subtotal + IVA ≠ total shown on receipt, block Quicksave and force Tx Editor hard-lock mode</li>
+        <li>Mobile equivalent: full-screen card stack (hero → items accordion → metadata fields → fixed-bottom CTA), no rail</li>
+      </ul>
+    </aside>
+
+  </main>
+
+</div>
+
+<script>
+  const body = document.body;
+  document.querySelectorAll('.theme-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.theme-tab').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+      body.dataset.theme = btn.dataset.themeVal;
+    });
+  });
+  document.getElementById('modeToggle').addEventListener('click', () => {
+    body.dataset.mode = body.dataset.mode === 'dark' ? 'light' : 'dark';
+  });
+
+  document.addEventListener('click', (e) => {
+    const qn = document.getElementById('quickNav');
+    if (qn && !qn.contains(e.target)) qn.classList.remove('open');
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === '/' && document.activeElement.tagName !== 'INPUT') {
+      e.preventDefault();
+      document.querySelector('.search input').focus();
+    }
+    if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      e.preventDefault();
+      document.querySelector('.scan-btn').click();
+    }
+  });
+</script>
+
+</body>
+</html>

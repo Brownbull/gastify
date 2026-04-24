@@ -87,6 +87,9 @@ Copy from `_desktop-template.html` `<script>` block at bottom. 3 responsibilitie
 | Insights | ✅ `gastify-insights-desktop.html` | ✅ canonical (filters drive which insights appear) |
 | Reports | ✅ `gastify-reports-desktop.html` | ✅ canonical (accordion groups + detail drawer) |
 | Items | ✅ `gastify-items-desktop.html` | ✅ canonical (aggregated table grouped by L3, 8-col) |
+| Scan mode selector | ✅ `gastify-scan-mode-selector-desktop.html` | n/a (capture action) |
+| Scan states | ✅ `gastify-single-scan-states-desktop.html` | n/a (4-state machine: idle/uploading/processing/ready) |
+| Quicksave | ✅ `gastify-quicksave-card-desktop.html` | n/a (post-scan confirm) |
 
 ## Pending queue (P0 — apply template to all)
 

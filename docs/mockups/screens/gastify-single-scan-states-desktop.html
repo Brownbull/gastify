@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="es-CL">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Escaneo — gastify Desktop Web (1440 responsive)</title>
+<link rel="stylesheet" href="../assets/fonts/gastify-fonts.css">
+<link rel="stylesheet" href="../assets/css/desktop-shell.css">
+<style>
+  /* Scan head */
+  .scan-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin: 8px 0 16px;
+  }
+  .scan-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--ink-2);
+    font-weight: 600;
+    padding: 6px 10px;
+    border-radius: 8px;
+    transition: background .15s;
+  }
+  .scan-back:hover { background: var(--surface-2); color: var(--ink); }
+  .scan-head h1 {
+    font-family: 'Baloo 2', cursive;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+  }
+  .scan-mode-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    background: var(--primary-soft);
+    color: var(--primary);
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  /* State tabs (demo-mode switcher) */
+  .state-tabs {
+    display: flex;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    padding: 4px;
+    border-radius: 12px;
+    gap: 2px;
+    margin-bottom: 18px;
+    box-shadow: 0 2px 4px var(--shadow);
+  }
+  .state-tab {
+    flex: 1;
+    padding: 10px 14px;
+    border: none;
+    background: transparent;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--ink-2);
+    border-radius: 8px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all .15s;
+  }
+  .state-tab:hover:not(.active) { color: var(--primary); }
+  .state-tab.active {
+    background: var(--primary);
+    color: var(--primary-ink);
+    box-shadow: 0 2px 6px var(--shadow);
+  }
+  .state-num {
+    font-size: 11px;
+    background: rgba(255,255,255,0.22);
+    padding: 1px 7px;
+    border-radius: 999px;
+  }
+  .state-tab:not(.active) .state-num { background: var(--surface-2); color: var(--ink-3); }
+
+  /* Split panel */
+  .scan-split {
+    display: grid;
+    grid-template-columns: 1fr 420px;
+    gap: 18px;
+    align-items: start;
+  }
+
+  /* Main zone (canvas) */
+  .scan-canvas {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    min-height: 560px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 2px 8px var(--shadow);
+  }
+
+  /* === STATE 1: IDLE (drop zone) === */
+  .drop-zone {
+    height: 100%;
+    min-height: 560px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: 3px dashed var(--line-strong);
+    border-radius: 18px;
+    padding: 40px;
+    text-align: center;
+    transition: all .2s;
+    cursor: pointer;
+  }
+  .drop-zone:hover, .drop-zone.dragging {
+    border-color: var(--primary);
+    background: var(--primary-soft);
+  }
+  .drop-icon {
+    width: 96px;
+    height: 96px;
+    border-radius: 28px;
+    background: var(--primary-soft);
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+  .drop-icon svg { width: 56px; height: 56px; fill: none; stroke: currentColor; stroke-width: 2; }
+  .drop-title {
+    font-family: 'Baloo 2', cursive;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 8px;
+  }
+  .drop-sub {
+    font-size: 14px;
+    color: var(--ink-2);
+    max-width: 480px;
+    line-height: 1.5;
+    margin-bottom: 28px;
+  }
+  .drop-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .drop-btn {
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all .15s;
+  }
+  .drop-btn.primary { background: var(--primary); color: var(--primary-ink); }
+  .drop-btn.primary:hover { opacity: 0.9; }
+  .drop-btn.ghost {
+    background: transparent;
+    color: var(--ink-2);
+    border: 1.5px solid var(--line-strong);
+  }
+  .drop-btn.ghost:hover { border-color: var(--primary); color: var(--primary); }
+  .drop-btn img { width: 16px; height: 16px; image-rendering: pixelated; }
+  .drop-hints {
+    margin-top: 24px;
+    display: flex;
+    gap: 24px;
+    font-size: 11px;
+    color: var(--ink-3);
+  }
+  .drop-hint { display: inline-flex; align-items: center; gap: 4px; }
+
+  /* === STATE 2: UPLOADING === */
+  .state-pane { display: none; height: 100%; min-height: 560px; padding: 40px; }
+  .state-pane.active { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+  .spinner-big {
+    width: 72px;
+    height: 72px;
+    border: 5px solid var(--surface-2);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 20px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .progress-bar {
+    width: 480px;
+    max-width: 100%;
+    height: 10px;
+    background: var(--surface-2);
+    border-radius: 999px;
+    overflow: hidden;
+    margin-top: 20px;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--primary);
+    border-radius: 999px;
+    width: 62%;
+    transition: width .3s;
+  }
+  .progress-label { font-size: 12px; color: var(--ink-3); font-weight: 700; margin-top: 10px; font-variant-numeric: tabular-nums; }
+
+  /* === STATE 3: PROCESSING (streaming AI) === */
+  .processing-canvas {
+    display: flex;
+    gap: 24px;
+    align-items: center;
+  }
+  .receipt-thumb {
+    width: 220px;
+    height: 320px;
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+    flex-shrink: 0;
+  }
+  .receipt-thumb::before {
+    content: '🧾';
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 96px;
+    opacity: 0.3;
+  }
+  .receipt-scan-line {
+    position: absolute;
+    left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, var(--primary), transparent);
+    box-shadow: 0 0 12px var(--primary);
+    animation: scanline 2s ease-in-out infinite;
+  }
+  @keyframes scanline {
+    0%, 100% { top: 10%; }
+    50% { top: 85%; }
+  }
+  .process-log {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .process-step {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    background: var(--surface-2);
+    border-radius: 10px;
+    font-size: 13px;
+    color: var(--ink-2);
+  }
+  .process-step.done {
+    background: var(--primary-soft);
+    color: var(--primary);
+  }
+  .process-step.active {
+    background: #fef3c7;
+    color: #854d0e;
+    border-left: 3px solid #d97706;
+  }
+  [data-mode="dark"] .process-step.active { background: rgba(217, 119, 6, 0.2); color: #fbbf24; border-left-color: #fbbf24; }
+  .process-step .step-ico {
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    background: var(--surface);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700;
+    flex-shrink: 0;
+  }
+  .process-step.done .step-ico { background: var(--primary); color: var(--primary-ink); }
+  .process-step.active .step-ico { background: #d97706; color: #fff; }
+  .process-step .step-meta { margin-left: auto; font-size: 11px; color: var(--ink-3); font-weight: 600; }
+
+  /* === STATE 4: READY (preview tx extracted) === */
+  .ready-hero {
+    padding: 24px;
+    background: var(--primary-soft);
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .ready-ico {
+    width: 56px; height: 56px;
+    border-radius: 16px;
+    background: var(--primary);
+    color: var(--primary-ink);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .ready-ico svg { width: 28px; height: 28px; }
+  .ready-store-name {
+    font-family: 'Baloo 2', cursive;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .ready-meta { font-size: 12px; color: var(--ink-2); margin-top: 2px; display: flex; gap: 10px; align-items: center; }
+  .ready-meta .dot { color: var(--ink-3); }
+  .ready-total-box {
+    margin-left: auto;
+    text-align: right;
+  }
+  .ready-total {
+    font-family: 'Baloo 2', cursive;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--primary);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.01em;
+  }
+  .ready-items-count { font-size: 11px; color: var(--ink-3); font-weight: 700; margin-top: 2px; }
+
+  .ready-items-list {
+    padding: 14px 24px;
+    max-height: 340px;
+    overflow-y: auto;
+  }
+  .ready-item {
+    display: grid;
+    grid-template-columns: 28px 1fr auto auto;
+    gap: 12px;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--line);
+    font-size: 13px;
+  }
+  .ready-item:last-child { border-bottom: none; }
+  .ready-item-ico {
+    width: 28px; height: 28px;
+    border-radius: 6px;
+    background: var(--surface-2);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .ready-item-ico img { width: 20px; height: 20px; image-rendering: pixelated; }
+  .ready-item-name { font-weight: 600; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ready-item-cat { font-size: 11px; color: var(--ink-3); margin-top: 1px; }
+  .ready-item-qty { font-size: 11px; color: var(--ink-2); font-weight: 700; font-variant-numeric: tabular-nums; }
+  .ready-item-price { font-weight: 700; color: var(--ink); font-variant-numeric: tabular-nums; text-align: right; min-width: 70px; }
+
+  .ready-totals-bar {
+    padding: 12px 24px;
+    background: var(--surface-2);
+    border-top: 1px solid var(--line);
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--ink-2);
+  }
+  .ready-total-row {
+    display: flex;
+    gap: 6px;
+    font-variant-numeric: tabular-nums;
+  }
+  .ready-total-row.check {
+    color: var(--success);
+    font-weight: 700;
+  }
+
+  .ready-actions {
+    padding: 16px 24px;
+    border-top: 1px solid var(--line);
+    display: flex;
+    gap: 10px;
+  }
+  .ready-btn {
+    flex: 1;
+    padding: 12px 18px;
+    border-radius: 10px;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    border: none;
+    transition: opacity .15s;
+  }
+  .ready-btn.primary { background: var(--primary); color: var(--primary-ink); }
+  .ready-btn.primary:hover { opacity: 0.9; }
+  .ready-btn.ghost {
+    background: transparent;
+    color: var(--ink-2);
+    border: 1px solid var(--line-strong);
+  }
+  .ready-btn.ghost:hover { border-color: var(--primary); color: var(--primary); }
+
+  /* Right rail — telemetry + tips */
+  .scan-rail {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    position: sticky;
+    top: 80px;
+  }
+  .rail-box {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 16px 18px;
+    box-shadow: 0 2px 4px var(--shadow);
+  }
+  .rail-title {
+    font-family: 'Baloo 2', cursive;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 10px;
+  }
+  .telemetry-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+    font-size: 12px;
+  }
+  .telemetry-label { color: var(--ink-2); }
+  .telemetry-value {
+    font-weight: 700;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+  }
+  .telemetry-value.good { color: var(--success); }
+  .telemetry-value.warn { color: var(--warning); }
+  .tip {
+    padding: 10px 12px;
+    background: var(--surface-2);
+    border-radius: 10px;
+    font-size: 12px;
+    color: var(--ink-2);
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .tip:last-child { margin-bottom: 0; }
+
+  @media (max-width: 1280px) {
+    .scan-split { grid-template-columns: 1fr; }
+    .scan-rail { position: static; }
+  }
+</style>
+</head>
+
+<body data-theme="normal" data-mode="light">
+
+<!-- CONTROLS -->
+<div class="controls">
+  <div class="controls-group"><span class="controls-label">Theme</span><button class="theme-tab active" data-theme-val="normal">Normal</button><button class="theme-tab" data-theme-val="professional">Professional</button><button class="theme-tab" data-theme-val="mono">Mono</button></div>
+  <div class="controls-group"><span class="controls-label">Mode</span><div class="mode-toggle"><span>Light</span><div class="toggle-switch" id="modeToggle"></div><span>Dark</span></div></div>
+  <div class="controls-group"><span class="controls-label">Platform</span><span style="color: var(--primary); font-weight: 600;">Desktop Web 1440</span><a class="platform-switch" href="gastify-single-scan-states.html" title="Ver versión mobile"><span class="dot">●</span> Mobile ↗</a></div>
+  <div class="controls-group">
+    <div class="quick-nav" id="quickNav">
+      <button class="quick-nav-btn" onclick="document.getElementById('quickNav').classList.toggle('open')">☰ Desktop screens</button>
+      <div class="quick-nav-menu">
+        <div class="qn-section">Available (10)</div>
+        <a href="gastify-dashboard-desktop.html">🏠 Dashboard</a>
+        <a href="gastify-history-desktop.html">📜 Historial</a>
+        <a href="gastify-transaction-editor-desktop.html">✎ Transaction editor</a>
+        <a href="gastify-settings-desktop.html">⚙ Ajustes</a>
+        <a href="gastify-trends-desktop.html">📊 Tendencias</a>
+        <a href="gastify-insights-desktop.html">💡 Insights</a>
+        <a href="gastify-reports-desktop.html">📄 Reportes</a>
+        <a href="gastify-items-desktop.html">📦 Ítems</a>
+        <a href="gastify-scan-mode-selector-desktop.html">📸 Scan modes</a>
+        <a class="current" href="gastify-single-scan-states-desktop.html">📷 Escaneo <span class="qn-badge">current</span></a>
+        <a href="gastify-quicksave-card-desktop.html">⚡ Quicksave</a>
+        <a href="../index.html" style="color: var(--primary); font-weight: 600; margin-top: 4px;">→ See full gap matrix</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="app-shell">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-brand"><div class="brand-mark"><img src="../assets/icons/piggy-bank.png" alt=""></div><span class="wordmark">gastify</span></div>
+    <ul class="nav-list">
+      <li><a class="nav-item" href="gastify-dashboard-desktop.html"><img class="nav-icon" src="../assets/icons/app-icons/navigation/nav-home.png" alt=""><span>Inicio</span></a></li>
+      <li><a class="nav-item" href="gastify-history-desktop.html"><img class="nav-icon" src="../assets/icons/app-icons/navigation/nav-history.png" alt=""><span>Historial</span></a></li>
+      <li><a class="nav-item" href="gastify-trends-desktop.html"><img class="nav-icon" src="../assets/icons/app-icons/navigation/nav-trends.png" alt=""><span>Tendencias</span></a></li>
+      <li><a class="nav-item" href="gastify-insights-desktop.html"><img class="nav-icon" src="../assets/icons/app-icons/navigation/nav-insights.png" alt=""><span>Insights</span></a></li>
+      <li><a class="nav-item" href="gastify-reports-desktop.html"><img class="nav-icon" src="../assets/icons/app-icons/navigation/nav-reports.png" alt=""><span>Reportes</span></a></li>
+      <li><a class="nav-item" href="gastify-group-switcher.html"><img class="nav-icon" src="../assets/icons/app-icons/navigation/nav-scan.png" alt=""><span>Grupos</span></a></li>
+      <li><a class="nav-item" href="gastify-settings-desktop.html"><img class="nav-icon" src="../assets/icons/app-icons/navigation/nav-settings.png" alt=""><span>Ajustes</span></a></li>
+    </ul>
+    <div class="sidebar-footer"><div class="user-chip"><div class="user-avatar">JG</div><div style="flex: 1; min-width: 0;"><div class="user-name">Juan García</div><div class="user-email">juan@ejemplo.cl</div></div></div></div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div class="search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        <input type="text" placeholder="Buscar..." aria-label="Buscar">
+        <span class="kbd-hint">/</span>
+      </div>
+      <button class="scan-btn" aria-label="Escanear boleta"><img src="../assets/icons/app-icons/scan-features/scan-single.png" alt=""><span>Escanear</span><span class="kbd-hint" style="background: rgba(255,255,255,0.22); color: #fff; border: none;">⌘K</span></button>
+      <button class="icon-btn" aria-label="Alertas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span class="bell-badge">3</span></button>
+      <div class="topbar-avatar" aria-label="Perfil">JG</div>
+    </div>
+
+    <!-- HEAD -->
+    <div class="scan-head">
+      <a class="scan-back" href="gastify-scan-mode-selector-desktop.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg>
+        Volver a modos
+      </a>
+      <div>
+        <h1>Escanear boleta individual</h1>
+      </div>
+      <div>
+        <span class="scan-mode-chip">💎 1 crédito · 46 restantes</span>
+      </div>
+    </div>
+
+    <!-- STATE TABS (demo-mode: click any state to show that pane) -->
+    <div class="state-tabs" role="tablist">
+      <button class="state-tab active" data-state="idle">
+        <span class="state-num">1</span> Inicio
+      </button>
+      <button class="state-tab" data-state="uploading">
+        <span class="state-num">2</span> Subiendo
+      </button>
+      <button class="state-tab" data-state="processing">
+        <span class="state-num">3</span> Procesando
+      </button>
+      <button class="state-tab" data-state="ready">
+        <span class="state-num">4</span> Listo
+      </button>
+    </div>
+
+    <!-- SPLIT: canvas + rail -->
+    <div class="scan-split">
+
+      <!-- LEFT: CANVAS -->
+      <div class="scan-canvas">
+
+        <!-- STATE 1: IDLE -->
+        <div class="state-pane active" data-state-pane="idle" style="display: flex;">
+          <div class="drop-zone" style="width: 100%;">
+            <div class="drop-icon">
+              <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            </div>
+            <div class="drop-title">Arrastra tu boleta aquí</div>
+            <p class="drop-sub">o haz clic para seleccionar archivos. Aceptamos JPG, PNG, HEIC, WebP hasta 10 MB. Para boletas electrónicas con QR, también puedes pegar la URL SII.</p>
+            <div class="drop-actions">
+              <button class="drop-btn primary">
+                <img src="../assets/icons/app-icons/scan-features/scan-single.png" alt="">
+                Seleccionar archivo
+              </button>
+              <button class="drop-btn ghost">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="16" height="16"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                Usar cámara
+              </button>
+              <button class="drop-btn ghost">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="16" height="16"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+                Pegar URL SII
+              </button>
+            </div>
+            <div class="drop-hints">
+              <span class="drop-hint">💡 Ctrl+V para pegar imagen</span>
+              <span class="drop-hint">📷 Desktop: conecta cámara o webcam</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- STATE 2: UPLOADING -->
+        <div class="state-pane" data-state-pane="uploading">
+          <div class="spinner-big"></div>
+          <div style="font-family: 'Baloo 2', cursive; font-size: 22px; font-weight: 700; color: var(--ink); margin-bottom: 6px;">Subiendo imagen...</div>
+          <div style="font-size: 13px; color: var(--ink-2);">boleta-jumbo-apumanque-2026-04-23.jpg · 2.4 MB</div>
+          <div class="progress-bar">
+            <div class="progress-fill"></div>
+          </div>
+          <div class="progress-label">62% · 1.5 MB / 2.4 MB · 4s restantes</div>
+        </div>
+
+        <!-- STATE 3: PROCESSING -->
+        <div class="state-pane" data-state-pane="processing">
+          <div class="processing-canvas" style="width: 100%;">
+            <div class="receipt-thumb">
+              <div class="receipt-scan-line"></div>
+            </div>
+            <div class="process-log">
+              <div class="process-step done"><span class="step-ico">✓</span>Imagen recibida<span class="step-meta">0.3s</span></div>
+              <div class="process-step done"><span class="step-ico">✓</span>OCR extraído<span class="step-meta">1.2s</span></div>
+              <div class="process-step done"><span class="step-ico">✓</span>Comercio detectado: Jumbo<span class="step-meta">0.4s</span></div>
+              <div class="process-step active"><span class="step-ico">3</span>Extrayendo ítem por ítem...<span class="step-meta">2.1s</span></div>
+              <div class="process-step"><span class="step-ico">4</span>Categorizar V4 (L1→L4)<span class="step-meta">—</span></div>
+              <div class="process-step"><span class="step-ico">5</span>Reconciliación matemática<span class="step-meta">—</span></div>
+              <div class="process-step"><span class="step-ico">6</span>Finalizar<span class="step-meta">—</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- STATE 4: READY -->
+        <div class="state-pane" data-state-pane="ready" style="padding: 0;">
+          <div class="ready-hero">
+            <div class="ready-ico">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <div>
+              <div class="ready-store-name">Jumbo Apumanque</div>
+              <div class="ready-meta">
+                <span>23 abr 2026 · 14:22</span>
+                <span class="dot">·</span>
+                <span>12 ítems</span>
+                <span class="dot">·</span>
+                <span>⚡ 8.2s</span>
+              </div>
+            </div>
+            <div class="ready-total-box">
+              <div class="ready-total">$23.490</div>
+              <div class="ready-items-count">Total extraído</div>
+            </div>
+          </div>
+
+          <div class="ready-items-list">
+            <div class="ready-item"><div class="ready-item-ico"><img src="../assets/icons/app-icons/item-categories/item-dairy-eggs.png" alt=""></div><div><div class="ready-item-name">Leche Entera 1L Colun</div><div class="ready-item-cat">Alimentos Frescos · Lácteos y Huevos</div></div><span class="ready-item-qty">×2</span><span class="ready-item-price">$4.780</span></div>
+            <div class="ready-item"><div class="ready-item-ico"><img src="../assets/icons/app-icons/item-categories/item-bread-pastry.png" alt=""></div><div><div class="ready-item-name">Pan Molde Integral Bimbo</div><div class="ready-item-cat">Alimentos Frescos · Pan y Repostería</div></div><span class="ready-item-qty">×1</span><span class="ready-item-price">$1.890</span></div>
+            <div class="ready-item"><div class="ready-item-ico"><img src="../assets/icons/app-icons/item-categories/item-dairy-eggs.png" alt=""></div><div><div class="ready-item-name">Queso Gouda Laminado Soprole</div><div class="ready-item-cat">Alimentos Frescos · Lácteos y Huevos</div></div><span class="ready-item-qty">×1</span><span class="ready-item-price">$3.490</span></div>
+            <div class="ready-item"><div class="ready-item-ico"><img src="../assets/icons/app-icons/item-categories/item-meat-seafood.png" alt=""></div><div><div class="ready-item-name">Pechuga de Pollo (0.8 kg)</div><div class="ready-item-cat">Alimentos Frescos · Carnes y Mariscos</div></div><span class="ready-item-qty">×1</span><span class="ready-item-price">$4.792</span></div>
+            <div class="ready-item"><div class="ready-item-ico"><img src="../assets/icons/app-icons/item-categories/item-beverages.png" alt=""></div><div><div class="ready-item-name">Café Granulado 170g Nescafé</div><div class="ready-item-cat">Alimentos Envasados · Bebidas</div></div><span class="ready-item-qty">×1</span><span class="ready-item-price">$4.290</span></div>
+            <div class="ready-item"><div class="ready-item-ico"><img src="../assets/icons/app-icons/item-categories/item-cleaning.png" alt=""></div><div><div class="ready-item-name">Detergente Líquido 3L Omo</div><div class="ready-item-cat">Hogar · Limpieza</div></div><span class="ready-item-qty">×1</span><span class="ready-item-price">$8.990</span></div>
+            <div class="ready-item" style="opacity: 0.6;"><div class="ready-item-ico">...</div><div style="color: var(--ink-3); font-size: 12px;">+ 6 ítems más (click para ver)</div><span></span><span></span></div>
+          </div>
+
+          <div class="ready-totals-bar">
+            <div class="ready-total-row">Subtotal: <strong>$23.490</strong></div>
+            <div class="ready-total-row">IVA incluido: <strong>$3.745</strong></div>
+            <div class="ready-total-row check">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="14" height="14"><polyline points="20 6 9 17 4 12"/></svg>
+              Reconciliación: exacto
+            </div>
+          </div>
+
+          <div class="ready-actions">
+            <button class="ready-btn ghost">Descartar</button>
+            <button class="ready-btn ghost" onclick="window.location.href='gastify-transaction-editor-desktop.html'">Editar ítems</button>
+            <button class="ready-btn primary" onclick="window.location.href='gastify-quicksave-card-desktop.html'">
+              ⚡ Quicksave
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT RAIL -->
+      <aside class="scan-rail">
+        <div class="rail-box">
+          <div class="rail-title">Telemetría</div>
+          <div class="telemetry-row"><span class="telemetry-label">Latencia total</span><span class="telemetry-value good">8.2s</span></div>
+          <div class="telemetry-row"><span class="telemetry-label">OCR confianza</span><span class="telemetry-value good">98%</span></div>
+          <div class="telemetry-row"><span class="telemetry-label">Categorización</span><span class="telemetry-value good">94%</span></div>
+          <div class="telemetry-row"><span class="telemetry-label">Ítems detectados</span><span class="telemetry-value">12 / 12</span></div>
+          <div class="telemetry-row"><span class="telemetry-label">Tokens usados</span><span class="telemetry-value">2.4k</span></div>
+          <div class="telemetry-row"><span class="telemetry-label">Costo estimado</span><span class="telemetry-value">$0.003 USD</span></div>
+          <div class="telemetry-row"><span class="telemetry-label">Modelo</span><span class="telemetry-value">Gemini Flash</span></div>
+        </div>
+
+        <div class="rail-box">
+          <div class="rail-title">Tips</div>
+          <div class="tip">💡 Para QR/CAF boletas electrónicas, pega la URL del SII directamente — es gratis y más preciso</div>
+          <div class="tip">📷 Ilumina bien la boleta y evita sombras sobre el texto para mejor precisión</div>
+          <div class="tip">🔍 Si reconciliación falla, el Tx Editor activa modo Hard-Lock para que corrijas manualmente sin perder cambios</div>
+        </div>
+
+        <div class="rail-box" style="background: var(--primary-soft); border-color: var(--primary);">
+          <div class="rail-title" style="color: var(--primary);">U5 · Stream en vivo</div>
+          <p style="font-size: 12px; color: var(--ink-2); line-height: 1.5;">Ves el progreso en tiempo real vía SSE — sin "dead air" durante los 8 segundos de extracción. Cada paso del pipeline emite eventos mientras procesa.</p>
+        </div>
+      </aside>
+    </div>
+
+    <!-- PLATFORM NOTES -->
+    <aside class="platform-notes">
+      <h3>Desktop Web — Single Scan (4 states)</h3>
+      <ul>
+        <li>Demo state tabs allow cycling through <code>idle → uploading → processing → ready</code> (real app uses live state machine, not clickable tabs)</li>
+        <li>State 1 idle: drag-drop zone + camera (webcam) + paste URL SII. Desktop gets Ctrl+V paste shortcut; mobile gets camera-first</li>
+        <li>State 2 uploading: spinner + progress bar + filename + ETA</li>
+        <li>State 3 processing: receipt thumb with scanline animation + pipeline step log (U5 streaming: each step emits SSE event; tokens/latency/cost update in telemetry rail)</li>
+        <li>State 4 ready: extracted data shown inline; actions are Descartar / Editar ítems (→ Tx Editor) / Quicksave (⚡)</li>
+        <li>Right rail: telemetry (U8 measure) + tips + U5 callout</li>
+        <li>Mobile equivalent: fullscreen camera with corner guides, single CTA per state, tips as sheet below</li>
+      </ul>
+    </aside>
+
+  </main>
+
+</div>
+
+<script>
+  const body = document.body;
+  document.querySelectorAll('.theme-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.theme-tab').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+      body.dataset.theme = btn.dataset.themeVal;
+    });
+  });
+  document.getElementById('modeToggle').addEventListener('click', () => {
+    body.dataset.mode = body.dataset.mode === 'dark' ? 'light' : 'dark';
+  });
+
+  // State tab switcher
+  document.querySelectorAll('.state-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      const state = tab.dataset.state;
+      document.querySelectorAll('.state-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      document.querySelectorAll('.state-pane').forEach(p => {
+        p.classList.remove('active');
+        p.style.display = 'none';
+      });
+      const pane = document.querySelector(`[data-state-pane="${state}"]`);
+      if (pane) {
+        pane.classList.add('active');
+        pane.style.display = 'flex';
+      }
+    });
+  });
+
+  document.addEventListener('click', (e) => {
+    const qn = document.getElementById('quickNav');
+    if (qn && !qn.contains(e.target)) qn.classList.remove('open');
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === '/' && document.activeElement.tagName !== 'INPUT') {
+      e.preventDefault();
+      document.querySelector('.search input').focus();
+    }
+    if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      e.preventDefault();
+      document.querySelector('.scan-btn').click();
+    }
+  });
+</script>
+
+</body>
+</html>
