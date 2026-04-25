@@ -1,5 +1,20 @@
 # Session Ledger
 
+## 2026-04-25 03:42 — PUSH main -> origin/main
+PR: — (trunk-based; direct-to-main, no PR hop)
+CI: skipped (provider=none)
+PROMOTION: N/A (origin/staging does not exist; promote_from=staging skipped silently per Step 3)
+DEPLOYMENTS: P4 added to .kdbp/DEPLOYMENTS.md
+SOURCE: Phase 2 exit-push — 6 commits since P3 covering atoms tooling completion + Phase 4 hub seeds. Tip: 4a0de9b feat(mockups): P2 atoms hub + Tweaks panel rebuild + legacy reference + Playwright harness
+
+## 2026-04-25 — [4a0de9b] feat(mockups): P2 atoms hub + Tweaks panel rebuild + legacy reference + Playwright harness
+FINDINGS: 5 (0 critical, 0 high, 3 medium, 2 low)
+ACTIONS: 1+2+3:update-structure (added Mockup Test Harness section to STRUCTURE.md — package.json, package-lock.json, playwright.config.ts, tests/legacy-extract/**); 4:accept (README.md is Agent App scoped, not active mockup phase); 5:accept (top-level docs/mockups/INDEX.md governance is owned by Phase 4 amendment)
+DEFERRED: 0
+TESTS: 43/43 pass (Playwright mockup suite, ~9s)
+SCOPE: 50 files, +4183 -474. Bundles Phase 2 atoms (this session — Tweaks rebuild, Space Grotesk, atoms gallery, legacy reference, viewport toggle, 43-spec harness) + Phase 4 hub seeds (root index.html, flows/index.html, molecules/, gap-matrix.html landed via prior session linter). Phase 4 hub work itself remains in P4 scope.
+NOTABLE: legacy-snapshots/ committed (Layer A dump + Layer B Playwright extracts); 4 woff2 weights for Space Grotesk added.
+
 ## 2026-04-24 — [09f30b3] chore(kdbp): sync P4/P13 YAML types to Phases table
 FINDINGS: 0 (0 critical, 0 high, 0 medium, 0 low)
 ACTIONS: none (all checks passed — markdown-only diff; deferred ✅; docs Layer 1–4 ✅; structure skipped)
