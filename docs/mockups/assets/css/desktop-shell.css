@@ -14,6 +14,11 @@
    Change this file → all desktop screens inherit. Edit with care.
    ========================================================== */
 
+/* Self-host webfonts (Outfit + Baloo 2 + Space Grotesk).
+   Declared once here so every consumer that loads desktop-shell.css
+   inherits the @font-face declarations — no per-page <link> needed. */
+@import url("../fonts/gastify-fonts.css");
+
 /* ---------- Normal Light (default) ---------- */
 :root {
   --bg: #f5f0e8;
@@ -36,6 +41,7 @@
   --secondary-color: #5b8fa8;
   --shadow: rgba(74, 124, 89, 0.12);
   --shadow-lg: rgba(74, 124, 89, 0.18);
+  --overlay-soft: rgba(0, 0, 0, 0.08);
   --sidebar-bg: #ffffff;
   --rail-bg: rgba(255, 255, 255, 0.6);
   --cat-hogar: #4a7c59;         --cat-hogar-tint: rgba(74, 124, 89, 0.15);
@@ -57,6 +63,7 @@
   --danger-soft: rgba(248, 113, 113, 0.12);
   --secondary-color: #7ab5cc;
   --shadow: rgba(0,0,0,0.3); --shadow-lg: rgba(0,0,0,0.5);
+  --overlay-soft: rgba(255, 255, 255, 0.08);
   --sidebar-bg: #1e2a22; --rail-bg: rgba(30, 42, 34, 0.6);
   --cat-hogar: #6b9e7a;         --cat-hogar-tint: rgba(107, 158, 122, 0.2);
   --cat-medicamento: #f87171;   --cat-medicamento-tint: rgba(248, 113, 113, 0.15);
@@ -77,6 +84,7 @@
   --danger-soft: #fee2e2;
   --secondary-color: #0ea5e9;
   --shadow: rgba(37, 99, 235, 0.08); --shadow-lg: rgba(37, 99, 235, 0.14);
+  --overlay-soft: rgba(0, 0, 0, 0.08);
   --sidebar-bg: #ffffff; --rail-bg: rgba(255, 255, 255, 0.6);
   --cat-hogar: #2563eb;         --cat-hogar-tint: rgba(37, 99, 235, 0.1);
   --cat-medicamento: #dc2626;   --cat-medicamento-tint: rgba(220, 38, 38, 0.1);
@@ -97,6 +105,7 @@
   --danger-soft: rgba(248, 113, 113, 0.12);
   --secondary-color: #38bdf8;
   --shadow: rgba(0,0,0,0.3); --shadow-lg: rgba(0,0,0,0.5);
+  --overlay-soft: rgba(255, 255, 255, 0.08);
   --sidebar-bg: #0f172a; --rail-bg: rgba(15, 23, 42, 0.6);
   --cat-hogar: #3b82f6;         --cat-hogar-tint: rgba(59, 130, 246, 0.15);
   --cat-medicamento: #f87171;   --cat-medicamento-tint: rgba(248, 113, 113, 0.15);
@@ -117,6 +126,7 @@
   --danger-soft: rgba(24, 24, 27, 0.08);
   --secondary-color: #3f3f46;
   --shadow: rgba(0, 0, 0, 0.06); --shadow-lg: rgba(0, 0, 0, 0.12);
+  --overlay-soft: rgba(0, 0, 0, 0.08);
   --sidebar-bg: #ffffff; --rail-bg: rgba(255, 255, 255, 0.6);
   --cat-hogar: #18181b;         --cat-hogar-tint: rgba(24, 24, 27, 0.08);
   --cat-medicamento: #3f3f46;   --cat-medicamento-tint: rgba(63, 63, 70, 0.08);
@@ -131,12 +141,15 @@
   --bg: #09090b; --surface: #18181b; --surface-2: #27272a;
   --ink: #fafafa; --ink-2: #a1a1aa; --ink-3: #71717a;
   --line: #27272a; --line-strong: #3f3f46;
-  --primary: #a1a1aa; --primary-soft: rgba(161, 161, 170, 0.12);
+  /* primary-ink overridden: --primary #a1a1aa (zinc-400) on white text fails WCAG AA (~2.4:1).
+     #09090b on #a1a1aa = ~9:1, well above 4.5:1 normal-text threshold. */
+  --primary: #a1a1aa; --primary-ink: #09090b; --primary-soft: rgba(161, 161, 170, 0.12);
   --accent: #71717a; --accent-soft: rgba(113, 113, 122, 0.12);
   --success: #a1a1aa; --warning: #a1a1aa; --error: #fafafa;
   --danger-soft: rgba(250, 250, 250, 0.08);
   --secondary-color: #71717a;
   --shadow: rgba(0,0,0,0.4); --shadow-lg: rgba(0,0,0,0.6);
+  --overlay-soft: rgba(255, 255, 255, 0.08);
   --sidebar-bg: #09090b; --rail-bg: rgba(9, 9, 11, 0.6);
   --cat-hogar: #a1a1aa;         --cat-hogar-tint: rgba(161, 161, 170, 0.12);
   --cat-medicamento: #71717a;   --cat-medicamento-tint: rgba(113, 113, 122, 0.12);
@@ -159,6 +172,27 @@ body {
   min-height: 100vh;
   transition: background 0.2s, color 0.2s;
 }
+
+/* Tweaks panel font picker: alternative typeface via [data-font]
+   (default = Outfit, declared by the body rule above). */
+body[data-font="space-grotesk"] {
+  font-family: 'Space Grotesk', 'Outfit', 'Segoe UI', system-ui, sans-serif;
+}
+
+/* Tweaks panel viewport simulator: clamps each demo container so the
+   atom can be previewed at mobile/tablet/desktop widths from the same page.
+   Constraints land on .demo-row + .demo-grid (the existing wrappers around
+   atom demos), not body — body keeps its 320px right gutter for the panel. */
+body[data-viewport="mobile"]  .demo-row,
+body[data-viewport="mobile"]  .demo-grid,
+body[data-viewport="mobile"]  .legacy-section { max-width: 360px; margin-left: auto; margin-right: auto; }
+body[data-viewport="tablet"]  .demo-row,
+body[data-viewport="tablet"]  .demo-grid,
+body[data-viewport="tablet"]  .legacy-section { max-width: 768px; margin-left: auto; margin-right: auto; }
+body[data-viewport="desktop"] .demo-row,
+body[data-viewport="desktop"] .demo-grid,
+body[data-viewport="desktop"] .legacy-section { max-width: 1440px; }
+/* "full" = no constraint, content fills available width minus panel gutter */
 button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
 a { color: var(--primary); text-decoration: none; }
 .tabular { font-variant-numeric: tabular-nums; }

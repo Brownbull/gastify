@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flows — gastify</title>
+  <link rel="stylesheet" href="../assets/css/desktop-shell.css">
+  <style>
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      min-height: 100vh;
+      padding: 40px 320px 48px 48px;
+    }
+    .hub-header { margin-bottom: 32px; max-width: 760px; }
+    .hub-header h1 {
+      font-family: 'Baloo 2', cursive;
+      font-size: 32px;
+      margin: 0 0 8px;
+      letter-spacing: -0.01em;
+    }
+    .hub-header .lede { color: var(--ink-2); font-size: 14px; line-height: 1.6; margin: 0; }
+    .hub-header .meta {
+      display: inline-flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+      font-size: 12px;
+      color: var(--ink-3);
+    }
+    .hub-header .meta .meta-pill {
+      background: var(--surface-2);
+      padding: 3px 10px;
+      border-radius: 9999px;
+      font-weight: 600;
+    }
+
+    .section-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 16px;
+    }
+
+    .flow-card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      text-decoration: none;
+      color: inherit;
+      transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+    }
+    .flow-card[data-status="live"]:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px var(--shadow-lg);
+      border-color: var(--primary);
+    }
+    .flow-card[data-status="planned"] {
+      opacity: 0.65;
+      cursor: not-allowed;
+    }
+    .flow-card:focus-visible {
+      outline: 2px solid var(--primary);
+      outline-offset: 2px;
+    }
+
+    .flow-preview {
+      min-height: 60px;
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      background: var(--bg);
+      border-bottom: 1px solid var(--line);
+      font-size: 11px;
+      color: var(--ink-3);
+      font-family: ui-monospace, Consolas, monospace;
+    }
+    .flow-preview .step {
+      background: var(--surface-2);
+      padding: 3px 8px;
+      border-radius: 4px;
+      color: var(--ink-2);
+    }
+    .flow-preview .arrow { color: var(--primary); font-weight: 700; }
+
+    .flow-meta {
+      padding: 14px 18px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .flow-meta .flow-id {
+      font-size: 11px;
+      color: var(--ink-3);
+      font-weight: 700;
+      font-family: ui-monospace, Consolas, monospace;
+      letter-spacing: 0.05em;
+    }
+    .flow-meta h2 {
+      font-family: 'Baloo 2', cursive;
+      font-size: 16px;
+      margin: 0;
+      letter-spacing: -0.01em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .flow-desc {
+      font-size: 12px;
+      color: var(--ink-2);
+      line-height: 1.45;
+      margin: 0;
+    }
+    .flow-reqs {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+      margin-top: 4px;
+    }
+    .req-pill {
+      font-size: 10px;
+      font-weight: 600;
+      padding: 1px 6px;
+      border-radius: 4px;
+      background: var(--surface-2);
+      color: var(--ink-2);
+      font-family: ui-monospace, Consolas, monospace;
+    }
+    .status-badge {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 4px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    .status-badge--live { background: var(--primary-soft); color: var(--primary); }
+    .status-badge--planned { background: var(--surface-2); color: var(--ink-3); }
+
+    .grid-divider {
+      grid-column: 1 / -1;
+      margin: 24px 0 8px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--line);
+      font-family: 'Baloo 2', cursive;
+      font-size: 18px;
+      color: var(--ink-2);
+    }
+
+    .hub-footer {
+      margin-top: 36px;
+      padding: 18px;
+      background: var(--surface-2);
+      border-radius: 12px;
+      font-size: 13px;
+      color: var(--ink-2);
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .hub-footer a { color: var(--primary); font-weight: 600; }
+  </style>
+</head>
+<body>
+  <header class="hub-header">
+    <h1>Flows</h1>
+    <p class="lede">User-journey walkthroughs across multiple screens. Each card chains the primary screens of one flow. Use the Tweaks panel to switch theme/mode/font across all flow walkthroughs.</p>
+    <div class="meta">
+      <span class="meta-pill">Phase 4 · MVP tier</span>
+      <span class="meta-pill">13 live · 7 planned</span>
+      <span class="meta-pill">Source: INDEX.md §2</span>
+    </div>
+  </header>
+
+  <nav class="section-grid" aria-label="Flow walkthroughs">
+    <a class="flow-card" data-status="live" href="flow-01-first-scan.html">
+      <div class="flow-preview">
+        <span class="step">single-scan</span><span class="arrow">→</span>
+        <span class="step">quicksave</span><span class="arrow">→</span>
+        <span class="step">tx-editor</span>
+      </div>
+      <div class="flow-meta">
+        <span class="flow-id">F1</span>
+        <h2>First scan <span class="status-badge status-badge--live">live</span></h2>
+        <p class="flow-desc">First-time scan with extraction, quicksave card, and edit gate.</p>
+        <div class="flow-reqs"><span class="req-pill">REQ-01</span><span class="req-pill">REQ-02</span><span class="req-pill">REQ-04</span></div>
+      </div>
+    </a>
+
+    <a class="flow-card" data-status="live" href="flow-02-quicksave.html">
+      <div class="flow-preview">
+        <span class="step">quicksave</span><span class="arrow">→</span>
+        <span class="step">dashboard</span>
+      </div>
+      <div class="flow-meta">
+        <span class="flow-id">F2</span>
+        <h2>QuickSave <span class="status-badge status-badge--live">live</span></h2>
+        <p class="flow-desc">One-tap save shortcut from the scan result without entering the editor.</p>
+        <div class="flow-reqs"><span class="req-pill">REQ-02</span><span class="req-pill">REQ-05</span></div>
+      </div>
+    </a>
+
+    <a class="flow-card" data-status="live" href="flow-03-batch-capture.html">
+      <div class="flow-preview">
+        <span class="step">batch-capture</span><span class="arrow">→</span>
+        <span class="step">batch-review</span>
+      </div>
+      <div class="flow-meta">
+        <span class="flow-id">F3</span>
+        <h2>Batch capture <span class="status-badge status-badge--live">live</span></h2>
+        <p class="flow-desc">Capture multiple receipts in one session, review extracted data in bulk.</p>
+        <div class="flow-reqs"><span class="req-pill">REQ-01</span></div>
+      </div>
+    </a>
+
+    <a class="flow-card" data-status="live" href="flow-04-statement-scan.html">
+      <div class="flow-preview">
+        <span class="step">statement-upload</span><span class="arrow">→</span>
+        <span class="step">statement-review</span>
+      </div>
+      <div class="flow-meta">
+        <span class="flow-id">F4</span>
+        <h2>Statement scan <span class="status-badge status-badge--live">live</span></h2>
+        <p class="flow-desc">Upload bank statement, encrypted-password consent, async processing, review list.</p>
+        <div class="flow-reqs"><span class="req-pill">REQ-07</span></div>
+      </div>
+    </a>
+
+    <a class="flow-card" data-status="live" href="flow-05-group-sharing.html">
+      <div class="flow-preview">
+        <span class="step">group-create</span><span class="arrow">→</span>
+        <span class="step">group-home</span><span class="arrow">→</span>
+        <span class="step">group-invite</span>
+      </div>
+      <div class="flow-meta">
+        <span class="flow-id">F5</span>
+        <h2>Groups sharing <span class="status-badge status-badge--live">live</span></h2>
+        <p class="flow-desc">Create a group, invite members, share transactions across the household.</p>
+        <div class="flow-reqs"><span class="req-pill">REQ-15</span></div>
+      </div>
+    </a>
+
+    <a class="flow-card" data-status="live" href="flow-06-learning-trust.html">
+      <div class="flow-preview">
+        <span class="step">tx-editor</span><span class="arrow">→</span>
+        <span class="step">settings-datos</span>
+      </div>
+      <div class="flow-meta">
+        <span class="flow-id">F6</span>
+        <h2>Learning → trust <span class="status-badge status-badge--live">live</span></h2>
+        <p class="flow-desc">User-edit precedence drives card-alias learning; managed in settings → datos.</p>
+        <div class="flow-reqs"><span class="req-pill">REQ-09</span><span class="req-pill">REQ-13</span></div>
+      </div>
+    </a>
+
+    <a class="flow-card" data-status="live" href="flow-07-credit-depletion.html">
+      <div class="flow-preview">
+        <span class="step">credit-warning</span><span class="arrow">→</span>
+        <span class="step">dashboard</span>
+      </div>
+      <div class="flow-meta">
+        <span class="flow-id">F7</span>
+        <h2>Credit depletion <span class="status-badge status-badge--live">live</span></h2>
+        <p class="flow-desc">Quota nearly exhausted — warning, paywall, fallback to manual entry.</p>
+      </div>
+    </a>
+
+    <a class="flow-card" data-status="live" href="flow-08-error-recovery.html">
+      <div class="flow-preview">
+        <span class="step">single-scan: error states</span>
+      </div>
+      <div class="flow-meta">
+        <span class="flow-id">F8</span>
+        <h2>Error recovery <span class="status-badge status-badge--live">live</span></h2>
+        <p class="flow-desc">Bad image, OCR failure, server error — recovery paths from each.</p>
+      </div>
+    </a>
+
+    <a class="flow-card" data-status="live" href="flow-09-offline-reconnect.html">
+      <div class="flow-preview">
+        <span class="step">offline-banner</span><span class="arrow">→</span>
+        <span class="step">reconnect-toast</span>
+      </div>
+      <div class="flow-meta">
+        <span class="flow-id">F9</span>
+        <h2>Offline → reconnect <span class="status-badge status-badge--live">live</span></h2>
+        <p class="flow-desc">Loss of connectivity, queued operations, sync on reconnect.</p>
+      </div>
+    </a>
+
+    <a class="flow-card" data-status="live" href="flow-10-analytics-deepdive.html">
+      <div class="flow-preview">
+        <span class="step">trends</span><span class="arrow">→</span>
+        <span class="step">insights</span><span class="arrow">→</span>
+        <span class="step">reports</span>
+      </div>
+      <div class="flow-meta">
+        <span class="flow-id">F10</span>
+        <h2>Analytics deep-dive <span class="status-badge status-badge--live">live</span></h2>
+        <p class="flow-desc">Drill from monthly trends through concentration insights to per-period reports.</p>
+        <div class="flow-reqs"><span class="req-pill">REQ-06</span><span class="req-pill">REQ-10</span></div>
+      </div>
+    </a>
+
+    <a class="flow-card" data-status="live" href="flow-11-reports-export.html">
+      <div class="flow-preview">
+        <span class="step">reports</span><span class="arrow">→</span>
+        <span class="step">trends</span>
+      </div>
+      <div class="flow-meta">
+        <span class="flow-id">F11</span>
+        <h2>Reports + PDF <span class="status-badge status-badge--live">live</span></h2>
+        <p class="flow-desc">Generate per-period summaries; export PDF for tax / accounting.</p>
+        <div class="flow-reqs"><span class="req-pill">REQ-06</span></div>
+      </div>
+    </a>
+
+    <a class="flow-card" data-status="live" href="flow-12-data-export.html">
+      <div class="flow-preview">
+        <span class="step">settings-cuenta</span>
+      </div>
+      <div class="flow-meta">
+        <span class="flow-id">F12</span>
+        <h2>Data export <span class="status-badge status-badge--live">live</span></h2>
+        <p class="flow-desc">Full account export — transactions, items, statements, settings — to ZIP.</p>
+      </div>
+    </a>
+
+    <a class="flow-card" data-status="live" href="flow-13-settings-config.html">
+      <div class="flow-preview">
+        <span class="step">settings-preferencias</span>
+      </div>
+      <div class="flow-meta">
+        <span class="flow-id">F13</span>
+        <h2>Settings config <span class="status-badge status-badge--live">live</span></h2>
+        <p class="flow-desc">Locale, currency, jurisdiction, scan defaults, notification preferences.</p>
+        <div class="flow-reqs"><span class="req-pill">REQ-19</span><span class="req-pill">REQ-22</span></div>
+      </div>
+    </a>
+
+    <div class="grid-divider">Planned (Phase 5+)</div>
+
+    <div class="flow-card" data-status="planned">
+      <div class="flow-preview">
+        <span class="step">login</span><span class="arrow">→</span>
+        <span class="step">register</span><span class="arrow">→</span>
+        <span class="step">welcome</span>
+      </div>
+      <div class="flow-meta">
+        <span class="flow-id">F14</span>
+        <h2>Auth + onboarding <span class="status-badge status-badge--planned">planned</span></h2>
+        <p class="flow-desc">Sign-up, email verify, first-open welcome — Phase 5 deliverable.</p>
+        <div class="flow-reqs"><span class="req-pill">REQ-16</span></div>
+      </div>
+    </div>
+
+    <div class="flow-card" data-status="planned">
+      <div class="flow-preview">
+        <span class="step">consent-CL · LATAM · EU · US-CA</span>
+      </div>
+      <div class="flow-meta">
+        <span class="flow-id">F15</span>
+        <h2>Jurisdiction consent <span class="status-badge status-badge--planned">planned</span></h2>
+        <p class="flow-desc">4-jurisdiction consent variants via state-tabs retrofit.</p>
+        <div class="flow-reqs"><span class="req-pill">REQ-20</span></div>
+      </div>
+    </div>
+
+    <div class="flow-card" data-status="planned">
+      <div class="flow-preview">
+        <span class="step">pwa-install-prompt</span>
+      </div>
+      <div class="flow-meta">
+        <span class="flow-id">F16</span>
+        <h2>PWA install <span class="status-badge status-badge--planned">planned</span></h2>
+        <p class="flow-desc">Browser-side install prompt + post-install onboarding.</p>
+        <div class="flow-reqs"><span class="req-pill">REQ-23</span></div>
+      </div>
+    </div>
+
+    <div class="flow-card" data-status="planned">
+      <div class="flow-preview">
+        <span class="step">notification-permission-prompt</span>
+      </div>
+      <div class="flow-meta">
+        <span class="flow-id">F17</span>
+        <h2>Push setup <span class="status-badge status-badge--planned">planned</span></h2>
+        <p class="flow-desc">Notification permission prompt sequence with explainer screen.</p>
+        <div class="flow-reqs"><span class="req-pill">REQ-25</span></div>
+      </div>
+    </div>
+
+    <div class="flow-card" data-status="planned">
+      <div class="flow-preview">
+        <span class="step">settings-preferencias</span>
+      </div>
+      <div class="flow-meta">
+        <span class="flow-id">F18</span>
+        <h2>i18n switch <span class="status-badge status-badge--planned">planned</span></h2>
+        <p class="flow-desc">Locale change cascading to date/currency/number formats.</p>
+        <div class="flow-reqs"><span class="req-pill">REQ-22</span></div>
+      </div>
+    </div>
+
+    <div class="flow-card" data-status="planned">
+      <div class="flow-preview">
+        <span class="step">dashboard</span><span class="arrow">→</span>
+        <span class="step">settings-preferencias</span>
+      </div>
+      <div class="flow-meta">
+        <span class="flow-id">F19</span>
+        <h2>Multi-currency <span class="status-badge status-badge--planned">planned</span></h2>
+        <p class="flow-desc">Add a non-base currency, FX rate display, USD shadow column.</p>
+        <div class="flow-reqs"><span class="req-pill">REQ-18</span><span class="req-pill">REQ-19</span></div>
+      </div>
+    </div>
+
+    <div class="flow-card" data-status="planned">
+      <div class="flow-preview">
+        <span class="step">settings-datos</span><span class="arrow">→</span>
+        <span class="step">trends</span>
+      </div>
+      <div class="flow-meta">
+        <span class="flow-id">F20</span>
+        <h2>Cohort opt-in <span class="status-badge status-badge--planned">planned</span></h2>
+        <p class="flow-desc">Anonymous benchmarking opt-in + cohort comparison chart.</p>
+        <div class="flow-reqs"><span class="req-pill">REQ-27</span></div>
+      </div>
+    </div>
+  </nav>
+
+  <footer class="hub-footer">
+    <span><strong>Source:</strong> <a href="../INDEX.md">INDEX.md §2</a> · <strong>Plan:</strong> <a href="../../../.kdbp/PLAN.md">PLAN.md</a></span>
+    <span><a href="../index.html">← Mockups home</a></span>
+  </footer>
+
+  <script src="../assets/js/tweaks.js" defer></script>
+</body>
+</html>

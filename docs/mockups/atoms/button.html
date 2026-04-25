@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="../assets/css/desktop-shell.css">
   <link rel="stylesheet" href="../assets/css/atoms.css">
   <style>
-    body { margin: 0; font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; padding: 40px 320px 48px 48px; }
+    body { margin: 0; background: var(--bg); color: var(--ink); min-height: 100vh; padding: 40px 320px 48px 48px; }
     h1 { font-size: 24px; margin: 0 0 6px 0; font-weight: 700; }
     .subtitle { color: var(--ink-2); font-size: 13px; margin: 0 0 32px 0; max-width: 720px; line-height: 1.5; }
     .demo-section { margin-bottom: 36px; }
@@ -51,6 +51,74 @@
       <div class="demo-swatch"><span class="demo-swatch-label">disabled</span><button class="btn btn-primary" disabled>Confirmar</button></div>
       <div class="demo-swatch"><span class="demo-swatch-label">with spinner</span><button class="btn btn-primary" disabled><span class="spinner spinner-sm spinner-on-primary"></span>Procesando</button></div>
       <div class="demo-swatch"><span class="demo-swatch-label">ghost · disabled</span><button class="btn btn-ghost" disabled>Ver más</button></div>
+    </div>
+  </section>
+
+  <section class="demo-section legacy-section">
+    <h2><span class="legacy-tag">LEGACY</span> BoletApp 2024 reference</h2>
+    <p class="legacy-note">
+      Visual reference from the legacy BoletApp pre-extracted dump. These are <strong>not</strong> the gastify atom — kept side-by-side so the redesign delta is visible. Source: <code>legacy-reference/claude-design/preview/buttons-*.html</code>.
+    </p>
+    <div class="legacy-snippets">
+      <div class="legacy-snippet legacy-snippet--buttons-normal" data-source="boletapp-dump:buttons-normal.html" data-theme="normal">
+        <style>
+          .legacy-snippet--buttons-normal .btn { padding:10px 20px; font-size:14px; font-weight:700; font-family:'Baloo 2', cursive; cursor:pointer; border-radius:9999px; transition:all 180ms; }
+          .legacy-snippet--buttons-normal .btn.primary { background:#4a7c59; color:#fff; border:none; box-shadow:0 4px 12px #4a7c5930; }
+          .legacy-snippet--buttons-normal .btn.ghost { background:transparent; color:#4a7c59; border:1.5px solid #4a7c59; }
+          .legacy-snippet--buttons-normal .btn.accent { background:#e8a87c; color:#fff; border:none; box-shadow:0 4px 12px #4a7c5930; }
+          .legacy-snippet--buttons-normal .btn.sm { padding:6px 14px; font-size:12px; }
+        </style>
+        <div class="legacy-snippet__label">Theme: normal</div>
+        <div class="legacy-snippet__variants">
+          <button class="btn primary">Escanear recibo</button>
+          <button class="btn ghost">Ver todos</button>
+          <button class="btn accent">+ Nuevo grupo</button>
+          <button class="btn primary sm">Continuar</button>
+        </div>
+      </div>
+      <div class="legacy-snippet legacy-snippet--buttons-professional" data-source="boletapp-dump:buttons-professional.html" data-theme="professional">
+        <style>
+          .legacy-snippet--buttons-professional .btn { padding:10px 20px; font-size:14px; font-weight:700; font-family:'Inter', sans-serif; cursor:pointer; border-radius:9999px; transition:all 180ms; }
+          .legacy-snippet--buttons-professional .btn.primary { background:#2563eb; color:#fff; border:none; box-shadow:0 4px 12px #2563eb30; }
+          .legacy-snippet--buttons-professional .btn.ghost { background:transparent; color:#2563eb; border:1.5px solid #2563eb; }
+          .legacy-snippet--buttons-professional .btn.accent { background:#3b82f6; color:#fff; border:none; box-shadow:0 4px 12px #2563eb30; }
+          .legacy-snippet--buttons-professional .btn.sm { padding:6px 14px; font-size:12px; }
+        </style>
+        <div class="legacy-snippet__label">Theme: professional</div>
+        <div class="legacy-snippet__variants">
+          <button class="btn primary">Escanear recibo</button>
+          <button class="btn ghost">Ver todos</button>
+          <button class="btn accent">+ Nuevo grupo</button>
+          <button class="btn primary sm">Continuar</button>
+        </div>
+      </div>
+      <div class="legacy-snippet legacy-snippet--buttons-mono" data-source="boletapp-dump:buttons-mono.html" data-theme="mono">
+        <style>
+          .legacy-snippet--buttons-mono .btn { padding:10px 20px; font-size:14px; font-weight:700; font-family:-apple-system, Helvetica, sans-serif; cursor:pointer; border-radius:9999px; transition:all 180ms; }
+          .legacy-snippet--buttons-mono .btn.primary { background:#18181b; color:#fff; border:none; box-shadow:0 4px 12px #18181b30; }
+          .legacy-snippet--buttons-mono .btn.ghost { background:transparent; color:#18181b; border:1.5px solid #18181b; }
+          .legacy-snippet--buttons-mono .btn.accent { background:#52525b; color:#fff; border:none; box-shadow:0 4px 12px #18181b30; }
+          .legacy-snippet--buttons-mono .btn.sm { padding:6px 14px; font-size:12px; }
+        </style>
+        <div class="legacy-snippet__label">Theme: mono</div>
+        <div class="legacy-snippet__variants">
+          <button class="btn primary">Escanear recibo</button>
+          <button class="btn ghost">Ver todos</button>
+          <button class="btn accent">+ Nuevo grupo</button>
+          <button class="btn primary sm">Continuar</button>
+        </div>
+      </div>
+      <div class="legacy-snippet legacy-snippet--button-live" data-source="boletapp-live" data-theme="live">
+        <div class="legacy-snippet__label">Source: live · BoletApp staging · scan FAB on dashboard</div>
+        <div class="legacy-snippet__variants">
+          <button aria-label="Escanear" style="background: linear-gradient(135deg, #2563eb, #2563eb); color: #fff; border-radius: 9999px; width: 52px; height: 52px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); border: none; cursor: pointer;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M13.997 4a2 2 0 0 1 1.76 1.05l.486.9A2 2 0 0 0 18.003 7H20a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h1.997a2 2 0 0 0 1.759-1.048l.489-.904A2 2 0 0 1 10.004 4z"></path>
+              <circle cx="12" cy="13" r="3"></circle>
+            </svg>
+          </button>
+        </div>
+      </div>
     </div>
   </section>
 

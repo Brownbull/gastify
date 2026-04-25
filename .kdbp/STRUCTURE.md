@@ -70,6 +70,17 @@
 | `docs/mockups/**/*.prompt` | Claude-input design specs (style prompts for frontend-design skill / external render pass) | MVP |
 | `docs/mockups/**/*.md` | mockup governance docs (INDEX.md, AUDIT.md, HANDOFF.md, SCREEN-SPECS.md, COMPONENT-LIBRARY.md, DESKTOP-TEMPLATE.md, PLATFORM-NOTES.md, STRESS-TEST-SPEC.md, README.md) | MVP |
 
+### Mockup Test Harness (Playwright at repo root)
+
+<!-- Mockup-phase test infra. Repo has no application code yet, so test config sits at root. Reconsider when backend phase activates and a per-app structure emerges. -->
+
+| Pattern | Description | Tier |
+|---------|-------------|------|
+| `package.json` | Root npm manifest for mockup test deps (Playwright, http-server) | MVP |
+| `package-lock.json` | npm lockfile (committed for reproducible installs) | MVP |
+| `playwright.config.ts` | Playwright config (web server + project setup for mockup specs) | MVP |
+| `tests/legacy-extract/**/*.ts` | Legacy boletapp extraction harness (one-shot DOM scrape) | MVP |
+
 <!-- ### Web App (any stack)
 
 | Pattern | Description | Tier |

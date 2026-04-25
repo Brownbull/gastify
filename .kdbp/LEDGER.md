@@ -160,11 +160,7 @@ EXEC STATE: 🔄 (continues)
 
 ## 2026-04-23 23:51 — [main aa97301] feat(mockups): T10 lock Phase 1 artifacts — tokens.json + design-system.html
 
-## 2026-04-24 10:23 — [a37fd59] feat(mockups): canonical filter strip — timeframe pills + period-nav + L1/L2/L3/L4 taxonomy chips, retrofit Dashboard/History/Trends
-
 ## 2026-04-24 10:38 — [main b3f973d] docs(kdbp): Phase 1 review — warning verdict, D20 T5 supersession, platform notes, defer P1-P4
-
-## 2026-04-24 10:43 — [main b3f973d] docs(kdbp): Phase 1 review — warning verdict, D20 T5 supersession, platform notes, defer P1-P4
 
 ## 2026-04-24 10:45 — PUSH main -> origin/main
 PR: — (trunk-based; direct-to-main, no PR hop)
@@ -175,15 +171,63 @@ SOURCE: Phase 1 exit-push — 35 commits since P2 covering UX mockups P1 (14 des
 
 ## 2026-04-24 10:44 — [main 83ef0c9] chore(kdbp): record push bookkeeping for P3
 
-## 2026-04-24 14:17 — [main 83ef0c9] chore(kdbp): record push bookkeeping for P3
-
 ## 2026-04-24 14:22 — [main 083201f] chore(kdbp): adopt /gabe-mockup peer-command + seed P2 mockup infra
 FINDINGS: 1 (0 critical, 0 high, 1 medium, 0 low)
 ACTIONS: 1:update-structure (resolved via .gitignore — docs/mockups/legacy-reference/ now unversioned reference vault)
 DEFERRED: none
 
-## 2026-04-24 14:22 — [main 083201f] chore(kdbp): adopt /gabe-mockup peer-command + seed P2 mockup infra
+## 2026-04-24 16:07 — [main 8690049] chore(kdbp): /gabe-mockup v2 retrofit corrections — self-contained panel + canonical paths
 
-## 2026-04-24 14:57 — [main 09f30b3] chore(kdbp): sync P4/P13 YAML types to Phases table
+## 2026-04-24 16:07 — [main 542e0cf] feat(mockups): P2 atoms — 10 atom HTMLs + consolidated atoms.css
+FINDINGS: retroactive — structured /gabe-review pending against docs/mockups/atoms/**
+ACTIONS: LEDGER audit row backfilled; Phase 2 Review tick deferred until retroactive review triage completes
+DEFERRED: see `.kdbp/PENDING.md` P1-P5 (none touch atoms surface)
+SOURCE: commit landed via raw git commit (Codex CLI session, `.codex` marker present) bypassing /gabe-commit. Entry added during 2026-04-24 LEDGER dedup cleanup.
 
-## 2026-04-24 15:41 — [09f30b3] chore(kdbp): sync P4/P13 YAML types to Phases table
+## 2026-04-24 18:30 — PLAN UPDATED: Phase 4 amendment (centralized mockup hub)
+SOURCE: /gabe-plan update (invoked from inline /plan confirmation)
+SCOPE ADDITION TO PHASE 4 (tier unchanged: mvp):
+  A1 — Restructure docs/mockups/index.html as principal hub with section cards (Design / Atoms / Molecules / Flows / Screens / Handoff); migrate inline :root tokens → desktop-shell.css canonical (option a)
+  A2 — Build docs/mockups/flows/index.html sub-hub (13 flow cards)
+  A3 — Build docs/mockups/molecules/index.html placeholder (P3 stub)
+  A4 — Generalize tweaks.js breadcrumb → section-aware
+  A5 — Rename atoms-hub.spec.ts → hubs.spec.ts; add hub navigability + breadcrumb chain coverage
+  A6 — Cross-reference docs/mockups/INDEX.md + atoms/INDEX.md → principal hub; add Navigation section to mockups/INDEX.md
+DECISIONS: D22 logged (centralized hub pattern adopted, Layer B queued)
+TIER CHANGES: 0 (Phase 4 stays mvp)
+DIM_OVERRIDES: 0 (Phase 4 dim_overrides remains [])
+LLM CALLS: 0 (structural amendment, no tier re-render)
+FILES TOUCHED: .kdbp/PLAN.md (Last Updated, Phases row 4, Phase 4 Details Scope, Retrofit Log) · .kdbp/DECISIONS.md (D22 row + full prose entry)
+NEXT: /gabe-execute on Phase 4 (or /gabe-next to dispatch)
+
+## 2026-04-24 17:30 — PHASE 2 REVIEW: Atomic components (cross-CLI consolidated)
+VERDICT: APPROVE (post-triage; provisional WARNING upgraded after 7/7 fixed)
+FINDINGS: 7 total (0 critical, 2 high, 2 medium, 3 low) | SOURCES: codex/gpt-5 + claude/opus-4-7 (4 strict-overlap corroborated, 3 claude-only, 0 codex-only)
+COVERAGE: MEDIUM — no automated a11y check on atom layer; INDEX.md Known Gaps surfaces residual M13-audit items
+CONFIDENCE: 55 → 95 / 100 (+40, all 7 findings resolved)
+DEFERRED: none added this run; PENDING.md P1-P5 unchanged (none touch atoms surface)
+ALIGNMENT: DRIFTED (atom desktop-only vs phase row "Web + mobile" — non-blocking; atoms responsive by nature, mobile composition deferred to P3 molecule layer per recommendation)
+TIER: mvp | DRIFT: 2 findings (1 fixed via downgrade — pill role removal; 1 accept-drift — prefers-reduced-motion logged on D8)
+TICK: ✅ (Review column Phase 2)
+FIXES APPLIED:
+  F1 → desktop-shell.css [data-theme="mono"][data-mode="dark"] block: --primary-ink override #09090b (~9:1 contrast)
+  F2 → progress.html: role=progressbar + aria-valuenow/min/max added to 4 semantic-color demos + 5 value-stage demos + 5 circular demos
+  F3 → pill.html: dropped role=tablist/role=tab from atom demo, replaced aria-selected with aria-pressed (atom layer = visual only; tab semantics moved to P3 molecule contract)
+  F4 → atoms.css: --progress-mask token (default var(--bg)), molecule consumers override with style="--progress-mask: var(--surface);"
+  F5 → DECISIONS.md D8: drift-accepted note for prefers-reduced-motion (Enterprise-tier pattern in MVP phase, beneficial a11y kept)
+  F6 → atoms/INDEX.md catalog row Badge: removed phantom xs size column entry
+  F7 → desktop-shell.css: new --overlay-soft token across all 6 themes (rgba(0,0,0,0.08) light / rgba(255,255,255,0.08) dark); atoms.css 3 sites tokenized; functional alpha literals (shimmer, spinner ring, active-pill count bubble, btn-destructive #fff) retained with documented rationale in INDEX.md Known Gaps GAP-2/3/4
+SOURCE: REVIEW.md archived to .kdbp/reviews-archive/REVIEW_2026-04-24-173000_resolved.md (schema 1.1, two sources)
+
+## 2026-04-24 — PHASE 4 EXECUTED: centralized hub + section sub-hubs (Layer A)
+PHASE: 4 (mockup-flows, mockup-index, mvp tier)
+EXEC: ✅ (column flipped ⬜ → ✅; Review/Commit/Push remain ⬜)
+SOURCE: /home/khujta/projects/gabe_lens/docs/LAYER-B-MOCKUP-HUB-TEMPLATES.md preconditions + D22 amendment in PLAN.md Phase 4 Details
+A1 — Renamed legacy `docs/mockups/index.html` (P5–P12 gap matrix) → `gap-matrix.html` (preserved). New `index.html` is section-card hub: Design System / Atoms / Molecules / Flows / Screens / Handoff. Tokens via desktop-shell.css canonical (no inline :root). Each card has data-section + data-status="live|placeholder".
+A2 — `docs/mockups/flows/index.html` created. 13 live flow cards (F1–F13) + 7 planned (F14–F20). Card pattern matches atoms/index.html. Footer back-link to `../index.html`.
+A3 — `docs/mockups/molecules/index.html` created. Placeholder banner + 7 planned molecule cards (balance-card, transaction-card, state-tabs, filter-strip, nav-bottom, nav-sidebar, fab). All non-interactive divs with status="planned".
+A4 — `assets/js/tweaks.js` breadcrumb generalized. Atoms-only path-match replaced with section-aware logic: `/<section>/<page>.html` → "← <Section> index" → ./index.html; `/<section>/index.html` → "← Mockups home" → ../index.html; `/<top-level>.html` (non-index) → "← Mockups home" → ./index.html; `/index.html` → no breadcrumb (it IS home).
+A5 — `tests/mockups/atoms-hub.spec.ts` → `tests/mockups/hubs.spec.ts` (renamed + generalized). Added describe blocks: Top hub (5 specs), Atoms sub-hub (5), Flows sub-hub (4), Molecules sub-hub (3), Breadcrumb chain (2). Total 19 specs in this file.
+A6 — npm test: 43 passed, 0 failed (was 33 before; +10 from new hub coverage in hubs.spec.ts).
+FILES TOUCHED: docs/mockups/{index.html (new section-card), gap-matrix.html (renamed-from-old), flows/index.html (new), molecules/index.html (new), assets/js/tweaks.js (breadcrumb logic)}, tests/mockups/{hubs.spec.ts (renamed-from-atoms-hub.spec.ts + generalized)}, .kdbp/PLAN.md (Phase 4 Exec ✅).
+NEXT: Layer B execution in /home/khujta/projects/gabe_lens/ — extract this hub + sub-hub + Playwright pattern into `templates/mockup/` so future mockup projects get it from `/gabe-mockup` for free. Per LAYER-B-MOCKUP-HUB-TEMPLATES.md D1–D8.

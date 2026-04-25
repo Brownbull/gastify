@@ -22,13 +22,10 @@
   const STORAGE_KEY = 'gabe-mockup-tweaks-v1';
 
   const DEFAULTS = {
-    theme: 'default',
+    theme: 'normal',
     mode: 'light',
     font: 'default',
-    textScale: 1,
-    density: 'regular',
-    radius: 'medium',
-    primaryOverride: '',
+    viewport: 'desktop',
     collapsed: false,
   };
 
@@ -63,6 +60,18 @@
     .tweaks__toggle:hover { background: var(--bg-tertiary, var(--surface-2, #f4f4f5)); }
 
     .tweaks__body { padding: 56px 16px 16px; }
+    .tweaks__breadcrumb {
+      display: inline-block;
+      font-size: 11px; font-weight: 600;
+      color: var(--primary, #4a7c59);
+      text-decoration: none;
+      margin-bottom: 12px;
+      padding: 4px 8px;
+      border-radius: 6px;
+      background: var(--primary-soft, var(--surface-2, #f4f4f5));
+      transition: background 120ms ease;
+    }
+    .tweaks__breadcrumb:hover { filter: brightness(0.95); text-decoration: underline; }
     .tweaks__header {
       font-family: var(--font-display, inherit);
       font-size: 11px; font-weight: 600;
@@ -159,7 +168,11 @@
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (!raw) return { ...DEFAULTS };
-      return { ...DEFAULTS, ...JSON.parse(raw) };
+      const merged = { ...DEFAULTS, ...JSON.parse(raw) };
+      // Migration: prior versions used theme:'default' which has no matching CSS rule.
+      // Map stale value to the real first-class theme.
+      if (merged.theme === 'default') merged.theme = 'normal';
+      return merged;
     } catch {
       return { ...DEFAULTS };
     }
@@ -171,8 +184,12 @@
 
   /* ========== Theme + font detection from loaded stylesheets ========== */
 
-  function detectSelectorValues(attr) {
-    const found = new Set(['default']);
+  function detectSelectorValues(attr, seedDefault) {
+    // For attrs where the base CSS body rule IS the implicit default state (e.g. font),
+    // pass seedDefault=true to include 'default' as an option in the panel. For attrs
+    // where 'default' is not a real CSS state (e.g. theme — needs an explicit
+    // [data-theme="X"] match to do anything), pass seedDefault=false.
+    const found = new Set(seedDefault ? ['default'] : []);
     try {
       for (const sheet of document.styleSheets) {
         let rules;
@@ -190,28 +207,65 @@
     return Array.from(found);
   }
 
-  function detectThemes() { return detectSelectorValues('theme'); }
-  function detectFonts()  { return detectSelectorValues('font'); }
+  function detectThemes() { return detectSelectorValues('theme', false); }
+  function detectFonts()  { return detectSelectorValues('font',  true);  }
 
   /* ========== Apply state to DOM ========== */
 
   function applyState(state) {
     const body = document.body;
-    body.setAttribute('data-theme',   state.theme);
-    body.setAttribute('data-mode',    state.mode);
-    body.setAttribute('data-font',    state.font);
-    body.setAttribute('data-density', state.density);
-    body.setAttribute('data-radius',  state.radius);
-    body.style.setProperty('--text-scale', String(state.textScale));
-    if (state.primaryOverride) {
-      body.style.setProperty('--primary', state.primaryOverride);
-    } else {
-      body.style.removeProperty('--primary');
-    }
+    body.setAttribute('data-theme',    state.theme);
+    body.setAttribute('data-mode',     state.mode);
+    body.setAttribute('data-font',     state.font);
+    body.setAttribute('data-viewport', state.viewport);
     body.classList.toggle('tweaks-collapsed', !!state.collapsed);
   }
 
   /* ========== Render panel ========== */
+
+  // Listener-leak guard: events are attached ONCE per panel element, then
+  // delegated. Re-rendering panel.innerHTML wipes children but preserves
+  // listeners on the parent — so attaching on every render stacks listeners
+  // exponentially, and event handlers that toggle state (e.g. collapse)
+  // get called 2^N times per click, ending up in the wrong state.
+  function wirePanelOnce(panel, state) {
+    if (panel.__tweaksWired) return;
+    panel.__tweaksWired = true;
+
+    panel.addEventListener('click', (e) => {
+      const el = e.target.closest('[data-act]');
+      if (!el) return;
+      const act = el.getAttribute('data-act');
+      const val = el.getAttribute('data-val');
+      // Guard: only the click-driven actions get a re-render. Click events
+      // also bubble from the <select data-act="font"> when the user opens
+      // the native dropdown — re-rendering then would destroy the open
+      // dropdown mid-interaction. Font is `change`-driven, not click-driven.
+      switch (act) {
+        case 'collapse': state.collapsed = !state.collapsed; break;
+        case 'theme':    state.theme = val; break;
+        case 'mode':     state.mode = val; break;
+        case 'viewport': state.viewport = val; break;
+        default: return; // not a click-driven action — leave the DOM alone
+      }
+      applyState(state);
+      saveState(state);
+      renderPanel(state);
+    });
+
+    // <select> fires `change` (always) AND `input` (modern browsers).
+    // Listening to `change` is the cross-browser-safe choice.
+    panel.addEventListener('change', (e) => {
+      const el = e.target.closest('[data-act]');
+      if (!el) return;
+      if (el.getAttribute('data-act') === 'font') {
+        state.font = el.value;
+        applyState(state);
+        saveState(state);
+        renderPanel(state);
+      }
+    });
+  }
 
   function renderPanel(state) {
     const panel = document.getElementById('tweaks-panel');
@@ -220,11 +274,34 @@
     const themes = detectThemes();
     const fonts  = detectFonts();
 
+    // Section-aware breadcrumb: navigate the hub → section → page hierarchy from
+    // any depth without manually editing URLs.
+    //   /<section>/<name>.html       → "← <Section> index"  → ./index.html
+    //   /<section>/index.html        → "← Mockups home"     → ../index.html
+    //   /<name>.html (top-level)     → "← Mockups home"     → ./index.html
+    //   /index.html (top hub itself) → no breadcrumb (it IS home)
+    const path = (typeof location !== 'undefined' && location.pathname) || '';
+    let atomsBackLink = '';
+    const sectionPageMatch = path.match(/^\/([^/]+)\/([^/]+)\.html$/);
+    const topLevelMatch = path.match(/^\/([^/]+)\.html$/);
+    if (sectionPageMatch) {
+      const [, section, name] = sectionPageMatch;
+      if (name === 'index') {
+        atomsBackLink = `<a class="tweaks__breadcrumb" href="../index.html">← Mockups home</a>`;
+      } else {
+        const sectionLabel = section.charAt(0).toUpperCase() + section.slice(1);
+        atomsBackLink = `<a class="tweaks__breadcrumb" href="./index.html">← ${sectionLabel} index</a>`;
+      }
+    } else if (topLevelMatch && topLevelMatch[1] !== 'index') {
+      atomsBackLink = `<a class="tweaks__breadcrumb" href="./index.html">← Mockups home</a>`;
+    }
+
     panel.innerHTML = `
       <button class="tweaks__toggle" aria-label="Toggle tweaks" data-act="collapse">
         ${state.collapsed ? '⇤' : '⇥'}
       </button>
       <div class="tweaks__body" ${state.collapsed ? 'hidden' : ''}>
+        ${atomsBackLink}
         <header class="tweaks__header">Tweaks</header>
 
         <section class="tweaks__group">
@@ -246,12 +323,6 @@
         </section>
 
         <section class="tweaks__group">
-          <h3>Primary override</h3>
-          <input type="color" value="${state.primaryOverride || '#4a7c59'}" data-act="primary" class="tweaks__color">
-          <button class="tweaks__reset" data-act="primary-reset">Reset primary</button>
-        </section>
-
-        <section class="tweaks__group">
           <h3>Font family</h3>
           <select data-act="font" class="tweaks__select">
             ${fonts.map(f => `<option value="${f}" ${state.font === f ? 'selected' : ''}>${f}</option>`).join('')}
@@ -259,66 +330,17 @@
         </section>
 
         <section class="tweaks__group">
-          <h3>Text scale — <code>${state.textScale.toFixed(2)}×</code></h3>
-          <input type="range" min="0.8" max="1.3" step="0.05" value="${state.textScale}" data-act="scale" class="tweaks__range">
-        </section>
-
-        <section class="tweaks__group">
-          <h3>Density</h3>
+          <h3>Viewport</h3>
           <div class="tweaks__row">
-            ${['compact','regular','comfy'].map(d => `
-              <button class="tweaks__chip ${state.density === d ? 'is-active' : ''}" data-act="density" data-val="${d}">${d}</button>
-            `).join('')}
-          </div>
-        </section>
-
-        <section class="tweaks__group">
-          <h3>Corner radius</h3>
-          <div class="tweaks__row">
-            ${['tight','medium','loose'].map(r => `
-              <button class="tweaks__chip ${state.radius === r ? 'is-active' : ''}" data-act="radius" data-val="${r}">${r}</button>
+            ${['mobile','tablet','desktop','full'].map(v => `
+              <button class="tweaks__chip ${state.viewport === v ? 'is-active' : ''}" data-act="viewport" data-val="${v}">${v}</button>
             `).join('')}
           </div>
         </section>
       </div>
     `;
 
-    panel.addEventListener('click', onClick);
-    panel.addEventListener('input', onInput);
-
-    function onClick(e) {
-      const el = e.target.closest('[data-act]');
-      if (!el) return;
-      const act = el.getAttribute('data-act');
-      const val = el.getAttribute('data-val');
-      switch (act) {
-        case 'collapse':      state.collapsed = !state.collapsed; break;
-        case 'theme':         state.theme = val; break;
-        case 'mode':          state.mode = val; break;
-        case 'density':       state.density = val; break;
-        case 'radius':        state.radius = val; break;
-        case 'primary-reset': state.primaryOverride = ''; break;
-      }
-      apply();
-    }
-
-    function onInput(e) {
-      const el = e.target.closest('[data-act]');
-      if (!el) return;
-      const act = el.getAttribute('data-act');
-      switch (act) {
-        case 'scale':   state.textScale = parseFloat(el.value); break;
-        case 'primary': state.primaryOverride = el.value; break;
-        case 'font':    state.font = el.value; break;
-      }
-      apply();
-    }
-
-    function apply() {
-      applyState(state);
-      saveState(state);
-      renderPanel(state); // re-render updates active markers
-    }
+    wirePanelOnce(panel, state);
   }
 
   /* ========== State-tabs driver (flexible: ARIA OR legacy class/data) ========== */
@@ -380,11 +402,40 @@
     });
   }
 
+  /* ========== file:// guard ========== */
+
+  // Chromium restricts file:// origins: @import-loaded stylesheets can't be
+  // introspected via cssRules, and @font-face url() resolution to sibling
+  // file:// resources is partial. Result: panel options disappear, fonts fall
+  // back to system-ui, layout shifts. Show a banner directing users to the
+  // http-server: `npm run serve:mockups` → http://localhost:4173.
+  function injectFileProtocolWarning() {
+    if (typeof location === 'undefined' || location.protocol !== 'file:') return;
+    if (document.getElementById('tweaks-file-warning')) return;
+    const div = document.createElement('div');
+    div.id = 'tweaks-file-warning';
+    div.style.cssText = `
+      position: fixed; top: 0; left: 0; right: 280px;
+      z-index: 10000;
+      background: #fbbf24; color: #1f2937;
+      padding: 8px 16px; font: 13px/1.5 system-ui, sans-serif;
+      border-bottom: 1px solid #b45309;
+    `;
+    div.innerHTML = `
+      <strong>file:// preview — fonts and panel options are degraded.</strong>
+      Open via <code style="background:rgba(0,0,0,0.1);padding:1px 5px;border-radius:3px;">http://localhost:4173</code>
+      (run <code style="background:rgba(0,0,0,0.1);padding:1px 5px;border-radius:3px;">npm run serve:mockups</code>)
+      for the real layout.
+    `;
+    document.body.appendChild(div);
+  }
+
   /* ========== Boot ========== */
 
   function boot() {
     injectStyles();
     injectPanelContainer();
+    injectFileProtocolWarning();
     const state = loadState();
     applyState(state);
     renderPanel(state);

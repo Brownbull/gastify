@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="../assets/css/desktop-shell.css">
   <link rel="stylesheet" href="../assets/css/atoms.css">
   <style>
-    body { margin: 0; font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; padding: 40px 320px 48px 48px; }
+    body { margin: 0; background: var(--bg); color: var(--ink); min-height: 100vh; padding: 40px 320px 48px 48px; }
     h1 { font-size: 24px; margin: 0 0 6px 0; font-weight: 700; }
     .subtitle { color: var(--ink-2); font-size: 13px; margin: 0 0 32px 0; max-width: 720px; line-height: 1.5; }
     .demo-section { margin-bottom: 36px; }
@@ -66,6 +66,52 @@
       <span class="chip is-selected"><span aria-hidden="true">🛒</span> Supermercado</span>
       <span class="chip"><span aria-hidden="true">📍</span> Las Condes</span>
       <span class="chip is-selected"><span aria-hidden="true">💳</span> Tarjeta crédito</span>
+    </div>
+  </section>
+
+  <section class="demo-section legacy-section">
+    <h2><span class="legacy-tag">LEGACY</span> BoletApp 2024 reference</h2>
+    <p class="legacy-note">
+      Visual reference from the legacy BoletApp pre-extracted dump. These are <strong>not</strong> the gastify atom — kept side-by-side so the redesign delta is visible. Source: <code>legacy-reference/claude-design/preview/chips-*.html</code>. Note: BoletApp's "chip" served the role gastify splits into chip + badge.
+    </p>
+    <div class="legacy-snippets">
+      <div class="legacy-snippet legacy-snippet--chips-normal-light" data-source="boletapp-dump:chips-normal-light.html" data-theme="normal" data-mode="light">
+        <div class="legacy-snippet__label">Theme: normal · light</div>
+        <div class="legacy-snippet__variants">
+          <span style="padding:4px 12px;border-radius:8px;font-size:12px;font-weight:600;background:rgba(74,124,89,0.15);color:#4a7c59;font-family:'Outfit',sans-serif;">hogar</span>
+          <span style="padding:4px 12px;border-radius:8px;font-size:12px;font-weight:600;background:rgba(220,38,38,0.12);color:#dc2626;font-family:'Outfit',sans-serif;">medicamento</span>
+          <span style="padding:4px 12px;border-radius:8px;font-size:12px;font-weight:600;background:rgba(217,119,6,0.12);color:#d97706;font-family:'Outfit',sans-serif;">cargo</span>
+          <span style="padding:4px 12px;border-radius:8px;font-size:12px;font-weight:600;background:rgba(91,143,168,0.12);color:#5b8fa8;font-family:'Outfit',sans-serif;">mascotas</span>
+          <span style="padding:4px 12px;border-radius:8px;font-size:12px;font-weight:600;background:rgba(220,38,38,0.12);color:#dc2626;font-family:'Outfit',sans-serif;">farmacia</span>
+        </div>
+      </div>
+      <div class="legacy-snippet legacy-snippet--chips-normal-dark" data-source="boletapp-dump:chips-normal-dark.html" data-theme="normal" data-mode="dark" style="background:#1a2420;">
+        <div class="legacy-snippet__label" style="color:#b8c4a8;">Theme: normal · dark</div>
+        <div class="legacy-snippet__variants">
+          <span style="padding:4px 12px;border-radius:8px;font-size:12px;font-weight:600;background:rgba(107,158,122,0.2);color:#6b9e7a;font-family:'Outfit',sans-serif;">hogar</span>
+          <span style="padding:4px 12px;border-radius:8px;font-size:12px;font-weight:600;background:rgba(248,113,113,0.15);color:#f87171;font-family:'Outfit',sans-serif;">medicamento</span>
+          <span style="padding:4px 12px;border-radius:8px;font-size:12px;font-weight:600;background:rgba(251,191,36,0.15);color:#fbbf24;font-family:'Outfit',sans-serif;">cargo</span>
+          <span style="padding:4px 12px;border-radius:8px;font-size:12px;font-weight:600;background:rgba(122,181,204,0.15);color:#7ab5cc;font-family:'Outfit',sans-serif;">mascotas</span>
+        </div>
+      </div>
+      <div class="legacy-snippet legacy-snippet--chips-professional-light" data-source="boletapp-dump:chips-professional-light.html" data-theme="professional" data-mode="light">
+        <div class="legacy-snippet__label">Theme: professional · light</div>
+        <div class="legacy-snippet__variants">
+          <span style="padding:3px 10px;border-radius:4px;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;background:rgba(37,99,235,0.1);color:#2563eb;font-family:'Inter',sans-serif;">hogar</span>
+          <span style="padding:3px 10px;border-radius:4px;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;background:rgba(220,38,38,0.1);color:#dc2626;font-family:'Inter',sans-serif;">medicamento</span>
+          <span style="padding:3px 10px;border-radius:4px;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;background:rgba(217,119,6,0.1);color:#d97706;font-family:'Inter',sans-serif;">cargo</span>
+          <span style="padding:3px 10px;border-radius:4px;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;background:rgba(124,58,237,0.1);color:#7c3aed;font-family:'Inter',sans-serif;">mascotas</span>
+        </div>
+      </div>
+      <div class="legacy-snippet legacy-snippet--chips-mono-light" data-source="boletapp-dump:chips-mono-light.html" data-theme="mono" data-mode="light">
+        <div class="legacy-snippet__label">Theme: mono · light</div>
+        <div class="legacy-snippet__variants">
+          <span style="padding:3px 10px;border-radius:2px;font-size:10px;font-weight:600;border:1px solid #a1a1aa;text-transform:uppercase;letter-spacing:0.08em;background:transparent;color:#18181b;font-family:-apple-system,Helvetica,sans-serif;">hogar</span>
+          <span style="padding:3px 10px;border-radius:2px;font-size:10px;font-weight:600;border:1px solid #a1a1aa;text-transform:uppercase;letter-spacing:0.08em;background:transparent;color:#3f3f46;font-family:-apple-system,Helvetica,sans-serif;">medicamento</span>
+          <span style="padding:3px 10px;border-radius:2px;font-size:10px;font-weight:600;border:1px solid #a1a1aa;text-transform:uppercase;letter-spacing:0.08em;background:transparent;color:#52525b;font-family:-apple-system,Helvetica,sans-serif;">cargo</span>
+          <span style="padding:3px 10px;border-radius:2px;font-size:10px;font-weight:600;border:1px solid #a1a1aa;text-transform:uppercase;letter-spacing:0.08em;background:transparent;color:#a1a1aa;font-family:-apple-system,Helvetica,sans-serif;">mascotas</span>
+        </div>
+      </div>
     </div>
   </section>
 

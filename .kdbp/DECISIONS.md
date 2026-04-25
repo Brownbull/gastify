@@ -23,6 +23,7 @@
 | D19 | 2026-04-23 | ux-mockups P13 Handoff + index + audit tier = ent | Exit gate — REQ×screen audit + a11y pass + cross-screen consistency validates coverage claim; load-bearing for frontend phases | MVP handoff (broken coverage guarantee; frontend discovers gaps at impl time) | accepted | None — audit mandatory |
 | D20 | 2026-04-24 | ux-mockups P1 T5 external render pass (6 themes × 4 stress × 3 platforms = 72 renders) superseded by direct production-surface authoring (14 desktop variants using locked tokens) | Production surfaces exercise tokens under real constraints (data density, responsive grids, component composition); stronger evidence than exploratory renders. `docs/mockups/STRESS-TEST-SPEC.md` retained as platform-frame reference. `docs/mockups/explorations/` stays empty with README noting supersession | Execute T5 MVS (18 renders) before building production surfaces (slower, validates less); defer T5 to P13 audit (too late, tokens already locked) | accepted | Theme count changes OR token structure breaks production surface |
 | D21 | 2026-04-24 | /gabe-mockup suite retrofit — adopt peer-command architecture (/gabe-mockup ↔ /gabe-execute mutual redirect via `project_type: mockup` field). Added `.kdbp/ENTITIES.md` (9 principal entities). Landed `docs/mockups/assets/js/tweaks.js` (self-contained runtime Tweaks panel) from gabe_lens template; kept existing `docs/mockups/assets/css/desktop-shell.css` as canonical token source (P1 exit). Seeded `docs/mockups/INDEX.md` from template. P4 types renamed `[flows, index]` → `[mockup-flows, mockup-index]` + description upgraded to include 4-table INDEX governance + CRUD×entity matrix. P13 types renamed `[documentation, validation]` → `[mockup-docs, mockup-validation]`. STRUCTURE.md gained `docs/mockups/**/*.md` pattern row. HANDOFF.schema.json (Apache-2.0 derivative of impeccable DESIGN.json v2) available for P13 emission. Initial retrofit v1 landed `tokens.css` skeleton + `tweaks-panel.html` include file at mockups root; post-audit v2 deleted both — `desktop-shell.css` already canonical, and tweaks-panel.html `<link>`-to-HTML pattern is a deprecated/broken include (HTML Imports). tweaks.js now self-injects styles + panel DOM at boot. | Keep 13-phase plan hand-authored per project (next project reinvents); parallel lane architecture (complexity overhead); use `/gabe-execute` for mockup phases (no recipe fit — render-then-audit vs test-then-implement); duplicate tokens in fresh `tokens.css` alongside `desktop-shell.css` (drift risk); separate tweaks-panel.html file with `<link>` include (broken pattern) | accepted | Hybrid plans emerge requiring per-phase stream tagging OR additional mockup tier-sections needed |
+| D22 | 2026-04-24 | Adopt centralized mockup hub pattern (gastify project level). Principal `docs/mockups/index.html` becomes a section-card hub (Design / Atoms / Molecules / Flows / Screens / Handoff); each section that produces many files gets its own `<section>/index.html` sub-hub (`atoms/index.html` already exists, `flows/index.html` + `molecules/index.html` placeholder added in this amendment). `tweaks.js` breadcrumb generalized from atoms-only path-match to section-aware logic (`/<section>/<name>.html` → `← <section> index`; `/<section>/index.html` → `← Mockups home`). Token migration on top hub: inline `:root` block → `desktop-shell.css` canonical tokens (small visual shift accepted). Playwright `hubs.spec.ts` covers hub navigability + breadcrumb chain. Layer B — extracting this hub + sub-hub + Playwright pattern into `gabe_lens/templates/mockup/` so `/gabe-mockup` seeds it on future projects — is queued as a separate follow-up, NOT in this Phase 4 amendment. | Hand-authored single hub per project (current state — works once but reinvents structure on every new project); flat list of files at mockup root with no section grouping (doesn't scale past ~20 files); deep nested per-screen-phase HTML hubs (overkill for Phase 4); skip the HTML hub entirely and rely on markdown INDEX.md alone (loses visual gallery affordance for designers + product reviewers) | accepted | Layer B template extraction lands OR a 3rd section type (beyond atoms/flows/molecules) needs hub treatment |
 
 <!-- Status: active / superseded / revisit -->
 <!-- BEHAVIOR.md constraints reference decision IDs: "All integrations mocked (ref D1)" -->
@@ -309,6 +310,14 @@ Load-bearing items deferred:
 **Review trigger:** Escalate if P5-P12 screens need atomic variants missing here.
 **Status:** accepted
 
+### drift-accepted — 2026-04-24 (Phase 2 review)
+
+- **Pattern:** `prefers-reduced-motion` reduce-handlers in `atoms.css` (`.skeleton::after` line 370 + `.spinner` line 456)
+- **Tier floor:** Enterprise (per design-system tier section); phase tier remains mvp
+- **Source:** /gabe-review consolidated pass (codex+claude both flagged as TIER_DRIFT-LOW)
+- **Disposition:** keep code, accept drift — `prefers-reduced-motion` is unambiguously beneficial a11y; ripping it out to honor MVP tier would degrade vestibular-disorder UX. Drift is the right answer. No phase tier amendment.
+- **Future trigger:** if a 3rd reduced-motion site appears in a non-atom layer at MVP tier, revisit whether to formally promote design-system.Motion to Ent in this phase's `dim_overrides`.
+
 ---
 
 ## D9 — ux-mockups P3 tier: ent (2026-04-23)
@@ -425,4 +434,42 @@ Load-bearing items deferred:
 **Reason:** Exit gate for all 12 prior phases. REQ×screen audit turns "we made mockups" into "we proved we covered SCOPE." MVP handoff (no audit, no a11y pass) = broken coverage guarantee — risk compounds because downstream frontend phases build from this deliverable.
 **Δ deferred vs MVP:** MVP handoff HANDOFF.md-only, no audit → P12 output not verified complete → frontend phases discover gaps at implementation time.
 **Review trigger:** None — audit tier is load-bearing for downstream frontend phases.
+**Status:** accepted
+
+---
+
+## D22 — Centralized mockup hub pattern (Phase 4 amendment, 2026-04-24)
+
+**Phase:** 4 — Flow map + INDEX + central hub (amendment, not a new phase)
+**Types:** `mockup-flows, mockup-index`
+**Tier:** mvp (unchanged)
+**Prototype:** no
+**Source:** `/gabe-plan update` invoked from inline `/plan` confirmation; user explicit "Layer A first, Layer B as follow-up"
+
+**Pattern adopted:**
+- One **principal** `docs/mockups/index.html` hub at the mockups root, with section cards per major content category (Design System, Atoms, Molecules, Flows, Screens, Handoff). Every section that produces many files gets a card; placeholder cards appear for not-yet-built sections so the hub is structurally complete from day one.
+- Per-section **sub-hubs** at `<section>/index.html`. Each is a gallery of items in that section — currently `atoms/index.html` (10 atoms, built in Phase 2), `flows/index.html` (13 flow walkthroughs, built in this amendment), `molecules/index.html` (Phase 3 placeholder, built in this amendment).
+- **Section-aware breadcrumb** auto-injected by `tweaks.js`: from any `/<section>/<name>.html` page, "← <section> index" links to `./index.html`; from any `/<section>/index.html` sub-hub, "← Mockups home" links to `../index.html`. The breadcrumb is rendered into the Tweaks panel header so every page has consistent navigation without per-page boilerplate.
+- **Token alignment**: the existing top hub had its own inline `:root` block (lines ~13-27 of `docs/mockups/index.html`). Migrated to use `desktop-shell.css` canonical tokens (option a), accepting a small visual shift in exchange for theme-switcher consistency across the hub and the rest of the mockup surface.
+- **Test coverage**: `tests/mockups/hubs.spec.ts` (renamed from `atoms-hub.spec.ts`) asserts principal hub loads, every section card link resolves, flows hub lists 13 cards, molecules placeholder reachable, and the full atom → atoms/index → mockups/home breadcrumb chain works.
+
+**Reason — why centralize at this moment:**
+- Phase 2 (atoms) shipped 10 atom HTMLs but `docs/mockups/index.html` had zero links to `atoms/index.html` — the atoms gallery was unreachable from the top.
+- 13 flows existed at `docs/mockups/flows/flow-*.html` but were equally unreachable.
+- Pattern stabilizes the convention: every new content section in P5-P12 (screens, handoff, edge-cases, etc.) gets a section-card on the principal hub + its own sub-hub. Linear scaling, low ceremony.
+
+**Alternatives considered + rejected:**
+- **Hand-authored single hub per project** (status quo): works once but reinvents structure on every new project; user explicit goal is reuse, so this fails the "Gustify" follow-up test.
+- **Flat list of files at mockup root with no section grouping**: 58 screens + 13 flows + 10 atoms = unreadable wall of links past ~20 items.
+- **Deep nested per-screen-phase HTML hubs** (e.g., `screens/auth/index.html`, `screens/capture/index.html`): overkill for Phase 4 mvp tier; section-level hubs are sufficient. Can split per-phase if individual sections balloon past ~30 items.
+- **Markdown INDEX.md only, no HTML hub**: loses the visual gallery affordance designers and product reviewers want when scanning. Markdown INDEX.md stays as the engineer-facing 4-table doc (linked from the HTML hub).
+
+**Δ deferred (Layer B):**
+- L × 1 — **Layer B template extraction** to `gabe_lens/templates/mockup/`. Required to deliver the user's "next project gets it free" goal but explicitly out of scope for this Phase 4 amendment. Tracked separately as a follow-up; estimated 2-3h.
+
+**Review trigger:**
+- Layer B template extraction lands in `gabe_lens/` (revisit this entry then to record the extracted template paths).
+- A 3rd section type beyond atoms / flows / molecules / screens / handoff requires hub treatment (revisit to confirm the per-section pattern still scales).
+- The principal hub crosses ~12 section cards (revisit to consider grouping cards into super-sections).
+
 **Status:** accepted

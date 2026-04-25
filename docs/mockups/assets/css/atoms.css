@@ -91,8 +91,8 @@
 .btn.btn-ghost { background: transparent; color: var(--ink); border-color: var(--line); }
 .btn.btn-ghost:hover { background: var(--surface-2); border-color: var(--line-strong); }
 
-/* destructive */
-.btn.btn-destructive { background: var(--error); color: #ffffff; }
+/* destructive — white text on saturated --error reads safely across all 6 themes */
+.btn.btn-destructive { background: var(--error); color: var(--ink-on-error, #ffffff); }
 .btn.btn-destructive:hover { box-shadow: 0 4px 12px var(--shadow-lg); transform: translateY(-1px); }
 
 /* icon-only square */
@@ -222,13 +222,17 @@
   border-color: var(--primary);
 }
 .pill__count {
-  background: rgba(0, 0, 0, 0.08);
+  background: var(--overlay-soft);
   color: inherit;
   padding: 1px 7px;
   border-radius: var(--atom-r-full);
   font-size: var(--atom-fs-xs);
   font-weight: 600;
 }
+/* on .is-active pill: parent has solid --primary background, the count pill needs a
+   readable contrast bubble. rgba(255,255,255,0.25) is intentional functional alpha
+   (tints toward white regardless of theme — primary-ink is always the legible color
+   on top, so the bubble reads). Documented in INDEX.md "Known gaps" GAP-3. */
 .pill.is-active .pill__count { background: rgba(255, 255, 255, 0.25); }
 
 /* ==========================================================
@@ -329,7 +333,7 @@
   font-size: 14px;
   line-height: 1;
 }
-.chip__remove:hover { opacity: 1; background: rgba(0, 0, 0, 0.08); }
+.chip__remove:hover { opacity: 1; background: var(--overlay-soft); }
 
 /* ==========================================================
    SKELETON (loading placeholder)
@@ -403,11 +407,14 @@
 .progress.progress-warning .progress__bar { background: var(--warning); }
 .progress.progress-error   .progress__bar { background: var(--error); }
 
-/* Circular — uses SVG circumference trick via CSS vars */
+/* Circular — uses SVG circumference trick via CSS vars.
+   --progress-mask sets the inner cut-out color; defaults to page --bg, but molecule
+   consumers (cards, modals, sheets) override it: style="--progress-mask: var(--surface);" */
 .progress-circle {
   --size: 48px;
   --thickness: 4px;
   --value: 0;   /* 0-100 */
+  --progress-mask: var(--bg);
   width: var(--size);
   height: var(--size);
   display: inline-flex;
@@ -421,7 +428,7 @@
   content: "";
   position: absolute;
   inset: var(--thickness);
-  background: var(--bg);
+  background: var(--progress-mask);
   border-radius: 50%;
 }
 .progress-circle__label {
@@ -455,4 +462,79 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .spinner { animation-duration: 0ms !important; }
+}
+
+/* ==========================================================
+   LEGACY SECTION — visual reference from BoletApp 2024
+   Each atom page embeds a .legacy-section to show the legacy
+   variant inline, side-by-side with the modern atoms. Snippets
+   come from docs/mockups/atoms/legacy-snapshots/ (parse-dump for
+   offline atoms, extract:legacy for live ones).
+   Snippets ship with their own scoped <style> block — see
+   tests/legacy-extract/parse-dump.ts scopeCss() for the scoping
+   convention (`.legacy-snippet--<source-filename>` prefix).
+   ========================================================== */
+.legacy-section {
+  border: 1px dashed var(--ink-3);
+  border-radius: var(--atom-r-lg);
+  padding: 20px;
+  margin-bottom: 36px;
+  background: var(--surface-2);
+}
+.legacy-section h2 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: var(--atom-fs-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-3);
+  margin: 0 0 10px;
+  font-weight: 600;
+}
+.legacy-tag {
+  background: #f59e0b;
+  color: #1f2937;
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.legacy-note {
+  font-size: var(--atom-fs-xs);
+  color: var(--ink-2);
+  margin: 0 0 16px;
+  line-height: 1.55;
+}
+.legacy-snippets {
+  display: grid;
+  gap: 14px;
+}
+.legacy-snippet {
+  padding: 16px;
+  background: #ffffff;
+  border-radius: var(--atom-r-md);
+  border: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.legacy-snippet__label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ink-3);
+}
+.legacy-snippet__variants {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.legacy-section--missing {
+  background: var(--surface);
+  border-color: var(--line);
 }

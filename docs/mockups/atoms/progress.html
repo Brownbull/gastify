@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="../assets/css/desktop-shell.css">
   <link rel="stylesheet" href="../assets/css/atoms.css">
   <style>
-    body { margin: 0; font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; padding: 40px 320px 48px 48px; }
+    body { margin: 0; background: var(--bg); color: var(--ink); min-height: 100vh; padding: 40px 320px 48px 48px; }
     h1 { font-size: 24px; margin: 0 0 6px 0; font-weight: 700; }
     .subtitle { color: var(--ink-2); font-size: 13px; margin: 0 0 32px 0; max-width: 720px; line-height: 1.5; }
     .demo-section { margin-bottom: 36px; }
@@ -52,22 +52,22 @@
     <div class="demo-row">
       <div class="progress-row">
         <span class="progress-row-label">default (primary)</span>
-        <span class="progress"><span class="progress__bar" style="width: 50%;"></span></span>
+        <span class="progress" role="progressbar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"><span class="progress__bar" style="width: 50%;"></span></span>
         <span class="progress-row-value">50%</span>
       </div>
       <div class="progress-row">
         <span class="progress-row-label">success</span>
-        <span class="progress progress-success"><span class="progress__bar" style="width: 100%;"></span></span>
+        <span class="progress progress-success" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"><span class="progress__bar" style="width: 100%;"></span></span>
         <span class="progress-row-value">100%</span>
       </div>
       <div class="progress-row">
         <span class="progress-row-label">warning</span>
-        <span class="progress progress-warning"><span class="progress__bar" style="width: 80%;"></span></span>
+        <span class="progress progress-warning" role="progressbar" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100"><span class="progress__bar" style="width: 80%;"></span></span>
         <span class="progress-row-value">80%</span>
       </div>
       <div class="progress-row">
         <span class="progress-row-label">error</span>
-        <span class="progress progress-error"><span class="progress__bar" style="width: 95%;"></span></span>
+        <span class="progress progress-error" role="progressbar" aria-valuenow="95" aria-valuemin="0" aria-valuemax="100"><span class="progress__bar" style="width: 95%;"></span></span>
         <span class="progress-row-value">95%</span>
       </div>
     </div>
@@ -78,27 +78,27 @@
     <div class="demo-row">
       <div class="progress-row">
         <span class="progress-row-label">0%</span>
-        <span class="progress"><span class="progress__bar" style="width: 0%;"></span></span>
+        <span class="progress" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"><span class="progress__bar" style="width: 0%;"></span></span>
         <span class="progress-row-value">0%</span>
       </div>
       <div class="progress-row">
         <span class="progress-row-label">25%</span>
-        <span class="progress"><span class="progress__bar" style="width: 25%;"></span></span>
+        <span class="progress" role="progressbar" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"><span class="progress__bar" style="width: 25%;"></span></span>
         <span class="progress-row-value">25%</span>
       </div>
       <div class="progress-row">
         <span class="progress-row-label">50%</span>
-        <span class="progress"><span class="progress__bar" style="width: 50%;"></span></span>
+        <span class="progress" role="progressbar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"><span class="progress__bar" style="width: 50%;"></span></span>
         <span class="progress-row-value">50%</span>
       </div>
       <div class="progress-row">
         <span class="progress-row-label">75%</span>
-        <span class="progress"><span class="progress__bar" style="width: 75%;"></span></span>
+        <span class="progress" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"><span class="progress__bar" style="width: 75%;"></span></span>
         <span class="progress-row-value">75%</span>
       </div>
       <div class="progress-row">
         <span class="progress-row-label">100%</span>
-        <span class="progress"><span class="progress__bar" style="width: 100%;"></span></span>
+        <span class="progress" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"><span class="progress__bar" style="width: 100%;"></span></span>
         <span class="progress-row-value">100%</span>
       </div>
     </div>
@@ -108,21 +108,28 @@
     <h2>Circular</h2>
     <div class="demo-row demo-inline">
       <div class="demo-swatch"><span class="demo-swatch-label">0%</span>
-        <span class="progress-circle" style="--value: 0;"><span class="progress-circle__label">0%</span></span>
+        <span class="progress-circle" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="--value: 0;"><span class="progress-circle__label">0%</span></span>
       </div>
       <div class="demo-swatch"><span class="demo-swatch-label">25%</span>
-        <span class="progress-circle" style="--value: 25;"><span class="progress-circle__label">25%</span></span>
+        <span class="progress-circle" role="progressbar" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100" style="--value: 25;"><span class="progress-circle__label">25%</span></span>
       </div>
       <div class="demo-swatch"><span class="demo-swatch-label">60%</span>
-        <span class="progress-circle" style="--value: 60;"><span class="progress-circle__label">60%</span></span>
+        <span class="progress-circle" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="--value: 60;"><span class="progress-circle__label">60%</span></span>
       </div>
       <div class="demo-swatch"><span class="demo-swatch-label">100%</span>
-        <span class="progress-circle" style="--value: 100;"><span class="progress-circle__label">100%</span></span>
+        <span class="progress-circle" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="--value: 100;"><span class="progress-circle__label">100%</span></span>
       </div>
       <div class="demo-swatch"><span class="demo-swatch-label">lg · 72</span>
-        <span class="progress-circle progress-circle-lg" style="--value: 72;"><span class="progress-circle__label">72%</span></span>
+        <span class="progress-circle progress-circle-lg" role="progressbar" aria-valuenow="72" aria-valuemin="0" aria-valuemax="100" style="--value: 72;"><span class="progress-circle__label">72%</span></span>
       </div>
     </div>
+  </section>
+
+  <section class="demo-section legacy-section legacy-section--missing">
+    <h2><span class="legacy-tag">LEGACY</span> BoletApp 2024 reference — not available</h2>
+    <p class="legacy-note">
+      BoletApp has a <code>CircularProgress.tsx</code> component at <code>bmad/boletapp/src/shared/components/CircularProgress.tsx</code> but no linear bar variant and no pre-extracted snapshot. Live extraction harness exists at <code>tests/legacy-extract/</code> — run <code>npm run extract:legacy</code> with creds set to capture the rendered progress UI from staging.
+    </p>
   </section>
 
   <section class="demo-section">

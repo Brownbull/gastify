@@ -1,0 +1,188 @@
+import { test, expect } from "@playwright/test";
+import { writeFileSync, mkdirSync } from "node:fs";
+import { resolve } from "node:path";
+import {
+  loginAsTestUser,
+  getOuterHtmlWithComputedStyle,
+} from "./helpers/legacy-auth";
+
+const SNAPSHOT_DIR = resolve(process.cwd(), "docs/mockups/atoms/legacy-snapshots");
+mkdirSync(SNAPSHOT_DIR, { recursive: true });
+
+interface AtomTarget {
+  atom: string;
+  setup: (page: import("@playwright/test").Page) => Promise<void>; // navigate + reach the screen where the element exists
+  selector: string;
+  description: string;
+  allMatching?: boolean;   // capture multiple instances (e.g. all spinners in a list)
+  maxMatches?: number;
+}
+
+/**
+ * Atom × screen map — uses the same proven data-testids the legacy boletapp's
+ * own E2E specs use. Routes (`/`, `/historial`, `/tendencias`) match
+ * verify-staging-ui.spec.ts. Settings/groups path mirrors navigateToGrupos
+ * in helpers/staging-helpers.ts.
+ */
+const ATOM_TARGETS: AtomTarget[] = [
+  {
+    atom: "avatar",
+    setup: async (page) => {
+      await page.waitForSelector('[data-testid="profile-avatar"]', { timeout: 10_000 });
+    },
+    selector: '[data-testid="profile-avatar"]',
+    description: "Top bar profile avatar (post-login dashboard)",
+  },
+  {
+    atom: "button",
+    setup: async (page) => {
+      // The scan FAB is the most prominent button on the dashboard.
+      await page.waitForSelector('[data-testid="scan-fab"]', { timeout: 10_000 });
+    },
+    selector: '[data-testid="scan-fab"]',
+    description: "Scan FAB (primary CTA on dashboard)",
+  },
+  {
+    atom: "input",
+    setup: async (page) => {
+      // Editor opens as a modal overlay; URL stays /historial. 2 inputs render
+      // (amount + merchant). Generic "input" selector — testid scope shrinks
+      // when the modal overlays the page.
+      await page.goto("/historial");
+      await page.waitForSelector('[data-testid="transaction-card"]', { timeout: 10_000 });
+      await page.locator('[data-testid="transaction-card"]').first().click();
+      await page.waitForTimeout(2_000);
+      // Confirm the editor is mounted by waiting for at least one input
+      await page.waitForFunction(
+        () => document.querySelectorAll("input").length > 0,
+        { timeout: 5_000 }
+      );
+    },
+    selector: 'input:not([type="file"]):not([type="hidden"]):not([aria-hidden="true"])',
+    description: "Transaction editor visible inputs (modal overlay on /historial)",
+    allMatching: true,
+    maxMatches: 3,
+  },
+  {
+    atom: "spinner",
+    setup: async (page) => {
+      // Force a quick spinner moment by triggering the scan FAB then waiting.
+      const fab = page.locator('[data-testid="scan-fab"]');
+      await fab.click();
+      await page.waitForTimeout(400);
+    },
+    // Generic spinner-ish selectors — try multiple
+    selector: '[role="status"], .spinner, [data-testid*="spinner"], [data-testid*="loading"]',
+    description: "Loading indicator (post-FAB-click transient state)",
+  },
+  {
+    atom: "skeleton",
+    setup: async (page) => {
+      // History page often shows skeleton placeholders during initial load.
+      // Also try common Tailwind shimmer classes BoletApp uses.
+      await page.goto("/historial");
+      await page.waitForTimeout(150); // catch the loading state mid-render
+    },
+    selector: '.skeleton, [aria-busy="true"], [data-testid*="skeleton"], [class*="animate-pulse"], [class*="bg-gray-200"]',
+    description: "History list loading placeholder",
+  },
+  {
+    atom: "progress",
+    setup: async (page) => {
+      // Dashboard usually has a "month progress" stat that uses CircularProgress
+      await page.goto("/");
+      await page.waitForTimeout(500);
+    },
+    selector: 'svg.circular-progress, [class*="CircularProgress"], [role="progressbar"], svg[class*="progress" i]',
+    description: "CircularProgress / dashboard month progress",
+  },
+  {
+    atom: "badge",
+    setup: async (page) => {
+      // Date-stamp badges on /historial transaction rows.
+      await page.goto("/historial");
+      await page.waitForSelector('[data-testid="transaction-card"]', { timeout: 10_000 });
+      await page.waitForTimeout(2_000);
+    },
+    selector: '[class*="rounded-full"][class*="text-xs"]',
+    description: "Date-stamp badge on transaction row",
+    allMatching: true,
+    maxMatches: 3,
+  },
+  {
+    atom: "pill",
+    setup: async (page) => {
+      // Trends page has timeframe pills (Año/Trimestre/Mes/Semana/Día)
+      await page.goto("/tendencias");
+      await page.waitForTimeout(1_500);
+    },
+    selector: '[class*="timeframe" i] button, [class*="period" i] button, [data-testid*="pill"], [role="tab"]',
+    description: "Timeframe pill / period selector on trends",
+    allMatching: true,
+    maxMatches: 5,
+  },
+];
+
+function writeSnapshot(atom: string, html: string, description: string, source: string): string {
+  const filename = `${atom}-live.html`;
+  const out = resolve(SNAPSHOT_DIR, filename);
+  const wrapped = `<!-- generated by tests/legacy-extract/extract-atoms.spec.ts; do not edit by hand -->
+<!-- source: ${source} -->
+<!-- description: ${description} -->
+<div class="legacy-snippet legacy-snippet--${atom}-live" data-source="boletapp-live" data-theme="live">
+  <div class="legacy-snippet__label">Source: live · BoletApp staging</div>
+  <div class="legacy-snippet__variants">
+    ${html}
+  </div>
+</div>
+`;
+  writeFileSync(out, wrapped, "utf8");
+  return filename;
+}
+
+const baseURL = process.env.LEGACY_BASE_URL || "https://boletapp-staging.web.app";
+
+test.describe("Legacy atom extraction (live)", () => {
+  // One shared login per worker — extract atoms in sequence on the same context
+  test.beforeEach(async ({ page }) => {
+    await loginAsTestUser(page, "alice");
+  });
+
+  for (const target of ATOM_TARGETS) {
+    test(`extract ${target.atom}`, async ({ page }) => {
+      page.on("console", (msg) => {
+        if (msg.type() === "error") console.log(`[${target.atom}] console error: ${msg.text()}`);
+      });
+
+      try {
+        await target.setup(page);
+      } catch (err) {
+        console.log(`[${target.atom}] setup failed: ${(err as Error).message} — skipping`);
+        test.skip(true, `setup failed: ${(err as Error).message}`);
+        return;
+      }
+
+      // Wait a moment for any transient renders
+      await page.waitForTimeout(500);
+
+      const html = await getOuterHtmlWithComputedStyle(page, target.selector, {
+        allMatching: target.allMatching,
+        maxMatches: target.maxMatches,
+      });
+      if (!html) {
+        console.log(`[${target.atom}] no element matched "${target.selector}" — skipping snapshot`);
+        test.skip(true, `selector did not resolve`);
+        return;
+      }
+
+      const filename = writeSnapshot(
+        target.atom,
+        html,
+        target.description,
+        `${baseURL} (${target.selector})`
+      );
+      console.log(`[${target.atom}] snapshot written: ${filename} (${html.length} bytes)`);
+      expect(html.length).toBeGreaterThan(20);
+    });
+  }
+});

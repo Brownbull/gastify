@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="../assets/css/desktop-shell.css">
   <link rel="stylesheet" href="../assets/css/atoms.css">
   <style>
-    body { margin: 0; font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; padding: 40px 320px 48px 48px; }
+    body { margin: 0; background: var(--bg); color: var(--ink); min-height: 100vh; padding: 40px 320px 48px 48px; }
     h1 { font-size: 24px; margin: 0 0 6px 0; font-weight: 700; }
     .subtitle { color: var(--ink-2); font-size: 13px; margin: 0 0 32px 0; max-width: 720px; line-height: 1.5; }
     .demo-section { margin-bottom: 36px; }
@@ -62,6 +62,23 @@
           <span style="color: var(--ink);">🔔</span>
           <span class="badge badge-error" style="position: absolute; top: -6px; right: -10px; padding: 1px 6px; font-size: 10px;">3</span>
         </span>
+      </div>
+    </div>
+  </section>
+
+  <section class="demo-section legacy-section">
+    <h2><span class="legacy-tag">LEGACY</span> BoletApp 2024 reference — live</h2>
+    <p class="legacy-note">
+      Live extraction from BoletApp staging via <code>npm run extract:legacy</code>. Source: date badges on <code>/historial</code> transaction rows. Note: BoletApp uses the same pill shape for date stamps + status indicators; gastify splits them into badge (status) vs chip (filter value). See <a href="chip.html">chip.html</a> for the colored-category-tag legacy reference.
+    </p>
+    <div class="legacy-snippets">
+      <div class="legacy-snippet legacy-snippet--badge-live" data-source="boletapp-live" data-theme="live">
+        <div class="legacy-snippet__label">Source: live · BoletApp staging · /historial</div>
+        <div class="legacy-snippet__variants">
+          <span style="display: inline-flex; align-items: center; gap: 3px; padding: 3px 6px; border-radius: 9999px; font-size: 12px; background-color: #f1f5f9; color: #475569; font-family: system-ui, sans-serif;">09/03/2026</span>
+          <span style="display: inline-flex; align-items: center; gap: 3px; padding: 3px 6px; border-radius: 9999px; font-size: 12px; background-color: #f1f5f9; color: #475569; font-family: system-ui, sans-serif;">08/03/2026</span>
+          <span style="display: inline-flex; align-items: center; gap: 3px; padding: 3px 6px; border-radius: 9999px; font-size: 12px; background-color: #f1f5f9; color: #475569; font-family: system-ui, sans-serif;">10/03/2026</span>
+        </div>
       </div>
     </div>
   </section>

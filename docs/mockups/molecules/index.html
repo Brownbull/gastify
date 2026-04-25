@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Molecules — gastify</title>
+  <link rel="stylesheet" href="../assets/css/desktop-shell.css">
+  <style>
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      min-height: 100vh;
+      padding: 40px 320px 48px 48px;
+    }
+    .hub-header { margin-bottom: 32px; max-width: 760px; }
+    .hub-header h1 {
+      font-family: 'Baloo 2', cursive;
+      font-size: 32px;
+      margin: 0 0 8px;
+      letter-spacing: -0.01em;
+    }
+    .hub-header .lede { color: var(--ink-2); font-size: 14px; line-height: 1.6; margin: 0; }
+    .hub-header .meta {
+      display: inline-flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+      font-size: 12px;
+      color: var(--ink-3);
+    }
+    .hub-header .meta-pill {
+      background: var(--surface-2);
+      padding: 3px 10px;
+      border-radius: 9999px;
+      font-weight: 600;
+    }
+
+    .placeholder-banner {
+      background: var(--accent-soft);
+      border: 1px dashed var(--accent);
+      border-radius: 12px;
+      padding: 20px 24px;
+      margin-bottom: 28px;
+      color: var(--ink);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    .placeholder-banner strong { color: var(--primary); font-weight: 700; }
+
+    .section-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 18px;
+    }
+
+    .molecule-card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      overflow: hidden;
+      opacity: 0.6;
+      cursor: not-allowed;
+      display: flex;
+      flex-direction: column;
+    }
+    .molecule-preview {
+      min-height: 80px;
+      padding: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg);
+      border-bottom: 1px solid var(--line);
+      color: var(--ink-3);
+      font-family: ui-monospace, Consolas, monospace;
+      font-size: 12px;
+    }
+    .molecule-meta {
+      padding: 14px 18px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .molecule-meta h2 {
+      font-family: 'Baloo 2', cursive;
+      font-size: 16px;
+      margin: 0;
+      letter-spacing: -0.01em;
+    }
+    .molecule-desc {
+      font-size: 12px;
+      color: var(--ink-2);
+      line-height: 1.45;
+      margin: 0;
+    }
+    .status-badge {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 4px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      background: var(--surface-2);
+      color: var(--ink-3);
+      align-self: flex-start;
+    }
+
+    .hub-footer {
+      margin-top: 36px;
+      padding: 18px;
+      background: var(--surface-2);
+      border-radius: 12px;
+      font-size: 13px;
+      color: var(--ink-2);
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .hub-footer a { color: var(--primary); font-weight: 600; }
+  </style>
+</head>
+<body>
+  <header class="hub-header">
+    <h1>Molecules</h1>
+    <p class="lede">Composed components — built from atoms, used to assemble screens. Each molecule has its own demo page with all states, viewport variants, and a full WCAG AA a11y pass.</p>
+    <div class="meta">
+      <span class="meta-pill">Phase 3 · Enterprise tier</span>
+      <span class="meta-pill">Not yet built</span>
+      <span class="meta-pill">Themes: normal · professional · mono</span>
+    </div>
+  </header>
+
+  <div class="placeholder-banner">
+    <strong>Placeholder hub.</strong> Phase 3 (molecules) has not been executed yet — this page documents the planned scope. Run <code>/gabe-mockup</code> M3 (or <code>/gabe-execute</code> on Phase 3 in PLAN.md) to populate the catalog. Source spec: <a href="../INDEX.md" style="color: var(--primary); font-weight: 600;">INDEX.md §5</a>.
+  </div>
+
+  <nav class="section-grid" aria-label="Planned molecules">
+    <div class="molecule-card">
+      <div class="molecule-preview">card-balance</div>
+      <div class="molecule-meta">
+        <h2>Balance card</h2>
+        <p class="molecule-desc">Dashboard hero — current balance, period delta, sparkline.</p>
+        <span class="status-badge">planned</span>
+      </div>
+    </div>
+
+    <div class="molecule-card">
+      <div class="molecule-preview">card-transaction</div>
+      <div class="molecule-meta">
+        <h2>Transaction card</h2>
+        <p class="molecule-desc">List item for transactions across dashboard, history, group-home.</p>
+        <span class="status-badge">planned</span>
+      </div>
+    </div>
+
+    <div class="molecule-card">
+      <div class="molecule-preview">state-tabs</div>
+      <div class="molecule-meta">
+        <h2>State tabs</h2>
+        <p class="molecule-desc">Multi-state screen pattern — driven by tweaks.js. Used by single-scan, login, consent.</p>
+        <span class="status-badge">planned</span>
+      </div>
+    </div>
+
+    <div class="molecule-card">
+      <div class="molecule-preview">filter-strip</div>
+      <div class="molecule-meta">
+        <h2>Filter strip</h2>
+        <p class="molecule-desc">Timeframe pills + period nav + filter icons. Canonical in desktop-shell.css.</p>
+        <span class="status-badge">planned</span>
+      </div>
+    </div>
+
+    <div class="molecule-card">
+      <div class="molecule-preview">nav-bottom</div>
+      <div class="molecule-meta">
+        <h2>Bottom nav</h2>
+        <p class="molecule-desc">Mobile primary navigation — 5 tabs, active indicator.</p>
+        <span class="status-badge">planned</span>
+      </div>
+    </div>
+
+    <div class="molecule-card">
+      <div class="molecule-preview">nav-sidebar</div>
+      <div class="molecule-meta">
+        <h2>Sidebar nav</h2>
+        <p class="molecule-desc">Desktop primary navigation — sticky, active rail, user chip footer.</p>
+        <span class="status-badge">planned</span>
+      </div>
+    </div>
+
+    <div class="molecule-card">
+      <div class="molecule-preview">fab</div>
+      <div class="molecule-meta">
+        <h2>FAB</h2>
+        <p class="molecule-desc">Floating action button — primary scan trigger on mobile capture surfaces.</p>
+        <span class="status-badge">planned</span>
+      </div>
+    </div>
+  </nav>
+
+  <footer class="hub-footer">
+    <span><strong>Catalog spec:</strong> <a href="../INDEX.md">INDEX.md §5</a> · <strong>Plan:</strong> <a href="../../../.kdbp/PLAN.md">PLAN.md Phase 3</a></span>
+    <span><a href="../index.html">← Mockups home</a></span>
+  </footer>
+
+  <script src="../assets/js/tweaks.js" defer></script>
+</body>
+</html>

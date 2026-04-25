@@ -59,6 +59,12 @@ apps/web/.ladle/
 .claude/logs/
 .claude/sessions/
 
+# Codex CLI
+.codex
+
+# KDBP review archive — resolved /gabe-review live documents
+.kdbp/reviews-archive/
+
 # Logs
 logs/
 *.log

@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="../assets/css/desktop-shell.css">
   <link rel="stylesheet" href="../assets/css/atoms.css">
   <style>
-    body { margin: 0; font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; padding: 40px 320px 48px 48px; }
+    body { margin: 0; background: var(--bg); color: var(--ink); min-height: 100vh; padding: 40px 320px 48px 48px; }
     h1 { font-size: 24px; margin: 0 0 6px 0; font-weight: 700; }
     .subtitle { color: var(--ink-2); font-size: 13px; margin: 0 0 32px 0; max-width: 720px; line-height: 1.5; }
     .demo-section { margin-bottom: 36px; }
@@ -34,12 +34,15 @@
 
   <section class="demo-section">
     <h2>Group — timeframe selector</h2>
-    <div class="demo-row" role="tablist" aria-label="Timeframe">
-      <button class="pill" role="tab">Año</button>
-      <button class="pill" role="tab">Trimestre</button>
-      <button class="pill is-active" role="tab" aria-selected="true">Mes</button>
-      <button class="pill" role="tab">Semana</button>
-      <button class="pill" role="tab">Día</button>
+    <!-- Atom-layer demo: plain buttons + .is-active highlight only. The full ARIA tablist
+         contract (role=tablist, aria-selected on every tab, aria-controls → tabpanel)
+         lives at the P3 molecule layer where the panel structure exists. -->
+    <div class="demo-row">
+      <button class="pill" type="button">Año</button>
+      <button class="pill" type="button">Trimestre</button>
+      <button class="pill is-active" type="button" aria-pressed="true">Mes</button>
+      <button class="pill" type="button">Semana</button>
+      <button class="pill" type="button">Día</button>
     </div>
   </section>
 
@@ -63,6 +66,26 @@
     </div>
   </section>
 
+  <section class="demo-section legacy-section">
+    <h2><span class="legacy-tag">LEGACY</span> BoletApp 2024 reference — live</h2>
+    <p class="legacy-note">
+      Live extraction from BoletApp staging via <code>npm run extract:legacy</code>. Source: viewmode pills on <code>/tendencias</code> (icon-based segmented control with 4 options: 🏪 stores · 🛒 categories · 📦 product groups · 🏷️ product categories). Note: BoletApp's pill is icon-only emoji; gastify pills are text + optional count.
+    </p>
+    <div class="legacy-snippets">
+      <div class="legacy-snippet legacy-snippet--pill-live" data-source="boletapp-live" data-theme="live">
+        <div class="legacy-snippet__label">Source: live · BoletApp staging · /tendencias</div>
+        <div class="legacy-snippet__variants">
+          <div role="tablist" aria-label="View mode selection" style="position: relative; display: inline-flex; align-items: center; border-radius: 9999px; background-color: #f1f5f9; height: 32px; padding: 2px 4px; border: 1px solid #e2e8f0; gap: 4px; font-family: system-ui, sans-serif;">
+            <button aria-pressed="false" title="Grupos de Compras" style="position: relative; z-index: 10; display: flex; align-items: center; justify-content: center; border-radius: 9999px; width: 28px; height: 28px; line-height: 1; background: transparent; border: none; cursor: pointer;">🏪</button>
+            <button aria-pressed="true" title="Categorías de Compras" style="position: relative; z-index: 10; display: flex; align-items: center; justify-content: center; border-radius: 9999px; width: 28px; height: 28px; line-height: 1; background: #2563eb; border: none; cursor: pointer; filter: brightness(1.2);">🛒</button>
+            <button aria-pressed="false" title="Grupos de Productos" style="position: relative; z-index: 10; display: flex; align-items: center; justify-content: center; border-radius: 9999px; width: 28px; height: 28px; line-height: 1; background: transparent; border: none; cursor: pointer;">📦</button>
+            <button aria-pressed="false" title="Categorías de Productos" style="position: relative; z-index: 10; display: flex; align-items: center; justify-content: center; border-radius: 9999px; width: 28px; height: 28px; line-height: 1; background: transparent; border: none; cursor: pointer;">🏷️</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <section class="demo-section">
     <h2>Usage</h2>
     <pre class="snippet">&lt;!-- Simple pill --&gt;
@@ -75,10 +98,11 @@
   &lt;span class="pill__count"&gt;12&lt;/span&gt;
 &lt;/button&gt;
 
-&lt;!-- Group (timeframe, filters, segmented control) --&gt;
-&lt;div role="tablist"&gt;
-  &lt;button class="pill" role="tab"&gt;Año&lt;/button&gt;
-  &lt;button class="pill is-active" role="tab" aria-selected="true"&gt;Mes&lt;/button&gt;
+&lt;!-- Group (segmented control — atom layer)
+     P3 molecule layer wraps in role="tablist" + aria-controls when paired with panels --&gt;
+&lt;div&gt;
+  &lt;button class="pill" type="button"&gt;Año&lt;/button&gt;
+  &lt;button class="pill is-active" type="button" aria-pressed="true"&gt;Mes&lt;/button&gt;
 &lt;/div&gt;</pre>
   </section>
 
