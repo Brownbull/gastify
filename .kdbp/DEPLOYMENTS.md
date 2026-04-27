@@ -20,6 +20,7 @@
 | P2 | 2026-04-23 00:31 | main → main (direct) | — | — | bookkeeping mop-up push (closes P1 Step 8.5 gap) | — |
 | P3 | 2026-04-24 10:40 | main → main (direct) | — | — | Phase 1 UX mockups exit-push — 35 commits since P2; includes 14 desktop variants + design-system.html + tokens.json + Phase 1 review artifacts (PLATFORM-NOTES, D20, P1-P4 defers) | — |
 | P4 | 2026-04-25 03:42 | main → main (direct) | — | — | Phase 2 atoms exit-push — 6 commits since P3; bundles atoms tooling (Tweaks rebuild, Space Grotesk, atoms gallery hub, legacy reference Layer A+B, viewport toggle, 43-spec Playwright harness) + Phase 4 hub seeds (root index.html, flows/index.html, molecules/, gap-matrix.html) | — |
+| P5 | 2026-04-27 16:30 | main → main (direct) | — | — | 5-phase catch-up exit-push — 3 commits since P4: be9aefd (P3 molecules + P4 hub D22 + Spike P14 frontend + L0 + L1 + /gabe-review L1 fixes; 1184 files, +154970/-157) + c69447d (LEDGER + PLAN tick bookkeeping). 91/91 Playwright tests pass. Pixel art budget 0/2000 used (BoletApp set mirrored). | Phase L1 Commit auto-ticked; P3/P4/Spike P14/L0 Commit columns remain ⬜ — only Current Phase auto-ticks per /gabe-commit Step 6.6 |
 
 <!-- Example rows:
 | P1 | 2026-04-17 14:22 | feature/add-auth → main | #42 | ✅ 3/3 (47s) | promoted main → (none) | — |

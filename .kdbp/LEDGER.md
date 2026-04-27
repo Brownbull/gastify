@@ -1,5 +1,13 @@
 # Session Ledger
 
+## 2026-04-27 16:30 — PUSH main -> origin/main
+PR: — (trunk-based; direct push, no PR hop)
+CI: skipped (provider=none)
+PROMOTION: N/A (origin/staging does not exist; promote_from=staging skipped silently per Step 3)
+DEPLOYMENTS: P5 added to .kdbp/DEPLOYMENTS.md
+SOURCE: Phase L1 exit-push — 3 commits since P4. Tip: c69447d (chore: bookkeeping for be9aefd) preceded by be9aefd (5-phase catch-up: P3 molecules + P4 hub + Spike P14 + L0 + L1 + /gabe-review L1 fixes).
+TICK: ✅ Phase L1 Push auto-ticked
+
 ## 2026-04-27 — [be9aefd] feat: ship P3/P4 + spike P14 + L0/L1 + L1 review (5-phase catch-up)
 SCOPE: 5-phase catch-up commit per /gabe-commit [B] commit-all. 1184 files staged, +154970/-157.
 PHASES BUNDLED:
@@ -308,3 +316,5 @@ FILES TOUCHED: docs/mockups/{index.html (new section-card), gap-matrix.html (ren
 NEXT: Layer B execution in /home/khujta/projects/gabe_lens/ — extract this hub + sub-hub + Playwright pattern into `templates/mockup/` so future mockup projects get it from `/gabe-mockup` for free. Per LAYER-B-MOCKUP-HUB-TEMPLATES.md D1–D8.
 
 ## 2026-04-25 02:00 — [main b9230e6] chore(kdbp): record push bookkeeping for P4
+
+## 2026-04-27 16:27 — [main c69447d] chore(kdbp): record be9aefd + tick Phase L1 Commit column
