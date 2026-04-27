@@ -1,5 +1,20 @@
 # Session Ledger
 
+## 2026-04-27 — [be9aefd] feat: ship P3/P4 + spike P14 + L0/L1 + L1 review (5-phase catch-up)
+SCOPE: 5-phase catch-up commit per /gabe-commit [B] commit-all. 1184 files staged, +154970/-157.
+PHASES BUNDLED:
+  - P4 Hub layer D22 (2026-04-24): principal index.html + sub-hubs + tweaks.js breadcrumb + hubs.spec.ts
+  - P3 Molecules (2026-04-25): 18 molecules at docs/mockups/molecules/ + molecules.css + COMPONENT-LIBRARY.md
+  - Spike P14 Frontend (2026-04-26): full React+Vite+TS at frontend/ — toast molecule + ~50 components + mocks
+  - L0 Foundation (2026-04-27): docs/mockups-legacy/ scaffold extracted from frontend/index.html
+  - L1 Atoms (2026-04-27): 11 atoms + atoms.css + categories.html + icon.html + 115-icon emoji↔pixel toggle
+  - /gabe-review L1 (2026-04-27): cross-agent Codex+Claude union, all 9 findings fixed in same session
+TICK: ✅ Phase L1 Commit auto-ticked
+TICK-DEFERRED: P3 / P4 / Spike P14 / L0 Commit columns remain ⬜ (only Current Phase auto-ticks per /gabe-commit Step 6.6) — retroactive correction pending
+CHECKS: ✅ tests (91/91) | – lint (no biome) | – types (no tsconfig) | – coverage (mvp skip) | – shape (HTML/CSS excluded)
+FINDINGS: scope flagged HIGH at triage; user picked [B] commit-all over [A] scope-l1-only. STRUCTURE.md does not yet match docs/mockups-legacy/** or frontend/** — accepted with this commit, register patterns in follow-up.
+PIXEL BUDGET: 0 / 2000 used (107 category PNGs + 8 nav PNGs mirrored from BoletApp existing set)
+
 ## 2026-04-27 19:15 — PHASE L1 REVIEW: mockups-legacy Atoms
 VERDICT: APPROVE
 FINDINGS: 9 total (0 critical, 3 high, 3 medium, 3 low)
