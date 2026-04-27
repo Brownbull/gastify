@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Atom: input — gastify (mockups-legacy)</title>
+  <link rel="stylesheet" href="../assets/css/desktop-shell.css">
+  <link rel="stylesheet" href="../assets/css/atoms.css">
+  <style>
+    body { margin: 0; background: var(--bg); color: var(--text-primary); min-height: 100vh; padding: 40px 320px 48px 48px; font-family: var(--font-family); }
+    h1 { font-size: 24px; margin: 0 0 6px 0; font-weight: 700; }
+    .subtitle { color: var(--text-secondary); font-size: 13px; margin: 0 0 32px 0; max-width: 720px; line-height: 1.5; }
+    .source-link { display: inline-block; margin-top: 8px; font-size: 11px; color: var(--text-tertiary); font-family: ui-monospace, Consolas, monospace; }
+    .source-link a { color: var(--primary); text-decoration: none; }
+    .source-link a:hover { text-decoration: underline; }
+    .demo-section { margin-bottom: 36px; }
+    .demo-section h2 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-tertiary); margin: 0 0 14px 0; font-weight: 600; }
+    .demo-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 18px; background: var(--surface); padding: 24px; border-radius: 12px; border: 1px solid var(--border-light); }
+    .demo-swatch { display: flex; flex-direction: column; gap: 8px; }
+    .demo-swatch-label { font-size: 11px; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.05em; }
+    .crossref { background: var(--bg-secondary); padding: 16px 18px; border-radius: 10px; border: 1px solid var(--border-light); font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+    .crossref em { color: var(--text-tertiary); font-style: italic; }
+  </style>
+</head>
+<body>
+  <h1>Input</h1>
+  <p class="subtitle">Single-line text entry. Covers all 5 frontend variants (text/email/password/number/search) plus error + disabled states. Class <code>.input</code> mirrors the recurring Tailwind shape <code>border rounded-lg text-sm</code> used across transaction-editor + items features.</p>
+  <p class="source-link">Source: <a href="../../../frontend/src/components/CategoryLearningPrompt.tsx" target="_blank">CategoryLearningPrompt.tsx</a>, <a href="../../../frontend/src/features" target="_blank">features/transaction-editor/*</a>, <a href="../../../frontend/src/components/LocationSelect.tsx" target="_blank">LocationSelect.tsx</a> — inputs are inlined as JSX with Tailwind utilities; no dedicated <code>Input.tsx</code> component.</p>
+
+  <section class="demo-section">
+    <h2>Types</h2>
+    <div class="demo-row">
+      <div class="demo-swatch"><label class="demo-swatch-label">text</label><input class="input" type="text" placeholder="Nombre del comercio"></div>
+      <div class="demo-swatch"><label class="demo-swatch-label">email</label><input class="input" type="email" placeholder="tu@correo.cl"></div>
+      <div class="demo-swatch"><label class="demo-swatch-label">password</label><input class="input" type="password" value="••••••••"></div>
+      <div class="demo-swatch"><label class="demo-swatch-label">number</label><input class="input" type="number" placeholder="0" inputmode="decimal"></div>
+      <div class="demo-swatch"><label class="demo-swatch-label">search (with icon)</label>
+        <div class="input-wrap">
+          <span class="input-wrap__icon" aria-hidden="true">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          </span>
+          <input class="input" type="search" placeholder="Buscar gastos…">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>Sizes</h2>
+    <div class="demo-row">
+      <div class="demo-swatch"><label class="demo-swatch-label">sm</label><input class="input input--sm" type="text" placeholder="Compacto"></div>
+      <div class="demo-swatch"><label class="demo-swatch-label">md (default)</label><input class="input" type="text" placeholder="Estándar"></div>
+      <div class="demo-swatch"><label class="demo-swatch-label">lg</label><input class="input input--lg" type="text" placeholder="Cómodo"></div>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>States</h2>
+    <div class="demo-row">
+      <div class="demo-swatch"><label class="demo-swatch-label">default</label><input class="input" type="text" placeholder="Escribe…"></div>
+      <div class="demo-swatch"><label class="demo-swatch-label">filled</label><input class="input" type="text" value="Jumbo Costanera"></div>
+      <div class="demo-swatch"><label class="demo-swatch-label">focus</label><input class="input" type="text" value="Editable" autofocus></div>
+      <div class="demo-swatch"><label class="demo-swatch-label">error</label><input class="input is-error" type="text" value="hola@" aria-invalid="true"></div>
+      <div class="demo-swatch"><label class="demo-swatch-label">disabled</label><input class="input" type="text" value="No editable" disabled></div>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>Used by molecules (one level up)</h2>
+    <div class="crossref">
+      <em>Populated during Phase L2 — molecule extraction. Anticipated consumers: form (multi-step + per-field), filters (search input), modal-form, transaction editor item rows, settings preferences fields, learning-prompt name field.</em>
+    </div>
+  </section>
+
+  <script src="../assets/js/tweaks.js" defer></script>
+</body>
+</html>

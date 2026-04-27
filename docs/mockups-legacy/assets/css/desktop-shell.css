@@ -1,0 +1,657 @@
+@import url("../fonts/gastify-fonts.css");
+
+/*
+ * mockups-legacy / desktop-shell.css
+ *
+ * Source of truth: frontend/index.html lines 17–478 (token blocks + safe-area utilities).
+ * Extracted: 2026-04-27. Methodology: source-driven create.
+ *
+ * Font chain: gastify-fonts.css (mirrored from clean-slate `docs/mockups/`) loads
+ * Outfit (default) + Baloo 2 (wordmark) + Space Grotesk (alt for tweaks panel) via
+ * @font-face. Without this, [data-font] toggling is invisible — all options fall
+ * back to system sans-serif.
+ *
+ * Selector translation:
+ *   - frontend uses `.dark` class for dark mode → translated to `[data-mode="dark"]` here
+ *     so this file is compatible with the canonical `tweaks.js` runtime panel.
+ *   - frontend uses `:root` for defaults (= normal theme light) → preserved.
+ *   - everything else is verbatim per token name + value.
+ *
+ * Layout chain: this file = canonical tokens. atoms.css consumes it. molecules.css
+ * consumes both. Screen/flow files consume all three.
+ *
+ * If a theme/mode combo is missing here, it's because the frontend doesn't define it
+ * (e.g., normal-light is the implicit default; we use `:root` for it instead of a
+ * `[data-theme="normal"][data-mode="light"]` selector).
+ */
+
+/* =========================================================================
+ * 1. Global root vars — apply to all themes/modes
+ * ========================================================================= */
+:root {
+  /* Story 14.10: Typography — Outfit primary, Baloo 2 wordmark */
+  /* Story 14.22: Font family is dynamic via data-font attribute */
+  --font-family: 'Outfit', ui-sans-serif, system-ui, sans-serif;
+  --font-family-wordmark: 'Baloo 2', cursive, sans-serif;
+
+  /* Safe area insets for PWA on devices with notches/navigation bars */
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+
+  /* Default font sizes (small) — matches Tailwind defaults */
+  --font-size-xs: 0.75rem;   /* 12px */
+  --font-size-sm: 0.875rem;  /* 14px */
+  --font-size-base: 1rem;    /* 16px */
+  --font-size-lg: 1.125rem;  /* 18px */
+  --font-size-xl: 1.25rem;   /* 20px */
+  --font-size-2xl: 1.5rem;   /* 24px */
+  --font-size-3xl: 1.875rem; /* 30px */
+}
+
+/* Story 14.22: Font family selection */
+[data-font="outfit"] {
+  --font-family: 'Outfit', ui-sans-serif, system-ui, sans-serif;
+}
+[data-font="space"] {
+  --font-family: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Story 14.37: Font size scaling — "normal" mode (larger for readability) */
+[data-font-size="normal"] {
+  --font-size-xs: 0.875rem;  /* 14px */
+  --font-size-sm: 1rem;      /* 16px */
+  --font-size-base: 1.125rem;/* 18px */
+  --font-size-lg: 1.25rem;   /* 20px */
+  --font-size-xl: 1.5rem;    /* 24px */
+  --font-size-2xl: 1.75rem;  /* 28px */
+  --font-size-3xl: 2.25rem;  /* 36px */
+}
+
+/* =========================================================================
+ * 2. Normal theme — Light (default; applies via :root)
+ *    "Ni No Kuni / Studio Ghibli warm palette"
+ * ========================================================================= */
+:root,
+[data-theme="normal"][data-mode="light"] {
+  /* Surface */
+  --bg: #f5f0e8;            /* warm cream */
+  --bg-secondary: #ffffff;   /* nav bar background */
+  --bg-tertiary: #f1dbb6;    /* warmer golden tertiary */
+  --surface: #ffffff;
+  /* Brand */
+  --primary: #4a7c59;        /* forest green */
+  --primary-hover: #3d6b4a;
+  --primary-light: #d4e5d9;
+  --secondary: #5b8fa8;      /* ocean blue */
+  --accent: #e8a87c;         /* sunset orange */
+  /* Status */
+  --success: #7d9b5f;        /* sage green */
+  --warning: #f59e0b;        /* amber */
+  --error: #ef4444;          /* red */
+  /* On-color ink (text on saturated backgrounds — WCAG AA tuned) */
+  --on-primary: #ffffff;     /* on #4a7c59 — 5.4:1 */
+  --on-error:   #ffffff;     /* on #ef4444 — 3.5:1 (large/UI text only) */
+  --on-warning: #2d3a4a;     /* on #f59e0b — 7.0:1 (white fails at ~2.0:1) */
+  --on-accent:  #2d3a4a;     /* on #e8a87c — 6.0:1 (white fails at ~2.4:1) */
+  /* Shadows + focus rings (alpha overlays — kept rgba by design, see atoms.css convention note) */
+  --shadow-button: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-toast:  0 10px 24px rgba(0, 0, 0, 0.18);
+  --focus-ring-error: 0 0 0 3px rgba(239, 68, 68, 0.15);
+  --chip-count-bg: rgba(0, 0, 0, 0.1);
+  --on-primary-faint: rgba(255, 255, 255, 0.35);
+  /* Text */
+  --text-primary: #2d3a4a;   /* night blue */
+  --text-secondary: #4a5568;
+  --text-tertiary: #7d9b5f;  /* sage green */
+  /* Borders */
+  --border-light: #e3bba1;   /* peach */
+  --border-medium: #d4a574;
+  /* Charts */
+  --chart-1: #4a7c59;
+  --chart-2: #f59e0b;
+  --chart-3: #8b5cf6;
+  --chart-4: #9ca3af;
+  --chart-5: #5b8fa8;
+  --chart-6: #e8a87c;
+  /* Semantic — Positive (spending down — good) */
+  --positive-primary: #3d8c5a;
+  --positive-secondary: #5ca376;
+  --positive-bg: #e8f5ec;
+  --positive-border: #a8d4b8;
+  /* Semantic — Negative (spending up — bad) */
+  --negative-primary: #b85c4a;
+  --negative-secondary: #c87868;
+  --negative-bg: #f8ebe8;
+  --negative-border: #dab0a8;
+  /* Semantic — Neutral */
+  --neutral-primary: #7a7268;
+  --neutral-secondary: #9a9288;
+  --neutral-bg: #f4f2f0;
+  --neutral-border: #d4d0c8;
+  /* Semantic — Warning (approaching limits) */
+  --warning-semantic: #a8842c;
+  --warning-secondary: #c49c48;
+  --warning-bg: #fcf4e0;
+  --warning-border: #e8d498;
+  /* Insight types */
+  --insight-quirky-bg: #fef3c7;
+  --insight-quirky-icon: #92400e;
+  --insight-celebration-bg: #d4e5d9;
+  --insight-celebration-icon: #4a7c59;
+  --insight-actionable-bg: #dcfce7;
+  --insight-actionable-icon: #7d9b5f;
+  --insight-tradeoff-bg: #f8ebe8;
+  --insight-tradeoff-icon: #b85c4a;
+  --insight-trend-bg: #e8e4f0;
+  --insight-trend-icon: #6b5b95;
+  /* L1 Rubros — store-category-group colors (V4 taxonomy, Story 17-2)
+   * Source: frontend/src/config/categoryColors/groupColors.ts STORE_GROUP_COLORS
+   * 12 groups × {fg, bg, border} per theme/mode */
+  --cat-supermercados-fg: #15803d;        --cat-supermercados-bg: #dcfce7;        --cat-supermercados-border: #86efac;
+  --cat-restaurantes-fg: #c2410c;         --cat-restaurantes-bg: #ffedd5;         --cat-restaurantes-border: #fdba74;
+  --cat-comercio-barrio-fg: #b45309;      --cat-comercio-barrio-bg: #fef3c7;      --cat-comercio-barrio-border: #fcd34d;
+  --cat-vivienda-fg: #1e40af;             --cat-vivienda-bg: #dbeafe;             --cat-vivienda-border: #93c5fd;
+  --cat-salud-bienestar-fg: #be185d;      --cat-salud-bienestar-bg: #fce7f3;      --cat-salud-bienestar-border: #f9a8d4;
+  --cat-tiendas-generales-fg: #0f766e;    --cat-tiendas-generales-bg: #ccfbf1;    --cat-tiendas-generales-border: #5eead4;
+  --cat-tiendas-especializadas-fg: #7c3aed; --cat-tiendas-especializadas-bg: #ede9fe; --cat-tiendas-especializadas-border: #c4b5fd;
+  --cat-transporte-vehiculo-fg: #374151;  --cat-transporte-vehiculo-bg: #f3f4f6;  --cat-transporte-vehiculo-border: #d1d5db;
+  --cat-educacion-fg: #2563eb;            --cat-educacion-bg: #dbeafe;            --cat-educacion-border: #93c5fd;
+  --cat-servicios-finanzas-fg: #1e40af;   --cat-servicios-finanzas-bg: #dbeafe;   --cat-servicios-finanzas-border: #93c5fd;
+  --cat-entretenimiento-hospedaje-fg: #7c3aed; --cat-entretenimiento-hospedaje-bg: #f5f3ff; --cat-entretenimiento-hospedaje-border: #c4b5fd;
+  --cat-otros-fg: #047857;                --cat-otros-bg: #d1fae5;                --cat-otros-border: #6ee7b7;
+}
+
+/* =========================================================================
+ * 3. Normal theme — Dark
+ *    "Ni No Kuni night palette"
+ *    Originally `.dark` in frontend, translated to data-mode="dark".
+ * ========================================================================= */
+[data-mode="dark"]:not([data-theme]),
+[data-theme="normal"][data-mode="dark"] {
+  --bg: #1a2420;
+  --bg-secondary: #243028;
+  --bg-tertiary: #2d3d32;
+  --surface: #243028;
+  --primary: #6b9e7a;
+  --primary-hover: #5a8a68;
+  --primary-light: #2d3d32;
+  --secondary: #7ba8be;
+  --accent: #d4a574;
+  --success: #8fbf9c;
+  --warning: #fbbf24;
+  --error: #f87171;
+  /* On-color ink — dark theme primaries are mid-tone, need dark text */
+  --on-primary: #1a2420;     /* on #6b9e7a — 5.7:1 (white fails at 3.1:1) */
+  --on-error:   #1a2420;     /* on #f87171 — 6.1:1 (white fails at 2.9:1) */
+  --on-warning: #1a2420;     /* on #fbbf24 — 11.0:1 */
+  --on-accent:  #1a2420;     /* on #d4a574 — 7.5:1 */
+  --shadow-button: 0 4px 12px rgba(0, 0, 0, 0.32);
+  --shadow-toast:  0 10px 24px rgba(0, 0, 0, 0.45);
+  --focus-ring-error: 0 0 0 3px rgba(248, 113, 113, 0.25);
+  --chip-count-bg: rgba(255, 255, 255, 0.15);
+  --on-primary-faint: rgba(26, 36, 32, 0.35);
+  --text-primary: #e8e4dc;
+  --text-secondary: #b8c4a8;
+  --text-tertiary: #6b8b5f;
+  --border-light: #3d4d42;
+  --border-medium: #4d5d52;
+  --positive-primary: #7cc494;
+  --positive-secondary: #5ca376;
+  --positive-bg: #1a3828;
+  --positive-border: #3d6848;
+  --negative-primary: #d4948a;
+  --negative-secondary: #c87868;
+  --negative-bg: #3a2420;
+  --negative-border: #6a4840;
+  --neutral-primary: #b8b0a8;
+  --neutral-secondary: #9a9288;
+  --neutral-bg: #2a2824;
+  --neutral-border: #4a4840;
+  --warning-semantic: #d4b868;
+  --warning-secondary: #c49c48;
+  --warning-bg: #3a3018;
+  --warning-border: #5a4820;
+  --insight-quirky-bg: rgba(251, 191, 36, 0.15);
+  --insight-quirky-icon: #fbbf24;
+  --insight-celebration-bg: rgba(107, 158, 122, 0.15);
+  --insight-celebration-icon: #6b9e7a;
+  --insight-actionable-bg: rgba(125, 155, 95, 0.15);
+  --insight-actionable-icon: #8fbf9c;
+  --insight-tradeoff-bg: rgba(184, 92, 74, 0.15);
+  --insight-tradeoff-icon: #d4948a;
+  --insight-trend-bg: rgba(107, 91, 149, 0.12);
+  --insight-trend-icon: #a89cc8;
+  /* L1 Rubros — Normal Dark */
+  --cat-supermercados-fg: #86efac;        --cat-supermercados-bg: #14532d;        --cat-supermercados-border: #22c55e;
+  --cat-restaurantes-fg: #fdba74;         --cat-restaurantes-bg: #7c2d12;         --cat-restaurantes-border: #ea580c;
+  --cat-comercio-barrio-fg: #fcd34d;      --cat-comercio-barrio-bg: #78350f;      --cat-comercio-barrio-border: #92400e;
+  --cat-vivienda-fg: #93c5fd;             --cat-vivienda-bg: #1e3a8a;             --cat-vivienda-border: #2563eb;
+  --cat-salud-bienestar-fg: #f9a8d4;      --cat-salud-bienestar-bg: #831843;      --cat-salud-bienestar-border: #9d174d;
+  --cat-tiendas-generales-fg: #5eead4;    --cat-tiendas-generales-bg: #134e4a;    --cat-tiendas-generales-border: #14b8a6;
+  --cat-tiendas-especializadas-fg: #c4b5fd; --cat-tiendas-especializadas-bg: #5b21b6; --cat-tiendas-especializadas-border: #7c3aed;
+  --cat-transporte-vehiculo-fg: #d1d5db;  --cat-transporte-vehiculo-bg: #1f2937;  --cat-transporte-vehiculo-border: #4b5563;
+  --cat-educacion-fg: #93c5fd;            --cat-educacion-bg: #1e40af;            --cat-educacion-border: #3b82f6;
+  --cat-servicios-finanzas-fg: #93c5fd;   --cat-servicios-finanzas-bg: #1e3a8a;   --cat-servicios-finanzas-border: #2563eb;
+  --cat-entretenimiento-hospedaje-fg: #c4b5fd; --cat-entretenimiento-hospedaje-bg: #5b21b6; --cat-entretenimiento-hospedaje-border: #7c3aed;
+  --cat-otros-fg: #6ee7b7;                --cat-otros-bg: #064e3b;                --cat-otros-border: #10b981;
+}
+
+/* =========================================================================
+ * 4. Professional theme — Light
+ *    Cool blue/gray, originally was the "default" theme pre-Story 7.17.
+ * ========================================================================= */
+[data-theme="professional"][data-mode="light"] {
+  --bg: #f8fafc;             /* slate-50 */
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #f1f5f9;    /* slate-100 */
+  --surface: #ffffff;
+  --primary: #2563eb;        /* blue-600 */
+  --primary-hover: #1d4ed8;  /* blue-700 */
+  --primary-light: #dbeafe;  /* blue-100 */
+  --secondary: #64748b;      /* slate-500 */
+  --accent: #0ea5e9;         /* sky-500 */
+  --success: #22c55e;
+  --warning: #f59e0b;
+  --error: #ef4444;
+  /* On-color ink */
+  --on-primary: #ffffff;     /* on #2563eb — 5.2:1 */
+  --on-error:   #ffffff;     /* on #ef4444 — 3.5:1 (large/UI text) */
+  --on-warning: #0f172a;     /* on #f59e0b — 8.4:1 */
+  --on-accent:  #0f172a;     /* on #0ea5e9 — 5.6:1 */
+  --shadow-button: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-toast:  0 10px 24px rgba(0, 0, 0, 0.18);
+  --focus-ring-error: 0 0 0 3px rgba(239, 68, 68, 0.15);
+  --chip-count-bg: rgba(0, 0, 0, 0.1);
+  --on-primary-faint: rgba(255, 255, 255, 0.35);
+  --text-primary: #0f172a;   /* slate-900 */
+  --text-secondary: #475569;
+  --text-tertiary: #94a3b8;
+  --border-light: #e2e8f0;
+  --border-medium: #cbd5e1;
+  --chart-1: #2563eb;
+  --chart-2: #22c55e;
+  --chart-3: #f59e0b;
+  --chart-4: #ef4444;
+  --chart-5: #8b5cf6;
+  --chart-6: #ec4899;
+  --positive-primary: #16a34a;
+  --positive-secondary: #22c55e;
+  --positive-bg: #dcfce7;
+  --positive-border: #86efac;
+  --negative-primary: #dc2626;
+  --negative-secondary: #ef4444;
+  --negative-bg: #fee2e2;
+  --negative-border: #fca5a5;
+  --neutral-primary: #64748b;
+  --neutral-secondary: #94a3b8;
+  --neutral-bg: #f1f5f9;
+  --neutral-border: #cbd5e1;
+  --warning-semantic: #d97706;
+  --warning-secondary: #f59e0b;
+  --warning-bg: #fef3c7;
+  --warning-border: #fcd34d;
+  --insight-quirky-bg: #fef3c7;
+  --insight-quirky-icon: #92400e;
+  --insight-celebration-bg: #dbeafe;
+  --insight-celebration-icon: #2563eb;
+  --insight-actionable-bg: #dcfce7;
+  --insight-actionable-icon: #22c55e;
+  --insight-tradeoff-bg: #fce7f3;
+  --insight-tradeoff-icon: #be185d;
+  --insight-trend-bg: #ede9fe;
+  --insight-trend-icon: #7c3aed;
+  /* L1 Rubros — Professional Light */
+  --cat-supermercados-fg: #16a34a;        --cat-supermercados-bg: #dcfce7;        --cat-supermercados-border: #4ade80;
+  --cat-restaurantes-fg: #ea580c;         --cat-restaurantes-bg: #ffedd5;         --cat-restaurantes-border: #fb923c;
+  --cat-comercio-barrio-fg: #d97706;      --cat-comercio-barrio-bg: #fef3c7;      --cat-comercio-barrio-border: #fbbf24;
+  --cat-vivienda-fg: #2563eb;             --cat-vivienda-bg: #dbeafe;             --cat-vivienda-border: #60a5fa;
+  --cat-salud-bienestar-fg: #db2777;      --cat-salud-bienestar-bg: #fce7f3;      --cat-salud-bienestar-border: #f472b6;
+  --cat-tiendas-generales-fg: #14b8a6;    --cat-tiendas-generales-bg: #ccfbf1;    --cat-tiendas-generales-border: #2dd4bf;
+  --cat-tiendas-especializadas-fg: #8b5cf6; --cat-tiendas-especializadas-bg: #ede9fe; --cat-tiendas-especializadas-border: #a78bfa;
+  --cat-transporte-vehiculo-fg: #4b5563;  --cat-transporte-vehiculo-bg: #f3f4f6;  --cat-transporte-vehiculo-border: #9ca3af;
+  --cat-educacion-fg: #3b82f6;            --cat-educacion-bg: #dbeafe;            --cat-educacion-border: #60a5fa;
+  --cat-servicios-finanzas-fg: #2563eb;   --cat-servicios-finanzas-bg: #dbeafe;   --cat-servicios-finanzas-border: #60a5fa;
+  --cat-entretenimiento-hospedaje-fg: #8b5cf6; --cat-entretenimiento-hospedaje-bg: #f5f3ff; --cat-entretenimiento-hospedaje-border: #a78bfa;
+  --cat-otros-fg: #10b981;                --cat-otros-bg: #d1fae5;                --cat-otros-border: #34d399;
+}
+
+/* =========================================================================
+ * 5. Professional theme — Dark
+ * ========================================================================= */
+[data-theme="professional"][data-mode="dark"] {
+  --bg: #0f172a;             /* slate-900 */
+  --bg-secondary: #1e293b;   /* slate-800 */
+  --bg-tertiary: #334155;    /* slate-700 */
+  --surface: #1e293b;
+  --primary: #3b82f6;        /* blue-500 */
+  --primary-hover: #2563eb;
+  --primary-light: #1e3a5f;
+  --secondary: #94a3b8;      /* slate-400 */
+  --accent: #38bdf8;         /* sky-400 */
+  --success: #4ade80;
+  --warning: #fbbf24;
+  --error: #f87171;
+  /* On-color ink */
+  --on-primary: #0f172a;     /* on #3b82f6 — 5.2:1 (white only 4.06:1) */
+  --on-error:   #0f172a;     /* on #f87171 — 6.1:1 */
+  --on-warning: #0f172a;     /* on #fbbf24 — 11.0:1 */
+  --on-accent:  #0f172a;     /* on #38bdf8 — 6.7:1 */
+  --shadow-button: 0 4px 12px rgba(0, 0, 0, 0.32);
+  --shadow-toast:  0 10px 24px rgba(0, 0, 0, 0.45);
+  --focus-ring-error: 0 0 0 3px rgba(248, 113, 113, 0.25);
+  --chip-count-bg: rgba(255, 255, 255, 0.15);
+  --on-primary-faint: rgba(15, 23, 42, 0.35);
+  --text-primary: #f1f5f9;   /* slate-100 */
+  --text-secondary: #cbd5e1;
+  --text-tertiary: #64748b;
+  --border-light: #334155;
+  --border-medium: #475569;
+  --positive-primary: #4ade80;
+  --positive-secondary: #22c55e;
+  --positive-bg: #14532d;
+  --positive-border: #166534;
+  --negative-primary: #f87171;
+  --negative-secondary: #ef4444;
+  --negative-bg: #7f1d1d;
+  --negative-border: #991b1b;
+  --neutral-primary: #94a3b8;
+  --neutral-secondary: #cbd5e1;
+  --neutral-bg: #334155;
+  --neutral-border: #475569;
+  --warning-semantic: #fbbf24;
+  --warning-secondary: #f59e0b;
+  --warning-bg: #78350f;
+  --warning-border: #92400e;
+  --insight-quirky-bg: rgba(251, 191, 36, 0.15);
+  --insight-quirky-icon: #fbbf24;
+  --insight-celebration-bg: rgba(59, 130, 246, 0.15);
+  --insight-celebration-icon: #60a5fa;
+  --insight-actionable-bg: rgba(34, 197, 94, 0.15);
+  --insight-actionable-icon: #4ade80;
+  --insight-tradeoff-bg: rgba(236, 72, 153, 0.15);
+  --insight-tradeoff-icon: #f472b6;
+  --insight-trend-bg: rgba(139, 92, 246, 0.15);
+  --insight-trend-icon: #a78bfa;
+  /* L1 Rubros — Professional Dark */
+  --cat-supermercados-fg: #4ade80;        --cat-supermercados-bg: #166534;        --cat-supermercados-border: #22c55e;
+  --cat-restaurantes-fg: #fb923c;         --cat-restaurantes-bg: #9a3412;         --cat-restaurantes-border: #ea580c;
+  --cat-comercio-barrio-fg: #fbbf24;      --cat-comercio-barrio-bg: #92400e;      --cat-comercio-barrio-border: #b45309;
+  --cat-vivienda-fg: #60a5fa;             --cat-vivienda-bg: #1e40af;             --cat-vivienda-border: #3b82f6;
+  --cat-salud-bienestar-fg: #f472b6;      --cat-salud-bienestar-bg: #9d174d;      --cat-salud-bienestar-border: #be185d;
+  --cat-tiendas-generales-fg: #2dd4bf;    --cat-tiendas-generales-bg: #115e59;    --cat-tiendas-generales-border: #0d9488;
+  --cat-tiendas-especializadas-fg: #a78bfa; --cat-tiendas-especializadas-bg: #5b21b6; --cat-tiendas-especializadas-border: #7c3aed;
+  --cat-transporte-vehiculo-fg: #9ca3af;  --cat-transporte-vehiculo-bg: #374151;  --cat-transporte-vehiculo-border: #6b7280;
+  --cat-educacion-fg: #60a5fa;            --cat-educacion-bg: #1e40af;            --cat-educacion-border: #2563eb;
+  --cat-servicios-finanzas-fg: #60a5fa;   --cat-servicios-finanzas-bg: #1e40af;   --cat-servicios-finanzas-border: #3b82f6;
+  --cat-entretenimiento-hospedaje-fg: #a78bfa; --cat-entretenimiento-hospedaje-bg: #5b21b6; --cat-entretenimiento-hospedaje-border: #7c3aed;
+  --cat-otros-fg: #34d399;                --cat-otros-bg: #065f46;                --cat-otros-border: #059669;
+}
+
+/* =========================================================================
+ * 6. Mono theme — Light
+ *    Minimal grayscale (introduced Story 14.12)
+ * ========================================================================= */
+[data-theme="mono"][data-mode="light"] {
+  --bg: #fafafa;             /* zinc-50 */
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #f4f4f5;    /* zinc-100 */
+  --surface: #ffffff;
+  --primary: #18181b;        /* zinc-900 */
+  --primary-hover: #27272a;
+  --primary-light: #f4f4f5;
+  --secondary: #52525b;      /* zinc-600 */
+  --accent: #52525b;         /* grayscale accent */
+  --success: #22c55e;
+  --warning: #f59e0b;
+  --error: #ef4444;
+  /* On-color ink */
+  --on-primary: #ffffff;     /* on #18181b — 17.0:1 */
+  --on-error:   #ffffff;     /* on #ef4444 — 3.5:1 (large/UI text) */
+  --on-warning: #18181b;     /* on #f59e0b — 8.5:1 */
+  --on-accent:  #ffffff;     /* on #52525b — 7.5:1 */
+  --shadow-button: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-toast:  0 10px 24px rgba(0, 0, 0, 0.18);
+  --focus-ring-error: 0 0 0 3px rgba(239, 68, 68, 0.15);
+  --chip-count-bg: rgba(0, 0, 0, 0.1);
+  --on-primary-faint: rgba(255, 255, 255, 0.35);
+  --text-primary: #18181b;
+  --text-secondary: #52525b;
+  --text-tertiary: #a1a1aa;
+  --border-light: #e4e4e7;
+  --border-medium: #d4d4d8;
+  --chart-1: #18181b;
+  --chart-2: #52525b;
+  --chart-3: #71717a;
+  --chart-4: #a1a1aa;
+  --chart-5: #d4d4d8;
+  --chart-6: #52525b;
+  --positive-primary: #3a8c70;
+  --positive-secondary: #58a890;
+  --positive-bg: #e4f2ec;
+  --positive-border: #98c8b8;
+  --negative-primary: #a05858;
+  --negative-secondary: #b87878;
+  --negative-bg: #f4e8e8;
+  --negative-border: #c8a8a8;
+  --neutral-primary: #686870;
+  --neutral-secondary: #909098;
+  --neutral-bg: #f0f0f2;
+  --neutral-border: #c8c8d0;
+  --warning-semantic: #988040;
+  --warning-secondary: #b09858;
+  --warning-bg: #f8f0e0;
+  --warning-border: #d0c098;
+  --insight-quirky-bg: #f8f0e0;
+  --insight-quirky-icon: #988040;
+  --insight-celebration-bg: #f4f4f5;
+  --insight-celebration-icon: #18181b;
+  --insight-actionable-bg: #e4f2ec;
+  --insight-actionable-icon: #3a8c70;
+  --insight-tradeoff-bg: #f4e8e8;
+  --insight-tradeoff-icon: #a05858;
+  --insight-trend-bg: #f0f0f2;
+  --insight-trend-icon: #686870;
+  /* L1 Rubros — Mono Light */
+  --cat-supermercados-fg: #2d8c50;        --cat-supermercados-bg: #e0f2e8;        --cat-supermercados-border: #6dc792;
+  --cat-restaurantes-fg: #b86830;         --cat-restaurantes-bg: #f8e8d8;         --cat-restaurantes-border: #d9a070;
+  --cat-comercio-barrio-fg: #a88020;      --cat-comercio-barrio-bg: #f8f0d8;      --cat-comercio-barrio-border: #d4b860;
+  --cat-vivienda-fg: #385898;             --cat-vivienda-bg: #e0e8f4;             --cat-vivienda-border: #7098c8;
+  --cat-salud-bienestar-fg: #a83868;      --cat-salud-bienestar-bg: #f8e0ec;      --cat-salud-bienestar-border: #d47098;
+  --cat-tiendas-generales-fg: #288c8c;    --cat-tiendas-generales-bg: #d8f2f2;    --cat-tiendas-generales-border: #60c8c8;
+  --cat-tiendas-especializadas-fg: #7838a0; --cat-tiendas-especializadas-bg: #ece0f8; --cat-tiendas-especializadas-border: #a868d0;
+  --cat-transporte-vehiculo-fg: #507080;  --cat-transporte-vehiculo-bg: #e8ecf0;  --cat-transporte-vehiculo-border: #90a8b8;
+  --cat-educacion-fg: #3068a0;            --cat-educacion-bg: #d8e8f8;            --cat-educacion-border: #68a0d0;
+  --cat-servicios-finanzas-fg: #385898;   --cat-servicios-finanzas-bg: #e0e8f4;   --cat-servicios-finanzas-border: #7098c8;
+  --cat-entretenimiento-hospedaje-fg: #7838a0; --cat-entretenimiento-hospedaje-bg: #ece0f4; --cat-entretenimiento-hospedaje-border: #a868c8;
+  --cat-otros-fg: #289068;                --cat-otros-bg: #d8f2e8;                --cat-otros-border: #60c8a0;
+}
+
+/* =========================================================================
+ * 7. Mono theme — Dark
+ * ========================================================================= */
+[data-theme="mono"][data-mode="dark"] {
+  --bg: #09090b;             /* zinc-950 */
+  --bg-secondary: #18181b;   /* zinc-900 */
+  --bg-tertiary: #27272a;    /* zinc-800 */
+  --surface: #18181b;
+  --primary: #3f3f46;        /* zinc-700 */
+  --primary-hover: #52525b;
+  --primary-light: #27272a;
+  --secondary: #a1a1aa;      /* zinc-400 */
+  --accent: #a1a1aa;
+  --success: #4ade80;
+  --warning: #fbbf24;
+  --error: #f87171;
+  /* On-color ink */
+  --on-primary: #fafafa;     /* on #3f3f46 — 9.4:1 */
+  --on-error:   #09090b;     /* on #f87171 — 6.5:1 */
+  --on-warning: #09090b;     /* on #fbbf24 — 11.5:1 */
+  --on-accent:  #09090b;     /* on #a1a1aa — 7.7:1 */
+  --shadow-button: 0 4px 12px rgba(0, 0, 0, 0.40);
+  --shadow-toast:  0 10px 24px rgba(0, 0, 0, 0.55);
+  --focus-ring-error: 0 0 0 3px rgba(248, 113, 113, 0.25);
+  --chip-count-bg: rgba(255, 255, 255, 0.12);
+  --on-primary-faint: rgba(250, 250, 250, 0.35);
+  --text-primary: #fafafa;
+  --text-secondary: #d4d4d8;
+  --text-tertiary: #71717a;
+  --border-light: #27272a;
+  --border-medium: #3f3f46;
+  --positive-primary: #78c0a8;
+  --positive-secondary: #58a890;
+  --positive-bg: #1a3830;
+  --positive-border: #2a5848;
+  --negative-primary: #c89898;
+  --negative-secondary: #b87878;
+  --negative-bg: #382828;
+  --negative-border: #503838;
+  --neutral-primary: #a8a8b0;
+  --neutral-secondary: #909098;
+  --neutral-bg: #2a2a30;
+  --neutral-border: #404048;
+  --warning-semantic: #c8b070;
+  --warning-secondary: #b09858;
+  --warning-bg: #383020;
+  --warning-border: #504028;
+  --insight-quirky-bg: rgba(200, 176, 112, 0.15);
+  --insight-quirky-icon: #c8b070;
+  --insight-celebration-bg: rgba(63, 63, 70, 0.15);
+  --insight-celebration-icon: #a1a1aa;
+  --insight-actionable-bg: rgba(58, 140, 112, 0.15);
+  --insight-actionable-icon: #78c0a8;
+  --insight-tradeoff-bg: rgba(200, 152, 152, 0.15);
+  --insight-tradeoff-icon: #c89898;
+  --insight-trend-bg: rgba(104, 104, 112, 0.15);
+  --insight-trend-icon: #a8a8b0;
+  /* L1 Rubros — Mono Dark */
+  --cat-supermercados-fg: #6dc792;        --cat-supermercados-bg: #1e4a30;        --cat-supermercados-border: #3a6a48;
+  --cat-restaurantes-fg: #d9a070;         --cat-restaurantes-bg: #4a2810;         --cat-restaurantes-border: #6a4020;
+  --cat-comercio-barrio-fg: #d4b860;      --cat-comercio-barrio-bg: #4a3810;      --cat-comercio-barrio-border: #6a5020;
+  --cat-vivienda-fg: #7098c8;             --cat-vivienda-bg: #182840;             --cat-vivienda-border: #304060;
+  --cat-salud-bienestar-fg: #d47098;      --cat-salud-bienestar-bg: #4a1830;      --cat-salud-bienestar-border: #6a2848;
+  --cat-tiendas-generales-fg: #60c8c8;    --cat-tiendas-generales-bg: #104848;    --cat-tiendas-generales-border: #286868;
+  --cat-tiendas-especializadas-fg: #a868d0; --cat-tiendas-especializadas-bg: #301840; --cat-tiendas-especializadas-border: #502860;
+  --cat-transporte-vehiculo-fg: #90a8b8;  --cat-transporte-vehiculo-bg: #283438;  --cat-transporte-vehiculo-border: #405058;
+  --cat-educacion-fg: #68a0d0;            --cat-educacion-bg: #103040;            --cat-educacion-border: #284858;
+  --cat-servicios-finanzas-fg: #7098c8;   --cat-servicios-finanzas-bg: #182840;   --cat-servicios-finanzas-border: #304060;
+  --cat-entretenimiento-hospedaje-fg: #a868c8; --cat-entretenimiento-hospedaje-bg: #301838; --cat-entretenimiento-hospedaje-border: #502858;
+  --cat-otros-fg: #60c8a0;                --cat-otros-bg: #104838;                --cat-otros-border: #286850;
+}
+
+/* =========================================================================
+ * 8. Theme utility classes
+ * ========================================================================= */
+.theme-bg { background-color: var(--bg); }
+.theme-surface { background-color: var(--surface); }
+.theme-text-primary { color: var(--primary); }
+.theme-text-secondary { color: var(--secondary); }
+.theme-accent { color: var(--accent); }
+.theme-border { border-color: var(--secondary); }
+
+/* =========================================================================
+ * 9. Safe-area utility classes (PWA notch + home-indicator handling)
+ * ========================================================================= */
+.safe-top { padding-top: var(--safe-top); }
+.safe-bottom { padding-bottom: var(--safe-bottom); }
+.safe-left { padding-left: var(--safe-left); }
+.safe-right { padding-right: var(--safe-right); }
+.safe-x { padding-left: var(--safe-left); padding-right: var(--safe-right); }
+.safe-y { padding-top: var(--safe-top); padding-bottom: var(--safe-bottom); }
+.safe-all { padding: var(--safe-top) var(--safe-right) var(--safe-bottom) var(--safe-left); }
+
+/* =========================================================================
+ * 10. Body / global reset
+ *     The frontend relies on Tailwind's preflight for resets. Without it
+ *     here, we apply just enough so mockup HTML renders predictably.
+ * ========================================================================= */
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-family);
+  font-size: var(--font-size-base);
+  line-height: 1.5;
+  background-color: var(--bg);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* =========================================================================
+ * 11. Common keyframes used across atoms/molecules
+ *     (Selected from frontend/index.html lines 479–600. More can be
+ *     promoted here as they're consumed by extracted components.)
+ * ========================================================================= */
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-out {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+@keyframes item-reveal {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pageTransition {
+  from { opacity: 0; transform: translateX(var(--translate-start, 30px)); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes pageTransitionFade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.animate-slide-up { animation: slide-up 0.3s ease-out forwards; }
+.animate-fade-out { animation: fade-out 0.2s ease-out forwards; }
+.animate-item-reveal {
+  animation: item-reveal 200ms ease-out forwards;
+  will-change: opacity, transform;
+}
+.page-transition { will-change: transform, opacity; }
+.transition-child { will-change: transform, opacity; }
+
+/* =========================================================================
+ * Reduced-motion support
+ * ========================================================================= */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* =========================================================================
+ * 12. Tweaks panel viewport rules
+ *     Mirrors the clean-slate `docs/mockups/desktop-shell.css` pattern but
+ *     targets the legacy demo container classes (`.demo-row`, `.demo-section`).
+ *     Tweaks.js sets `body[data-viewport="mobile|tablet|desktop|full"]`.
+ *     Without these rules, the viewport buttons toggle the attribute but
+ *     nothing reacts — see /gabe-review L1 follow-up 2026-04-27.
+ * ========================================================================= */
+body[data-viewport="mobile"]  .demo-row,
+body[data-viewport="mobile"]  .demo-section { max-width: 360px;  margin-inline: auto; }
+body[data-viewport="tablet"]  .demo-row,
+body[data-viewport="tablet"]  .demo-section { max-width: 768px;  margin-inline: auto; }
+body[data-viewport="desktop"] .demo-row,
+body[data-viewport="desktop"] .demo-section { max-width: 1440px; }
+/* viewport="full" intentionally has no rule — leave containers at their natural width */

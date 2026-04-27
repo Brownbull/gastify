@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Molecule: list-item — gastify</title>
+  <link rel="stylesheet" href="../assets/css/desktop-shell.css">
+  <link rel="stylesheet" href="../assets/css/atoms.css">
+  <link rel="stylesheet" href="../assets/css/molecules.css">
+  <style>
+    body { margin: 0; background: var(--bg); color: var(--ink); min-height: 100vh; padding: 40px 320px 48px 48px; }
+    h1 { font-size: 24px; margin: 0 0 6px 0; font-weight: 700; }
+    .subtitle { color: var(--ink-2); font-size: 13px; margin: 0 0 32px 0; max-width: 720px; line-height: 1.5; }
+    .demo-section { margin-bottom: 36px; }
+    .demo-section h2 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-3); margin: 0 0 14px 0; font-weight: 600; }
+    .demo-stack { display: flex; flex-direction: column; gap: 16px; background: var(--surface-2); padding: 24px; border-radius: 12px; border: 1px solid var(--line); }
+    .demo-frame { max-width: 520px; }
+    .swatch-label { font-size: 11px; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; display: block; }
+    .snippet { background: var(--surface-2); padding: 16px; border-radius: 8px; font-family: ui-monospace, Consolas, monospace; font-size: 12px; color: var(--ink); overflow-x: auto; white-space: pre; line-height: 1.5; border: 1px solid var(--line); }
+  </style>
+</head>
+<body>
+  <h1>List item</h1>
+  <p class="subtitle">List row — title + meta + optional check (selection mode) + optional swipe-actions (mobile). Used by History selection mode, Settings sub-views, Group member list, sheet menus. Wraps card-transaction when used in transaction lists.</p>
+
+  <section class="demo-section">
+    <h2>Variants — selectable list</h2>
+    <div class="demo-stack">
+      <span class="swatch-label">basic list (no selection)</span>
+      <div class="demo-frame">
+        <div class="list">
+          <a class="list-item" href="#">
+            <span aria-hidden="true">🏷</span>
+            <div class="list-item-body">
+              <p class="list-item-title">Categorías aprendidas</p>
+              <p class="list-item-meta">128 mappings · usados 1.2k veces</p>
+            </div>
+            <span aria-hidden="true" style="color: var(--ink-3);">›</span>
+          </a>
+          <a class="list-item" href="#">
+            <span aria-hidden="true">⚡</span>
+            <div class="list-item-body">
+              <p class="list-item-title">Atajos de comercio</p>
+              <p class="list-item-meta">23 atajos · 0 sin usar</p>
+            </div>
+            <span aria-hidden="true" style="color: var(--ink-3);">›</span>
+          </a>
+          <a class="list-item" href="#">
+            <span aria-hidden="true">📤</span>
+            <div class="list-item-body">
+              <p class="list-item-title">Exportar todo</p>
+              <p class="list-item-meta">CSV · PDF · JSON</p>
+            </div>
+            <span aria-hidden="true" style="color: var(--ink-3);">›</span>
+          </a>
+        </div>
+      </div>
+
+      <span class="swatch-label">selectable (selection mode active)</span>
+      <div class="demo-frame">
+        <div class="list">
+          <div class="list-item is-selected" role="checkbox" aria-checked="true" tabindex="0">
+            <span class="list-item-check" aria-hidden="true">✓</span>
+            <div class="list-item-body">
+              <p class="list-item-title">Jumbo Costanera Center</p>
+              <p class="list-item-meta">Mercado · Hoy 14:32 · −$24.890</p>
+            </div>
+          </div>
+          <div class="list-item is-selected" role="checkbox" aria-checked="true" tabindex="0">
+            <span class="list-item-check" aria-hidden="true">✓</span>
+            <div class="list-item-body">
+              <p class="list-item-title">Starbucks Vitacura</p>
+              <p class="list-item-meta">Restaurantes · Ayer · −$5.200</p>
+            </div>
+          </div>
+          <div class="list-item" role="checkbox" aria-checked="false" tabindex="0">
+            <span class="list-item-check" aria-hidden="true"></span>
+            <div class="list-item-body">
+              <p class="list-item-title">Copec Las Condes</p>
+              <p class="list-item-meta">Transporte · 20 abr · −$45.000</p>
+            </div>
+          </div>
+          <div class="list-item" role="checkbox" aria-checked="false" tabindex="0">
+            <span class="list-item-check" aria-hidden="true"></span>
+            <div class="list-item-body">
+              <p class="list-item-title">LATAM Airlines</p>
+              <p class="list-item-meta">Transporte · 22 abr · −$135.420</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>Variants — swipeable (mobile)</h2>
+    <div class="demo-stack">
+      <span class="swatch-label">resting (default)</span>
+      <div class="demo-frame">
+        <div class="list">
+          <div class="list-item-swipeable">
+            <div class="list-item list-item-content">
+              <span aria-hidden="true">🛒</span>
+              <div class="list-item-body">
+                <p class="list-item-title">Jumbo Costanera Center</p>
+                <p class="list-item-meta">Mercado · Hoy 14:32 · −$24.890</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <span class="swatch-label">swiped (actions revealed)</span>
+      <div class="demo-frame">
+        <div class="list">
+          <div class="list-item-swipeable is-swiped">
+            <div class="list-item-swipe-actions">
+              <button class="list-item-swipe-action is-edit" aria-label="Editar">
+                <span aria-hidden="true">✎</span>
+                <span>Editar</span>
+              </button>
+              <button class="list-item-swipe-action is-delete" aria-label="Eliminar">
+                <span aria-hidden="true">🗑</span>
+                <span>Eliminar</span>
+              </button>
+            </div>
+            <div class="list-item list-item-content">
+              <span aria-hidden="true">🛒</span>
+              <div class="list-item-body">
+                <p class="list-item-title">Jumbo Costanera Center</p>
+                <p class="list-item-meta">Mercado · Hoy 14:32 · −$24.890</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>Composition</h2>
+    <div class="demo-stack" style="display: block;">
+      <ul style="margin: 0; padding-left: 20px; font-size: 13px; color: var(--ink-2); line-height: 1.7;">
+        <li><strong>Atoms used (one level down):</strong> none — primitive molecule, composes raw text + check indicator</li>
+        <li><strong>Used by screens:</strong> Settings · Sheet menus · Group member list · History selection mode · Insights · Items</li>
+        <li><strong>State matrix:</strong> default · hover · selected · pressed · swipe-revealed (mobile only) · disabled</li>
+        <li><strong>A11y:</strong> selection mode uses <code>role="checkbox"</code> + <code>aria-checked</code> + tabindex. Plain navigation uses <code>&lt;a href&gt;</code>. Swipe actions need keyboard fallback (long-press menu).</li>
+        <li><strong>Swipe direction:</strong> right-to-left reveals destructive (delete) on right. Some flows use left-to-right for primary action (archive).</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>Usage</h2>
+    <pre class="snippet">&lt;!-- Selection mode --&gt;
+&lt;div class="list"&gt;
+  &lt;div class="list-item is-selected" role="checkbox" aria-checked="true" tabindex="0"&gt;
+    &lt;span class="list-item-check"&gt;✓&lt;/span&gt;
+    &lt;div class="list-item-body"&gt;
+      &lt;p class="list-item-title"&gt;Jumbo Costanera Center&lt;/p&gt;
+      &lt;p class="list-item-meta"&gt;Mercado · Hoy · −$24.890&lt;/p&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- Swipeable --&gt;
+&lt;div class="list-item-swipeable is-swiped"&gt;
+  &lt;div class="list-item-swipe-actions"&gt;
+    &lt;button class="list-item-swipe-action is-edit"&gt;Editar&lt;/button&gt;
+    &lt;button class="list-item-swipe-action is-delete"&gt;Eliminar&lt;/button&gt;
+  &lt;/div&gt;
+  &lt;div class="list-item list-item-content"&gt;...&lt;/div&gt;
+&lt;/div&gt;</pre>
+  </section>
+
+  <script src="../assets/js/tweaks.js" defer></script>
+</body>
+</html>

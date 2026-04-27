@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Screens — mockups-legacy — gastify</title>
+  <link rel="stylesheet" href="../assets/css/desktop-shell.css">
+  <link rel="stylesheet" href="../assets/css/atoms.css">
+  <link rel="stylesheet" href="../assets/css/molecules.css">
+  <style>
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text-primary);
+      min-height: 100vh;
+      padding: 40px 320px 48px 48px;
+    }
+    .hub-header { margin-bottom: 32px; max-width: 760px; }
+    .hub-header h1 {
+      font-family: var(--font-family-wordmark);
+      font-weight: 700;
+      font-size: 32px;
+      color: var(--primary);
+      margin: 0;
+    }
+    .hub-header .lede {
+      color: var(--text-secondary);
+      font-size: 14px;
+      line-height: 1.6;
+      margin: 8px 0 0;
+    }
+    .placeholder {
+      padding: 48px;
+      background: var(--surface);
+      border: 2px dashed var(--border-medium);
+      border-radius: 16px;
+      text-align: center;
+      color: var(--text-tertiary);
+    }
+    .placeholder strong { color: var(--text-primary); display: block; margin-bottom: 8px; font-family: var(--font-family-wordmark); font-size: 18px; }
+    .phase-table {
+      margin-top: 24px;
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    .phase-table th, .phase-table td {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border-light);
+      text-align: left;
+    }
+    .phase-table th {
+      background: var(--bg-secondary);
+      color: var(--text-secondary);
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <header class="hub-header">
+    <h1>Screens</h1>
+    <p class="lede">Full-page surfaces extracted from <code>frontend/src/views/</code> and <code>frontend/src/features/<i>feature</i>/views/</code>. Organized by section to mirror PLAN.md phase boundaries.</p>
+  </header>
+
+  <div class="placeholder">
+    <strong>Phase L4 — pending</strong>
+    ~57 views to extract, split across 8 sub-phases (L4a through L4h) aligned with PLAN.md P5–P12.
+  </div>
+
+  <table class="phase-table">
+    <thead>
+      <tr>
+        <th>Sub-phase</th>
+        <th>PLAN mapping</th>
+        <th>Section</th>
+        <th>Estimated screens</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>L4a</td><td>P5</td><td>Auth + onboarding</td><td>1 (login only — frontend has minimal auth)</td></tr>
+      <tr><td>L4b</td><td>P6</td><td>Core capture loop</td><td>~5 (dashboard, scan states, quicksave, manual entry, editor)</td></tr>
+      <tr><td>L4c</td><td>P7</td><td>Batch + statement</td><td>~5 (mode selector, capture, credit warning, review, statement)</td></tr>
+      <tr><td>L4d</td><td>P8</td><td>History + items + insights</td><td>~3 (history, items, insights 3-tab)</td></tr>
+      <tr><td>L4e</td><td>P9</td><td>Trends + reports</td><td>~2 (trends carousel, reports accordion)</td></tr>
+      <tr><td>L4f</td><td>P10</td><td>Groups</td><td>likely partial — frontend may not have all 16</td></tr>
+      <tr><td>L4g</td><td>P11</td><td>Settings (9 subviews)</td><td>~9</td></tr>
+      <tr><td>L4h</td><td>P12</td><td>Edge states</td><td>scattered — error/empty/offline</td></tr>
+    </tbody>
+  </table>
+
+  <script src="../assets/js/tweaks.js" defer></script>
+</body>
+</html>

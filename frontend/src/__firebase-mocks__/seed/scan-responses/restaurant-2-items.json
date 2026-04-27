@@ -1,0 +1,30 @@
+{
+  "merchant": "La Mar Cebichería",
+  "date": "{{TODAY}}",
+  "category": "Restaurant",
+  "total": 28500,
+  "currency": "CLP",
+  "country": "CL",
+  "city": "Santiago",
+  "merchantSource": "scan",
+  "promptVersion": "mock-v1",
+  "receiptType": "restaurant",
+  "confidence": 0.93,
+  "items": [
+    {
+      "name": "Ceviche clásico de corvina",
+      "qty": 1,
+      "totalPrice": 14500,
+      "category": "PreparedFood",
+      "subcategory": "Pescados y mariscos"
+    },
+    {
+      "name": "Pisco sour",
+      "qty": 2,
+      "unitPrice": 7000,
+      "totalPrice": 14000,
+      "category": "Alcohol",
+      "subcategory": "Cócteles"
+    }
+  ]
+}

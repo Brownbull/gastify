@@ -1,0 +1,33 @@
+{
+  "merchant": "Unknown",
+  "date": "{{TODAY}}",
+  "category": "Other",
+  "total": 8400,
+  "currency": "CLP",
+  "country": "CL",
+  "city": "Santiago",
+  "merchantSource": "scan",
+  "promptVersion": "mock-v1",
+  "receiptType": "convenience_store",
+  "confidence": 0.31,
+  "items": [
+    {
+      "name": "Producto ilegible",
+      "qty": 1,
+      "totalPrice": 3200,
+      "category": "OtherItem"
+    },
+    {
+      "name": "Bebida (marca borrosa)",
+      "qty": 1,
+      "totalPrice": 2200,
+      "category": "Beverages"
+    },
+    {
+      "name": "Artículo sin precio claro",
+      "qty": 1,
+      "totalPrice": 3000,
+      "category": "OtherItem"
+    }
+  ]
+}

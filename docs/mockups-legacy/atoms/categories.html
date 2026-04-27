@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Atom: categories — gastify (mockups-legacy)</title>
+  <link rel="stylesheet" href="../assets/css/desktop-shell.css">
+  <link rel="stylesheet" href="../assets/css/atoms.css">
+  <style>
+    body { margin: 0; background: var(--bg); color: var(--text-primary); min-height: 100vh; padding: 40px 320px 48px 48px; font-family: var(--font-family); }
+    h1 { font-size: 24px; margin: 0 0 6px 0; font-weight: 700; }
+    .subtitle { color: var(--text-secondary); font-size: 13px; margin: 0 0 32px 0; max-width: 720px; line-height: 1.5; }
+    .source-link { display: inline-block; margin-top: 8px; font-size: 11px; color: var(--text-tertiary); font-family: ui-monospace, Consolas, monospace; }
+    .source-link a { color: var(--primary); text-decoration: none; }
+    .source-link a:hover { text-decoration: underline; }
+    .demo-section { margin-bottom: 36px; }
+    .demo-section h2 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-tertiary); margin: 0 0 14px 0; font-weight: 600; }
+    .demo-row { background: var(--surface); padding: 24px; border-radius: 12px; border: 1px solid var(--border-light); }
+    .crossref { background: var(--bg-secondary); padding: 16px 18px; border-radius: 10px; border: 1px solid var(--border-light); font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+    .crossref em { color: var(--text-tertiary); font-style: italic; }
+    .crossref code { font-family: ui-monospace, Consolas, monospace; font-size: 12px; color: var(--text-primary); background: var(--bg-tertiary); padding: 1px 6px; border-radius: 4px; }
+
+    /* Category catalog grid — one card per L1 Rubro */
+    .cat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+    .cat-card { display: flex; flex-direction: column; gap: 12px; padding: 16px; border-radius: 12px; border: 1px solid var(--border-light); background: var(--surface); }
+    .cat-card__header { display: flex; align-items: center; gap: 12px; }
+    .cat-card__swatch { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 24px; line-height: 1; flex-shrink: 0; border: 1px solid; }
+    .cat-card__meta { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+    .cat-card__name { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+    .cat-card__key { font-family: ui-monospace, Consolas, monospace; font-size: 11px; color: var(--text-tertiary); }
+    .cat-card__samples { display: flex; flex-wrap: wrap; gap: 6px; }
+    .cat-card__token-row { display: grid; grid-template-columns: auto 1fr; gap: 6px 10px; font-size: 10px; font-family: ui-monospace, Consolas, monospace; color: var(--text-tertiary); align-items: center; }
+    .cat-card__token-label { font-weight: 600; }
+    .cat-card__token-value { color: var(--text-secondary); }
+
+    /* Tweaks-panel emoji ↔ pixel toggle for the swatch contents.
+     * Default (emoji): emoji glyph visible, pixel img hidden.
+     * Pixel mode: emoji hidden, pixel img visible — colored bg/border still
+     * shows so the category color theme stays demonstrative. */
+    .cat-card__swatch-emoji { font-size: 24px; line-height: 1; }
+    .cat-card__swatch-pixel { display: none; max-width: 80%; max-height: 80%; image-rendering: pixelated; image-rendering: crisp-edges; }
+    [data-icon-style="pixel"] .cat-card__swatch-emoji { display: none; }
+    [data-icon-style="pixel"] .cat-card__swatch-pixel { display: block; }
+  </style>
+</head>
+<body>
+  <h1>Categories — L1 Rubros</h1>
+  <p class="subtitle">12 store-category groups (V4 taxonomy, Story 17-2). Each group has its own foreground/background/border color triplet defined per <code>theme × mode</code> = 6 variants. Background, foreground, and border come from <code>--cat-&lt;key&gt;-{bg|fg|border}</code> tokens in <code>desktop-shell.css</code>; emojis come from <code>STORE_GROUP_INFO</code>. Switch the Tweaks panel theme to see the swatches recolor.</p>
+  <p class="source-link">Source: <a href="../../../frontend/src/config/categoryColors/groupColors.ts" target="_blank">categoryColors/groupColors.ts</a> (STORE_GROUP_COLORS) + <a href="../../../frontend/src/config/categoryColors/groups.ts" target="_blank">categoryColors/groups.ts</a> (STORE_GROUP_INFO emoji + name map).</p>
+
+  <section class="demo-section">
+    <h2>Catalog — 12 L1 Rubros</h2>
+    <div class="demo-row">
+      <div class="cat-grid">
+
+        <div class="cat-card">
+          <div class="cat-card__header">
+            <div class="cat-card__swatch" style="background: var(--cat-supermercados-bg); color: var(--cat-supermercados-fg); border-color: var(--cat-supermercados-border);"><span class="cat-card__swatch-emoji">🛒</span><img class="cat-card__swatch-pixel" src="../assets/icons/pixel/rubros/rubro-supermercados.png" alt="" loading="lazy"></div>
+            <div class="cat-card__meta">
+              <span class="cat-card__name">Supermercados</span>
+              <span class="cat-card__key">supermercados</span>
+            </div>
+          </div>
+          <div class="cat-card__samples">
+            <span class="pill pill--cat-supermercados">2 boletas</span>
+            <span class="chip chip--cat-supermercados">Filtrar</span>
+            <span class="badge badge--cat-supermercados">14</span>
+          </div>
+          <div class="cat-card__token-row">
+            <span class="cat-card__token-label">fg</span><span class="cat-card__token-value">var(--cat-supermercados-fg)</span>
+            <span class="cat-card__token-label">bg</span><span class="cat-card__token-value">var(--cat-supermercados-bg)</span>
+          </div>
+        </div>
+
+        <div class="cat-card">
+          <div class="cat-card__header">
+            <div class="cat-card__swatch" style="background: var(--cat-restaurantes-bg); color: var(--cat-restaurantes-fg); border-color: var(--cat-restaurantes-border);"><span class="cat-card__swatch-emoji">🍽️</span><img class="cat-card__swatch-pixel" src="../assets/icons/pixel/rubros/rubro-restaurantes.png" alt="" loading="lazy"></div>
+            <div class="cat-card__meta">
+              <span class="cat-card__name">Restaurantes</span>
+              <span class="cat-card__key">restaurantes</span>
+            </div>
+          </div>
+          <div class="cat-card__samples">
+            <span class="pill pill--cat-restaurantes">5 boletas</span>
+            <span class="chip chip--cat-restaurantes">Filtrar</span>
+            <span class="badge badge--cat-restaurantes">9</span>
+          </div>
+          <div class="cat-card__token-row">
+            <span class="cat-card__token-label">fg</span><span class="cat-card__token-value">var(--cat-restaurantes-fg)</span>
+            <span class="cat-card__token-label">bg</span><span class="cat-card__token-value">var(--cat-restaurantes-bg)</span>
+          </div>
+        </div>
+
+        <div class="cat-card">
+          <div class="cat-card__header">
+            <div class="cat-card__swatch" style="background: var(--cat-comercio-barrio-bg); color: var(--cat-comercio-barrio-fg); border-color: var(--cat-comercio-barrio-border);"><span class="cat-card__swatch-emoji">🏪</span><img class="cat-card__swatch-pixel" src="../assets/icons/pixel/rubros/rubro-comercio-barrio.png" alt="" loading="lazy"></div>
+            <div class="cat-card__meta">
+              <span class="cat-card__name">Comercio de Barrio</span>
+              <span class="cat-card__key">comercio-barrio</span>
+            </div>
+          </div>
+          <div class="cat-card__samples">
+            <span class="pill pill--cat-comercio-barrio">3 boletas</span>
+            <span class="chip chip--cat-comercio-barrio">Filtrar</span>
+            <span class="badge" style="background: var(--cat-comercio-barrio-fg); color: var(--cat-comercio-barrio-bg);">8</span>
+          </div>
+          <div class="cat-card__token-row">
+            <span class="cat-card__token-label">fg</span><span class="cat-card__token-value">var(--cat-comercio-barrio-fg)</span>
+            <span class="cat-card__token-label">bg</span><span class="cat-card__token-value">var(--cat-comercio-barrio-bg)</span>
+          </div>
+        </div>
+
+        <div class="cat-card">
+          <div class="cat-card__header">
+            <div class="cat-card__swatch" style="background: var(--cat-vivienda-bg); color: var(--cat-vivienda-fg); border-color: var(--cat-vivienda-border);"><span class="cat-card__swatch-emoji">🏠</span><img class="cat-card__swatch-pixel" src="../assets/icons/pixel/rubros/rubro-vivienda.png" alt="" loading="lazy"></div>
+            <div class="cat-card__meta">
+              <span class="cat-card__name">Vivienda</span>
+              <span class="cat-card__key">vivienda</span>
+            </div>
+          </div>
+          <div class="cat-card__samples">
+            <span class="pill pill--cat-vivienda">Cuenta luz</span>
+            <span class="chip chip--cat-vivienda">Filtrar</span>
+            <span class="badge badge--cat-vivienda">3</span>
+          </div>
+          <div class="cat-card__token-row">
+            <span class="cat-card__token-label">fg</span><span class="cat-card__token-value">var(--cat-vivienda-fg)</span>
+            <span class="cat-card__token-label">bg</span><span class="cat-card__token-value">var(--cat-vivienda-bg)</span>
+          </div>
+        </div>
+
+        <div class="cat-card">
+          <div class="cat-card__header">
+            <div class="cat-card__swatch" style="background: var(--cat-salud-bienestar-bg); color: var(--cat-salud-bienestar-fg); border-color: var(--cat-salud-bienestar-border);"><span class="cat-card__swatch-emoji">💊</span><img class="cat-card__swatch-pixel" src="../assets/icons/pixel/rubros/rubro-salud-bienestar.png" alt="" loading="lazy"></div>
+            <div class="cat-card__meta">
+              <span class="cat-card__name">Salud y Bienestar</span>
+              <span class="cat-card__key">salud-bienestar</span>
+            </div>
+          </div>
+          <div class="cat-card__samples">
+            <span class="pill pill--cat-salud-bienestar">Farmacia</span>
+            <span class="chip chip--cat-salud-bienestar">Filtrar</span>
+            <span class="badge badge--cat-salud-bienestar">2</span>
+          </div>
+          <div class="cat-card__token-row">
+            <span class="cat-card__token-label">fg</span><span class="cat-card__token-value">var(--cat-salud-bienestar-fg)</span>
+            <span class="cat-card__token-label">bg</span><span class="cat-card__token-value">var(--cat-salud-bienestar-bg)</span>
+          </div>
+        </div>
+
+        <div class="cat-card">
+          <div class="cat-card__header">
+            <div class="cat-card__swatch" style="background: var(--cat-tiendas-generales-bg); color: var(--cat-tiendas-generales-fg); border-color: var(--cat-tiendas-generales-border);"><span class="cat-card__swatch-emoji">🏬</span><img class="cat-card__swatch-pixel" src="../assets/icons/pixel/rubros/rubro-tiendas-generales.png" alt="" loading="lazy"></div>
+            <div class="cat-card__meta">
+              <span class="cat-card__name">Tiendas Generales</span>
+              <span class="cat-card__key">tiendas-generales</span>
+            </div>
+          </div>
+          <div class="cat-card__samples">
+            <span class="pill pill--cat-tiendas-generales">Bazar</span>
+            <span class="chip chip--cat-tiendas-generales">Filtrar</span>
+            <span class="badge" style="background: var(--cat-tiendas-generales-fg); color: var(--cat-tiendas-generales-bg);">11</span>
+          </div>
+          <div class="cat-card__token-row">
+            <span class="cat-card__token-label">fg</span><span class="cat-card__token-value">var(--cat-tiendas-generales-fg)</span>
+            <span class="cat-card__token-label">bg</span><span class="cat-card__token-value">var(--cat-tiendas-generales-bg)</span>
+          </div>
+        </div>
+
+        <div class="cat-card">
+          <div class="cat-card__header">
+            <div class="cat-card__swatch" style="background: var(--cat-tiendas-especializadas-bg); color: var(--cat-tiendas-especializadas-fg); border-color: var(--cat-tiendas-especializadas-border);"><span class="cat-card__swatch-emoji">🎁</span><img class="cat-card__swatch-pixel" src="../assets/icons/pixel/rubros/rubro-tiendas-especializadas.png" alt="" loading="lazy"></div>
+            <div class="cat-card__meta">
+              <span class="cat-card__name">Tiendas Especializadas</span>
+              <span class="cat-card__key">tiendas-especializadas</span>
+            </div>
+          </div>
+          <div class="cat-card__samples">
+            <span class="pill pill--cat-tiendas-especializadas">Mascotas</span>
+            <span class="chip pill--cat-tiendas-especializadas">Filtrar</span>
+            <span class="badge" style="background: var(--cat-tiendas-especializadas-fg); color: var(--cat-tiendas-especializadas-bg);">4</span>
+          </div>
+          <div class="cat-card__token-row">
+            <span class="cat-card__token-label">fg</span><span class="cat-card__token-value">var(--cat-tiendas-especializadas-fg)</span>
+            <span class="cat-card__token-label">bg</span><span class="cat-card__token-value">var(--cat-tiendas-especializadas-bg)</span>
+          </div>
+        </div>
+
+        <div class="cat-card">
+          <div class="cat-card__header">
+            <div class="cat-card__swatch" style="background: var(--cat-transporte-vehiculo-bg); color: var(--cat-transporte-vehiculo-fg); border-color: var(--cat-transporte-vehiculo-border);"><span class="cat-card__swatch-emoji">🚗</span><img class="cat-card__swatch-pixel" src="../assets/icons/pixel/rubros/rubro-transporte-vehiculo.png" alt="" loading="lazy"></div>
+            <div class="cat-card__meta">
+              <span class="cat-card__name">Transporte y Vehículo</span>
+              <span class="cat-card__key">transporte-vehiculo</span>
+            </div>
+          </div>
+          <div class="cat-card__samples">
+            <span class="pill" style="background: var(--cat-transporte-vehiculo-bg); color: var(--cat-transporte-vehiculo-fg); border-color: var(--cat-transporte-vehiculo-border);">Bencina</span>
+            <span class="chip" style="background: var(--cat-transporte-vehiculo-bg); color: var(--cat-transporte-vehiculo-fg); border-color: var(--cat-transporte-vehiculo-border);">Filtrar</span>
+            <span class="badge" style="background: var(--cat-transporte-vehiculo-fg); color: var(--cat-transporte-vehiculo-bg);">6</span>
+          </div>
+          <div class="cat-card__token-row">
+            <span class="cat-card__token-label">fg</span><span class="cat-card__token-value">var(--cat-transporte-vehiculo-fg)</span>
+            <span class="cat-card__token-label">bg</span><span class="cat-card__token-value">var(--cat-transporte-vehiculo-bg)</span>
+          </div>
+        </div>
+
+        <div class="cat-card">
+          <div class="cat-card__header">
+            <div class="cat-card__swatch" style="background: var(--cat-educacion-bg); color: var(--cat-educacion-fg); border-color: var(--cat-educacion-border);"><span class="cat-card__swatch-emoji">🎓</span><img class="cat-card__swatch-pixel" src="../assets/icons/pixel/rubros/rubro-educacion.png" alt="" loading="lazy"></div>
+            <div class="cat-card__meta">
+              <span class="cat-card__name">Educación</span>
+              <span class="cat-card__key">educacion</span>
+            </div>
+          </div>
+          <div class="cat-card__samples">
+            <span class="pill" style="background: var(--cat-educacion-bg); color: var(--cat-educacion-fg); border-color: var(--cat-educacion-border);">Libros</span>
+            <span class="chip" style="background: var(--cat-educacion-bg); color: var(--cat-educacion-fg); border-color: var(--cat-educacion-border);">Filtrar</span>
+            <span class="badge badge--cat-educacion">2</span>
+          </div>
+          <div class="cat-card__token-row">
+            <span class="cat-card__token-label">fg</span><span class="cat-card__token-value">var(--cat-educacion-fg)</span>
+            <span class="cat-card__token-label">bg</span><span class="cat-card__token-value">var(--cat-educacion-bg)</span>
+          </div>
+        </div>
+
+        <div class="cat-card">
+          <div class="cat-card__header">
+            <div class="cat-card__swatch" style="background: var(--cat-servicios-finanzas-bg); color: var(--cat-servicios-finanzas-fg); border-color: var(--cat-servicios-finanzas-border);"><span class="cat-card__swatch-emoji">🏢</span><img class="cat-card__swatch-pixel" src="../assets/icons/pixel/rubros/rubro-servicios-finanzas.png" alt="" loading="lazy"></div>
+            <div class="cat-card__meta">
+              <span class="cat-card__name">Servicios y Finanzas</span>
+              <span class="cat-card__key">servicios-finanzas</span>
+            </div>
+          </div>
+          <div class="cat-card__samples">
+            <span class="pill" style="background: var(--cat-servicios-finanzas-bg); color: var(--cat-servicios-finanzas-fg); border-color: var(--cat-servicios-finanzas-border);">Banco</span>
+            <span class="chip" style="background: var(--cat-servicios-finanzas-bg); color: var(--cat-servicios-finanzas-fg); border-color: var(--cat-servicios-finanzas-border);">Filtrar</span>
+            <span class="badge" style="background: var(--cat-servicios-finanzas-fg); color: var(--cat-servicios-finanzas-bg);">5</span>
+          </div>
+          <div class="cat-card__token-row">
+            <span class="cat-card__token-label">fg</span><span class="cat-card__token-value">var(--cat-servicios-finanzas-fg)</span>
+            <span class="cat-card__token-label">bg</span><span class="cat-card__token-value">var(--cat-servicios-finanzas-bg)</span>
+          </div>
+        </div>
+
+        <div class="cat-card">
+          <div class="cat-card__header">
+            <div class="cat-card__swatch" style="background: var(--cat-entretenimiento-hospedaje-bg); color: var(--cat-entretenimiento-hospedaje-fg); border-color: var(--cat-entretenimiento-hospedaje-border);"><span class="cat-card__swatch-emoji">🎭</span><img class="cat-card__swatch-pixel" src="../assets/icons/pixel/rubros/rubro-entretenimiento-hospedaje.png" alt="" loading="lazy"></div>
+            <div class="cat-card__meta">
+              <span class="cat-card__name">Entretenimiento y Hospedaje</span>
+              <span class="cat-card__key">entretenimiento-hospedaje</span>
+            </div>
+          </div>
+          <div class="cat-card__samples">
+            <span class="pill" style="background: var(--cat-entretenimiento-hospedaje-bg); color: var(--cat-entretenimiento-hospedaje-fg); border-color: var(--cat-entretenimiento-hospedaje-border);">Cine</span>
+            <span class="chip" style="background: var(--cat-entretenimiento-hospedaje-bg); color: var(--cat-entretenimiento-hospedaje-fg); border-color: var(--cat-entretenimiento-hospedaje-border);">Filtrar</span>
+            <span class="badge" style="background: var(--cat-entretenimiento-hospedaje-fg); color: var(--cat-entretenimiento-hospedaje-bg);">1</span>
+          </div>
+          <div class="cat-card__token-row">
+            <span class="cat-card__token-label">fg</span><span class="cat-card__token-value">var(--cat-entretenimiento-hospedaje-fg)</span>
+            <span class="cat-card__token-label">bg</span><span class="cat-card__token-value">var(--cat-entretenimiento-hospedaje-bg)</span>
+          </div>
+        </div>
+
+        <div class="cat-card">
+          <div class="cat-card__header">
+            <div class="cat-card__swatch" style="background: var(--cat-otros-bg); color: var(--cat-otros-fg); border-color: var(--cat-otros-border);"><span class="cat-card__swatch-emoji">📦</span><img class="cat-card__swatch-pixel" src="../assets/icons/pixel/rubros/rubro-otros.png" alt="" loading="lazy"></div>
+            <div class="cat-card__meta">
+              <span class="cat-card__name">Otros</span>
+              <span class="cat-card__key">otros</span>
+            </div>
+          </div>
+          <div class="cat-card__samples">
+            <span class="pill pill--cat-otros">Misc</span>
+            <span class="chip" style="background: var(--cat-otros-bg); color: var(--cat-otros-fg); border-color: var(--cat-otros-border);">Filtrar</span>
+            <span class="badge badge--cat-otros">7</span>
+          </div>
+          <div class="cat-card__token-row">
+            <span class="cat-card__token-label">fg</span><span class="cat-card__token-value">var(--cat-otros-fg)</span>
+            <span class="cat-card__token-label">bg</span><span class="cat-card__token-value">var(--cat-otros-bg)</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>Token usage pattern</h2>
+    <div class="crossref">
+      <p style="margin: 0 0 8px 0;">Each L1 Rubro exposes three tokens, automatically themed:</p>
+      <ul style="margin: 0; padding-left: 20px;">
+        <li><code>--cat-&lt;key&gt;-fg</code> — text and icon foreground (4.5:1+ contrast against bg)</li>
+        <li><code>--cat-&lt;key&gt;-bg</code> — chip/pill/badge surface; flips dark in dark themes</li>
+        <li><code>--cat-&lt;key&gt;-border</code> — accent edge for emphasis (group headers, active filters)</li>
+      </ul>
+      <p style="margin: 12px 0 0 0;">Apply via <code>.{atom}--cat-&lt;key&gt;</code> selectors (defined in <code>atoms.css</code>) for the 6 most common categories. Less-common categories use inline <code>style="background: var(--cat-&lt;key&gt;-bg); ..."</code> — see <code>cat-card</code> swatches above.</p>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>Used by molecules (one level up)</h2>
+    <div class="crossref">
+      <em>Populated during Phase L2. Anticipated consumers: card-transaction (category badge in transaction row), filter-strip (category chip filters), insight-card (group-colored accent), report-row (group breakdown bars).</em>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>Coverage gaps (deferred)</h2>
+    <div class="crossref">
+      <em>Phase L1 ships the 12 L1 Rubros only. Follow-up phases:</em>
+      <ul style="margin: 8px 0 0 0; padding-left: 20px;">
+        <li><strong>L3 Familias (9 item-category groups)</strong> — food-fresh / food-packaged / food-prepared / salud-cuidado / hogar / productos-generales / servicios-cargos / vicios / otros-item. Same token pattern, different prefix (<code>--itemcat-&lt;key&gt;-*</code>).</li>
+        <li><strong>L2 Giros (44 store categories)</strong> + <strong>L4 Categorias (42 item categories)</strong> — leaf-level colors. Inherit from their group's color triplet by default (per frontend convention); explicit overrides only where the design diverges.</li>
+        <li><strong>SVG icon set</strong> — replace emojis with custom SVGs once a designer commits to the visual style.</li>
+      </ul>
+    </div>
+  </section>
+
+  <script src="../assets/js/tweaks.js" defer></script>
+</body>
+</html>

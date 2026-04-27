@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Molecule: modal — gastify</title>
+  <link rel="stylesheet" href="../assets/css/desktop-shell.css">
+  <link rel="stylesheet" href="../assets/css/atoms.css">
+  <link rel="stylesheet" href="../assets/css/molecules.css">
+  <style>
+    body { margin: 0; background: var(--bg); color: var(--ink); min-height: 100vh; padding: 40px 320px 48px 48px; }
+    h1 { font-size: 24px; margin: 0 0 6px 0; font-weight: 700; }
+    .subtitle { color: var(--ink-2); font-size: 13px; margin: 0 0 32px 0; max-width: 720px; line-height: 1.5; }
+    .demo-section { margin-bottom: 36px; }
+    .demo-section h2 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-3); margin: 0 0 14px 0; font-weight: 600; }
+    .demo-frame { background: var(--surface-2); border: 1px solid var(--line); border-radius: 12px; padding: 24px; min-height: 320px; position: relative; overflow: hidden; }
+    /* Inline modal preview — strip fixed positioning so it lays out inside the demo frame */
+    .demo-frame .modal-overlay { position: relative; inset: auto; padding: 0; animation: none; background: transparent; min-height: 100%; }
+    .demo-frame .modal { animation: none; max-width: 440px; margin: 0 auto; }
+    .swatch-label { font-size: 11px; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 12px; display: block; }
+    .snippet { background: var(--surface-2); padding: 16px; border-radius: 8px; font-family: ui-monospace, Consolas, monospace; font-size: 12px; color: var(--ink); overflow-x: auto; white-space: pre; line-height: 1.5; border: 1px solid var(--line); }
+  </style>
+</head>
+<body>
+  <h1>Modal</h1>
+  <p class="subtitle">Centered overlay dialog. 5 variants — confirm, form, learning, error, credit. Shared shell (overlay → modal → header → body → footer). Three sizes: default 440px / md 560px / lg 720px. Animations slide-up + fade-in declared in molecules.css.</p>
+
+  <section class="demo-section">
+    <h2>Variant — confirm</h2>
+    <span class="swatch-label">Destructive confirmation. Two buttons in footer (cancel + destructive).</span>
+    <div class="demo-frame">
+      <div class="modal-overlay">
+        <div class="modal" role="dialog" aria-labelledby="m-confirm-title">
+          <div class="modal-header">
+            <div class="modal-icon is-warning" aria-hidden="true">!</div>
+            <h2 class="modal-title" id="m-confirm-title">¿Eliminar gasto?</h2>
+            <button class="modal-close" aria-label="Cerrar">×</button>
+          </div>
+          <div class="modal-body">
+            <p>Vas a eliminar <strong>Jumbo Costanera Center · $24.890</strong>. Esta acción no se puede deshacer.</p>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-ghost">Cancelar</button>
+            <button class="btn btn-destructive">Eliminar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>Variant — form</h2>
+    <span class="swatch-label">Inline form modal. Used for quick edits where full screen is overkill.</span>
+    <div class="demo-frame">
+      <div class="modal-overlay">
+        <div class="modal modal-md" role="dialog" aria-labelledby="m-form-title">
+          <div class="modal-header">
+            <div class="modal-icon is-info" aria-hidden="true">✎</div>
+            <h2 class="modal-title" id="m-form-title">Editar categoría</h2>
+            <button class="modal-close" aria-label="Cerrar">×</button>
+          </div>
+          <div class="modal-body">
+            <div class="field-group">
+              <label class="field-label" for="m-cat">Categoría</label>
+              <select class="field-select" id="m-cat">
+                <option>Mercado</option>
+                <option>Restaurantes</option>
+                <option>Transporte</option>
+              </select>
+            </div>
+            <div class="field-group" style="margin-top: 12px;">
+              <label class="field-label" for="m-note">Nota (opcional)</label>
+              <input class="field-input" id="m-note" type="text" placeholder="Ej. cumpleaños mamá">
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-ghost">Cancelar</button>
+            <button class="btn btn-primary">Guardar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>Variant — learning</h2>
+    <span class="swatch-label">First-encounter explainer. Single CTA. "No volver a mostrar" footer link.</span>
+    <div class="demo-frame">
+      <div class="modal-overlay">
+        <div class="modal" role="dialog" aria-labelledby="m-learn-title">
+          <div class="modal-header">
+            <div class="modal-icon is-success" aria-hidden="true">✓</div>
+            <h2 class="modal-title" id="m-learn-title">Modo Hard-lock</h2>
+            <button class="modal-close" aria-label="Cerrar">×</button>
+          </div>
+          <div class="modal-body">
+            <p>Cuando un gasto está en <strong>Hard-lock</strong>, el monto y la fecha quedan congelados — solo podés editar categoría, etiquetas y notas.</p>
+            <p>Útil para gastos importados de estados de cuenta donde los datos vienen verificados desde el banco.</p>
+          </div>
+          <div class="modal-footer is-stacked">
+            <button class="btn btn-primary">Entendido</button>
+            <button class="btn btn-ghost btn-sm" style="font-size: 12px; color: var(--ink-3);">No volver a mostrar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>Variant — error</h2>
+    <span class="swatch-label">Recoverable error. Error icon + body + retry CTA.</span>
+    <div class="demo-frame">
+      <div class="modal-overlay">
+        <div class="modal" role="alertdialog" aria-labelledby="m-err-title">
+          <div class="modal-header">
+            <div class="modal-icon is-error" aria-hidden="true">⚠</div>
+            <h2 class="modal-title" id="m-err-title">No pudimos leer el recibo</h2>
+            <button class="modal-close" aria-label="Cerrar">×</button>
+          </div>
+          <div class="modal-body">
+            <p>La imagen quedó borrosa o muy oscura. Probá de nuevo con mejor luz, o cargá los datos a mano.</p>
+            <p style="font-size: 12px; color: var(--ink-3); margin-top: 8px;">Código: <code>GENAI-422 · low-confidence</code></p>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-ghost">Cargar manual</button>
+            <button class="btn btn-primary">Reintentar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>Variant — credit</h2>
+    <span class="swatch-label">Credit / quota depletion. Includes plan upgrade CTA.</span>
+    <div class="demo-frame">
+      <div class="modal-overlay">
+        <div class="modal" role="dialog" aria-labelledby="m-credit-title">
+          <div class="modal-header">
+            <div class="modal-icon is-warning" aria-hidden="true">⏱</div>
+            <h2 class="modal-title" id="m-credit-title">Te quedan 3 escaneos este mes</h2>
+            <button class="modal-close" aria-label="Cerrar">×</button>
+          </div>
+          <div class="modal-body">
+            <p>Tu plan gratuito incluye 30 escaneos al mes. Ya usaste 27.</p>
+            <div class="progress-bar" style="margin: 12px 0;">
+              <div class="progress-fill" style="width: 90%; background: var(--accent);"></div>
+            </div>
+            <p style="font-size: 12px; color: var(--ink-3);">Se renueva el 1 de mayo · o pasá a Plan Pro para escaneos ilimitados.</p>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-ghost">Continuar gratis</button>
+            <button class="btn btn-primary">Ver Plan Pro</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>Composition</h2>
+    <div class="demo-frame" style="display: block; min-height: 0; padding: 20px 24px;">
+      <ul style="margin: 0; padding-left: 20px; font-size: 13px; color: var(--ink-2); line-height: 1.7;">
+        <li><strong>Atoms used (one level down):</strong> <a href="../atoms/button.html">button</a> (multiple variants) · <a href="../atoms/input.html">input</a> · <a href="../atoms/select.html">select</a> · <a href="../atoms/progress.html">progress</a> (credit variant)</li>
+        <li><strong>Used by screens:</strong> Transaction editor (form) · Single-scan error (error) · Settings → Suscripción (credit) · onboarding (learning) · destructive actions (confirm)</li>
+        <li><strong>Sizes:</strong> default 440px · <code>.modal-md</code> 560px · <code>.modal-lg</code> 720px</li>
+        <li><strong>State matrix:</strong> default · loading (footer button .is-loading) · error (form variant w/ error-summary) · stacked footer (mobile / single CTA)</li>
+        <li><strong>A11y:</strong> <code>role="dialog"</code> + <code>aria-labelledby</code> for confirm/form/learning/credit; <code>role="alertdialog"</code> for error. Trap focus inside modal. ESC closes (handled by tweaks.js).</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>Usage</h2>
+    <pre class="snippet">&lt;div class="modal-overlay"&gt;
+  &lt;div class="modal" role="dialog" aria-labelledby="m-title"&gt;
+    &lt;div class="modal-header"&gt;
+      &lt;div class="modal-icon is-warning"&gt;!&lt;/div&gt;
+      &lt;h2 class="modal-title" id="m-title"&gt;¿Eliminar gasto?&lt;/h2&gt;
+      &lt;button class="modal-close" aria-label="Cerrar"&gt;×&lt;/button&gt;
+    &lt;/div&gt;
+    &lt;div class="modal-body"&gt;&lt;p&gt;...&lt;/p&gt;&lt;/div&gt;
+    &lt;div class="modal-footer"&gt;
+      &lt;button class="btn btn-ghost"&gt;Cancelar&lt;/button&gt;
+      &lt;button class="btn btn-destructive"&gt;Eliminar&lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</pre>
+  </section>
+
+  <script src="../assets/js/tweaks.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,37 @@
+{
+  "merchant": "Target Wynwood Miami",
+  "date": "{{TODAY}}",
+  "category": "Bazaar",
+  "total": 4850,
+  "currency": "USD",
+  "country": "US",
+  "city": "Miami",
+  "merchantSource": "scan",
+  "promptVersion": "mock-v1",
+  "receiptType": "department_store",
+  "confidence": 0.92,
+  "items": [
+    {
+      "name": "Sunscreen SPF 50",
+      "qty": 1,
+      "totalPrice": 1450,
+      "category": "PersonalCare",
+      "subcategory": "Cuidado Solar"
+    },
+    {
+      "name": "Beach towel",
+      "qty": 1,
+      "totalPrice": 1900,
+      "category": "Apparel",
+      "subcategory": "Accesorios"
+    },
+    {
+      "name": "Bottled water 1.5L",
+      "qty": 3,
+      "unitPrice": 500,
+      "totalPrice": 1500,
+      "category": "Beverages",
+      "subcategory": "Agua"
+    }
+  ]
+}

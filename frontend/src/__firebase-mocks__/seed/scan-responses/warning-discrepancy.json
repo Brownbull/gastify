@@ -1,0 +1,36 @@
+{
+  "merchant": "Almacén Esquina (boleta borrosa)",
+  "date": "{{TODAY}}",
+  "category": "Almacen",
+  "total": 18900,
+  "currency": "CLP",
+  "country": "CL",
+  "city": "Santiago",
+  "merchantSource": "scan",
+  "promptVersion": "mock-v1",
+  "receiptType": "convenience_store",
+  "confidence": 0.42,
+  "items": [
+    {
+      "name": "Bebida cola 1.5L (precio ilegible)",
+      "qty": 1,
+      "totalPrice": 2500,
+      "category": "Beverages",
+      "subcategory": "Refrescos"
+    },
+    {
+      "name": "Galletas surtidas",
+      "qty": 2,
+      "unitPrice": 1750,
+      "totalPrice": 3500,
+      "category": "Snacks",
+      "subcategory": "Galletas"
+    },
+    {
+      "name": "Producto ilegible",
+      "qty": 1,
+      "totalPrice": 4500,
+      "category": "OtherItem"
+    }
+  ]
+}

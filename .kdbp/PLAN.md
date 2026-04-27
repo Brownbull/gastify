@@ -12,7 +12,7 @@ Produce complete clean-slate mockup surface for gastify — responsive web porta
 - **Maturity:** mvp
 - **Domain:** Smart personal expense tracker — AI receipt scanning, multi-currency, multi-platform (web + mobile), rebuild of BoletApp
 - **Created:** 2026-04-23
-- **Last Updated:** 2026-04-24 (Phase 2 Review ✅ · Phase 4 scope amended to add principal HTML hub + section sub-hubs + section-aware breadcrumb + Playwright hub coverage)
+- **Last Updated:** 2026-04-27 (L1 Exec ✅ — 11 atoms extracted from frontend/, atoms.css populated, sub-hub + catalog live, principal hub flipped, Playwright-verified across all 6 theme/mode combos)
 - **Platform sets:** 2 (web responsive + mobile unified)
 - **Strategy:** Clean-slate redesign from zero. Legacy boletapp mockups at `/home/khujta/projects/bmad/boletapp/docs/mockups/` = reference only, not port.
 - **Queued next:** Backend P1 Foundation — see `.kdbp/archive/queued_backend-p1.md` (activate after P13 handoff ships).
@@ -23,9 +23,15 @@ Produce complete clean-slate mockup surface for gastify — responsive web porta
 |---|-------|-------------|-------|------|------------|------|--------|--------|------|
 | 1 | Design language + tokens | Port 3 legacy themes (Normal/Pro/Mono × light/dark) + 3 new candidates as style prompts → 4-screen stress test × 6 themes × 3 platforms (desktop web / mobile web / native mobile) → pick runtime multi-theme set → lock tokens.json + design-system.html | design-system | ent | high | ✅ | ✅ | ✅ | ✅ |
 | 2 | Atomic components | Buttons, inputs, pills, badges, avatars, chips, skeletons, progress. Web + mobile | design-system, ui-kit | mvp | low | ✅ | ✅ | ✅ | ✅ |
-| 3 | Molecular components | Cards, modals, toasts, banners, nav (bottom-tab + top-bar + sidebar), FAB, filters, sheets, drawers, forms + COMPONENT-LIBRARY.md. Full state matrix + WCAG AA | design-system, ui-kit | ent | med | ⬜ | ⬜ | ⬜ | ⬜ |
+| 3 | Molecular components | Cards, modals, toasts, banners, nav (bottom-tab + top-bar + sidebar), FAB, filters, sheets, drawers, forms + COMPONENT-LIBRARY.md. Full state matrix + WCAG AA | design-system, ui-kit | ent | med | ✅ | ⬜ | ⬜ | ⬜ |
 | 4 | INDEX + Flow map + REQ×screen + CRUD×entity + central hub | Enumerate flows; low-fi skeleton per flow; seed `docs/mockups/INDEX.md` (4 tables) + REQ-COVERAGE.md; **principal `docs/mockups/index.html` hub with section cards (Design / Atoms / Molecules / Flows / Screens / Handoff) + `flows/index.html` + `molecules/index.html` sub-hubs; migrate top-hub tokens to `desktop-shell.css`; section-aware breadcrumb in `tweaks.js`; Playwright `hubs.spec.ts` coverage**. Living docs — P5-P12 update them. | mockup-flows, mockup-index | mvp | med | ✅ | ⬜ | ⬜ | ⬜ |
-| 5 | Auth + onboarding + consent | Login, register, forgot, email verify, 4-jurisdiction consent (CL/LATAM/EU/US/CA), welcome/first-open, PWA install. Web + mobile | user-facing, auth | mvp | med | ⬜ | ⬜ | ⬜ | ⬜ |
+| L0 | mockups-legacy: Foundation | **Active L-block — mini-phase that defers P5–P12.** Set up `docs/mockups-legacy/` parallel hierarchy: extract frontend tokens → `desktop-shell.css`, copy `tweaks.js` + icons, stub `atoms.css`/`molecules.css`, author principal hub + sub-hub placeholders, README + VERIFICATION + INDEX. Source = operational `frontend/` React port. | mockup-tooling, design-system | mvp | low | ✅ | ⬜ | ⬜ | ⬜ |
+| L1 | mockups-legacy: Atoms | Extract ~13 atoms from `frontend/src/components/` + `frontend/src/shared/ui/` to `docs/mockups-legacy/atoms/<name>.html`. Source-driven create + Playwright verify per `VERIFICATION.md`. | mockup-extracted, ui-kit | mvp | low | ✅ | ✅ | ⬜ | ⬜ |
+| L2 | mockups-legacy: Molecules | Extract ~60-80 molecules from `frontend/src/features/`. Three sub-phases: L2a direct counterparts (~18 matching clean-slate), L2b frontend-specific (~40-60 essential), L2c specialized long-tail. | mockup-extracted, ui-kit | mvp | med | ⬜ | ⬜ | ⬜ | ⬜ |
+| L3 | mockups-legacy: Flows | Extract 7+ user journeys from frontend handler chains. Reuse F1–F13 numbering where flows match clean-slate; add new IDs for novel flows (e.g., currency-mismatch resolution). | mockup-extracted, mockup-flows | mvp | low | ⬜ | ⬜ | ⬜ | ⬜ |
+| L4 | mockups-legacy: Screens | Extract ~57 views across 12 feature folders. Eight sub-phases (L4a–L4h) mapped to PLAN P5–P12 boundaries: a Auth, b Capture, c Batch, d History/Items/Insights, e Trends/Reports, f Groups, g Settings, h Edge states. | mockup-extracted, user-facing | mvp | high | ⬜ | ⬜ | ⬜ | ⬜ |
+| L5 | mockups-legacy: Catalog + handoff | Wire all atoms↔molecules↔screens↔flows cross-references (one-level), write `COMPARISON.md` (clean-slate vs legacy drift report), update root `docs/mockups/INDEX.md` with parallel-hierarchy navigation, run consistency check. **L5 ✅ unblocks P5–P12.** | mockup-extracted, mockup-docs | mvp | low | ⬜ | ⬜ | ⬜ | ⬜ |
+| 5 | Auth + onboarding + consent | **DEFERRED until L5 ✅.** Login, register, forgot, email verify, 4-jurisdiction consent (CL/LATAM/EU/US/CA), welcome/first-open, PWA install. Web + mobile | user-facing, auth | mvp | med | ⬜ | ⬜ | ⬜ | ⬜ |
 | 6 | Core capture loop | Dashboard, single-scan 5 states (incl. REQ-26 QR/CAF boleta as scan option), quicksave, manual entry, transaction editor (normal + hard-lock). Web + mobile | user-facing, capture, ai-agent | mvp | high | ⬜ | ⬜ | ⬜ | ⬜ |
 | 7 | Batch + statement flows | Scan mode selector, batch capture, credit warning, batch review, statement upload (consent + encrypted pw), processing, review list, reconciliation/matching. Web + mobile | user-facing, capture, reconciliation | mvp | high | ⬜ | ⬜ | ⬜ | ⬜ |
 | 8 | History + items + insights | History (5 filters, selection, date groups), items (aggregated/duplicates), insights (3-tab Lista/Airlock/Logro). Web + mobile | user-facing, data-view | mvp | med | ⬜ | ⬜ | ⬜ | ⬜ |
@@ -34,10 +40,16 @@ Produce complete clean-slate mockup surface for gastify — responsive web porta
 | 11 | Settings + profile | 9 subviews: Límites, Perfil, Preferencias (theme/dark/lang/currency/date/font), Escaneo, Suscripción, Datos, Grupos, App, Cuenta. Web + mobile | user-facing, settings | mvp | med | ⬜ | ⬜ | ⬜ | ⬜ |
 | 12 | Alerts + errors + offline states | Alerts list + unread badge, toasts, scan errors, credit depletion, offline banner, reconnect, 404/maintenance, push examples, extended edge states. Web + mobile | user-facing, edge-cases | ent | med | ⬜ | ⬜ | ⬜ | ⬜ |
 | 13 | Handoff + index hub + audit | index.html gallery, HANDOFF.json (against schema) + HANDOFF.md narrative, SCREEN-SPECS.md, MOCKUP-PLAN.md (frozen), full REQ×screen audit, a11y AA pass, cross-screen consistency check | mockup-docs, mockup-validation | ent | low | ⬜ | ⬜ | ⬜ | ⬜ |
+| Spike P14.0 | Mockup→React spike (Toast molecule) | Out-of-band exploration ahead of queued backend P1: codify `/gabe-mockup spike` mode in gabe_lens + validate by porting docs/mockups/molecules/toast.html into a working `frontend/` React + Vite + TS harness with Provider/Container/useToast system layer. Tokens single-source via @import chain. Recipe documented at docs/mockups/REACT-PORT-RECIPE.md. | spike, mockup-react | mvp | med | ✅ | ⬜ | ⬜ | ⬜ |
+
+> **Active queue — L-block (mockups-legacy):** Phases L0–L5 jump the queue ahead of P5–P12. They produce a parallel mockup hierarchy at `docs/mockups-legacy/` extracted from the operational React port at `frontend/`. **P5–P12 are deferred until L5 ✅** — when the L-block completes, Current Phase advances to P5. P13 (Handoff) still executes last; it audits both `docs/mockups/` and `docs/mockups-legacy/` together. Rationale + full insertion record: see Retrofit Log entry 2026-04-27.
 
 <!-- Exec is written by /gabe-execute: ⬜ not started, 🔄 in progress, ✅ complete -->
 <!-- Review/Commit/Push auto-ticked by /gabe-review, /gabe-commit, /gabe-push -->
 <!-- A phase is complete when all four status columns are ✅ -->
+<!-- L-block uses `L` prefix to distinguish from clean-slate P1–P13 track. /gabe-execute dispatches L0–L5 via gabe-mockup skill (same as P2/P3). -->
+<!-- "DEFERRED until L5 ✅" marker shown on P5; P6–P12 implicitly inherit the same deferral via the banner above. -->
+<!-- /gabe-review no-arg resolution: phases 3, 4, L0 each shipped Exec ✅ without a /gabe-review run, leaving Review=⬜ trailing the Current Phase pointer. The deterministic top-down resolution in /gabe-review (Step 0.3) lands on the first such row, NOT necessarily Current Phase. PENDING.md P11 tracks the cleanup. Until then, pass an explicit target (`/gabe-review docs/mockups-legacy/atoms`) when you want a phase other than the top match. -->
 
 ## Phase Details
 
@@ -327,17 +339,154 @@ decisions_entry: D19
 - **Trade-offs accepted:** See DECISIONS.md D19
 - **Scope:** `docs/mockups/index.html` browseable gallery (all screens + flows + components linked), `HANDOFF.md` (engineer spec with code-ready component inventory + token references + responsive breakpoints + gesture/animation specs), `SCREEN-SPECS.md` (per-screen breakdown: REQ coverage, components used, states, data shape), `MOCKUP-PLAN.md` (this plan frozen + what was cut), complete REQ×screen audit (every REQ-01..REQ-27 has ≥1 screen OR explicit not-user-facing tag), a11y pass (WCAG AA contrast + focus order + ARIA roles), cross-screen consistency check (tokens applied uniformly, no drift). **Enterprise scope:** this is the validation gate — not optional.
 
+### Phase L0 — mockups-legacy Foundation
+
+```yaml
+phase: L0
+types: [mockup-tooling, design-system]
+phase_tier: mvp
+prototype: false
+dim_overrides: []
+sections_considered: [Core, mockup-tooling, design-system]
+suppressed_dims_count: 0
+decisions_entry: RF-2026-04-27
+```
+
+- **Types:** `mockup-tooling, design-system`
+- **Tier:** mvp
+- **Prototype:** no
+- **Source plan:** `~/.claude/plans/at-this-stage-maybe-sunny-wall.md` (archived L-block design)
+- **Scope:** Set up `docs/mockups-legacy/` parallel hierarchy. Extract frontend tokens from `frontend/index.html` `:root` blocks → `assets/css/desktop-shell.css` (3 themes × 2 modes, `.dark` translated to `[data-mode="dark"]` for tweaks.js compat). Copy `tweaks.js` + icons from `docs/mockups/`. Stub `atoms.css` and `molecules.css`. Author principal hub `index.html` + sub-hub placeholders for atoms/molecules/flows/screens. Author `README.md`, `VERIFICATION.md` (per-component Playwright recipe), `INDEX.md` (catalog skeleton).
+- **Exit artifacts:** complete `docs/mockups-legacy/` skeleton verified by http-server boot + principal hub render + theme switching (Normal/Professional/Mono × light/dark) + Tweaks panel auto-detection.
+- **Status (2026-04-27):** Exec ✅. Review/Commit/Push pending.
+
+### Phase L1 — mockups-legacy Atoms
+
+```yaml
+phase: L1
+types: [mockup-extracted, ui-kit]
+phase_tier: mvp
+prototype: false
+dim_overrides: []
+sections_considered: [Core, mockup-extracted, ui-kit]
+suppressed_dims_count: 0
+decisions_entry: RF-2026-04-27
+```
+
+- **Types:** `mockup-extracted, ui-kit`
+- **Tier:** mvp
+- **Prototype:** no
+- **Scope:** Extract ~13 atoms from `frontend/src/components/` (App shell components, dialogs, toasts, progress, location selector, etc.) and `frontend/src/shared/ui/` (Toast, CircularProgress) into `docs/mockups-legacy/atoms/<name>.html`. Methodology per `docs/mockups-legacy/VERIFICATION.md`: read React source → author idiomatic mockup HTML using canonical CSS chain → verify side-by-side via Playwright at `localhost:4173` (mockup) vs `localhost:5174` (live frontend). Catalog each atom in `atoms/INDEX.md` with back-link to the React source file.
+- **Exit artifacts:** ~13 atom HTMLs, populated `atoms.css`, populated `atoms/index.html` sub-hub, populated `atoms/INDEX.md`, screenshots in `extraction-snapshots/<name>/`.
+
+### Phase L2 — mockups-legacy Molecules
+
+```yaml
+phase: L2
+types: [mockup-extracted, ui-kit]
+phase_tier: mvp
+prototype: false
+dim_overrides: []
+sections_considered: [Core, mockup-extracted, ui-kit]
+suppressed_dims_count: 0
+decisions_entry: RF-2026-04-27
+```
+
+- **Types:** `mockup-extracted, ui-kit`
+- **Tier:** mvp
+- **Prototype:** no
+- **Scope:** Three sub-phases.
+  - **L2a — Direct counterparts (~18):** the molecules that already exist in `docs/mockups/molecules/` (cards, modals, toast, banner, navs, FAB, filters, sheets, drawers, forms, list-items). Extract from frontend, verify each matches its clean-slate counterpart structurally; document divergence in catalog row.
+  - **L2b — Frontend-specific (~40-60):** molecules that exist only in the frontend across the 12 feature folders (analytics, batch-review, dashboard, history, insights, items, reports, scan, settings, transaction-editor, etc.). Triage to keep essentials.
+  - **L2c — Specialized long-tail:** AirlockSequence, BadgeUnlock, etc. Extract only if used by an extracted screen in L4.
+- **Exit artifacts:** ~60-80 molecule HTMLs, populated `molecules.css`, `molecules/COMPONENT-LIBRARY.md`, populated `molecules/index.html`.
+
+### Phase L3 — mockups-legacy Flows
+
+```yaml
+phase: L3
+types: [mockup-extracted, mockup-flows]
+phase_tier: mvp
+prototype: false
+dim_overrides: []
+sections_considered: [Core, mockup-extracted, mockup-flows]
+suppressed_dims_count: 0
+decisions_entry: RF-2026-04-27
+```
+
+- **Types:** `mockup-extracted, mockup-flows`
+- **Tier:** mvp
+- **Prototype:** no
+- **Scope:** Extract 7+ user journeys from frontend handler chains (`frontend/src/features/*/hooks/use*Handlers.ts`, `frontend/src/hooks/app/useTransactionHandlers.ts`). Map to clean-slate F1–F13 numbering where the journey matches; add new IDs for novel flows surfaced only by the legacy port (e.g., currency-mismatch resolution per the F1–F6 findings in `.kdbp/KNOWLEDGE.md` 2026-04-27 entry).
+- **Exit artifacts:** ~8-10 flow walkthrough HTMLs, populated `flows/index.html`, INDEX.md flow-table populated.
+
+### Phase L4 — mockups-legacy Screens
+
+```yaml
+phase: L4
+types: [mockup-extracted, user-facing]
+phase_tier: mvp
+prototype: false
+dim_overrides: []
+sections_considered: [Core, mockup-extracted, user-facing]
+suppressed_dims_count: 0
+decisions_entry: RF-2026-04-27
+```
+
+- **Types:** `mockup-extracted, user-facing`
+- **Tier:** mvp
+- **Prototype:** no
+- **Scope:** Extract ~57 views across 12 feature folders. Eight sub-phases mapped to clean-slate P5–P12 boundaries:
+  - **L4a → P5 (Auth):** ~1 (login only — frontend has minimal auth surface; gap documented)
+  - **L4b → P6 (Core capture):** ~5 (dashboard, single-scan states, quicksave, manual entry, transaction editor)
+  - **L4c → P7 (Batch + statement):** ~5 (mode selector, batch capture, credit warning, batch review, statement upload placeholder)
+  - **L4d → P8 (History + items + insights):** ~3 (history with filters, items aggregated/duplicates, insights 3-tab)
+  - **L4e → P9 (Trends + reports):** ~2 (trends carousel donut/sankey/treemap/bump, reports 4-accordion)
+  - **L4f → P10 (Groups):** likely partial — frontend may not have full 16-screen groups surface; document gaps
+  - **L4g → P11 (Settings):** ~9 subviews (Límites, Perfil, Preferencias, Escaneo, Suscripción, Datos, Grupos, App, Cuenta)
+  - **L4h → P12 (Edge states):** scattered — error/empty/offline states across views, including the 3 distinct error variants per `.kdbp/PENDING.md` P6 (insufficient credits / rate limit / generic)
+- **Each sub-phase ends with a natural pause point.** Hard checkpoint after L4d (~halfway through screens) to re-evaluate scope.
+- **Exit artifacts:** ~30 mobile + ~30 desktop variants, populated `screens/index.html`, `INDEX.md` §5 sub-tables populated per sub-phase.
+
+### Phase L5 — mockups-legacy Catalog + handoff
+
+```yaml
+phase: L5
+types: [mockup-extracted, mockup-docs]
+phase_tier: mvp
+prototype: false
+dim_overrides: []
+sections_considered: [Core, mockup-extracted, mockup-docs]
+suppressed_dims_count: 0
+decisions_entry: RF-2026-04-27
+```
+
+- **Types:** `mockup-extracted, mockup-docs`
+- **Tier:** mvp
+- **Prototype:** no
+- **Scope:** Wire all atoms↔molecules↔screens↔flows cross-references (one-level only, per gabe-mockup conventions). Author `docs/mockups-legacy/COMPARISON.md` — drift report comparing clean-slate `docs/mockups/` against legacy-extracted `docs/mockups-legacy/`. Update `docs/mockups/INDEX.md` with a Navigation section pointing at the parallel hierarchy. Run consistency check (tokens applied uniformly, no hex/rgb in HTML, all cross-refs intact). Optionally extend `tests/mockups/hubs.spec.ts` with `mockups-legacy/` coverage.
+- **Exit artifacts:** complete cross-reference graph, `COMPARISON.md`, updated root `INDEX.md`, optional Playwright suite extension.
+- **L5 ✅ unblocks P5–P12.** Once L5 status is fully ✅, advance Current Phase to **Phase 5: Auth + onboarding + consent** and remove "DEFERRED" markers on P5–P12.
+
 ## Current Phase
 
-Phase 2: Atomic components
+**Phase L1: mockups-legacy Atoms** — Exec ✅, Review ✅ (commit/push pending)
+
+P1–P4 of the clean-slate track are Exec ✅. L0 ✅ + L1 Exec ✅ landed 2026-04-27. L1 Review ✅ landed 2026-04-27 (cross-agent triangulation Codex+Claude, 9 findings all fixed in the review session — see LEDGER 2026-04-27 19:15). Next phase in queue is **L2 (Molecules)** — three sub-phases L2a/L2b/L2c, sequenced after L1 commit/push complete. After L5 ✅ ships, Current Phase advances to **Phase 5: Auth + onboarding + consent**.
 
 ## Dependencies
 
 - P2 ← P1
 - P3 ← P1, P2
 - P4 ← P1 (can run parallel with P2/P3)
-- P5–P12 ← P3 (components must exist before screens use them)
-- P13 ← P1–P12 (all screens + components must exist before audit)
+- **L0–L5 ← `frontend/` operational** (the React port at `frontend/` is the extraction source)
+- **L1 ← L0** (foundation tooling + tokens must exist)
+- **L2 ← L1** (atoms feed molecules)
+- **L3 ← L2** (flows reference molecules)
+- **L4 ← L2, L3** (screens compose molecules and route via flows)
+- **L5 ← L1, L2, L3, L4** (catalog crosses all tiers)
+- **P5–P12 ← L5** (deferred — clean-slate screen phases unblock when L-block ships)
+- P13 ← P1–P12 + L0–L5 (audits both clean-slate and legacy tracks)
 
 ## Risks
 
@@ -369,4 +518,8 @@ Phase 2: Atomic components
 - **2026-04-24 — /gabe-plan check `[fix-types]`:** Synced Phase Details YAML `types:` + `sections_considered:` + prose `**Types:**` lines to match Phases table cells. P4: `[flows, index]` → `[mockup-flows, mockup-index]`. P13: `[documentation, validation]` → `[mockup-docs, mockup-validation]`. Closes YAML-vs-Phases-table drift introduced by 2026-04-24 /gabe-mockup retrofit. Zero LLM calls, zero tier changes.
 - **2026-04-24 — Phase 2 Exec via /gabe-mockup M2 recipe:** 10 atoms authored at `docs/mockups/atoms/` (button · input · select · pill · badge · avatar · chip · skeleton · progress · spinner). Canonical atom stylesheet at `docs/mockups/assets/css/atoms.css` (458 lines) using P1-locked shell token vocab + supplementary spacing/radii/type-scale tokens. Each atom HTML self-contained (loads `desktop-shell.css + atoms.css + tweaks.js`), zero hex/rgb literals in atom HTML. `atoms/INDEX.md` catalog with selector map, state convention, and M13 a11y backlog (Mono Dark `--primary-ink` contrast gap surfaced). Phase 2 Exec ⬜→🔄→✅. Note: Phase 2 Commit column was already ✅ from 2026-04-23 P2 infra seed commit; Review + Push still ⬜.
 - **2026-04-24 — /gabe-mockup retrofit:** Added `<!-- project_type: mockup -->` to PLAN frontmatter. Added `project_type: mockup` to BEHAVIOR.md frontmatter. P4 types renamed `[flows, index]` → `[mockup-flows, mockup-index]` + description upgraded to include 4-table INDEX.md governance + CRUD×entity matrix. P13 types renamed `[documentation, validation]` → `[mockup-docs, mockup-validation]`. Seeded `.kdbp/ENTITIES.md` (9 principal entities from SCOPE REQs). Landed `docs/mockups/assets/js/tweaks.js` (self-contained runtime Tweaks panel — single-script include) from gabe_lens template. Existing `docs/mockups/assets/css/desktop-shell.css` remains canonical token source (P1 exit artifact, v2.0.0 per `assets/tokens/tokens.json`); tweaks.js detects its `[data-theme][data-mode]` selectors without filename coupling. Seeded `docs/mockups/INDEX.md` from template (4-table skeleton, populated progressively P4-P12). Caught by `/gabe-next` dispatching to `/gabe-mockup` instead of `/gabe-execute` on Current Phase = 2.
+- **2026-04-25 — Phase 3 Exec via /gabe-mockup M3 recipe:** 18 molecules authored at `docs/mockups/molecules/`. Foundation: state-tabs (canonical multi-state). Cards: card-transaction · card-stat · card-empty · card-feature · card-celebration. Overlays: modal (5 variants confirm/form/learning/error/credit) · sheet · drawer. Feedback: toast (4 variants) · banner (4 variants incl. offline edge-bleed). Nav: nav-bottom (mobile 5-tab) · nav-top (desktop) · nav-sidebar (expanded + collapsed) · fab (with long-press scan-mode menu). Forms: form (multi-step + conditional reveal + error summary) · filters (5 chip types + search) · list-item (selectable + swipeable). Canonical stylesheet at `assets/css/molecules.css` (~640 lines, 15 sections, zero hex/rgb literals — composes desktop-shell tokens + atom primitives). `COMPONENT-LIBRARY.md` catalog with state matrix × atom dependency × platform variance × P5-P12 contract. `molecules/index.html` rebuilt as live catalog hub (placeholder retired). `INDEX.md §5` populated with 18 catalog rows + sub-hub references. Playwright `tests/mockups/molecules.spec.ts` adds 20 specs (18 smoke + state-tabs interaction + hub catalog); `hubs.spec.ts` molecules section retrofitted from placeholder assertions to live-hub assertions. Full mockup suite: 63/63 pass. Phase 3 Exec ⬜→🔄→✅. Review + Commit + Push remain ⬜.
 - **2026-04-24 — Phase 4 amendment (D22): central hub + section sub-hubs.** Phase 4 scope expanded to include the principal `docs/mockups/index.html` hub restructure + per-section sub-hubs (`flows/index.html`, `molecules/index.html`) + section-aware breadcrumb in `tweaks.js` + Playwright `hubs.spec.ts` coverage. Token migration in the top hub: inline `:root` block (lines ~13-27 of existing index.html) → `desktop-shell.css` canonical tokens (option a, accepted small visual shift). Phase tier remains `mvp`; no `dim_overrides` change. Layer B (extracting the pattern into `gabe_lens/templates/mockup/` so `/gabe-mockup` seeds it on future projects) is **queued as a separate follow-up**, tracked outside this PLAN. Source: `/gabe-plan update` invoked from `/plan` confirmation.
+- **2026-04-26 — Spike P14.0 (out-of-band): Mockup→React validation via `/gabe-mockup spike toast --system`.** Translated `docs/mockups/molecules/toast.html` into a working React component under new `frontend/` directory (Vite + React 18 + TypeScript). Canonical token chain via Vite `@mockups` alias + `@import` of desktop-shell.css + atoms.css + molecules.css. System layer: `ToastProvider` (queue, max 3, FIFO eviction) + `ToastContainer` + `useToast` hook (success/info/warning/error dispatchers). Verification: `tsc --noEmit` clean, `vite build` clean (37 modules, 65.93kB CSS bundled — token chain proven to resolve). Visual diff vs static mockup at port 4173 deferred to user (requires browser). Bookkeeping: `docs/mockups/REACT-PORT-RECIPE.md` documents conventions + components-ported table + next-component checklist. **This spike sits ahead of queued backend P1** (`.kdbp/archive/queued_backend-p1.md`) which planned the React scaffold; when P1 activates, the existing `frontend/` is absorbed rather than rebuilt. The skill side: `gabe_lens/skills/gabe-mockup/SKILL.md` now has a "Modes" section + a documented `spike` mode + a "Shared conventions — React port" subsection. New template subtree at `gabe_lens/templates/mockup/react/` (16 files) drives the recipe — mirrored to `refrepos/setup/cherry-pick/kdbp/templates/mockup/react/`. Per existing dual-home install, the templates auto-flow to both `~/.claude/templates/gabe/mockup/react/` and `~/.agents/templates/gabe/mockup/react/`.
+- **2026-04-27 — L-block insertion (mockups-legacy parallel hierarchy):** The `frontend/` React port (originally a Spike P14.0 toast translation) ballooned during sustained sessions into a fully operational app with all backends mocked (Firebase Auth/Firestore/Storage/Functions/Messaging shimmed; Gemini canned via 8-case scan-picker). Strategic decision recorded in `.kdbp/KNOWLEDGE.md` 2026-04-27 entry: gastify will **rebuild the frontend from scratch** rather than reuse the legacy port — but the operational port serves as a high-fidelity extraction source for the remaining mockup work. Rather than continue P5–P12 from imagination/screenshots, we extract directly from `frontend/` into a parallel mockup hierarchy at `docs/mockups-legacy/`. Inserted Phases L0–L5 in the active queue between Phase 4 (done) and Phase 5 (deferred). L0 Foundation ✅ shipped same day: tokens extracted from `frontend/index.html` into `docs/mockups-legacy/assets/css/desktop-shell.css` (3 themes × 2 modes, `.dark` translated to `[data-mode="dark"]` for tweaks.js compat); `tweaks.js` + icons copied from `docs/mockups/`; `atoms.css`/`molecules.css` stubbed; principal hub `index.html` + sub-hub placeholders authored; README + VERIFICATION + INDEX docs scaffolded; Python http-server boots on `:4173`; theme switching verified Normal Light → Professional Dark via Playwright. L-block design archived at `~/.claude/plans/at-this-stage-maybe-sunny-wall.md`. P5–P12 deferred until L5 ✅ ships; L5 then unblocks the clean-slate screen track. P13 (Handoff) audits both hierarchies. Methodology = source-driven create + Playwright verify per `docs/mockups-legacy/VERIFICATION.md`. /gabe-execute dispatches L-block via gabe-mockup skill (same dispatch as P2/P3). Decision tag: `RF-2026-04-27` for the YAML `decisions_entry` slot.
+- **2026-04-27 — Phase L1 Exec ✅ (mockups-legacy atoms):** 11 atoms extracted from `frontend/src/`: button · input · select · pill · badge · avatar · chip · skeleton · progress · spinner · toast. The "~13" in the plan tolerance reduced to 11 because the frontend uses **inline Tailwind utility classes** rather than dedicated atom React components — there is no `Button.tsx` / `Input.tsx` / etc. The catalogued atoms mirror the **visual primitives** the live frontend produces, with named class selectors a refactor would land on. Only `frontend/src/shared/ui/Toast.tsx` exists as a true atom React file (drove `atoms/toast.html`). Canonical stylesheet `assets/css/atoms.css` populated (~340 lines, 11 sections, zero hex/rgb literals — composes desktop-shell tokens). Each atom HTML self-contained (loads `desktop-shell.css + atoms.css + tweaks.js`), includes a "Used by molecules (one level up)" placeholder section per cross-ref contract, populated during L2 extraction. `atoms/INDEX.md` catalog with React source back-links + selector convention + state coverage convention + dependencies-down explainer. `atoms/index.html` sub-hub rebuilt as live catalog (placeholder retired) — card grid with inline previews per atom using real DOM. Principal hub `index.html` Atoms card flipped `placeholder → live`, meta-pill updated to "11 atoms ✅". Root `INDEX.md §2 Atoms` table populated with 11 catalog rows + back-links. Verification: Playwright captured atoms-hub × Normal Light + Normal Dark + Professional Light, button atom × Normal Light, toast atom × Professional Light at `extraction-snapshots/_l1-verification/`. Programmatic spot-check confirmed CSS variable cascade resolves correctly per theme on `body` (`--primary` → #4a7c59 / #6b9e7a / #2563eb / #60a5fa / #18181b / #fafafa for the 6 theme/mode combos). Selector convention: BEM-lite (`.btn`, `.btn--primary`, `.btn--sm`, `.is-active`, `.is-error`). State convention: pseudo-class + `aria-*` driven; class-state only where ARIA isn't expressive enough. Phase L1 Exec ⬜→🔄→✅. Review + Commit + Push remain ⬜.

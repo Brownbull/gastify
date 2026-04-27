@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Atom: badge — gastify (mockups-legacy)</title>
+  <link rel="stylesheet" href="../assets/css/desktop-shell.css">
+  <link rel="stylesheet" href="../assets/css/atoms.css">
+  <style>
+    body { margin: 0; background: var(--bg); color: var(--text-primary); min-height: 100vh; padding: 40px 320px 48px 48px; font-family: var(--font-family); }
+    h1 { font-size: 24px; margin: 0 0 6px 0; font-weight: 700; }
+    .subtitle { color: var(--text-secondary); font-size: 13px; margin: 0 0 32px 0; max-width: 720px; line-height: 1.5; }
+    .source-link { display: inline-block; margin-top: 8px; font-size: 11px; color: var(--text-tertiary); font-family: ui-monospace, Consolas, monospace; }
+    .source-link a { color: var(--primary); text-decoration: none; }
+    .source-link a:hover { text-decoration: underline; }
+    .demo-section { margin-bottom: 36px; }
+    .demo-section h2 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-tertiary); margin: 0 0 14px 0; font-weight: 600; }
+    .demo-row { display: flex; flex-wrap: wrap; gap: 24px; align-items: center; background: var(--surface); padding: 24px; border-radius: 12px; border: 1px solid var(--border-light); }
+    .demo-swatch { display: flex; flex-direction: column; gap: 8px; align-items: center; min-width: 80px; }
+    .demo-swatch-label { font-size: 11px; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.05em; }
+    .icon-square { width: 36px; height: 36px; border-radius: 10px; background: var(--bg-tertiary); color: var(--text-secondary); display: inline-flex; align-items: center; justify-content: center; }
+    .crossref { background: var(--bg-secondary); padding: 16px 18px; border-radius: 10px; border: 1px solid var(--border-light); font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+    .crossref em { color: var(--text-tertiary); font-style: italic; }
+  </style>
+</head>
+<body>
+  <h1>Badge</h1>
+  <p class="subtitle">Tiny count or dot indicator. Sits on top of nav icons, avatars, and bell icons. <code>.badge</code> = count badge (numeric); <code>.badge--dot</code> = pure presence dot. Composed via <code>.badge-host</code> wrapper for icon+badge stacking.</p>
+  <p class="source-link">Source: <a href="../../../frontend/src/components/Nav.tsx" target="_blank">Nav.tsx</a> (unread alert count), <a href="../../../frontend/src/components/TopHeader.tsx" target="_blank">TopHeader.tsx</a> (notification dot). Frontend pattern: <code>bg-amber-100 text-amber-700 rounded-full min-w-[18px] h-[18px] ...</code></p>
+
+  <section class="demo-section">
+    <h2>Counts</h2>
+    <div class="demo-row">
+      <div class="demo-swatch"><span class="demo-swatch-label">single</span><span class="badge">3</span></div>
+      <div class="demo-swatch"><span class="demo-swatch-label">double</span><span class="badge">12</span></div>
+      <div class="demo-swatch"><span class="demo-swatch-label">overflow</span><span class="badge">99+</span></div>
+      <div class="demo-swatch"><span class="demo-swatch-label">dot</span><span class="badge badge--dot" aria-label="Hay novedades"></span></div>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>Variants</h2>
+    <div class="demo-row">
+      <div class="demo-swatch"><span class="demo-swatch-label">default (error)</span><span class="badge">3</span></div>
+      <div class="demo-swatch"><span class="demo-swatch-label">success</span><span class="badge badge--success">5</span></div>
+      <div class="demo-swatch"><span class="demo-swatch-label">warning</span><span class="badge badge--warning">!</span></div>
+      <div class="demo-swatch"><span class="demo-swatch-label">neutral</span><span class="badge badge--neutral">2</span></div>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>On host (icon + badge overlay)</h2>
+    <div class="demo-row">
+      <div class="demo-swatch"><span class="demo-swatch-label">bell + 3</span>
+        <span class="badge-host">
+          <span class="icon-square">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+          </span>
+          <span class="badge">3</span>
+        </span>
+      </div>
+      <div class="demo-swatch"><span class="demo-swatch-label">bell + dot</span>
+        <span class="badge-host">
+          <span class="icon-square">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+          </span>
+          <span class="badge badge--dot"></span>
+        </span>
+      </div>
+      <div class="demo-swatch"><span class="demo-swatch-label">avatar + 99+</span>
+        <span class="badge-host">
+          <span class="avatar avatar--sm">JM</span>
+          <span class="badge">99+</span>
+        </span>
+      </div>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>Categories — 6 representative L1 Rubros</h2>
+    <div class="demo-row" style="display: flex; flex-wrap: wrap; gap: 14px; align-items: center;">
+      <span class="demo-swatch"><span class="demo-swatch-label">supermercados</span><span class="badge badge--cat-supermercados">14</span></span>
+      <span class="demo-swatch"><span class="demo-swatch-label">restaurantes</span><span class="badge badge--cat-restaurantes">9</span></span>
+      <span class="demo-swatch"><span class="demo-swatch-label">vivienda</span><span class="badge badge--cat-vivienda">3</span></span>
+      <span class="demo-swatch"><span class="demo-swatch-label">salud-bienestar</span><span class="badge badge--cat-salud-bienestar">2</span></span>
+      <span class="demo-swatch"><span class="demo-swatch-label">educacion</span><span class="badge badge--cat-educacion">2</span></span>
+      <span class="demo-swatch"><span class="demo-swatch-label">otros</span><span class="badge badge--cat-otros">7</span></span>
+    </div>
+    <p class="source-link" style="margin-top: 8px;">Full 12-Rubro catalog: <a href="./categories.html">categories.html</a>. Pattern: <code>.badge--cat-&lt;key&gt;</code> swaps fg↔bg of the category triplet (transaction count badges read as a colored count on a contrasting background).</p>
+  </section>
+
+  <section class="demo-section">
+    <h2>Used by molecules (one level up)</h2>
+    <div class="crossref">
+      <em>Populated during Phase L2 — molecule extraction. Anticipated consumers: nav-top (notification bell), nav-bottom (alerts tab unread count), card-stat (delta indicator), list-item (status dot).</em>
+    </div>
+  </section>
+
+  <script src="../assets/js/tweaks.js" defer></script>
+</body>
+</html>

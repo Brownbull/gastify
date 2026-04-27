@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Atoms — mockups-legacy — gastify</title>
+  <link rel="stylesheet" href="../assets/css/desktop-shell.css">
+  <link rel="stylesheet" href="../assets/css/atoms.css">
+  <style>
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text-primary);
+      min-height: 100vh;
+      padding: 40px 320px 48px 48px;
+      font-family: var(--font-family);
+    }
+    .hub-header { margin-bottom: 32px; max-width: 760px; }
+    .hub-header h1 {
+      font-family: var(--font-family-wordmark);
+      font-weight: 700;
+      font-size: 32px;
+      color: var(--primary);
+      margin: 0;
+    }
+    .hub-header .lede {
+      color: var(--text-secondary);
+      font-size: 14px;
+      line-height: 1.6;
+      margin: 8px 0 0;
+    }
+    .hub-header .meta {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 16px;
+      font-size: 12px;
+      color: var(--text-tertiary);
+    }
+    .meta-pill {
+      background: var(--bg-secondary);
+      padding: 4px 10px;
+      border-radius: 9999px;
+      font-weight: 600;
+      border: 1px solid var(--border-light);
+    }
+    .meta-pill strong { color: var(--primary); }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 18px;
+    }
+    .atom-card {
+      display: flex;
+      flex-direction: column;
+      background: var(--surface);
+      border: 1px solid var(--border-light);
+      border-radius: 14px;
+      overflow: hidden;
+      text-decoration: none;
+      color: inherit;
+      transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+    }
+    .atom-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+      border-color: var(--primary);
+    }
+    .atom-card:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+
+    .atom-preview {
+      min-height: 96px;
+      padding: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border-light);
+    }
+    .atom-meta {
+      padding: 14px 18px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .atom-meta h2 {
+      font-family: var(--font-family-wordmark);
+      font-size: 17px;
+      margin: 0;
+      letter-spacing: -0.01em;
+    }
+    .atom-desc {
+      font-size: 12px;
+      color: var(--text-secondary);
+      line-height: 1.45;
+      margin: 0;
+    }
+    .atom-stats {
+      font-size: 11px;
+      color: var(--text-tertiary);
+      margin-top: 2px;
+      font-family: ui-monospace, Consolas, monospace;
+    }
+  </style>
+</head>
+<body>
+  <header class="hub-header">
+    <h1>Atoms</h1>
+    <p class="lede">Visual primitives extracted from the operational React port at <code>frontend/src/</code>. Each card opens a demo page showing variants, sizes, and states. Selectors live in <a href="../assets/css/atoms.css"><code>atoms.css</code></a>; tokens in <a href="../assets/css/desktop-shell.css"><code>desktop-shell.css</code></a> (verbatim from <code>frontend/index.html</code>).</p>
+    <div class="meta">
+      <span class="meta-pill"><strong>L1</strong> live</span>
+      <span class="meta-pill">13 atoms</span>
+      <span class="meta-pill">3 themes × 2 modes via Tweaks panel</span>
+      <span class="meta-pill">Catalog: <a href="INDEX.md">INDEX.md</a></span>
+    </div>
+  </header>
+
+  <nav class="grid" aria-label="Atom catalog">
+
+    <a class="atom-card" href="button.html">
+      <div class="atom-preview">
+        <button class="btn btn--primary btn--sm">Guardar</button>
+        <button class="btn btn--secondary btn--sm">Cancelar</button>
+        <button class="btn btn--icon btn--sm" aria-label="Más">+</button>
+      </div>
+      <div class="atom-meta">
+        <h2>Button</h2>
+        <p class="atom-desc">5 variants × 3 sizes × disabled/loading. Primary action surface.</p>
+        <span class="atom-stats">.btn · .btn--primary/secondary/ghost/destructive/icon</span>
+      </div>
+    </a>
+
+    <a class="atom-card" href="input.html">
+      <div class="atom-preview">
+        <input class="input input--sm" type="text" placeholder="Nombre del comercio" style="max-width: 200px;">
+      </div>
+      <div class="atom-meta">
+        <h2>Input</h2>
+        <p class="atom-desc">5 types × 3 sizes × default/error/disabled. Mirrors recurring <code>border rounded-lg</code> Tailwind shape.</p>
+        <span class="atom-stats">.input · .input--sm/lg · .input-wrap · .is-error</span>
+      </div>
+    </a>
+
+    <a class="atom-card" href="select.html">
+      <div class="atom-preview">
+        <select class="select" style="max-width: 220px;">
+          <option>CLP — Peso chileno</option>
+          <option>USD — Dólar</option>
+        </select>
+      </div>
+      <div class="atom-meta">
+        <h2>Select</h2>
+        <p class="atom-desc">Native dropdown styled like input. The button-trigger (LocationSelect) variant is a molecule.</p>
+        <span class="atom-stats">.select · default/selected/disabled</span>
+      </div>
+    </a>
+
+    <a class="atom-card" href="pill.html">
+      <div class="atom-preview">
+        <span class="pill pill--primary">Verificado</span>
+        <span class="pill pill--success">Sin gastos</span>
+        <span class="pill pill--warning">Cercano</span>
+      </div>
+      <div class="atom-meta">
+        <h2>Pill</h2>
+        <p class="atom-desc">Static label / status indicator. Different from chip (interactive) and badge (count).</p>
+        <span class="atom-stats">.pill · 6 variants · with-icon</span>
+      </div>
+    </a>
+
+    <a class="atom-card" href="badge.html">
+      <div class="atom-preview">
+        <span class="badge-host">
+          <span style="width: 32px; height: 32px; background: var(--bg-tertiary); color: var(--text-secondary); display: inline-flex; align-items: center; justify-content: center; border-radius: 9999px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+          </span>
+          <span class="badge">3</span>
+        </span>
+        <span class="badge badge--success">5</span>
+        <span class="badge badge--dot"></span>
+      </div>
+      <div class="atom-meta">
+        <h2>Badge</h2>
+        <p class="atom-desc">Tiny count or dot indicator. Composes with badge-host wrapper for icon+badge stacking.</p>
+        <span class="atom-stats">.badge · .badge--dot · .badge-host</span>
+      </div>
+    </a>
+
+    <a class="atom-card" href="avatar.html">
+      <div class="atom-preview">
+        <span class="avatar avatar--sm">JM</span>
+        <span class="avatar">JM</span>
+        <span class="avatar avatar--lg avatar--accent">CL</span>
+        <span class="avatar avatar--lg avatar--placeholder">?</span>
+      </div>
+      <div class="atom-meta">
+        <h2>Avatar</h2>
+        <p class="atom-desc">User / group identity circle. 5 sizes (xs–xl) × initials or img fallback.</p>
+        <span class="atom-stats">.avatar · .avatar--xs/sm/lg/xl · .avatar--accent/neutral/placeholder</span>
+      </div>
+    </a>
+
+    <a class="atom-card" href="chip.html">
+      <div class="atom-preview">
+        <button class="chip">Inactivo</button>
+        <button class="chip is-active" aria-pressed="true">Activo</button>
+        <button class="chip">Cuenta <span class="chip__count">14</span></button>
+      </div>
+      <div class="atom-meta">
+        <h2>Chip</h2>
+        <p class="atom-desc">Interactive (toggleable) selector. Drives filter strips, period selectors, and 3-tab pickers.</p>
+        <span class="atom-stats">.chip · .is-active · .chip__count</span>
+      </div>
+    </a>
+
+    <a class="atom-card" href="skeleton.html">
+      <div class="atom-preview" style="flex-direction: column; align-items: stretch; gap: 8px; padding: 22px;">
+        <span class="skeleton skeleton--title skeleton--w-60"></span>
+        <span class="skeleton skeleton--text skeleton--w-100"></span>
+        <span class="skeleton skeleton--text skeleton--w-75"></span>
+      </div>
+      <div class="atom-meta">
+        <h2>Skeleton</h2>
+        <p class="atom-desc">Shimmer loading placeholder. 5 shapes + width helpers. Used during scan + history loading.</p>
+        <span class="atom-stats">.skeleton · .skeleton--text/title/block/circle/button · .skeleton--w-25/40/60/75/100</span>
+      </div>
+    </a>
+
+    <a class="atom-card" href="progress.html">
+      <div class="atom-preview" style="flex-direction: column; align-items: stretch; gap: 10px; padding: 22px;">
+        <div class="progress"><span class="progress__bar" style="width: 62%;"></span></div>
+        <div class="progress progress--success"><span class="progress__bar" style="width: 100%;"></span></div>
+        <div class="progress progress--warning"><span class="progress__bar" style="width: 78%;"></span></div>
+      </div>
+      <div class="atom-meta">
+        <h2>Progress</h2>
+        <p class="atom-desc">Linear bar — track + fill. 5 variants × indeterminate. Used in batch processing + credit usage.</p>
+        <span class="atom-stats">.progress · .progress__bar · .progress--success/warning/error/accent · .is-indeterminate</span>
+      </div>
+    </a>
+
+    <a class="atom-card" href="spinner.html">
+      <div class="atom-preview">
+        <span class="spinner spinner--sm"></span>
+        <span class="spinner"></span>
+        <span class="spinner spinner--lg spinner--accent"></span>
+      </div>
+      <div class="atom-meta">
+        <h2>Spinner</h2>
+        <p class="atom-desc">Circular indeterminate loader. CSS-only equivalent of <code>&lt;Loader2 className="animate-spin"&gt;</code>.</p>
+        <span class="atom-stats">.spinner · .spinner--sm/lg · 6 color variants</span>
+      </div>
+    </a>
+
+    <a class="atom-card" href="toast.html">
+      <div class="atom-preview" style="flex-direction: column; gap: 8px;">
+        <div class="toast toast--success" style="font-size: 12px; padding: 8px 12px;">
+          <span class="toast__icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+          Guardado
+        </div>
+        <div class="toast toast--error" style="font-size: 12px; padding: 8px 12px;">
+          <span class="toast__icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg></span>
+          Error
+        </div>
+      </div>
+      <div class="atom-meta">
+        <h2>Toast</h2>
+        <p class="atom-desc">Notification card — atom-level visual only. Queue + auto-dismiss is molecule (L2).</p>
+        <span class="atom-stats">.toast · .toast--success/info/warning/error · .toast__icon</span>
+      </div>
+    </a>
+
+    <a class="atom-card" href="categories.html">
+      <div class="atom-preview" style="flex-direction: column; gap: 6px; align-items: stretch;">
+        <div style="display: flex; gap: 4px; flex-wrap: wrap; justify-content: center;">
+          <span class="pill pill--cat-supermercados" style="font-size: 10px;">🛒 Super</span>
+          <span class="pill pill--cat-restaurantes" style="font-size: 10px;">🍽️ Rest</span>
+          <span class="pill pill--cat-vivienda" style="font-size: 10px;">🏠 Vivienda</span>
+        </div>
+        <div style="display: flex; gap: 4px; flex-wrap: wrap; justify-content: center;">
+          <span class="pill pill--cat-salud-bienestar" style="font-size: 10px;">💊 Salud</span>
+          <span class="pill pill--cat-otros" style="font-size: 10px;">📦 Otros</span>
+        </div>
+      </div>
+      <div class="atom-meta">
+        <h2>Categories</h2>
+        <p class="atom-desc">12 L1 Rubros (V4 taxonomy) — fg/bg/border tokens × 6 theme/mode. Drives pill/chip/badge category variants.</p>
+        <span class="atom-stats">--cat-&lt;key&gt;-{fg,bg,border} · .pill--cat-&lt;key&gt; · .chip--cat-&lt;key&gt; · .badge--cat-&lt;key&gt;</span>
+      </div>
+    </a>
+
+    <a class="atom-card" href="icon.html">
+      <div class="atom-preview" style="flex-direction: column; gap: 6px; align-items: center; justify-content: center;">
+        <div style="display: flex; gap: 12px; color: var(--text-primary);">
+          <span class="icon icon--xl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg></span>
+          <span class="icon icon--xl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span>
+          <span class="icon icon--xl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></span>
+        </div>
+        <div style="font-size: 18px; line-height: 1; display: flex; gap: 6px;">
+          <span role="img" aria-label="supermercados">🛒</span>
+          <span role="img" aria-label="restaurantes">🍽️</span>
+          <span role="img" aria-label="vivienda">🏠</span>
+        </div>
+      </div>
+      <div class="atom-meta">
+        <h2>Icon</h2>
+        <p class="atom-desc">Lucide-react registry (top 30 of 158 imports) + L1 Rubros emojis. Inline SVG, currentColor flow, 5 sizes.</p>
+        <span class="atom-stats">.icon · .icon--sm/lg/xl/2xl · .icon--emoji · stroke-width:2 · viewBox 0 0 24 24</span>
+      </div>
+    </a>
+
+  </nav>
+
+  <script src="../assets/js/tweaks.js" defer></script>
+</body>
+</html>

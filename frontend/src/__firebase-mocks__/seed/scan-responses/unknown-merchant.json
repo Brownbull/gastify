@@ -1,0 +1,45 @@
+{
+  "merchant": "Almacén Don Hugo",
+  "date": "{{TODAY}}",
+  "category": "Almacen",
+  "total": 8990,
+  "currency": "CLP",
+  "country": "CL",
+  "city": "Valparaíso",
+  "merchantSource": "scan",
+  "promptVersion": "mock-v1",
+  "receiptType": "convenience_store",
+  "confidence": 0.86,
+  "items": [
+    {
+      "name": "Pan amasado",
+      "qty": 4,
+      "unitPrice": 450,
+      "totalPrice": 1800,
+      "category": "BreadPastry",
+      "subcategory": "Pan"
+    },
+    {
+      "name": "Queso laminado 200g",
+      "qty": 1,
+      "totalPrice": 2890,
+      "category": "DairyEggs",
+      "subcategory": "Queso"
+    },
+    {
+      "name": "Cerveza artesanal 330ml",
+      "qty": 3,
+      "unitPrice": 1100,
+      "totalPrice": 3300,
+      "category": "Alcohol",
+      "subcategory": "Cerveza"
+    },
+    {
+      "name": "Diario El Mercurio",
+      "qty": 1,
+      "totalPrice": 1000,
+      "category": "OtherItem",
+      "subcategory": "Prensa"
+    }
+  ]
+}

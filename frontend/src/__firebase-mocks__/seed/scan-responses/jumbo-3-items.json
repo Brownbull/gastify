@@ -1,0 +1,37 @@
+{
+  "merchant": "Jumbo Costanera Center",
+  "date": "{{TODAY}}",
+  "category": "Supermarket",
+  "total": 24890,
+  "currency": "CLP",
+  "country": "CL",
+  "city": "Santiago",
+  "merchantSource": "scan",
+  "promptVersion": "mock-v1",
+  "receiptType": "supermarket",
+  "confidence": 0.97,
+  "items": [
+    {
+      "name": "Leche entera 1L",
+      "qty": 2,
+      "unitPrice": 1945,
+      "totalPrice": 3890,
+      "category": "DairyEggs",
+      "subcategory": "Leche"
+    },
+    {
+      "name": "Pan integral artesanal",
+      "qty": 1,
+      "totalPrice": 4500,
+      "category": "BreadPastry",
+      "subcategory": "Pan"
+    },
+    {
+      "name": "Frutas variadas (manzana, plátano, naranja)",
+      "qty": 1,
+      "totalPrice": 16500,
+      "category": "Produce",
+      "subcategory": "Frutas"
+    }
+  ]
+}

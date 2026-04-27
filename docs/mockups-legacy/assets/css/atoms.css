@@ -1,0 +1,755 @@
+/*
+ * mockups-legacy / atoms.css
+ *
+ * Canonical atom rules. Consumed by all atom HTML files in `atoms/<name>.html`
+ * and transitively by molecules/screens/flows.
+ *
+ * Conventions:
+ *   - Color values come from `desktop-shell.css` tokens (`var(--token)`). No hex literals.
+ *   - Alpha overlays on shadows + focus-rings use rgba() via `--shadow-button`,
+ *     `--shadow-toast`, `--focus-ring-error`, `--chip-count-bg`, `--on-primary-faint`
+ *     tokens defined per-theme in desktop-shell.css. Theme-aware alpha is the goal;
+ *     literal rgba() values appear only inside those token definitions.
+ *   - Text on saturated/colored backgrounds uses `--on-primary`, `--on-error`,
+ *     `--on-warning`, `--on-accent` (per-theme WCAG AA tuned). Never `#ffffff` literal.
+ *   - One section per atom. Section header `=== <name> ===`.
+ *   - Class names mirror what a refactor of the frontend Tailwind utilities into named
+ *     selectors would produce. The live frontend uses Tailwind utilities inlined in JSX;
+ *     these named atom classes are the mockup's contribution to readable selectors.
+ *   - State variants use class modifiers (`.btn--primary`, `.btn[disabled]`) — never
+ *     inline JS state. Multi-state demos use the `state-tabs` molecule pattern.
+ *   - Where the frontend embeds inline `style={{}}` to consume tokens directly
+ *     (e.g., shared/ui/Toast.tsx), we restate the same token chain via class rules.
+ *
+ * Token vocabulary: see `desktop-shell.css` (extracted from frontend/index.html).
+ *
+ * Populated 2026-04-27 during Phase L1; refactored to per-theme on-color ink tokens
+ * 2026-04-27 during /gabe-review (closes a11y findings #1, #2, #7).
+ */
+
+/* =========================================================================
+ * Shared atom shimmer (consumed by .skeleton)
+ * ========================================================================= */
+@keyframes legacy-shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+
+@keyframes legacy-spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes legacy-toast-fade-in {
+  from { opacity: 0; transform: translate(-50%, 8px); }
+  to   { opacity: 1; transform: translate(-50%, 0);   }
+}
+
+/* =========================================================================
+ * === button ===
+ * Source: inline JSX patterns across frontend/src/. Representative:
+ *   features/scan/components/ProcessingOverlay.tsx (cancel button — secondary)
+ *   features/transaction-editor/* (save/cancel — primary/ghost)
+ *   shared/ui/Toast.tsx (no buttons; reference pattern only)
+ *
+ * Frontend Tailwind shape (button primary):
+ *   className="w-full py-3 px-4 rounded-xl text-white font-semibold shadow-md
+ *              transition-transform hover:scale-[1.01] active:scale-[0.99]
+ *              disabled:opacity-60 disabled:cursor-not-allowed"
+ *   style={{ backgroundColor: 'var(--primary)' }}
+ *
+ * Translated to named selectors below.
+ * ========================================================================= */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-family: var(--font-family);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  line-height: 1.2;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: transform 160ms ease, background-color 160ms ease, border-color 160ms ease, color 160ms ease, box-shadow 160ms ease;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.btn:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+.btn:hover:not([disabled]) { transform: scale(1.01); }
+.btn:active:not([disabled]) { transform: scale(0.99); }
+.btn[disabled],
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn--primary {
+  background: var(--primary);
+  color: var(--on-primary);
+  box-shadow: var(--shadow-button);
+}
+.btn--primary:hover:not([disabled]) { background: var(--primary-hover); }
+
+.btn--secondary {
+  background: transparent;
+  color: var(--primary);
+  border-color: var(--primary);
+}
+.btn--secondary:hover:not([disabled]) { background: var(--primary-light); }
+
+.btn--ghost {
+  background: transparent;
+  color: var(--text-secondary);
+  border-color: transparent;
+}
+.btn--ghost:hover:not([disabled]) { background: var(--bg-tertiary); color: var(--text-primary); }
+
+.btn--destructive {
+  background: var(--error);
+  color: var(--on-error);
+}
+.btn--destructive:hover:not([disabled]) { filter: brightness(0.92); }
+
+.btn--icon {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border-radius: 9999px;
+  background: transparent;
+  color: var(--text-secondary);
+  border-color: var(--border-light);
+}
+.btn--icon:hover:not([disabled]) { background: var(--bg-tertiary); color: var(--text-primary); }
+
+.btn--sm { padding: 8px 12px; font-size: var(--font-size-xs); border-radius: 10px; }
+.btn--lg { padding: 14px 20px; font-size: var(--font-size-base); border-radius: 14px; }
+.btn--icon.btn--sm { width: 32px; height: 32px; padding: 0; }
+.btn--icon.btn--lg { width: 48px; height: 48px; padding: 0; }
+.btn--block { width: 100%; }
+
+/* =========================================================================
+ * === input ===
+ * Source: components/CategoryLearningPrompt.tsx, features/transaction-editor/*,
+ *         features/items/* (the recurring `border rounded-lg` input pattern).
+ *
+ * Frontend Tailwind shape:
+ *   className="w-full p-2 border rounded-lg text-sm"
+ *   style={{ backgroundColor: 'var(--surface)', borderColor: 'var(--border-light)',
+ *            color: 'var(--text-primary)' }}
+ * ========================================================================= */
+.input {
+  display: block;
+  width: 100%;
+  padding: 10px 12px;
+  background: var(--surface);
+  color: var(--text-primary);
+  border: 1px solid var(--border-light);
+  border-radius: 10px;
+  font-family: var(--font-family);
+  font-size: var(--font-size-sm);
+  line-height: 1.4;
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+.input::placeholder { color: var(--text-tertiary); }
+.input:hover:not([disabled]) { border-color: var(--border-medium); }
+.input:focus,
+.input:focus-visible {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-light);
+}
+.input[aria-invalid="true"],
+.input.is-error {
+  border-color: var(--error);
+}
+.input[aria-invalid="true"]:focus,
+.input.is-error:focus {
+  box-shadow: var(--focus-ring-error);
+}
+.input[disabled],
+.input:disabled {
+  background: var(--bg-tertiary);
+  color: var(--text-tertiary);
+  cursor: not-allowed;
+}
+
+.input--sm { padding: 6px 10px; font-size: var(--font-size-xs); border-radius: 8px; }
+.input--lg { padding: 14px 14px; font-size: var(--font-size-base); border-radius: 12px; }
+
+/* Input wrapper for prefix/suffix icons — mirrors the search input pattern */
+.input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.input-wrap .input { padding-left: 36px; }
+.input-wrap__icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-tertiary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+/* =========================================================================
+ * === select ===
+ * Source: components/LocationSelect.tsx (custom button-style menu trigger),
+ *         + native <select> in settings forms.
+ *
+ * Two shapes coexist in frontend:
+ *   1. Native <select> styled like input
+ *   2. Button-trigger menu (LocationSelect) — open dropdown panel
+ * Mockup provides class for case (1); case (2) is documented as a molecule.
+ * ========================================================================= */
+.select {
+  display: block;
+  width: 100%;
+  padding: 10px 36px 10px 12px;
+  background: var(--surface);
+  color: var(--text-primary);
+  border: 1px solid var(--border-light);
+  border-radius: 10px;
+  font-family: var(--font-family);
+  font-size: var(--font-size-sm);
+  line-height: 1.4;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--text-tertiary) 50%),
+    linear-gradient(135deg, var(--text-tertiary) 50%, transparent 50%);
+  background-position: calc(100% - 18px) 50%, calc(100% - 12px) 50%;
+  background-size: 6px 6px, 6px 6px;
+  background-repeat: no-repeat;
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+.select:hover:not([disabled]) { border-color: var(--border-medium); }
+.select:focus,
+.select:focus-visible {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-light);
+}
+.select[disabled],
+.select:disabled {
+  background-color: var(--bg-tertiary);
+  color: var(--text-tertiary);
+  cursor: not-allowed;
+}
+
+/* =========================================================================
+ * === pill ===
+ * Small status / category pill. Visual cousin of badge but typically
+ * inline-with-text for tags/categories.
+ *
+ * Source: filter chips in features/history/*, category labels in transaction
+ * cards. Frontend uses `px-2 py-0.5 rounded-full text-xs` repeatedly.
+ * ========================================================================= */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 10px;
+  border-radius: 9999px;
+  font-family: var(--font-family);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  line-height: 1.5;
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-light);
+}
+.pill--primary { background: var(--primary-light); color: var(--primary); border-color: transparent; }
+.pill--success { background: var(--positive-bg); color: var(--positive-primary); border-color: var(--positive-border); }
+.pill--warning { background: var(--warning-bg); color: var(--warning-semantic); border-color: var(--warning-border); }
+.pill--error { background: var(--negative-bg); color: var(--negative-primary); border-color: var(--negative-border); }
+.pill--neutral { background: var(--neutral-bg); color: var(--neutral-primary); border-color: var(--neutral-border); }
+
+/* =========================================================================
+ * === badge ===
+ * Tiny count / dot indicator. Sits on top of nav icons / avatars.
+ *
+ * Source: components/Nav.tsx (unread count), TopHeader.tsx (notification dot).
+ * Frontend pattern: `bg-amber-100 text-amber-700 px-1.5 py-0 text-xs rounded-full
+ *                    min-w-[18px] h-[18px] flex items-center justify-center`
+ * ========================================================================= */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 9999px;
+  background: var(--error);
+  color: var(--on-error);
+  font-family: var(--font-family);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+}
+.badge--dot { width: 8px; height: 8px; min-width: 8px; padding: 0; }
+.badge--neutral { background: var(--neutral-primary); color: var(--on-primary); }
+.badge--success { background: var(--positive-primary); color: var(--on-primary); }
+.badge--warning { background: var(--warning); color: var(--on-warning); }
+
+/* Container for icon + badge overlay */
+.badge-host {
+  position: relative;
+  display: inline-flex;
+}
+.badge-host .badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  border: 2px solid var(--surface);
+  box-sizing: content-box;
+}
+
+/* =========================================================================
+ * === avatar ===
+ * User profile circle. Initials or image inside.
+ *
+ * Source: components/ProfileDropdown.tsx, components/Nav.tsx (group avatars).
+ * Frontend pattern: `rounded-full w-8 h-8 flex items-center justify-center
+ *                    bg-... text-white font-semibold`
+ * ========================================================================= */
+.avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 9999px;
+  background: var(--primary);
+  color: var(--on-primary);
+  font-family: var(--font-family);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  line-height: 1;
+  overflow: hidden;
+  flex-shrink: 0;
+  user-select: none;
+}
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.avatar--xs { width: 24px; height: 24px; font-size: 10px; }
+.avatar--sm { width: 28px; height: 28px; font-size: 11px; }
+.avatar--lg { width: 48px; height: 48px; font-size: var(--font-size-base); }
+.avatar--xl { width: 64px; height: 64px; font-size: var(--font-size-lg); }
+
+.avatar--accent  { background: var(--accent); }
+.avatar--neutral { background: var(--neutral-primary); }
+.avatar--placeholder {
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  border: 1px dashed var(--border-medium);
+}
+
+/* =========================================================================
+ * === chip ===
+ * Filter chip (toggleable). Different from pill — chips are interactive,
+ * pills are static labels.
+ *
+ * Source: features/history/components/FilterStrip.tsx (active/inactive),
+ *         features/insights/components/InsightTabs.tsx (3-tab Lista/Airlock/Logro).
+ * ========================================================================= */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 9999px;
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-light);
+  font-family: var(--font-family);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  line-height: 1.2;
+  cursor: pointer;
+  transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease;
+  white-space: nowrap;
+}
+.chip:hover:not([disabled]):not(.is-active) {
+  background: var(--bg-secondary);
+  border-color: var(--border-medium);
+}
+.chip:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+.chip.is-active,
+.chip[aria-pressed="true"] {
+  background: var(--primary);
+  color: var(--on-primary);
+  border-color: var(--primary);
+}
+.chip[disabled],
+.chip:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.chip__count {
+  background: var(--chip-count-bg);
+  color: inherit;
+  padding: 0 6px;
+  border-radius: 9999px;
+  font-size: 10px;
+}
+
+/* =========================================================================
+ * === skeleton ===
+ * Shimmer placeholder. Used during scan processing + history loading.
+ *
+ * Source: features/scan/components/ScanSkeleton.tsx (canonical implementation).
+ * Pattern: linear-gradient with background-position animation @1.5s infinite.
+ * ========================================================================= */
+.skeleton {
+  display: block;
+  width: 100%;
+  height: 16px;
+  border-radius: 6px;
+  background: linear-gradient(
+    90deg,
+    var(--bg-tertiary) 25%,
+    var(--bg-secondary) 50%,
+    var(--bg-tertiary) 75%
+  );
+  background-size: 200% 100%;
+  animation: legacy-shimmer 1.5s infinite linear;
+}
+.skeleton--text     { height: 14px; }
+.skeleton--title    { height: 24px; border-radius: 8px; }
+.skeleton--block    { height: 44px; border-radius: 10px; }
+.skeleton--circle   { width: 40px; height: 40px; border-radius: 9999px; }
+.skeleton--button   { height: 40px; border-radius: 12px; }
+
+/* Width helpers (composed in markup) */
+.skeleton--w-25  { width: 25%; }
+.skeleton--w-40  { width: 40%; }
+.skeleton--w-60  { width: 60%; }
+.skeleton--w-75  { width: 75%; }
+.skeleton--w-100 { width: 100%; }
+
+/* =========================================================================
+ * === progress ===
+ * Linear progress bar. Track + fill.
+ *
+ * Source: features/scan/components/BatchProcessingOverlay.tsx (batch progress),
+ *         components/Nav.tsx (credit progress).
+ * Frontend pattern: `bg-amber-500 h-2 rounded-full transition-all`
+ * ========================================================================= */
+.progress {
+  display: block;
+  width: 100%;
+  height: 8px;
+  background: var(--bg-tertiary);
+  border-radius: 9999px;
+  overflow: hidden;
+  position: relative;
+}
+.progress__bar {
+  display: block;
+  height: 100%;
+  background: var(--primary);
+  border-radius: 9999px;
+  transition: width 240ms ease;
+}
+.progress--sm { height: 6px; }
+.progress--lg { height: 12px; }
+
+.progress--success .progress__bar { background: var(--positive-primary); }
+.progress--warning .progress__bar { background: var(--warning); }
+.progress--error   .progress__bar { background: var(--error); }
+.progress--accent  .progress__bar { background: var(--accent); }
+
+.progress.is-indeterminate .progress__bar {
+  width: 40% !important;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--primary),
+    transparent
+  );
+  animation: legacy-progress-indeterminate 1.4s infinite linear;
+}
+@keyframes legacy-progress-indeterminate {
+  0%   { transform: translateX(-150%); }
+  100% { transform: translateX(350%); }
+}
+
+/* =========================================================================
+ * === spinner ===
+ * Circular loading indicator. Frontend uses `lucide-react` Loader2 with
+ * `animate-spin` Tailwind class. CSS-only equivalent below.
+ *
+ * Source: features/scan/components/ScanSkeleton.tsx (Loader2 size 20),
+ *         many features/.../*Overlay.tsx files.
+ * ========================================================================= */
+.spinner {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--bg-tertiary);
+  border-top-color: var(--primary);
+  border-radius: 9999px;
+  animation: legacy-spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+.spinner--sm { width: 14px; height: 14px; border-width: 2px; }
+.spinner--lg { width: 28px; height: 28px; border-width: 3px; }
+
+.spinner--accent  { border-top-color: var(--accent); }
+.spinner--success { border-top-color: var(--positive-primary); }
+.spinner--warning { border-top-color: var(--warning); }
+.spinner--error   { border-top-color: var(--error); }
+
+.spinner--on-primary {
+  border-color: var(--on-primary-faint);
+  border-top-color: var(--on-primary);
+}
+
+/* =========================================================================
+ * === toast ===
+ * Atom-level visual: the notification card itself, without the ToastProvider
+ * queue layer (the queue lives in `frontend/src/shared/hooks/useToast.ts`,
+ * which is molecule territory at L2).
+ *
+ * Source: frontend/src/shared/ui/Toast.tsx (canonical implementation).
+ * Frontend pattern (verbatim):
+ *   className="fixed bottom-24 left-1/2 -translate-x-1/2 px-4 py-3 rounded-xl
+ *              shadow-lg z-50 animate-fade-in flex items-center gap-2"
+ *   style={{ backgroundColor: TOAST_COLORS[type], color: '#fff', ... }}
+ *
+ * TOAST_COLORS map:
+ *   success → var(--primary)
+ *   info    → var(--accent)
+ *   error   → #ef4444  (= var(--error))
+ *   warning → #f59e0b  (= var(--warning))
+ * ========================================================================= */
+.toast {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: var(--primary);
+  color: var(--on-primary);
+  font-family: var(--font-family);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  line-height: 1.4;
+  box-shadow: var(--shadow-toast);
+  max-width: 360px;
+  animation: legacy-toast-fade-in 200ms ease-out;
+}
+.toast--success { background: var(--primary); color: var(--on-primary); }
+.toast--info    { background: var(--accent);  color: var(--on-accent); }
+.toast--warning { background: var(--warning); color: var(--on-warning); }
+.toast--error   { background: var(--error);   color: var(--on-error); }
+
+/* =========================================================================
+ * === icon ===
+ * Inline SVG sizing wrapper. The frontend uses lucide-react components
+ * (e.g., `<Camera size={20} />`); mockups use `<svg class="icon">` with the
+ * same size/stroke conventions so the visual mass matches.
+ *
+ * Sizes mirror lucide defaults: sm=14, md=16 (default), lg=20, xl=24.
+ * stroke-width: 2 (lucide default).
+ * ========================================================================= */
+.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  color: currentColor;
+}
+.icon svg {
+  width: 100%;
+  height: 100%;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.icon--sm { width: 14px; height: 14px; }
+.icon--lg { width: 20px; height: 20px; }
+.icon--xl { width: 24px; height: 24px; }
+.icon--2xl { width: 32px; height: 32px; }
+
+/* Emoji variant — for L1 Rubros category icons (frontend STORE_GROUP_INFO.emoji).
+ * Emojis don't use stroke; they render at font-size, so we override sizing. */
+.icon--emoji {
+  font-size: 18px;
+  line-height: 1;
+}
+.icon--emoji.icon--sm { font-size: 14px; }
+.icon--emoji.icon--lg { font-size: 24px; }
+.icon--emoji.icon--xl { font-size: 32px; }
+.icon--emoji.icon--2xl { font-size: 44px; }
+
+/* =========================================================================
+ * === category variants ===
+ * 12 L1 Rubros (V4 store-category groups). Each variant pulls fg/bg/border
+ * from theme-aware --cat-<key>-* tokens defined in desktop-shell.css.
+ * Source: frontend/src/config/categoryColors/groupColors.ts STORE_GROUP_COLORS.
+ *
+ * Applied to .pill, .chip, .badge. Pattern: .{atom}--cat-<key> sets the
+ * three colors; the atom's base structure handles the rest.
+ * ========================================================================= */
+
+/* Pills — labels (non-interactive) */
+.pill--cat-supermercados            { background: var(--cat-supermercados-bg);            color: var(--cat-supermercados-fg);            border-color: var(--cat-supermercados-border); }
+.pill--cat-restaurantes             { background: var(--cat-restaurantes-bg);             color: var(--cat-restaurantes-fg);             border-color: var(--cat-restaurantes-border); }
+.pill--cat-comercio-barrio          { background: var(--cat-comercio-barrio-bg);          color: var(--cat-comercio-barrio-fg);          border-color: var(--cat-comercio-barrio-border); }
+.pill--cat-vivienda                 { background: var(--cat-vivienda-bg);                 color: var(--cat-vivienda-fg);                 border-color: var(--cat-vivienda-border); }
+.pill--cat-salud-bienestar          { background: var(--cat-salud-bienestar-bg);          color: var(--cat-salud-bienestar-fg);          border-color: var(--cat-salud-bienestar-border); }
+.pill--cat-tiendas-generales        { background: var(--cat-tiendas-generales-bg);        color: var(--cat-tiendas-generales-fg);        border-color: var(--cat-tiendas-generales-border); }
+.pill--cat-tiendas-especializadas   { background: var(--cat-tiendas-especializadas-bg);   color: var(--cat-tiendas-especializadas-fg);   border-color: var(--cat-tiendas-especializadas-border); }
+.pill--cat-transporte-vehiculo      { background: var(--cat-transporte-vehiculo-bg);      color: var(--cat-transporte-vehiculo-fg);      border-color: var(--cat-transporte-vehiculo-border); }
+.pill--cat-educacion                { background: var(--cat-educacion-bg);                color: var(--cat-educacion-fg);                border-color: var(--cat-educacion-border); }
+.pill--cat-servicios-finanzas       { background: var(--cat-servicios-finanzas-bg);       color: var(--cat-servicios-finanzas-fg);       border-color: var(--cat-servicios-finanzas-border); }
+.pill--cat-entretenimiento-hospedaje { background: var(--cat-entretenimiento-hospedaje-bg); color: var(--cat-entretenimiento-hospedaje-fg); border-color: var(--cat-entretenimiento-hospedaje-border); }
+.pill--cat-otros                    { background: var(--cat-otros-bg);                    color: var(--cat-otros-fg);                    border-color: var(--cat-otros-border); }
+
+/* Chips — interactive filter chips. When active, swap to category color as accent. */
+.chip--cat-supermercados            { background: var(--cat-supermercados-bg);            color: var(--cat-supermercados-fg);            border-color: var(--cat-supermercados-border); }
+.chip--cat-restaurantes             { background: var(--cat-restaurantes-bg);             color: var(--cat-restaurantes-fg);             border-color: var(--cat-restaurantes-border); }
+.chip--cat-comercio-barrio          { background: var(--cat-comercio-barrio-bg);          color: var(--cat-comercio-barrio-fg);          border-color: var(--cat-comercio-barrio-border); }
+.chip--cat-vivienda                 { background: var(--cat-vivienda-bg);                 color: var(--cat-vivienda-fg);                 border-color: var(--cat-vivienda-border); }
+.chip--cat-salud-bienestar          { background: var(--cat-salud-bienestar-bg);          color: var(--cat-salud-bienestar-fg);          border-color: var(--cat-salud-bienestar-border); }
+.chip--cat-tiendas-generales        { background: var(--cat-tiendas-generales-bg);        color: var(--cat-tiendas-generales-fg);        border-color: var(--cat-tiendas-generales-border); }
+
+/* Badges — count indicators colored by category (e.g. transactions per group). */
+.badge--cat-supermercados   { background: var(--cat-supermercados-fg);   color: var(--cat-supermercados-bg); }
+.badge--cat-restaurantes    { background: var(--cat-restaurantes-fg);    color: var(--cat-restaurantes-bg); }
+.badge--cat-vivienda        { background: var(--cat-vivienda-fg);        color: var(--cat-vivienda-bg); }
+.badge--cat-salud-bienestar { background: var(--cat-salud-bienestar-fg); color: var(--cat-salud-bienestar-bg); }
+.badge--cat-educacion       { background: var(--cat-educacion-fg);       color: var(--cat-educacion-bg); }
+.badge--cat-otros           { background: var(--cat-otros-fg);           color: var(--cat-otros-bg); }
+
+/* =========================================================================
+ * === nav-icon ===
+ * Bottom-nav 5-tab icon system. Reacts to the Tweaks-panel "Icons" toggle:
+ *   - data-icon-style="emoji" (default) → emoji glyph via ::before
+ *   - data-icon-style="pixel"           → 32x32 pixel art PNG (BoletApp set)
+ *
+ * Source: frontend/src/components/Nav.tsx imports lucide-react icons. The
+ * legacy mockup substitutes emoji as the readable default (no font dependency,
+ * no SVG copy-paste tax) and offers pixel as an optional playful style.
+ *
+ * Pixel art: docs/mockups-legacy/assets/icons/pixel/nav/<name>.png (32x32 RGBA).
+ * Originally generated for BoletApp via PixelLab MCP, mirrored here verbatim.
+ * ========================================================================= */
+.nav-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  font-size: 24px;          /* emoji default size — fits a 32px box neatly */
+  line-height: 1;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  flex-shrink: 0;
+  user-select: none;
+}
+.nav-icon::before { content: ''; }
+
+/* Default (and explicit emoji): pure emoji content, no PNG */
+.nav-icon--home::before            { content: '\1F3E0'; }  /* 🏠 */
+.nav-icon--analytics::before       { content: '\1F4CA'; }  /* 📊 */
+.nav-icon--camera::before          { content: '\1F4F7'; }  /* 📷 */
+.nav-icon--layers::before          { content: '\1F5C2\FE0F'; }  /* 🗂️ */
+.nav-icon--credit-card::before     { content: '\1F4B3'; }  /* 💳 */
+.nav-icon--alert-triangle::before  { content: '\26A0\FE0F'; }  /* ⚠️ */
+.nav-icon--lightbulb::before       { content: '\1F4A1'; }  /* 💡 */
+.nav-icon--bell::before            { content: '\1F514'; }  /* 🔔 */
+
+/* Pixel mode: hide emoji, show PNG via background-image */
+[data-icon-style="pixel"] .nav-icon {
+  font-size: 0;             /* hides emoji entirely (some renderers ignore content:'' in ::before) */
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+[data-icon-style="pixel"] .nav-icon::before { content: none; }
+[data-icon-style="pixel"] .nav-icon--home            { background-image: url("../icons/pixel/nav/home.png"); }
+[data-icon-style="pixel"] .nav-icon--analytics       { background-image: url("../icons/pixel/nav/analytics.png"); }
+[data-icon-style="pixel"] .nav-icon--camera          { background-image: url("../icons/pixel/nav/camera.png"); }
+[data-icon-style="pixel"] .nav-icon--layers          { background-image: url("../icons/pixel/nav/layers.png"); }
+[data-icon-style="pixel"] .nav-icon--credit-card     { background-image: url("../icons/pixel/nav/credit-card.png"); }
+[data-icon-style="pixel"] .nav-icon--alert-triangle  { background-image: url("../icons/pixel/nav/alert-triangle.png"); }
+[data-icon-style="pixel"] .nav-icon--lightbulb       { background-image: url("../icons/pixel/nav/lightbulb.png"); }
+[data-icon-style="pixel"] .nav-icon--bell            { background-image: url("../icons/pixel/nav/bell.png"); }
+
+/* =========================================================================
+ * === cat-icon ===
+ * Generic category-icon class for all 4 levels (L1 Rubros / L2 Giros /
+ * L3 Familias / L4 Categorias). Dual-children pattern: emoji span + pixel img.
+ *
+ * Markup pattern:
+ *   <span class="cat-icon cat-icon--lg" role="img" aria-label="Supermercados">
+ *     <span class="cat-icon__emoji">🛒</span>
+ *     <img class="cat-icon__pixel" src="../assets/icons/pixel/rubros/rubro-supermercados.png" alt="">
+ *   </span>
+ *
+ * Default ([data-icon-style="emoji"] or unset): emoji span visible, pixel img display:none.
+ * Pixel mode ([data-icon-style="pixel"]): emoji span display:none, pixel img visible.
+ *
+ * Why dual-children instead of inline background-image + text content?
+ *   With both set inline, the emoji glyph (which doesn't fill its whole box)
+ *   leaves the bg-image visible around it in default mode. Two siblings with
+ *   independent display toggling are cleaner — the "off" mode is fully hidden.
+ *
+ * Sizing: width/height = 32px default; modifier classes for sm/lg/xl.
+ * ========================================================================= */
+.cat-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  user-select: none;
+  line-height: 1;
+}
+.cat-icon--sm { width: 24px; height: 24px; }
+.cat-icon--lg { width: 44px; height: 44px; }
+.cat-icon--xl { width: 64px; height: 64px; }
+
+.cat-icon__emoji { font-size: 24px; line-height: 1; }
+.cat-icon--sm .cat-icon__emoji { font-size: 18px; }
+.cat-icon--lg .cat-icon__emoji { font-size: 32px; }
+.cat-icon--xl .cat-icon__emoji { font-size: 48px; }
+
+.cat-icon__pixel {
+  display: none;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+[data-icon-style="pixel"] .cat-icon__emoji { display: none; }
+[data-icon-style="pixel"] .cat-icon__pixel { display: block; }
+.toast__icon { display: inline-flex; flex-shrink: 0; }
+.toast__icon svg { display: block; }

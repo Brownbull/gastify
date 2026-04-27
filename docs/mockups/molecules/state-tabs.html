@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Molecule: state-tabs — gastify</title>
+  <link rel="stylesheet" href="../assets/css/desktop-shell.css">
+  <link rel="stylesheet" href="../assets/css/atoms.css">
+  <link rel="stylesheet" href="../assets/css/molecules.css">
+  <style>
+    body { margin: 0; background: var(--bg); color: var(--ink); min-height: 100vh; padding: 40px 320px 48px 48px; }
+    h1 { font-size: 24px; margin: 0 0 6px 0; font-weight: 700; }
+    .subtitle { color: var(--ink-2); font-size: 13px; margin: 0 0 32px 0; max-width: 720px; line-height: 1.5; }
+    .demo-section { margin-bottom: 36px; }
+    .demo-section h2 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-3); margin: 0 0 14px 0; font-weight: 600; }
+    .demo-row { display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start; background: var(--surface); padding: 24px; border-radius: 12px; border: 1px solid var(--line); }
+    .demo-swatch { display: flex; flex-direction: column; gap: 12px; align-items: flex-start; min-width: 160px; }
+    .demo-swatch-label { font-size: 11px; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.05em; }
+    .snippet { background: var(--surface-2); padding: 16px; border-radius: 8px; font-family: ui-monospace, Consolas, monospace; font-size: 12px; color: var(--ink); overflow-x: auto; white-space: pre; line-height: 1.5; border: 1px solid var(--line); }
+    .surface-frame { background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 16px; }
+    .preview-content { padding: 16px; background: var(--surface-2); border-radius: 8px; font-size: 13px; color: var(--ink-2); line-height: 1.5; margin-top: 12px; }
+  </style>
+</head>
+<body>
+  <h1>State tabs</h1>
+  <p class="subtitle">Canonical multi-state pattern. Toggles which `.state-content` is visible. Used by single-scan, login, consent, and any screen with mode/variant switching. tweaks.js binds click handlers; both legacy (<code>.state-tabs &gt; .state-tab[data-state]</code>) and ARIA (<code>[role="tablist"] &gt; [role="tab"]</code>) shapes work.</p>
+
+  <section class="demo-section">
+    <h2>Variants — legacy shape (data-state)</h2>
+    <div class="demo-row">
+      <div class="demo-swatch" style="min-width: 320px;">
+        <span class="demo-swatch-label">3-state · idle / processing / error</span>
+        <div class="state-tabs" data-state-group="capture">
+          <button class="state-tab is-active" data-state="idle">Idle</button>
+          <button class="state-tab" data-state="processing">Processing</button>
+          <button class="state-tab" data-state="error">Error</button>
+        </div>
+        <div class="surface-frame" style="width: 100%;">
+          <div class="state-content is-active" data-state="idle">
+            <strong>Idle.</strong> Camera ready, awaiting tap.
+            <div class="preview-content">Receipt frame · tap to capture · long-press for mode menu</div>
+          </div>
+          <div class="state-content" data-state="processing">
+            <strong>Processing.</strong> AI extracting line items.
+            <div class="preview-content">Spinner · "Leyendo recibo..." · cancel button</div>
+          </div>
+          <div class="state-content" data-state="error">
+            <strong>Error.</strong> Low confidence · retry or fall back to manual.
+            <div class="preview-content">Error icon · "No pudimos leer el recibo" · Reintentar / Manual</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>Variants — ARIA shape ([role="tablist"])</h2>
+    <div class="demo-row">
+      <div class="demo-swatch" style="min-width: 320px;">
+        <span class="demo-swatch-label">2-state · normal / hard-lock</span>
+        <div class="state-tabs" role="tablist" data-state-group="editor">
+          <button class="state-tab" role="tab" aria-selected="true" aria-controls="editor-normal" id="editor-tab-normal">Normal</button>
+          <button class="state-tab" role="tab" aria-selected="false" aria-controls="editor-hardlock" id="editor-tab-hardlock">Hard-lock</button>
+        </div>
+        <div class="surface-frame" style="width: 100%;">
+          <div class="state-content is-active" role="tabpanel" id="editor-normal" aria-labelledby="editor-tab-normal">
+            <strong>Normal mode.</strong> Free-form edits across every transaction field.
+          </div>
+          <div class="state-content" role="tabpanel" id="editor-hardlock" aria-labelledby="editor-tab-hardlock" hidden>
+            <strong>Hard-lock mode.</strong> Amount + date frozen; only category, tags, notes editable. Per REQ-12 / REQ-13.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>States — interaction matrix</h2>
+    <div class="demo-row">
+      <div class="demo-swatch">
+        <span class="demo-swatch-label">default</span>
+        <div class="state-tabs"><button class="state-tab is-active">A</button><button class="state-tab">B</button></div>
+      </div>
+      <div class="demo-swatch">
+        <span class="demo-swatch-label">hover (B)</span>
+        <div class="state-tabs"><button class="state-tab is-active">A</button><button class="state-tab" style="background: var(--surface); color: var(--ink);">B</button></div>
+      </div>
+      <div class="demo-swatch">
+        <span class="demo-swatch-label">focus-ring (B)</span>
+        <div class="state-tabs"><button class="state-tab is-active">A</button><button class="state-tab" style="outline: 2px solid var(--primary); outline-offset: 2px;">B</button></div>
+      </div>
+      <div class="demo-swatch">
+        <span class="demo-swatch-label">disabled tab</span>
+        <div class="state-tabs"><button class="state-tab is-active">A</button><button class="state-tab" disabled>B</button></div>
+      </div>
+      <div class="demo-swatch">
+        <span class="demo-swatch-label">5-slot</span>
+        <div class="state-tabs"><button class="state-tab is-active">1</button><button class="state-tab">2</button><button class="state-tab">3</button><button class="state-tab">4</button><button class="state-tab">5</button></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>Composition contract</h2>
+    <div class="demo-row" style="display: block;">
+      <ul style="margin: 0; padding-left: 20px; font-size: 13px; color: var(--ink-2); line-height: 1.7;">
+        <li><strong>Atoms used (one level down):</strong> none — primitive molecule. Composes raw button + text directly.</li>
+        <li><strong>JS binding:</strong> tweaks.js owns the click → toggle. Author HTML only; no per-screen JS.</li>
+        <li><strong>A11y:</strong> ARIA shape preferred for production (role="tablist" + role="tab" + aria-selected + aria-controls + role="tabpanel"). Legacy shape acceptable for prototypes.</li>
+        <li><strong>Keyboard:</strong> arrow-key navigation expected — tweaks.js to land in M3 follow-up if not present (track in COMPONENT-LIBRARY.md state matrix).</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>Usage</h2>
+    <pre class="snippet">&lt;!-- ARIA shape (preferred) --&gt;
+&lt;div class="state-tabs" role="tablist"&gt;
+  &lt;button class="state-tab" role="tab" aria-selected="true" aria-controls="p-idle"&gt;Idle&lt;/button&gt;
+  &lt;button class="state-tab" role="tab" aria-selected="false" aria-controls="p-error"&gt;Error&lt;/button&gt;
+&lt;/div&gt;
+&lt;div class="state-content is-active" role="tabpanel" id="p-idle"&gt;...&lt;/div&gt;
+&lt;div class="state-content"            role="tabpanel" id="p-error" hidden&gt;...&lt;/div&gt;
+
+&lt;!-- Legacy shape (prototypes) --&gt;
+&lt;div class="state-tabs"&gt;
+  &lt;button class="state-tab is-active" data-state="a"&gt;A&lt;/button&gt;
+  &lt;button class="state-tab"           data-state="b"&gt;B&lt;/button&gt;
+&lt;/div&gt;
+&lt;div class="state-content is-active" data-state="a"&gt;...&lt;/div&gt;
+&lt;div class="state-content"            data-state="b"&gt;...&lt;/div&gt;</pre>
+  </section>
+
+  <section class="demo-section legacy-section">
+    <h2><span class="legacy-tag">LEGACY · BoletApp staging</span> Live extraction (2026-04-26)</h2>
+    <p class="legacy-note" style="font-size: 12px; color: var(--ink-2); line-height: 1.5; max-width: 720px;">
+      Captured live from <code>https://boletapp-staging.web.app/</code> via Playwright MCP. Selector: <code>[role="tablist"]</code>. Notes: Por Grupo / Original tablist on transaction-detail screen — pill-shape with sliding background indicator. Source: <a href="../atoms/legacy-snapshots/state-tabs-live.html" style="color: var(--primary); font-weight: 600;">state-tabs-live.html</a> · Manifest: <a href="../atoms/legacy-snapshots/EXTRACTION-MANIFEST.md" style="color: var(--primary); font-weight: 600;">EXTRACTION-MANIFEST.md</a>
+    </p>
+    <iframe
+      src="../atoms/legacy-snapshots/state-tabs-live.html"
+      title="Live BoletApp staging state-tabs"
+      style="width: 100%; max-width: 360px; height: 240px; border: 1px solid var(--line); border-radius: 8px; background: #fafafa; margin-top: 12px;"
+      loading="lazy"></iframe>
+  </section>
+
+  <script src="../assets/js/tweaks.js" defer></script>
+</body>
+</html>

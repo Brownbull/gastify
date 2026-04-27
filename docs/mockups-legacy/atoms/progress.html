@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Atom: progress — gastify (mockups-legacy)</title>
+  <link rel="stylesheet" href="../assets/css/desktop-shell.css">
+  <link rel="stylesheet" href="../assets/css/atoms.css">
+  <style>
+    body { margin: 0; background: var(--bg); color: var(--text-primary); min-height: 100vh; padding: 40px 320px 48px 48px; font-family: var(--font-family); }
+    h1 { font-size: 24px; margin: 0 0 6px 0; font-weight: 700; }
+    .subtitle { color: var(--text-secondary); font-size: 13px; margin: 0 0 32px 0; max-width: 720px; line-height: 1.5; }
+    .source-link { display: inline-block; margin-top: 8px; font-size: 11px; color: var(--text-tertiary); font-family: ui-monospace, Consolas, monospace; }
+    .source-link a { color: var(--primary); text-decoration: none; }
+    .source-link a:hover { text-decoration: underline; }
+    .demo-section { margin-bottom: 36px; }
+    .demo-section h2 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-tertiary); margin: 0 0 14px 0; font-weight: 600; }
+    .demo-row { display: flex; flex-direction: column; gap: 18px; background: var(--surface); padding: 24px; border-radius: 12px; border: 1px solid var(--border-light); }
+    .demo-swatch { display: flex; flex-direction: column; gap: 6px; }
+    .demo-swatch-label { font-size: 11px; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.05em; display: flex; justify-content: space-between; }
+    .demo-swatch-label small { font-family: ui-monospace, Consolas, monospace; font-size: 10px; color: var(--text-secondary); text-transform: none; letter-spacing: 0; }
+    .crossref { background: var(--bg-secondary); padding: 16px 18px; border-radius: 10px; border: 1px solid var(--border-light); font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+    .crossref em { color: var(--text-tertiary); font-style: italic; }
+  </style>
+</head>
+<body>
+  <h1>Progress</h1>
+  <p class="subtitle">Linear progress bar — track + fill, optional indeterminate shimmer. The frontend uses Tailwind <code>bg-amber-500 h-2 rounded-full transition-all</code> with inline width percentages; we translate to <code>.progress</code> + <code>.progress__bar</code> with <code>style="width: 73%"</code> for visual fidelity. <strong>ARIA contract:</strong> determinate bars require <code>role="progressbar"</code> + <code>aria-valuenow</code> + <code>aria-valuemin</code> + <code>aria-valuemax</code> + <code>aria-label</code>. Indeterminate shimmer uses <code>role="progressbar"</code> + <code>aria-busy="true"</code> (no valuenow). L2 consumers (card-stat, profile-dropdown, processing-overlay) inherit this contract.</p>
+  <p class="source-link">Source: <a href="../../../frontend/src/features/scan/components/BatchProcessingOverlay.tsx" target="_blank">BatchProcessingOverlay.tsx</a> (batch progress 12/50), <a href="../../../frontend/src/components/Nav.tsx" target="_blank">Nav.tsx</a> (credit usage bar in profile dropdown).</p>
+
+  <section class="demo-section">
+    <h2>Sizes</h2>
+    <div class="demo-row">
+      <div class="demo-swatch">
+        <span class="demo-swatch-label">sm (6)<small>40 %</small></span>
+        <div class="progress progress--sm" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" aria-label="Sample progress, 40 percent"><span class="progress__bar" style="width: 40%;"></span></div>
+      </div>
+      <div class="demo-swatch">
+        <span class="demo-swatch-label">md (8, default)<small>62 %</small></span>
+        <div class="progress" role="progressbar" aria-valuenow="62" aria-valuemin="0" aria-valuemax="100" aria-label="Sample progress, 62 percent"><span class="progress__bar" style="width: 62%;"></span></div>
+      </div>
+      <div class="demo-swatch">
+        <span class="demo-swatch-label">lg (12)<small>87 %</small></span>
+        <div class="progress progress--lg" role="progressbar" aria-valuenow="87" aria-valuemin="0" aria-valuemax="100" aria-label="Sample progress, 87 percent"><span class="progress__bar" style="width: 87%;"></span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>Variants</h2>
+    <div class="demo-row">
+      <div class="demo-swatch">
+        <span class="demo-swatch-label">primary (default)<small>50 %</small></span>
+        <div class="progress" role="progressbar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100" aria-label="Primary progress, 50 percent"><span class="progress__bar" style="width: 50%;"></span></div>
+      </div>
+      <div class="demo-swatch">
+        <span class="demo-swatch-label">success<small>92 %</small></span>
+        <div class="progress progress--success" role="progressbar" aria-valuenow="92" aria-valuemin="0" aria-valuemax="100" aria-label="Success progress, 92 percent"><span class="progress__bar" style="width: 92%;"></span></div>
+      </div>
+      <div class="demo-swatch">
+        <span class="demo-swatch-label">warning<small>78 %</small></span>
+        <div class="progress progress--warning" role="progressbar" aria-valuenow="78" aria-valuemin="0" aria-valuemax="100" aria-label="Warning progress, 78 percent"><span class="progress__bar" style="width: 78%;"></span></div>
+      </div>
+      <div class="demo-swatch">
+        <span class="demo-swatch-label">error<small>95 % (sobre límite)</small></span>
+        <div class="progress progress--error" role="progressbar" aria-valuenow="95" aria-valuemin="0" aria-valuemax="100" aria-label="Error progress, 95 percent over limit"><span class="progress__bar" style="width: 95%;"></span></div>
+      </div>
+      <div class="demo-swatch">
+        <span class="demo-swatch-label">accent<small>33 %</small></span>
+        <div class="progress progress--accent" role="progressbar" aria-valuenow="33" aria-valuemin="0" aria-valuemax="100" aria-label="Accent progress, 33 percent"><span class="progress__bar" style="width: 33%;"></span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>States</h2>
+    <div class="demo-row">
+      <div class="demo-swatch">
+        <span class="demo-swatch-label">empty<small>0 %</small></span>
+        <div class="progress" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Empty progress, 0 percent"><span class="progress__bar" style="width: 0%;"></span></div>
+      </div>
+      <div class="demo-swatch">
+        <span class="demo-swatch-label">in-progress<small>45 %</small></span>
+        <div class="progress" role="progressbar" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100" aria-label="In-progress, 45 percent"><span class="progress__bar" style="width: 45%;"></span></div>
+      </div>
+      <div class="demo-swatch">
+        <span class="demo-swatch-label">complete<small>100 %</small></span>
+        <div class="progress progress--success" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" aria-label="Complete, 100 percent"><span class="progress__bar" style="width: 100%;"></span></div>
+      </div>
+      <div class="demo-swatch">
+        <span class="demo-swatch-label">indeterminate<small>—</small></span>
+        <div class="progress is-indeterminate" role="progressbar" aria-busy="true" aria-label="Loading, progress unknown"><span class="progress__bar"></span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>Composition — batch processing label</h2>
+    <div class="demo-row">
+      <div class="demo-swatch">
+        <span class="demo-swatch-label">12 de 50 boletas<small>24 %</small></span>
+        <div class="progress progress--accent" role="progressbar" aria-valuenow="12" aria-valuemin="0" aria-valuemax="50" aria-label="Procesando 12 de 50 boletas"><span class="progress__bar" style="width: 24%;"></span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>Used by molecules (one level up)</h2>
+    <div class="crossref">
+      <em>Populated during Phase L2 — molecule extraction. Anticipated consumers: card-stat (limit usage), profile-dropdown (credit usage bar), processing-overlay (scan + batch progress), settings sliders, onboarding step indicator.</em>
+    </div>
+  </section>
+
+  <script src="../assets/js/tweaks.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+/*
+ * Token chain — emitted by /gabe-mockup spike scaffolding.
+ *
+ * Re-imports the canonical mockup CSS (legacy-port project: gastify uses
+ * desktop-shell.css for tokens + atoms.css and molecules.css for component
+ * rules) so React components consume the SAME var(--*) values that the
+ * static HTML mockups consume. Switching [data-theme][data-mode] on <body>
+ * cascades through both surfaces simultaneously.
+ *
+ * SINGLE SOURCE OF TRUTH — never redeclare token values here.
+ *
+ * Path resolves through the Vite alias `@mockups` configured in vite.config.ts.
+ */
+@import "@mockups/assets/css/desktop-shell.css";
+@import "@mockups/assets/css/atoms.css";
+@import "@mockups/assets/css/molecules.css";

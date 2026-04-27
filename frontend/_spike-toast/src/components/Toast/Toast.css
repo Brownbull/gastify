@@ -1,0 +1,17 @@
+/*
+ * Toast — React-side stylesheet.
+ *
+ * Intentionally empty: the `.toast`, `.toast-stack`, `.toast-icon`,
+ * `.toast-body`, `.toast-title`, `.toast-message`, `.toast-close`, plus the
+ * variant rules `.toast.is-{success|info|warning|error}` and the
+ * `mol-toast-in` / `mol-toast-out` keyframes are all defined in the canonical
+ * mockup CSS at docs/mockups/assets/css/molecules.css and reach React via the
+ * @import chain in src/styles/tokens.css.
+ *
+ * If a future Toast variant or state needs new CSS, it should be added to the
+ * canonical CSS file first, then loaded via the same chain — never declared
+ * here. Keeps mockup and React in lockstep.
+ *
+ * Loaded as a side-effect import in Toast.tsx so this file appears in the
+ * dependency graph even though it's currently empty.
+ */

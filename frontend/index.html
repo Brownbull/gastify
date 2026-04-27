@@ -1,0 +1,1081 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <!-- Story 11.6: viewport-fit=cover enables safe area insets on iOS (AC #1, #7) -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#2d3a4a" />
+    <title>Gastify - Expense Tracker</title>
+    <!-- Story 14.10: Google Fonts - Outfit (main UI), Baloo 2 (wordmark) -->
+    <!-- Story 14.22: Added Space Grotesk as alternative typography option -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=Baloo+2:wght@700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      /* Story 7.12: App-wide CSS Custom Properties Theme System (AC #6, #7) */
+      /* Story 7.17: Renamed themes - "Normal" (warm) is default, "Professional" (cool) is optional */
+      /* Story 11.6: Safe area and viewport utilities for PWA (AC #1, #3) */
+      :root {
+        /* Story 14.10: Typography - Outfit as primary font */
+        /* Story 14.22: Font family is now dynamic via data-font attribute */
+        --font-family: 'Outfit', ui-sans-serif, system-ui, sans-serif;
+        --font-family-wordmark: 'Baloo 2', cursive, sans-serif;
+      }
+
+      /* Story 14.22: Font family selection */
+      [data-font="outfit"] {
+        --font-family: 'Outfit', ui-sans-serif, system-ui, sans-serif;
+      }
+      [data-font="space"] {
+        --font-family: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
+      }
+
+      /* Story 14.37: Font size scaling system
+       * Default (small) = current app sizes for backwards compatibility
+       * Normal = larger sizes for better readability
+       */
+      :root {
+        /* Default font sizes (small) - matches current Tailwind defaults */
+        --font-size-xs: 0.75rem;   /* 12px */
+        --font-size-sm: 0.875rem;  /* 14px */
+        --font-size-base: 1rem;    /* 16px */
+        --font-size-lg: 1.125rem;  /* 18px */
+        --font-size-xl: 1.25rem;   /* 20px */
+        --font-size-2xl: 1.5rem;   /* 24px */
+        --font-size-3xl: 1.875rem; /* 30px */
+      }
+
+      html[data-font-size="normal"], :root[data-font-size="normal"] {
+        /* Larger font sizes for better readability */
+        --font-size-xs: 0.875rem;  /* 14px (was 12px) */
+        --font-size-sm: 1rem;      /* 16px (was 14px) */
+        --font-size-base: 1.125rem; /* 18px (was 16px) */
+        --font-size-lg: 1.25rem;   /* 20px (was 18px) */
+        --font-size-xl: 1.5rem;    /* 24px (was 20px) */
+        --font-size-2xl: 1.75rem;  /* 28px (was 24px) */
+        --font-size-3xl: 2.25rem;  /* 36px (was 30px) */
+      }
+
+      /* Story 14.37: Override Tailwind font size classes for "normal" font size mode */
+      [data-font-size="normal"] .text-xs { font-size: 0.875rem !important; }  /* 14px */
+      [data-font-size="normal"] .text-sm { font-size: 1rem !important; }      /* 16px */
+      [data-font-size="normal"] .text-base { font-size: 1.125rem !important; } /* 18px */
+      [data-font-size="normal"] .text-lg { font-size: 1.25rem !important; }   /* 20px */
+      [data-font-size="normal"] .text-xl { font-size: 1.5rem !important; }    /* 24px */
+      [data-font-size="normal"] .text-2xl { font-size: 1.75rem !important; }  /* 28px */
+      [data-font-size="normal"] .text-3xl { font-size: 2.25rem !important; }  /* 36px */
+
+      :root {
+
+        /* Safe area insets for PWA on devices with notches/navigation bars */
+        --safe-top: env(safe-area-inset-top, 0px);
+        --safe-bottom: env(safe-area-inset-bottom, 0px);
+        --safe-left: env(safe-area-inset-left, 0px);
+        --safe-right: env(safe-area-inset-right, 0px);
+
+        /* Light mode - Normal theme (Ni No Kuni / Studio Ghibli warm palette) */
+        --bg: #f5f0e8;         /* warm cream */
+        --bg-secondary: #ffffff; /* Story 14.11: Nav bar background */
+        --bg-tertiary: #f1dbb6; /* Story 14.12: Warmer golden tertiary */
+        --surface: #ffffff;     /* white */
+        --primary: #4a7c59;     /* forest green (main brand color) */
+        --primary-hover: #3d6b4a; /* darker forest green */
+        --primary-light: #d4e5d9; /* light green tint */
+        --secondary: #5b8fa8;   /* ocean blue */
+        --accent: #e8a87c;      /* sunset orange */
+        --success: #7d9b5f;     /* sage green */
+        --warning: #f59e0b;     /* amber */
+        --error: #ef4444;       /* red */
+        --text-primary: #2d3a4a; /* night blue text */
+        --text-secondary: #4a5568; /* slate gray */
+        --text-tertiary: #7d9b5f; /* sage green tertiary */
+        --border-light: #e3bba1; /* peach border */
+        --border-medium: #d4a574; /* Story 14.12: Medium border */
+        /* Chart colors - warm natural palette matching mockup */
+        --chart-1: #4a7c59;     /* forest green (primary) */
+        --chart-2: #f59e0b;     /* amber (restaurantes) */
+        --chart-3: #8b5cf6;     /* violet (transporte) */
+        --chart-4: #9ca3af;     /* gray (otro) */
+        --chart-5: #5b8fa8;     /* ocean blue */
+        --chart-6: #e8a87c;     /* sunset orange */
+
+        /* Story 14.16b: Semantic Colors - Normal theme light mode */
+        /* Positive (spending down - good) - Earthy sage green */
+        --positive-primary: #3d8c5a;
+        --positive-secondary: #5ca376;
+        --positive-bg: #e8f5ec;
+        --positive-border: #a8d4b8;
+        /* Negative (spending up - bad) - Terracotta/brick red */
+        --negative-primary: #b85c4a;
+        --negative-secondary: #c87868;
+        --negative-bg: #f8ebe8;
+        --negative-border: #dab0a8;
+        /* Neutral (no change) - Warm gray */
+        --neutral-primary: #7a7268;
+        --neutral-secondary: #9a9288;
+        --neutral-bg: #f4f2f0;
+        --neutral-border: #d4d0c8;
+        /* Warning (approaching limits) - Muted ochre */
+        --warning-semantic: #a8842c;
+        --warning-secondary: #c49c48;
+        --warning-bg: #fcf4e0;
+        --warning-border: #e8d498;
+
+        /* Story 14.33a.1: Insight Type Colors - Normal theme light mode */
+        /* Quirky (fun patterns) - Warm amber/ochre */
+        --insight-quirky-bg: #fef3c7;
+        --insight-quirky-icon: #92400e;
+        /* Celebration (milestones) - Forest green matching primary */
+        --insight-celebration-bg: #d4e5d9;
+        --insight-celebration-icon: #4a7c59;
+        /* Actionable (opportunities) - Sage green */
+        --insight-actionable-bg: #dcfce7;
+        --insight-actionable-icon: #7d9b5f;
+        /* Tradeoff (trade-offs) - Warm coral/terracotta */
+        --insight-tradeoff-bg: #f8ebe8;
+        --insight-tradeoff-icon: #b85c4a;
+        /* Trend (patterns) - Muted purple/lavender */
+        --insight-trend-bg: #e8e4f0;
+        --insight-trend-icon: #6b5b95;
+      }
+
+      .dark {
+        /* Dark mode - Normal theme (Ni No Kuni night palette) */
+        --bg: #1a2420;         /* dark forest */
+        --bg-secondary: #243028; /* darker green-tinted */
+        --bg-tertiary: #2d3d32; /* Story 14.12: Tertiary dark */
+        --surface: #243028;    /* elevated surface */
+        --primary: #6b9e7a;    /* lighter forest green */
+        --primary-hover: #5a8a68; /* hover state */
+        --primary-light: #2d3d32; /* dark tint */
+        --secondary: #7ba8be;  /* lighter ocean blue */
+        --accent: #d4a574;     /* muted sunset */
+        --success: #8fbf9c;    /* lighter sage */
+        --warning: #fbbf24;    /* amber-400 */
+        --error: #f87171;      /* red-400 */
+        --text-primary: #e8e4dc; /* warm light text */
+        --text-secondary: #b8c4a8; /* muted sage text */
+        --text-tertiary: #6b8b5f; /* dim sage */
+        --border-light: #3d4d42; /* dark forest border */
+        --border-medium: #4d5d52; /* Story 14.12: Medium border */
+
+        /* Story 14.16b: Semantic Colors - Normal theme dark mode */
+        /* Positive (spending down - good) - Softer sage, visible on dark bg */
+        --positive-primary: #7cc494;
+        --positive-secondary: #5ca376;
+        --positive-bg: #1a3828;
+        --positive-border: #3d6848;
+        /* Negative (spending up - bad) - Warm coral, not neon */
+        --negative-primary: #d4948a;
+        --negative-secondary: #c87868;
+        --negative-bg: #3a2420;
+        --negative-border: #6a4840;
+        /* Neutral (no change) - Warm gray */
+        --neutral-primary: #b8b0a8;
+        --neutral-secondary: #9a9288;
+        --neutral-bg: #2a2824;
+        --neutral-border: #4a4840;
+        /* Warning (approaching limits) - Warm amber */
+        --warning-semantic: #d4b868;
+        --warning-secondary: #c49c48;
+        --warning-bg: #3a3018;
+        --warning-border: #5a4820;
+
+        /* Story 14.33a.1: Insight Type Colors - Normal theme dark mode */
+        /* Quirky (fun patterns) - Muted amber */
+        --insight-quirky-bg: rgba(251, 191, 36, 0.15);
+        --insight-quirky-icon: #fbbf24;
+        /* Celebration (milestones) - Muted forest green */
+        --insight-celebration-bg: rgba(107, 158, 122, 0.15);
+        --insight-celebration-icon: #6b9e7a;
+        /* Actionable (opportunities) - Muted sage */
+        --insight-actionable-bg: rgba(125, 155, 95, 0.15);
+        --insight-actionable-icon: #8fbf9c;
+        /* Tradeoff (trade-offs) - Muted coral */
+        --insight-tradeoff-bg: rgba(184, 92, 74, 0.15);
+        --insight-tradeoff-icon: #d4948a;
+        /* Trend (patterns) - Muted purple */
+        --insight-trend-bg: rgba(107, 91, 149, 0.12);
+        --insight-trend-icon: #a89cc8;
+      }
+
+      /* Story 7.17: Professional Color Theme (cool blue/gray, was "default") */
+      /* Story 14.12: Updated to match mockup professional theme exactly */
+      [data-theme="professional"] {
+        /* Light mode - Professional blue tones (matching mockup) */
+        --bg: #f8fafc;          /* slate-50 */
+        --bg-secondary: #ffffff; /* white */
+        --bg-tertiary: #f1f5f9; /* slate-100 */
+        --surface: #ffffff;     /* white */
+        --primary: #2563eb;     /* blue-600 (main brand color per mockup) */
+        --primary-hover: #1d4ed8; /* blue-700 */
+        --primary-light: #dbeafe; /* blue-100 */
+        --secondary: #64748b;   /* slate-500 */
+        --accent: #0ea5e9;      /* sky-500 */
+        --success: #22c55e;     /* green-500 */
+        --warning: #f59e0b;     /* amber-500 */
+        --error: #ef4444;       /* red-500 */
+        --text-primary: #0f172a; /* slate-900 */
+        --text-secondary: #475569; /* slate-600 */
+        --text-tertiary: #94a3b8; /* slate-400 */
+        --border-light: #e2e8f0; /* slate-200 */
+        --border-medium: #cbd5e1; /* slate-300 */
+        /* Chart colors - Professional palette */
+        --chart-1: #2563eb;     /* blue-600 (primary) */
+        --chart-2: #22c55e;     /* green-500 */
+        --chart-3: #f59e0b;     /* amber-500 */
+        --chart-4: #ef4444;     /* red-500 */
+        --chart-5: #8b5cf6;     /* violet-500 */
+        --chart-6: #ec4899;     /* pink-500 */
+
+        /* Story 14.16b: Semantic Colors - Professional theme light mode */
+        /* Positive (spending down - good) - Clear professional green */
+        --positive-primary: #16a34a;
+        --positive-secondary: #22c55e;
+        --positive-bg: #dcfce7;
+        --positive-border: #86efac;
+        /* Negative (spending up - bad) - Clear professional red */
+        --negative-primary: #dc2626;
+        --negative-secondary: #ef4444;
+        --negative-bg: #fee2e2;
+        --negative-border: #fca5a5;
+        /* Neutral (no change) - Cool gray */
+        --neutral-primary: #64748b;
+        --neutral-secondary: #94a3b8;
+        --neutral-bg: #f1f5f9;
+        --neutral-border: #cbd5e1;
+        /* Warning (approaching limits) - Vivid amber */
+        --warning-semantic: #d97706;
+        --warning-secondary: #f59e0b;
+        --warning-bg: #fef3c7;
+        --warning-border: #fcd34d;
+
+        /* Story 14.33a.1: Insight Type Colors - Professional theme light mode */
+        /* Quirky (fun patterns) - Bright amber */
+        --insight-quirky-bg: #fef3c7;
+        --insight-quirky-icon: #92400e;
+        /* Celebration (milestones) - Professional blue */
+        --insight-celebration-bg: #dbeafe;
+        --insight-celebration-icon: #2563eb;
+        /* Actionable (opportunities) - Bright green */
+        --insight-actionable-bg: #dcfce7;
+        --insight-actionable-icon: #22c55e;
+        /* Tradeoff (trade-offs) - Pink/magenta */
+        --insight-tradeoff-bg: #fce7f3;
+        --insight-tradeoff-icon: #be185d;
+        /* Trend (patterns) - Violet */
+        --insight-trend-bg: #ede9fe;
+        --insight-trend-icon: #7c3aed;
+      }
+
+      [data-theme="professional"].dark {
+        /* Dark mode - Professional blue palette (matching mockup) */
+        --bg: #0f172a;          /* slate-900 */
+        --bg-secondary: #1e293b; /* slate-800 */
+        --bg-tertiary: #334155; /* slate-700 */
+        --surface: #1e293b;     /* slate-800 */
+        --primary: #3b82f6;     /* blue-500 */
+        --primary-hover: #2563eb; /* blue-600 */
+        --primary-light: #1e3a5f; /* dark blue tint */
+        --secondary: #94a3b8;   /* slate-400 */
+        --accent: #38bdf8;      /* sky-400 */
+        --success: #4ade80;     /* green-400 */
+        --warning: #fbbf24;     /* amber-400 */
+        --error: #f87171;       /* red-400 */
+        --text-primary: #f1f5f9; /* slate-100 */
+        --text-secondary: #cbd5e1; /* slate-300 */
+        --text-tertiary: #64748b; /* slate-500 */
+        --border-light: #334155; /* slate-700 */
+        --border-medium: #475569; /* slate-600 */
+
+        /* Story 14.16b: Semantic Colors - Professional theme dark mode */
+        /* Positive (spending down - good) - Bright green for dark mode */
+        --positive-primary: #4ade80;
+        --positive-secondary: #22c55e;
+        --positive-bg: #14532d;
+        --positive-border: #166534;
+        /* Negative (spending up - bad) - Bright red for dark mode */
+        --negative-primary: #f87171;
+        --negative-secondary: #ef4444;
+        --negative-bg: #7f1d1d;
+        --negative-border: #991b1b;
+        /* Neutral (no change) - Cool gray */
+        --neutral-primary: #94a3b8;
+        --neutral-secondary: #cbd5e1;
+        --neutral-bg: #334155;
+        --neutral-border: #475569;
+        /* Warning (approaching limits) - Bright amber */
+        --warning-semantic: #fbbf24;
+        --warning-secondary: #f59e0b;
+        --warning-bg: #78350f;
+        --warning-border: #92400e;
+
+        /* Story 14.33a.1: Insight Type Colors - Professional theme dark mode */
+        /* Quirky (fun patterns) - Muted amber */
+        --insight-quirky-bg: rgba(251, 191, 36, 0.15);
+        --insight-quirky-icon: #fbbf24;
+        /* Celebration (milestones) - Muted blue */
+        --insight-celebration-bg: rgba(59, 130, 246, 0.15);
+        --insight-celebration-icon: #60a5fa;
+        /* Actionable (opportunities) - Muted green */
+        --insight-actionable-bg: rgba(34, 197, 94, 0.15);
+        --insight-actionable-icon: #4ade80;
+        /* Tradeoff (trade-offs) - Muted pink */
+        --insight-tradeoff-bg: rgba(236, 72, 153, 0.15);
+        --insight-tradeoff-icon: #f472b6;
+        /* Trend (patterns) - Muted violet */
+        --insight-trend-bg: rgba(139, 92, 246, 0.15);
+        --insight-trend-icon: #a78bfa;
+      }
+
+      /* Story 14.12: Monochrome Color Theme (minimal grayscale, new default) */
+      [data-theme="mono"] {
+        /* Light mode - Monochrome minimal (matching mockup) */
+        --bg: #fafafa;          /* zinc-50 */
+        --bg-secondary: #ffffff; /* white */
+        --bg-tertiary: #f4f4f5;  /* zinc-100 */
+        --surface: #ffffff;      /* white */
+        --primary: #18181b;      /* zinc-900 */
+        --primary-hover: #27272a; /* zinc-800 */
+        --primary-light: #f4f4f5; /* zinc-100 */
+        --secondary: #52525b;    /* zinc-600 */
+        --accent: #52525b;       /* zinc-600 - grayscale for mono theme (progress bars, etc) */
+        --success: #22c55e;      /* green-500 */
+        --warning: #f59e0b;      /* amber-500 */
+        --error: #ef4444;        /* red-500 */
+        --text-primary: #18181b; /* zinc-900 */
+        --text-secondary: #52525b; /* zinc-600 */
+        --text-tertiary: #a1a1aa; /* zinc-400 */
+        --border-light: #e4e4e7; /* zinc-200 */
+        --border-medium: #d4d4d8; /* zinc-300 */
+        /* Chart colors - grayscale with accent */
+        --chart-1: #18181b;      /* zinc-900 */
+        --chart-2: #52525b;      /* zinc-600 */
+        --chart-3: #71717a;      /* zinc-500 */
+        --chart-4: #a1a1aa;      /* zinc-400 */
+        --chart-5: #d4d4d8;      /* zinc-300 */
+        --chart-6: #52525b;      /* zinc-600 - grayscale accent */
+
+        /* Story 14.16b: Semantic Colors - Mono theme light mode */
+        /* Positive (spending down - good) - Desaturated teal-green */
+        --positive-primary: #3a8c70;
+        --positive-secondary: #58a890;
+        --positive-bg: #e4f2ec;
+        --positive-border: #98c8b8;
+        /* Negative (spending up - bad) - Desaturated brick/clay red */
+        --negative-primary: #a05858;
+        --negative-secondary: #b87878;
+        --negative-bg: #f4e8e8;
+        --negative-border: #c8a8a8;
+        /* Neutral (no change) - True gray with slight warmth */
+        --neutral-primary: #686870;
+        --neutral-secondary: #909098;
+        --neutral-bg: #f0f0f2;
+        --neutral-border: #c8c8d0;
+        /* Warning (approaching limits) - Desaturated amber/tan */
+        --warning-semantic: #988040;
+        --warning-secondary: #b09858;
+        --warning-bg: #f8f0e0;
+        --warning-border: #d0c098;
+
+        /* Story 14.33a.1: Insight Type Colors - Mono theme light mode */
+        /* Quirky (fun patterns) - Desaturated tan/ochre */
+        --insight-quirky-bg: #f8f0e0;
+        --insight-quirky-icon: #988040;
+        /* Celebration (milestones) - Neutral gray (matches mono primary) */
+        --insight-celebration-bg: #f4f4f5;
+        --insight-celebration-icon: #18181b;
+        /* Actionable (opportunities) - Desaturated teal-green */
+        --insight-actionable-bg: #e4f2ec;
+        --insight-actionable-icon: #3a8c70;
+        /* Tradeoff (trade-offs) - Desaturated rose */
+        --insight-tradeoff-bg: #f4e8e8;
+        --insight-tradeoff-icon: #a05858;
+        /* Trend (patterns) - Desaturated purple-gray */
+        --insight-trend-bg: #f0f0f2;
+        --insight-trend-icon: #686870;
+      }
+
+      [data-theme="mono"].dark {
+        /* Dark mode - Monochrome minimal (matching mockup) */
+        --bg: #09090b;           /* zinc-950 */
+        --bg-secondary: #18181b; /* zinc-900 */
+        --bg-tertiary: #27272a;  /* zinc-800 */
+        --surface: #18181b;      /* zinc-900 */
+        --primary: #3f3f46;      /* zinc-700 - visible on dark bg (for logo/FAB) */
+        --primary-hover: #52525b; /* zinc-600 */
+        --primary-light: #27272a; /* zinc-800 */
+        --secondary: #a1a1aa;    /* zinc-400 - brighter for visibility */
+        --accent: #a1a1aa;       /* zinc-400 - grayscale instead of blue for mono theme */
+        --success: #4ade80;      /* green-400 */
+        --warning: #fbbf24;      /* amber-400 */
+        --error: #f87171;        /* red-400 */
+        --text-primary: #fafafa; /* zinc-50 */
+        --text-secondary: #d4d4d8; /* zinc-300 */
+        --text-tertiary: #71717a; /* zinc-500 */
+        --border-light: #27272a; /* zinc-800 */
+        --border-medium: #3f3f46; /* zinc-700 */
+
+        /* Story 14.16b: Semantic Colors - Mono theme dark mode */
+        /* Positive (spending down - good) - Muted teal-green for dark */
+        --positive-primary: #78c0a8;
+        --positive-secondary: #58a890;
+        --positive-bg: #1a3830;
+        --positive-border: #2a5848;
+        /* Negative (spending up - bad) - Muted rose for dark */
+        --negative-primary: #c89898;
+        --negative-secondary: #b87878;
+        --negative-bg: #382828;
+        --negative-border: #503838;
+        /* Neutral (no change) - Warm gray */
+        --neutral-primary: #a8a8b0;
+        --neutral-secondary: #909098;
+        --neutral-bg: #2a2a30;
+        --neutral-border: #404048;
+        /* Warning (approaching limits) - Muted gold */
+        --warning-semantic: #c8b070;
+        --warning-secondary: #b09858;
+        --warning-bg: #383020;
+        --warning-border: #504028;
+
+        /* Story 14.33a.1: Insight Type Colors - Mono theme dark mode */
+        /* Quirky (fun patterns) - Muted tan */
+        --insight-quirky-bg: rgba(200, 176, 112, 0.15);
+        --insight-quirky-icon: #c8b070;
+        /* Celebration (milestones) - Muted gray */
+        --insight-celebration-bg: rgba(63, 63, 70, 0.15);
+        --insight-celebration-icon: #a1a1aa;
+        /* Actionable (opportunities) - Muted teal */
+        --insight-actionable-bg: rgba(58, 140, 112, 0.15);
+        --insight-actionable-icon: #78c0a8;
+        /* Tradeoff (trade-offs) - Muted rose */
+        --insight-tradeoff-bg: rgba(200, 152, 152, 0.15);
+        --insight-tradeoff-icon: #c89898;
+        /* Trend (patterns) - Muted gray */
+        --insight-trend-bg: rgba(104, 104, 112, 0.15);
+        --insight-trend-icon: #a8a8b0;
+      }
+
+      /* Utility classes for theme (AC #6) */
+      .theme-bg { background-color: var(--bg); }
+      .theme-surface { background-color: var(--surface); }
+      .theme-text-primary { color: var(--primary); }
+      .theme-text-secondary { color: var(--secondary); }
+      .theme-accent { color: var(--accent); }
+      .theme-border { border-color: var(--secondary); }
+
+      /* Story 11.6: Safe area utility classes for PWA (AC #1, #3) */
+      .safe-top { padding-top: var(--safe-top); }
+      .safe-bottom { padding-bottom: var(--safe-bottom); }
+      .safe-left { padding-left: var(--safe-left); }
+      .safe-right { padding-right: var(--safe-right); }
+      .safe-x { padding-left: var(--safe-left); padding-right: var(--safe-right); }
+      .safe-y { padding-top: var(--safe-top); padding-bottom: var(--safe-bottom); }
+      .safe-all { padding: var(--safe-top) var(--safe-right) var(--safe-bottom) var(--safe-left); }
+
+      /* Story 10.6: Insight Card Animations (AC #5, #8) */
+      @keyframes slide-up {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes fade-out {
+        from {
+          opacity: 1;
+        }
+        to {
+          opacity: 0;
+        }
+      }
+
+      .animate-slide-up {
+        animation: slide-up 0.3s ease-out forwards;
+      }
+
+      .animate-fade-out {
+        animation: fade-out 0.2s ease-out forwards;
+      }
+
+      /* Story 11.3: Animated Item Reveal Keyframes (AC #2, #3) */
+      @keyframes item-reveal {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .animate-item-reveal {
+        animation: item-reveal 200ms ease-out forwards;
+        /* GPU-accelerated properties for smooth 60fps (Task 6) */
+        will-change: opacity, transform;
+      }
+
+      /* Story 14.2: Screen Transition System Keyframes (AC #1, #2, #4) */
+      @keyframes pageTransition {
+        from {
+          opacity: 0;
+          transform: translateX(var(--translate-start, 30px));
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+
+      /* Fade-only transition for tab switches (direction="none") */
+      /* Per motion-design-system.md Section 2.1: Tab | Tab | Fade crossfade */
+      @keyframes pageTransitionFade {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      @keyframes transitionChildReveal {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .page-transition {
+        /* GPU-accelerated for smooth 60fps */
+        will-change: transform, opacity;
+      }
+
+      .transition-child {
+        /* GPU-accelerated for staggered animations */
+        will-change: transform, opacity;
+      }
+
+      /* Story 14.4: Quick Save Success Animation (AC #2) */
+      @keyframes quickSaveSuccessBounce {
+        0% { transform: scale(0); }
+        50% { transform: scale(1.15); }
+        70% { transform: scale(0.95); }
+        100% { transform: scale(1); }
+      }
+
+      .animate-quick-save-success {
+        animation: quickSaveSuccessBounce 400ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+      }
+
+      /* General fade-in animation for UI feedback */
+      @keyframes fade-in {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+
+      .animate-fade-in {
+        animation: fade-in 200ms ease-out forwards;
+      }
+
+      /* Story 14.12: Carousel slide transition animations */
+      @keyframes slideInFromRight {
+        from {
+          opacity: 0;
+          transform: translateX(100%);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+
+      @keyframes slideInFromLeft {
+        from {
+          opacity: 0;
+          transform: translateX(-100%);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+
+      /* Story 14.12: Radar comparison overlay animations (subtle slide-in) */
+      @keyframes comparisonSlideFromLeft {
+        from {
+          opacity: 0;
+          transform: translateX(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+
+      @keyframes comparisonSlideFromRight {
+        from {
+          opacity: 0;
+          transform: translateX(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+
+      .animate-comparison-left {
+        animation: comparisonSlideFromLeft 300ms ease-out forwards;
+      }
+
+      .animate-comparison-right {
+        animation: comparisonSlideFromRight 300ms ease-out forwards;
+      }
+
+      /* Story 14.12: Radar polygon expand animation */
+      @keyframes radarExpand {
+        from {
+          transform: scale(0);
+          opacity: 0;
+        }
+        to {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+
+      /* Story 14.12: Bump chart line draw animation */
+      @keyframes drawLine {
+        from {
+          stroke-dashoffset: 1000;
+        }
+        to {
+          stroke-dashoffset: 0;
+        }
+      }
+
+      /* Story 14.12: Bump chart dot appear animation */
+      @keyframes dotAppear {
+        from {
+          transform: scale(0);
+          opacity: 0;
+        }
+        to {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+
+      /* Story 14.12: Recientes transaction item fade-in from left */
+      @keyframes fadeInFromLeft {
+        from {
+          opacity: 0;
+          transform: translateX(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+
+      /* Story 14.12: Radar category progress ring fill animation */
+      /* Uses CSS custom property --target-offset for the final dashoffset value */
+      @keyframes progressRingFill {
+        from {
+          stroke-dashoffset: var(--ring-circumference);
+        }
+        to {
+          stroke-dashoffset: var(--target-offset);
+        }
+      }
+
+      .animate-fade-in-left {
+        animation: fadeInFromLeft 300ms ease-out forwards;
+        will-change: opacity, transform;
+      }
+
+      /* Story 14e-9c: Indeterminate progress animation for ProcessingState */
+      @keyframes indeterminate-progress {
+        0% { transform: translateX(-100%); }
+        50% { transform: translateX(200%); }
+        100% { transform: translateX(-100%); }
+      }
+
+      .animate-indeterminate-progress {
+        animation: indeterminate-progress 1.5s ease-in-out infinite;
+      }
+
+      /* Respect prefers-reduced-motion (AC #8) */
+      @media (prefers-reduced-motion: reduce) {
+        .animate-slide-up,
+        .animate-fade-out,
+        .animate-fade-in,
+        .animate-fade-in-left,
+        .animate-item-reveal,
+        .page-transition,
+        .transition-child,
+        .animate-quick-save-success,
+        .animate-comparison-left,
+        .animate-comparison-right,
+        .animate-indeterminate-progress {
+          animation: none;
+          opacity: 1;
+          transform: none;
+        }
+      }
+
+      /* Story 14.10: Global font family application */
+      body {
+        font-family: var(--font-family);
+      }
+
+      /* Story 14.16: Print/PDF Export Styles for Reports */
+      @media print {
+        /* Page setup - wider margins for centered look */
+        @page {
+          size: A4;
+          margin: 18mm 22mm;
+        }
+
+        /* Light theme for printing */
+        :root {
+          --bg-primary: #ffffff !important;
+          --bg-secondary: #f8f9fa !important;
+          --bg-tertiary: #f0f0f0 !important;
+          --text-primary: #000000 !important;
+          --text-secondary: #333333 !important;
+          --text-tertiary: #666666 !important;
+          --border-light: #e0e0e0 !important;
+          --positive-primary: #16a34a !important;
+          --negative-primary: #dc2626 !important;
+        }
+
+        /* Base setup - enable multi-page printing */
+        html, body {
+          margin: 0 !important;
+          padding: 0 !important;
+          background: white !important;
+          height: auto !important;
+          min-height: auto !important;
+          overflow: visible !important;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+          font-size: 11pt !important;
+        }
+
+        /* When printing-report class is on body, hide everything except print container */
+        body.printing-report > *:not(#print-container) {
+          display: none !important;
+        }
+
+        /* Show and style print container */
+        #print-container {
+          display: block !important;
+          position: static !important;
+          width: 100% !important;
+          height: auto !important;
+          overflow: visible !important;
+          background: white !important;
+          padding: 0 !important;
+          margin: 0 !important;
+        }
+
+        /* Branding header styles - matches TopHeader wordmark */
+        .print-branding {
+          display: flex !important;
+          align-items: center !important;
+          justify-content: center !important;
+          gap: 10pt !important;
+          padding: 12pt 0 16pt 0 !important;
+          margin-bottom: 14pt !important;
+          border-bottom: 1.5px solid #e0e0e0 !important;
+        }
+        /* "G" logo circle - matches AppLogo component */
+        .print-logo-circle {
+          width: 32pt !important;
+          height: 32pt !important;
+          background: #2563eb !important;
+          border-radius: 50% !important;
+          display: flex !important;
+          align-items: center !important;
+          justify-content: center !important;
+          color: white !important;
+          font-family: 'Baloo 2', cursive, sans-serif !important;
+          font-size: 18pt !important;
+          font-weight: 700 !important;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
+        /* Wordmark - matches TopHeader Baloo 2 styling */
+        .print-wordmark {
+          font-family: 'Baloo 2', cursive, sans-serif !important;
+          font-size: 24pt !important;
+          font-weight: 700 !important;
+          color: #0f172a !important;
+          letter-spacing: -0.5px !important;
+        }
+
+        /* Report header styles */
+        .print-report-header {
+          text-align: center !important;
+          margin-bottom: 20pt !important;
+        }
+        .print-report-header h1 {
+          font-size: 22pt !important;
+          font-weight: 700 !important;
+          margin: 0 0 6pt 0 !important;
+          color: black !important;
+        }
+        .print-report-header p {
+          font-size: 12pt !important;
+          margin: 0 !important;
+          color: #666 !important;
+        }
+
+        /* Footer styles */
+        .print-footer {
+          margin-top: 24pt !important;
+          text-align: center !important;
+        }
+        .print-footer-divider {
+          border-top: 1px solid #e0e0e0 !important;
+          margin-bottom: 16pt !important;
+        }
+        .print-footer-title {
+          font-size: 11pt !important;
+          font-weight: 600 !important;
+          color: #374151 !important;
+          margin: 0 0 4pt 0 !important;
+        }
+        .print-footer-meta {
+          font-size: 10pt !important;
+          color: #6b7280 !important;
+          margin: 0 0 8pt 0 !important;
+        }
+        .print-footer-disclaimer {
+          font-size: 9pt !important;
+          color: #9ca3af !important;
+          font-style: italic !important;
+          margin: 0 0 6pt 0 !important;
+        }
+        .print-footer-url {
+          font-size: 10pt !important;
+          color: #2563eb !important;
+          font-weight: 500 !important;
+          margin: 0 !important;
+        }
+
+        /* Cloned report content - convert to block flow */
+        #print-container [data-testid="report-content"] {
+          display: block !important;
+          position: static !important;
+          width: 100% !important;
+          height: auto !important;
+          max-height: none !important;
+          padding: 0 !important;
+          margin: 0 !important;
+          overflow: visible !important;
+          background: white !important;
+        }
+
+        /* Inner flex container - convert to block for natural flow */
+        #print-container [data-testid="report-content"] > div {
+          display: block !important;
+          height: auto !important;
+          overflow: visible !important;
+        }
+
+        /* Spacing between sections */
+        #print-container [data-testid="report-content"] > div > * {
+          margin-bottom: 14pt !important;
+        }
+
+        /* Hero card - preserve colors */
+        #print-container [data-testid="hero-card"] {
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+          color-adjust: exact !important;
+          padding: 18pt 16pt !important;
+          border-radius: 8pt !important;
+          break-inside: avoid !important;
+          page-break-inside: avoid !important;
+        }
+
+        /* Increase font sizes for better readability */
+        #print-container [data-testid="hero-card"] [class*="text-3xl"],
+        #print-container [data-testid="hero-card"] [class*="text-2xl"],
+        #print-container [data-testid="hero-card"] [class*="text-4xl"] {
+          font-size: 26pt !important;
+        }
+        #print-container [data-testid="hero-card"] [class*="text-sm"] {
+          font-size: 12pt !important;
+        }
+        /* Hero card period label ("Total del mes") - larger */
+        #print-container [data-testid="hero-card"] [class*="text-xs"] {
+          font-size: 13pt !important;
+        }
+
+        /* Category group cards - larger fonts */
+        #print-container [data-testid^="category-group-"] {
+          padding: 14pt !important;
+          border-radius: 8pt !important;
+          margin-bottom: 10pt !important;
+        }
+        #print-container [data-testid^="category-group-"] [class*="font-semibold"] {
+          font-size: 13pt !important;
+        }
+        #print-container [data-testid^="category-group-"] [class*="text-sm"] {
+          font-size: 11pt !important;
+        }
+
+        /* Item group cards - same fonts as category groups for consistency */
+        #print-container [data-testid^="item-group-"] {
+          padding: 14pt !important;
+          border-radius: 8pt !important;
+          margin-bottom: 10pt !important;
+        }
+        #print-container [data-testid^="item-group-"] [class*="font-semibold"],
+        #print-container [data-testid^="item-group-"] [class*="font-medium"] {
+          font-size: 13pt !important;
+        }
+        #print-container [data-testid^="item-group-"] [class*="text-xs"],
+        #print-container [data-testid^="item-group-"] [class*="text-sm"] {
+          font-size: 11pt !important;
+        }
+
+        /* Section titles - larger */
+        #print-container [data-testid="transaction-groups-card"] > p:first-child,
+        #print-container [data-testid="item-groups-card"] > p:first-child {
+          font-size: 14pt !important;
+          font-weight: 600 !important;
+          margin-bottom: 10pt !important;
+        }
+
+        /* Cards should not break across pages */
+        #print-container [data-testid="insight-card"],
+        #print-container [data-testid="highlights-card"],
+        #print-container [data-testid="category-breakdown-card"],
+        #print-container [data-testid^="category-group-"],
+        #print-container [data-testid^="item-group-"] {
+          break-inside: avoid !important;
+          page-break-inside: avoid !important;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+          color-adjust: exact !important;
+        }
+
+        /* Section headers with page break control */
+        #print-container [data-testid="transaction-groups-card"],
+        #print-container [data-testid="item-groups-card"] {
+          margin-top: 14pt !important;
+          break-before: auto !important;
+        }
+
+        /* Section titles - keep with content */
+        #print-container [data-testid="transaction-groups-card"] > p:first-child,
+        #print-container [data-testid="item-groups-card"] > p:first-child {
+          break-after: avoid !important;
+          page-break-after: avoid !important;
+        }
+
+        /* Group containers should flow as blocks */
+        #print-container [data-testid="transaction-groups-card"] > div,
+        #print-container [data-testid="item-groups-card"] > div {
+          display: block !important;
+        }
+
+        /* Trend indicators - preserve colors */
+        #print-container [data-testid="trend-sparkline"],
+        #print-container [data-testid="trend-change"] {
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
+
+        /* Category badges - preserve colors */
+        #print-container [class*="CategoryBadge"],
+        #print-container [data-testid*="category-badge"] {
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
+
+        /* Insight card - larger fonts */
+        #print-container [data-testid="insight-card"] {
+          padding: 16pt !important;
+        }
+        #print-container [data-testid="insight-card"] [class*="text-xs"] {
+          font-size: 12pt !important;
+        }
+        #print-container [data-testid="insight-card"] [class*="text-sm"],
+        #print-container [data-testid="insight-card"] p {
+          font-size: 14pt !important;
+          line-height: 1.6 !important;
+        }
+
+        /* Highlights card - larger fonts */
+        #print-container [data-testid="highlights-card"] {
+          padding: 14pt !important;
+        }
+        #print-container [data-testid="highlights-card"] [class*="text-xs"] {
+          font-size: 11pt !important;
+        }
+        #print-container [data-testid="highlights-card"] [class*="text-sm"] {
+          font-size: 12pt !important;
+        }
+        #print-container [data-testid="highlights-card"] [class*="font-semibold"] {
+          font-size: 13pt !important;
+        }
+
+        /* Story 14.16: Spending distribution donut charts */
+        /* Center the donut chart container and limit width to 60% (3/5) */
+        #print-container [data-testid="transaction-groups-card"] > div:nth-child(2),
+        #print-container [data-testid="item-groups-card"] > div:nth-child(2) {
+          width: 60% !important;
+          margin-left: auto !important;
+          margin-right: auto !important;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
+        #print-container [data-testid="transaction-groups-card"] svg,
+        #print-container [data-testid="item-groups-card"] svg {
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
+        /* Donut chart segments - preserve colors */
+        #print-container [data-testid^="donut-segment-"] {
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
+        /* Legend items - preserve colors and increase font size */
+        #print-container [data-testid^="legend-item-"] {
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+          padding: 6pt 10pt !important;
+          font-size: 11pt !important;
+        }
+        #print-container [data-testid^="legend-item-"] span {
+          font-size: 11pt !important;
+        }
+        /* Color indicator circles - make slightly larger */
+        #print-container [data-testid^="legend-item-"] > div:first-child {
+          width: 10pt !important;
+          height: 10pt !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

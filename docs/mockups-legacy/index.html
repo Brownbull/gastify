@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mockups (legacy port) — gastify</title>
+  <link rel="stylesheet" href="assets/css/desktop-shell.css">
+  <style>
+    /* Hub layout — uses canonical frontend tokens from desktop-shell.css. No inline :root. */
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text-primary);
+      min-height: 100vh;
+      padding: 40px 320px 48px 48px;
+    }
+    .hub-header { margin-bottom: 32px; max-width: 760px; }
+    .hub-header .wordmark {
+      font-family: var(--font-family-wordmark);
+      font-weight: 700;
+      font-size: 36px;
+      color: var(--primary);
+      letter-spacing: -0.02em;
+      margin: 0;
+    }
+    .hub-header .subline {
+      font-size: 13px;
+      color: var(--text-tertiary);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      font-weight: 600;
+      margin: 4px 0 0;
+    }
+    .hub-header .lede {
+      color: var(--text-secondary);
+      font-size: 14px;
+      line-height: 1.6;
+      margin: 12px 0 0;
+    }
+    .hub-header .meta {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 16px;
+      font-size: 12px;
+      color: var(--text-tertiary);
+    }
+    .hub-header .meta-pill {
+      background: var(--bg-secondary);
+      padding: 4px 10px;
+      border-radius: 9999px;
+      font-weight: 600;
+      border: 1px solid var(--border-light);
+    }
+    .hub-header .meta-pill strong { color: var(--primary); }
+
+    .section-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 18px;
+    }
+
+    /* Section card — anchor when status="live", div when status="placeholder" */
+    .section-card {
+      background: var(--surface);
+      border: 1px solid var(--border-light);
+      border-radius: 14px;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      text-decoration: none;
+      color: inherit;
+      transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+    }
+    .section-card[data-status="live"]:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+      border-color: var(--primary);
+    }
+    .section-card:focus-visible {
+      outline: 2px solid var(--primary);
+      outline-offset: 2px;
+    }
+    .section-card[data-status="placeholder"] {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    .section-preview {
+      min-height: 120px;
+      padding: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border-light);
+      font-family: var(--font-family-wordmark);
+      color: var(--text-tertiary);
+      text-align: center;
+    }
+
+    .section-meta {
+      padding: 14px 18px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .section-meta h2 {
+      font-family: var(--font-family-wordmark);
+      font-size: 17px;
+      margin: 0;
+      letter-spacing: -0.01em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .section-desc {
+      font-size: 12px;
+      color: var(--text-secondary);
+      line-height: 1.45;
+      margin: 0;
+    }
+    .section-stats {
+      font-size: 11px;
+      color: var(--text-tertiary);
+      margin-top: 2px;
+      font-family: ui-monospace, Consolas, monospace;
+    }
+    .status-badge {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 4px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    .status-badge--live {
+      background: var(--primary-light);
+      color: var(--primary);
+    }
+    .status-badge--placeholder {
+      background: var(--bg-secondary);
+      color: var(--text-tertiary);
+      border: 1px solid var(--border-light);
+    }
+    .status-badge--pending {
+      background: var(--warning-bg);
+      color: var(--warning-semantic);
+    }
+
+    .hub-footer {
+      margin-top: 36px;
+      padding: 18px;
+      background: var(--bg-secondary);
+      border-radius: 12px;
+      border: 1px solid var(--border-light);
+      font-size: 13px;
+      color: var(--text-secondary);
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .hub-footer a { color: var(--primary); font-weight: 600; }
+
+    .source-banner {
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-medium);
+      border-radius: 12px;
+      padding: 14px 18px;
+      margin-bottom: 24px;
+      font-size: 13px;
+      color: var(--text-secondary);
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+    .source-banner strong { color: var(--text-primary); }
+    .source-banner code {
+      font-family: ui-monospace, Consolas, monospace;
+      background: var(--surface);
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <header class="hub-header">
+    <h1 class="wordmark">gastify</h1>
+    <p class="subline">mockups-legacy · extracted from operational frontend</p>
+    <p class="lede">Parallel mockup hierarchy sourced from the React port at <code>frontend/</code>. Sits alongside the clean-slate <a href="../mockups/index.html">docs/mockups/</a> hub. Together they give the rebuild team two reference perspectives: ideal design vs. operational reality.</p>
+    <div class="meta">
+      <span class="meta-pill"><strong>L1</strong> exec ✅ · L1 review pending</span>
+      <span class="meta-pill"><strong>11</strong> atoms ✅ · ~133 molecules · ~57 screens (target)</span>
+      <span class="meta-pill">Themes: Normal · Professional · Mono × light + dark</span>
+      <span class="meta-pill">Source: <code>frontend/src/</code></span>
+    </div>
+  </header>
+
+  <div class="source-banner">
+    <span>📘</span>
+    <div>
+      <strong>How this differs from <a href="../mockups/index.html">docs/mockups/</a>.</strong> The clean-slate folder is the design intent — what the rebuild should aim for. This folder is the legacy reality — what the existing React port at <code>frontend/</code> actually does. See <a href="README.md">README.md</a> for methodology and <a href="VERIFICATION.md">VERIFICATION.md</a> for the per-component verification recipe.
+    </div>
+  </div>
+
+  <nav class="section-grid" aria-label="Mockup sections">
+    <div class="section-card" data-section="design-system" data-status="placeholder">
+      <div class="section-preview">Tokens · Type · Color · Spacing</div>
+      <div class="section-meta">
+        <h2>Design System <span class="status-badge status-badge--pending">tokens only</span></h2>
+        <p class="section-desc">Frontend tokens extracted to <code>desktop-shell.css</code>. Stress-test page deferred — see clean-slate <a href="../mockups/design-system.html">design-system.html</a>.</p>
+        <span class="section-stats">3 themes × 2 modes · L0 done</span>
+      </div>
+    </div>
+
+    <a class="section-card" data-section="atoms" data-status="live" href="atoms/index.html">
+      <div class="section-preview">Button · Input · Select · Pill · Badge · Avatar · Chip · Skeleton · Progress · Spinner · Toast · Categories · Icon</div>
+      <div class="section-meta">
+        <h2>Atoms <span class="status-badge status-badge--live">L1 live</span></h2>
+        <p class="section-desc">13 atoms extracted from <code>frontend/src/</code>: 11 visual primitives translated from inline Tailwind utilities + a categories catalog (12 L1 Rubros from V4 taxonomy) + an icon registry (top 30 lucide icons). State matrices + cross-refs.</p>
+        <span class="section-stats">Phase L1 · ✅ exec</span>
+      </div>
+    </a>
+
+    <a class="section-card" data-section="molecules" data-status="placeholder" href="molecules/index.html">
+      <div class="section-preview">Cards · Modals · Toasts · Filters · Editors · Insights</div>
+      <div class="section-meta">
+        <h2>Molecules <span class="status-badge status-badge--placeholder">L2 pending</span></h2>
+        <p class="section-desc">~133 molecules across 12 feature folders. Triaged into 3 sub-phases (counterparts → frontend-specific → specialized).</p>
+        <span class="section-stats">Phase L2a/b/c · ~15h</span>
+      </div>
+    </a>
+
+    <a class="section-card" data-section="flows" data-status="placeholder" href="flows/index.html">
+      <div class="section-preview">Scan → Edit → Save · Batch · Statement · Settings</div>
+      <div class="section-meta">
+        <h2>Flows <span class="status-badge status-badge--placeholder">L3 pending</span></h2>
+        <p class="section-desc">7+ user journeys mapped from frontend handler chains. Will reuse F1–F13 numbering from clean-slate where flows match.</p>
+        <span class="section-stats">Phase L3 · ~4h</span>
+      </div>
+    </a>
+
+    <a class="section-card" data-section="screens" data-status="placeholder" href="screens/index.html">
+      <div class="section-preview">Dashboard · History · Trends · Items · Insights · Settings · Editor</div>
+      <div class="section-meta">
+        <h2>Screens <span class="status-badge status-badge--placeholder">L4 pending</span></h2>
+        <p class="section-desc">~57 views across 12 feature folders. Will be extracted in 8 sub-phases mapped to PLAN.md P5–P12 boundaries.</p>
+        <span class="section-stats">Phase L4a–L4h · ~24h</span>
+      </div>
+    </a>
+
+    <div class="section-card" data-section="handoff" data-status="placeholder">
+      <div class="section-preview">COMPARISON.md · Drift report · Cross-refs</div>
+      <div class="section-meta">
+        <h2>Handoff <span class="status-badge status-badge--placeholder">L5 pending</span></h2>
+        <p class="section-desc">Final phase — wire all cross-references, write COMPARISON.md, audit consistency. Informs the rebuild kickoff.</p>
+        <span class="section-stats">Phase L5 · ~2h · final</span>
+      </div>
+    </div>
+  </nav>
+
+  <footer class="hub-footer">
+    <span><strong>Living docs:</strong> <a href="INDEX.md">INDEX.md</a> · <strong>Methodology:</strong> <a href="README.md">README.md</a> · <strong>Verification:</strong> <a href="VERIFICATION.md">VERIFICATION.md</a></span>
+    <span><strong>Plan:</strong> <code>~/.claude/plans/at-this-stage-maybe-sunny-wall.md</code> · <strong>Sibling:</strong> <a href="../mockups/index.html">clean-slate hub →</a></span>
+  </footer>
+
+  <script src="assets/js/tweaks.js" defer></script>
+</body>
+</html>

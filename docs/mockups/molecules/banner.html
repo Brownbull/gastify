@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Molecule: banner — gastify</title>
+  <link rel="stylesheet" href="../assets/css/desktop-shell.css">
+  <link rel="stylesheet" href="../assets/css/atoms.css">
+  <link rel="stylesheet" href="../assets/css/molecules.css">
+  <style>
+    body { margin: 0; background: var(--bg); color: var(--ink); min-height: 100vh; padding: 40px 320px 48px 48px; }
+    h1 { font-size: 24px; margin: 0 0 6px 0; font-weight: 700; }
+    .subtitle { color: var(--ink-2); font-size: 13px; margin: 0 0 32px 0; max-width: 720px; line-height: 1.5; }
+    .demo-section { margin-bottom: 36px; }
+    .demo-section h2 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-3); margin: 0 0 14px 0; font-weight: 600; }
+    .demo-stack { display: flex; flex-direction: column; gap: 14px; background: var(--surface-2); padding: 24px; border-radius: 12px; border: 1px solid var(--line); }
+    .demo-swatch-label { font-size: 11px; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
+    .snippet { background: var(--surface-2); padding: 16px; border-radius: 8px; font-family: ui-monospace, Consolas, monospace; font-size: 12px; color: var(--ink); overflow-x: auto; white-space: pre; line-height: 1.5; border: 1px solid var(--line); }
+  </style>
+</head>
+<body>
+  <h1>Banner</h1>
+  <p class="subtitle">Full-width inline notice. Persistent (unlike toasts). Variants: info, warning, error, offline. Optional dismiss + inline action button. Used at top of screens or inline within content for context-bound notices.</p>
+
+  <section class="demo-section">
+    <h2>Variants</h2>
+    <div class="demo-stack">
+      <span class="demo-swatch-label">info</span>
+      <div class="banner is-info" role="status">
+        <span class="banner-icon" aria-hidden="true">i</span>
+        <span class="banner-body">Tu sincronización terminó hace 2 minutos. <strong>128 gastos al día</strong>.</span>
+        <div class="banner-actions">
+          <button class="btn btn-ghost btn-sm">Ver detalle</button>
+        </div>
+      </div>
+
+      <span class="demo-swatch-label">warning</span>
+      <div class="banner is-warning" role="status">
+        <span class="banner-icon" aria-hidden="true">!</span>
+        <span class="banner-body">Te quedan <strong>3 escaneos</strong> este mes. Pasá a Plan Pro o esperá hasta el 1 de mayo.</span>
+        <div class="banner-actions">
+          <button class="btn btn-primary btn-sm">Ver planes</button>
+          <button class="btn btn-icon btn-sm" aria-label="Cerrar">×</button>
+        </div>
+      </div>
+
+      <span class="demo-swatch-label">error</span>
+      <div class="banner is-error" role="alert">
+        <span class="banner-icon" aria-hidden="true">⚠</span>
+        <span class="banner-body"><strong>No pudimos cargar tu estado de cuenta.</strong> El PDF parece estar protegido o dañado. Probá subirlo de nuevo o cargá los gastos a mano.</span>
+        <div class="banner-actions">
+          <button class="btn btn-ghost btn-sm">Reintentar</button>
+        </div>
+      </div>
+
+      <span class="demo-swatch-label">offline (full-width, edge-bleed)</span>
+      <div class="banner is-offline" role="status">
+        <span class="banner-icon" aria-hidden="true">⊘</span>
+        <span class="banner-body">Sin conexión. Tus gastos se guardan localmente y se sincronizarán cuando vuelvas a estar en línea.</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>Composition</h2>
+    <div class="demo-stack" style="display: block;">
+      <ul style="margin: 0; padding-left: 20px; font-size: 13px; color: var(--ink-2); line-height: 1.7;">
+        <li><strong>Atoms used (one level down):</strong> <a href="../atoms/button.html">button</a> (btn-primary, btn-ghost, btn-icon for dismiss)</li>
+        <li><strong>Used by screens:</strong> Dashboard top (sync status, credit warning) · Statement upload (error) · global offline indicator</li>
+        <li><strong>State matrix:</strong> default · with-action · dismissible · sticky-header (offline)</li>
+        <li><strong>A11y:</strong> info/warning/offline use <code>role="status"</code> (polite); error uses <code>role="alert"</code> (assertive). Always include the meaning in text — never rely on color alone.</li>
+        <li><strong>Offline variant:</strong> edge-to-edge (no border-radius, no side-borders) — sits at the very top of the viewport above any nav.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>Usage</h2>
+    <pre class="snippet">&lt;div class="banner is-warning" role="status"&gt;
+  &lt;span class="banner-icon"&gt;!&lt;/span&gt;
+  &lt;span class="banner-body"&gt;Te quedan &lt;strong&gt;3 escaneos&lt;/strong&gt; este mes.&lt;/span&gt;
+  &lt;div class="banner-actions"&gt;
+    &lt;button class="btn btn-primary btn-sm"&gt;Ver planes&lt;/button&gt;
+    &lt;button class="btn btn-icon btn-sm" aria-label="Cerrar"&gt;×&lt;/button&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</pre>
+  </section>
+
+  <script src="../assets/js/tweaks.js" defer></script>
+</body>
+</html>

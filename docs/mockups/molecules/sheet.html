@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Molecule: sheet — gastify</title>
+  <link rel="stylesheet" href="../assets/css/desktop-shell.css">
+  <link rel="stylesheet" href="../assets/css/atoms.css">
+  <link rel="stylesheet" href="../assets/css/molecules.css">
+  <style>
+    body { margin: 0; background: var(--bg); color: var(--ink); min-height: 100vh; padding: 40px 320px 48px 48px; }
+    h1 { font-size: 24px; margin: 0 0 6px 0; font-weight: 700; }
+    .subtitle { color: var(--ink-2); font-size: 13px; margin: 0 0 32px 0; max-width: 720px; line-height: 1.5; }
+    .demo-section { margin-bottom: 36px; }
+    .demo-section h2 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-3); margin: 0 0 14px 0; font-weight: 600; }
+    .phone-frame { width: 390px; height: 480px; background: var(--bg); border: 1px solid var(--line); border-radius: 24px; overflow: hidden; box-shadow: 0 12px 32px var(--shadow-lg); position: relative; }
+    .phone-frame .phone-content { padding: 20px; color: var(--ink-3); font-size: 12px; }
+    /* Inline sheet preview */
+    .phone-frame .sheet-overlay { position: absolute; }
+    .phone-frame .sheet { animation: none; max-width: 100%; }
+    .demo-row { display: flex; flex-wrap: wrap; gap: 24px; background: var(--surface-2); padding: 24px; border-radius: 12px; border: 1px solid var(--line); }
+    .swatch-label { font-size: 11px; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; display: block; }
+    .snippet { background: var(--surface-2); padding: 16px; border-radius: 8px; font-family: ui-monospace, Consolas, monospace; font-size: 12px; color: var(--ink); overflow-x: auto; white-space: pre; line-height: 1.5; border: 1px solid var(--line); }
+  </style>
+</head>
+<body>
+  <h1>Sheet · Bottom sheet</h1>
+  <p class="subtitle">Mobile pattern. Slides up from bottom. Drag-handle at top hints draggability. Used for filter selection, scan-mode picker, transaction edit on mobile, share menu. Modal-equivalent for narrow viewports.</p>
+
+  <section class="demo-section">
+    <h2>Variants</h2>
+    <div class="demo-row">
+      <div>
+        <span class="swatch-label">action sheet</span>
+        <div class="phone-frame">
+          <div class="phone-content">[ History list — sheet open over content ]</div>
+          <div class="sheet-overlay">
+            <div class="sheet" role="dialog" aria-labelledby="s-title-1">
+              <div class="sheet-handle" aria-hidden="true"></div>
+              <div class="sheet-header">
+                <h2 class="sheet-title" id="s-title-1">¿Qué querés hacer?</h2>
+              </div>
+              <div class="sheet-body">
+                <div class="list">
+                  <div class="list-item">
+                    <span aria-hidden="true">✎</span>
+                    <div class="list-item-body"><p class="list-item-title">Editar gasto</p></div>
+                  </div>
+                  <div class="list-item">
+                    <span aria-hidden="true">📄</span>
+                    <div class="list-item-body"><p class="list-item-title">Ver recibo original</p></div>
+                  </div>
+                  <div class="list-item">
+                    <span aria-hidden="true">📤</span>
+                    <div class="list-item-body"><p class="list-item-title">Compartir</p></div>
+                  </div>
+                  <div class="list-item">
+                    <span aria-hidden="true" style="color: var(--error);">🗑</span>
+                    <div class="list-item-body"><p class="list-item-title" style="color: var(--error);">Eliminar</p></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <span class="swatch-label">filter selector</span>
+        <div class="phone-frame">
+          <div class="phone-content">[ History — filter sheet ]</div>
+          <div class="sheet-overlay">
+            <div class="sheet" role="dialog" aria-labelledby="s-title-2">
+              <div class="sheet-handle" aria-hidden="true"></div>
+              <div class="sheet-header">
+                <h2 class="sheet-title" id="s-title-2">Filtrar por categoría</h2>
+              </div>
+              <div class="sheet-body">
+                <div class="filter-strip" style="flex-direction: column; align-items: stretch; border: none; padding: 0; background: transparent;">
+                  <button class="filter-chip is-active" style="justify-content: space-between;">Mercado <span class="filter-chip-count">28</span></button>
+                  <button class="filter-chip" style="justify-content: space-between;">Restaurantes <span class="filter-chip-count">12</span></button>
+                  <button class="filter-chip" style="justify-content: space-between;">Transporte <span class="filter-chip-count">8</span></button>
+                  <button class="filter-chip" style="justify-content: space-between;">Servicios <span class="filter-chip-count">3</span></button>
+                </div>
+                <div style="display: flex; gap: 8px; margin-top: 16px;">
+                  <button class="btn btn-ghost" style="flex: 1;">Limpiar</button>
+                  <button class="btn btn-primary" style="flex: 1;">Aplicar (28)</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>Composition</h2>
+    <div class="demo-row" style="display: block;">
+      <ul style="margin: 0; padding-left: 20px; font-size: 13px; color: var(--ink-2); line-height: 1.7;">
+        <li><strong>Atoms used (one level down):</strong> <a href="../atoms/button.html">button</a> (footer actions)</li>
+        <li><strong>Composes:</strong> list-item · filter-chip (sub-component reuse)</li>
+        <li><strong>Used by screens:</strong> History (filter / actions) · Single-scan mobile (mode picker) · Transaction editor mobile · Group share</li>
+        <li><strong>State matrix:</strong> default · dragging (drag-handle visible feedback) · dismissing (slides down)</li>
+        <li><strong>A11y:</strong> <code>role="dialog"</code> + <code>aria-labelledby</code>. Drag handle is decorative (<code>aria-hidden</code>). Tap-on-scrim closes.</li>
+        <li><strong>Desktop fallback:</strong> on viewports ≥ 768px, sheet upgrades to centered modal. Same content, different chrome.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>Usage</h2>
+    <pre class="snippet">&lt;div class="sheet-overlay"&gt;
+  &lt;div class="sheet" role="dialog" aria-labelledby="s-title"&gt;
+    &lt;div class="sheet-handle"&gt;&lt;/div&gt;
+    &lt;div class="sheet-header"&gt;
+      &lt;h2 class="sheet-title" id="s-title"&gt;¿Qué querés hacer?&lt;/h2&gt;
+    &lt;/div&gt;
+    &lt;div class="sheet-body"&gt;...&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</pre>
+  </section>
+
+  <script src="../assets/js/tweaks.js" defer></script>
+</body>
+</html>

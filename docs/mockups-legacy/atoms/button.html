@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Atom: button — gastify (mockups-legacy)</title>
+  <link rel="stylesheet" href="../assets/css/desktop-shell.css">
+  <link rel="stylesheet" href="../assets/css/atoms.css">
+  <style>
+    /* Page-only chrome — no atom-style overrides. Tokens come from desktop-shell.css. */
+    body { margin: 0; background: var(--bg); color: var(--text-primary); min-height: 100vh; padding: 40px 320px 48px 48px; font-family: var(--font-family); }
+    h1 { font-size: 24px; margin: 0 0 6px 0; font-weight: 700; }
+    .subtitle { color: var(--text-secondary); font-size: 13px; margin: 0 0 32px 0; max-width: 720px; line-height: 1.5; }
+    .source-link { display: inline-block; margin-top: 8px; font-size: 11px; color: var(--text-tertiary); font-family: ui-monospace, Consolas, monospace; }
+    .source-link a { color: var(--primary); text-decoration: none; }
+    .source-link a:hover { text-decoration: underline; }
+    .demo-section { margin-bottom: 36px; }
+    .demo-section h2 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-tertiary); margin: 0 0 14px 0; font-weight: 600; }
+    .demo-row { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; background: var(--surface); padding: 24px; border-radius: 12px; border: 1px solid var(--border-light); }
+    .demo-swatch { display: flex; flex-direction: column; gap: 10px; align-items: flex-start; min-width: 120px; }
+    .demo-swatch-label { font-size: 11px; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.05em; }
+    .crossref { background: var(--bg-secondary); padding: 16px 18px; border-radius: 10px; border: 1px solid var(--border-light); font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+    .crossref strong { color: var(--text-primary); }
+    .crossref ul { margin: 6px 0 0; padding-left: 20px; }
+    .crossref li { margin-bottom: 4px; }
+    .crossref em { color: var(--text-tertiary); font-style: italic; }
+  </style>
+</head>
+<body>
+  <h1>Button</h1>
+  <p class="subtitle">Primary action surface. 5 variants × 3 sizes × default/disabled/loading states. Class names come from <code>atoms.css</code>; visual values come from <code>desktop-shell.css</code> tokens (extracted verbatim from the operational frontend).</p>
+  <p class="source-link">Source: <a href="../../../frontend/src/components/" target="_blank">frontend/src/components/</a> — buttons are inlined as JSX with Tailwind utilities (no dedicated <code>Button.tsx</code>). Representative pattern: <code>className="w-full py-3 px-4 rounded-xl text-white font-semibold shadow-md ..."</code> + <code>style={{ backgroundColor: 'var(--primary)' }}</code>.</p>
+
+  <section class="demo-section">
+    <h2>Variants</h2>
+    <div class="demo-row">
+      <div class="demo-swatch"><span class="demo-swatch-label">primary</span><button class="btn btn--primary">Guardar gasto</button></div>
+      <div class="demo-swatch"><span class="demo-swatch-label">secondary</span><button class="btn btn--secondary">Cancelar</button></div>
+      <div class="demo-swatch"><span class="demo-swatch-label">ghost</span><button class="btn btn--ghost">Ver más</button></div>
+      <div class="demo-swatch"><span class="demo-swatch-label">destructive</span><button class="btn btn--destructive">Eliminar</button></div>
+      <div class="demo-swatch"><span class="demo-swatch-label">icon</span><button class="btn btn--icon" aria-label="Agregar"><span aria-hidden="true">+</span></button></div>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>Sizes</h2>
+    <div class="demo-row">
+      <div class="demo-swatch"><span class="demo-swatch-label">sm</span><button class="btn btn--primary btn--sm">Guardar</button></div>
+      <div class="demo-swatch"><span class="demo-swatch-label">md (default)</span><button class="btn btn--primary">Guardar</button></div>
+      <div class="demo-swatch"><span class="demo-swatch-label">lg</span><button class="btn btn--primary btn--lg">Guardar</button></div>
+      <div class="demo-swatch"><span class="demo-swatch-label">block</span><button class="btn btn--primary btn--block">Confirmar pago</button></div>
+      <div class="demo-swatch"><span class="demo-swatch-label">icon · sm</span><button class="btn btn--icon btn--sm" aria-label="Cerrar">×</button></div>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>States</h2>
+    <div class="demo-row">
+      <div class="demo-swatch"><span class="demo-swatch-label">default</span><button class="btn btn--primary">Confirmar</button></div>
+      <div class="demo-swatch"><span class="demo-swatch-label">hover</span><button class="btn btn--primary" style="background: var(--primary-hover); transform: scale(1.01);">Confirmar</button></div>
+      <div class="demo-swatch"><span class="demo-swatch-label">disabled</span><button class="btn btn--primary" disabled>Confirmar</button></div>
+      <div class="demo-swatch"><span class="demo-swatch-label">loading</span><button class="btn btn--primary" disabled><span class="spinner spinner--sm spinner--on-primary"></span>Procesando</button></div>
+      <div class="demo-swatch"><span class="demo-swatch-label">ghost · disabled</span><button class="btn btn--ghost" disabled>Ver más</button></div>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>Used by molecules (one level up)</h2>
+    <div class="crossref">
+      <em>Populated during Phase L2 — molecule extraction. Anticipated consumers: modal action rows, form footers, FAB, list-item swipe-action revealers, banner CTAs, toast inline action.</em>
+    </div>
+  </section>
+
+  <script src="../assets/js/tweaks.js" defer></script>
+</body>
+</html>

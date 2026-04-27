@@ -1,0 +1,19 @@
+node_modules/
+dist/
+dist-ssr/
+*.log
+.vite/
+.cache/
+
+# Local env overrides — .env (committed) sets mock values, .env.local can
+# override per-developer. Never commit .env.local or .env.*.local.
+.env.local
+.env.*.local
+
+# IDE
+.idea/
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db

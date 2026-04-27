@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Molecule: card-transaction — gastify</title>
+  <link rel="stylesheet" href="../assets/css/desktop-shell.css">
+  <link rel="stylesheet" href="../assets/css/atoms.css">
+  <link rel="stylesheet" href="../assets/css/molecules.css">
+  <style>
+    body { margin: 0; background: var(--bg); color: var(--ink); min-height: 100vh; padding: 40px 320px 48px 48px; }
+    h1 { font-size: 24px; margin: 0 0 6px 0; font-weight: 700; }
+    .subtitle { color: var(--ink-2); font-size: 13px; margin: 0 0 32px 0; max-width: 720px; line-height: 1.5; }
+    .demo-section { margin-bottom: 36px; }
+    .demo-section h2 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-3); margin: 0 0 14px 0; font-weight: 600; }
+    /* Match legacy txn-list container: no row gap, surface-bg, surface-rounded, single border */
+    .demo-row { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 0; max-width: 480px; overflow: hidden; }
+    /* Each card is a row inside the container — borders separate rows, last has none */
+    .demo-row .card-transaction { background: var(--surface); border-radius: 0; border: none; border-bottom: 1px solid var(--line); padding: 0; transition: background var(--mol-dur-fast) var(--mol-ease-out); }
+    .demo-row .card-transaction:last-child { border-bottom: none; }
+    .demo-row .card-transaction.is-interactive:hover { background: var(--surface-2); border-color: var(--line); transform: none; box-shadow: none; }
+    .demo-stack { display: flex; flex-direction: column; gap: 16px; }
+    .demo-swatch-label { font-size: 11px; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+    .snippet { background: var(--surface-2); padding: 16px; border-radius: 8px; font-family: ui-monospace, Consolas, monospace; font-size: 12px; color: var(--ink); overflow-x: auto; white-space: pre; line-height: 1.5; border: 1px solid var(--line); max-width: 720px; }
+  </style>
+</head>
+<body>
+  <h1>Card · Transaction</h1>
+  <p class="subtitle">Pixel-faithful port of the legacy <code>.txn-card</code>. 40×50 receipt thumbnail · 28px borderless category badge with solid <code>--cat-X</code> background. Icon style is <strong>toggleable via Tweaks panel → Icons</strong>: <code>pixel</code> (default — legacy <code>l1-{name}.svg</code>, rendered white via <code>filter: invert(1)</code>) or <code>emoji</code> (Unicode glyphs from <code>data-cat-emoji</code> attribute, native multi-color OS rendering — matches <code>gastify-history.html</code> legacy mockup). 13px uppercase merchant tinted with <code>--cat-X</code> · 11px pills · 14px amount · 14px chevron with 6px gap below. Default sign is negative (no prefix); income variant adds leading <code>+</code> in <code>--success</code>.</p>
+
+  <section class="demo-section">
+    <h2>Variant — with pills · collapsed (legacy gastify-history layout)</h2>
+    <div class="demo-row">
+      <article class="card card-transaction is-interactive" data-cat="supermercado" aria-expanded="false">
+        <button class="card-tx-header" type="button" aria-controls="tx1-detail">
+          <div class="card-tx-thumb">
+            <div class="card-tx-thumb-inner">
+              <span class="card-tx-thumb-line"></span>
+              <span class="card-tx-thumb-line"></span>
+              <span class="card-tx-thumb-line"></span>
+              <span class="card-tx-thumb-line"></span>
+            </div>
+            <span class="card-tx-badge is-supermercado" data-cat-emoji="🛒" aria-hidden="true"><img class="cat-icon-pixel" src="../assets/icons/categories/l1/l1-supermercado.svg" alt=""></span>
+          </div>
+          <div class="card-tx-body">
+            <p class="card-tx-merchant">MASSALUD SPA</p>
+            <div class="card-tx-pills">
+              <span class="card-tx-pill">19/04/2026</span>
+              <span class="card-tx-pill">Villarrica</span>
+              <span class="card-tx-pill is-count" aria-label="7 items"><svg class="card-tx-pill-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16.5 9.4 7.55 4.24"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>7</span>
+            </div>
+          </div>
+          <div class="card-tx-right">
+            <span class="card-tx-amount">$6.174</span>
+            <span class="card-tx-chevron" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+          </div>
+        </button>
+        <div class="card-tx-detail" id="tx1-detail" role="region" aria-label="Items detail"></div>
+      </article>
+
+      <article class="card card-transaction is-interactive" data-cat="alimentacion" aria-expanded="false">
+        <button class="card-tx-header" type="button">
+          <div class="card-tx-thumb">
+            <div class="card-tx-thumb-inner">
+              <span class="card-tx-thumb-line"></span>
+              <span class="card-tx-thumb-line"></span>
+              <span class="card-tx-thumb-line"></span>
+              <span class="card-tx-thumb-line"></span>
+            </div>
+            <span class="card-tx-badge is-alimentacion" data-cat-emoji="🍴" aria-hidden="true"><img class="cat-icon-pixel" src="../assets/icons/categories/l1/l1-alimentacion.svg" alt=""></span>
+          </div>
+          <div class="card-tx-body">
+            <p class="card-tx-merchant">La Marmita</p>
+            <div class="card-tx-pills">
+              <span class="card-tx-pill">28/03/2026</span>
+              <span class="card-tx-pill">Pucón</span>
+              <span class="card-tx-pill is-count"><svg class="card-tx-pill-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16.5 9.4 7.55 4.24"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>4</span>
+            </div>
+          </div>
+          <div class="card-tx-right">
+            <span class="card-tx-amount">$51.700</span>
+            <span class="card-tx-chevron" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+          </div>
+        </button>
+        <div class="card-tx-detail"></div>
+      </article>
+
+      <article class="card card-transaction is-interactive" data-cat="transporte" aria-expanded="false">
+        <button class="card-tx-header" type="button">
+          <div class="card-tx-thumb">
+            <div class="card-tx-thumb-inner">
+              <span class="card-tx-thumb-line"></span>
+              <span class="card-tx-thumb-line"></span>
+              <span class="card-tx-thumb-line"></span>
+              <span class="card-tx-thumb-line"></span>
+            </div>
+            <span class="card-tx-badge is-transporte" data-cat-emoji="🚗" aria-hidden="true"><img class="cat-icon-pixel" src="../assets/icons/categories/l1/l1-transporte.svg" alt=""></span>
+          </div>
+          <div class="card-tx-body">
+            <p class="card-tx-merchant">Direc Transi Pucon</p>
+            <div class="card-tx-pills">
+              <span class="card-tx-pill">28/03/2026, 11:21</span>
+              <span class="card-tx-pill">Pucón</span>
+              <span class="card-tx-pill is-count"><svg class="card-tx-pill-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16.5 9.4 7.55 4.24"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>1</span>
+            </div>
+          </div>
+          <div class="card-tx-right">
+            <span class="card-tx-amount">$66.947</span>
+            <span class="card-tx-chevron" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+          </div>
+        </button>
+        <div class="card-tx-detail"></div>
+      </article>
+
+      <article class="card card-transaction is-interactive" data-cat="farmacia" aria-expanded="false">
+        <button class="card-tx-header" type="button">
+          <div class="card-tx-thumb">
+            <div class="card-tx-thumb-inner">
+              <span class="card-tx-thumb-line"></span>
+              <span class="card-tx-thumb-line"></span>
+              <span class="card-tx-thumb-line"></span>
+              <span class="card-tx-thumb-line"></span>
+            </div>
+            <span class="card-tx-badge is-farmacia" data-cat-emoji="💊" aria-hidden="true"><img class="cat-icon-pixel" src="../assets/icons/categories/l1/l1-farmacia.svg" alt=""></span>
+          </div>
+          <div class="card-tx-body">
+            <p class="card-tx-merchant">Farmacias Cruz Verde</p>
+            <div class="card-tx-pills">
+              <span class="card-tx-pill">16/03/2026, 18:31</span>
+              <span class="card-tx-pill">Villarrica</span>
+              <span class="card-tx-pill is-count"><svg class="card-tx-pill-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16.5 9.4 7.55 4.24"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>1</span>
+            </div>
+          </div>
+          <div class="card-tx-right">
+            <span class="card-tx-amount">$28.832</span>
+            <span class="card-tx-chevron" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+          </div>
+        </button>
+        <div class="card-tx-detail"></div>
+      </article>
+
+      <article class="card card-transaction is-interactive" data-cat="mascotas" aria-expanded="false">
+        <button class="card-tx-header" type="button">
+          <div class="card-tx-thumb">
+            <div class="card-tx-thumb-inner">
+              <span class="card-tx-thumb-line"></span>
+              <span class="card-tx-thumb-line"></span>
+              <span class="card-tx-thumb-line"></span>
+              <span class="card-tx-thumb-line"></span>
+            </div>
+            <span class="card-tx-badge is-mascotas" data-cat-emoji="🐾" aria-hidden="true"><img class="cat-icon-pixel" src="../assets/icons/categories/l1/l1-mascotas.svg" alt=""></span>
+          </div>
+          <div class="card-tx-body">
+            <p class="card-tx-merchant">Veterinaria Araucanía</p>
+            <div class="card-tx-pills">
+              <span class="card-tx-pill">16/03/2026</span>
+              <span class="card-tx-pill is-count"><svg class="card-tx-pill-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16.5 9.4 7.55 4.24"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>1</span>
+            </div>
+          </div>
+          <div class="card-tx-right">
+            <span class="card-tx-amount">$12.400</span>
+            <span class="card-tx-chevron" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+          </div>
+        </button>
+        <div class="card-tx-detail"></div>
+      </article>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>Variant — with pills · expanded (item detail visible)</h2>
+    <div class="demo-row">
+      <article class="card card-transaction is-interactive" data-cat="supermercado" aria-expanded="true">
+        <button class="card-tx-header" type="button" aria-controls="tx-exp-detail">
+          <div class="card-tx-thumb">
+            <div class="card-tx-thumb-inner">
+              <span class="card-tx-thumb-line"></span>
+              <span class="card-tx-thumb-line"></span>
+              <span class="card-tx-thumb-line"></span>
+              <span class="card-tx-thumb-line"></span>
+            </div>
+            <span class="card-tx-badge is-supermercado" data-cat-emoji="🛒" aria-hidden="true"><img class="cat-icon-pixel" src="../assets/icons/categories/l1/l1-supermercado.svg" alt=""></span>
+          </div>
+          <div class="card-tx-body">
+            <p class="card-tx-merchant">MASSALUD SPA</p>
+            <div class="card-tx-pills">
+              <span class="card-tx-pill">19/04/2026</span>
+              <span class="card-tx-pill">Villarrica</span>
+              <span class="card-tx-pill is-count"><svg class="card-tx-pill-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16.5 9.4 7.55 4.24"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>7</span>
+            </div>
+          </div>
+          <div class="card-tx-right">
+            <span class="card-tx-amount">$6.174</span>
+            <span class="card-tx-chevron" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+          </div>
+        </button>
+        <div class="card-tx-detail" id="tx-exp-detail" role="region" aria-label="Items detail">
+          <p class="card-tx-item"><span class="card-tx-item-name">Pan marraqueta 1 kg</span><span class="card-tx-item-price">$2.599</span></p>
+          <p class="card-tx-item"><span class="card-tx-item-name">Cereal Natur Maíz 20gr</span><span class="card-tx-item-price">$2.318</span></p>
+          <p class="card-tx-item"><span class="card-tx-item-name">Caldos Maggi Gallina 12 un</span><span class="card-tx-item-price">$289</span></p>
+          <p class="card-tx-item"><span class="card-tx-item-name">Servilleta Nova clásica 1</span><span class="card-tx-item-price">$1.699</span></p>
+          <p class="card-tx-item"><span class="card-tx-item-name">Bon o Bon pistacho 15 gr</span><span class="card-tx-item-price">$1.199</span></p>
+          <div class="card-tx-detail-footer">
+            <button class="card-tx-more" type="button">+2 más ›</button>
+            <a class="card-tx-detail-link" href="#">Ver transacción completa →</a>
+          </div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>Variant — without pills · inline meta</h2>
+    <div class="demo-row">
+      <article class="card card-transaction is-interactive" data-cat="supermercado" aria-expanded="false">
+        <button class="card-tx-header" type="button">
+          <div class="card-tx-thumb">
+            <div class="card-tx-thumb-inner">
+              <span class="card-tx-thumb-line"></span>
+              <span class="card-tx-thumb-line"></span>
+              <span class="card-tx-thumb-line"></span>
+              <span class="card-tx-thumb-line"></span>
+            </div>
+            <span class="card-tx-badge is-supermercado" data-cat-emoji="🛒" aria-hidden="true"><img class="cat-icon-pixel" src="../assets/icons/categories/l1/l1-supermercado.svg" alt=""></span>
+          </div>
+          <div class="card-tx-body">
+            <p class="card-tx-merchant">Jumbo Costanera Center</p>
+            <div class="card-tx-meta-row">
+              <span>Mercado</span>
+              <span class="card-tx-meta-sep">·</span>
+              <span>Hoy 14:32</span>
+            </div>
+          </div>
+          <div class="card-tx-right">
+            <span class="card-tx-amount">$24.890</span>
+            <span class="card-tx-chevron" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+          </div>
+        </button>
+        <div class="card-tx-detail"></div>
+      </article>
+
+      <article class="card card-transaction is-interactive" data-cat="transporte" aria-expanded="false">
+        <button class="card-tx-header" type="button">
+          <div class="card-tx-thumb">
+            <div class="card-tx-thumb-inner">
+              <span class="card-tx-thumb-line"></span>
+              <span class="card-tx-thumb-line"></span>
+              <span class="card-tx-thumb-line"></span>
+              <span class="card-tx-thumb-line"></span>
+            </div>
+            <span class="card-tx-badge is-transporte" data-cat-emoji="🚗" aria-hidden="true"><img class="cat-icon-pixel" src="../assets/icons/categories/l1/l1-transporte.svg" alt=""></span>
+          </div>
+          <div class="card-tx-body">
+            <p class="card-tx-merchant">LATAM Airlines</p>
+            <div class="card-tx-meta-row">
+              <span>Transporte</span>
+              <span class="card-tx-meta-sep">·</span>
+              <span>22 abr</span>
+              <span class="card-tx-meta-sep">·</span>
+              <span>USD 142.50</span>
+            </div>
+          </div>
+          <div class="card-tx-right">
+            <span class="card-tx-amount">$135.420</span>
+            <span class="card-tx-chevron" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+          </div>
+        </button>
+        <div class="card-tx-detail"></div>
+      </article>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>Variant — income / refund (positive sign, success color)</h2>
+    <div class="demo-row">
+      <article class="card card-transaction is-static is-interactive" data-cat="refund" aria-expanded="false">
+        <button class="card-tx-header" type="button">
+          <div class="card-tx-thumb">
+            <div class="card-tx-thumb-inner">
+              <span class="card-tx-thumb-line"></span>
+              <span class="card-tx-thumb-line"></span>
+              <span class="card-tx-thumb-line"></span>
+              <span class="card-tx-thumb-line"></span>
+            </div>
+            <span class="card-tx-badge is-refund" data-cat-emoji="↩" aria-hidden="true"><svg class="cat-icon-pixel" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5v0a5.5 5.5 0 0 1-5.5 5.5H11"/></svg></span>
+          </div>
+          <div class="card-tx-body">
+            <p class="card-tx-merchant">Mercado Pago — devolución</p>
+            <div class="card-tx-pills">
+              <span class="card-tx-pill">Ayer</span>
+              <span class="card-tx-pill">Reembolso</span>
+            </div>
+          </div>
+          <div class="card-tx-right">
+            <span class="card-tx-amount is-positive">8.500</span>
+          </div>
+        </button>
+      </article>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>States</h2>
+    <div class="demo-row">
+      <article class="card card-transaction is-interactive is-selected" data-cat="transporte" aria-expanded="false">
+        <button class="card-tx-header" type="button">
+          <div class="card-tx-thumb">
+            <div class="card-tx-thumb-inner">
+              <span class="card-tx-thumb-line"></span>
+              <span class="card-tx-thumb-line"></span>
+              <span class="card-tx-thumb-line"></span>
+              <span class="card-tx-thumb-line"></span>
+            </div>
+            <span class="card-tx-badge is-transporte" data-cat-emoji="🚗" aria-hidden="true"><img class="cat-icon-pixel" src="../assets/icons/categories/l1/l1-transporte.svg" alt=""></span>
+          </div>
+          <div class="card-tx-body">
+            <p class="card-tx-merchant">Copec Las Condes <span style="font-weight: 500; font-size: 9px; color: var(--ink-3); text-transform: none; margin-left: 6px;">· selected</span></p>
+            <div class="card-tx-pills">
+              <span class="card-tx-pill">20/04/2026</span>
+              <span class="card-tx-pill is-count"><svg class="card-tx-pill-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16.5 9.4 7.55 4.24"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>1</span>
+            </div>
+          </div>
+          <div class="card-tx-right">
+            <span class="card-tx-amount">$45.000</span>
+            <span class="card-tx-chevron" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+          </div>
+        </button>
+      </article>
+
+      <article class="card card-transaction is-disabled" data-cat="alimentacion" aria-expanded="false">
+        <button class="card-tx-header" type="button">
+          <div class="card-tx-thumb">
+            <div class="card-tx-thumb-inner">
+              <span class="card-tx-thumb-line"></span>
+              <span class="card-tx-thumb-line"></span>
+              <span class="card-tx-thumb-line"></span>
+              <span class="card-tx-thumb-line"></span>
+            </div>
+            <span class="card-tx-badge is-alimentacion" data-cat-emoji="🍴" aria-hidden="true"><img class="cat-icon-pixel" src="../assets/icons/categories/l1/l1-alimentacion.svg" alt=""></span>
+          </div>
+          <div class="card-tx-body">
+            <p class="card-tx-merchant">Starbucks Vitacura <span style="font-weight: 500; font-size: 9px; color: var(--ink-3); text-transform: none; margin-left: 6px;">· sincronizando…</span></p>
+            <div class="card-tx-meta-row">
+              <span>Restaurantes</span>
+            </div>
+          </div>
+          <div class="card-tx-right">
+            <span class="card-tx-amount">$5.200</span>
+            <span class="card-tx-chevron" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+          </div>
+        </button>
+      </article>
+
+      <article class="card card-transaction is-loading is-static" aria-expanded="false">
+        <div class="card-tx-header">
+          <div class="card-tx-thumb">
+            <div class="skeleton" style="width: 100%; height: 100%; border-radius: 6px;"></div>
+          </div>
+          <div class="card-tx-body">
+            <div class="skeleton skeleton-line" style="width: 60%; height: 12px;"></div>
+            <div class="skeleton skeleton-line" style="width: 80%; height: 9px; margin-top: 4px;"></div>
+          </div>
+          <div class="card-tx-right">
+            <div class="skeleton skeleton-line" style="width: 60px; height: 12px;"></div>
+          </div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>Composition</h2>
+    <div class="demo-stack" style="display: block; max-width: 720px;">
+      <ul style="margin: 0; padding-left: 20px; font-size: 13px; color: var(--ink-2); line-height: 1.7;">
+        <li><strong>Atoms used (one level down):</strong> <a href="../atoms/skeleton.html">skeleton</a> (loading state)</li>
+        <li><strong>Used by screens:</strong> Dashboard recent-tx, History, Group transactions, Insights</li>
+        <li><strong>Variants:</strong> with-pills (default — date · location · item-count chips, matches legacy gastify-history) · without-pills (inline meta) · income/refund (leading <code>+</code>, <code>--success</code>) · expanded (items list with prices + "+N más" + "Ver transacción completa")</li>
+        <li><strong>Category coupling.</strong> Set <code>data-cat="X"</code> on the <code>&lt;article&gt;</code> AND apply <code>.is-X</code> to the badge. The merchant text inherits <code>var(--cat-X)</code> automatically; the badge background matches. Both stay in sync per theme via the shell <code>--cat-*</code> tokens.</li>
+        <li><strong>Categories supported (gastify shell):</strong> supermercado · alimentacion · transporte · farmacia · mascotas · vet · hogar · construccion · entretenimiento · servicios · vestuario · finanzas · salud · otros · refund (positive). 12 L1 SVG icons live at <code>assets/icons/categories/l1/l1-{name}.svg</code>.</li>
+        <li><strong>Sign convention:</strong> default = negative, no minus prefix · positive needs <code>.is-positive</code> on the amount span (auto-prepends <code>+</code>, uses <code>--success</code>). Negative amounts stay <code>--ink</code> (black) — never red.</li>
+        <li><strong>Layout (legacy faithful):</strong> 40px thumb | 1fr body | auto right · 10/14 padding · 8 gap. Thumbnail 40×50 with 4 fixed-pixel-width inner lines centered + opacity 0.5. Badge 28×28 borderless. Merchant 13px uppercase weight 700. Pills 11px weight 500 with 3/9 padding and 3 gap. Amount 14px weight 700. Chevron 14px opacity 0.4 with 6px gap below amount.</li>
+        <li><strong>Badge icon (toggleable):</strong> badge background is always solid <code>var(--cat-X)</code>, no border. The icon swaps based on <code>body[data-icon-style]</code> driven by Tweaks → Icons.
+          <ul style="margin-top: 6px;">
+            <li><code>pixel</code> (default): <code>&lt;img class="cat-icon-pixel"&gt;</code> loads legacy <code>l1-{name}.svg</code> rendered white via <code>filter: invert(1)</code> (the redundant <code>brightness(0)</code> is gone — that was painting the SVG's hidden 4% background rect white).</li>
+            <li><code>emoji</code>: <code>::before</code> pseudo-element pulls the glyph from <code>data-cat-emoji</code> on the badge — zero extra DOM, OS draws the multi-color emoji.</li>
+          </ul>
+          Both branches always share the same <code>--cat-X</code> background, so the toggle changes only the foreground.</li>
+        <li><strong>State matrix:</strong> default · hover · expanded (<code>aria-expanded="true"</code>) · selected · disabled · loading · static (no chevron, no toggle)</li>
+        <li><strong>A11y:</strong> outer <code>article</code> carries <code>aria-expanded</code>; header is a <code>&lt;button&gt;</code> that toggles the controlled detail <code>id</code>. SVG icons via <code>&lt;img alt=""&gt;</code> are decorative — the merchant text + amount carry the semantic.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>Usage</h2>
+    <pre class="snippet">&lt;!-- Single transaction row, with-pills variant. data-cat ties merchant + badge color --&gt;
+&lt;article class="card card-transaction is-interactive" data-cat="supermercado" aria-expanded="false"&gt;
+  &lt;button class="card-tx-header" type="button" aria-controls="tx1-detail"&gt;
+    &lt;div class="card-tx-thumb"&gt;
+      &lt;div class="card-tx-thumb-inner"&gt;
+        &lt;span class="card-tx-thumb-line"&gt;&lt;/span&gt;
+        &lt;span class="card-tx-thumb-line"&gt;&lt;/span&gt;
+        &lt;span class="card-tx-thumb-line"&gt;&lt;/span&gt;
+        &lt;span class="card-tx-thumb-line"&gt;&lt;/span&gt;
+      &lt;/div&gt;
+      &lt;!-- data-cat-emoji = glyph for emoji-mode rendering (CSS ::before content) --&gt;
+      &lt;!-- &lt;img class="cat-icon-pixel"&gt; = sprite for pixel-mode rendering --&gt;
+      &lt;span class="card-tx-badge is-supermercado" data-cat-emoji="🛒"&gt;
+        &lt;img class="cat-icon-pixel" src="../assets/icons/categories/l1/l1-supermercado.svg" alt=""&gt;
+      &lt;/span&gt;
+    &lt;/div&gt;
+    &lt;div class="card-tx-body"&gt;
+      &lt;p class="card-tx-merchant"&gt;MASSALUD SPA&lt;/p&gt;
+      &lt;div class="card-tx-pills"&gt;
+        &lt;span class="card-tx-pill"&gt;19/04/2026&lt;/span&gt;
+        &lt;span class="card-tx-pill"&gt;Villarrica&lt;/span&gt;
+        &lt;span class="card-tx-pill is-count"&gt;
+          &lt;svg class="card-tx-pill-icon" ...&gt;package&lt;/svg&gt;7
+        &lt;/span&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class="card-tx-right"&gt;
+      &lt;span class="card-tx-amount"&gt;$6.174&lt;/span&gt;
+      &lt;span class="card-tx-chevron"&gt;&lt;svg ...&gt;chevron-down&lt;/svg&gt;&lt;/span&gt;
+    &lt;/div&gt;
+  &lt;/button&gt;
+  &lt;div class="card-tx-detail" id="tx1-detail" role="region"&gt;...&lt;/div&gt;
+&lt;/article&gt;
+
+&lt;!-- Categories: supermercado · alimentacion · transporte · farmacia · mascotas
+                  vet · hogar · construccion · entretenimiento · servicios
+                  vestuario · finanzas · salud · otros · refund --&gt;</pre>
+  </section>
+
+  <section class="demo-section legacy-section">
+    <h2><span class="legacy-tag">LEGACY · BoletApp staging</span> Live extraction (2026-04-26)</h2>
+    <p class="legacy-note" style="font-size: 12px; color: var(--ink-2); line-height: 1.5; max-width: 720px;">
+      Captured live from <code>https://boletapp-staging.web.app</code> via Playwright MCP — Dashboard, "Últimos Escaneados" list. Two cards: <strong>#1 Starbucks</strong> (no items, no chevron) + <strong>#4 McDonald's</strong> (1 item, chevron + collapsed expand panel). All CSS variables resolved to RGB/px so the snippet is self-contained. Source: <a href="../../../docs/mockups/atoms/legacy-snapshots/card-transaction-live.html" style="color: var(--primary); font-weight: 600;">card-transaction-live.html</a> · Manifest: <a href="../../../docs/mockups/atoms/legacy-snapshots/EXTRACTION-MANIFEST.md" style="color: var(--primary); font-weight: 600;">EXTRACTION-MANIFEST.md</a>
+    </p>
+    <iframe
+      src="../atoms/legacy-snapshots/card-transaction-live.html"
+      title="Live BoletApp staging card-transaction"
+      style="width: 100%; max-width: 360px; height: 240px; border: 1px solid var(--line); border-radius: 8px; background: #fafafa; margin-top: 12px;"
+      loading="lazy"></iframe>
+  </section>
+
+  <script src="../assets/js/tweaks.js" defer></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      document.querySelectorAll(".card-transaction:not(.is-static)").forEach((card) => {
+        const header = card.querySelector(".card-tx-header");
+        if (!header) return;
+        header.addEventListener("click", (e) => {
+          if (e.target.closest(".card-tx-more, .card-tx-detail-link")) return;
+          const next = card.getAttribute("aria-expanded") === "true" ? "false" : "true";
+          card.setAttribute("aria-expanded", next);
+          header.setAttribute("aria-expanded", next);
+        });
+      });
+    });
+  </script>
+</body>
+</html>

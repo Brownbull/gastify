@@ -44,12 +44,25 @@
   --overlay-soft: rgba(0, 0, 0, 0.08);
   --sidebar-bg: #ffffff;
   --rail-bg: rgba(255, 255, 255, 0.6);
-  --cat-hogar: #4a7c59;         --cat-hogar-tint: rgba(74, 124, 89, 0.15);
-  --cat-medicamento: #dc2626;   --cat-medicamento-tint: rgba(220, 38, 38, 0.12);
-  --cat-cargo: #d97706;         --cat-cargo-tint: rgba(217, 119, 6, 0.12);
-  --cat-mascotas: #5b8fa8;      --cat-mascotas-tint: rgba(91, 143, 168, 0.12);
-  --cat-farmacia: #dc2626;
-  --cat-vet: #5b8fa8;
+  /* Tint alphas tuned to read as a clearly-visible pale wash on the Normal Light cream
+     --surface-2 (#f1dbb6). 0.22 across the palette gives the right "soft pastel" weight
+     for category badges while keeping the dark category color readable on top. */
+  --cat-hogar: #4a7c59;         --cat-hogar-tint: rgba(74, 124, 89, 0.22);
+  --cat-medicamento: #dc2626;   --cat-medicamento-tint: rgba(220, 38, 38, 0.18);
+  --cat-cargo: #d97706;         --cat-cargo-tint: rgba(217, 119, 6, 0.20);
+  --cat-mascotas: #5b8fa8;      --cat-mascotas-tint: rgba(91, 143, 168, 0.22);
+  --cat-farmacia: #dc2626;      --cat-farmacia-tint: rgba(220, 38, 38, 0.18);
+  --cat-vet: #5b8fa8;           --cat-vet-tint: rgba(91, 143, 168, 0.22);
+  --cat-supermercado: #4a7c59;     --cat-supermercado-tint: rgba(74, 124, 89, 0.22);
+  --cat-alimentacion: #d97706;     --cat-alimentacion-tint: rgba(217, 119, 6, 0.22);
+  --cat-transporte: #5b8fa8;       --cat-transporte-tint: rgba(91, 143, 168, 0.22);
+  --cat-entretenimiento: #c1392b;  --cat-entretenimiento-tint: rgba(193, 57, 43, 0.18);
+  --cat-servicios: #8a6d3b;        --cat-servicios-tint: rgba(138, 109, 59, 0.22);
+  --cat-vestuario: #a4577a;        --cat-vestuario-tint: rgba(164, 87, 122, 0.20);
+  --cat-construccion: #4a7c59;     --cat-construccion-tint: rgba(74, 124, 89, 0.22);
+  --cat-finanzas: #4a7c59;         --cat-finanzas-tint: rgba(74, 124, 89, 0.22);
+  --cat-salud: #dc2626;            --cat-salud-tint: rgba(220, 38, 38, 0.18);
+  --cat-otros: #8a9488;            --cat-otros-tint: rgba(138, 148, 136, 0.22);
 }
 
 /* ---------- Normal Dark ---------- */
@@ -69,8 +82,18 @@
   --cat-medicamento: #f87171;   --cat-medicamento-tint: rgba(248, 113, 113, 0.15);
   --cat-cargo: #fbbf24;         --cat-cargo-tint: rgba(251, 191, 36, 0.15);
   --cat-mascotas: #7ab5cc;      --cat-mascotas-tint: rgba(122, 181, 204, 0.15);
-  --cat-farmacia: #f87171;
-  --cat-vet: #7ab5cc;
+  --cat-farmacia: #f87171;      --cat-farmacia-tint: rgba(248, 113, 113, 0.15);
+  --cat-vet: #7ab5cc;           --cat-vet-tint: rgba(122, 181, 204, 0.15);
+  --cat-supermercado: #6b9e7a;     --cat-supermercado-tint: rgba(107, 158, 122, 0.15);
+  --cat-alimentacion: #fbbf24;     --cat-alimentacion-tint: rgba(251, 191, 36, 0.15);
+  --cat-transporte: #7ab5cc;       --cat-transporte-tint: rgba(122, 181, 204, 0.15);
+  --cat-entretenimiento: #f87171;  --cat-entretenimiento-tint: rgba(248, 113, 113, 0.15);
+  --cat-servicios: #d4a574;        --cat-servicios-tint: rgba(212, 165, 116, 0.15);
+  --cat-vestuario: #c485a0;        --cat-vestuario-tint: rgba(196, 133, 160, 0.15);
+  --cat-construccion: #6b9e7a;     --cat-construccion-tint: rgba(107, 158, 122, 0.15);
+  --cat-finanzas: #6b9e7a;         --cat-finanzas-tint: rgba(107, 158, 122, 0.15);
+  --cat-salud: #f87171;            --cat-salud-tint: rgba(248, 113, 113, 0.15);
+  --cat-otros: #b8c4a8;            --cat-otros-tint: rgba(184, 196, 168, 0.15);
 }
 
 /* ---------- Professional Light ---------- */
@@ -90,8 +113,18 @@
   --cat-medicamento: #dc2626;   --cat-medicamento-tint: rgba(220, 38, 38, 0.1);
   --cat-cargo: #d97706;         --cat-cargo-tint: rgba(217, 119, 6, 0.1);
   --cat-mascotas: #7c3aed;      --cat-mascotas-tint: rgba(124, 58, 237, 0.1);
-  --cat-farmacia: #dc2626;
-  --cat-vet: #7c3aed;
+  --cat-farmacia: #dc2626;      --cat-farmacia-tint: rgba(220, 38, 38, 0.1);
+  --cat-vet: #7c3aed;           --cat-vet-tint: rgba(124, 58, 237, 0.1);
+  --cat-supermercado: #16a34a;     --cat-supermercado-tint: rgba(22, 163, 74, 0.1);
+  --cat-alimentacion: #d97706;     --cat-alimentacion-tint: rgba(217, 119, 6, 0.1);
+  --cat-transporte: #0ea5e9;       --cat-transporte-tint: rgba(14, 165, 233, 0.1);
+  --cat-entretenimiento: #db2777;  --cat-entretenimiento-tint: rgba(219, 39, 119, 0.1);
+  --cat-servicios: #6366f1;        --cat-servicios-tint: rgba(99, 102, 241, 0.1);
+  --cat-vestuario: #c026d3;        --cat-vestuario-tint: rgba(192, 38, 211, 0.1);
+  --cat-construccion: #2563eb;     --cat-construccion-tint: rgba(37, 99, 235, 0.1);
+  --cat-finanzas: #2563eb;         --cat-finanzas-tint: rgba(37, 99, 235, 0.1);
+  --cat-salud: #dc2626;            --cat-salud-tint: rgba(220, 38, 38, 0.1);
+  --cat-otros: #94a3b8;            --cat-otros-tint: rgba(148, 163, 184, 0.1);
 }
 
 /* ---------- Professional Dark ---------- */
@@ -111,8 +144,18 @@
   --cat-medicamento: #f87171;   --cat-medicamento-tint: rgba(248, 113, 113, 0.15);
   --cat-cargo: #fbbf24;         --cat-cargo-tint: rgba(251, 191, 36, 0.15);
   --cat-mascotas: #a78bfa;      --cat-mascotas-tint: rgba(167, 139, 250, 0.15);
-  --cat-farmacia: #f87171;
-  --cat-vet: #a78bfa;
+  --cat-farmacia: #f87171;      --cat-farmacia-tint: rgba(248, 113, 113, 0.15);
+  --cat-vet: #a78bfa;           --cat-vet-tint: rgba(167, 139, 250, 0.15);
+  --cat-supermercado: #22c55e;     --cat-supermercado-tint: rgba(34, 197, 94, 0.15);
+  --cat-alimentacion: #fbbf24;     --cat-alimentacion-tint: rgba(251, 191, 36, 0.15);
+  --cat-transporte: #38bdf8;       --cat-transporte-tint: rgba(56, 189, 248, 0.15);
+  --cat-entretenimiento: #f472b6;  --cat-entretenimiento-tint: rgba(244, 114, 182, 0.15);
+  --cat-servicios: #818cf8;        --cat-servicios-tint: rgba(129, 140, 248, 0.15);
+  --cat-vestuario: #e879f9;        --cat-vestuario-tint: rgba(232, 121, 249, 0.15);
+  --cat-construccion: #3b82f6;     --cat-construccion-tint: rgba(59, 130, 246, 0.15);
+  --cat-finanzas: #3b82f6;         --cat-finanzas-tint: rgba(59, 130, 246, 0.15);
+  --cat-salud: #f87171;            --cat-salud-tint: rgba(248, 113, 113, 0.15);
+  --cat-otros: #94a3b8;            --cat-otros-tint: rgba(148, 163, 184, 0.15);
 }
 
 /* ---------- Mono Light ---------- */
@@ -132,8 +175,18 @@
   --cat-medicamento: #3f3f46;   --cat-medicamento-tint: rgba(63, 63, 70, 0.08);
   --cat-cargo: #52525b;         --cat-cargo-tint: rgba(82, 82, 91, 0.08);
   --cat-mascotas: #a1a1aa;      --cat-mascotas-tint: rgba(161, 161, 170, 0.08);
-  --cat-farmacia: #3f3f46;
-  --cat-vet: #a1a1aa;
+  --cat-farmacia: #3f3f46;      --cat-farmacia-tint: rgba(63, 63, 70, 0.08);
+  --cat-vet: #a1a1aa;           --cat-vet-tint: rgba(161, 161, 170, 0.08);
+  --cat-supermercado: #18181b;     --cat-supermercado-tint: rgba(24, 24, 27, 0.08);
+  --cat-alimentacion: #52525b;     --cat-alimentacion-tint: rgba(82, 82, 91, 0.08);
+  --cat-transporte: #71717a;       --cat-transporte-tint: rgba(113, 113, 122, 0.08);
+  --cat-entretenimiento: #3f3f46;  --cat-entretenimiento-tint: rgba(63, 63, 70, 0.08);
+  --cat-servicios: #52525b;        --cat-servicios-tint: rgba(82, 82, 91, 0.08);
+  --cat-vestuario: #71717a;        --cat-vestuario-tint: rgba(113, 113, 122, 0.08);
+  --cat-construccion: #18181b;     --cat-construccion-tint: rgba(24, 24, 27, 0.08);
+  --cat-finanzas: #18181b;         --cat-finanzas-tint: rgba(24, 24, 27, 0.08);
+  --cat-salud: #3f3f46;            --cat-salud-tint: rgba(63, 63, 70, 0.08);
+  --cat-otros: #a1a1aa;            --cat-otros-tint: rgba(161, 161, 170, 0.08);
 }
 
 /* ---------- Mono Dark ---------- */
@@ -155,8 +208,18 @@
   --cat-medicamento: #71717a;   --cat-medicamento-tint: rgba(113, 113, 122, 0.12);
   --cat-cargo: #52525b;         --cat-cargo-tint: rgba(82, 82, 91, 0.12);
   --cat-mascotas: #71717a;      --cat-mascotas-tint: rgba(113, 113, 122, 0.12);
-  --cat-farmacia: #71717a;
-  --cat-vet: #71717a;
+  --cat-farmacia: #71717a;      --cat-farmacia-tint: rgba(113, 113, 122, 0.12);
+  --cat-vet: #71717a;           --cat-vet-tint: rgba(113, 113, 122, 0.12);
+  --cat-supermercado: #a1a1aa;     --cat-supermercado-tint: rgba(161, 161, 170, 0.12);
+  --cat-alimentacion: #52525b;     --cat-alimentacion-tint: rgba(82, 82, 91, 0.12);
+  --cat-transporte: #71717a;       --cat-transporte-tint: rgba(113, 113, 122, 0.12);
+  --cat-entretenimiento: #71717a;  --cat-entretenimiento-tint: rgba(113, 113, 122, 0.12);
+  --cat-servicios: #52525b;        --cat-servicios-tint: rgba(82, 82, 91, 0.12);
+  --cat-vestuario: #71717a;        --cat-vestuario-tint: rgba(113, 113, 122, 0.12);
+  --cat-construccion: #a1a1aa;     --cat-construccion-tint: rgba(161, 161, 170, 0.12);
+  --cat-finanzas: #a1a1aa;         --cat-finanzas-tint: rgba(161, 161, 170, 0.12);
+  --cat-salud: #71717a;            --cat-salud-tint: rgba(113, 113, 122, 0.12);
+  --cat-otros: #71717a;            --cat-otros-tint: rgba(113, 113, 122, 0.12);
 }
 
 /* ==========================================================

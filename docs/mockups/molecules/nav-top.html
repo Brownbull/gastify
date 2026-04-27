@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Molecule: nav-top — gastify</title>
+  <link rel="stylesheet" href="../assets/css/desktop-shell.css">
+  <link rel="stylesheet" href="../assets/css/atoms.css">
+  <link rel="stylesheet" href="../assets/css/molecules.css">
+  <style>
+    body { margin: 0; background: var(--bg); color: var(--ink); min-height: 100vh; padding: 40px 320px 48px 48px; }
+    h1 { font-size: 24px; margin: 0 0 6px 0; font-weight: 700; }
+    .subtitle { color: var(--ink-2); font-size: 13px; margin: 0 0 32px 0; max-width: 720px; line-height: 1.5; }
+    .demo-section { margin-bottom: 36px; }
+    .demo-section h2 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-3); margin: 0 0 14px 0; font-weight: 600; }
+    .desktop-frame { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px var(--shadow); margin-bottom: 12px; }
+    .desktop-frame .desktop-content { padding: 28px; color: var(--ink-3); font-size: 13px; min-height: 100px; }
+    .demo-stack { display: flex; flex-direction: column; gap: 8px; background: var(--surface-2); padding: 24px; border-radius: 12px; border: 1px solid var(--line); }
+    .swatch-label { font-size: 11px; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
+    .snippet { background: var(--surface-2); padding: 16px; border-radius: 8px; font-family: ui-monospace, Consolas, monospace; font-size: 12px; color: var(--ink); overflow-x: auto; white-space: pre; line-height: 1.5; border: 1px solid var(--line); }
+  </style>
+</head>
+<body>
+  <h1>Nav · Top (desktop)</h1>
+  <p class="subtitle">Desktop top bar — brand + global search + avatar/actions. 60px tall. Sticky to viewport top. Pairs with sidebar nav for full desktop chrome. Drops shadow on scroll (<code>.is-elevated</code>).</p>
+
+  <section class="demo-section">
+    <h2>Variants</h2>
+    <div class="demo-stack">
+      <span class="swatch-label">default (top of page)</span>
+      <div class="desktop-frame">
+        <header class="nav-top">
+          <a class="nav-top-brand" href="#"><span aria-hidden="true">💸</span> gastify</a>
+          <div class="nav-top-search">
+            <div class="filter-search">
+              <span aria-hidden="true">🔍</span>
+              <input type="search" placeholder="Buscar gastos, comercios, categorías...">
+            </div>
+          </div>
+          <div class="nav-top-actions">
+            <button class="btn btn-icon btn-sm" aria-label="Notificaciones">
+              <span aria-hidden="true">🔔</span>
+            </button>
+            <button class="btn btn-icon btn-sm" aria-label="Cuenta">
+              <span class="avatar avatar-sm" aria-hidden="true">JM</span>
+            </button>
+          </div>
+        </header>
+        <div class="desktop-content">[ contenido del screen ]</div>
+      </div>
+
+      <span class="swatch-label" style="margin-top: 12px;">elevated (page scrolled)</span>
+      <div class="desktop-frame">
+        <header class="nav-top is-elevated">
+          <a class="nav-top-brand" href="#"><span>💸</span> gastify</a>
+          <div class="nav-top-search">
+            <div class="filter-search">
+              <span>🔍</span>
+              <input type="search" placeholder="Buscar...">
+            </div>
+          </div>
+          <div class="nav-top-actions">
+            <button class="btn btn-primary btn-sm">Escanear</button>
+            <button class="btn btn-icon btn-sm" aria-label="Cuenta">
+              <span class="avatar avatar-sm">JM</span>
+            </button>
+          </div>
+        </header>
+        <div class="desktop-content">[ scrolled state — top bar shows shadow ]</div>
+      </div>
+
+      <span class="swatch-label" style="margin-top: 12px;">minimal (auth screens)</span>
+      <div class="desktop-frame">
+        <header class="nav-top">
+          <a class="nav-top-brand" href="#"><span>💸</span> gastify</a>
+          <div class="nav-top-actions" style="margin-left: auto;">
+            <button class="btn btn-ghost btn-sm">Iniciar sesión</button>
+          </div>
+        </header>
+        <div class="desktop-content">[ login / register / public marketing ]</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>Composition</h2>
+    <div class="demo-stack" style="display: block;">
+      <ul style="margin: 0; padding-left: 20px; font-size: 13px; color: var(--ink-2); line-height: 1.7;">
+        <li><strong>Atoms used (one level down):</strong> <a href="../atoms/button.html">button</a> (btn-icon, btn-primary, btn-ghost) · <a href="../atoms/avatar.html">avatar</a> · <a href="../atoms/input.html">input</a> (search)</li>
+        <li><strong>Used by screens:</strong> every authenticated desktop screen (alongside sidebar) · public auth flows (minimal variant)</li>
+        <li><strong>State matrix:</strong> default · is-elevated (scroll shadow) · minimal (no search, no actions cluster)</li>
+        <li><strong>A11y:</strong> use <code>&lt;header&gt;</code> + <code>role="banner"</code> implicit · skip-link "Saltar al contenido" lives just before this</li>
+        <li><strong>Search:</strong> uses <code>filter-search</code> molecule pattern — same shape as filter-strip search field</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>Usage</h2>
+    <pre class="snippet">&lt;header class="nav-top"&gt;
+  &lt;a class="nav-top-brand" href="/"&gt;💸 gastify&lt;/a&gt;
+  &lt;div class="nav-top-search"&gt;
+    &lt;div class="filter-search"&gt;
+      &lt;input type="search" placeholder="Buscar..."&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class="nav-top-actions"&gt;
+    &lt;button class="btn btn-icon btn-sm"&gt;🔔&lt;/button&gt;
+    &lt;button class="btn btn-icon btn-sm"&gt;&lt;span class="avatar avatar-sm"&gt;JM&lt;/span&gt;&lt;/button&gt;
+  &lt;/div&gt;
+&lt;/header&gt;</pre>
+  </section>
+
+  <section class="demo-section legacy-section">
+    <h2><span class="legacy-tag">LEGACY · BoletApp staging</span> Live extraction (2026-04-26)</h2>
+    <p class="legacy-note" style="font-size: 12px; color: var(--ink-2); line-height: 1.5; max-width: 720px;">
+      Captured live from <code>https://boletapp-staging.web.app/</code> via Playwright MCP. Selector: <code>header</code>. Notes: Sticky 72px top bar — app-logo button + Gastify text + profile-avatar (uses position fixed + safe-area-inset-top padding). Source: <a href="../atoms/legacy-snapshots/nav-top-live.html" style="color: var(--primary); font-weight: 600;">nav-top-live.html</a> · Manifest: <a href="../atoms/legacy-snapshots/EXTRACTION-MANIFEST.md" style="color: var(--primary); font-weight: 600;">EXTRACTION-MANIFEST.md</a>
+    </p>
+    <iframe
+      src="../atoms/legacy-snapshots/nav-top-live.html"
+      title="Live BoletApp staging nav-top"
+      style="width: 100%; max-width: 360px; height: 240px; border: 1px solid var(--line); border-radius: 8px; background: #fafafa; margin-top: 12px;"
+      loading="lazy"></iframe>
+  </section>
+
+  <script src="../assets/js/tweaks.js" defer></script>
+</body>
+</html>

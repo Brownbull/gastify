@@ -63,18 +63,18 @@ Hex/RGB literals are forbidden in screen HTML — always `var(--token)`.
 
 ## Catalog
 
-| Atom | File | Variants | Sizes | Primary use |
-|------|------|----------|-------|-------------|
-| **Button** | [button.html](button.html) | primary · secondary · ghost · destructive · icon | sm · md · lg | Forms, CTAs, toolbars |
-| **Input** | [input.html](input.html) | text · password · email · number · search · with affix | md | Forms, search bars, amount entry |
-| **Select** | [select.html](select.html) | default · with-value · disabled | md | Currency, jurisdiction, category pickers |
-| **Pill** | [pill.html](pill.html) | default · active · with-count | md | Timeframe selector, segmented controls |
-| **Badge** | [badge.html](badge.html) | info · success · warning · error · neutral · dot | — | Confidence %, status tags, unread indicators |
-| **Avatar** | [avatar.html](avatar.html) | image · initials · icon · muted · accent · stacked | sm · md · lg | Topbar, group rosters, member lists |
-| **Chip** | [chip.html](chip.html) | default · selected · removable · with-icon | md | Filter bars, applied-filter clearing |
-| **Skeleton** | [skeleton.html](skeleton.html) | line (sm/default/lg) · avatar · chip · card | — | Loading placeholders (prevents CLS) |
-| **Progress** | [progress.html](progress.html) | linear (thin/default/thick) · circular · semantic (primary/success/warning/error) | lg=72 circle | Upload %, credit depletion, budget |
-| **Spinner** | [spinner.html](spinner.html) | default · ink · on-primary | sm · md · lg | Indeterminate loading (unknown duration) |
+| Atom | File | Variants | Sizes | Primary use | Used by molecules (one level up) |
+|------|------|----------|-------|-------------|----------------------------------|
+| **Button** | [button.html](button.html) | primary · secondary · ghost · destructive · icon | sm · md · lg | Forms, CTAs, toolbars | [card-empty](../molecules/card-empty.html) · [card-feature](../molecules/card-feature.html) · [card-celebration](../molecules/card-celebration.html) · [modal](../molecules/modal.html) · [sheet](../molecules/sheet.html) · [drawer](../molecules/drawer.html) · [banner](../molecules/banner.html) · [nav-top](../molecules/nav-top.html) · [form](../molecules/form.html) · [filters](../molecules/filters.html) |
+| **Input** | [input.html](input.html) | text · password · email · number · search · with affix | md | Forms, search bars, amount entry | [modal](../molecules/modal.html) · [nav-top](../molecules/nav-top.html) · [form](../molecules/form.html) · [filters](../molecules/filters.html) |
+| **Select** | [select.html](select.html) | default · with-value · disabled | md | Currency, jurisdiction, category pickers | [modal](../molecules/modal.html) · [form](../molecules/form.html) |
+| **Pill** | [pill.html](pill.html) | default · active · with-count | md | Timeframe selector, segmented controls | _none directly — consumed by screens (P5-P12)_ |
+| **Badge** | [badge.html](badge.html) | info · success · warning · error · neutral · dot | — | Confidence %, status tags, unread indicators | _none directly — consumed by screens (P5-P12)_ |
+| **Avatar** | [avatar.html](avatar.html) | image · initials · icon · muted · accent · stacked | sm · md · lg | Topbar, group rosters, member lists | [nav-top](../molecules/nav-top.html) · [nav-sidebar](../molecules/nav-sidebar.html) |
+| **Chip** | [chip.html](chip.html) | default · selected · removable · with-icon | md | Filter bars, applied-filter clearing | [form](../molecules/form.html) · [filters](../molecules/filters.html) |
+| **Skeleton** | [skeleton.html](skeleton.html) | line (sm/default/lg) · avatar · chip · card | — | Loading placeholders (prevents CLS) | [card-transaction](../molecules/card-transaction.html) · [card-stat](../molecules/card-stat.html) |
+| **Progress** | [progress.html](progress.html) | linear (thin/default/thick) · circular · semantic (primary/success/warning/error) | lg=72 circle | Upload %, credit depletion, budget | [modal](../molecules/modal.html) (credit variant) |
+| **Spinner** | [spinner.html](spinner.html) | default · ink · on-primary | sm · md · lg | Indeterminate loading (unknown duration) | _indirect — composed inline within button (`.btn .spinner`)_ |
 
 ---
 

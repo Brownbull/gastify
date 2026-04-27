@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gastify / BoletApp - Icon Gallery (PixelLab)</title>
+  <style>
+    :root {
+      --bg: #1a1a2e;
+      --bg-card: #16213e;
+      --bg-section: #0f3460;
+      --accent: #e94560;
+      --accent2: #533483;
+      --text: #eee;
+      --text-dim: #aab;
+      --border: #2a2a4e;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding: 24px;
+      min-height: 100vh;
+    }
+    header {
+      text-align: center;
+      padding: 32px 0 24px;
+      border-bottom: 2px solid var(--border);
+      margin-bottom: 32px;
+    }
+    header h1 {
+      font-size: 2rem;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    header p {
+      color: var(--text-dim);
+      margin-top: 8px;
+      font-size: 0.95rem;
+    }
+    .stats {
+      display: flex;
+      justify-content: center;
+      gap: 32px;
+      margin-top: 16px;
+    }
+    .stat {
+      text-align: center;
+    }
+    .stat-num {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+    .stat-label {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .controls {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+    .controls button {
+      padding: 8px 16px;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      color: var(--text);
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 0.2s;
+    }
+    .controls button:hover, .controls button.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+    }
+    .size-controls {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+    .size-controls label {
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      margin-right: 8px;
+    }
+    .size-controls input[type="range"] {
+      width: 200px;
+      accent-color: var(--accent);
+    }
+    .size-controls span {
+      font-size: 0.8rem;
+      color: var(--accent);
+      min-width: 50px;
+    }
+    section {
+      margin-bottom: 40px;
+    }
+    section h2 {
+      font-size: 1.2rem;
+      color: var(--accent);
+      margin-bottom: 4px;
+      padding-left: 8px;
+      border-left: 3px solid var(--accent);
+    }
+    section .section-desc {
+      color: var(--text-dim);
+      font-size: 0.8rem;
+      margin-bottom: 16px;
+      padding-left: 12px;
+    }
+    .icon-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 12px;
+    }
+    .icon-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px 8px 12px;
+      text-align: center;
+      transition: all 0.2s;
+      cursor: pointer;
+      position: relative;
+    }
+    .icon-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(233, 69, 96, 0.2);
+    }
+    .icon-card.selected {
+      border-color: var(--accent);
+      background: rgba(233, 69, 96, 0.1);
+    }
+    .icon-card img {
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+      display: block;
+      margin: 0 auto 8px;
+      background: repeating-conic-gradient(#333 0% 25%, #444 0% 50%) 50% / 8px 8px;
+      border-radius: 4px;
+    }
+    .icon-card .icon-name {
+      font-size: 0.7rem;
+      color: var(--text-dim);
+      word-break: break-word;
+      line-height: 1.3;
+    }
+    .icon-card .icon-badge {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      font-size: 0.55rem;
+      padding: 1px 4px;
+      border-radius: 3px;
+      background: var(--accent2);
+      color: white;
+    }
+    .bg-toggle {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+    .bg-toggle button {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+    .bg-toggle button:hover, .bg-toggle button.active {
+      border-color: var(--accent);
+    }
+    .bg-toggle .bg-checker { background: repeating-conic-gradient(#333 0% 25%, #444 0% 50%) 50% / 8px 8px; }
+    .bg-toggle .bg-dark { background: #1a1a1a; }
+    .bg-toggle .bg-white { background: #ffffff; }
+    .bg-toggle .bg-blue { background: #1e3a5f; }
+    .bg-toggle .bg-green { background: #1a3a1a; }
+
+    .hidden { display: none !important; }
+
+    footer {
+      text-align: center;
+      padding: 32px 0;
+      color: var(--text-dim);
+      font-size: 0.8rem;
+      border-top: 1px solid var(--border);
+      margin-top: 40px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Gastify Icon Gallery</h1>
+    <p>Pixel art icons generated via PixelLab API for the expense tracker app</p>
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-num" id="total-count">139</div>
+        <div class="stat-label">Total Icons</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">11</div>
+        <div class="stat-label">Categories</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">32px</div>
+        <div class="stat-label">Native Size</div>
+      </div>
+    </div>
+  </header>
+
+  <div class="controls">
+    <button class="active" data-filter="all">All</button>
+    <button data-filter="navigation">Navigation (8)</button>
+    <button data-filter="rubros">L1 Rubros (12)</button>
+    <button data-filter="store-categories">L2 Giros (44)</button>
+    <button data-filter="familias">L3 Familias (9)</button>
+    <button data-filter="item-categories">L4 Categorias (42)</button>
+    <button data-filter="scan-features">Scan (8)</button>
+    <button data-filter="financial">Financial (8)</button>
+    <button data-filter="credits">Credits (2)</button>
+    <button data-filter="status">Status (4)</button>
+    <button data-filter="actions">Actions (8)</button>
+    <button data-filter="analytics">Analytics (4)</button>
+  </div>
+
+  <div class="size-controls">
+    <label>Display size:</label>
+    <input type="range" id="size-slider" min="32" max="128" value="64" step="16">
+    <span id="size-label">64px</span>
+  </div>
+
+  <div class="bg-toggle">
+    <label style="font-size:0.8rem;color:var(--text-dim);margin-right:4px">BG:</label>
+    <button class="bg-checker active" data-bg="checker" title="Checkerboard"></button>
+    <button class="bg-dark" data-bg="dark" title="Dark"></button>
+    <button class="bg-white" data-bg="white" title="White"></button>
+    <button class="bg-blue" data-bg="blue" title="Blue"></button>
+    <button class="bg-green" data-bg="green" title="Green"></button>
+  </div>
+
+  <!-- NAVIGATION -->
+  <section data-category="navigation">
+    <h2>Navigation Bar</h2>
+    <p class="section-desc">Bottom nav, tab bar, main app sections</p>
+    <div class="icon-grid">
+      <div class="icon-card"><img src="app-icons/navigation/nav-home.png" width="64" height="64"><div class="icon-name">Home / Dashboard</div></div>
+      <div class="icon-card"><img src="app-icons/navigation/nav-scan.png" width="64" height="64"><div class="icon-name">Scan Receipt</div></div>
+      <div class="icon-card"><img src="app-icons/navigation/nav-history.png" width="64" height="64"><div class="icon-name">History</div></div>
+      <div class="icon-card"><img src="app-icons/navigation/nav-insights.png" width="64" height="64"><div class="icon-name">Insights</div></div>
+      <div class="icon-card"><img src="app-icons/navigation/nav-trends.png" width="64" height="64"><div class="icon-name">Trends</div></div>
+      <div class="icon-card"><img src="app-icons/navigation/nav-reports.png" width="64" height="64"><div class="icon-name">Reports</div></div>
+      <div class="icon-card"><img src="app-icons/navigation/nav-alerts.png" width="64" height="64"><div class="icon-name">Alerts / Notifications</div></div>
+      <div class="icon-card"><img src="app-icons/navigation/nav-settings.png" width="64" height="64"><div class="icon-name">Settings</div></div>
+    </div>
+  </section>
+
+  <!-- L1 RUBROS -->
+  <section data-category="rubros">
+    <h2>L1 — Rubros (Store Industry Groups)</h2>
+    <p class="section-desc">12 top-level groupings for where you spend — each contains multiple L2 giros</p>
+    <div class="icon-grid">
+      <div class="icon-card"><img src="app-icons/rubros/rubro-supermercados.png" width="64" height="64"><div class="icon-name">Supermercados</div><span class="icon-badge">L1</span></div>
+      <div class="icon-card"><img src="app-icons/rubros/rubro-restaurantes.png" width="64" height="64"><div class="icon-name">Restaurantes</div><span class="icon-badge">L1</span></div>
+      <div class="icon-card"><img src="app-icons/rubros/rubro-comercio-barrio.png" width="64" height="64"><div class="icon-name">Comercio de Barrio</div><span class="icon-badge">L1</span></div>
+      <div class="icon-card"><img src="app-icons/rubros/rubro-vivienda.png" width="64" height="64"><div class="icon-name">Vivienda</div><span class="icon-badge">L1</span></div>
+      <div class="icon-card"><img src="app-icons/rubros/rubro-salud-bienestar.png" width="64" height="64"><div class="icon-name">Salud y Bienestar</div><span class="icon-badge">L1</span></div>
+      <div class="icon-card"><img src="app-icons/rubros/rubro-tiendas-generales.png" width="64" height="64"><div class="icon-name">Tiendas Generales</div><span class="icon-badge">L1</span></div>
+      <div class="icon-card"><img src="app-icons/rubros/rubro-tiendas-especializadas.png" width="64" height="64"><div class="icon-name">Tiendas Especializadas</div><span class="icon-badge">L1</span></div>
+      <div class="icon-card"><img src="app-icons/rubros/rubro-transporte-vehiculo.png" width="64" height="64"><div class="icon-name">Transporte y Vehiculo</div><span class="icon-badge">L1</span></div>
+      <div class="icon-card"><img src="app-icons/rubros/rubro-educacion.png" width="64" height="64"><div class="icon-name">Educacion</div><span class="icon-badge">L1</span></div>
+      <div class="icon-card"><img src="app-icons/rubros/rubro-servicios-finanzas.png" width="64" height="64"><div class="icon-name">Servicios y Finanzas</div><span class="icon-badge">L1</span></div>
+      <div class="icon-card"><img src="app-icons/rubros/rubro-entretenimiento-hospedaje.png" width="64" height="64"><div class="icon-name">Entretenimiento y Hospedaje</div><span class="icon-badge">L1</span></div>
+      <div class="icon-card"><img src="app-icons/rubros/rubro-otros.png" width="64" height="64"><div class="icon-name">Otros</div><span class="icon-badge">L1</span></div>
+    </div>
+  </section>
+
+  <!-- STORE CATEGORIES -->
+  <section data-category="store-categories">
+    <h2>L2 — Giros (44 Business Types)</h2>
+    <p class="section-desc">Icons for transaction merchant types — where you spend</p>
+    <div class="icon-grid">
+      <div class="icon-card"><img src="app-icons/store-categories/store-supermarket.png" width="64" height="64"><div class="icon-name">Supermarket</div><span class="icon-badge">Giro</span></div>
+      <div class="icon-card"><img src="app-icons/store-categories/store-wholesale.png" width="64" height="64"><div class="icon-name">Wholesale</div><span class="icon-badge">Giro</span></div>
+      <div class="icon-card"><img src="app-icons/store-categories/store-restaurant.png" width="64" height="64"><div class="icon-name">Restaurant</div><span class="icon-badge">Giro</span></div>
+      <div class="icon-card"><img src="app-icons/store-categories/store-almacen.png" width="64" height="64"><div class="icon-name">Almacen</div><span class="icon-badge">Giro</span></div>
+      <div class="icon-card"><img src="app-icons/store-categories/store-minimarket.png" width="64" height="64"><div class="icon-name">Minimarket</div><span class="icon-badge">Giro</span></div>
+      <div class="icon-card"><img src="app-icons/store-categories/store-open-market.png" width="64" height="64"><div class="icon-name">Open Market / Feria</div><span class="icon-badge">Giro</span></div>
+      <div class="icon-card"><img src="app-icons/store-categories/store-kiosk.png" width="64" height="64"><div class="icon-name">Kiosk</div><span class="icon-badge">Giro</span></div>
+      <div class="icon-card"><img src="app-icons/store-categories/store-liquor.png" width="64" height="64"><div class="icon-name">Liquor Store</div><span class="icon-badge">Giro</span></div>
+      <div class="icon-card"><img src="app-icons/store-categories/store-bakery.png" width="64" height="64"><div class="icon-name">Bakery</div><span class="icon-badge">Giro</span></div>
+      <div class="icon-card"><img src="app-icons/store-categories/store-butcher.png" width="64" height="64"><div class="icon-name">Butcher</div><span class="icon-badge">Giro</span></div>
+      <div class="icon-card"><img src="app-icons/store-categories/store-utility.png" width="64" height="64"><div class="icon-name">Utility Company</div><span class="icon-badge">Giro</span></div>
+      <div class="icon-card"><img src="app-icons/store-categories/store-property.png" width="64" height="64"><div class="icon-name">Property Admin</div><span class="icon-badge">Giro</span></div>
+      <div class="icon-card"><img src="app-icons/store-categories/store-pharmacy.png" width="64" height="64"><div class="icon-name">Pharmacy</div><span class="icon-badge">Giro</span></div>
+      <div class="icon-card"><img src="app-icons/store-categories/store-medical.png" width="64" height="64"><div class="icon-name">Medical</div><span class="icon-badge">Giro</span></div>
+      <div class="icon-card"><img src="app-icons/store-categories/store-veterinary.png" width="64" height="64"><div class="icon-name">Veterinary</div><span class="icon-badge">Giro</span></div>
+      <div class="icon-card"><img src="app-icons/store-categories/store-beauty.png" width="64" height="64"><div class="icon-name">Health & Beauty</div><span class="icon-badge">Giro</span></div>
+      <div class="icon-card"><img src="app-icons/store-categories/store-bazaar.png" width="64" height="64"><div class="icon-name">Bazaar</div><span class="icon-badge">Giro</span></div>
+      <div class="icon-card"><img src="app-icons/store-categories/store-clothing.png" width="64" height="64"><div class="icon-name">Clothing Store</div><span class="icon-badge">Giro</span></div>
+      <div class="icon-card"><img src="app-icons/store-categories/store-electronics.png" width="64" height="64"><div class="icon-name">Electronics</div><span class="icon-badge">Giro</span></div>
+      <div class="icon-card"><img src="app-icons/store-categories/store-home-goods.png" width="64" height="64"><div class="icon-name">Home Goods</div><span class="icon-badge">Giro</span></div>
+      <div class="icon-card"><img src="app-icons/store-categories/store-furniture.png" width="64" height="64"><div class="icon-name">Furniture</div><span class="icon-badge">Giro</span></div>
+      <div class="icon-card"><img src="app-icons/store-categories/store-hardware.png" width="64" height="64"><div class="icon-name">Hardware</div><span class="icon-badge">Giro</span></div>
+      <div class="icon-card"><img src="app-icons/store-categories/store-garden.png" width="64" height="64"><div class="icon-name">Garden Center</div><span class="icon-badge">Giro</span></div>
+      <div class="icon-card"><img src="app-icons/store-categories/store-pet-shop.png" width="64" height="64"><div class="icon-name">Pet Shop</div><span class="icon-badge">Giro</span></div>
+      <div class="icon-card"><img src="app-icons/store-categories/store-bookstore.png" width="64" height="64"><div class="icon-name">Book Store</div><span class="icon-badge">Giro</span></div>
+      <div class="icon-card"><img src="app-icons/store-categories/store-office.png" width="64" height="64"><div class="icon-name">Office Supplies</div><span class="icon-badge">Giro</span></div>
+      <div class="icon-card"><img src="app-icons/store-categories/store-sports.png" width="64" height="64"><div class="icon-name">Sports Store</div><span class="icon-badge">Giro</span></div>
+      <div class="icon-card"><img src="app-icons/store-categories/store-toys.png" width="64" height="64"><div class="icon-name">Toy Store</div><span class="icon-badge">Giro</span></div>
+      <div class="icon-card"><img src="app-icons/store-categories/store-optical.png" width="64" height="64"><div class="icon-name">Accessories / Optical</div><span class="icon-badge">Giro</span></div>
+      <div class="icon-card"><img src="app-icons/store-categories/store-online.png" width="64" height="64"><div class="icon-name">Online Store</div><span class="icon-badge">Giro</span></div>
+      <div class="icon-card"><img src="app-icons/store-categories/store-auto-shop.png" width="64" height="64"><div class="icon-name">Auto Shop</div><span class="icon-badge">Giro</span></div>
+      <div class="icon-card"><img src="app-icons/store-categories/store-gas-station.png" width="64" height="64"><div class="icon-name">Gas Station</div><span class="icon-badge">Giro</span></div>
+      <div class="icon-card"><img src="app-icons/store-categories/store-transport.png" width="64" height="64"><div class="icon-name">Transport</div><span class="icon-badge">Giro</span></div>
+      <div class="icon-card"><img src="app-icons/store-categories/store-education.png" width="64" height="64"><div class="icon-name">Education</div><span class="icon-badge">Giro</span></div>
+      <div class="icon-card"><img src="app-icons/store-categories/store-services.png" width="64" height="64"><div class="icon-name">General Services</div><span class="icon-badge">Giro</span></div>
+      <div class="icon-card"><img src="app-icons/store-categories/store-bank.png" width="64" height="64"><div class="icon-name">Banking / Finance</div><span class="icon-badge">Giro</span></div>
+      <div class="icon-card"><img src="app-icons/store-categories/store-travel.png" width="64" height="64"><div class="icon-name">Travel Agency</div><span class="icon-badge">Giro</span></div>
+      <div class="icon-card"><img src="app-icons/store-categories/store-subscription.png" width="64" height="64"><div class="icon-name">Subscription</div><span class="icon-badge">Giro</span></div>
+      <div class="icon-card"><img src="app-icons/store-categories/store-government.png" width="64" height="64"><div class="icon-name">Government</div><span class="icon-badge">Giro</span></div>
+      <div class="icon-card"><img src="app-icons/store-categories/store-lodging.png" width="64" height="64"><div class="icon-name">Lodging / Hotel</div><span class="icon-badge">Giro</span></div>
+      <div class="icon-card"><img src="app-icons/store-categories/store-entertainment.png" width="64" height="64"><div class="icon-name">Entertainment</div><span class="icon-badge">Giro</span></div>
+      <div class="icon-card"><img src="app-icons/store-categories/store-casino.png" width="64" height="64"><div class="icon-name">Casino</div><span class="icon-badge">Giro</span></div>
+      <div class="icon-card"><img src="app-icons/store-categories/store-charity.png" width="64" height="64"><div class="icon-name">Charity / Donation</div><span class="icon-badge">Giro</span></div>
+      <div class="icon-card"><img src="app-icons/store-categories/store-other.png" width="64" height="64"><div class="icon-name">Other</div><span class="icon-badge">Giro</span></div>
+    </div>
+  </section>
+
+  <!-- L3 FAMILIAS -->
+  <section data-category="familias">
+    <h2>L3 — Familias (Item Family Groups)</h2>
+    <p class="section-desc">9 top-level groupings for what you buy — each contains multiple L4 categorias</p>
+    <div class="icon-grid">
+      <div class="icon-card"><img src="app-icons/familias/familia-food-fresh.png" width="64" height="64"><div class="icon-name">Alimentos Frescos</div><span class="icon-badge">L3</span></div>
+      <div class="icon-card"><img src="app-icons/familias/familia-food-packaged.png" width="64" height="64"><div class="icon-name">Alimentos Envasados</div><span class="icon-badge">L3</span></div>
+      <div class="icon-card"><img src="app-icons/familias/familia-food-prepared.png" width="64" height="64"><div class="icon-name">Comida Preparada</div><span class="icon-badge">L3</span></div>
+      <div class="icon-card"><img src="app-icons/familias/familia-salud-cuidado.png" width="64" height="64"><div class="icon-name">Salud y Cuidado Personal</div><span class="icon-badge">L3</span></div>
+      <div class="icon-card"><img src="app-icons/familias/familia-hogar.png" width="64" height="64"><div class="icon-name">Hogar</div><span class="icon-badge">L3</span></div>
+      <div class="icon-card"><img src="app-icons/familias/familia-productos-generales.png" width="64" height="64"><div class="icon-name">Productos Generales</div><span class="icon-badge">L3</span></div>
+      <div class="icon-card"><img src="app-icons/familias/familia-servicios-cargos.png" width="64" height="64"><div class="icon-name">Servicios y Cargos</div><span class="icon-badge">L3</span></div>
+      <div class="icon-card"><img src="app-icons/familias/familia-vicios.png" width="64" height="64"><div class="icon-name">Vicios</div><span class="icon-badge">L3</span></div>
+      <div class="icon-card"><img src="app-icons/familias/familia-otros-item.png" width="64" height="64"><div class="icon-name">Otros</div><span class="icon-badge">L3</span></div>
+    </div>
+  </section>
+
+  <!-- ITEM CATEGORIES -->
+  <section data-category="item-categories">
+    <h2>L4 — Categorias (42 Item Types)</h2>
+    <p class="section-desc">Icons for individual line items within transactions — what you buy</p>
+    <div class="icon-grid">
+      <div class="icon-card"><img src="app-icons/item-categories/item-produce.png" width="64" height="64"><div class="icon-name">Produce</div></div>
+      <div class="icon-card"><img src="app-icons/item-categories/item-meat-seafood.png" width="64" height="64"><div class="icon-name">Meat & Seafood</div></div>
+      <div class="icon-card"><img src="app-icons/item-categories/item-bread-pastry.png" width="64" height="64"><div class="icon-name">Bread & Pastry</div></div>
+      <div class="icon-card"><img src="app-icons/item-categories/item-dairy-eggs.png" width="64" height="64"><div class="icon-name">Dairy & Eggs</div></div>
+      <div class="icon-card"><img src="app-icons/item-categories/item-pantry.png" width="64" height="64"><div class="icon-name">Pantry</div></div>
+      <div class="icon-card"><img src="app-icons/item-categories/item-frozen.png" width="64" height="64"><div class="icon-name">Frozen Foods</div></div>
+      <div class="icon-card"><img src="app-icons/item-categories/item-snacks.png" width="64" height="64"><div class="icon-name">Snacks</div></div>
+      <div class="icon-card"><img src="app-icons/item-categories/item-beverages.png" width="64" height="64"><div class="icon-name">Beverages</div></div>
+      <div class="icon-card"><img src="app-icons/item-categories/item-prepared-food.png" width="64" height="64"><div class="icon-name">Prepared Food</div></div>
+      <div class="icon-card"><img src="app-icons/item-categories/item-personal-care.png" width="64" height="64"><div class="icon-name">Personal Care</div></div>
+      <div class="icon-card"><img src="app-icons/item-categories/item-cleaning.png" width="64" height="64"><div class="icon-name">Cleaning Supplies</div></div>
+      <div class="icon-card"><img src="app-icons/item-categories/item-medications.png" width="64" height="64"><div class="icon-name">Medications</div></div>
+      <div class="icon-card"><img src="app-icons/item-categories/item-supplements.png" width="64" height="64"><div class="icon-name">Supplements</div></div>
+      <div class="icon-card"><img src="app-icons/item-categories/item-baby.png" width="64" height="64"><div class="icon-name">Baby Products</div></div>
+      <div class="icon-card"><img src="app-icons/item-categories/item-home-essentials.png" width="64" height="64"><div class="icon-name">Home Essentials</div></div>
+      <div class="icon-card"><img src="app-icons/item-categories/item-pet-food.png" width="64" height="64"><div class="icon-name">Pet Food</div></div>
+      <div class="icon-card"><img src="app-icons/item-categories/item-apparel.png" width="64" height="64"><div class="icon-name">Apparel</div></div>
+      <div class="icon-card"><img src="app-icons/item-categories/item-technology.png" width="64" height="64"><div class="icon-name">Technology</div></div>
+      <div class="icon-card"><img src="app-icons/item-categories/item-alcohol.png" width="64" height="64"><div class="icon-name">Alcohol</div></div>
+      <div class="icon-card"><img src="app-icons/item-categories/item-tobacco.png" width="64" height="64"><div class="icon-name">Tobacco</div></div>
+      <div class="icon-card"><img src="app-icons/item-categories/item-insurance.png" width="64" height="64"><div class="icon-name">Insurance</div></div>
+      <div class="icon-card"><img src="app-icons/item-categories/item-tax-fees.png" width="64" height="64"><div class="icon-name">Tax & Fees</div></div>
+      <div class="icon-card"><img src="app-icons/item-categories/item-loan.png" width="64" height="64"><div class="icon-name">Loan Payment</div></div>
+      <div class="icon-card"><img src="app-icons/item-categories/item-tickets.png" width="64" height="64"><div class="icon-name">Tickets & Events</div></div>
+      <div class="icon-card"><img src="app-icons/item-categories/item-household-bills.png" width="64" height="64"><div class="icon-name">Household Bills</div></div>
+      <div class="icon-card"><img src="app-icons/item-categories/item-education-fees.png" width="64" height="64"><div class="icon-name">Education Fees</div></div>
+      <div class="icon-card"><img src="app-icons/item-categories/item-beauty-cosmetics.png" width="64" height="64"><div class="icon-name">Beauty & Cosmetics</div></div>
+      <div class="icon-card"><img src="app-icons/item-categories/item-pet-supplies.png" width="64" height="64"><div class="icon-name">Pet Supplies</div></div>
+      <div class="icon-card"><img src="app-icons/item-categories/item-furnishings.png" width="64" height="64"><div class="icon-name">Furnishings</div></div>
+      <div class="icon-card"><img src="app-icons/item-categories/item-tools.png" width="64" height="64"><div class="icon-name">Tools & Supplies</div></div>
+      <div class="icon-card"><img src="app-icons/item-categories/item-garden.png" width="64" height="64"><div class="icon-name">Garden</div></div>
+      <div class="icon-card"><img src="app-icons/item-categories/item-car-accessories.png" width="64" height="64"><div class="icon-name">Car Accessories</div></div>
+      <div class="icon-card"><img src="app-icons/item-categories/item-sports-outdoors.png" width="64" height="64"><div class="icon-name">Sports & Outdoors</div></div>
+      <div class="icon-card"><img src="app-icons/item-categories/item-toys-games.png" width="64" height="64"><div class="icon-name">Toys & Games</div></div>
+      <div class="icon-card"><img src="app-icons/item-categories/item-books-media.png" width="64" height="64"><div class="icon-name">Books & Media</div></div>
+      <div class="icon-card"><img src="app-icons/item-categories/item-office-stationery.png" width="64" height="64"><div class="icon-name">Office & Stationery</div></div>
+      <div class="icon-card"><img src="app-icons/item-categories/item-crafts.png" width="64" height="64"><div class="icon-name">Crafts</div></div>
+      <div class="icon-card"><img src="app-icons/item-categories/item-service-charge.png" width="64" height="64"><div class="icon-name">Service Charge</div></div>
+      <div class="icon-card"><img src="app-icons/item-categories/item-subscription.png" width="64" height="64"><div class="icon-name">Subscription</div></div>
+      <div class="icon-card"><img src="app-icons/item-categories/item-condo-fees.png" width="64" height="64"><div class="icon-name">Condo Fees</div></div>
+      <div class="icon-card"><img src="app-icons/item-categories/item-games-of-chance.png" width="64" height="64"><div class="icon-name">Games of Chance</div></div>
+      <div class="icon-card"><img src="app-icons/item-categories/item-other.png" width="64" height="64"><div class="icon-name">Other Item</div></div>
+    </div>
+  </section>
+
+  <!-- SCAN FEATURES -->
+  <section data-category="scan-features">
+    <h2>Scan Features</h2>
+    <p class="section-desc">Receipt scanning workflow states and modes</p>
+    <div class="icon-grid">
+      <div class="icon-card"><img src="app-icons/scan-features/scan-single.png" width="64" height="64"><div class="icon-name">Single Scan</div></div>
+      <div class="icon-card"><img src="app-icons/scan-features/scan-batch.png" width="64" height="64"><div class="icon-name">Batch Scan</div></div>
+      <div class="icon-card"><img src="app-icons/scan-features/scan-statement.png" width="64" height="64"><div class="icon-name">Statement Scan</div></div>
+      <div class="icon-card"><img src="app-icons/scan-features/scan-processing.png" width="64" height="64"><div class="icon-name">Processing / AI</div></div>
+      <div class="icon-card"><img src="app-icons/scan-features/scan-success.png" width="64" height="64"><div class="icon-name">Success</div></div>
+      <div class="icon-card"><img src="app-icons/scan-features/scan-error.png" width="64" height="64"><div class="icon-name">Error</div></div>
+      <div class="icon-card"><img src="app-icons/scan-features/scan-retry.png" width="64" height="64"><div class="icon-name">Retry</div></div>
+      <div class="icon-card"><img src="app-icons/scan-features/scan-crop.png" width="64" height="64"><div class="icon-name">Crop / Adjust</div></div>
+    </div>
+  </section>
+
+  <!-- FINANCIAL -->
+  <section data-category="financial">
+    <h2>Financial</h2>
+    <p class="section-desc">Money, payments, and financial concepts</p>
+    <div class="icon-grid">
+      <div class="icon-card"><img src="app-icons/financial/fin-coin.png" width="64" height="64"><div class="icon-name">Coin</div></div>
+      <div class="icon-card"><img src="app-icons/financial/fin-wallet.png" width="64" height="64"><div class="icon-name">Wallet</div></div>
+      <div class="icon-card"><img src="app-icons/financial/fin-credit-card.png" width="64" height="64"><div class="icon-name">Credit Card</div></div>
+      <div class="icon-card"><img src="app-icons/financial/fin-piggy-bank.png" width="64" height="64"><div class="icon-name">Piggy Bank / Savings</div></div>
+      <div class="icon-card"><img src="app-icons/financial/fin-budget.png" width="64" height="64"><div class="icon-name">Budget Calculator</div></div>
+      <div class="icon-card"><img src="app-icons/financial/fin-receipt.png" width="64" height="64"><div class="icon-name">Receipt</div></div>
+      <div class="icon-card"><img src="app-icons/financial/fin-expense-down.png" width="64" height="64"><div class="icon-name">Expense (Down)</div></div>
+      <div class="icon-card"><img src="app-icons/financial/fin-income-up.png" width="64" height="64"><div class="icon-name">Income (Up)</div></div>
+    </div>
+  </section>
+
+  <!-- CREDITS -->
+  <section data-category="credits">
+    <h2>Scan Credits</h2>
+    <p class="section-desc">In-app credit system tokens</p>
+    <div class="icon-grid">
+      <div class="icon-card"><img src="app-icons/credits/credit-normal.png" width="64" height="64"><div class="icon-name">Normal Credit</div></div>
+      <div class="icon-card"><img src="app-icons/credits/credit-super.png" width="64" height="64"><div class="icon-name">Super Credit</div></div>
+    </div>
+  </section>
+
+  <!-- STATUS -->
+  <section data-category="status">
+    <h2>Status Indicators</h2>
+    <p class="section-desc">System state and connectivity</p>
+    <div class="icon-grid">
+      <div class="icon-card"><img src="app-icons/status/status-warning.png" width="64" height="64"><div class="icon-name">Warning</div></div>
+      <div class="icon-card"><img src="app-icons/status/status-info.png" width="64" height="64"><div class="icon-name">Info</div></div>
+      <div class="icon-card"><img src="app-icons/status/status-sync.png" width="64" height="64"><div class="icon-name">Sync / Cloud</div></div>
+      <div class="icon-card"><img src="app-icons/status/status-offline.png" width="64" height="64"><div class="icon-name">Offline</div></div>
+    </div>
+  </section>
+
+  <!-- ACTIONS -->
+  <section data-category="actions">
+    <h2>Actions</h2>
+    <p class="section-desc">Transaction and UI action icons (back &amp; share excluded - using Lucide)</p>
+    <div class="icon-grid">
+      <div class="icon-card"><img src="app-icons/actions/action-edit.png" width="64" height="64"><div class="icon-name">Edit</div></div>
+      <div class="icon-card"><img src="app-icons/actions/action-delete.png" width="64" height="64"><div class="icon-name">Delete</div></div>
+      <div class="icon-card"><img src="app-icons/actions/action-add.png" width="64" height="64"><div class="icon-name">Add</div></div>
+      <div class="icon-card"><img src="app-icons/actions/action-search.png" width="64" height="64"><div class="icon-name">Search</div></div>
+      <div class="icon-card"><img src="app-icons/actions/action-filter.png" width="64" height="64"><div class="icon-name">Filter</div></div>
+      <div class="icon-card"><img src="app-icons/actions/action-favorite.png" width="64" height="64"><div class="icon-name">Favorite</div></div>
+      <div class="icon-card"><img src="app-icons/actions/action-duplicate.png" width="64" height="64"><div class="icon-name">Duplicate</div></div>
+      <div class="icon-card"><img src="app-icons/actions/action-split.png" width="64" height="64"><div class="icon-name">Split</div></div>
+    </div>
+  </section>
+
+  <!-- ANALYTICS -->
+  <section data-category="analytics">
+    <h2>Analytics & Reports</h2>
+    <p class="section-desc">Data visualization and reporting</p>
+    <div class="icon-grid">
+      <div class="icon-card"><img src="app-icons/analytics/chart-pie.png" width="64" height="64"><div class="icon-name">Pie Chart</div></div>
+      <div class="icon-card"><img src="app-icons/analytics/chart-line.png" width="64" height="64"><div class="icon-name">Line Chart</div></div>
+      <div class="icon-card"><img src="app-icons/analytics/chart-calendar.png" width="64" height="64"><div class="icon-name">Calendar</div></div>
+      <div class="icon-card"><img src="app-icons/analytics/chart-export.png" width="64" height="64"><div class="icon-name">Export</div></div>
+    </div>
+  </section>
+
+  <footer>
+    Generated with PixelLab Pixflux API &middot; 32x32 pixel art &middot; Selective outline, medium shading &middot; 2026-03-31
+  </footer>
+
+  <script>
+    // Category filter
+    document.querySelectorAll('.controls button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.controls button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const filter = btn.dataset.filter;
+        document.querySelectorAll('section').forEach(s => {
+          if (filter === 'all' || s.dataset.category === filter) {
+            s.classList.remove('hidden');
+          } else {
+            s.classList.add('hidden');
+          }
+        });
+      });
+    });
+
+    // Size slider
+    const slider = document.getElementById('size-slider');
+    const sizeLabel = document.getElementById('size-label');
+    slider.addEventListener('input', () => {
+      const size = slider.value;
+      sizeLabel.textContent = size + 'px';
+      document.querySelectorAll('.icon-card img').forEach(img => {
+        img.width = size;
+        img.height = size;
+      });
+    });
+
+    // Background toggle
+    const bgMap = {
+      checker: 'repeating-conic-gradient(#333 0% 25%, #444 0% 50%) 50% / 8px 8px',
+      dark: '#1a1a1a',
+      white: '#ffffff',
+      blue: '#1e3a5f',
+      green: '#1a3a1a'
+    };
+    document.querySelectorAll('.bg-toggle button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.bg-toggle button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const bg = bgMap[btn.dataset.bg];
+        document.querySelectorAll('.icon-card img').forEach(img => {
+          img.style.background = bg;
+        });
+      });
+    });
+
+    // Click to copy filename
+    document.querySelectorAll('.icon-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const src = card.querySelector('img').src;
+        const name = src.split('/').pop();
+        navigator.clipboard.writeText(name).then(() => {
+          card.classList.add('selected');
+          setTimeout(() => card.classList.remove('selected'), 800);
+        });
+      });
+    });
+  </script>
+</body>
+</html>

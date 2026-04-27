@@ -1,0 +1,41 @@
+[
+  {
+    "id": "seed-notif-001",
+    "type": "TRANSACTION_ADDED",
+    "title": "Bob agregó un gasto",
+    "body": "Lider Express · $38.420 al grupo Casa",
+    "read": false,
+    "createdAt": "2026-04-26T10:15:00-04:00",
+    "groupId": "group-casa",
+    "groupName": "Casa",
+    "groupIcon": "🏠",
+    "actorId": "bob-uid",
+    "actorName": "Bob"
+  },
+  {
+    "id": "seed-notif-002",
+    "type": "GROUP_MEMBER_JOINED",
+    "title": "Charlie se unió al grupo",
+    "body": "Charlie aceptó tu invitación al grupo Viaje 2026",
+    "read": false,
+    "createdAt": "2026-04-25T16:42:00-04:00",
+    "groupId": "group-viaje-2026",
+    "groupName": "Viaje 2026",
+    "groupIcon": "✈️",
+    "actorId": "charlie-uid",
+    "actorName": "Charlie"
+  },
+  {
+    "id": "seed-notif-003",
+    "type": "TRANSACTION_REMOVED",
+    "title": "Diana eliminó un gasto",
+    "body": "Spotify Premium · $6.990 quitado del grupo",
+    "read": true,
+    "createdAt": "2026-04-22T09:30:00-04:00",
+    "groupId": "group-casa",
+    "groupName": "Casa",
+    "groupIcon": "🏠",
+    "actorId": "diana-uid",
+    "actorName": "Diana"
+  }
+]

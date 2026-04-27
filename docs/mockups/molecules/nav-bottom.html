@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Molecule: nav-bottom — gastify</title>
+  <link rel="stylesheet" href="../assets/css/desktop-shell.css">
+  <link rel="stylesheet" href="../assets/css/atoms.css">
+  <link rel="stylesheet" href="../assets/css/molecules.css">
+  <style>
+    body { margin: 0; background: var(--bg); color: var(--ink); min-height: 100vh; padding: 40px 320px 48px 48px; }
+    h1 { font-size: 24px; margin: 0 0 6px 0; font-weight: 700; }
+    .subtitle { color: var(--ink-2); font-size: 13px; margin: 0 0 32px 0; max-width: 720px; line-height: 1.5; }
+    .demo-section { margin-bottom: 36px; }
+    .demo-section h2 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-3); margin: 0 0 14px 0; font-weight: 600; }
+    .phone-frame { width: 390px; height: 200px; background: var(--surface); border: 1px solid var(--line); border-radius: 24px; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; box-shadow: 0 12px 32px var(--shadow-lg); margin-bottom: 12px; }
+    .phone-frame .phone-content { flex: 1; padding: 16px; color: var(--ink-3); font-size: 12px; }
+    .demo-frame { background: var(--surface-2); border: 1px solid var(--line); border-radius: 12px; padding: 24px; display: flex; flex-direction: column; align-items: center; gap: 16px; }
+    .swatch-label { font-size: 11px; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.05em; }
+    .snippet { background: var(--surface-2); padding: 16px; border-radius: 8px; font-family: ui-monospace, Consolas, monospace; font-size: 12px; color: var(--ink); overflow-x: auto; white-space: pre; line-height: 1.5; border: 1px solid var(--line); }
+  </style>
+</head>
+<body>
+  <h1>Nav · Bottom (mobile)</h1>
+  <p class="subtitle">Mobile primary navigation — 5 fixed tabs with active-tab indicator (3px bar above icon). Mobile-only. Used on every authenticated mobile screen except modal flows. Active state communicated by primary color + indicator.</p>
+
+  <section class="demo-section">
+    <h2>Variants</h2>
+    <div class="demo-frame">
+      <span class="swatch-label">5-tab default · Inicio active</span>
+      <div class="phone-frame">
+        <div class="phone-content">[ contenido del screen activo ]</div>
+        <nav class="nav-bottom" aria-label="Navegación principal">
+          <a class="nav-bottom-item is-active" href="#" aria-current="page">
+            <span class="nav-icon" aria-hidden="true">⌂</span>
+            <span>Inicio</span>
+          </a>
+          <a class="nav-bottom-item" href="#">
+            <span class="nav-icon" aria-hidden="true">📋</span>
+            <span>Historial</span>
+          </a>
+          <a class="nav-bottom-item" href="#">
+            <span class="nav-icon" aria-hidden="true">📷</span>
+            <span>Escanear</span>
+          </a>
+          <a class="nav-bottom-item" href="#">
+            <span class="nav-icon" aria-hidden="true">📊</span>
+            <span>Tendencias</span>
+          </a>
+          <a class="nav-bottom-item" href="#">
+            <span class="nav-icon" aria-hidden="true">⚙</span>
+            <span>Ajustes</span>
+          </a>
+        </nav>
+      </div>
+
+      <span class="swatch-label" style="margin-top: 16px;">5-tab · Tendencias active · with disabled tab</span>
+      <div class="phone-frame">
+        <div class="phone-content">[ contenido del screen activo ]</div>
+        <nav class="nav-bottom" aria-label="Navegación principal">
+          <a class="nav-bottom-item" href="#">
+            <span class="nav-icon">⌂</span>
+            <span>Inicio</span>
+          </a>
+          <a class="nav-bottom-item" href="#">
+            <span class="nav-icon">📋</span>
+            <span>Historial</span>
+          </a>
+          <a class="nav-bottom-item" href="#">
+            <span class="nav-icon">📷</span>
+            <span>Escanear</span>
+          </a>
+          <a class="nav-bottom-item is-active" href="#" aria-current="page">
+            <span class="nav-icon">📊</span>
+            <span>Tendencias</span>
+          </a>
+          <button class="nav-bottom-item" disabled>
+            <span class="nav-icon">👥</span>
+            <span>Grupos</span>
+          </button>
+        </nav>
+      </div>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>Composition</h2>
+    <div class="demo-frame" style="display: block; align-items: stretch; padding: 20px 24px;">
+      <ul style="margin: 0; padding-left: 20px; font-size: 13px; color: var(--ink-2); line-height: 1.7;">
+        <li><strong>Atoms used (one level down):</strong> none — primitive molecule, composes raw anchor + icon + label</li>
+        <li><strong>Used by screens:</strong> every authenticated mobile screen (Dashboard, History, Trends, Insights, Groups, Settings)</li>
+        <li><strong>State matrix:</strong> default · hover · active (primary color + 3px indicator) · focus-visible · disabled</li>
+        <li><strong>A11y:</strong> <code>aria-label="Navegación principal"</code> on nav · <code>aria-current="page"</code> on active item · 44×44 min hit-target</li>
+        <li><strong>5-slot rule:</strong> exactly 5 — never 4 or 6. Center slot is conventionally the primary action (Escanear here). If group context, "Grupos" replaces Tendencias for that screen set.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>Usage</h2>
+    <pre class="snippet">&lt;nav class="nav-bottom" aria-label="Navegación principal"&gt;
+  &lt;a class="nav-bottom-item is-active" href="/inicio" aria-current="page"&gt;
+    &lt;span class="nav-icon"&gt;⌂&lt;/span&gt;&lt;span&gt;Inicio&lt;/span&gt;
+  &lt;/a&gt;
+  &lt;a class="nav-bottom-item" href="/historial"&gt;
+    &lt;span class="nav-icon"&gt;📋&lt;/span&gt;&lt;span&gt;Historial&lt;/span&gt;
+  &lt;/a&gt;
+  &lt;!-- 3 more items --&gt;
+&lt;/nav&gt;</pre>
+  </section>
+
+  <section class="demo-section legacy-section">
+    <h2><span class="legacy-tag">LEGACY · BoletApp staging</span> Live extraction (2026-04-26)</h2>
+    <p class="legacy-note" style="font-size: 12px; color: var(--ink-2); line-height: 1.5; max-width: 720px;">
+      Captured live from <code>https://boletapp-staging.web.app/</code> via Playwright MCP. Selector: <code>nav[aria-label="Navegación principal"]</code>. Notes: 5 visible nav buttons + 2 inline credit chips (Súper créditos / Créditos) — center "Escanear" doubles as integrated FAB. Source: <a href="../atoms/legacy-snapshots/nav-bottom-live.html" style="color: var(--primary); font-weight: 600;">nav-bottom-live.html</a> · Manifest: <a href="../atoms/legacy-snapshots/EXTRACTION-MANIFEST.md" style="color: var(--primary); font-weight: 600;">EXTRACTION-MANIFEST.md</a>
+    </p>
+    <iframe
+      src="../atoms/legacy-snapshots/nav-bottom-live.html"
+      title="Live BoletApp staging nav-bottom"
+      style="width: 100%; max-width: 360px; height: 240px; border: 1px solid var(--line); border-radius: 8px; background: #fafafa; margin-top: 12px;"
+      loading="lazy"></iframe>
+  </section>
+
+  <script src="../assets/js/tweaks.js" defer></script>
+</body>
+</html>

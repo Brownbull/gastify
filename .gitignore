@@ -83,6 +83,7 @@ alembic/versions/__pycache__/
 playwright-report/
 test-results/
 .playwright/
+.playwright-mcp/
 
 # Gemini fixtures cache (keep checked-in golden cache; ignore user scratch)
 tests/fixtures/gemini/.scratch/

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Molecule: toast — gastify</title>
+  <link rel="stylesheet" href="../assets/css/desktop-shell.css">
+  <link rel="stylesheet" href="../assets/css/atoms.css">
+  <link rel="stylesheet" href="../assets/css/molecules.css">
+  <style>
+    body { margin: 0; background: var(--bg); color: var(--ink); min-height: 100vh; padding: 40px 320px 48px 48px; }
+    h1 { font-size: 24px; margin: 0 0 6px 0; font-weight: 700; }
+    .subtitle { color: var(--ink-2); font-size: 13px; margin: 0 0 32px 0; max-width: 720px; line-height: 1.5; }
+    .demo-section { margin-bottom: 36px; }
+    .demo-section h2 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-3); margin: 0 0 14px 0; font-weight: 600; }
+    .demo-frame { background: var(--surface-2); border: 1px solid var(--line); border-radius: 12px; padding: 24px; }
+    /* Inline toast preview — strip fixed positioning so it lays out inline */
+    .demo-frame .toast-stack { position: relative; bottom: auto; right: auto; }
+    .demo-frame .toast { animation: none; }
+    .snippet { background: var(--surface-2); padding: 16px; border-radius: 8px; font-family: ui-monospace, Consolas, monospace; font-size: 12px; color: var(--ink); overflow-x: auto; white-space: pre; line-height: 1.5; border: 1px solid var(--line); }
+  </style>
+</head>
+<body>
+  <h1>Toast</h1>
+  <p class="subtitle">Flash notification. Slides in from bottom-right (desktop) or top (mobile, override). Auto-dismisses after 5s by default. Stack vertically — newest on top. 4 variants: success, info, warning, error.</p>
+
+  <section class="demo-section">
+    <h2>Variants</h2>
+    <div class="demo-frame">
+      <div class="toast-stack">
+        <div class="toast is-success" role="status">
+          <div class="toast-icon" aria-hidden="true">✓</div>
+          <div class="toast-body">
+            <p class="toast-title">Gasto guardado</p>
+            <p class="toast-message">Jumbo Costanera Center · $24.890 agregado a Mercado.</p>
+          </div>
+          <button class="toast-close" aria-label="Cerrar">×</button>
+        </div>
+
+        <div class="toast is-info" role="status">
+          <div class="toast-icon" aria-hidden="true">i</div>
+          <div class="toast-body">
+            <p class="toast-title">Sincronizando</p>
+            <p class="toast-message">Subiendo 3 gastos guardados sin conexión.</p>
+          </div>
+          <button class="toast-close" aria-label="Cerrar">×</button>
+        </div>
+
+        <div class="toast is-warning" role="status">
+          <div class="toast-icon" aria-hidden="true">!</div>
+          <div class="toast-body">
+            <p class="toast-title">Te quedan 3 escaneos este mes</p>
+            <p class="toast-message">Pasá a Plan Pro para escaneos ilimitados.</p>
+          </div>
+          <button class="toast-close" aria-label="Cerrar">×</button>
+        </div>
+
+        <div class="toast is-error" role="alert">
+          <div class="toast-icon" aria-hidden="true">×</div>
+          <div class="toast-body">
+            <p class="toast-title">Error al guardar</p>
+            <p class="toast-message">No hay conexión. Tu gasto se guardó localmente y se sincronizará después.</p>
+          </div>
+          <button class="toast-close" aria-label="Cerrar">×</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>States</h2>
+    <div class="demo-frame">
+      <div class="toast-stack">
+        <div class="toast is-success">
+          <div class="toast-icon">✓</div>
+          <div class="toast-body">
+            <p class="toast-title">Default state</p>
+            <p class="toast-message">Slid in, awaiting auto-dismiss timer.</p>
+          </div>
+          <button class="toast-close" aria-label="Cerrar">×</button>
+        </div>
+        <div class="toast is-info" style="opacity: 0.5; transform: translateX(20px);">
+          <div class="toast-icon">i</div>
+          <div class="toast-body">
+            <p class="toast-title">Dismissing state</p>
+            <p class="toast-message">Slides out + fades. Animation locked in molecules.css.</p>
+          </div>
+          <button class="toast-close" aria-label="Cerrar">×</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>Composition</h2>
+    <div class="demo-frame" style="padding: 20px 24px;">
+      <ul style="margin: 0; padding-left: 20px; font-size: 13px; color: var(--ink-2); line-height: 1.7;">
+        <li><strong>Atoms used (one level down):</strong> none — primitive molecule, composes raw elements with molecules.css patterns</li>
+        <li><strong>Used by screens:</strong> any post-action confirmation (save, delete, sync, batch upload)</li>
+        <li><strong>State matrix:</strong> entering · default · dismissing</li>
+        <li><strong>Auto-dismiss:</strong> 5s default · 8s for warning · sticky for error (manual close required)</li>
+        <li><strong>A11y:</strong> success/info/warning use <code>role="status"</code> (aria-live=polite) · error uses <code>role="alert"</code> (aria-live=assertive)</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>Usage</h2>
+    <pre class="snippet">&lt;div class="toast-stack"&gt;
+  &lt;div class="toast is-success" role="status"&gt;
+    &lt;div class="toast-icon"&gt;✓&lt;/div&gt;
+    &lt;div class="toast-body"&gt;
+      &lt;p class="toast-title"&gt;Gasto guardado&lt;/p&gt;
+      &lt;p class="toast-message"&gt;Jumbo · $24.890&lt;/p&gt;
+    &lt;/div&gt;
+    &lt;button class="toast-close" aria-label="Cerrar"&gt;×&lt;/button&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</pre>
+  </section>
+
+  <script src="../assets/js/tweaks.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Molecule: fab — gastify</title>
+  <link rel="stylesheet" href="../assets/css/desktop-shell.css">
+  <link rel="stylesheet" href="../assets/css/atoms.css">
+  <link rel="stylesheet" href="../assets/css/molecules.css">
+  <style>
+    body { margin: 0; background: var(--bg); color: var(--ink); min-height: 100vh; padding: 40px 320px 48px 48px; }
+    h1 { font-size: 24px; margin: 0 0 6px 0; font-weight: 700; }
+    .subtitle { color: var(--ink-2); font-size: 13px; margin: 0 0 32px 0; max-width: 720px; line-height: 1.5; }
+    .demo-section { margin-bottom: 36px; }
+    .demo-section h2 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-3); margin: 0 0 14px 0; font-weight: 600; }
+    .demo-row { display: flex; flex-wrap: wrap; gap: 32px; align-items: flex-end; background: var(--surface-2); padding: 32px 24px; border-radius: 12px; border: 1px solid var(--line); min-height: 220px; }
+    .demo-swatch { display: flex; flex-direction: column; gap: 14px; align-items: center; }
+    .demo-swatch-label { font-size: 11px; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.05em; }
+    .snippet { background: var(--surface-2); padding: 16px; border-radius: 8px; font-family: ui-monospace, Consolas, monospace; font-size: 12px; color: var(--ink); overflow-x: auto; white-space: pre; line-height: 1.5; border: 1px solid var(--line); }
+    /* Force fab-menu visible inline for demo */
+    .demo-row .fab-wrap.is-open .fab-menu { animation: none; position: static; margin-top: 12px; }
+  </style>
+</head>
+<body>
+  <h1>FAB · Floating action button</h1>
+  <p class="subtitle">Primary capture action on mobile. Tap to scan, long-press to open mode menu (Recibo / Lote / Estado de cuenta). Used on Dashboard, History, Insights — anywhere the user needs one-tap to capture.</p>
+
+  <section class="demo-section">
+    <h2>Sizes</h2>
+    <div class="demo-row">
+      <div class="demo-swatch">
+        <span class="demo-swatch-label">sm (44px)</span>
+        <button class="fab fab-sm" aria-label="Escanear"><span aria-hidden="true">📷</span></button>
+      </div>
+      <div class="demo-swatch">
+        <span class="demo-swatch-label">md (default 56px)</span>
+        <button class="fab" aria-label="Escanear"><span aria-hidden="true">📷</span></button>
+      </div>
+      <div class="demo-swatch">
+        <span class="demo-swatch-label">lg (64px)</span>
+        <button class="fab fab-lg" aria-label="Escanear"><span aria-hidden="true">📷</span></button>
+      </div>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>States</h2>
+    <div class="demo-row">
+      <div class="demo-swatch">
+        <span class="demo-swatch-label">default</span>
+        <button class="fab" aria-label="Escanear"><span>📷</span></button>
+      </div>
+      <div class="demo-swatch">
+        <span class="demo-swatch-label">hover (lifted)</span>
+        <button class="fab" style="transform: scale(1.04); box-shadow: var(--mol-elev-3);" aria-label="Escanear"><span>📷</span></button>
+      </div>
+      <div class="demo-swatch">
+        <span class="demo-swatch-label">active (pressed)</span>
+        <button class="fab" style="transform: scale(0.96);" aria-label="Escanear"><span>📷</span></button>
+      </div>
+      <div class="demo-swatch">
+        <span class="demo-swatch-label">focus-ring</span>
+        <button class="fab" style="outline: 3px solid var(--primary-soft); outline-offset: 3px;" aria-label="Escanear"><span>📷</span></button>
+      </div>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>Long-press · scan-mode menu</h2>
+    <div class="demo-row" style="align-items: flex-start;">
+      <div class="demo-swatch">
+        <span class="demo-swatch-label">closed</span>
+        <div class="fab-wrap">
+          <button class="fab" aria-haspopup="menu" aria-expanded="false" aria-label="Escanear · mantén presionado para opciones">
+            <span aria-hidden="true">📷</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="demo-swatch" style="align-items: stretch;">
+        <span class="demo-swatch-label" style="text-align: center;">open · 3 modes</span>
+        <div class="fab-wrap is-open" style="display: flex; flex-direction: column-reverse; gap: 12px; align-items: center;">
+          <button class="fab" aria-haspopup="menu" aria-expanded="true" aria-label="Cerrar opciones">
+            <span aria-hidden="true">×</span>
+          </button>
+          <div class="fab-menu" role="menu" style="display: flex;">
+            <button class="fab-menu-item" role="menuitem">
+              <span class="fab-menu-icon" aria-hidden="true">📷</span>
+              <span>Recibo</span>
+              <span class="fab-menu-meta">Default</span>
+            </button>
+            <button class="fab-menu-item" role="menuitem">
+              <span class="fab-menu-icon" aria-hidden="true">🗂</span>
+              <span>Lote (hasta 50)</span>
+              <span class="fab-menu-meta">Bulk</span>
+            </button>
+            <button class="fab-menu-item" role="menuitem">
+              <span class="fab-menu-icon" aria-hidden="true">📄</span>
+              <span>Estado de cuenta</span>
+              <span class="fab-menu-meta">PDF</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>Composition</h2>
+    <div class="demo-row" style="display: block; padding: 20px 24px; min-height: 0;">
+      <ul style="margin: 0; padding-left: 20px; font-size: 13px; color: var(--ink-2); line-height: 1.7;">
+        <li><strong>Atoms used (one level down):</strong> none — primitive molecule, composes raw button + menu</li>
+        <li><strong>Used by screens:</strong> Dashboard mobile · History mobile · Insights mobile · any capture-eligible mobile screen</li>
+        <li><strong>State matrix:</strong> default · hover · active · focus-visible · open (menu visible)</li>
+        <li><strong>Interaction:</strong> tap → default action (scan recibo). Long-press 500ms → opens menu. Tap-outside → closes menu.</li>
+        <li><strong>A11y:</strong> <code>aria-haspopup="menu"</code> + <code>aria-expanded</code> on FAB. Menu uses <code>role="menu"</code> + <code>role="menuitem"</code>. Always provide <code>aria-label</code> — icon alone is not accessible.</li>
+        <li><strong>Position:</strong> bottom-right corner, inset 16px from screen edges, above bottom-nav.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>Usage</h2>
+    <pre class="snippet">&lt;div class="fab-wrap"&gt;
+  &lt;button class="fab" aria-haspopup="menu" aria-expanded="false" aria-label="Escanear"&gt;
+    &lt;span&gt;📷&lt;/span&gt;
+  &lt;/button&gt;
+  &lt;div class="fab-menu" role="menu"&gt;
+    &lt;button class="fab-menu-item" role="menuitem"&gt;
+      &lt;span class="fab-menu-icon"&gt;📷&lt;/span&gt;
+      &lt;span&gt;Recibo&lt;/span&gt;
+      &lt;span class="fab-menu-meta"&gt;Default&lt;/span&gt;
+    &lt;/button&gt;
+    &lt;!-- more items --&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</pre>
+  </section>
+
+  <section class="demo-section legacy-section">
+    <h2><span class="legacy-tag">LEGACY · BoletApp staging</span> Live extraction (2026-04-26)</h2>
+    <p class="legacy-note" style="font-size: 12px; color: var(--ink-2); line-height: 1.5; max-width: 720px;">
+      Captured live from <code>https://boletapp-staging.web.app/</code> via Playwright MCP. Selector: <code>[data-testid="scan-fab"]</code>. Notes: Center-bottom scan FAB (also extracted as button atom). Source: <a href="../atoms/legacy-snapshots/fab-live.html" style="color: var(--primary); font-weight: 600;">fab-live.html</a> · Manifest: <a href="../atoms/legacy-snapshots/EXTRACTION-MANIFEST.md" style="color: var(--primary); font-weight: 600;">EXTRACTION-MANIFEST.md</a>
+    </p>
+    <iframe
+      src="../atoms/legacy-snapshots/fab-live.html"
+      title="Live BoletApp staging fab"
+      style="width: 100%; max-width: 360px; height: 240px; border: 1px solid var(--line); border-radius: 8px; background: #fafafa; margin-top: 12px;"
+      loading="lazy"></iframe>
+  </section>
+
+  <script src="../assets/js/tweaks.js" defer></script>
+</body>
+</html>

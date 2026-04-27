@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Atom: avatar — gastify (mockups-legacy)</title>
+  <link rel="stylesheet" href="../assets/css/desktop-shell.css">
+  <link rel="stylesheet" href="../assets/css/atoms.css">
+  <style>
+    body { margin: 0; background: var(--bg); color: var(--text-primary); min-height: 100vh; padding: 40px 320px 48px 48px; font-family: var(--font-family); }
+    h1 { font-size: 24px; margin: 0 0 6px 0; font-weight: 700; }
+    .subtitle { color: var(--text-secondary); font-size: 13px; margin: 0 0 32px 0; max-width: 720px; line-height: 1.5; }
+    .source-link { display: inline-block; margin-top: 8px; font-size: 11px; color: var(--text-tertiary); font-family: ui-monospace, Consolas, monospace; }
+    .source-link a { color: var(--primary); text-decoration: none; }
+    .source-link a:hover { text-decoration: underline; }
+    .demo-section { margin-bottom: 36px; }
+    .demo-section h2 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-tertiary); margin: 0 0 14px 0; font-weight: 600; }
+    .demo-row { display: flex; flex-wrap: wrap; gap: 18px; align-items: flex-end; background: var(--surface); padding: 24px; border-radius: 12px; border: 1px solid var(--border-light); }
+    .demo-swatch { display: flex; flex-direction: column; gap: 8px; align-items: center; min-width: 80px; }
+    .demo-swatch-label { font-size: 11px; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.05em; }
+    .crossref { background: var(--bg-secondary); padding: 16px 18px; border-radius: 10px; border: 1px solid var(--border-light); font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+    .crossref em { color: var(--text-tertiary); font-style: italic; }
+  </style>
+</head>
+<body>
+  <h1>Avatar</h1>
+  <p class="subtitle">User / group identity circle. Initials by default; falls back to <code>img</code> tag when an upload exists. Five sizes from <code>xs</code> (24px chip-inline) to <code>xl</code> (64px settings header).</p>
+  <p class="source-link">Source: <a href="../../../frontend/src/components/ProfileDropdown.tsx" target="_blank">ProfileDropdown.tsx</a> (header user button), <a href="../../../frontend/src/components/Nav.tsx" target="_blank">Nav.tsx</a> (group avatars in switcher).</p>
+
+  <section class="demo-section">
+    <h2>Sizes</h2>
+    <div class="demo-row">
+      <div class="demo-swatch"><span class="demo-swatch-label">xs (24)</span><span class="avatar avatar--xs">JM</span></div>
+      <div class="demo-swatch"><span class="demo-swatch-label">sm (28)</span><span class="avatar avatar--sm">JM</span></div>
+      <div class="demo-swatch"><span class="demo-swatch-label">md (36, default)</span><span class="avatar">JM</span></div>
+      <div class="demo-swatch"><span class="demo-swatch-label">lg (48)</span><span class="avatar avatar--lg">JM</span></div>
+      <div class="demo-swatch"><span class="demo-swatch-label">xl (64)</span><span class="avatar avatar--xl">JM</span></div>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>Initials variants (color)</h2>
+    <div class="demo-row">
+      <div class="demo-swatch"><span class="demo-swatch-label">primary (default)</span><span class="avatar avatar--lg">JM</span></div>
+      <div class="demo-swatch"><span class="demo-swatch-label">accent</span><span class="avatar avatar--lg avatar--accent">CL</span></div>
+      <div class="demo-swatch"><span class="demo-swatch-label">neutral</span><span class="avatar avatar--lg avatar--neutral">XX</span></div>
+      <div class="demo-swatch"><span class="demo-swatch-label">placeholder</span><span class="avatar avatar--lg avatar--placeholder">?</span></div>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>With image (steady-state)</h2>
+    <div class="demo-row">
+      <div class="demo-swatch"><span class="demo-swatch-label">img · md</span>
+        <span class="avatar">
+          <img src="data:image/svg+xml;utf8,&lt;svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'&gt;&lt;rect width='36' height='36' fill='%234a7c59'/&gt;&lt;text x='50%25' y='50%25' fill='white' font-family='sans-serif' font-size='14' text-anchor='middle' dy='.35em'&gt;👤&lt;/text&gt;&lt;/svg&gt;" alt="">
+        </span>
+      </div>
+      <div class="demo-swatch"><span class="demo-swatch-label">img · lg</span>
+        <span class="avatar avatar--lg">
+          <img src="data:image/svg+xml;utf8,&lt;svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'&gt;&lt;rect width='48' height='48' fill='%23e8a87c'/&gt;&lt;text x='50%25' y='50%25' fill='white' font-family='sans-serif' font-size='20' text-anchor='middle' dy='.35em'&gt;👋&lt;/text&gt;&lt;/svg&gt;" alt="">
+        </span>
+      </div>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>Used by molecules (one level up)</h2>
+    <div class="crossref">
+      <em>Populated during Phase L2 — molecule extraction. Anticipated consumers: profile-dropdown (header trigger), nav-sidebar (collapsed user marker), group-switcher row, list-item leading avatar, settings profile header.</em>
+    </div>
+  </section>
+
+  <script src="../assets/js/tweaks.js" defer></script>
+</body>
+</html>

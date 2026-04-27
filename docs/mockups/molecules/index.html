@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Molecules — gastify</title>
   <link rel="stylesheet" href="../assets/css/desktop-shell.css">
+  <link rel="stylesheet" href="../assets/css/atoms.css">
+  <link rel="stylesheet" href="../assets/css/molecules.css">
   <style>
     body {
       margin: 0;
@@ -35,37 +37,43 @@
       border-radius: 9999px;
       font-weight: 600;
     }
-
-    .placeholder-banner {
-      background: var(--accent-soft);
-      border: 1px dashed var(--accent);
-      border-radius: 12px;
-      padding: 20px 24px;
-      margin-bottom: 28px;
-      color: var(--ink);
-      font-size: 14px;
-      line-height: 1.5;
+    .hub-section-header {
+      margin: 28px 0 14px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--ink-3);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
     }
-    .placeholder-banner strong { color: var(--primary); font-weight: 700; }
-
     .section-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 18px;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 16px;
     }
-
     .molecule-card {
       background: var(--surface);
       border: 1px solid var(--line);
       border-radius: 14px;
       overflow: hidden;
-      opacity: 0.6;
-      cursor: not-allowed;
       display: flex;
       flex-direction: column;
+      text-decoration: none;
+      color: var(--ink);
+      transition: border-color var(--mol-dur-base) var(--mol-ease-out),
+                  box-shadow var(--mol-dur-base) var(--mol-ease-out),
+                  transform var(--mol-dur-base) var(--mol-ease-out);
+    }
+    .molecule-card:hover {
+      border-color: var(--primary);
+      box-shadow: var(--mol-elev-2);
+      transform: translateY(-1px);
+    }
+    .molecule-card:focus-visible {
+      outline: 2px solid var(--primary);
+      outline-offset: 2px;
     }
     .molecule-preview {
-      min-height: 80px;
+      min-height: 84px;
       padding: 18px;
       display: flex;
       align-items: center;
@@ -76,36 +84,26 @@
       font-family: ui-monospace, Consolas, monospace;
       font-size: 12px;
     }
-    .molecule-meta {
-      padding: 14px 18px 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
+    .molecule-meta { padding: 14px 18px 16px; display: flex; flex-direction: column; gap: 6px; }
     .molecule-meta h2 {
       font-family: 'Baloo 2', cursive;
       font-size: 16px;
       margin: 0;
       letter-spacing: -0.01em;
     }
-    .molecule-desc {
-      font-size: 12px;
-      color: var(--ink-2);
-      line-height: 1.45;
-      margin: 0;
-    }
-    .status-badge {
+    .molecule-desc { font-size: 12px; color: var(--ink-2); line-height: 1.45; margin: 0; }
+    .molecule-tag {
       font-size: 10px;
       font-weight: 700;
       padding: 2px 7px;
       border-radius: 4px;
       letter-spacing: 0.05em;
       text-transform: uppercase;
-      background: var(--surface-2);
-      color: var(--ink-3);
       align-self: flex-start;
+      background: var(--primary-soft);
+      color: var(--primary);
     }
-
+    .molecule-tag.is-canonical { background: var(--accent-soft); color: var(--accent); }
     .hub-footer {
       margin-top: 36px;
       padding: 18px;
@@ -124,85 +122,184 @@
 <body>
   <header class="hub-header">
     <h1>Molecules</h1>
-    <p class="lede">Composed components — built from atoms, used to assemble screens. Each molecule has its own demo page with all states, viewport variants, and a full WCAG AA a11y pass.</p>
+    <p class="lede">18 composed components — built from atoms, used to assemble screens. Each molecule has its own demo page with all variants, states, and a11y notes. Catalog spec lives at <a href="./COMPONENT-LIBRARY.md" style="color: var(--primary); font-weight: 600;">COMPONENT-LIBRARY.md</a>.</p>
     <div class="meta">
       <span class="meta-pill">Phase 3 · Enterprise tier</span>
-      <span class="meta-pill">Not yet built</span>
-      <span class="meta-pill">Themes: normal · professional · mono</span>
+      <span class="meta-pill">18 molecules</span>
+      <span class="meta-pill">All themes · all modes</span>
     </div>
   </header>
 
-  <div class="placeholder-banner">
-    <strong>Placeholder hub.</strong> Phase 3 (molecules) has not been executed yet — this page documents the planned scope. Run <code>/gabe-mockup</code> M3 (or <code>/gabe-execute</code> on Phase 3 in PLAN.md) to populate the catalog. Source spec: <a href="../INDEX.md" style="color: var(--primary); font-weight: 600;">INDEX.md §5</a>.
-  </div>
-
-  <nav class="section-grid" aria-label="Planned molecules">
-    <div class="molecule-card">
-      <div class="molecule-preview">card-balance</div>
-      <div class="molecule-meta">
-        <h2>Balance card</h2>
-        <p class="molecule-desc">Dashboard hero — current balance, period delta, sparkline.</p>
-        <span class="status-badge">planned</span>
-      </div>
-    </div>
-
-    <div class="molecule-card">
-      <div class="molecule-preview">card-transaction</div>
-      <div class="molecule-meta">
-        <h2>Transaction card</h2>
-        <p class="molecule-desc">List item for transactions across dashboard, history, group-home.</p>
-        <span class="status-badge">planned</span>
-      </div>
-    </div>
-
-    <div class="molecule-card">
+  <p class="hub-section-header">Foundation</p>
+  <nav class="section-grid">
+    <a class="molecule-card" href="./state-tabs.html">
       <div class="molecule-preview">state-tabs</div>
       <div class="molecule-meta">
         <h2>State tabs</h2>
-        <p class="molecule-desc">Multi-state screen pattern — driven by tweaks.js. Used by single-scan, login, consent.</p>
-        <span class="status-badge">planned</span>
+        <p class="molecule-desc">Canonical multi-state pattern — drives single-scan, login, consent. ARIA + legacy shapes.</p>
+        <span class="molecule-tag is-canonical">canonical</span>
       </div>
-    </div>
+    </a>
+  </nav>
 
-    <div class="molecule-card">
-      <div class="molecule-preview">filter-strip</div>
+  <p class="hub-section-header">Cards</p>
+  <nav class="section-grid">
+    <a class="molecule-card" href="./card-transaction.html">
+      <div class="molecule-preview">card-transaction</div>
       <div class="molecule-meta">
-        <h2>Filter strip</h2>
-        <p class="molecule-desc">Timeframe pills + period nav + filter icons. Canonical in desktop-shell.css.</p>
-        <span class="status-badge">planned</span>
+        <h2>Transaction card</h2>
+        <p class="molecule-desc">List item — icon + merchant + meta + amount. Dashboard, History, Group transactions.</p>
+        <span class="molecule-tag">card</span>
       </div>
-    </div>
+    </a>
+    <a class="molecule-card" href="./card-stat.html">
+      <div class="molecule-preview">card-stat</div>
+      <div class="molecule-meta">
+        <h2>Stat card</h2>
+        <p class="molecule-desc">KPI tile — large value + label + delta indicator. Dashboard hero, Trends summary.</p>
+        <span class="molecule-tag">card</span>
+      </div>
+    </a>
+    <a class="molecule-card" href="./card-empty.html">
+      <div class="molecule-preview">card-empty</div>
+      <div class="molecule-meta">
+        <h2>Empty card</h2>
+        <p class="molecule-desc">No-data placeholder. Dashed border + icon + CTA. History, Insights, Groups empty states.</p>
+        <span class="molecule-tag">card</span>
+      </div>
+    </a>
+    <a class="molecule-card" href="./card-feature.html">
+      <div class="molecule-preview">card-feature</div>
+      <div class="molecule-meta">
+        <h2>Feature card</h2>
+        <p class="molecule-desc">Promoted callout — accent surface + eyebrow + CTA. Cohort opt-in, Plan Pro upgrade prompts.</p>
+        <span class="molecule-tag">card</span>
+      </div>
+    </a>
+    <a class="molecule-card" href="./card-celebration.html">
+      <div class="molecule-preview">card-celebration</div>
+      <div class="molecule-meta">
+        <h2>Celebration card</h2>
+        <p class="molecule-desc">Milestone moment — gradient + glyph. First-scan, streak, savings goals. Sparing use only.</p>
+        <span class="molecule-tag">card</span>
+      </div>
+    </a>
+  </nav>
 
-    <div class="molecule-card">
+  <p class="hub-section-header">Overlays</p>
+  <nav class="section-grid">
+    <a class="molecule-card" href="./modal.html">
+      <div class="molecule-preview">modal · 5 variants</div>
+      <div class="molecule-meta">
+        <h2>Modal</h2>
+        <p class="molecule-desc">Centered dialog — confirm, form, learning, error, credit. 3 sizes. Slide-up + fade animations.</p>
+        <span class="molecule-tag">overlay</span>
+      </div>
+    </a>
+    <a class="molecule-card" href="./sheet.html">
+      <div class="molecule-preview">sheet</div>
+      <div class="molecule-meta">
+        <h2>Bottom sheet</h2>
+        <p class="molecule-desc">Mobile slide-up. Drag handle. Action menus, filter pickers, mobile transaction edit.</p>
+        <span class="molecule-tag">overlay</span>
+      </div>
+    </a>
+    <a class="molecule-card" href="./drawer.html">
+      <div class="molecule-preview">drawer · L/R</div>
+      <div class="molecule-meta">
+        <h2>Drawer</h2>
+        <p class="molecule-desc">Side panel — right (default) or left. Detail panes, filters, batch review on desktop.</p>
+        <span class="molecule-tag">overlay</span>
+      </div>
+    </a>
+  </nav>
+
+  <p class="hub-section-header">Feedback</p>
+  <nav class="section-grid">
+    <a class="molecule-card" href="./toast.html">
+      <div class="molecule-preview">toast · 4 variants</div>
+      <div class="molecule-meta">
+        <h2>Toast</h2>
+        <p class="molecule-desc">Flash notification — success, info, warning, error. Auto-dismiss, slide-in animation.</p>
+        <span class="molecule-tag">feedback</span>
+      </div>
+    </a>
+    <a class="molecule-card" href="./banner.html">
+      <div class="molecule-preview">banner · 4 variants</div>
+      <div class="molecule-meta">
+        <h2>Banner</h2>
+        <p class="molecule-desc">Persistent inline notice — info, warning, error, offline (edge-bleed). With optional action.</p>
+        <span class="molecule-tag">feedback</span>
+      </div>
+    </a>
+  </nav>
+
+  <p class="hub-section-header">Navigation</p>
+  <nav class="section-grid">
+    <a class="molecule-card" href="./nav-bottom.html">
       <div class="molecule-preview">nav-bottom</div>
       <div class="molecule-meta">
         <h2>Bottom nav</h2>
-        <p class="molecule-desc">Mobile primary navigation — 5 tabs, active indicator.</p>
-        <span class="status-badge">planned</span>
+        <p class="molecule-desc">Mobile primary nav — 5 fixed slots, active indicator. Every authenticated mobile screen.</p>
+        <span class="molecule-tag">nav</span>
       </div>
-    </div>
-
-    <div class="molecule-card">
+    </a>
+    <a class="molecule-card" href="./nav-top.html">
+      <div class="molecule-preview">nav-top</div>
+      <div class="molecule-meta">
+        <h2>Top bar</h2>
+        <p class="molecule-desc">Desktop top bar — brand + search + actions. 60px tall. Elevated state on scroll.</p>
+        <span class="molecule-tag">nav</span>
+      </div>
+    </a>
+    <a class="molecule-card" href="./nav-sidebar.html">
       <div class="molecule-preview">nav-sidebar</div>
       <div class="molecule-meta">
-        <h2>Sidebar nav</h2>
-        <p class="molecule-desc">Desktop primary navigation — sticky, active rail, user chip footer.</p>
-        <span class="status-badge">planned</span>
+        <h2>Sidebar</h2>
+        <p class="molecule-desc">Desktop side rail — 240px / 64px collapsed. Sectioned. Footer holds user chip.</p>
+        <span class="molecule-tag">nav</span>
       </div>
-    </div>
-
-    <div class="molecule-card">
+    </a>
+    <a class="molecule-card" href="./fab.html">
       <div class="molecule-preview">fab</div>
       <div class="molecule-meta">
         <h2>FAB</h2>
-        <p class="molecule-desc">Floating action button — primary scan trigger on mobile capture surfaces.</p>
-        <span class="status-badge">planned</span>
+        <p class="molecule-desc">Floating action button — tap to scan, long-press for mode menu (Recibo / Lote / Estado).</p>
+        <span class="molecule-tag">nav</span>
       </div>
-    </div>
+    </a>
+  </nav>
+
+  <p class="hub-section-header">Forms + filters</p>
+  <nav class="section-grid">
+    <a class="molecule-card" href="./form.html">
+      <div class="molecule-preview">form · multi-step</div>
+      <div class="molecule-meta">
+        <h2>Form</h2>
+        <p class="molecule-desc">Multi-step + conditional reveal. Stepper, sections, error summary. Manual entry, group create.</p>
+        <span class="molecule-tag">form</span>
+      </div>
+    </a>
+    <a class="molecule-card" href="./filters.html">
+      <div class="molecule-preview">filter-strip</div>
+      <div class="molecule-meta">
+        <h2>Filters</h2>
+        <p class="molecule-desc">Filter strip — chips + count badges + search. Date, category, amount, tag variants. History header.</p>
+        <span class="molecule-tag">filter</span>
+      </div>
+    </a>
+    <a class="molecule-card" href="./list-item.html">
+      <div class="molecule-preview">list-item</div>
+      <div class="molecule-meta">
+        <h2>List item</h2>
+        <p class="molecule-desc">Selectable + swipeable. Selection mode (check), swipe-actions on mobile. Settings, sheets.</p>
+        <span class="molecule-tag">list</span>
+      </div>
+    </a>
   </nav>
 
   <footer class="hub-footer">
-    <span><strong>Catalog spec:</strong> <a href="../INDEX.md">INDEX.md §5</a> · <strong>Plan:</strong> <a href="../../../.kdbp/PLAN.md">PLAN.md Phase 3</a></span>
+    <span><strong>Catalog:</strong> <a href="./COMPONENT-LIBRARY.md">COMPONENT-LIBRARY.md</a> · <strong>INDEX.md §5:</strong> <a href="../INDEX.md">component usage</a> · <strong>Plan:</strong> <a href="../../../.kdbp/PLAN.md">PLAN.md Phase 3</a></span>
     <span><a href="../index.html">← Mockups home</a></span>
   </footer>
 

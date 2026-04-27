@@ -1,0 +1,45 @@
+{
+  "name": "gastify-frontend",
+  "private": true,
+  "version": "0.1.0-mock.0",
+  "type": "module",
+  "scripts": {
+    "dev": "bash -c 'for v in $(env | grep -oE \"^VITE_FIREBASE_[A-Z_]+\"); do unset $v; done; unset VITE_GEMINI_API_KEY VITE_E2E_MODE; vite'",
+    "build": "bash -c 'for v in $(env | grep -oE \"^VITE_FIREBASE_[A-Z_]+\"); do unset $v; done; unset VITE_GEMINI_API_KEY VITE_E2E_MODE; tsc && vite build'",
+    "preview": "vite preview",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "^5.90.16",
+    "@tanstack/react-query-devtools": "^5.91.2",
+    "canvas-confetti": "^1.9.4",
+    "echarts": "^6.0.0",
+    "echarts-for-react": "^3.0.5",
+    "firebase": "^12.8.0",
+    "flag-icons": "^7.5.0",
+    "fuse.js": "^7.1.0",
+    "idb-keyval": "^6.2.1",
+    "lucide-react": "^0.562.0",
+    "mitt": "^3.0.1",
+    "nanoid": "^5.1.6",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-window": "^2.2.4",
+    "react-window-infinite-loader": "^2.0.0",
+    "zustand": "^5.0.10"
+  },
+  "overrides": {
+    "fast-xml-parser": "^5.3.4"
+  },
+  "devDependencies": {
+    "@types/canvas-confetti": "^1.9.0",
+    "@types/react": "^18.3.0",
+    "@types/react-dom": "^18.3.0",
+    "@types/react-window": "^1.8.8",
+    "@vitejs/plugin-react": "^4.3.0",
+    "typescript": "^5.3.3",
+    "vite": "^5.4.0",
+    "vite-plugin-pwa": "^1.2.0",
+    "vite-tsconfig-paths": "^6.0.5"
+  }
+}

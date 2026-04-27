@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Molecule: card-celebration — gastify</title>
+  <link rel="stylesheet" href="../assets/css/desktop-shell.css">
+  <link rel="stylesheet" href="../assets/css/atoms.css">
+  <link rel="stylesheet" href="../assets/css/molecules.css">
+  <style>
+    body { margin: 0; background: var(--bg); color: var(--ink); min-height: 100vh; padding: 40px 320px 48px 48px; }
+    h1 { font-size: 24px; margin: 0 0 6px 0; font-weight: 700; }
+    .subtitle { color: var(--ink-2); font-size: 13px; margin: 0 0 32px 0; max-width: 720px; line-height: 1.5; }
+    .demo-section { margin-bottom: 36px; }
+    .demo-section h2 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-3); margin: 0 0 14px 0; font-weight: 600; }
+    .demo-stack { display: flex; flex-direction: column; gap: 16px; background: var(--surface-2); padding: 24px; border-radius: 12px; border: 1px solid var(--line); }
+    .demo-swatch-label { font-size: 11px; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
+    .snippet { background: var(--surface-2); padding: 16px; border-radius: 8px; font-family: ui-monospace, Consolas, monospace; font-size: 12px; color: var(--ink); overflow-x: auto; white-space: pre; line-height: 1.5; border: 1px solid var(--line); }
+  </style>
+</head>
+<body>
+  <h1>Card · Celebration</h1>
+  <p class="subtitle">Milestone moment — first scan, streak, savings goal hit, group milestone. Gradient surface + large glyph signals reward. Sparing use — overuse trivializes the moment.</p>
+
+  <section class="demo-section">
+    <h2>Variants</h2>
+    <div class="demo-stack">
+      <span class="demo-swatch-label">first-scan completion</span>
+      <article class="card card-celebration">
+        <div class="card-celebration-glyph" aria-hidden="true">🎉</div>
+        <h3 class="card-celebration-title">¡Primer recibo guardado!</h3>
+        <p class="card-celebration-body">Bienvenido a gastify. Llevamos $24.890 de tus gastos del mes.</p>
+        <button class="btn btn-primary btn-sm" style="margin-top: 16px;">Ver dashboard</button>
+      </article>
+
+      <span class="demo-swatch-label" style="margin-top: 8px;">streak / habit milestone</span>
+      <article class="card card-celebration">
+        <div class="card-celebration-glyph" aria-hidden="true">🔥</div>
+        <h3 class="card-celebration-title">7 días seguidos</h3>
+        <p class="card-celebration-body">Estás registrando tus gastos sin saltar ni un día. Mantenelo.</p>
+      </article>
+
+      <span class="demo-swatch-label" style="margin-top: 8px;">savings goal</span>
+      <article class="card card-celebration">
+        <div class="card-celebration-glyph" aria-hidden="true">🎯</div>
+        <h3 class="card-celebration-title">Bajo del mes pasado</h3>
+        <p class="card-celebration-body">Gastaste $120.000 menos que en marzo. Buen control en Restaurantes y Entretenimiento.</p>
+        <button class="btn btn-ghost btn-sm" style="margin-top: 16px;">Ver detalles</button>
+      </article>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>Composition</h2>
+    <div class="demo-stack" style="display: block;">
+      <ul style="margin: 0; padding-left: 20px; font-size: 13px; color: var(--ink-2); line-height: 1.7;">
+        <li><strong>Atoms used (one level down):</strong> <a href="../atoms/button.html">button</a> (optional CTA)</li>
+        <li><strong>Used by screens:</strong> Single-scan post-success state · Insights → Logro tab · Onboarding completion</li>
+        <li><strong>State matrix:</strong> default · entering (slide-up + fade animation already wired in molecules.css)</li>
+        <li><strong>Frequency rule:</strong> max 1 celebration per session. Track in localStorage to prevent fatigue.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>Usage</h2>
+    <pre class="snippet">&lt;article class="card card-celebration"&gt;
+  &lt;div class="card-celebration-glyph"&gt;🎉&lt;/div&gt;
+  &lt;h3 class="card-celebration-title"&gt;¡Primer recibo guardado!&lt;/h3&gt;
+  &lt;p class="card-celebration-body"&gt;Bienvenido a gastify...&lt;/p&gt;
+&lt;/article&gt;</pre>
+  </section>
+
+  <script src="../assets/js/tweaks.js" defer></script>
+</body>
+</html>

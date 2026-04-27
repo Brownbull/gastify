@@ -4,7 +4,7 @@
 <!-- Governed by /gabe-commit CHECK 7 Layer 4 — low-severity finding fires when docs/mockups/** edited without INDEX.md in same commit. -->
 
 **Project:** gastify
-**Last updated:** 2026-04-24 (P4 pending — CRUD rows blank until /gabe-mockup M4 runs)
+**Last updated:** 2026-04-25 (P3 molecules locked — 18 molecules + COMPONENT-LIBRARY.md + molecules/index.html hub)
 **Active plan:** `../../.kdbp/PLAN.md`
 **Entities source:** `../../.kdbp/ENTITIES.md`
 **Source AUDIT (retrospective):** `AUDIT.md` (to be folded into §6 below during M13)
@@ -188,18 +188,48 @@
 
 ## 5. Component usage × screen
 
-<!-- Seeded during P3 molecules. Fills in as M5-M12 lands + references molecules. -->
+<!-- Seeded during P3 molecules (locked 2026-04-25). Fills in further as M5-M12 lands + references molecules. -->
+<!-- Catalog spec: docs/mockups/molecules/COMPONENT-LIBRARY.md -->
+
+### 5.0 Foundation
 
 | Component | Declared in | Used on |
 |-----------|-------------|---------|
 | tweaks-panel | `assets/js/tweaks.js` (self-contained, injects styles + DOM) | every mockup via `<script src="../assets/js/tweaks.js" defer></script>` |
-| state-tabs | molecules/state-tabs.html (P3) + driven by `assets/js/tweaks.js` | single-scan-states, login (RETROFIT), consent (RETROFIT) |
-| transaction-card | molecules/card-transaction.html (P3) | dashboard, history, insights, group-home |
-| balance-card | molecules/card-balance.html (P3) | dashboard |
-| filter-strip | assets/css/desktop-shell.css (canonical — see AUDIT.md §8) | dashboard-desktop, history-desktop, trends-desktop |
-| bottom-nav | molecules/nav-bottom.html (P3) | all mobile screens |
-| sidebar-nav | molecules/nav-sidebar.html (P3) | all desktop screens |
-| FAB | molecules/fab.html (P3) | mobile dashboard + capture surfaces |
+| desktop-shell tokens | `assets/css/desktop-shell.css` (P1 canonical) | every mockup |
+| atom primitives | `assets/css/atoms.css` (P2 canonical, 11 atoms) | every mockup that consumes molecules |
+| molecule library | `assets/css/molecules.css` (P3 canonical, 18 molecules) | every screen P5-P12 |
+
+### 5.1 Molecules — catalog rows
+
+| # | Molecule | File (P3) | Variants | Used on (target screens) |
+|---|----------|-----------|----------|--------------------------|
+| 1 | state-tabs | `molecules/state-tabs.html` | ARIA · legacy | single-scan-states, login, consent (4 jurisdictions), transaction-editor (normal/hard-lock), preferences |
+| 2 | card-transaction | `molecules/card-transaction.html` | expense · income · multi-currency | dashboard, history, insights, group-home, group-transactions |
+| 3 | card-stat | `molecules/card-stat.html` | up/down/flat delta | dashboard hero, trends summary, reports detail, group home |
+| 4 | card-empty | `molecules/card-empty.html` | history · filter · group | history-empty, insights-empty, groups-empty, items-empty, datos-empty |
+| 5 | card-feature | `molecules/card-feature.html` | promotion · cohort opt-in · upgrade | dashboard hero, settings → datos (REQ-27 cohort), settings → suscripción |
+| 6 | card-celebration | `molecules/card-celebration.html` | first-scan · streak · savings goal | single-scan post-success, insights → logro, onboarding completion |
+| 7 | modal | `molecules/modal.html` | confirm · form · learning · error · credit | transaction-editor, single-scan error, settings → suscripción (credit), onboarding (learning), destructive actions |
+| 8 | sheet | `molecules/sheet.html` | action · filter | history (filter) mobile, single-scan mobile (mode picker), tx-editor mobile, group share |
+| 9 | drawer | `molecules/drawer.html` | right · left | history desktop (tx detail), statement-review, group-settings, batch-review |
+| 10 | toast | `molecules/toast.html` | success · info · warning · error | every post-action confirmation (save, delete, sync, batch upload) |
+| 11 | banner | `molecules/banner.html` | info · warning · error · offline | dashboard top, statement-upload (error), global offline indicator |
+| 12 | nav-bottom | `molecules/nav-bottom.html` | 5-tab default | every authenticated mobile screen (dashboard, history, trends, insights, groups, settings) |
+| 13 | nav-top | `molecules/nav-top.html` | default · elevated · minimal | every authenticated desktop screen (with sidebar) · public auth flows (minimal) |
+| 14 | nav-sidebar | `molecules/nav-sidebar.html` | expanded · collapsed | every authenticated desktop screen (paired with nav-top) |
+| 15 | fab | `molecules/fab.html` | sm/md/lg · with mode menu | dashboard mobile, history mobile, insights mobile · any capture-eligible mobile screen |
+| 16 | form | `molecules/form.html` | multi-step · conditional reveal · error summary | manual entry, group create, statement upload, settings → preferencias, jurisdiction consent |
+| 17 | filter-strip | `molecules/filters.html` | date · category · amount · tag · search | history, insights, group-transactions, items |
+| 18 | list-item | `molecules/list-item.html` | navigable · selectable · swipeable | settings (every subview), sheet menus, group member list, history selection mode, insights, items |
+
+### 5.2 Hub catalog
+
+| Hub | File | Lists |
+|-----|------|-------|
+| Atoms hub | `atoms/index.html` | 10 atom cards + back-link to mockups home |
+| Molecules hub | `molecules/index.html` | 18 molecule cards (6 sections: foundation, cards, overlays, feedback, navigation, forms+filters) + COMPONENT-LIBRARY.md link + back-link |
+| Mockups home | `index.html` | section cards (design / atoms / molecules / flows / screens / handoff) |
 
 ---
 

@@ -1,5 +1,50 @@
 # Session Ledger
 
+## 2026-04-27 19:15 — PHASE L1 REVIEW: mockups-legacy Atoms
+VERDICT: APPROVE
+FINDINGS: 9 total (0 critical, 3 high, 3 medium, 3 low)
+COVERAGE: HIGH — `npm test` 87/87 pass; new `mockups-legacy` Playwright project covers 11 atoms × 6 theme/mode combos + ARIA contract + on-primary contrast smoke
+CONFIDENCE: 100/100 (was 33 pre-fix; all 9 findings fixed in same session per option [1] Fix MVP items)
+DEFERRED: none (P11 added to PENDING.md tracks retroactive review of Phases 3, 4, L0 — surfaced by finding #6 but is meta-cleanup not a deferral)
+ALIGNMENT: DRIFTED — diff mixes L1 work with KDBP adjacencies + clean-slate INDEX.md fix + new tests/mockups-legacy spec; non-blocking
+TIER: mvp | DRIFT: none
+SOURCES: codex (gpt-5, inbox pass, 6 findings) + claude (claude-opus-4-7, blind pass, 9 findings) — union consolidation, fuzzy F1+F2 auto-accepted as Claude superset
+TICK: ✅ Phase L1 Review column ticked
+ARCHIVED: .kdbp/reviews-archive/REVIEW_2026-04-27_191500_resolved.md
+KEY FIXES: per-theme on-color ink tokens added to desktop-shell.css × 6 theme blocks (--on-primary, --on-error, --on-warning, --on-accent + shadow/focus-ring/chip-count tokens); 8 #ffffff literals + 5 rgba literals removed from atoms.css; 13 progress demos got role=progressbar + aria-valuenow|aria-busy + aria-label; playwright.config.ts gained second webServer + project; tests/mockups-legacy/atoms.spec.ts authored (24 tests); README L0/L1 status flipped to ✅; INDEX atom count 11→10 + molecule count 17→18; PLAN inline comment + PENDING P11 entry document the no-arg /gabe-review collision.
+
+## 2026-04-26 — SPIKE P14.0 EXECUTED: Mockup→React (Toast molecule)
+SOURCE: /gabe-mockup spike toast --system (first invocation of the new spike mode)
+GOAL: validate the recipe codified in gabe_lens/skills/gabe-mockup/SKILL.md "Mode: spike" by walking it end-to-end on a live mockup
+SKILL CHANGES (in /home/khujta/projects/gabe_lens/):
+  L1 — skills/gabe-mockup/SKILL.md: new "Modes" section + "Mode: spike" subsection (S1-S8 recipe + verification gate + idempotency rules + error recovery) + "Shared conventions — React port" + non-goal #4 reframed (M0-M13 framework-agnostic; spike is opt-in framework coupling)
+  L2 — templates/mockup/react/ NEW SUBTREE (16 files):
+       package.json.tmpl · vite.config.ts.tmpl · tsconfig.json.tmpl · index.html.tmpl · README.md.tmpl
+       src/main.tsx.tmpl · src/App.tsx.tmpl · src/styles/tokens.css.tmpl
+       src/components/{Component.tsx, Component.css, Component.types.ts, ComponentProvider.tsx, ComponentContainer.tsx, useComponent.ts}.tmpl
+       src/demo/ComponentDemo.tsx.tmpl
+       recipe/REACT-PORT-RECIPE.md.tmpl
+GASTIFY EMISSIONS (15 files):
+  frontend/{package.json, vite.config.ts, tsconfig.json, index.html, README.md}
+  frontend/src/{main.tsx, App.tsx, styles/tokens.css}
+  frontend/src/components/Toast/{Toast.tsx, Toast.css, Toast.types.ts, ToastProvider.tsx, ToastContainer.tsx, useToast.ts}
+  frontend/src/demo/ToastDemo.tsx
+  docs/mockups/REACT-PORT-RECIPE.md
+VERIFICATION:
+  tsc --noEmit → clean (no type errors)
+  vite build → clean (37 modules transformed, 65.93kB CSS bundled — confirms @import chain to desktop-shell.css + atoms.css + molecules.css resolves through @mockups alias)
+  npm install → clean (2 unrelated transitive vulns, non-blocking)
+  Visual diff at runtime → deferred to user (requires browser at localhost:5173 vs. localhost:4173)
+TEMPLATE CALIBRATION (real-time edits during the spike):
+  - Renamed Component.module.css.tmpl → Component.css.tmpl (Vite scopes .module.css class names; broke DOM-mirroring rule)
+  - Component.tsx state `isLeaving` → `isDismissing` (matches existing molecules.css `.toast.is-dismissing` selector verbatim)
+  - SKILL.md S3 step + spike-mode outputs section updated to reflect both fixes
+PLAN/SCOPE IMPACT:
+  - .kdbp/PLAN.md: new "Spike P14.0" row added below row 13 (Exec ✅; Review/Commit/Push ⬜); Retrofit Log entry appended documenting out-of-band nature ahead of queued backend P1
+  - .kdbp/SCOPE.md: untouched (this is a workflow spike, not a SCOPE addition)
+  - .gitignore: untouched (existing `node_modules/` and `dist/` patterns already cover frontend/)
+NEXT: refrepos mirror of templates/mockup/react/ + bench-test in tmp project; gastify regression check (npm test still 63/63); user-side visual diff in browser.
+
 ## 2026-04-25 03:42 — PUSH main -> origin/main
 PR: — (trunk-based; direct-to-main, no PR hop)
 CI: skipped (provider=none)
@@ -246,3 +291,5 @@ A5 — `tests/mockups/atoms-hub.spec.ts` → `tests/mockups/hubs.spec.ts` (renam
 A6 — npm test: 43 passed, 0 failed (was 33 before; +10 from new hub coverage in hubs.spec.ts).
 FILES TOUCHED: docs/mockups/{index.html (new section-card), gap-matrix.html (renamed-from-old), flows/index.html (new), molecules/index.html (new), assets/js/tweaks.js (breadcrumb logic)}, tests/mockups/{hubs.spec.ts (renamed-from-atoms-hub.spec.ts + generalized)}, .kdbp/PLAN.md (Phase 4 Exec ✅).
 NEXT: Layer B execution in /home/khujta/projects/gabe_lens/ — extract this hub + sub-hub + Playwright pattern into `templates/mockup/` so future mockup projects get it from `/gabe-mockup` for free. Per LAYER-B-MOCKUP-HUB-TEMPLATES.md D1–D8.
+
+## 2026-04-25 02:00 — [main b9230e6] chore(kdbp): record push bookkeeping for P4

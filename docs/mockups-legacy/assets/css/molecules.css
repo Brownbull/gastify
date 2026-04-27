@@ -1,0 +1,17 @@
+/*
+ * mockups-legacy / molecules.css
+ *
+ * Canonical molecule rules. Consumed by all molecule HTML files in
+ * `molecules/<name>.html` and transitively by screens/flows.
+ *
+ * Conventions:
+ *   - Composes desktop-shell tokens + atom primitives. No hex/rgb literals.
+ *   - One section per molecule.
+ *   - Class names mirror the React JSX in `frontend/src/`.
+ *   - Full state matrix per molecule (default/hover/active/focus/disabled/loading/error)
+ *     where the live frontend supports the state.
+ *   - Cross-reference: each molecule lists its consumed atoms in its HTML page,
+ *     and each atom lists "used by molecules" via INDEX cross-refs (one level only).
+ *
+ * Populated incrementally during Phase L2. Empty stub for now.
+ */

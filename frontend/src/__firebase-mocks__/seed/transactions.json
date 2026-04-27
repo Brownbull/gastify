@@ -1,0 +1,92 @@
+[
+  {
+    "id": "seed-tx-jumbo-001",
+    "date": "2026-04-26T14:32:00-04:00",
+    "merchant": "Jumbo Costanera Center",
+    "category": "Supermarket",
+    "total": 24890,
+    "items": [
+      { "name": "Leche", "qty": 2, "unitPrice": 1945, "totalPrice": 3890, "category": "DairyEggs" },
+      { "name": "Pan integral", "qty": 1, "totalPrice": 4500, "category": "BreadPastry" },
+      { "name": "Frutas variadas", "qty": 1, "totalPrice": 16500, "category": "Produce" }
+    ]
+  },
+  {
+    "id": "seed-tx-shell-002",
+    "date": "2026-04-25T08:14:00-04:00",
+    "merchant": "Shell Apoquindo",
+    "category": "GasStation",
+    "total": 28000,
+    "items": [
+      { "name": "Bencina 95 octanos", "qty": 1, "totalPrice": 28000, "category": "CarAccessories" }
+    ]
+  },
+  {
+    "id": "seed-tx-cafe-003",
+    "date": "2026-04-25T10:22:00-04:00",
+    "merchant": "Café Altura",
+    "category": "Restaurant",
+    "total": 5800,
+    "items": [
+      { "name": "Latte mediano", "qty": 1, "totalPrice": 3200, "category": "Beverages" },
+      { "name": "Croissant de almendras", "qty": 1, "totalPrice": 2600, "category": "BreadPastry" }
+    ]
+  },
+  {
+    "id": "seed-tx-farmacia-004",
+    "date": "2026-04-24T18:05:00-04:00",
+    "merchant": "Farmacias Cruz Verde",
+    "category": "Pharmacy",
+    "total": 14250,
+    "items": [
+      { "name": "Paracetamol 500mg x16", "qty": 2, "unitPrice": 2125, "totalPrice": 4250, "category": "Medications" },
+      { "name": "Crema solar SPF50", "qty": 1, "totalPrice": 10000, "category": "PersonalCare" }
+    ]
+  },
+  {
+    "id": "seed-tx-spotify-005",
+    "date": "2026-04-22T00:00:00-04:00",
+    "merchant": "Spotify Premium",
+    "category": "SubscriptionService",
+    "total": 6990,
+    "items": [
+      { "name": "Suscripción mensual", "qty": 1, "totalPrice": 6990, "category": "Subscription" }
+    ]
+  },
+  {
+    "id": "seed-tx-uber-006",
+    "date": "2026-04-21T19:42:00-04:00",
+    "merchant": "Uber",
+    "category": "Transport",
+    "total": 4500,
+    "items": [
+      { "name": "UberX Providencia → Las Condes", "qty": 1, "totalPrice": 4500, "category": "ServiceCharge" }
+    ]
+  },
+  {
+    "id": "seed-tx-lider-007",
+    "date": "2026-04-19T11:17:00-04:00",
+    "merchant": "Líder Express",
+    "category": "Supermarket",
+    "total": 38420,
+    "items": [
+      { "name": "Pollo entero fresco", "qty": 1, "totalPrice": 8990, "category": "MeatSeafood" },
+      { "name": "Arroz grano largo 1kg", "qty": 2, "unitPrice": 1950, "totalPrice": 3900, "category": "Pantry" },
+      { "name": "Detergente líquido 3L", "qty": 1, "totalPrice": 9500, "category": "CleaningSupplies" },
+      { "name": "Frutas y verduras", "qty": 1, "totalPrice": 16030, "category": "Produce" }
+    ]
+  },
+  {
+    "id": "seed-tx-restaurant-008",
+    "date": "2026-04-18T20:38:00-04:00",
+    "merchant": "La Mar Cebichería",
+    "category": "Restaurant",
+    "total": 42500,
+    "items": [
+      { "name": "Ceviche clásico", "qty": 1, "totalPrice": 14500, "category": "PreparedFood" },
+      { "name": "Pisco sour", "qty": 2, "unitPrice": 6500, "totalPrice": 13000, "category": "Alcohol" },
+      { "name": "Causa limeña", "qty": 1, "totalPrice": 12000, "category": "PreparedFood" },
+      { "name": "Propina sugerida", "qty": 1, "totalPrice": 3000, "category": "TaxFees" }
+    ]
+  }
+]

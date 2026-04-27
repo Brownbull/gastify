@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Atom: toast — gastify (mockups-legacy)</title>
+  <link rel="stylesheet" href="../assets/css/desktop-shell.css">
+  <link rel="stylesheet" href="../assets/css/atoms.css">
+  <style>
+    body { margin: 0; background: var(--bg); color: var(--text-primary); min-height: 100vh; padding: 40px 320px 48px 48px; font-family: var(--font-family); }
+    h1 { font-size: 24px; margin: 0 0 6px 0; font-weight: 700; }
+    .subtitle { color: var(--text-secondary); font-size: 13px; margin: 0 0 32px 0; max-width: 720px; line-height: 1.5; }
+    .source-link { display: inline-block; margin-top: 8px; font-size: 11px; color: var(--text-tertiary); font-family: ui-monospace, Consolas, monospace; }
+    .source-link a { color: var(--primary); text-decoration: none; }
+    .source-link a:hover { text-decoration: underline; }
+    .demo-section { margin-bottom: 36px; }
+    .demo-section h2 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-tertiary); margin: 0 0 14px 0; font-weight: 600; }
+    .demo-row { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start; background: var(--surface); padding: 24px; border-radius: 12px; border: 1px solid var(--border-light); }
+    .demo-swatch { display: flex; flex-direction: column; gap: 8px; min-width: 240px; align-items: flex-start; }
+    .demo-swatch-label { font-size: 11px; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.05em; }
+    .crossref { background: var(--bg-secondary); padding: 16px 18px; border-radius: 10px; border: 1px solid var(--border-light); font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+    .crossref em { color: var(--text-tertiary); font-style: italic; }
+    .platform-notes { background: var(--bg-tertiary); padding: 14px 18px; border-radius: 10px; border-left: 3px solid var(--primary); font-size: 12px; color: var(--text-secondary); line-height: 1.6; }
+    .platform-notes strong { color: var(--text-primary); }
+  </style>
+</head>
+<body>
+  <h1>Toast</h1>
+  <p class="subtitle">Notification card — atom-level visual only. The queue + auto-dismiss layer (max-3 FIFO eviction, 3s fade-out) lives in <code>frontend/src/shared/hooks/useToast.ts</code> and is molecule territory at L2.</p>
+  <p class="source-link">Source: <a href="../../../frontend/src/shared/ui/Toast.tsx" target="_blank">shared/ui/Toast.tsx</a> — canonical implementation. Hook layer at <a href="../../../frontend/src/shared/hooks" target="_blank">shared/hooks/useToast.ts</a> (queue/auto-dismiss; molecule).</p>
+
+  <section class="demo-section">
+    <h2>Variants (TOAST_COLORS map from Toast.tsx)</h2>
+    <div class="demo-row">
+      <div class="demo-swatch">
+        <span class="demo-swatch-label">success → var(--primary)</span>
+        <div class="toast toast--success" role="status">
+          <span class="toast__icon" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </span>
+          Gasto guardado
+        </div>
+      </div>
+      <div class="demo-swatch">
+        <span class="demo-swatch-label">info → var(--accent)</span>
+        <div class="toast toast--info" role="status">
+          <span class="toast__icon" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+          </span>
+          Sincronizando con la nube
+        </div>
+      </div>
+      <div class="demo-swatch">
+        <span class="demo-swatch-label">warning → var(--warning)</span>
+        <div class="toast toast--warning" role="status">
+          <span class="toast__icon" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </span>
+          Conexión inestable
+        </div>
+      </div>
+      <div class="demo-swatch">
+        <span class="demo-swatch-label">error → var(--error)</span>
+        <div class="toast toast--error" role="alert" aria-live="assertive">
+          <span class="toast__icon" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+          </span>
+          No pude guardar el gasto
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>Anatomy</h2>
+    <div class="platform-notes">
+      <strong>Position (live):</strong> <code>position: fixed; bottom: calc(64px + safe-bottom); left: 50%; transform: translateX(-50%);</code> — reserved space for nav-bottom on mobile. The mockup demos render the toast inline to make all four variants visible simultaneously.
+      <br><br>
+      <strong>Animation:</strong> <code>animate-fade-in</code> on mount (200ms ease-out, opacity + translateY 8px → 0). Auto-dismiss after 3000ms is hook responsibility (out of atom scope).
+      <br><br>
+      <strong>ARIA:</strong> <code>role="status"</code> + <code>aria-live="polite"</code> for success / info / warning. <code>role="alert"</code> + <code>aria-live="assertive"</code> for error per WCAG.
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>Used by molecules (one level up)</h2>
+    <div class="crossref">
+      <em>Populated during Phase L2 — molecule extraction. Anticipated consumer: <code>molecules/toast-system.html</code> wrapping the queue + ToastProvider + auto-dismiss layer (canonical L2 implementation referenced from <code>shared/hooks/useToast.ts</code>).</em>
+    </div>
+  </section>
+
+  <script src="../assets/js/tweaks.js" defer></script>
+</body>
+</html>

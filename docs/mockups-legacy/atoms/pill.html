@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Atom: pill — gastify (mockups-legacy)</title>
+  <link rel="stylesheet" href="../assets/css/desktop-shell.css">
+  <link rel="stylesheet" href="../assets/css/atoms.css">
+  <style>
+    body { margin: 0; background: var(--bg); color: var(--text-primary); min-height: 100vh; padding: 40px 320px 48px 48px; font-family: var(--font-family); }
+    h1 { font-size: 24px; margin: 0 0 6px 0; font-weight: 700; }
+    .subtitle { color: var(--text-secondary); font-size: 13px; margin: 0 0 32px 0; max-width: 720px; line-height: 1.5; }
+    .source-link { display: inline-block; margin-top: 8px; font-size: 11px; color: var(--text-tertiary); font-family: ui-monospace, Consolas, monospace; }
+    .source-link a { color: var(--primary); text-decoration: none; }
+    .source-link a:hover { text-decoration: underline; }
+    .demo-section { margin-bottom: 36px; }
+    .demo-section h2 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-tertiary); margin: 0 0 14px 0; font-weight: 600; }
+    .demo-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; background: var(--surface); padding: 24px; border-radius: 12px; border: 1px solid var(--border-light); }
+    .demo-swatch { display: flex; flex-direction: column; gap: 6px; align-items: flex-start; min-width: 100px; }
+    .demo-swatch-label { font-size: 11px; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.05em; }
+    .crossref { background: var(--bg-secondary); padding: 16px 18px; border-radius: 10px; border: 1px solid var(--border-light); font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+    .crossref em { color: var(--text-tertiary); font-style: italic; }
+  </style>
+</head>
+<body>
+  <h1>Pill</h1>
+  <p class="subtitle">Static label / status indicator. Different from <code>chip</code> (which is interactive / toggleable) and <code>badge</code> (which is a count / dot indicator). Pills carry a category, status, or tag inline-with-text.</p>
+  <p class="source-link">Source: filter rows + transaction-card category labels across <code>features/history/*</code> and <code>features/insights/*</code>. Frontend pattern: <code>px-2 py-0.5 rounded-full text-xs font-semibold</code> with semantic color classes.</p>
+
+  <section class="demo-section">
+    <h2>Variants</h2>
+    <div class="demo-row">
+      <div class="demo-swatch"><span class="demo-swatch-label">default</span><span class="pill">Sin categoría</span></div>
+      <div class="demo-swatch"><span class="demo-swatch-label">primary</span><span class="pill pill--primary">Verificado</span></div>
+      <div class="demo-swatch"><span class="demo-swatch-label">success</span><span class="pill pill--success">Sin gastos</span></div>
+      <div class="demo-swatch"><span class="demo-swatch-label">warning</span><span class="pill pill--warning">Cercano al límite</span></div>
+      <div class="demo-swatch"><span class="demo-swatch-label">error</span><span class="pill pill--error">Sobre el límite</span></div>
+      <div class="demo-swatch"><span class="demo-swatch-label">neutral</span><span class="pill pill--neutral">Histórico</span></div>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>With icon</h2>
+    <div class="demo-row">
+      <div class="demo-swatch"><span class="demo-swatch-label">success · check</span>
+        <span class="pill pill--success">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Procesado
+        </span>
+      </div>
+      <div class="demo-swatch"><span class="demo-swatch-label">warning · alert</span>
+        <span class="pill pill--warning">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          Revisar
+        </span>
+      </div>
+      <div class="demo-swatch"><span class="demo-swatch-label">primary · star</span>
+        <span class="pill pill--primary">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          Favorito
+        </span>
+      </div>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>Categories — 6 representative L1 Rubros</h2>
+    <div class="demo-row" style="display: flex; flex-wrap: wrap; gap: 8px;">
+      <span class="pill pill--cat-supermercados">🛒 Supermercados</span>
+      <span class="pill pill--cat-restaurantes">🍽️ Restaurantes</span>
+      <span class="pill pill--cat-vivienda">🏠 Vivienda</span>
+      <span class="pill pill--cat-salud-bienestar">💊 Salud y Bienestar</span>
+      <span class="pill pill--cat-tiendas-generales">🏬 Tiendas Generales</span>
+      <span class="pill pill--cat-otros">📦 Otros</span>
+    </div>
+    <p class="source-link" style="margin-top: 8px;">Full 12-Rubro catalog: <a href="./categories.html">categories.html</a> · Tokens: <code>--cat-&lt;key&gt;-{fg,bg,border}</code> in <code>desktop-shell.css</code>.</p>
+  </section>
+
+  <section class="demo-section">
+    <h2>Used by molecules (one level up)</h2>
+    <div class="crossref">
+      <em>Populated during Phase L2 — molecule extraction. Anticipated consumers: card-transaction (category + status pills), card-stat, banners (status indicator), nav-top (active route marker).</em>
+    </div>
+  </section>
+
+  <script src="../assets/js/tweaks.js" defer></script>
+</body>
+</html>

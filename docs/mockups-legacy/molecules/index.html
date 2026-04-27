@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Molecules — mockups-legacy — gastify</title>
+  <link rel="stylesheet" href="../assets/css/desktop-shell.css">
+  <link rel="stylesheet" href="../assets/css/atoms.css">
+  <link rel="stylesheet" href="../assets/css/molecules.css">
+  <style>
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text-primary);
+      min-height: 100vh;
+      padding: 40px 320px 48px 48px;
+    }
+    .hub-header { margin-bottom: 32px; max-width: 760px; }
+    .hub-header h1 {
+      font-family: var(--font-family-wordmark);
+      font-weight: 700;
+      font-size: 32px;
+      color: var(--primary);
+      margin: 0;
+    }
+    .hub-header .lede {
+      color: var(--text-secondary);
+      font-size: 14px;
+      line-height: 1.6;
+      margin: 8px 0 0;
+    }
+    .placeholder {
+      padding: 48px;
+      background: var(--surface);
+      border: 2px dashed var(--border-medium);
+      border-radius: 16px;
+      text-align: center;
+      color: var(--text-tertiary);
+    }
+    .placeholder strong { color: var(--text-primary); display: block; margin-bottom: 8px; font-family: var(--font-family-wordmark); font-size: 18px; }
+  </style>
+</head>
+<body>
+  <header class="hub-header">
+    <h1>Molecules</h1>
+    <p class="lede">Compound components composed of atoms. Extracted from <code>frontend/src/features/</code> across the 12 feature modules.</p>
+  </header>
+
+  <div class="placeholder">
+    <strong>Phase L2 — pending</strong>
+    Molecules will be populated in three sub-phases: L2a (direct counterparts to clean-slate), L2b (frontend-specific), L2c (specialized long-tail). ~60–80 molecules expected.
+  </div>
+
+  <script src="../assets/js/tweaks.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,1290 @@
+/* ==========================================================
+   gastify — molecules.css (Phase 3 exit artifact)
+
+   Composed component stylesheet. Builds on:
+     desktop-shell.css  — P1 canonical tokens (themes, modes, fonts, density, radius)
+     atoms.css          — P2 atomic primitives (buttons, inputs, pills, ...)
+
+   Ent-tier state matrix. Each molecule documents its states:
+     default · hover · active · focus · disabled · loading · error
+
+   Referenced by every molecule HTML at docs/mockups/molecules/*.html:
+     <link rel="stylesheet" href="../assets/css/desktop-shell.css">
+     <link rel="stylesheet" href="../assets/css/atoms.css">
+     <link rel="stylesheet" href="../assets/css/molecules.css">
+
+   Token discipline: zero hex/rgb literals here. Every color value
+   comes from desktop-shell.css token vars. Spacing/radii/type from
+   atoms.css supplementary scale.
+
+   Section index:
+     1. Supplementary tokens (motion, z-index, surface-elevation)
+     2. STATE-TABS  — canonical multi-state pattern
+     3. CARD        — transaction · stat · empty · feature · celebration
+     4. MODAL       — confirm · form · learning · error · credit
+     5. TOAST       — success · info · warning · error variants
+     6. BANNER      — info · warning · error · offline variants
+     7. NAV-BOTTOM  — mobile 5-slot tabs
+     8. NAV-TOP     — desktop top bar
+     9. NAV-SIDEBAR — desktop side rail
+    10. FAB         — long-press mode menu
+    11. FILTER      — date · category · amount · tag · search
+    12. SHEET       — bottom sheet (mobile)
+    13. DRAWER      — side drawer (desktop)
+    14. FORM        — multi-step + conditional reveal
+    15. LIST-ITEM   — swipeable + selectable
+   ========================================================== */
+
+/* ---------- 1. Supplementary tokens ---------- */
+:root {
+  /* Motion */
+  --mol-dur-fast:   120ms;
+  --mol-dur-base:   180ms;
+  --mol-dur-slow:   240ms;
+  --mol-ease-out:   cubic-bezier(0.2, 0.8, 0.2, 1);
+  --mol-ease-in:    cubic-bezier(0.4, 0.0, 1, 1);
+
+  /* Z-index */
+  --mol-z-banner:   80;
+  --mol-z-nav:      90;
+  --mol-z-fab:      100;
+  --mol-z-drawer:   110;
+  --mol-z-sheet:    120;
+  --mol-z-modal:    130;
+  --mol-z-toast:    140;
+
+  /* Elevation (on top of shell --shadow vars) */
+  --mol-elev-1: 0 1px 2px var(--shadow);
+  --mol-elev-2: 0 4px 12px var(--shadow);
+  --mol-elev-3: 0 12px 32px var(--shadow-lg);
+
+  /* Overlay scrim */
+  --mol-scrim: rgba(0, 0, 0, 0.45);
+}
+
+/* ==========================================================
+   2. STATE-TABS — canonical multi-state pattern
+   Promoted from gastify-single-scan-states.html. Drives
+   every multi-state mockup (single-scan, login, consent).
+
+   DOM: legacy form (.state-tabs > .state-tab[data-state]) and
+        ARIA form ([role="tablist"] > [role="tab"]) both supported.
+   tweaks.js binds click → toggles .state-content.active.
+
+   States: default · hover · active (selected) · focus
+   ========================================================== */
+.state-tabs {
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px;
+  background: var(--surface-2);
+  border-radius: var(--atom-r-md);
+  border: 1px solid var(--line);
+}
+.state-tabs[role="tablist"] { /* ARIA shape inherits same visual */ }
+
+.state-tab {
+  background: transparent;
+  border: none;
+  padding: 6px 14px;
+  font-family: inherit;
+  font-size: var(--atom-fs-sm);
+  font-weight: 600;
+  color: var(--ink-2);
+  border-radius: var(--atom-r-sm);
+  cursor: pointer;
+  transition: background var(--mol-dur-fast) var(--mol-ease-out),
+              color var(--mol-dur-fast) var(--mol-ease-out);
+  user-select: none;
+}
+.state-tab:hover { color: var(--ink); background: var(--surface); }
+.state-tab:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+.state-tab.is-active,
+.state-tab[aria-selected="true"] {
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: var(--mol-elev-1);
+}
+.state-tab[disabled] { opacity: 0.45; cursor: not-allowed; }
+
+.state-content { display: none; }
+.state-content.is-active,
+.state-content[aria-hidden="false"] { display: block; }
+
+/* ==========================================================
+   3. CARD — base + variant modifiers
+   Variants: transaction · stat · empty · feature · celebration
+   States:   default · hover · selected · disabled · loading
+   ========================================================== */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--atom-r-lg);
+  padding: var(--atom-s-5);
+  transition: border-color var(--mol-dur-base) var(--mol-ease-out),
+              box-shadow var(--mol-dur-base) var(--mol-ease-out),
+              transform var(--mol-dur-base) var(--mol-ease-out);
+}
+.card.is-interactive { cursor: pointer; }
+.card.is-interactive:hover {
+  border-color: var(--line-strong);
+  box-shadow: var(--mol-elev-2);
+  transform: translateY(-1px);
+}
+.card.is-selected { border-color: var(--primary); box-shadow: 0 0 0 2px var(--primary-soft); }
+.card.is-disabled { opacity: 0.55; pointer-events: none; }
+.card.is-loading { pointer-events: none; }
+
+/* card-transaction — pixel-faithful port of legacy gastify-history `.txn-card`.
+   Layout: 40px thumb | 1fr body | auto right. Default sign is negative (no minus prefix);
+   income variant adds leading "+" in success color. Merchant text + badge background
+   share the same `var(--cat-X)` token via inline style — that ties the row visually to
+   its category. Two pill modes: separate pills (legacy default) or combined inline.
+   Reference: docs/mockups/legacy-reference/screens/gastify-history.html .txn-card block. */
+.card-transaction {
+  display: block;
+  padding: 0;
+  overflow: hidden;
+}
+.card-transaction .card-tx-header {
+  display: grid;
+  grid-template-columns: 40px 1fr auto;
+  gap: 8px;
+  align-items: center;
+  padding: 10px 14px;
+  width: 100%;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  color: inherit;
+}
+.card-transaction.is-static .card-tx-header { cursor: default; }
+
+/* Thumbnail — 40×50 (legacy proportions). Inner lines fixed-pixel widths,
+   centered, opacity 0.5 so the thumbnail reads as background context, not focus. */
+.card-tx-thumb {
+  position: relative;
+  width: 40px;
+  height: 50px;
+  border-radius: 6px;
+  background: var(--surface-2);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+}
+.card-tx-thumb-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  align-items: center;
+  opacity: 0.5;
+}
+.card-tx-thumb-line {
+  height: 2px;
+  background: var(--line-strong);
+  border-radius: 1px;
+}
+.card-tx-thumb-line:nth-child(1) { width: 20px; }
+.card-tx-thumb-line:nth-child(2) { width: 16px; }
+.card-tx-thumb-line:nth-child(3) { width: 22px; }
+.card-tx-thumb-line:nth-child(4) { width: 14px; }
+.card-tx-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+/* Category badge — 24px borderless circle, fully inside the thumbnail's lower-right
+   corner. Positive offsets (bottom: 2px; right: 2px) keep the badge from straddling
+   the thumb-vs-card surface transition — without an inset position OR a `--surface`
+   ring, the badge's circular anti-aliased edge picks up two different surfaces and
+   reads as a faint line cutting through the badge. Inset positioning solves it
+   without needing the ring the user vetoed. */
+.card-tx-badge {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--primary);
+  line-height: 1;
+  z-index: 1;
+}
+.card-tx-badge .cat-icon-pixel {
+  width: 18px;
+  height: 18px;
+  display: block;
+  /* 18px in a 24px badge is the smallest size that lets the L1 pixel-art silhouettes
+     stay readable. The source SVGs are 16×16 viewBox rect-art — at 16px exact, every
+     rect renders 1:1 but micro-shapes (sandwich stripes, paw toes) become a thin
+     white smear. 18px scales each pixel slightly, keeping silhouettes readable.
+     filter: invert(1) flips the default-black currentColor fill to pure white. */
+  filter: invert(1);
+  image-rendering: pixelated;
+}
+/* Emoji rendering — uses the badge's own data-cat-emoji attribute via ::before. */
+.card-tx-badge::before {
+  content: attr(data-cat-emoji);
+  font-size: 15px;
+  line-height: 1;
+  display: none; /* hidden by default; pixel mode is the default render */
+}
+/* Default = pixel; emoji mode flips the visibility */
+body[data-icon-style="emoji"] .card-tx-badge::before        { display: inline; }
+body[data-icon-style="emoji"] .card-tx-badge .cat-icon-pixel { display: none; }
+.card-tx-badge.is-supermercado    { background: var(--cat-supermercado); }
+.card-tx-badge.is-alimentacion    { background: var(--cat-alimentacion); }
+.card-tx-badge.is-transporte      { background: var(--cat-transporte); }
+.card-tx-badge.is-farmacia        { background: var(--cat-farmacia); }
+.card-tx-badge.is-mascotas        { background: var(--cat-mascotas); }
+.card-tx-badge.is-vet             { background: var(--cat-vet); }
+.card-tx-badge.is-hogar           { background: var(--cat-hogar); }
+.card-tx-badge.is-construccion    { background: var(--cat-construccion); }
+.card-tx-badge.is-entretenimiento { background: var(--cat-entretenimiento); }
+.card-tx-badge.is-servicios       { background: var(--cat-servicios); }
+.card-tx-badge.is-vestuario       { background: var(--cat-vestuario); }
+.card-tx-badge.is-finanzas        { background: var(--cat-finanzas); }
+.card-tx-badge.is-salud           { background: var(--cat-salud); }
+.card-tx-badge.is-otros           { background: var(--cat-otros); }
+.card-tx-badge.is-refund          { background: var(--success); }
+.card-tx-badge.is-supermercado    { background: var(--cat-supermercado-tint);    color: var(--cat-supermercado); }
+.card-tx-badge.is-alimentacion    { background: var(--cat-alimentacion-tint);    color: var(--cat-alimentacion); }
+.card-tx-badge.is-transporte      { background: var(--cat-transporte-tint);      color: var(--cat-transporte); }
+.card-tx-badge.is-farmacia        { background: var(--cat-farmacia-tint);        color: var(--cat-farmacia); }
+.card-tx-badge.is-mascotas        { background: var(--cat-mascotas-tint);        color: var(--cat-mascotas); }
+.card-tx-badge.is-vet             { background: var(--cat-vet-tint);             color: var(--cat-vet); }
+.card-tx-badge.is-hogar           { background: var(--cat-hogar-tint);           color: var(--cat-hogar); }
+.card-tx-badge.is-construccion    { background: var(--cat-construccion-tint);    color: var(--cat-construccion); }
+.card-tx-badge.is-entretenimiento { background: var(--cat-entretenimiento-tint); color: var(--cat-entretenimiento); }
+.card-tx-badge.is-servicios       { background: var(--cat-servicios-tint);       color: var(--cat-servicios); }
+.card-tx-badge.is-vestuario       { background: var(--cat-vestuario-tint);       color: var(--cat-vestuario); }
+.card-tx-badge.is-finanzas        { background: var(--cat-finanzas-tint);        color: var(--cat-finanzas); }
+.card-tx-badge.is-salud           { background: var(--cat-salud-tint);           color: var(--cat-salud); }
+.card-tx-badge.is-otros           { background: var(--cat-otros-tint);           color: var(--cat-otros); }
+.card-tx-badge.is-refund          { background: var(--primary-soft);             color: var(--success); }
+
+/* Body — merchant + pill row. Merchant color comes from the parent row via
+   .card-transaction[data-cat="X"] (set on the article) so merchant + badge stay visually paired. */
+.card-transaction .card-tx-body {
+  min-width: 0;
+  flex: 1;
+}
+.card-transaction .card-tx-merchant {
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 13px;
+  line-height: 1.25;
+  letter-spacing: 0.02em;
+  color: var(--ink);
+  margin: 0;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.card-transaction[data-cat="supermercado"]    .card-tx-merchant { color: var(--cat-supermercado); }
+.card-transaction[data-cat="alimentacion"]    .card-tx-merchant { color: var(--cat-alimentacion); }
+.card-transaction[data-cat="transporte"]      .card-tx-merchant { color: var(--cat-transporte); }
+.card-transaction[data-cat="farmacia"]        .card-tx-merchant { color: var(--cat-farmacia); }
+.card-transaction[data-cat="mascotas"]        .card-tx-merchant { color: var(--cat-mascotas); }
+.card-transaction[data-cat="vet"]             .card-tx-merchant { color: var(--cat-vet); }
+.card-transaction[data-cat="hogar"]           .card-tx-merchant { color: var(--cat-hogar); }
+.card-transaction[data-cat="construccion"]    .card-tx-merchant { color: var(--cat-construccion); }
+.card-transaction[data-cat="entretenimiento"] .card-tx-merchant { color: var(--cat-entretenimiento); }
+.card-transaction[data-cat="servicios"]       .card-tx-merchant { color: var(--cat-servicios); }
+.card-transaction[data-cat="vestuario"]       .card-tx-merchant { color: var(--cat-vestuario); }
+.card-transaction[data-cat="finanzas"]        .card-tx-merchant { color: var(--cat-finanzas); }
+.card-transaction[data-cat="salud"]           .card-tx-merchant { color: var(--cat-salud); }
+.card-transaction[data-cat="otros"]           .card-tx-merchant { color: var(--cat-otros); }
+.card-transaction[data-cat="refund"]          .card-tx-merchant { color: var(--success); }
+
+/* Pills variant — separate rounded chips per field (date · place · item-count).
+   Legacy: 9px font, 2/6 padding, 3px gap, ink-3/secondary color, all pills uniform bg. */
+.card-tx-pills {
+  display: flex;
+  gap: 3px;
+  margin-top: 4px;
+  flex-wrap: wrap;
+}
+.card-tx-pill {
+  background: var(--surface-2);
+  border-radius: 999px;
+  padding: 3px 9px;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--ink-2);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.4;
+}
+.card-tx-pill.is-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+.card-tx-pill-icon {
+  width: 11px;
+  height: 11px;
+  flex-shrink: 0;
+  color: var(--ink-3);
+}
+
+/* No-pills variant — single inline meta row separated by middle dots */
+.card-tx-meta-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 4px;
+  font-size: 10px;
+  color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+}
+.card-tx-meta-row .card-tx-meta-sep { opacity: 0.4; }
+
+/* Right column — amount on top, chevron below. Legacy spacing has visible breathing room
+   between amount and chevron — gap 6 (was 2) reproduces the right-screenshot spacing. */
+.card-tx-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.card-transaction .card-tx-amount {
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--ink);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+}
+.card-transaction .card-tx-amount.is-positive { color: var(--success); }
+.card-transaction .card-tx-amount.is-positive::before { content: "+"; }
+
+.card-tx-chevron {
+  width: 14px;
+  height: 14px;
+  color: var(--ink-3);
+  opacity: 0.4;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform var(--mol-dur-base) var(--mol-ease-out),
+              opacity var(--mol-dur-fast) var(--mol-ease-out);
+}
+.card-tx-chevron svg { width: 100%; height: 100%; display: block; stroke: currentColor; }
+.card-transaction[aria-expanded="true"] .card-tx-chevron { transform: rotate(180deg); opacity: 0.7; }
+.card-transaction.is-static .card-tx-chevron { display: none; }
+
+/* Expanded state — item list with prices */
+.card-tx-detail {
+  background: var(--surface-2);
+  border-top: 1px solid var(--line);
+  padding: 8px 14px 12px;
+  display: none;
+}
+.card-transaction[aria-expanded="true"] .card-tx-detail { display: block; }
+.card-tx-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 6px 0;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  border-bottom: 1px dashed var(--line);
+}
+.card-tx-item:last-child { border-bottom: none; }
+.card-tx-item-name {
+  font-weight: 500;
+  color: var(--ink);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  margin: 0;
+}
+.card-tx-item-price {
+  font-weight: 700;
+  color: var(--ink);
+  margin: 0;
+}
+.card-tx-detail-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+  gap: 12px;
+}
+.card-tx-more {
+  background: transparent;
+  border: none;
+  color: var(--primary);
+  font-weight: 700;
+  font-size: 12px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: var(--atom-r-sm);
+}
+.card-tx-more:hover { background: var(--primary-soft); }
+.card-tx-detail-link {
+  color: var(--primary);
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+}
+.card-tx-detail-link:hover { text-decoration: underline; }
+
+/* card-stat — KPI tile */
+.card-stat { display: flex; flex-direction: column; gap: 8px; }
+.card-stat .card-stat-label {
+  font-size: var(--atom-fs-xs);
+  font-weight: 600;
+  color: var(--ink-3);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin: 0;
+}
+.card-stat .card-stat-value {
+  font-family: inherit; /* respects Tweaks data-font */
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--ink);
+  margin: 0;
+  line-height: 1.1;
+}
+.card-stat .card-stat-delta {
+  font-size: var(--atom-fs-sm);
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.card-stat .card-stat-delta.is-up    { color: var(--success); }
+.card-stat .card-stat-delta.is-down  { color: var(--error); }
+.card-stat .card-stat-delta.is-flat  { color: var(--ink-3); }
+
+/* card-empty — no-data state */
+.card-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--atom-s-3);
+  padding: 36px var(--atom-s-5);
+  background: var(--surface);
+  border: 1px dashed var(--line-strong);
+}
+.card-empty .card-empty-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 9999px;
+  background: var(--surface-2);
+  color: var(--ink-3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+}
+.card-empty .card-empty-title { font-size: var(--atom-fs-lg); font-weight: 700; color: var(--ink); margin: 0; }
+.card-empty .card-empty-body { font-size: var(--atom-fs-sm); color: var(--ink-2); margin: 0; max-width: 320px; line-height: 1.5; }
+
+/* card-feature — promoted callout */
+.card-feature {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  display: flex;
+  flex-direction: column;
+  gap: var(--atom-s-3);
+}
+.card-feature .card-feature-eyebrow {
+  font-size: var(--atom-fs-xs);
+  font-weight: 700;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin: 0;
+}
+.card-feature .card-feature-title {
+  font-family: inherit; /* respects Tweaks data-font */
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--ink);
+  margin: 0;
+}
+.card-feature .card-feature-body { font-size: var(--atom-fs-sm); color: var(--ink-2); margin: 0; line-height: 1.5; }
+
+/* card-celebration — milestone / achievement */
+.card-celebration {
+  background: linear-gradient(135deg, var(--primary-soft), var(--accent-soft));
+  border-color: var(--primary);
+  text-align: center;
+  padding: 28px var(--atom-s-5);
+}
+.card-celebration .card-celebration-glyph {
+  font-size: 48px;
+  line-height: 1;
+  margin-bottom: var(--atom-s-3);
+}
+.card-celebration .card-celebration-title {
+  font-family: inherit; /* respects Tweaks data-font */
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--ink);
+  margin: 0 0 6px 0;
+}
+.card-celebration .card-celebration-body { font-size: var(--atom-fs-sm); color: var(--ink-2); margin: 0; }
+
+/* ==========================================================
+   4. MODAL — overlay + container + variants
+   Variants: confirm · form · learning · error · credit
+   States:   default · loading (.is-loading on footer button)
+   ========================================================== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--mol-scrim);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--atom-s-4);
+  z-index: var(--mol-z-modal);
+  animation: mol-fade-in var(--mol-dur-base) var(--mol-ease-out);
+}
+@keyframes mol-fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes mol-slide-up { from { transform: translateY(12px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--atom-r-lg);
+  width: 100%;
+  max-width: 440px;
+  max-height: calc(100vh - 32px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: var(--mol-elev-3);
+  animation: mol-slide-up var(--mol-dur-slow) var(--mol-ease-out);
+}
+.modal.modal-md  { max-width: 560px; }
+.modal.modal-lg  { max-width: 720px; }
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  gap: var(--atom-s-3);
+  padding: var(--atom-s-5) var(--atom-s-5) var(--atom-s-3);
+  border-bottom: 1px solid var(--line);
+}
+.modal-header .modal-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--atom-r-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.modal-header .modal-icon.is-info    { background: var(--primary-soft); color: var(--primary); }
+.modal-header .modal-icon.is-warning { background: var(--accent-soft);  color: var(--accent); }
+.modal-header .modal-icon.is-error   { background: var(--danger-soft);  color: var(--error); }
+.modal-header .modal-icon.is-success { background: var(--primary-soft); color: var(--success); }
+.modal-header .modal-title {
+  font-family: inherit; /* respects Tweaks data-font */
+  font-size: var(--atom-fs-lg);
+  font-weight: 700;
+  color: var(--ink);
+  margin: 0;
+  flex: 1;
+}
+.modal-header .modal-close {
+  background: transparent;
+  border: none;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--atom-r-sm);
+  color: var(--ink-3);
+  cursor: pointer;
+  font-size: 20px;
+  line-height: 1;
+}
+.modal-header .modal-close:hover { background: var(--surface-2); color: var(--ink); }
+
+.modal-body {
+  padding: var(--atom-s-4) var(--atom-s-5);
+  font-size: var(--atom-fs-sm);
+  color: var(--ink-2);
+  line-height: 1.55;
+  overflow-y: auto;
+}
+.modal-body p { margin: 0 0 var(--atom-s-3) 0; }
+.modal-body p:last-child { margin-bottom: 0; }
+
+.modal-footer {
+  display: flex;
+  gap: var(--atom-s-2);
+  justify-content: flex-end;
+  padding: var(--atom-s-3) var(--atom-s-5) var(--atom-s-5);
+  border-top: 1px solid var(--line);
+  background: var(--surface);
+}
+.modal-footer.is-stacked { flex-direction: column-reverse; }
+.modal-footer.is-stacked .btn { width: 100%; }
+
+/* ==========================================================
+   5. TOAST — flash notification
+   Variants: success · info · warning · error
+   States:   entering · default · dismissing
+   ========================================================== */
+.toast-stack {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: var(--mol-z-toast);
+  pointer-events: none;
+}
+.toast {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--atom-s-3);
+  padding: 12px var(--atom-s-4);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--atom-r-md);
+  box-shadow: var(--mol-elev-2);
+  min-width: 280px;
+  max-width: 420px;
+  pointer-events: auto;
+  animation: mol-toast-in var(--mol-dur-slow) var(--mol-ease-out);
+}
+@keyframes mol-toast-in {
+  from { transform: translateX(20px); opacity: 0; }
+  to   { transform: translateX(0); opacity: 1; }
+}
+.toast.is-dismissing { animation: mol-toast-out var(--mol-dur-base) var(--mol-ease-in) forwards; }
+@keyframes mol-toast-out {
+  to { transform: translateX(20px); opacity: 0; }
+}
+.toast .toast-icon {
+  width: 20px;
+  height: 20px;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--surface);
+}
+.toast.is-success { border-left: 3px solid var(--success); }
+.toast.is-success .toast-icon { background: var(--success); }
+.toast.is-info    { border-left: 3px solid var(--primary); }
+.toast.is-info .toast-icon { background: var(--primary); }
+.toast.is-warning { border-left: 3px solid var(--accent); }
+.toast.is-warning .toast-icon { background: var(--accent); }
+.toast.is-error   { border-left: 3px solid var(--error); }
+.toast.is-error .toast-icon { background: var(--error); }
+.toast .toast-body { flex: 1; min-width: 0; }
+.toast .toast-title { font-size: var(--atom-fs-sm); font-weight: 600; color: var(--ink); margin: 0 0 2px 0; }
+.toast .toast-message { font-size: var(--atom-fs-xs); color: var(--ink-2); margin: 0; line-height: 1.45; }
+.toast .toast-close {
+  background: transparent;
+  border: none;
+  color: var(--ink-3);
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  padding: 0;
+}
+.toast .toast-close:hover { color: var(--ink); }
+
+/* ==========================================================
+   6. BANNER — full-width inline notice
+   Variants: info · warning · error · offline
+   States:   default · dismissible · with-action
+   ========================================================== */
+.banner {
+  display: flex;
+  align-items: center;
+  gap: var(--atom-s-3);
+  padding: 12px var(--atom-s-4);
+  border: 1px solid var(--line);
+  border-radius: var(--atom-r-md);
+  font-size: var(--atom-fs-sm);
+  z-index: var(--mol-z-banner);
+}
+.banner .banner-icon { font-size: 18px; line-height: 1; flex-shrink: 0; }
+.banner .banner-body { flex: 1; min-width: 0; color: var(--ink); }
+.banner .banner-body strong { font-weight: 700; }
+.banner .banner-actions { display: flex; gap: var(--atom-s-2); flex-shrink: 0; }
+.banner.is-info    { background: var(--primary-soft); border-color: var(--primary); color: var(--ink); }
+.banner.is-info .banner-icon { color: var(--primary); }
+.banner.is-warning { background: var(--accent-soft); border-color: var(--accent); }
+.banner.is-warning .banner-icon { color: var(--accent); }
+.banner.is-error   { background: var(--danger-soft); border-color: var(--error); }
+.banner.is-error .banner-icon { color: var(--error); }
+.banner.is-offline {
+  background: var(--surface-2);
+  border-color: var(--line-strong);
+  border-radius: 0;
+  border-left: none;
+  border-right: none;
+}
+.banner.is-offline .banner-icon { color: var(--ink-2); }
+
+/* ==========================================================
+   7. NAV-BOTTOM — mobile primary nav (5 slots)
+   States: default · hover · active · disabled
+   ========================================================== */
+.nav-bottom {
+  display: flex;
+  background: var(--surface);
+  border-top: 1px solid var(--line);
+  padding: 8px 4px;
+  z-index: var(--mol-z-nav);
+}
+.nav-bottom .nav-bottom-item {
+  flex: 1;
+  background: transparent;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 6px 4px;
+  color: var(--ink-3);
+  font-size: 10px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  border-radius: var(--atom-r-sm);
+  transition: color var(--mol-dur-fast) var(--mol-ease-out);
+  position: relative;
+}
+.nav-bottom .nav-bottom-item .nav-icon { font-size: 22px; line-height: 1; }
+.nav-bottom .nav-bottom-item:hover { color: var(--ink-2); }
+.nav-bottom .nav-bottom-item.is-active { color: var(--primary); }
+.nav-bottom .nav-bottom-item.is-active::before {
+  content: '';
+  position: absolute;
+  top: -8px;
+  width: 24px;
+  height: 3px;
+  background: var(--primary);
+  border-radius: 0 0 var(--atom-r-sm) var(--atom-r-sm);
+}
+.nav-bottom .nav-bottom-item:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: -2px;
+}
+.nav-bottom .nav-bottom-item[disabled] { opacity: 0.4; cursor: not-allowed; }
+
+/* ==========================================================
+   8. NAV-TOP — desktop top bar (logo + search + user)
+   States: default · scrolled (shadow on scroll)
+   ========================================================== */
+.nav-top {
+  display: flex;
+  align-items: center;
+  gap: var(--atom-s-4);
+  height: 60px;
+  padding: 0 var(--atom-s-5);
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+  z-index: var(--mol-z-nav);
+}
+.nav-top.is-elevated { box-shadow: var(--mol-elev-1); border-bottom-color: transparent; }
+.nav-top .nav-top-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: inherit; /* respects Tweaks data-font */
+  font-size: var(--atom-fs-lg);
+  font-weight: 700;
+  color: var(--ink);
+  text-decoration: none;
+}
+.nav-top .nav-top-search { flex: 1; max-width: 480px; }
+.nav-top .nav-top-actions { display: flex; align-items: center; gap: var(--atom-s-2); margin-left: auto; }
+
+/* ==========================================================
+   9. NAV-SIDEBAR — desktop side rail
+   States: default · hover · active · collapsed
+   ========================================================== */
+.nav-sidebar {
+  width: 240px;
+  background: var(--surface);
+  border-right: 1px solid var(--line);
+  padding: var(--atom-s-4) var(--atom-s-3);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  height: 100%;
+}
+.nav-sidebar.is-collapsed { width: 64px; }
+.nav-sidebar.is-collapsed .nav-sidebar-label { display: none; }
+.nav-sidebar.is-collapsed .nav-sidebar-item { justify-content: center; padding: 10px 0; }
+.nav-sidebar .nav-sidebar-section {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--ink-3);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: var(--atom-s-3) var(--atom-s-3) 6px;
+}
+.nav-sidebar .nav-sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: var(--atom-r-md);
+  color: var(--ink-2);
+  font-size: var(--atom-fs-sm);
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background var(--mol-dur-fast) var(--mol-ease-out),
+              color var(--mol-dur-fast) var(--mol-ease-out);
+}
+.nav-sidebar .nav-sidebar-item .nav-icon { font-size: 16px; line-height: 1; flex-shrink: 0; }
+.nav-sidebar .nav-sidebar-item:hover { background: var(--surface-2); color: var(--ink); }
+.nav-sidebar .nav-sidebar-item.is-active {
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+.nav-sidebar .nav-sidebar-item:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+.nav-sidebar .nav-sidebar-footer {
+  margin-top: auto;
+  padding-top: var(--atom-s-3);
+  border-top: 1px solid var(--line);
+}
+
+/* ==========================================================
+   10. FAB — floating action button + long-press menu
+   States: default · hover · active · open (menu visible)
+   ========================================================== */
+.fab-wrap { position: relative; display: inline-block; }
+.fab {
+  width: 56px;
+  height: 56px;
+  border-radius: 9999px;
+  background: var(--primary);
+  color: var(--primary-ink);
+  border: none;
+  box-shadow: var(--mol-elev-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  cursor: pointer;
+  transition: transform var(--mol-dur-base) var(--mol-ease-out),
+              box-shadow var(--mol-dur-base) var(--mol-ease-out);
+  z-index: var(--mol-z-fab);
+}
+.fab:hover { transform: scale(1.04); box-shadow: var(--mol-elev-3); }
+.fab:active { transform: scale(0.96); }
+.fab:focus-visible { outline: 3px solid var(--primary-soft); outline-offset: 3px; }
+.fab.fab-sm { width: 44px; height: 44px; font-size: 20px; }
+.fab.fab-lg { width: 64px; height: 64px; font-size: 28px; }
+
+.fab-menu {
+  position: absolute;
+  bottom: calc(100% + var(--atom-s-3));
+  right: 0;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--atom-r-lg);
+  padding: 6px;
+  display: none;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 200px;
+  box-shadow: var(--mol-elev-3);
+  z-index: var(--mol-z-fab);
+}
+.fab-wrap.is-open .fab-menu { display: flex; animation: mol-slide-up var(--mol-dur-base) var(--mol-ease-out); }
+.fab-menu .fab-menu-item {
+  display: flex;
+  align-items: center;
+  gap: var(--atom-s-3);
+  padding: 10px 12px;
+  background: transparent;
+  border: none;
+  border-radius: var(--atom-r-md);
+  color: var(--ink);
+  font-size: var(--atom-fs-sm);
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+.fab-menu .fab-menu-item:hover { background: var(--surface-2); }
+.fab-menu .fab-menu-item .fab-menu-icon { font-size: 18px; line-height: 1; width: 24px; text-align: center; }
+.fab-menu .fab-menu-item .fab-menu-meta { color: var(--ink-3); font-size: var(--atom-fs-xs); margin-left: auto; }
+
+/* ==========================================================
+   11. FILTER strip — chips + popovers
+   Variants: date · category · amount · tag · search
+   States:   default · active · with-count
+   ========================================================== */
+.filter-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--atom-s-2);
+  align-items: center;
+  padding: var(--atom-s-3);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--atom-r-md);
+}
+.filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 9999px;
+  font-size: var(--atom-fs-sm);
+  font-weight: 600;
+  color: var(--ink-2);
+  cursor: pointer;
+  transition: all var(--mol-dur-fast) var(--mol-ease-out);
+}
+.filter-chip:hover { background: var(--line); color: var(--ink); }
+.filter-chip.is-active {
+  background: var(--primary-soft);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+.filter-chip .filter-chip-count {
+  background: var(--primary);
+  color: var(--primary-ink);
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 9999px;
+  min-width: 18px;
+  text-align: center;
+}
+.filter-chip .filter-chip-caret {
+  font-size: 9px;
+  margin-left: 2px;
+  opacity: 0.6;
+}
+.filter-search {
+  flex: 1;
+  min-width: 180px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 9999px;
+  padding: 4px 12px;
+}
+.filter-search input {
+  background: transparent;
+  border: none;
+  outline: none;
+  font-size: var(--atom-fs-sm);
+  color: var(--ink);
+  flex: 1;
+  padding: 4px 0;
+}
+.filter-search input::placeholder { color: var(--ink-3); }
+
+/* ==========================================================
+   12. SHEET — bottom-sheet (mobile pattern)
+   States: default · dragging · dismissing
+   ========================================================== */
+.sheet-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--mol-scrim);
+  z-index: var(--mol-z-sheet);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+.sheet {
+  background: var(--surface);
+  border-radius: var(--atom-r-lg) var(--atom-r-lg) 0 0;
+  width: 100%;
+  max-width: 480px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: var(--mol-elev-3);
+  animation: mol-sheet-in var(--mol-dur-slow) var(--mol-ease-out);
+}
+@keyframes mol-sheet-in {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+.sheet .sheet-handle {
+  width: 36px;
+  height: 4px;
+  background: var(--line-strong);
+  border-radius: 9999px;
+  margin: 10px auto 6px;
+  flex-shrink: 0;
+}
+.sheet .sheet-header {
+  padding: 4px var(--atom-s-5) var(--atom-s-3);
+  border-bottom: 1px solid var(--line);
+  text-align: center;
+}
+.sheet .sheet-title {
+  font-family: inherit; /* respects Tweaks data-font */
+  font-size: var(--atom-fs-lg);
+  font-weight: 700;
+  color: var(--ink);
+  margin: 0;
+}
+.sheet .sheet-body {
+  padding: var(--atom-s-4) var(--atom-s-5);
+  overflow-y: auto;
+  flex: 1;
+}
+
+/* ==========================================================
+   13. DRAWER — side drawer (desktop pattern, also useable as mobile slide-in)
+   Variants: drawer-left · drawer-right (default)
+   States:   open · closed
+   ========================================================== */
+.drawer-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--mol-scrim);
+  z-index: var(--mol-z-drawer);
+  display: flex;
+  justify-content: flex-end;
+}
+.drawer-overlay.drawer-left { justify-content: flex-start; }
+.drawer {
+  background: var(--surface);
+  width: 100%;
+  max-width: 420px;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: var(--mol-elev-3);
+  animation: mol-drawer-right-in var(--mol-dur-slow) var(--mol-ease-out);
+}
+.drawer-overlay.drawer-left .drawer { animation-name: mol-drawer-left-in; }
+@keyframes mol-drawer-right-in {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(0); }
+}
+@keyframes mol-drawer-left-in {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(0); }
+}
+.drawer .drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--atom-s-4) var(--atom-s-5);
+  border-bottom: 1px solid var(--line);
+}
+.drawer .drawer-title {
+  font-family: inherit; /* respects Tweaks data-font */
+  font-size: var(--atom-fs-lg);
+  font-weight: 700;
+  color: var(--ink);
+  margin: 0;
+}
+.drawer .drawer-body {
+  padding: var(--atom-s-4) var(--atom-s-5);
+  overflow-y: auto;
+  flex: 1;
+}
+.drawer .drawer-footer {
+  padding: var(--atom-s-3) var(--atom-s-5) var(--atom-s-4);
+  border-top: 1px solid var(--line);
+  display: flex;
+  gap: var(--atom-s-2);
+  justify-content: flex-end;
+}
+
+/* ==========================================================
+   14. FORM — multi-step + conditional reveal
+   States:   default · invalid (per field) · submitting
+   ========================================================== */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--atom-s-4);
+}
+.form-stepper {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: var(--atom-s-3);
+}
+.form-stepper .form-step-dot {
+  width: 24px;
+  height: 24px;
+  border-radius: 9999px;
+  background: var(--surface-2);
+  color: var(--ink-3);
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.form-stepper .form-step-dot.is-active { background: var(--primary); color: var(--primary-ink); }
+.form-stepper .form-step-dot.is-done { background: var(--success); color: var(--surface); }
+.form-stepper .form-step-line {
+  flex: 1;
+  height: 2px;
+  background: var(--line);
+}
+.form-stepper .form-step-line.is-done { background: var(--success); }
+
+.form-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--atom-s-3);
+  padding: var(--atom-s-4);
+  background: var(--surface-2);
+  border-radius: var(--atom-r-md);
+}
+.form-section .form-section-title {
+  font-size: var(--atom-fs-sm);
+  font-weight: 700;
+  color: var(--ink);
+  margin: 0 0 var(--atom-s-2);
+}
+
+.form-conditional { display: none; }
+.form-conditional.is-visible { display: flex; flex-direction: column; gap: var(--atom-s-3); }
+
+.form-error-summary {
+  background: var(--danger-soft);
+  border: 1px solid var(--error);
+  border-radius: var(--atom-r-md);
+  padding: var(--atom-s-3);
+  font-size: var(--atom-fs-sm);
+  color: var(--ink);
+}
+.form-error-summary ul { margin: 6px 0 0; padding-left: 20px; color: var(--error); }
+
+.form-actions {
+  display: flex;
+  gap: var(--atom-s-2);
+  justify-content: space-between;
+  align-items: center;
+}
+.form-actions .form-actions-secondary { display: flex; gap: var(--atom-s-2); }
+
+/* ==========================================================
+   15. LIST-ITEM — swipeable + selectable
+   States: default · hover · selected · pressed · swipe-revealed
+   ========================================================== */
+.list { display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--line); border-radius: var(--atom-r-md); overflow: hidden; }
+.list .list-item:not(:last-child) { border-bottom: 1px solid var(--line); }
+
+.list-item {
+  display: flex;
+  align-items: center;
+  gap: var(--atom-s-3);
+  padding: 12px var(--atom-s-4);
+  background: var(--surface);
+  cursor: pointer;
+  transition: background var(--mol-dur-fast) var(--mol-ease-out);
+  position: relative;
+  overflow: hidden;
+}
+.list-item:hover { background: var(--surface-2); }
+.list-item.is-selected { background: var(--primary-soft); }
+.list-item.is-selected::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--primary);
+}
+.list-item .list-item-check {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  border: 1.5px solid var(--line-strong);
+  background: var(--surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 11px;
+  color: transparent;
+  transition: all var(--mol-dur-fast) var(--mol-ease-out);
+}
+.list-item.is-selected .list-item-check {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: var(--primary-ink);
+}
+.list-item .list-item-body { flex: 1; min-width: 0; }
+.list-item .list-item-title { font-size: var(--atom-fs-sm); font-weight: 600; color: var(--ink); margin: 0; }
+.list-item .list-item-meta { font-size: var(--atom-fs-xs); color: var(--ink-3); margin: 2px 0 0; }
+
+/* swipe-reveal pattern (mobile) — translates content, exposes action drawer */
+.list-item-swipeable { position: relative; overflow: hidden; }
+.list-item-swipeable .list-item-content {
+  background: var(--surface);
+  transition: transform var(--mol-dur-base) var(--mol-ease-out);
+  position: relative;
+  z-index: 1;
+}
+.list-item-swipeable.is-swiped .list-item-content { transform: translateX(-160px); }
+.list-item-swipe-actions {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+}
+.list-item-swipe-actions .list-item-swipe-action {
+  width: 80px;
+  border: none;
+  cursor: pointer;
+  font-size: var(--atom-fs-xs);
+  font-weight: 700;
+  color: var(--surface);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+.list-item-swipe-actions .list-item-swipe-action.is-edit   { background: var(--primary); color: var(--primary-ink); }
+.list-item-swipe-actions .list-item-swipe-action.is-delete { background: var(--error); color: var(--surface); }

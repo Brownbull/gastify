@@ -1,0 +1,15 @@
+{
+  "currency": "CLP",
+  "locale": "es-CL",
+  "country": "CL",
+  "timezone": "America/Santiago",
+  "theme": "light",
+  "themeVariant": "normal",
+  "fontFamily": "outfit",
+  "scanMonthlyLimit": 30,
+  "showItemBreakdown": true,
+  "categoryColorScheme": "default",
+  "notificationsEnabled": true,
+  "weeklyDigest": true,
+  "version": 1
+}

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Atom: chip — gastify (mockups-legacy)</title>
+  <link rel="stylesheet" href="../assets/css/desktop-shell.css">
+  <link rel="stylesheet" href="../assets/css/atoms.css">
+  <style>
+    body { margin: 0; background: var(--bg); color: var(--text-primary); min-height: 100vh; padding: 40px 320px 48px 48px; font-family: var(--font-family); }
+    h1 { font-size: 24px; margin: 0 0 6px 0; font-weight: 700; }
+    .subtitle { color: var(--text-secondary); font-size: 13px; margin: 0 0 32px 0; max-width: 720px; line-height: 1.5; }
+    .source-link { display: inline-block; margin-top: 8px; font-size: 11px; color: var(--text-tertiary); font-family: ui-monospace, Consolas, monospace; }
+    .source-link a { color: var(--primary); text-decoration: none; }
+    .source-link a:hover { text-decoration: underline; }
+    .demo-section { margin-bottom: 36px; }
+    .demo-section h2 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-tertiary); margin: 0 0 14px 0; font-weight: 600; }
+    .demo-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; background: var(--surface); padding: 24px; border-radius: 12px; border: 1px solid var(--border-light); }
+    .crossref { background: var(--bg-secondary); padding: 16px 18px; border-radius: 10px; border: 1px solid var(--border-light); font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+    .crossref em { color: var(--text-tertiary); font-style: italic; }
+    .demo-section h3 { font-size: 12px; color: var(--text-secondary); margin: 0 0 10px 0; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <h1>Chip</h1>
+  <p class="subtitle">Interactive (toggleable) selector. Different from <code>pill</code> (static label) — chips drive filter / tab state and respond to clicks. Composes with <code>.chip__count</code> for inline counts.</p>
+  <p class="source-link">Source: <a href="../../../frontend/src/features" target="_blank">features/history/components/FilterStrip.tsx</a> (period + amount filters), <a href="../../../frontend/src/features" target="_blank">features/insights/components/InsightTabs.tsx</a> (Lista / Airlock / Logro 3-tab).</p>
+
+  <section class="demo-section">
+    <h2>States</h2>
+    <div class="demo-row">
+      <button class="chip">Inactivo</button>
+      <button class="chip is-active" aria-pressed="true">Activo</button>
+      <button class="chip" disabled>Deshabilitado</button>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>With count</h2>
+    <div class="demo-row">
+      <button class="chip">Hoy <span class="chip__count">3</span></button>
+      <button class="chip is-active" aria-pressed="true">Esta semana <span class="chip__count">14</span></button>
+      <button class="chip">Este mes <span class="chip__count">52</span></button>
+      <button class="chip">Trimestre <span class="chip__count">128</span></button>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>Filter strip (period selector)</h2>
+    <h3>Inactive</h3>
+    <div class="demo-row">
+      <button class="chip">Hoy</button>
+      <button class="chip">Semana</button>
+      <button class="chip">Mes</button>
+      <button class="chip">Trimestre</button>
+      <button class="chip">Año</button>
+    </div>
+
+    <h3 style="margin-top: 18px;">With one active</h3>
+    <div class="demo-row">
+      <button class="chip">Hoy</button>
+      <button class="chip">Semana</button>
+      <button class="chip is-active" aria-pressed="true">Mes</button>
+      <button class="chip">Trimestre</button>
+      <button class="chip">Año</button>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>Insight tabs (3-tab picker)</h2>
+    <div class="demo-row">
+      <button class="chip is-active" aria-pressed="true">Lista</button>
+      <button class="chip">Airlock</button>
+      <button class="chip">Logro</button>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>With removable icon</h2>
+    <div class="demo-row">
+      <button class="chip is-active" aria-pressed="true">
+        Supermercado
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+      <button class="chip is-active" aria-pressed="true">
+        Restaurante
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+      <button class="chip">+ Agregar</button>
+    </div>
+  </section>
+
+  <section class="demo-section">
+    <h2>Categories — 6 representative L1 Rubros</h2>
+    <div class="demo-row" style="display: flex; flex-wrap: wrap; gap: 8px;">
+      <button class="chip chip--cat-supermercados">🛒 Supermercados</button>
+      <button class="chip chip--cat-restaurantes">🍽️ Restaurantes</button>
+      <button class="chip chip--cat-comercio-barrio">🏪 Comercio</button>
+      <button class="chip chip--cat-vivienda">🏠 Vivienda</button>
+      <button class="chip chip--cat-salud-bienestar">💊 Salud</button>
+      <button class="chip chip--cat-tiendas-generales">🏬 Tiendas</button>
+    </div>
+    <p class="source-link" style="margin-top: 8px;">Full 12-Rubro catalog: <a href="./categories.html">categories.html</a>. Note: as filter chips, these read as <em>category swatches</em>; when active they recolor to the category's foreground (handled at molecule layer in <code>filter-strip</code>).</p>
+  </section>
+
+  <section class="demo-section">
+    <h2>Used by molecules (one level up)</h2>
+    <div class="crossref">
+      <em>Populated during Phase L2 — molecule extraction. Anticipated consumers: filters (history filter strip, insights 3-tab, items aggregated/duplicates toggle), tab-bar (analytics period selector).</em>
+    </div>
+  </section>
+
+  <script src="../assets/js/tweaks.js" defer></script>
+</body>
+</html>

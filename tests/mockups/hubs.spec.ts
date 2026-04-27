@@ -186,11 +186,12 @@ test.describe("Flows sub-hub (/flows/index.html)", () => {
 });
 
 test.describe("Molecules sub-hub (/molecules/index.html)", () => {
-  test("renders placeholder banner + 7 planned molecule cards", async ({ page }) => {
+  test("renders 18 live molecule cards + COMPONENT-LIBRARY link", async ({ page }) => {
     await page.goto("/molecules/index.html");
-    await expect(page.locator(".placeholder-banner")).toBeVisible();
     const cards = page.locator(".molecule-card");
-    await expect(cards).toHaveCount(7);
+    await expect(cards).toHaveCount(18);
+    // Catalog spec link is reachable
+    await expect(page.locator(`a[href="./COMPONENT-LIBRARY.md"]`).first()).toBeVisible();
   });
 
   test("injects '← Mockups home' breadcrumb", async ({ page }) => {
@@ -202,14 +203,17 @@ test.describe("Molecules sub-hub (/molecules/index.html)", () => {
     await expect(breadcrumb).toHaveText(/Mockups home/);
   });
 
-  test("all molecule cards are placeholders (status badge 'planned')", async ({ page }) => {
+  test("each molecule card resolves to a real demo page", async ({ page }) => {
     await page.goto("/molecules/index.html");
-    const badges = page.locator(".molecule-card .status-badge");
-    const count = await badges.count();
-    expect(count).toBe(7);
-    for (let i = 0; i < count; i++) {
-      await expect(badges.nth(i)).toHaveText(/planned/i);
-    }
+    const hrefs = await page.locator(".molecule-card").evaluateAll((nodes) =>
+      nodes.map((n) => n.getAttribute("href")),
+    );
+    expect(hrefs.length).toBe(18);
+    expect(hrefs.every((href) => href !== null && href.endsWith(".html"))).toBe(true);
+    // Sample one resolves
+    const first = hrefs[0]!;
+    await page.goto(`/molecules/${first.replace("./", "")}`);
+    await expect(page.locator("#tweaks-panel")).toBeVisible();
   });
 });
 

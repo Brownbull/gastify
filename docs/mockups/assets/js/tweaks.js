@@ -26,6 +26,7 @@
     mode: 'light',
     font: 'default',
     viewport: 'desktop',
+    iconStyle: 'pixel', // 'pixel' (legacy L1 SVGs) | 'emoji' (Unicode glyphs)
     collapsed: false,
   };
 
@@ -214,10 +215,11 @@
 
   function applyState(state) {
     const body = document.body;
-    body.setAttribute('data-theme',    state.theme);
-    body.setAttribute('data-mode',     state.mode);
-    body.setAttribute('data-font',     state.font);
-    body.setAttribute('data-viewport', state.viewport);
+    body.setAttribute('data-theme',      state.theme);
+    body.setAttribute('data-mode',       state.mode);
+    body.setAttribute('data-font',       state.font);
+    body.setAttribute('data-viewport',   state.viewport);
+    body.setAttribute('data-icon-style', state.iconStyle);
     body.classList.toggle('tweaks-collapsed', !!state.collapsed);
   }
 
@@ -242,10 +244,11 @@
       // the native dropdown — re-rendering then would destroy the open
       // dropdown mid-interaction. Font is `change`-driven, not click-driven.
       switch (act) {
-        case 'collapse': state.collapsed = !state.collapsed; break;
-        case 'theme':    state.theme = val; break;
-        case 'mode':     state.mode = val; break;
-        case 'viewport': state.viewport = val; break;
+        case 'collapse':   state.collapsed = !state.collapsed; break;
+        case 'theme':      state.theme = val; break;
+        case 'mode':       state.mode = val; break;
+        case 'viewport':   state.viewport = val; break;
+        case 'icon-style': state.iconStyle = val; break;
         default: return; // not a click-driven action — leave the DOM alone
       }
       applyState(state);
@@ -334,6 +337,15 @@
           <div class="tweaks__row">
             ${['mobile','tablet','desktop','full'].map(v => `
               <button class="tweaks__chip ${state.viewport === v ? 'is-active' : ''}" data-act="viewport" data-val="${v}">${v}</button>
+            `).join('')}
+          </div>
+        </section>
+
+        <section class="tweaks__group">
+          <h3>Icons</h3>
+          <div class="tweaks__row">
+            ${['pixel','emoji'].map(s => `
+              <button class="tweaks__chip ${state.iconStyle === s ? 'is-active' : ''}" data-act="icon-style" data-val="${s}">${s}</button>
             `).join('')}
           </div>
         </section>
