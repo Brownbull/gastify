@@ -1,5 +1,10 @@
 # Session Ledger
 
+## 2026-04-27 16:35 — PLAN UPDATED: advance to L2 + retro-tick bundled phases
+CHANGE: Current Phase L1 → L2 (mockups-legacy Molecules; three sub-phases L2a/L2b/L2c). Retro-ticked Commit+Push ✅ for Phase 3 (Molecules), Phase 4 (Hub layer D22), Phase L0 (mockups-legacy Foundation), Spike P14.0 (Mockup→React) — all four shipped in be9aefd and pushed in P5 (origin/main 16:30). Review columns remain ⬜ for these four; no /gabe-review pass occurred. PENDING.md P11 tracks the retroactive review backlog. Last Updated bumped to reflect retroactive correction.
+SCOPE: structural fix — column state now matches deployment reality for P3/P4/L0/Spike P14. Future /gabe-review on those phases will flip Review ⬜ → ✅ when they actually run.
+NEXT: start L2a via /gabe-execute or /gabe-mockup. ~18 direct-counterpart molecules from frontend/src/features/.
+
 ## 2026-04-27 16:30 — PUSH main -> origin/main
 PR: — (trunk-based; direct push, no PR hop)
 CI: skipped (provider=none)
@@ -318,3 +323,5 @@ NEXT: Layer B execution in /home/khujta/projects/gabe_lens/ — extract this hub
 ## 2026-04-25 02:00 — [main b9230e6] chore(kdbp): record push bookkeeping for P4
 
 ## 2026-04-27 16:27 — [main c69447d] chore(kdbp): record be9aefd + tick Phase L1 Commit column
+
+## 2026-04-27 16:32 — [main 7600c83] chore(kdbp): record push bookkeeping for P5
