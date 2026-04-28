@@ -450,3 +450,12 @@ PUSH_COL_TICK: skipped (L2 Exec=🔄, not ✅; auto-tick precondition failed per
 ## 2026-04-28 13:13 — [main 5eb8ba6] chore(kdbp): record 0269fae push entry in LEDGER
 
 ## 2026-04-28 13:14 — [main 9f660be] docs(mockups): rework cross-session handoff brief
+
+## 2026-04-28 13:14 — [main 7a41233] chore(kdbp): record 5eb8ba6 + 9f660be entries in LEDGER
+
+## 2026-04-28 16:37 — [main d562685] feat(frontend): migrate Tailwind CDN to built Tailwind 4
+FINDINGS: 4 (0 critical, 1 high, 2 medium, 1 low)
+ACTIONS: 1:defer 2:update-structure 3:defer 4:defer-to-pivot-phase-9
+DEFERRED: +P13 (firestore.ts pre-existing type errors), +P14 (README Tailwind update — folded into pivot Phase 9), +P15 (PLAN.md L2 → Ladle pivot reconciliation — folded into pivot Phase 9)
+COMMIT_COL_TICK: skipped (Current Phase = L2 mockups-legacy, but commit is Ladle pivot Phase 1 from a different plan; auto-tick precondition failed per Step 6.6 mismatch rule — silent no-op as designed). Manually reconcile in pivot Phase 9.
+NOTES: Phase 1 of the Ladle pivot. Tailwind 4 + @tailwindcss/vite installed. Inline <style> block (1057 lines) extracted to frontend/src/styles/global.css. STRUCTURE.md gained a Frontend section (React + Vite + TS — port of BoletApp). Dev server boots clean (383ms); dashboard renders correctly at 390×844 Normal Light. Build still fails on the same 2 pre-existing firestore.ts errors (now tracked as P13). Plan reference: ~/.claude/plans/okay-here-s-something-that-ancient-graham.md.
