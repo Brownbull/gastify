@@ -81,6 +81,29 @@
 | `playwright.config.ts` | Playwright config (web server + project setup for mockup specs) | MVP |
 | `tests/legacy-extract/**/*.ts` | Legacy boletapp extraction harness (one-shot DOM scrape) | MVP |
 
+### Frontend (React + Vite + TS — port of BoletApp)
+
+<!-- Operational React app under frontend/. Mocked Firebase backend (src/__firebase-mocks__/). Tailwind 4 + theme tokens via src/styles/global.css (migrated 2026-04-28 from CDN per Ladle pivot Phase 1). Phase 2 of the pivot will add frontend/.ladle/ for the showcase tool. Source-of-truth for the L-block extraction (mockups-legacy/). -->
+
+| Pattern | Description | Tier |
+|---------|-------------|------|
+| `frontend/index.html` | Vite entry HTML | MVP |
+| `frontend/package.json` | Frontend deps | MVP |
+| `frontend/package-lock.json` | npm lockfile | MVP |
+| `frontend/tsconfig.json` | TypeScript config | MVP |
+| `frontend/tsconfig.node.json` | TypeScript Node config (Vite tooling) | MVP |
+| `frontend/vite.config.ts` | Vite config | MVP |
+| `frontend/src/main.tsx` | React entry | MVP |
+| `frontend/src/App.tsx` | App root | MVP |
+| `frontend/src/sw.ts` | Service worker (PWA via VitePWA) | MVP |
+| `frontend/src/vite-env.d.ts` | Vite type defs | MVP |
+| `frontend/src/**/*.{ts,tsx}` | Source code (components, features, views, hooks, services, repositories, entities, contexts, managers, etc.) | MVP |
+| `frontend/src/**/*.css` | Stylesheets (global.css + future per-component CSS) | MVP |
+| `frontend/src/__firebase-mocks__/**/*.ts` | Mocked Firebase SDK shims (alias-redirected from `firebase/*` in vite.config.ts) | MVP |
+| `frontend/public/**` | Static assets (favicons, PWA manifest icons) | MVP |
+| `frontend/.ladle/**` | Ladle showcase config (added in Ladle pivot Phase 2) | MVP |
+| `frontend/src/**/*.stories.tsx` | Ladle stories (added incrementally during pivot Phases 4–6.3) | MVP |
+
 <!-- ### Web App (any stack)
 
 | Pattern | Description | Tier |
