@@ -42,9 +42,9 @@ apps/web/dist/
 apps/web/dist-ssr/
 *.local
 
-# Ladle
-.ladle/
-apps/web/.ladle/
+# Ladle build output (the source config under .ladle/ is committed)
+frontend/build-ladle/
+apps/web/build-ladle/
 
 # IDE
 .vscode/

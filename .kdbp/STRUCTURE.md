@@ -93,6 +93,7 @@
 | `frontend/tsconfig.json` | TypeScript config | MVP |
 | `frontend/tsconfig.node.json` | TypeScript Node config (Vite tooling) | MVP |
 | `frontend/vite.config.ts` | Vite config | MVP |
+| `frontend/*.md` | Package-level docs (STORIES.md, future CONTRIBUTING.md / CHANGELOG.md, etc.) | MVP |
 | `frontend/src/main.tsx` | React entry | MVP |
 | `frontend/src/App.tsx` | App root | MVP |
 | `frontend/src/sw.ts` | Service worker (PWA via VitePWA) | MVP |
