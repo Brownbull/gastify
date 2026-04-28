@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Card · stat · Tablet — gastify (mockups-legacy)</title>
+  <link rel="stylesheet" href="../assets/css/desktop-shell.css">
+  <link rel="stylesheet" href="../assets/css/atoms.css">
+  <link rel="stylesheet" href="../assets/css/molecules.css">
+  <style>
+    body { margin: 0; background: var(--bg-secondary, var(--bg)); color: var(--text-primary); min-height: 100vh; padding: 32px 320px 32px 32px; font-family: var(--font-family); }
+    h1 { font-size: 22px; margin: 0 0 4px 0; font-weight: 700; }
+    .subtitle { color: var(--text-secondary); font-size: 13px; margin: 0 0 20px 0; max-width: 720px; line-height: 1.5; }
+    .surface-meta { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-tertiary); font-weight: 600; }
+    .crossref-row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 24px; font-size: 12px; }
+    .crossref-row a { color: var(--primary); text-decoration: none; padding: 6px 10px; border: 1px solid var(--border-light); border-radius: 999px; background: var(--surface); }
+    .crossref-row a:hover { filter: brightness(0.97); }
+  </style>
+</head>
+<body>
+  <h1>Card · stat</h1>
+  <p class="subtitle">Single KPI tile. Composes into stat grids on Dashboard / Insights / Trends.</p>
+  <span class="surface-meta">📐 Tablet · 820 × 1180</span>
+
+  <div class="tablet-surface">
+    <div class="surface-frame">
+      <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; padding: 24px;">
+        <div class="card-stat">
+          <span class="card-stat__label">Este mes</span>
+          <span class="card-stat__value">$248.500</span>
+          <span class="card-stat__delta card-stat__delta--up">+12% vs mes pasado</span>
+        </div>
+        <div class="card-stat">
+          <span class="card-stat__label">Gastos registrados</span>
+          <span class="card-stat__value">42</span>
+          <span class="card-stat__delta card-stat__delta--down">-3 vs mes pasado</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <nav class="crossref-row" aria-label="Platform variants">
+    <a href="./card-stat.html">↩ Landing</a>
+    <a href="./card-stat-mobile.html">📱 Mobile</a>
+    <a href="./card-stat-tablet.html">📐 Tablet</a>
+    <a href="./card-stat-desktop.html">🖥️ Desktop</a>
+  </nav>
+
+  <script src="../assets/js/tweaks.js" defer></script>
+</body>
+</html>

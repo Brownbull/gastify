@@ -472,4 +472,56 @@ Load-bearing items deferred:
 - A 3rd section type beyond atoms / flows / molecules / screens / handoff requires hub treatment (revisit to confirm the per-section pattern still scales).
 - The principal hub crosses ~12 section cards (revisit to consider grouping cards into super-sections).
 
+---
+
+## D23 — Per-platform mockup files (D18 cascade applied to mockups-legacy, 2026-04-27)
+
+**Phase:** L2 — mockups-legacy: Molecules (in-progress amendment, not a new phase)
+**Types:** `mockup-extracted, ui-kit`
+**Tier:** mvp (unchanged)
+**Source:** user invocation of `/gabe-mockup` after the suite-level skill ([`~/.claude/skills/gabe-mockup/SKILL.md`](~/.claude/skills/gabe-mockup/SKILL.md)) absorbed the gustify D18 convention.
+
+**Pattern adopted:**
+- **File triple per molecule.** Each molecule under `docs/mockups-legacy/molecules/` ships as four files:
+  - `<slug>-mobile.html`   — wraps demo in `.screen-phone` (390 × 844)
+  - `<slug>-tablet.html`   — wraps demo in `.tablet-surface` (820 × 1180)
+  - `<slug>-desktop.html`  — wraps demo in `.desktop-surface` (1120 × 720)
+  - `<slug>.html`          — landing page (3 platform-variant cards + composition crossrefs); preserves backlinks from anything that already linked the consolidated file.
+- **Atoms unchanged.** Atoms have zero `@media` rules and render identically at every viewport, so per-platform files would be byte-identical noise. Single file per atom, no glyph in the atoms hub. Atoms HTML files lose any orphaned `body[data-viewport]` rules left over from the retired chip.
+- **Tweaks panel viewport switcher retired.** `tweaks.js` no longer reads/writes `body[data-viewport]` and the chip is gone from the panel UI. Open the platform file directly to see the platform faithfully framed at any browser viewport.
+- **Surface-scoped CSS overrides.** New section in `assets/css/molecules.css` keys layout adjustments on the wrapper class (`.screen-phone .toast { ... }`, `.tablet-surface .card-stat { ... }`, `.desktop-surface .toast { position: absolute; bottom: 24px; right: 24px; ... }`). This is the safety net that prevents `@media (max-width: …)` rules from firing desktop-style inside every surface when the file is opened on a wide browser viewport.
+- **Surface chrome lives in `desktop-shell.css`.** `.screen-phone`, `.tablet-surface`, `.desktop-surface`, `.surface-frame`, `.surface-label`, `.not-applicable-here` are theme-token-aware and reusable from screens (L4) without copy-paste.
+- **Helper script.** `scripts/gen_molecule_triples.py` defines per-molecule canonical demo + per-platform overrides (e.g., banner offline edge-bleed appears only in mobile, card-stat renders as 3-col grid on desktop / 2-col on tablet / stacked on phone). Discardable scaffolder — emits 4 files × N molecules, idempotent.
+
+**Files generated for the 7 L2a molecules** (28 files total — 4 × 7):
+- `banner` · `card-celebration` · `card-empty` · `card-stat` · `card-transaction` · `state-tabs` · `toast-system`
+
+**Reason — why per-platform files instead of a single responsive file:**
+- Trying to make ONE molecule render acceptably across mobile / tablet / desktop via a viewport chip + container queries forces design compromises (the "this kinda works at every width but isn't great at any" problem).
+- More importantly, when three stacked surfaces (`.screen-phone` + `.tablet-surface` + `.desktop-surface`) appear in the same browser viewport, `@media`-driven CSS fires uniformly across all three — `bottom-nav { display: none }` at ≥ 1024px, `card-stat` grid layouts that respond to actual breakpoints, etc. Surface-scoped CSS partially mitigates this for `max-width` tweaks but cannot reach `display` / `position` / `grid-template` values that hinge on the actual viewport.
+- File triples solve both: each file opens standalone, browser viewport matches surface dimensions, real `@media` rules fire correctly. Atoms get nothing because they have nothing to differentiate.
+
+**Alternatives considered + rejected:**
+- **Keep the viewport chip + add `body[data-viewport]` overrides for every responsive rule.** Tested: works for `max-width` clamps but fails for the layout-shift rules described above. Brittle as the molecule library grows.
+- **Container queries (`@container showcase`) instead of viewport switcher.** Same blast radius problem — three nested containers, every `@container` matches based on the smallest one. Also forces all responsive rules to be containerized; raw `@media` becomes inert inside the wrapper.
+- **Inline three-stacked-surface section in each consolidated `<molecule>.html`** showing the same demo at all three sizes. Failed in gustify cascade for the reasons above; documented in suite SKILL.md as the explicit anti-pattern.
+
+**Forbidden patterns** (per the SKILL.md spec):
+- Stacking multiple phone frames vertically per file. Use state-tabs for multi-state inside ONE frame.
+- Authoring tablet variants via Tweaks chip. There is no chip.
+- Adding `body[data-viewport=…]` rules anywhere — they're dead code now.
+- Inserting a "Platform variants" section that renders three stacked surfaces showing the same demo.
+
+**Δ deferred:**
+- L × 1 — **L4 screens cascade.** Screens (P5–P12, deferred until L5) inherit the same convention: `<screen>-mobile.html` / `<screen>-tablet.html` / `<screen>-desktop.html` + landing. The `.screen-phone` / `.tablet-surface` / `.desktop-surface` helpers in `desktop-shell.css` are already in place.
+- L × 1 — **Cross-platform parity audit at L5.** When the catalog phase runs, verify that the React port at `frontend/` honors the same surface-scoped invariants the file triples document.
+- L × 1 — **Bespoke containers** (e.g., `.transaction-list-container` for showing a `card-transaction` inline inside a virtualized list, `.modal-overlay` for showing `card-empty` inside a popup) — author per-screen as L4 lands, not pre-emptively.
+
+**Review trigger:**
+- Any future molecule lands without all 4 files (signal: convention drift).
+- Any screen in L4 lands as a single responsive file instead of a triple.
+- The Tweaks panel grows a new "viewport-like" control (signal: re-revisit whether D23 still holds).
+
+**Status:** accepted
+
 **Status:** accepted

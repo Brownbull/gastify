@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>State tabs · Mobile — gastify (mockups-legacy)</title>
+  <link rel="stylesheet" href="../assets/css/desktop-shell.css">
+  <link rel="stylesheet" href="../assets/css/atoms.css">
+  <link rel="stylesheet" href="../assets/css/molecules.css">
+  <style>
+    body { margin: 0; background: var(--bg-secondary, var(--bg)); color: var(--text-primary); min-height: 100vh; padding: 32px 320px 32px 32px; font-family: var(--font-family); }
+    h1 { font-size: 22px; margin: 0 0 4px 0; font-weight: 700; }
+    .subtitle { color: var(--text-secondary); font-size: 13px; margin: 0 0 20px 0; max-width: 720px; line-height: 1.5; }
+    .surface-meta { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-tertiary); font-weight: 600; }
+    .crossref-row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 24px; font-size: 12px; }
+    .crossref-row a { color: var(--primary); text-decoration: none; padding: 6px 10px; border: 1px solid var(--border-light); border-radius: 999px; background: var(--surface); }
+    .crossref-row a:hover { filter: brightness(0.97); }
+  </style>
+</head>
+<body>
+  <h1>State tabs</h1>
+  <p class="subtitle">Multi-state mockup driver — toggles <code>.state-content.active</code> via the shared <code>tweaks.js</code> ARIA-or-legacy state-tab handler. Used inside every multi-state screen.</p>
+  <span class="surface-meta">📱 Mobile · 390 × 844</span>
+
+  <div class="screen-phone">
+    <div class="surface-frame">
+      <div role="tablist" class="state-tabs" aria-label="Demo states">
+        <button role="tab" aria-selected="true" tabindex="0" class="is-active">Idle</button>
+        <button role="tab" aria-selected="false" tabindex="-1">Loading</button>
+        <button role="tab" aria-selected="false" tabindex="-1">Empty</button>
+        <button role="tab" aria-selected="false" tabindex="-1">Error</button>
+      </div>
+      <div class="state-content active" role="tabpanel" style="padding: 24px; background: var(--surface); border-radius: 12px; margin-top: 12px;">
+        <p style="margin: 0; color: var(--text-secondary); font-size: 13px;">Cuerpo del estado <strong>idle</strong>. Cambiá la pestaña para ver el resto.</p>
+      </div>
+    </div>
+  </div>
+
+  <nav class="crossref-row" aria-label="Platform variants">
+    <a href="./state-tabs.html">↩ Landing</a>
+    <a href="./state-tabs-mobile.html">📱 Mobile</a>
+    <a href="./state-tabs-tablet.html">📐 Tablet</a>
+    <a href="./state-tabs-desktop.html">🖥️ Desktop</a>
+  </nav>
+
+  <script src="../assets/js/tweaks.js" defer></script>
+</body>
+</html>

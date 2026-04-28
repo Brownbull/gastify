@@ -21,15 +21,10 @@
     .crossref { background: var(--bg-secondary); padding: 16px 18px; border-radius: 10px; border: 1px solid var(--border-light); font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
     .crossref em { color: var(--text-tertiary); font-style: italic; }
     .crossref code { font-family: ui-monospace, Consolas, monospace; font-size: 12px; color: var(--text-primary); background: var(--bg-tertiary); padding: 1px 6px; border-radius: 4px; }
-    /* Icon grid — explicit column counts per breakpoint, plus tweaks-panel viewport overrides.
-     * Default (raw screen) = 5 cols on desktop, 5 on tablet, 2 on mobile via media queries.
-     * data-viewport (Tweaks panel) overrides for per-screen demo. */
+    /* Icon grid — 5 cols on desktop/tablet, 2 cols on small screens. Per D18 the
+     * Tweaks viewport chip was retired; atoms render at the browser's actual width. */
     .icon-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; width: 100%; }
-    @media (max-width: 1024px) { .icon-grid { grid-template-columns: repeat(5, 1fr); } }
-    @media (max-width: 640px)  { .icon-grid { grid-template-columns: repeat(2, 1fr); } }
-    body[data-viewport="mobile"]  .icon-grid { grid-template-columns: repeat(2, 1fr); }
-    body[data-viewport="tablet"]  .icon-grid { grid-template-columns: repeat(5, 1fr); }
-    body[data-viewport="desktop"] .icon-grid { grid-template-columns: repeat(5, 1fr); }
+    @media (max-width: 640px) { .icon-grid { grid-template-columns: repeat(2, 1fr); } }
     /* Wrap the icon-grid section in a block-display demo-row so the grid can fill 100% width
      * (other demo-rows on this page are flex for centering individual swatches). */
     .demo-row--block { display: block !important; }

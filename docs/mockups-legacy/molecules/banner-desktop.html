@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Banner · Desktop — gastify (mockups-legacy)</title>
+  <link rel="stylesheet" href="../assets/css/desktop-shell.css">
+  <link rel="stylesheet" href="../assets/css/atoms.css">
+  <link rel="stylesheet" href="../assets/css/molecules.css">
+  <style>
+    body { margin: 0; background: var(--bg-secondary, var(--bg)); color: var(--text-primary); min-height: 100vh; padding: 32px 320px 32px 32px; font-family: var(--font-family); }
+    h1 { font-size: 22px; margin: 0 0 4px 0; font-weight: 700; }
+    .subtitle { color: var(--text-secondary); font-size: 13px; margin: 0 0 20px 0; max-width: 720px; line-height: 1.5; }
+    .surface-meta { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-tertiary); font-weight: 600; }
+    .crossref-row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 24px; font-size: 12px; }
+    .crossref-row a { color: var(--primary); text-decoration: none; padding: 6px 10px; border: 1px solid var(--border-light); border-radius: 999px; background: var(--surface); }
+    .crossref-row a:hover { filter: brightness(0.97); }
+  </style>
+</head>
+<body>
+  <h1>Banner</h1>
+  <p class="subtitle">Inline status surface — info / warning / error / offline. Class names mirror <code>frontend/src/features/batch-review/views/BatchCaptureCreditSection.tsx</code>.</p>
+  <span class="surface-meta">🖥️ Desktop · 1120 × 720</span>
+
+  <div class="desktop-surface">
+    <div class="surface-frame">
+      <div class="banner banner--warning" role="status">
+        <span class="banner__icon" aria-hidden="true">!</span>
+        <span class="banner__body">Te quedan <strong>3 escaneos</strong> este mes. Pasá a Plan Pro o esperá hasta el 1 de mayo.</span>
+        <div class="banner__actions">
+          <button class="btn btn--primary btn--sm">Ver planes</button>
+          <button class="btn btn--icon btn--sm" aria-label="Cerrar">&times;</button>
+        </div>
+      </div>
+      <div class="banner banner--info" role="status" style="margin-top: 12px;">
+        <span class="banner__icon" aria-hidden="true">i</span>
+        <span class="banner__body">Tu sincronización terminó hace 2 minutos. <strong>128 gastos al día</strong>.</span>
+        <div class="banner__actions">
+          <button class="btn btn--ghost btn--sm">Ver detalle</button>
+        </div>
+      </div>
+      <div class="banner banner--error" role="alert" style="margin-top: 12px;">
+        <span class="banner__icon" aria-hidden="true">!</span>
+        <span class="banner__body"><strong>No pudimos cargar tu estado de cuenta.</strong> Probá subirlo de nuevo.</span>
+        <div class="banner__actions">
+          <button class="btn btn--ghost btn--sm">Reintentar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <nav class="crossref-row" aria-label="Platform variants">
+    <a href="./banner.html">↩ Landing</a>
+    <a href="./banner-mobile.html">📱 Mobile</a>
+    <a href="./banner-tablet.html">📐 Tablet</a>
+    <a href="./banner-desktop.html">🖥️ Desktop</a>
+  </nav>
+
+  <script src="../assets/js/tweaks.js" defer></script>
+</body>
+</html>

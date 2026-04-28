@@ -25,10 +25,12 @@
     theme: 'normal',
     mode: 'light',
     font: 'default',
-    viewport: 'desktop',
     iconStyle: 'emoji', // 'emoji' (Unicode glyphs, default) | 'pixel' (32x32 pixel art under assets/icons/pixel/)
     collapsed: false,
   };
+  // Viewport switching retired in D18 — platforms ship as separate files
+  // (`<name>-mobile.html`, `<name>-tablet.html`, `<name>-desktop.html`) wrapping
+  // their demo in `.screen-phone` / `.tablet-surface` / `.desktop-surface`.
 
   /* ========== Injected styles ========== */
 
@@ -218,7 +220,6 @@
     body.setAttribute('data-theme',      state.theme);
     body.setAttribute('data-mode',       state.mode);
     body.setAttribute('data-font',       state.font);
-    body.setAttribute('data-viewport',   state.viewport);
     body.setAttribute('data-icon-style', state.iconStyle);
     body.classList.toggle('tweaks-collapsed', !!state.collapsed);
   }
@@ -247,7 +248,6 @@
         case 'collapse':   state.collapsed = !state.collapsed; break;
         case 'theme':      state.theme = val; break;
         case 'mode':       state.mode = val; break;
-        case 'viewport':   state.viewport = val; break;
         case 'icon-style': state.iconStyle = val; break;
         default: return; // not a click-driven action — leave the DOM alone
       }
@@ -330,15 +330,6 @@
           <select data-act="font" class="tweaks__select">
             ${fonts.map(f => `<option value="${f}" ${state.font === f ? 'selected' : ''}>${f}</option>`).join('')}
           </select>
-        </section>
-
-        <section class="tweaks__group">
-          <h3>Viewport</h3>
-          <div class="tweaks__row">
-            ${['mobile','tablet','desktop','full'].map(v => `
-              <button class="tweaks__chip ${state.viewport === v ? 'is-active' : ''}" data-act="viewport" data-val="${v}">${v}</button>
-            `).join('')}
-          </div>
         </section>
 
         <section class="tweaks__group">

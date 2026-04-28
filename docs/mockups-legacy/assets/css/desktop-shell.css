@@ -641,17 +641,78 @@ a {
 }
 
 /* =========================================================================
- * 12. Tweaks panel viewport rules
- *     Mirrors the clean-slate `docs/mockups/desktop-shell.css` pattern but
- *     targets the legacy demo container classes (`.demo-row`, `.demo-section`).
- *     Tweaks.js sets `body[data-viewport="mobile|tablet|desktop|full"]`.
- *     Without these rules, the viewport buttons toggle the attribute but
- *     nothing reacts — see /gabe-review L1 follow-up 2026-04-27.
+ * 12. Platform surface wrappers (D18)
+ *     The viewport switcher chip was retired in D18; per-platform mockup files
+ *     ship as `<name>-mobile.html`, `<name>-tablet.html`, `<name>-desktop.html`
+ *     and wrap their demo in one of the surface classes below. Each surface
+ *     enforces its target dimensions so authors can open the file at any
+ *     browser viewport and see the platform faithfully framed.
  * ========================================================================= */
-body[data-viewport="mobile"]  .demo-row,
-body[data-viewport="mobile"]  .demo-section { max-width: 360px;  margin-inline: auto; }
-body[data-viewport="tablet"]  .demo-row,
-body[data-viewport="tablet"]  .demo-section { max-width: 768px;  margin-inline: auto; }
-body[data-viewport="desktop"] .demo-row,
-body[data-viewport="desktop"] .demo-section { max-width: 1440px; }
-/* viewport="full" intentionally has no rule — leave containers at their natural width */
+.screen-phone {
+  width: 390px;
+  min-height: 844px;
+  margin: 24px auto;
+  background: var(--bg);
+  border: 1px solid var(--border-light);
+  border-radius: 28px;
+  box-shadow: 0 18px 36px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  position: relative;
+}
+.tablet-surface {
+  width: 820px;
+  min-height: 1180px;
+  margin: 24px auto;
+  background: var(--bg);
+  border: 1px solid var(--border-light);
+  border-radius: 18px;
+  box-shadow: 0 18px 36px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  position: relative;
+}
+.desktop-surface {
+  width: min(1120px, 100%);
+  min-height: 720px;
+  margin: 24px auto;
+  background: var(--bg);
+  border: 1px solid var(--border-light);
+  border-radius: 14px;
+  box-shadow: 0 18px 36px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  position: relative;
+}
+.surface-frame {
+  padding: 24px;
+}
+.surface-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-tertiary);
+  font-weight: 600;
+  margin: 32px auto 8px;
+  padding: 4px 10px;
+  border: 1px solid var(--border-light);
+  border-radius: 999px;
+  background: var(--surface);
+}
+.surface-label--centered { display: flex; justify-content: center; max-width: max-content; }
+.not-applicable-here {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 24px;
+  margin: 24px;
+  border: 1px dashed var(--border);
+  border-radius: 12px;
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1.5;
+}
+.not-applicable-here strong { color: var(--text-primary); font-weight: 700; }
+.not-applicable-here a { color: var(--primary); text-decoration: none; font-weight: 600; }
+.not-applicable-here a:hover { text-decoration: underline; }

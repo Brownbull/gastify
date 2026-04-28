@@ -85,7 +85,9 @@
   <section class="demo-section">
     <h2>Used by molecules (one level up)</h2>
     <div class="crossref">
-      <em>Populated during Phase L2 — molecule extraction. Anticipated consumer: <code>molecules/toast-system.html</code> wrapping the queue + ToastProvider + auto-dismiss layer (canonical L2 implementation referenced from <code>shared/hooks/useToast.ts</code>).</em>
+      <ul style="margin: 0; padding-left: 20px;">
+        <li><a href="../molecules/toast-system.html">toast-system</a> — wraps the atom render with positioning (<code>.toast-stack</code> fixed bottom-center above nav), exit animation (<code>.is-leaving</code>), and the <code>useToast</code> hook contract (single-toast, 3s auto-dismiss, errors 6s).</li>
+      </ul>
     </div>
   </section>
 

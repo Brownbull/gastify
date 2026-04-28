@@ -5,13 +5,697 @@
  * `molecules/<name>.html` and transitively by screens/flows.
  *
  * Conventions:
- *   - Composes desktop-shell tokens + atom primitives. No hex/rgb literals.
- *   - One section per molecule.
- *   - Class names mirror the React JSX in `frontend/src/`.
+ *   - Composes desktop-shell tokens + atom primitives. No hex/rgb literals
+ *     (alpha overlays come through tokens defined in desktop-shell.css).
+ *   - One section per molecule. Section header `=== <name> ===`.
+ *   - Class names mirror the React JSX in `frontend/src/`. BEM-lite
+ *     (`.banner`, `.banner--warning`, `.is-active`, `.is-error`).
  *   - Full state matrix per molecule (default/hover/active/focus/disabled/loading/error)
  *     where the live frontend supports the state.
  *   - Cross-reference: each molecule lists its consumed atoms in its HTML page,
  *     and each atom lists "used by molecules" via INDEX cross-refs (one level only).
  *
- * Populated incrementally during Phase L2. Empty stub for now.
+ * Populated 2026-04-27 during Phase L2a (batch 1: banner + state-tabs + toast-system).
  */
+
+/* =========================================================================
+ * === banner ===
+ * Source patterns: features/batch-review/views/BatchCaptureCreditSection.tsx
+ *                  (credit-warning section), features/scan/components/ScanError.tsx,
+ *                  hooks/app/useOnlineStatus.ts (offline indicator).
+ * The live frontend builds banners inline with Tailwind utilities + var(--token)
+ * inline styles. The named selectors below are the mockup's normalized form.
+ * ========================================================================= */
+.banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 10px;
+  border: 1px solid var(--border-light);
+  background: var(--bg-tertiary);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-primary);
+}
+.banner__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  background: var(--surface);
+  color: var(--text-secondary);
+}
+.banner__body {
+  flex: 1;
+  min-width: 0;
+}
+.banner__body strong {
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.banner__actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+/* Variants — color cues map to the same tokens Toast.tsx uses (TOAST_COLORS) */
+.banner--info {
+  background: var(--bg-tertiary);
+  border-color: var(--border-light);
+}
+.banner--info .banner__icon {
+  background: var(--accent);
+  color: var(--on-accent, var(--surface));
+}
+
+.banner--warning {
+  background: var(--warning-bg, var(--bg-tertiary));
+  border-color: var(--warning-border, var(--warning));
+}
+.banner--warning .banner__icon {
+  background: var(--warning);
+  color: var(--on-warning, var(--surface));
+}
+
+.banner--error {
+  background: var(--bg-tertiary);
+  border-color: var(--error);
+}
+.banner--error .banner__icon {
+  background: var(--error);
+  color: var(--on-error, var(--surface));
+}
+
+/* Offline — edge-bleed: no radius, no side-borders, full-width */
+.banner--offline {
+  border-radius: 0;
+  border-left: none;
+  border-right: none;
+  border-top: none;
+  background: var(--text-primary);
+  color: var(--surface);
+}
+.banner--offline .banner__icon {
+  background: var(--surface);
+  color: var(--text-primary);
+}
+.banner--offline .banner__body strong { color: var(--surface); }
+
+/* =========================================================================
+ * === state-tabs ===
+ * Source: features/items/components/ItemViewToggle.tsx (canonical pill-shape
+ * with sliding background indicator). Same pattern in ChartModeToggle,
+ * DrillDownModeToggle, InsightsCarousel, ReportCarousel.
+ *
+ * Two visual modes:
+ *   .state-tabs            — pill-shape with sliding indicator (frontend canonical)
+ *   .state-tabs--simple    — flat row of tabs (used in mockup screens that need
+ *                            quick toggling without the sliding-pill animation)
+ *
+ * tweaks.js binds click → toggle for both ARIA shape ([role="tab"]) and legacy
+ * shape (.state-tab[data-state]).
+ * ========================================================================= */
+.state-tabs {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  padding: 6px;
+  border-radius: 9999px;
+  background: var(--bg-tertiary);
+  gap: 0;
+}
+.state-tabs__indicator {
+  position: absolute;
+  top: 6px;
+  bottom: 6px;
+  border-radius: 9999px;
+  background: var(--primary);
+  transition: left 200ms ease-out, width 200ms ease-out;
+  pointer-events: none;
+  z-index: 0;
+}
+.state-tab {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  padding: 8px 24px;
+  border: 0;
+  background: transparent;
+  border-radius: 9999px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 150ms ease-out;
+  font-family: inherit;
+}
+.state-tab:hover:not([disabled]):not(.is-active) {
+  color: var(--text-primary);
+}
+.state-tab.is-active,
+.state-tab[aria-selected="true"] {
+  color: var(--on-primary, var(--surface));
+}
+.state-tab:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+.state-tab[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Simple flat variant — no sliding indicator, used by single-scan / login mockups */
+.state-tabs--simple {
+  padding: 0;
+  background: transparent;
+  border-bottom: 1px solid var(--border-light);
+  border-radius: 0;
+  gap: 4px;
+}
+.state-tabs--simple .state-tab {
+  border-radius: 0;
+  padding: 10px 16px;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+}
+.state-tabs--simple .state-tab.is-active,
+.state-tabs--simple .state-tab[aria-selected="true"] {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+  background: transparent;
+}
+
+/* Tabpanel content — visible only when active */
+.state-content { display: none; }
+.state-content.is-active { display: block; }
+
+/* =========================================================================
+ * === toast-system ===
+ * Source: shared/ui/Toast.tsx (atom-level visual; promoted to L1 atom)
+ *         shared/hooks/useToast.ts (queue + max-3 + auto-dismiss + dedupe)
+ *         App.tsx (provider + portal mount point at bottom-center)
+ *
+ * The molecule is the queue + provider + container around the L1 toast atom.
+ * The atom is reused verbatim — selectors stay `.toast`, `.toast--success` etc.
+ * The molecule layer adds:
+ *   - `.toast-stack`  — fixed positioning + spacing between active toasts
+ *   - `.is-leaving`   — exit animation hook (200ms fade-out)
+ *   - queue semantics — render only `MAX_VISIBLE` (3) at a time, FIFO eviction
+ * ========================================================================= */
+.toast-stack {
+  position: fixed;
+  left: 50%;
+  bottom: calc(64px + env(safe-area-inset-bottom, 0px));
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+  z-index: 1000;
+  pointer-events: none;
+}
+.toast-stack > .toast {
+  pointer-events: auto;
+}
+.toast-stack > .toast.is-leaving {
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 200ms ease-in, transform 200ms ease-in;
+}
+
+/* Demo-only override: in molecule docs we render the stack inline, not fixed,
+   so all four variants are visible at once. Add `.toast-stack--inline` to opt in. */
+.toast-stack--inline {
+  position: static;
+  transform: none;
+  align-items: stretch;
+  bottom: auto;
+  left: auto;
+  z-index: auto;
+}
+
+/* =========================================================================
+ * === card (base) ===
+ * Source: components/transactions/TransactionCard.tsx (Story 14.15b consolidated).
+ * The container envelope shared by every legacy card variant: rounded-lg + border
+ * + var(--surface) bg. Cards extend with .card--<variant> for inner-layout shape.
+ * ========================================================================= */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  overflow: hidden;
+  transition: border-color 150ms ease, transform 150ms ease;
+}
+.card.is-clickable { cursor: pointer; }
+.card.is-clickable:hover { border-color: var(--primary); }
+.card.is-emphasized { border-width: 2px; border-color: var(--warning); }
+.card.is-grouped { border-color: var(--accent); border-width: 2px; }
+.card__body { padding: 12px; }
+
+/* =========================================================================
+ * === card-transaction ===
+ * Source: components/transactions/TransactionCard.tsx (571 lines, the
+ * consolidated transaction card consumed by RecentScansView, DashboardView,
+ * HistoryView per Story 14.15b).
+ *
+ * DOM contract (rendered live via Tailwind utilities, named here for stability):
+ *   .card-transaction
+ *     .card-transaction__row              flex gap-[10px] items-start
+ *       .card-transaction__check          24×24 circular checkbox (selection mode only)
+ *       .card-transaction__thumb          40×46 rounded receipt + emoji badge overlay
+ *         .card-transaction__thumb-img    cover-fit receipt jpg
+ *         .card-transaction__thumb-emoji  28×28 absolute -bottom-0.5 -right-0.5 emoji bubble
+ *       .card-transaction__info           flex-1 min-w-0
+ *         .card-transaction__row-1          merchant (category-colored) + amount
+ *         .card-transaction__row-2          meta-pills + chevron expand toggle
+ *         .card-transaction__warning        AlertTriangle + text (duplicate flag)
+ *     .card-transaction__items            expandable; bg-tertiary border-top; list of items
+ * ========================================================================= */
+.card-transaction { /* extends .card — base container handles bg/border/radius */ }
+.card-transaction__row {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+.card-transaction__check {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid var(--border-medium);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  align-self: center;
+  background: transparent;
+  cursor: pointer;
+  transition: background-color 150ms ease, border-color 150ms ease;
+}
+.card-transaction__check.is-checked {
+  background: var(--primary);
+  border-color: transparent;
+  color: var(--on-primary, var(--surface));
+}
+.card-transaction__thumb {
+  position: relative;
+  flex-shrink: 0;
+  width: 40px;
+  height: 46px;
+}
+.card-transaction__thumb-frame {
+  width: 100%;
+  height: 100%;
+  border-radius: 6px;
+  border: 1px solid var(--border-light);
+  background: var(--bg-tertiary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.card-transaction__thumb-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.card-transaction__thumb-emoji {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  background: var(--surface);
+  border: 1px solid var(--border-light);
+  /* Live source uses Tailwind shadow-sm (0 1px 2px rgba(0,0,0,0.05)).
+     Desktop-shell.css doesn't yet expose a --shadow-sm token; rebuild should
+     add one. Border + bg contrast is sufficient at mockup grade. */
+}
+.card-transaction__info {
+  flex: 1;
+  min-width: 0;
+}
+.card-transaction__row-1 {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 4px;
+  gap: 8px;
+}
+.card-transaction__merchant {
+  font-weight: 600;
+  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--text-primary);
+}
+.card-transaction__amount {
+  font-weight: 600;
+  font-size: 13px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  color: var(--text-primary);
+}
+.card-transaction__row-2 {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+.card-transaction__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
+}
+/* Meta-pill: small inline pill — distinct from the standalone .pill atom because
+   transactions render this only inline + densely. Reuses pill atom tokens. */
+.card-transaction__meta-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 3px 6px;
+  border-radius: 9999px;
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-weight: 500;
+}
+.card-transaction__expand {
+  border: 0;
+  background: transparent;
+  padding: 4px;
+  margin: -4px;
+  cursor: pointer;
+  color: var(--text-tertiary);
+  transition: transform 150ms ease;
+}
+.card-transaction__expand[aria-expanded="true"] { transform: rotate(180deg); }
+.card-transaction__warning {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 500;
+  margin-top: 6px;
+  color: var(--warning);
+}
+.card-transaction__items {
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height 200ms ease;
+  background: var(--bg-tertiary);
+  border-top: 1px solid var(--border-light);
+}
+.card-transaction.is-expanded .card-transaction__items { max-height: 500px; }
+.card-transaction__items-inner { padding: 10px 12px; }
+.card-transaction__item-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+  font-size: 11px;
+}
+.card-transaction__item-name { color: var(--text-secondary); }
+.card-transaction__item-price {
+  font-weight: 500;
+  color: var(--text-primary);
+}
+.card-transaction__item-qty {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-tertiary);
+  margin-right: 4px;
+}
+.card-transaction__items-more {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--border-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  width: 100%;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--primary);
+  background: transparent;
+  border-left: 0; border-right: 0; border-bottom: 0;
+  cursor: pointer;
+}
+
+/* =========================================================================
+ * === card-stat ===
+ * Source: features/items/components/AggregatedItemCard.tsx — aggregate stat
+ * tile rendered in ItemsView. Icon block (40×40, rounded-lg, bg-tertiary) +
+ * info column (name + total amount + meta pills for count + avg-price).
+ * ========================================================================= */
+.card-stat__row {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 12px;
+}
+.card-stat__icon {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  background: var(--bg-tertiary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  color: var(--text-secondary);
+}
+.card-stat__info {
+  flex: 1;
+  min-width: 0;
+}
+.card-stat__name {
+  font-weight: 600;
+  font-size: 13px;
+  margin: 0 0 2px 0;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.card-stat__amount {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--primary);
+  margin: 0 0 6px 0;
+}
+.card-stat__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.card-stat__meta-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  font-size: 11px;
+}
+.card-stat__meta-pill.is-clickable {
+  cursor: pointer;
+  background: var(--primary);
+  color: var(--on-primary, var(--surface));
+  font-weight: 500;
+}
+
+/* =========================================================================
+ * === card-empty ===
+ * Source: features/history/components/HistoryEmptyStates.tsx (2 variants:
+ * "no transactions" with CTA + "no matching filters" without). Also drives
+ * features/items/views/ItemsView/ItemsViewEmptyState.tsx with same shape.
+ *
+ * Pattern: centered column, 80×80 icon circle (or 64×64 for items),
+ * h2 title, p subtitle, optional rounded-full CTA button.
+ * ========================================================================= */
+.card-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 64px 24px;
+}
+.card-empty__icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: var(--bg-tertiary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+  color: var(--text-tertiary);
+}
+.card-empty__icon--sm {
+  width: 64px;
+  height: 64px;
+  margin-bottom: 16px;
+}
+.card-empty__title {
+  font-size: 17px;
+  font-weight: 700;
+  margin: 0 0 8px 0;
+  color: var(--text-primary);
+}
+.card-empty__subtitle {
+  font-size: 13px;
+  line-height: 1.5;
+  max-width: 240px;
+  margin: 0 0 20px 0;
+  color: var(--text-secondary);
+}
+.card-empty__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border-radius: 9999px;
+  background: var(--primary);
+  color: var(--on-primary, var(--surface));
+  font-weight: 600;
+  font-size: 13px;
+  border: 0;
+  cursor: pointer;
+}
+
+/* =========================================================================
+ * === card-celebration ===
+ * Source: components/celebrations/PersonalRecordBanner.tsx — Trophy icon +
+ * record description + dismiss × + auto-dismiss. Uses theme variables
+ * `--insight-celebration-bg` + `--insight-celebration-icon` per Story 14.37.
+ * Fallback to `--bg-tertiary` + `--accent` when those vars aren't defined.
+ *
+ * Mount: dispatched dynamically from useCelebration.ts; placeholder host
+ * inside InsightsView CelebrationView (currently a "coming soon" panel).
+ * ========================================================================= */
+.card-celebration {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px;
+  background: var(--insight-celebration-bg, var(--bg-tertiary));
+  border: 1px solid var(--accent);
+  border-radius: 16px;
+  overflow: hidden;
+  transition: opacity 200ms ease, transform 200ms ease;
+}
+.card-celebration.is-leaving {
+  opacity: 0;
+  transform: translateY(-8px);
+}
+.card-celebration__trophy {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--on-accent, var(--surface));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.card-celebration__body {
+  flex: 1;
+  min-width: 0;
+}
+.card-celebration__title {
+  font-size: 13px;
+  font-weight: 700;
+  margin: 0 0 2px 0;
+  color: var(--text-primary);
+}
+.card-celebration__message {
+  font-size: 12px;
+  line-height: 1.45;
+  margin: 0;
+  color: var(--text-secondary);
+}
+.card-celebration__dismiss {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 0;
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.card-celebration__dismiss:hover { background: var(--bg-secondary); color: var(--text-primary); }
+
+/* =========================================================================
+ * Platform surface overrides (D18)
+ * ---
+ * Per-platform mockup files (`<molecule>-mobile.html`, `<molecule>-tablet.html`,
+ * `<molecule>-desktop.html`) wrap their demo in `.screen-phone` /
+ * `.tablet-surface` / `.desktop-surface`. The rules below scope adjustments to
+ * the ENCLOSING SURFACE rather than `@media (max-width: …)` — this means the
+ * file renders correctly even when opened at a desktop browser viewport that
+ * would otherwise force every `@media`-driven rule to fire desktop-style.
+ * ========================================================================= */
+
+/* Mobile surface — phone frame: 390px viewport */
+.screen-phone .banner            { border-radius: 0; }
+.screen-phone .toast             { width: calc(100% - 24px); margin: 12px; max-width: none; }
+.screen-phone .card-celebration,
+.screen-phone .card-empty,
+.screen-phone .card-stat,
+.screen-phone .card-transaction  { width: calc(100% - 24px); margin: 12px auto; }
+.screen-phone .state-tabs        { gap: 6px; }
+.screen-phone .state-tab,
+.screen-phone .state-tabs [role="tab"] { padding: 8px 10px; font-size: 12px; }
+
+/* Tablet surface — 820 × 1180. Stays under the 1024 sidebar threshold so
+ * mobile-style chrome (bottom-nav, vertically-stacked cards) still applies. */
+.tablet-surface .banner          { max-width: 640px; margin: 16px auto; }
+.tablet-surface .toast           { max-width: 480px; margin: 16px auto; }
+.tablet-surface .card-celebration,
+.tablet-surface .card-empty,
+.tablet-surface .card-stat       { max-width: 560px; margin: 16px auto; }
+.tablet-surface .card-transaction { max-width: 640px; margin: 12px auto; }
+
+/* Desktop surface — 1120 × 720. Wider cards, side-by-side stats grid. */
+.desktop-surface .banner         { max-width: 920px; margin: 24px auto; }
+.desktop-surface .toast          {
+  position: absolute;
+  bottom: 24px;
+  right: 24px;
+  max-width: 420px;
+  margin: 0;
+}
+.desktop-surface .card-celebration,
+.desktop-surface .card-empty     { max-width: 640px; margin: 24px auto; }
+.desktop-surface .card-stat      { max-width: 320px; }
+.desktop-surface .card-transaction { max-width: 720px; margin: 12px auto; }
+.desktop-surface .state-tabs     { gap: 12px; }

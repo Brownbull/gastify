@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Card · celebration · Mobile — gastify (mockups-legacy)</title>
+  <link rel="stylesheet" href="../assets/css/desktop-shell.css">
+  <link rel="stylesheet" href="../assets/css/atoms.css">
+  <link rel="stylesheet" href="../assets/css/molecules.css">
+  <style>
+    body { margin: 0; background: var(--bg-secondary, var(--bg)); color: var(--text-primary); min-height: 100vh; padding: 32px 320px 32px 32px; font-family: var(--font-family); }
+    h1 { font-size: 22px; margin: 0 0 4px 0; font-weight: 700; }
+    .subtitle { color: var(--text-secondary); font-size: 13px; margin: 0 0 20px 0; max-width: 720px; line-height: 1.5; }
+    .surface-meta { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-tertiary); font-weight: 600; }
+    .crossref-row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 24px; font-size: 12px; }
+    .crossref-row a { color: var(--primary); text-decoration: none; padding: 6px 10px; border: 1px solid var(--border-light); border-radius: 999px; background: var(--surface); }
+    .crossref-row a:hover { filter: brightness(0.97); }
+  </style>
+</head>
+<body>
+  <h1>Card · celebration</h1>
+  <p class="subtitle">Reward / streak / milestone surface. Used by Insights + first-completion flows.</p>
+  <span class="surface-meta">📱 Mobile · 390 × 844</span>
+
+  <div class="screen-phone">
+    <div class="surface-frame">
+      <div class="card-celebration" role="status">
+        <button class="card-celebration__dismiss" aria-label="Cerrar">&times;</button>
+        <div class="card-celebration__icon" aria-hidden="true">🎉</div>
+        <h3 class="card-celebration__title">¡Llegaste a 30 gastos!</h3>
+        <p class="card-celebration__body">Llevás un récord de 7 días seguidos registrando. Seguí así para desbloquear el logro <strong>Constancia</strong>.</p>
+        <button class="btn btn--primary">Ver mi progreso</button>
+      </div>
+    </div>
+  </div>
+
+  <nav class="crossref-row" aria-label="Platform variants">
+    <a href="./card-celebration.html">↩ Landing</a>
+    <a href="./card-celebration-mobile.html">📱 Mobile</a>
+    <a href="./card-celebration-tablet.html">📐 Tablet</a>
+    <a href="./card-celebration-desktop.html">🖥️ Desktop</a>
+  </nav>
+
+  <script src="../assets/js/tweaks.js" defer></script>
+</body>
+</html>

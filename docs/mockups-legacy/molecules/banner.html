@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Molecule: Banner — gastify (mockups-legacy)</title>
+  <link rel="stylesheet" href="../assets/css/desktop-shell.css">
+  <link rel="stylesheet" href="../assets/css/atoms.css">
+  <link rel="stylesheet" href="../assets/css/molecules.css">
+  <style>
+    body { margin: 0; background: var(--bg); color: var(--text-primary); min-height: 100vh; padding: 40px 320px 48px 48px; font-family: var(--font-family); }
+    h1 { font-size: 24px; margin: 0 0 6px 0; font-weight: 700; }
+    .subtitle { color: var(--text-secondary); font-size: 13px; margin: 0 0 32px 0; max-width: 720px; line-height: 1.5; }
+    .platform-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 32px; }
+    .platform-card { display: flex; flex-direction: column; gap: 8px; padding: 20px; border: 1px solid var(--border-light); border-radius: 14px; background: var(--surface); text-decoration: none; color: inherit; transition: transform 120ms ease, box-shadow 120ms ease; }
+    .platform-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
+    .platform-card__glyph { font-size: 32px; line-height: 1; }
+    .platform-card__title { font-size: 15px; font-weight: 700; color: var(--text-primary); }
+    .platform-card__dim { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-tertiary); font-weight: 600; }
+    .platform-card__desc { font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
+    .crossref { background: var(--bg-secondary); padding: 16px 18px; border-radius: 10px; border: 1px solid var(--border-light); font-size: 13px; color: var(--text-secondary); line-height: 1.7; margin-top: 24px; }
+    .crossref a { color: var(--primary); text-decoration: none; font-weight: 600; }
+    .crossref a:hover { text-decoration: underline; }
+    .crossref strong { color: var(--text-primary); }
+  </style>
+</head>
+<body>
+  <h1>Molecule · Banner</h1>
+  <p class="subtitle">Inline status surface — info / warning / error / offline. Class names mirror <code>frontend/src/features/batch-review/views/BatchCaptureCreditSection.tsx</code>.</p>
+
+  <p style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-tertiary); font-weight: 600; margin: 0 0 12px 0;">Platform variants (D18)</p>
+  <div class="platform-grid">
+    <a class="platform-card" href="./banner-mobile.html">
+      <span class="platform-card__glyph" aria-hidden="true">📱</span>
+      <span class="platform-card__title">Mobile</span>
+      <span class="platform-card__dim">390 × 844 · phone frame</span>
+      <span class="platform-card__desc">Renders inside <code>.screen-phone</code>. Edge-bleed offline banner, single-column stacking.</span>
+    </a>
+    <a class="platform-card" href="./banner-tablet.html">
+      <span class="platform-card__glyph" aria-hidden="true">📐</span>
+      <span class="platform-card__title">Tablet</span>
+      <span class="platform-card__dim">820 × 1180 · iPad portrait</span>
+      <span class="platform-card__desc">Renders inside <code>.tablet-surface</code>. Bottom-nav still applies (under 1024 sidebar threshold).</span>
+    </a>
+    <a class="platform-card" href="./banner-desktop.html">
+      <span class="platform-card__glyph" aria-hidden="true">🖥️</span>
+      <span class="platform-card__title">Desktop</span>
+      <span class="platform-card__dim">1120 × 720 · edge-to-edge</span>
+      <span class="platform-card__desc">Renders inside <code>.desktop-surface</code>. Wider cards, side-nav, toast bottom-right.</span>
+    </a>
+  </div>
+
+  <div class="crossref">
+    <strong>Composition:</strong>
+    <ul style="margin: 8px 0 0; padding-left: 20px;">
+      <li><strong>Atoms used (one level down):</strong> see per-platform files for live demo + <a href="../atoms/index.html">atoms catalog</a></li>
+      <li><strong>Used by screens:</strong> see <a href="./SCREEN-USAGE.md">SCREEN-USAGE.md</a> — populated as L4 screens land.</li>
+      <li><strong>Cross-platform invariants:</strong> class names, ARIA roles, state matrix identical across all three files. Differences are scoped to <code>.screen-phone</code> / <code>.tablet-surface</code> / <code>.desktop-surface</code> overrides in <a href="../assets/css/molecules.css">molecules.css</a>.</li>
+    </ul>
+  </div>
+
+  <script src="../assets/js/tweaks.js" defer></script>
+</body>
+</html>

@@ -1,5 +1,96 @@
 # Session Ledger
 
+## 2026-04-28 14:25 — SPIKE P15.0 EXECUTED: `/gabe-mockup validate` mode + per-screen validator
+
+DISPATCH: ad-hoc `/plan` → codify validation in gabe-mockup as new `validate` mode (parallel shape to `spike`). One-pass GAN/PDD: design SKILL.md + templates, run on gastify, calibrate, run on gustify, calibrate, lock.
+
+EMITTED:
+- `tests/mockups/validate/runner.mjs` (orchestrator: architecture detection, screen enumeration, manifest, Playwright dispatch, MOCKUP-VALIDATION.md write with stable-ID merge)
+- `tests/mockups/validate/screen-validator.spec.ts` (Playwright spec, data-driven from manifest, 4 check categories per (screen × viewport))
+- `tests/mockups/validate/rules.json` (rule catalog + viewport widths 360/768/1440 + min-column 60px + skip patterns)
+- `.kdbp/MOCKUP-VALIDATION.md` (live findings document, 0 active findings on gastify)
+- `docs/mockups/VALIDATE-MODE-RECIPE.md` (project-specific recipe + run history table)
+
+VERIFICATION:
+- Architecture detection: `dynamic` with hybrid reason (tweaks.js + per-device *-desktop.html suffixes)
+- 87 specs (28 base × 3 viewports + 3 desktop-only at desktop) ran in 14s
+- 0 raw findings — gastify mockups are clean per C1/C2/C3 (C4 inert: no `applies-to: mockup-screens` rules in RULES.md)
+- Stable-ID hashing uses `fingerprint || selector` for proper dedup (calibration #2 from gustify run)
+- Skips `_*.html` template files + `index.html`
+
+CALIBRATIONS UPSTREAM (template edits to gabe_lens during this run):
+1. Hybrid architecture enumeration: shared file seeded to all viewports; per-device suffix overrides override per-viewport. Gastify-style projects no longer skip *-desktop.html files.
+2. Skip leading-underscore template files (`_desktop-template.html`, `_filter-dropdowns.html`, `_nav-reference.html` — 3 files, 9 specs eliminated from gastify's run).
+
+GATES:
+- ✅ Validator boots, finds the manifest, runs Playwright, writes MOCKUP-VALIDATION.md
+- ✅ Tablet viewport (768px) included alongside phone + desktop
+- ✅ Validate spec is additive: lives at `tests/mockups/validate/screen-validator.spec.ts` and gracefully skips when invoked without runner.mjs env vars (`MOCKUP_VALIDATE_MANIFEST`, `MOCKUP_VALIDATE_FINDINGS_DIR`). Plain `npm test` reports it as 1 skipped, not 1 failure.
+- ⚠ Pre-existing test failures: 44 atoms.spec.ts failures asserting `.legacy-section` visibility (line 53). Verified via `git stash` on clean main — failures persist without any of my validate work. Root cause is unrelated to Spike P15.0; tracked separately.
+- ✅ Refrepos mirror (Layer 3): templates at `setup/cherry-pick/kdbp/templates/mockup/validate/` (6 files). Bench-tested in `mktemp -d` — install.sh recursive `cp -r` picks up the validate/ subtree alongside react/. 34 mockup template files now (was 28).
+- ✅ Dual-home install: validate templates land at `~/.claude/templates/gabe/mockup/validate/` AND `~/.agents/templates/gabe/mockup/validate/`. SKILL.md "Mode: validate" section appears in both Claude Code and Codex CLI mode listings after restart.
+
+NEXT (handed back to user):
+- Pre-existing atoms-spec failures (`.legacy-section` not visible) are independent of this spike; tracking but not blocking.
+- Validate-mode is now codified, calibrated against 2 architectures (dynamic-hybrid via gastify; per-device via gustify), mirrored, installed.
+
+## 2026-04-27 17:30 — L2a BATCH 2 EXECUTED (mockups-legacy cards, 4 of 5; card-feature deferred)
+DISPATCH: /gabe-mockup continue → Phase L2 batch 2 (cards)
+EMITTED:
+  - docs/mockups-legacy/molecules/card-transaction.html (canonical, 571-line source — receipt thumb + emoji badge + merchant + amount + meta-pills + expandable items + selection + duplicate-flag + grouped border)
+  - docs/mockups-legacy/molecules/card-stat.html (aggregate tile from AggregatedItemCard.tsx — icon block + name + total + meta pills with optional action-pill)
+  - docs/mockups-legacy/molecules/card-empty.html (centered empty-state from HistoryEmptyStates.tsx + ItemsViewEmptyState.tsx — 3 sub-states: primary-with-CTA / filter-empty / duplicates-empty + 2 scales)
+  - docs/mockups-legacy/molecules/card-celebration.html (PersonalRecordBanner — Trophy + title + message + dismiss + auto-dismiss 8s + is-leaving exit anim)
+  - docs/mockups-legacy/assets/css/molecules.css (246 → 555 lines, +309 lines, 5 new sections incl. .card base + 4 variants, zero hex/rgb literals)
+  - docs/mockups-legacy/molecules/index.html (4 catalog cards added with inline real-DOM previews; live count 3 → 7)
+DEFERRED:
+  - card-feature — no live frontend source. Settings entries are list rows not feature cards; insights BatchSummary is multi-row panel (better fit for future card-summary). Documented in SCREEN-USAGE.md as "skipped from L2a, revisit if hero pattern lands in L4."
+SPEC-FLAG UX FIX (mid-batch):
+  - banner.html: dropped floating ::before pseudo-badge ("speculative — not in live frontend") that was absolute-positioned and clipping into adjacent banner content (per user screenshot feedback).
+  - Replaced with ⚠ inline marker tied to existing (speculative) text in swatch labels — semantic data-speculative attribute kept, no visual chrome.
+CROSS-REFS UPDATED:
+  - atoms/button.html "Used by molecules" → adds card-empty (CTA) link
+  - INDEX.md §1 phase-status: 3 → 7 of ~18
+  - INDEX.md §2 atoms table: button "Used by molecules" → banner + card-empty
+  - INDEX.md §3 molecules table: 4 new card rows + speculative card-feature row collapsed to remaining-list
+  - INDEX.md last-updated bumped
+  - mockups-legacy/index.html principal hub: meta-pills 3→7, Molecules card preview list updated
+  - SCREEN-USAGE.md: 4 new molecule sections + card-feature DEFERRED section
+PLAN BOOKKEEPING:
+  - Current Phase prose: batch-2 paragraph appended; batches 3-5 outlined; scan-mode-selector noted as future FAB/sheet sibling per user screenshot
+TRACE METHODOLOGY (per molecule):
+  - card-transaction: TransactionCard imports → 3 views (RecentScansView, DashboardView, HistoryView) ✅ heavy. Disambiguated 2 source files; history/components/TransactionCard.tsx is dead code (zero consumers, kept for git history).
+  - card-stat: AggregatedItemCard → 1 view (ItemsView) ⚠️ thin but real
+  - card-empty: HistoryEmptyStates → HistoryView (3 sub-states); ItemsViewEmptyState → ItemsView (filter-empty only) ✅
+  - card-celebration: PersonalRecordBanner wired but no production trigger; CelebrationView is placeholder per Story 14.33d ⚠️ wired-but-not-fired
+VERIFICATION: smoke-test pending (next step) — http-server :4176 + curl 200 check + zero-hex-literal grep
+NEXT: smoke-test all 4 cards; user review before continuing to batch 3 (modals + sheet + drawer)
+
+## 2026-04-27 16:55 — L2a BATCH 1 EXECUTED (mockups-legacy molecules, 3 of ~18)
+DISPATCH: /gabe-mockup auto-mode → Phase L2 batch 1
+EMITTED:
+  - docs/mockups-legacy/molecules/banner.html (atom-composing, 4 variants: info/warning/error/offline-edge-bleed; consumes button atom)
+  - docs/mockups-legacy/molecules/state-tabs.html (canonical primitive: pill+sliding-indicator + simple-flat variant; sourced from ItemViewToggle.tsx)
+  - docs/mockups-legacy/molecules/toast-system.html (system layer: .toast-stack + .is-leaving + useToast hook contract; wraps L1 toast atom)
+  - docs/mockups-legacy/assets/css/molecules.css (17 → 237 lines, 3 sections, zero hex/rgb literals)
+  - docs/mockups-legacy/molecules/index.html (sub-hub flipped placeholder→live, 3 catalog cards with inline real-DOM previews)
+CROSS-REFS UPDATED:
+  - atoms/button.html "Used by molecules" → links banner.html (closes bidirectional contract)
+  - atoms/toast.html "Used by molecules" → links toast-system.html (closes bidirectional contract)
+  - INDEX.md §1 phase-status: L2a ⬜ → 🔄 (3 of 6 batches)
+  - INDEX.md §2 atoms table: button "Used by molecules" placeholder → live banner link; toast → live toast-system link
+  - INDEX.md §3 molecules table: 3 catalog rows populated with sources + variants + atom deps
+  - mockups-legacy/index.html principal hub: Molecules card placeholder→live; meta-pill "11 atoms ✅ · 3 molecules ✅"
+PLAN BOOKKEEPING:
+  - Phases table: L2 row Exec ⬜ → 🔄
+  - Current Phase prose: explains batch 1 completion + suggested batches 2-5 for remaining 15
+  - Retrofit Log: 2026-04-27 L2a batch 1 entry appended (drift-vs-clean-slate: BEM-lite class names, frontend-token vocabulary)
+DRIFT NOTES:
+  - toast-system intentionally diverges from clean-slate `toast.html` — splits atom-render (L1) from positioning + hook contract (L2). Single-toast semantics from live useToast.ts (NOT spike P14.0's queue+max3+FIFO).
+  - banner uses BEM-lite (.banner--warning) instead of clean-slate's .is-warning, matching L1 atom convention
+VERIFICATION: deferred to next /gabe-mockup run (smoke-test: http-server :4173 + Playwright snapshot per molecule × Normal Light/Dark)
+NEXT: continue L2a batch 2 (cards: transaction / stat / empty / feature / celebration) via /gabe-mockup
+
 ## 2026-04-27 16:35 — PLAN UPDATED: advance to L2 + retro-tick bundled phases
 CHANGE: Current Phase L1 → L2 (mockups-legacy Molecules; three sub-phases L2a/L2b/L2c). Retro-ticked Commit+Push ✅ for Phase 3 (Molecules), Phase 4 (Hub layer D22), Phase L0 (mockups-legacy Foundation), Spike P14.0 (Mockup→React) — all four shipped in be9aefd and pushed in P5 (origin/main 16:30). Review columns remain ⬜ for these four; no /gabe-review pass occurred. PENDING.md P11 tracks the retroactive review backlog. Last Updated bumped to reflect retroactive correction.
 SCOPE: structural fix — column state now matches deployment reality for P3/P4/L0/Spike P14. Future /gabe-review on those phases will flip Review ⬜ → ✅ when they actually run.
@@ -325,3 +416,5 @@ NEXT: Layer B execution in /home/khujta/projects/gabe_lens/ — extract this hub
 ## 2026-04-27 16:27 — [main c69447d] chore(kdbp): record be9aefd + tick Phase L1 Commit column
 
 ## 2026-04-27 16:32 — [main 7600c83] chore(kdbp): record push bookkeeping for P5
+
+## 2026-04-27 16:38 — [main 907157f] chore(kdbp): advance Current Phase to L2 + retro-tick P3/P4/L0/Spike P14

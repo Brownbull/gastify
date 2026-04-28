@@ -1,0 +1,46 @@
+{
+  "$schema": "https://gabe-mockup.dev/schemas/validate-rules-v1.json",
+  "version": "1.0.0",
+  "viewports": {
+    "phone": 360,
+    "tablet": 768,
+    "desktop": 1440
+  },
+  "min_column_width_px": 60,
+  "skip_screens": [],
+  "skip_screens_pattern": "-empty|-zero|-first-time|-loading|-error|deprecated",
+  "categories": {
+    "C1_overflow": {
+      "severity": "block",
+      "enabled": true,
+      "rules": [
+        { "id": "body-overflow", "description": "scrollWidth > viewport.width on document.documentElement" },
+        { "id": "container-overflow", "description": "scrollWidth > clientWidth on .frame / .surface-content / [data-frame] / .screen / .screen-phone / .tablet-surface / .desktop-surface / main" },
+        { "id": "image-overflow", "description": "<img> natural width > parent width" }
+      ]
+    },
+    "C2_narrow_columns": {
+      "severity": "warn",
+      "enabled": true,
+      "rules": [
+        { "id": "min-column-width", "description": "th / td / [role=columnheader] width < min_column_width_px" },
+        { "id": "column-text-overflow", "description": "th / td scrollWidth > clientWidth (content clipped)" }
+      ]
+    },
+    "C3_empty_content": {
+      "severity": "warn",
+      "enabled": true,
+      "rules": [
+        { "id": "list-emptiness", "description": "<table> with <thead> but 0 <tbody><tr> rows (skipped if screen-name matches skip_screens_pattern)" },
+        { "id": "placeholder-only", "description": "skeleton placeholders cover > 50% of viewport area" }
+      ]
+    },
+    "C4_kdbp_rules": {
+      "severity": "varies",
+      "enabled": true,
+      "source": ".kdbp/RULES.md",
+      "description": "Rules with `applies-to: mockup-screens` (or `mockup:<phase>` / `mockup:<screen>`) and a `detect: dom-selector <css>` line are auto-checked. Rules tagged but missing a detector emit informational findings."
+    }
+  },
+  "kdbpRules": []
+}

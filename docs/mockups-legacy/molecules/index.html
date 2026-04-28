@@ -14,6 +14,7 @@
       color: var(--text-primary);
       min-height: 100vh;
       padding: 40px 320px 48px 48px;
+      font-family: var(--font-family);
     }
     .hub-header { margin-bottom: 32px; max-width: 760px; }
     .hub-header h1 {
@@ -29,26 +30,277 @@
       line-height: 1.6;
       margin: 8px 0 0;
     }
-    .placeholder {
-      padding: 48px;
-      background: var(--surface);
-      border: 2px dashed var(--border-medium);
-      border-radius: 16px;
-      text-align: center;
+    .hub-header .meta {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 16px;
+      font-size: 12px;
       color: var(--text-tertiary);
     }
-    .placeholder strong { color: var(--text-primary); display: block; margin-bottom: 8px; font-family: var(--font-family-wordmark); font-size: 18px; }
+    .meta-pill {
+      background: var(--bg-secondary);
+      padding: 4px 10px;
+      border-radius: 9999px;
+      font-weight: 600;
+      border: 1px solid var(--border-light);
+    }
+    .meta-pill strong { color: var(--primary); }
+    .meta-pill a { color: inherit; text-decoration: none; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 18px;
+    }
+    .mol-card {
+      display: flex;
+      flex-direction: column;
+      background: var(--surface);
+      border: 1px solid var(--border-light);
+      border-radius: 14px;
+      overflow: hidden;
+      text-decoration: none;
+      color: inherit;
+      transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+    }
+    .mol-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+      border-color: var(--primary);
+    }
+    .mol-card:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+    .mol-card.is-placeholder {
+      background: var(--bg-secondary);
+      border-style: dashed;
+      border-color: var(--border-medium);
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+    .mol-card.is-placeholder:hover {
+      transform: none;
+      box-shadow: none;
+      border-color: var(--border-medium);
+    }
+    .mol-preview {
+      min-height: 140px;
+      padding: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border-light);
+      overflow: hidden;
+    }
+    .mol-meta {
+      padding: 14px 18px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .mol-meta h2 {
+      font-family: var(--font-family-wordmark);
+      font-size: 17px;
+      margin: 0;
+      letter-spacing: -0.01em;
+    }
+    .mol-desc {
+      font-size: 12px;
+      color: var(--text-secondary);
+      line-height: 1.45;
+      margin: 0;
+    }
+    .mol-stats {
+      font-size: 11px;
+      color: var(--text-tertiary);
+      margin-top: 2px;
+      font-family: ui-monospace, Consolas, monospace;
+    }
+    .placeholder-banner {
+      margin-top: 36px;
+      padding: 24px;
+      background: var(--bg-secondary);
+      border: 1px dashed var(--border-medium);
+      border-radius: 12px;
+      color: var(--text-tertiary);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .placeholder-banner strong { color: var(--text-primary); display: block; margin-bottom: 4px; }
   </style>
 </head>
 <body>
   <header class="hub-header">
     <h1>Molecules</h1>
-    <p class="lede">Compound components composed of atoms. Extracted from <code>frontend/src/features/</code> across the 12 feature modules.</p>
+    <p class="lede">Compound components composed of atoms. Extracted from <code>frontend/src/features/</code> + <code>frontend/src/shared/</code>. Selectors live in <a href="../assets/css/molecules.css"><code>molecules.css</code></a>; tokens in <a href="../assets/css/desktop-shell.css"><code>desktop-shell.css</code></a>.</p>
+    <div class="meta">
+      <span class="meta-pill"><strong>L2a</strong> in progress · 7 of ~18</span>
+      <span class="meta-pill">3 themes × 2 modes via Tweaks panel</span>
+      <span class="meta-pill">Catalog: <a href="../INDEX.md">root INDEX.md</a></span>
+      <span class="meta-pill">Screen trace: <a href="SCREEN-USAGE.md">SCREEN-USAGE.md</a></span>
+    </div>
+    <p class="lede" style="margin-top: 18px; font-size: 13px;">
+      <strong>D18 file-triple convention.</strong> Each card below opens a landing page with three platform variants:
+      <code>📱 &lt;name&gt;-mobile.html</code> (390 × 844, <code>.screen-phone</code>),
+      <code>📐 &lt;name&gt;-tablet.html</code> (820 × 1180, <code>.tablet-surface</code>),
+      <code>🖥️ &lt;name&gt;-desktop.html</code> (1120 × 720, <code>.desktop-surface</code>).
+      The Tweaks panel no longer carries a viewport switcher — open the platform file directly.
+    </p>
   </header>
 
-  <div class="placeholder">
-    <strong>Phase L2 — pending</strong>
-    Molecules will be populated in three sub-phases: L2a (direct counterparts to clean-slate), L2b (frontend-specific), L2c (specialized long-tail). ~60–80 molecules expected.
+  <nav class="grid" aria-label="Molecule catalog">
+
+    <a class="mol-card" href="banner.html">
+      <div class="mol-preview" style="flex-direction: column; gap: 10px; align-items: stretch; padding: 20px;">
+        <div class="banner banner--warning" role="status">
+          <span class="banner__icon" aria-hidden="true">!</span>
+          <span class="banner__body" style="font-size: 12px;">Te quedan <strong>3 escaneos</strong>.</span>
+        </div>
+        <div class="banner banner--info" role="status">
+          <span class="banner__icon" aria-hidden="true">i</span>
+          <span class="banner__body" style="font-size: 12px;">Sincronización al día.</span>
+        </div>
+      </div>
+      <div class="mol-meta">
+        <h2>Banner</h2>
+        <p class="mol-desc">Persistent inline notice. info / warning / error / offline. Optional dismiss + action button.</p>
+        <span class="mol-stats">.banner · .banner--info/warning/error/offline · uses button atom</span>
+      </div>
+    </a>
+
+    <a class="mol-card" href="state-tabs.html">
+      <div class="mol-preview" style="padding: 28px 20px;">
+        <div class="state-tabs" role="tablist" aria-label="Demo">
+          <button class="state-tab" role="tab" aria-selected="true">Por grupo</button>
+          <button class="state-tab" role="tab" aria-selected="false">Original</button>
+        </div>
+      </div>
+      <div class="mol-meta">
+        <h2>State tabs</h2>
+        <p class="mol-desc">Pill-shape toggle with sliding background indicator. Powers ItemViewToggle, ChartModeToggle, carousels.</p>
+        <span class="mol-stats">.state-tabs · .state-tab · primitive (no atoms)</span>
+      </div>
+    </a>
+
+    <a class="mol-card" href="toast-system.html">
+      <div class="mol-preview" style="flex-direction: column; gap: 8px; align-items: stretch; padding: 18px;">
+        <div class="toast-stack toast-stack--inline">
+          <div class="toast toast--success" role="status" style="font-size: 12px;">
+            <span class="toast__icon" aria-hidden="true">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+            </span>
+            Gasto guardado
+          </div>
+          <div class="toast toast--error" role="alert" style="font-size: 12px;">
+            <span class="toast__icon" aria-hidden="true">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+            </span>
+            No pude guardar
+          </div>
+        </div>
+      </div>
+      <div class="mol-meta">
+        <h2>Toast system</h2>
+        <p class="mol-desc">Single transient toast at bottom-center. Wraps L1 toast atom + useToast hook (3s auto-dismiss, 6s for errors).</p>
+        <span class="mol-stats">.toast-stack · .is-leaving · uses toast atom</span>
+      </div>
+    </a>
+
+    <a class="mol-card" href="card-transaction.html">
+      <div class="mol-preview" style="padding: 16px; align-items: stretch;">
+        <div class="card card-transaction" style="width: 100%;">
+          <div class="card__body">
+            <div class="card-transaction__row">
+              <div class="card-transaction__thumb">
+                <div class="card-transaction__thumb-frame" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-tertiary)" stroke-width="1.5"><path d="M19 5L19 21L15 19L11 21L7 19L5 21L5 5L7 3L11 5L15 3L19 5Z"/></svg></div>
+                <span class="card-transaction__thumb-emoji" aria-hidden="true">🛒</span>
+              </div>
+              <div class="card-transaction__info">
+                <div class="card-transaction__row-1">
+                  <span class="card-transaction__merchant" style="font-size: 12px;">Jumbo</span>
+                  <span class="card-transaction__amount" style="font-size: 12px;">$24.580</span>
+                </div>
+                <div class="card-transaction__row-2">
+                  <div class="card-transaction__meta">
+                    <span class="card-transaction__meta-pill">14:32</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="mol-meta">
+        <h2>Card — Transaction</h2>
+        <p class="mol-desc">Most-rendered card. Receipt thumb + emoji badge + merchant + amount + meta pills + expandable items + selection mode + duplicate flag.</p>
+        <span class="mol-stats">.card-transaction · 9-state matrix · BIG (571-line source)</span>
+      </div>
+    </a>
+
+    <a class="mol-card" href="card-stat.html">
+      <div class="mol-preview" style="padding: 16px; align-items: stretch;">
+        <div class="card card-stat" style="width: 100%;">
+          <div class="card-stat__row">
+            <div class="card-stat__icon" aria-hidden="true">☕</div>
+            <div class="card-stat__info">
+              <h3 class="card-stat__name" style="font-size: 12px;">Cappuccino grande</h3>
+              <div class="card-stat__amount" style="font-size: 13px;">$28.800</div>
+              <div class="card-stat__meta">
+                <span class="card-stat__meta-pill">9 compras</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="mol-meta">
+        <h2>Card — Stat</h2>
+        <p class="mol-desc">Aggregate tile. Icon block + name + total + meta pills (count, average, action). Used by ItemsView aggregated-by-product list.</p>
+        <span class="mol-stats">.card-stat · sourced from AggregatedItemCard.tsx</span>
+      </div>
+    </a>
+
+    <a class="mol-card" href="card-empty.html">
+      <div class="mol-preview" style="padding: 16px;">
+        <div class="card-empty" style="padding: 24px 16px;">
+          <div class="card-empty__icon card-empty__icon--sm" aria-hidden="true">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          </div>
+          <h2 class="card-empty__title" style="font-size: 13px;">Sin gastos</h2>
+          <p class="card-empty__subtitle" style="font-size: 11px;">Escaneá tu primera boleta.</p>
+        </div>
+      </div>
+      <div class="mol-meta">
+        <h2>Card — Empty</h2>
+        <p class="mol-desc">Centered empty-state. Icon circle + title + subtitle + optional CTA. 3 sub-states (no data ever / no filter matches / no duplicates).</p>
+        <span class="mol-stats">.card-empty · uses button atom (CTA only)</span>
+      </div>
+    </a>
+
+    <a class="mol-card" href="card-celebration.html">
+      <div class="mol-preview" style="padding: 16px; align-items: stretch;">
+        <div class="card-celebration" role="status" style="width: 100%; padding: 12px;">
+          <div class="card-celebration__trophy" aria-hidden="true" style="width: 32px; height: 32px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9H4.5a2.5 2.5 0 010-5H6"/><path d="M18 9h1.5a2.5 2.5 0 000-5H18"/><path d="M4 22h16"/><path d="M18 2H6v7a6 6 0 0012 0V2z"/></svg>
+          </div>
+          <div class="card-celebration__body">
+            <p class="card-celebration__title" style="font-size: 11px;">¡Récord personal!</p>
+            <p class="card-celebration__message" style="font-size: 10px;">Tu semana más baja en Restaurante.</p>
+          </div>
+        </div>
+      </div>
+      <div class="mol-meta">
+        <h2>Card — Celebration</h2>
+        <p class="mol-desc">Personal-record banner. Trophy + title + message + dismiss + auto-dismiss (8s). Story 14.33d "coming soon" placeholder in live frontend.</p>
+        <span class="mol-stats">.card-celebration · sourced from PersonalRecordBanner.tsx</span>
+      </div>
+    </a>
+
+  </nav>
+
+  <div class="placeholder-banner">
+    <strong>L2a — direct counterparts (~18 molecules) — in progress (7 of ~18)</strong>
+    Remaining: modals (confirm / form / learning / error / credit), sheet, drawer, nav (bottom / top / sidebar), FAB, filters, form, list-item. Followed by L2b (~40-60 frontend-specific) and L2c (specialized long-tail).<br>
+    <strong>Deferred from L2a:</strong> <code>card-feature</code> — no live frontend equivalent (clean-slate-only marketing/hero pattern). See <a href="SCREEN-USAGE.md">SCREEN-USAGE.md</a> for the trace.
   </div>
 
   <script src="../assets/js/tweaks.js" defer></script>
