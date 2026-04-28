@@ -444,3 +444,5 @@ PROMOTION: N/A (origin/staging does not exist; main is final link)
 DEPLOYMENTS: P6 added to .kdbp/DEPLOYMENTS.md
 SOURCE: L2 mid-phase push — 4 commits since P5 (907157f + bb934e1 + f80ac14 + push-bookkeeping). Includes D18 cascade with 5 broken molecules acknowledged in PENDING.md P12; rebuild gated on R1+R2 enforcement landing first (see DECISIONS.md D23).
 PUSH_COL_TICK: skipped (L2 Exec=🔄, not ✅; auto-tick precondition failed per Step 10)
+
+## 2026-04-28 11:39 — [main 0269fae] chore(kdbp): record push bookkeeping for P6
