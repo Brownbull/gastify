@@ -1,6 +1,12 @@
 @import "tailwindcss";
 @custom-variant dark (&:is(.dark *));
 
+/* Tailwind 4 default content detection skips directories prefixed with `_`
+ * (and a handful of others), so showcase stories under src/_design/ would
+ * lose their utility classes. Make scanning explicit instead. */
+@source "../../src/**/*.{ts,tsx,html}";
+@source "../../.ladle/**/*.{ts,tsx}";
+
       /* Story 7.12: App-wide CSS Custom Properties Theme System (AC #6, #7) */
       /* Story 7.17: Renamed themes - "Normal" (warm) is default, "Professional" (cool) is optional */
       /* Story 11.6: Safe area and viewport utilities for PWA (AC #1, #3) */
