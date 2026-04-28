@@ -446,3 +446,7 @@ SOURCE: L2 mid-phase push — 4 commits since P5 (907157f + bb934e1 + f80ac14 + 
 PUSH_COL_TICK: skipped (L2 Exec=🔄, not ✅; auto-tick precondition failed per Step 10)
 
 ## 2026-04-28 11:39 — [main 0269fae] chore(kdbp): record push bookkeeping for P6
+
+## 2026-04-28 13:13 — [main 5eb8ba6] chore(kdbp): record 0269fae push entry in LEDGER
+
+## 2026-04-28 13:14 — [main 9f660be] docs(mockups): rework cross-session handoff brief
