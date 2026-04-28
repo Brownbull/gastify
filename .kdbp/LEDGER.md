@@ -1,5 +1,19 @@
 # Session Ledger
 
+## 2026-04-28 — [main bb934e1] feat(mockups): D18 file-triple cascade + KDBP audit (D23) + parallel validate-mode scaffold
+FINDINGS: 3 (0 critical, 0 high, 2 medium, 1 low)
+  - medium: tests/mockups/validate/runner.mjs — `.mjs` not in STRUCTURE.md test pattern (stream B / not-mine; accepted)
+  - medium: tests/mockups/validate/rules.json — `.json` not in STRUCTURE.md test pattern (stream B / not-mine; accepted)
+  - low (deferred): P11 — review-skip pattern persists on this commit too (user acknowledged + chose to commit)
+ACTIONS: all-accept (per user "commit everything" override of just-approved plan)
+DEFERRED: +P12 (5 broken molecule triples from D18 cascade — rebuild gated on R1+R2 enforcement landing first; see DECISIONS.md D23 + ~/.claude/plans/why-did-you-do-twinkling-lecun.md)
+SCOPE: 3 independent workstreams bundled (D18 cascade + KDBP audit + parallel validate-mode scaffold). Honest multi-section commit message documents each.
+NOTABLE:
+  - D23 audit doc landed: documents WHY the suite's gates didn't catch the class-name hallucination (helper-script authors demos as Python literals; /gabe-review opt-in + skipped 5 phases running)
+  - PENDING.md P12: explicit deferral with file paths + rebuild prerequisite (R1+R2 land first)
+  - Tweaks panel viewport chip retired across all mockup files; surface chrome lives in desktop-shell.css
+NEXT: implement R1 (class-name lint hook) + R2 (helper-script source extraction) per plan; then rebuild the 5 molecules through the new gates as proof they work.
+
 ## 2026-04-28 14:25 — SPIKE P15.0 EXECUTED: `/gabe-mockup validate` mode + per-screen validator
 
 DISPATCH: ad-hoc `/plan` → codify validation in gabe-mockup as new `validate` mode (parallel shape to `spike`). One-pass GAN/PDD: design SKILL.md + templates, run on gastify, calibrate, run on gustify, calibrate, lock.
@@ -418,3 +432,5 @@ NEXT: Layer B execution in /home/khujta/projects/gabe_lens/ — extract this hub
 ## 2026-04-27 16:32 — [main 7600c83] chore(kdbp): record push bookkeeping for P5
 
 ## 2026-04-27 16:38 — [main 907157f] chore(kdbp): advance Current Phase to L2 + retro-tick P3/P4/L0/Spike P14
+
+## 2026-04-28 11:35 — [main bb934e1] feat(mockups): D18 file-triple cascade + KDBP audit (D23) + parallel validate-mode scaffold
