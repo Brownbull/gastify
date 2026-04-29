@@ -2,6 +2,34 @@
 
 > Phase 3 of the pivot, rewritten after pivot 2A→2B (DECISIONS.md D25). Plan: `~/.claude/plans/okay-here-s-something-that-ancient-graham.md`.
 
+## Scope boundary — what belongs in Storybook
+
+**Storybook covers:**
+
+- **Atoms** — design-token showcases (Colors, Typography, Icons) + future single-purpose UI primitives.
+- **Molecules** — small composites (cards, banners, dialogs, form groups). Must work with stub callbacks; no heavy context dependencies.
+- **Self-contained screens** — views that read everything via hooks/contexts already wrapped in `.storybook/preview.tsx` (Firebase mocks + QueryClient + Auth). The view mounts with no required props (or only documented test overrides). Dashboard is the canonical example: `<DashboardView />` with no props renders the full screen because `useDashboardViewData()` reads from globals.
+
+**Storybook explicitly does NOT cover:**
+
+- **Orchestrator-driven flows** — components selected by a state machine (e.g., `ScanFeature.tsx` switching between `IdleState` / `CameraView` / `ProcessingState` / `ReviewingState` / etc. by `phase`). Storying any single state component needs a wrapper to seed the Zustand store, which manufactures bugs (translation key leaks, phase guards firing, etc.) and inverts the cost/benefit of the storybook surface.
+- **Device-API-coupled views** — anything depending on `getUserMedia`, geolocation, file APIs that need a real browser permission flow. Camera viewfinders go here.
+- **Deep multi-context views** — review/edit screens that need scan results + category picker state + confidence wiring (e.g., `TransactionEditorView`). The mocking surface exceeds the mockup value.
+
+**For the excluded categories:** use the running app (`cd frontend && npm run dev`). Capture screenshots into a per-flow reference doc under `docs/reference/<flow>.md` if a designer needs the "all states at once" overview. See `docs/reference/scan-flow.md` for the canonical example.
+
+**Decision aid — does this view belong in Storybook?**
+
+| Test | If yes |
+|------|--------|
+| Mounts with `<View />` (no required props) and renders fully? | ✅ story-able |
+| Reads from hooks already provided by `preview.tsx` (Firebase mocks + QueryClient + Auth)? | ✅ story-able |
+| Needs a wrapper that seeds Zustand state on mount? | ❌ skip; document in reference doc |
+| Needs `getUserMedia` / camera / device permission? | ❌ skip; document in reference doc |
+| Needs >2 mocked contexts beyond what `preview.tsx` already provides? | ❌ skip; reference doc |
+
+When in doubt, try the 30-line story first (mount + viewport parameter). If it works, ship. If you find yourself building the third wrapper, stop — it doesn't belong in Storybook.
+
 ## File placement
 
 Stories live next to their component:
