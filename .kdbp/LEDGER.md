@@ -508,3 +508,10 @@ ACTIONS: none
 DEFERRED: none
 COMMIT_COL_TICK: skipped (revert commit; no phase advancement).
 NOTES: User flagged that visual verification of Phase 6.3 batch 1 (IdleState) revealed two issues warranting redo not fix-forward: (1) translation keys leaked to UI because the stub `t = (key) => key` short-circuited the component's `||` fallback (manufactured the same bug PENDING.md P10 tracks for production scan flow); (2) IdleState is documented as "often handled by FAB" — not the user-facing first step of the scan flow. The plan's "01-Capture" expected the camera viewfinder UI (CameraView / BatchCaptureView), not the small IdleState fallback card. Combined revert: 1c75ef4 + 95f3051 → 5a39a10. Phase 6.3 paused pending a clearer plan that picks the right entry component(s) and locks the translation strategy before any story authoring.
+
+## 2026-04-28 22:18 — [main da4e022] docs(frontend): lock Storybook scope boundary in STORIES.md
+FINDINGS: 0
+ACTIONS: none
+DEFERRED: none
+COMMIT_COL_TICK: skipped (Current Phase = L2; commit is mockup-pivot scope-narrowing from a different plan).
+NOTES: Step 1 of the post-revert recommendation approach. Adds Storybook scope boundary doc to frontend/STORIES.md (what belongs / doesn't / decision aid table). Direct response to Phase 6.3 batch 1 revert (5a39a10) — prevents future contributors from forcing orchestrator-driven flows into Storybook stories (which manufactured the translation-key leak bug previously). Next steps in this plan: investigate other views for self-containedness (Step 2), add 1-2 more screen stories if they fit (Step 3), build docs/reference/scan-flow.md for complex flows (Step 4), Phase 9 KDBP cleanup (Step 5).
