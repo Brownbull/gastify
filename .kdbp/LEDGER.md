@@ -487,3 +487,10 @@ ACTIONS: none
 DEFERRED: none
 COMMIT_COL_TICK: skipped (Current Phase = L2 mockups-legacy; commit is mockup-pivot showcase fix from a different plan).
 NOTES: Storybook preview iframe head was missing the Google Fonts <link>, so Baloo 2 (Gastify wordmark) fell back silently. Added .storybook/preview-head.html mirroring index.html's preconnect + fonts.googleapis.com link. Updated Typography story's Baloo 2 sample to match TopHeader.tsx shape: var(--font-family-wordmark) + fontWeight: 700 + fontSize: 28px (Baloo 2 is loaded at weight 700 only; without explicit weight match, browser falls back). Verified via document.fonts API: Baloo 2/700 status="loaded".
+
+## 2026-04-28 21:32 — [main 8795b52] feat(frontend): ship Dashboard screen story (Phase 6 milestone)
+FINDINGS: 1 (0 critical, 1 high, 0 medium, 0 low)
+ACTIONS: 1:accept (P13 firestore type errors already tracked)
+DEFERRED: none new
+COMMIT_COL_TICK: skipped (Current Phase = L2 mockups-legacy; commit is Ladle-pivot Phase 6 milestone from a different plan).
+NOTES: **PHASE 6 MILESTONE LANDED.** The handoff brief's named first deliverable shipped: Dashboard, Mobile 390×844, Normal theme, Light mode, with real Transaction data shape. Story mounts <DashboardView /> with no props — reads everything via useDashboardViewData() from Zustand stores + repositories backed by mocked Firestore. Wrapper calls useHistoryFiltersInit() to mirror viewRenderers.tsx's DashboardViewWithFilters. Layout 'fullscreen' so the view fills the iframe. 5 transactions surface from seed data (Jumbo, Café Altura, Shell, Farmacias Cruz Verde, Spotify Premium); 5 category groups (Supermercado, Bencinera, Restaurante, Farmacia, Más). Layout + visual language matches docs/mockups-legacy/screens/gastify-dashboard.html. Verified via Playwright. The pivot has now demonstrated end-to-end that Storybook + mocked Firebase + real React component = a viable mockup surface.
