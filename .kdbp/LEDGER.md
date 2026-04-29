@@ -480,3 +480,10 @@ ACTIONS: 1:accept (P13 firestore type errors already tracked)
 DEFERRED: none new
 COMMIT_COL_TICK: skipped (Current Phase = L2 mockups-legacy; commit is mockup-pivot showcase-tool reversal from a different plan; auto-tick precondition failed per Step 6.6 mismatch rule). Manually reconcile in pivot Phase 9.
 NOTES: Reversed axis 2 of the mockup-to-React pivot plan from Ladle (2A) to Storybook 10 (2B) per user direction. Storybook handles iframe CSS injection natively, removing the useMirrorStylesheetsToOwnerDoc hack from .ladle/components.tsx. CSF3 stories migrated with minimal changes. 28-combination Playwright verification: zero errors, all stories render with theme tokens + Tailwind utilities + viewport switching. Plan reference: ~/.claude/plans/okay-here-s-something-that-ancient-graham.md. DECISION D25 records the pivot rationale (to be added in pivot Phase 9 archive cleanup).
+
+## 2026-04-28 21:21 — [main b98e314] fix(frontend): inject Google Fonts into Storybook preview iframe
+FINDINGS: 0
+ACTIONS: none
+DEFERRED: none
+COMMIT_COL_TICK: skipped (Current Phase = L2 mockups-legacy; commit is mockup-pivot showcase fix from a different plan).
+NOTES: Storybook preview iframe head was missing the Google Fonts <link>, so Baloo 2 (Gastify wordmark) fell back silently. Added .storybook/preview-head.html mirroring index.html's preconnect + fonts.googleapis.com link. Updated Typography story's Baloo 2 sample to match TopHeader.tsx shape: var(--font-family-wordmark) + fontWeight: 700 + fontSize: 28px (Baloo 2 is loaded at weight 700 only; without explicit weight match, browser falls back). Verified via document.fonts API: Baloo 2/700 status="loaded".
