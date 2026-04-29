@@ -529,3 +529,10 @@ ACTIONS: none
 DEFERRED: none
 COMMIT_COL_TICK: skipped (Current Phase = L2; commit is mockup-pivot reference doc from a different plan).
 NOTES: Step 4 of the post-revert recommendation approach. Replaces the failed Storybook approach for the scan flow with a navigable markdown reference at docs/reference/scan-flow.md. Orchestrator → component mapping table, dialog overlay table, 4-phase walkthrough (01-Capture / 02-Processing / 03-Review / 04-Save), error variants table, full PENDING.md P6-P10 cross-reference, "Why this isn't a Storybook story" rationale linking back to the IdleState revert (5a39a10). No screenshots embedded — designers grab them from the live app when needed; doc stays low-maintenance. Step 5 (Phase 9 KDBP cleanup) remaining.
+
+## 2026-04-28 22:50 — [main da3ceb4] chore(kdbp): Phase 9 cleanup — close P12, log D24-27, advance Current Phase, rewrite handoff doc
+FINDINGS: 0
+ACTIONS: none
+DEFERRED: none
+COMMIT_COL_TICK: skipped (Current Phase = L2 in commit's diff base; commit itself ADVANCES Current Phase to "Post-pivot scaling" — the auto-tick precondition still skips because the new Phase isn't a numbered row in the Phases table).
+NOTES: Step 5 (final step) of the post-revert recommendation approach. KDBP-only cleanup per D27 — directories not moved. PENDING.md P12 closed (pivot superseded the rebuild gate). DECISIONS.md +D24 (pivot), +D25 (Storybook 10 over Ladle), +D26 (Storybook scope boundary), +D27 (don't move directories). PLAN.md Current Phase: "Phase L2: mockups-legacy Molecules" → "Post-pivot scaling — mockup work happens in Storybook stories at frontend/.storybook/" with L0-L5 marked OBSOLETED. docs/MOCKUP-REWORK-HANDOFF.md rewritten 153 → 47 lines as a status pointer. Pivot session: done. The 5 steps of the post-revert recommendation approach all landed: STORIES.md scope boundary (da4e022), Trends + History stories (70600b4), scan-flow reference doc (6bb149e), Phase 9 KDBP cleanup (this commit).
