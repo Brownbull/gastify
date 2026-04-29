@@ -123,6 +123,55 @@ Storybook's controls panel auto-renders these — that's the "swap props at runt
 
 Both are global (not per-story); no setup needed in story files.
 
+## Screens convention — platform × state args
+
+Screen-level stories (anything under `Screens/` or `Flows/`) follow a two-axis pattern that mirrors the sibling Storybook setup:
+
+1. **`platform` arg** — `mobile` | `tablet` | `desktop`. Constrains the story's frame width (mobile 390 / tablet 768 / desktop fluid). Pair with `parameters.viewport.defaultViewport` so the toolbar viewport matches the named story.
+2. **`state` arg** — `default` | `empty` | `loading` | `error` | … domain-specific states. Drives `_testOverrides` (or equivalent) into the view to swap data shapes without re-seeding mocked Firestore.
+
+The screen wrapper is a small component that takes `(platform, state)` props, computes the width frame + state overrides, then mounts the real view component. Each named story exports a pre-set `(platform, state)` combination.
+
+Example (see [DashboardView.stories.tsx](src/features/dashboard/views/DashboardView/DashboardView.stories.tsx)):
+
+```tsx
+type Platform = 'mobile' | 'tablet' | 'desktop';
+type DataState = 'default' | 'empty' | 'loading' | 'error';
+interface Args { platform: Platform; state: DataState; }
+
+const PLATFORM_WIDTH = { mobile: 390, tablet: 768, desktop: undefined } as const;
+
+const ScreenWrapper: React.FC<Args> = ({ platform, state }) => {
+  const overrides = buildOverrides(state);
+  const width = PLATFORM_WIDTH[platform];
+  return (
+    <div style={{ width: width ? `${width}px` : '100%', maxWidth: '100%', margin: '0 auto' }}>
+      <RealView _testOverrides={overrides} />
+    </div>
+  );
+};
+
+const meta: Meta<Args> = {
+  title: 'Screens/Dashboard',
+  component: ScreenWrapper,
+  parameters: { layout: 'fullscreen' },
+  argTypes: {
+    platform: { options: ['mobile', 'tablet', 'desktop'], control: { type: 'inline-radio' } },
+    state: { options: ['default', 'empty', 'loading', 'error'], control: { type: 'select' } },
+  },
+  args: { platform: 'mobile', state: 'default' },
+};
+
+export const MobileDefault: Story = {
+  name: 'Mobile · Default',
+  args: { platform: 'mobile', state: 'default' },
+  parameters: { viewport: { defaultViewport: 'mobile' } },
+};
+// + TabletDefault, DesktopDefault, MobileEmpty, MobileLoading, MobileError, …
+```
+
+Naming convention for sidebar entries: `<Platform> · <State>` with a middle-dot separator. Pre-bake the combinations you actually need (don't ship a 24-story matrix when you only review 6 of them).
+
 ## Tags (forward-looking for STORIES-INDEX.md)
 
 Phase 6.8 introduces `STORIES-INDEX.md` with REQ + CRUD coverage. Use `tags`:
