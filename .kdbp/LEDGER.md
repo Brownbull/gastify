@@ -473,3 +473,10 @@ ACTIONS: 1:accept (P13 firestore type errors already tracked)
 DEFERRED: none new
 COMMIT_COL_TICK: skipped (Current Phase = L2 mockups-legacy; commit is Ladle pivot Phase 4 from a different plan; auto-tick precondition failed per Step 6.6 mismatch rule). Manually reconcile in pivot Phase 9.
 NOTES: Phase 4 of the Ladle pivot — 3 atom showcase stories (Colors / Typography / Icons) under src/_design/ with 9 named variants total. Plus critical Ladle wiring fixes: useMirrorStylesheetsToOwnerDoc (clones parent stylesheets into iframe head when stories run iframed), theme vs mode disambiguation (URL ?theme=dark, not ?mode=dark), config.mjs schema correction (width.defaultState=0; theme.defaultState='light'), Tailwind 4 @source directive (default scan skips _design/ underscore-prefixed dirs). Verified end-to-end via 42-combination Playwright sweep (7 stories × 3 viewports × 2 modes); zero errors, all utilities compile, all themes cascade. Plan reference: ~/.claude/plans/okay-here-s-something-that-ancient-graham.md.
+
+## 2026-04-28 21:14 — [main 1c54c34] feat(frontend): pivot showcase tool from Ladle to Storybook 10
+FINDINGS: 1 (0 critical, 1 high, 0 medium, 0 low)
+ACTIONS: 1:accept (P13 firestore type errors already tracked)
+DEFERRED: none new
+COMMIT_COL_TICK: skipped (Current Phase = L2 mockups-legacy; commit is mockup-pivot showcase-tool reversal from a different plan; auto-tick precondition failed per Step 6.6 mismatch rule). Manually reconcile in pivot Phase 9.
+NOTES: Reversed axis 2 of the mockup-to-React pivot plan from Ladle (2A) to Storybook 10 (2B) per user direction. Storybook handles iframe CSS injection natively, removing the useMirrorStylesheetsToOwnerDoc hack from .ladle/components.tsx. CSF3 stories migrated with minimal changes. 28-combination Playwright verification: zero errors, all stories render with theme tokens + Tailwind utilities + viewport switching. Plan reference: ~/.claude/plans/okay-here-s-something-that-ancient-graham.md. DECISION D25 records the pivot rationale (to be added in pivot Phase 9 archive cleanup).
