@@ -543,3 +543,10 @@ ACTIONS: none
 DEFERRED: none
 COMMIT_COL_TICK: skipped (Current Phase = Post-pivot scaling; commit is pivot plan Phase 8 from external plan).
 NOTES: Pivot plan Phase 8 — production safety verification. Added scripts/check-prod-bundle.sh (6 checks: story files, framework refs, Tailwind CDN, atom showcase, story identifiers, Storybook config). All checks pass on current dist/ (exit 0). Closed P13 (firestore mock typing) as prerequisite — generic-ified QueryConstraint.apply + queryToSpec; structural cast for startAfter. npm run build now passes cleanly. Remaining optional: more screen stories (Items qualifies), Phase 7 Playwright snapshot suite. Pivot plan now has Phases 0-9 + post-revert Steps 1-5 + Phase 8 all completed; only Phase 7 (snapshot suite) remains in the original plan.
+
+## 2026-04-28 23:14 — [main b6b6ea5] feat(frontend): add Items screen story (4th self-contained-screen example)
+FINDINGS: 0
+ACTIONS: none
+DEFERRED: none
+COMMIT_COL_TICK: skipped (Current Phase = Post-pivot scaling; commit is more of the same scaling pattern).
+NOTES: 4th self-contained-screen story shipped. Storybook scope: 9 atom stories + 16 screen stories (Dashboard 4 + Trends 4 + History 4 + Items 4) = 25 stories total + Welcome sentinel. Phase 7 (Playwright snapshot suite) is the only remaining optional/queued item from the original pivot plan.
