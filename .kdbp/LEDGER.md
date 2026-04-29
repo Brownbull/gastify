@@ -536,3 +536,10 @@ ACTIONS: none
 DEFERRED: none
 COMMIT_COL_TICK: skipped (Current Phase = L2 in commit's diff base; commit itself ADVANCES Current Phase to "Post-pivot scaling" — the auto-tick precondition still skips because the new Phase isn't a numbered row in the Phases table).
 NOTES: Step 5 (final step) of the post-revert recommendation approach. KDBP-only cleanup per D27 — directories not moved. PENDING.md P12 closed (pivot superseded the rebuild gate). DECISIONS.md +D24 (pivot), +D25 (Storybook 10 over Ladle), +D26 (Storybook scope boundary), +D27 (don't move directories). PLAN.md Current Phase: "Phase L2: mockups-legacy Molecules" → "Post-pivot scaling — mockup work happens in Storybook stories at frontend/.storybook/" with L0-L5 marked OBSOLETED. docs/MOCKUP-REWORK-HANDOFF.md rewritten 153 → 47 lines as a status pointer. Pivot session: done. The 5 steps of the post-revert recommendation approach all landed: STORIES.md scope boundary (da4e022), Trends + History stories (70600b4), scan-flow reference doc (6bb149e), Phase 9 KDBP cleanup (this commit).
+
+## 2026-04-28 23:05 — [main 3c4bbf2] feat(scripts): add prod-bundle leakage check + close P13 firestore mock typing
+FINDINGS: 0
+ACTIONS: none
+DEFERRED: none
+COMMIT_COL_TICK: skipped (Current Phase = Post-pivot scaling; commit is pivot plan Phase 8 from external plan).
+NOTES: Pivot plan Phase 8 — production safety verification. Added scripts/check-prod-bundle.sh (6 checks: story files, framework refs, Tailwind CDN, atom showcase, story identifiers, Storybook config). All checks pass on current dist/ (exit 0). Closed P13 (firestore mock typing) as prerequisite — generic-ified QueryConstraint.apply + queryToSpec; structural cast for startAfter. npm run build now passes cleanly. Remaining optional: more screen stories (Items qualifies), Phase 7 Playwright snapshot suite. Pivot plan now has Phases 0-9 + post-revert Steps 1-5 + Phase 8 all completed; only Phase 7 (snapshot suite) remains in the original plan.
