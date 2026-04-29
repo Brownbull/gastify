@@ -501,3 +501,10 @@ ACTIONS: none
 DEFERRED: none
 COMMIT_COL_TICK: skipped (Current Phase = L2 mockups-legacy; commit is mockup-pivot screens-convention pattern from a different plan).
 NOTES: Mirrored the sibling Storybook's screen-story pattern after user pointed to a Storybook running on :6006. Pattern: each screen exposes `platform` (mobile/tablet/desktop) + `state` (default/empty/loading/error/...) as args, with pre-baked named stories like "Mobile · Default" locking in the canonical combinations. Drilling into a story shows the args panel below for live tweaking. Documented in frontend/STORIES.md under "Screens convention — platform × state args" with the canonical wrapper + meta + named-story snippet so future screens follow the same shape. 4 Dashboard stories shipped (Mobile · Default, Mobile · Empty, Tablet · Default, Desktop · Default).
+
+## 2026-04-28 21:59 — [main 1c75ef4] feat(frontend): scan flow story batch 1 (IdleState) + gabe-mockup workflow marker
+FINDINGS: 1 (0 critical, 1 high, 0 medium, 0 low)
+ACTIONS: 1:accept (P13 firestore type errors already tracked)
+DEFERRED: none new
+COMMIT_COL_TICK: skipped (Current Phase = L2 mockups-legacy; commit is mockup-pivot Phase 6.3 batch 1 from a different plan).
+NOTES: First delivery of Phase 6.3 (Scan flow as ordered step stories). Created docs/rebuild/ux/REACT-STORYBOOK-WORKFLOW.md as the marker file that routes /gabe-mockup to React + Storybook mode (skill SKILL.md "Backward-compatible dispatch" rule 1) and documents gastify's path adaptations from the skill's default apps/web/ layout to our flat frontend/ layout. Shipped IdleState.stories.tsx with 5 named stories under Flows/Scan/01-Idle (Mobile · Single, Mobile · Batch, Mobile · Single (no CTA), Tablet · Single, Desktop · Single). Pattern adapts the screens-convention to Zustand-coupled state components: wrapper seeds useScanStore.setState({phase: 'idle', mode}) on mount so the component's phase guard passes. Next batch: 02-Processing, 03-Reviewing, 04-Saving, Error variants.
