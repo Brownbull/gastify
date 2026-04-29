@@ -501,3 +501,10 @@ ACTIONS: none
 DEFERRED: none
 COMMIT_COL_TICK: skipped (Current Phase = L2 mockups-legacy; commit is mockup-pivot screens-convention pattern from a different plan).
 NOTES: Mirrored the sibling Storybook's screen-story pattern after user pointed to a Storybook running on :6006. Pattern: each screen exposes `platform` (mobile/tablet/desktop) + `state` (default/empty/loading/error/...) as args, with pre-baked named stories like "Mobile · Default" locking in the canonical combinations. Drilling into a story shows the args panel below for live tweaking. Documented in frontend/STORIES.md under "Screens convention — platform × state args" with the canonical wrapper + meta + named-story snippet so future screens follow the same shape. 4 Dashboard stories shipped (Mobile · Default, Mobile · Empty, Tablet · Default, Desktop · Default).
+
+## 2026-04-28 22:08 — [main 5a39a10] revert: scan flow batch 1 (1c75ef4) and its LEDGER chore (95f3051)
+FINDINGS: 0 (revert; no new work)
+ACTIONS: none
+DEFERRED: none
+COMMIT_COL_TICK: skipped (revert commit; no phase advancement).
+NOTES: User flagged that visual verification of Phase 6.3 batch 1 (IdleState) revealed two issues warranting redo not fix-forward: (1) translation keys leaked to UI because the stub `t = (key) => key` short-circuited the component's `||` fallback (manufactured the same bug PENDING.md P10 tracks for production scan flow); (2) IdleState is documented as "often handled by FAB" — not the user-facing first step of the scan flow. The plan's "01-Capture" expected the camera viewfinder UI (CameraView / BatchCaptureView), not the small IdleState fallback card. Combined revert: 1c75ef4 + 95f3051 → 5a39a10. Phase 6.3 paused pending a clearer plan that picks the right entry component(s) and locks the translation strategy before any story authoring.
