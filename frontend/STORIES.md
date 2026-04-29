@@ -1,6 +1,6 @@
-# Story authoring conventions (Ladle)
+# Story authoring conventions (Storybook 10)
 
-> Phase 3 of the Ladle pivot. Plan: `~/.claude/plans/okay-here-s-something-that-ancient-graham.md`.
+> Phase 3 of the pivot, rewritten after pivot 2A→2B (DECISIONS.md D25). Plan: `~/.claude/plans/okay-here-s-something-that-ancient-graham.md`.
 
 ## File placement
 
@@ -11,36 +11,55 @@ src/components/transactions/TransactionCard.tsx
 src/components/transactions/TransactionCard.stories.tsx   ← here
 ```
 
-Glob: `src/**/*.stories.{ts,tsx}` (configured in `.ladle/config.mjs`).
+Glob: `src/**/*.stories.@(ts|tsx|mdx)` (configured in `.storybook/main.ts`).
+
+Showcase stories without a source component (Colors / Typography / Icons design-token references) live under `src/_design/`.
 
 ## File format (CSF3)
 
 ```tsx
-import type { Story, StoryDefault } from '@ladle/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { TransactionCard } from './TransactionCard';
 
-export default {
+const meta: Meta<typeof TransactionCard> = {
   title: 'Molecules/Transaction Card',
-} satisfies StoryDefault;
+  component: TransactionCard,
+};
 
-export const Default: Story = () => (
-  <TransactionCard
-    merchant="Jumbo Costanera Center"
-    amount={24890}
-    currency="CLP"
-    date={new Date('2026-04-28')}
-    itemCount={3}
-  />
-);
+export default meta;
+type Story = StoryObj<typeof TransactionCard>;
 
-export const Foreign: Story = () => (
-  <TransactionCard
-    merchant="Whole Foods Market"
-    amount={48.50}
-    currency="USD"
-    date={new Date('2026-04-21')}
-    itemCount={5}
-  />
+export const Default: Story = {
+  args: {
+    merchant: 'Jumbo Costanera Center',
+    amount: 24890,
+    currency: 'CLP',
+    date: new Date('2026-04-28'),
+    itemCount: 3,
+  },
+};
+
+export const Foreign: Story = {
+  args: {
+    merchant: 'Whole Foods Market',
+    amount: 48.50,
+    currency: 'USD',
+    date: new Date('2026-04-21'),
+    itemCount: 5,
+  },
+};
+```
+
+For showcase stories without a component, use `StoryFn`:
+
+```tsx
+import type { Meta, StoryFn } from '@storybook/react-vite';
+
+const meta: Meta = { title: 'Atoms/Colors' };
+export default meta;
+
+export const Palette: StoryFn = () => (
+  <div className="p-6">…</div>
 );
 ```
 
@@ -60,54 +79,59 @@ For flows, prefix step name with `NN-` so alphabetical order matches step order.
 ## Story exports
 
 - **One named export per visual variant.** Default, hover, disabled, error, empty.
-- Variant names: `Default`, `WithIcon`, `Loading`, `Empty`, `Error`, `LowConfidence`, etc. — describe the *state*, not the prop.
-- The default export is metadata only; do not export a story from `default`.
+- Variant names: `Default`, `WithIcon`, `Loading`, `Empty`, `Error`, `LowConfidence` — describe the *state*, not the prop.
+- The default export is metadata only (the `meta` object).
 
-## Args (controls panel)
+## Args + controls
 
 For data-driven variants, expose `args`:
 
 ```tsx
-import type { Story } from '@ladle/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Button } from './Button';
 
-interface ButtonStoryProps {
-  label: string;
-  variant: 'primary' | 'secondary' | 'ghost';
-  disabled: boolean;
-}
-
-export const Playground: Story<ButtonStoryProps> = ({ label, variant, disabled }) => (
-  <Button variant={variant} disabled={disabled}>{label}</Button>
-);
-
-Playground.args = {
-  label: 'Save changes',
-  variant: 'primary',
-  disabled: false,
+const meta: Meta<typeof Button> = {
+  title: 'Atoms/Button',
+  component: Button,
+  argTypes: {
+    variant: {
+      options: ['primary', 'secondary', 'ghost'],
+      control: { type: 'select' },
+    },
+  },
 };
+export default meta;
+type Story = StoryObj<typeof Button>;
 
-Playground.argTypes = {
-  variant: {
-    options: ['primary', 'secondary', 'ghost'],
-    control: { type: 'select' },
+export const Playground: Story = {
+  args: {
+    label: 'Save changes',
+    variant: 'primary',
+    disabled: false,
   },
 };
 ```
 
-The Ladle controls panel auto-renders these — that is the "swap props at runtime" interaction.
+Storybook's controls panel auto-renders these — that's the "swap props at runtime" interaction.
 
-## Tags (forward-looking)
+## Toolbar globals
 
-Phase 6.8 introduces `STORIES-INDEX.md` with REQ + CRUD coverage. Use `parameters.tags`:
+`.storybook/preview.tsx` defines two globals:
+
+- **theme** (light/dark) — built-in via `@storybook/addon-themes`. Toggles a `.dark` class on the story container, which the project CSS uses for dark variants.
+- **colorTheme** (normal / professional / mono) — custom global; sets `data-theme=` on the wrapper div. Falls back to `normal` until users pick from the toolbar.
+
+Both are global (not per-story); no setup needed in story files.
+
+## Tags (forward-looking for STORIES-INDEX.md)
+
+Phase 6.8 introduces `STORIES-INDEX.md` with REQ + CRUD coverage. Use `tags`:
 
 ```tsx
-export default {
+const meta: Meta = {
   title: 'Screens/Dashboard',
-  parameters: {
-    tags: ['REQ-1', 'REQ-7', 'crud:Transaction.Read', 'flow:Scan'],
-  },
-} satisfies StoryDefault;
+  tags: ['REQ-1', 'REQ-7', 'crud:Transaction.Read', 'flow:Scan'],
+};
 ```
 
 The generator (`scripts/build_stories_index.ts`, deferred until manual maintenance becomes painful) walks story files, collects tags, and emits the matrix tables.
@@ -124,50 +148,35 @@ TransactionCard.stories.tsx        ← stays story-only
 TransactionCard.fixtures.ts        ← reusable, prod-safe
 ```
 
-The lint guard `scripts/check-no-story-imports.sh` enforces this. It greps non-story files for imports of `*.stories.*` and exits non-zero on hit. Wire into CI (Phase 8 production-safety check) and into `/gabe-commit` as a project-specific CHECK.
+The lint guard `scripts/check-no-story-imports.sh` enforces this — fails CI if any non-story file imports `*.stories.*`.
 
 ## Decorators
 
-Global Provider lives at `.ladle/components.tsx` — it wraps every story in `QueryClientProvider`, `AuthProvider`, and the theme/mode wrapper. Stories that touch repositories (TanStack Query) or auth contexts work out of the box.
+Global Provider lives at `.storybook/preview.tsx` — it wraps every story in `QueryClientProvider`, `AuthProvider`, and the theme/mode wrapper. Stories that touch repositories (TanStack Query) or auth contexts work out of the box.
 
 For per-story decorators (rare), use:
 
 ```tsx
-const Default: Story = () => <Component />;
-Default.decorators = [
-  (Component) => <div className="p-4"><Component /></div>,
-];
-```
-
-## Light / dark / theme
-
-Light/dark cycles via Ladle's mode addon → bridged to the `.dark` class in `.ladle/components.tsx`.
-
-Theme switcher (Normal / Professional / Mono) is fixed at `normal` until Phase 3.5 (deferred — will add a custom global). For now: stories render in Normal theme only. If a story needs a specific theme, set it via inline `data-theme` on the story root:
-
-```tsx
-export const ProMonoCheck: Story = () => (
-  <div data-theme="professional">
-    <Button>Pro theme</Button>
-  </div>
-);
-```
-
-## Naming + viewport defaults
-
-For mobile-first stories (PWA target):
-
-```tsx
-Default.parameters = {
-  width: 'mobile',  // 390px — default per .ladle/config.mjs
+export const Padded: Story = {
+  decorators: [
+    (Story) => <div className="p-4"><Story /></div>,
+  ],
 };
 ```
 
-For desktop-only stories (sidebar nav, ⌘K scan):
+## Viewports
+
+Three presets in `.storybook/preview.tsx`:
+
+- `mobile` — 390 × 844
+- `tablet` — 768 × 1024
+- `desktop` — 1440 × 900
+
+Default is `mobile`. Per-story override via `parameters.viewport.defaultViewport`:
 
 ```tsx
-Desktop.parameters = {
-  width: 'desktop',  // 1440px
+export const DesktopOnly: Story = {
+  parameters: { viewport: { defaultViewport: 'desktop' } },
 };
 ```
 
@@ -175,15 +184,14 @@ Desktop.parameters = {
 
 ```bash
 cd frontend
-npm run ladle              # dev server at http://localhost:5175
-npm run ladle:build        # static SPA at build-ladle/
-npm run ladle:preview      # serve build-ladle/ at http://localhost:4176
+npm run storybook            # dev server at http://localhost:6007
+npm run storybook:build      # static SPA at storybook-static/
 ```
 
 ## Phase status
 
-- Phase 2 (this phase) — Ladle installed + config + Provider + sentinel `Welcome` story.
-- Phase 3 (this phase) — STORIES.md authored; lint guard at `scripts/check-no-story-imports.sh`.
-- Phase 4 — first batch of atoms.
+- Phase 2 — Showcase tool installed (Storybook 10, post-pivot 2A→2B per D25).
+- Phase 3 (this doc) — Story conventions; lint guard at `scripts/check-no-story-imports.sh`.
+- Phase 4 — first batch of atoms (Colors / Typography / Icons under `src/_design/`).
 - Phase 6 — Dashboard screen story (the handoff brief deliverable).
 - Phase 7 — Playwright snapshot suite over all stories.

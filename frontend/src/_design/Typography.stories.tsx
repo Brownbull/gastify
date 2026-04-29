@@ -1,11 +1,13 @@
 // Atoms/Typography — design-token showcase. Visual reference for the font
 // families + size scale defined in frontend/src/styles/global.css.
 
-import type { Story } from '@ladle/react';
+import type { Meta, StoryFn } from '@storybook/react-vite';
 
-export default {
+const meta: Meta = {
   title: 'Atoms/Typography',
 };
+
+export default meta;
 
 const SAMPLE = 'The quick brown fox jumps over the lazy dog';
 
@@ -19,7 +21,7 @@ const SIZES = [
   { token: '3xl', value: '1.875rem (30px)' },
 ];
 
-export const FontSizes: Story = () => (
+export const FontSizes: StoryFn =() => (
   <div className="p-6 max-w-2xl space-y-3">
     <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
       Font Sizes
@@ -50,7 +52,7 @@ export const FontSizes: Story = () => (
   </div>
 );
 
-export const FontFamilies: Story = () => (
+export const FontFamilies: StoryFn =() => (
   <div className="p-6 max-w-2xl space-y-6">
     <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
       Font Families
@@ -107,7 +109,7 @@ export const FontFamilies: Story = () => (
   </div>
 );
 
-export const FontWeights: Story = () => (
+export const FontWeights: StoryFn =() => (
   <div className="p-6 max-w-2xl space-y-3">
     <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
       Font Weights (Outfit)

@@ -102,8 +102,8 @@
 | `frontend/src/**/*.css` | Stylesheets (global.css + future per-component CSS) | MVP |
 | `frontend/src/__firebase-mocks__/**/*.ts` | Mocked Firebase SDK shims (alias-redirected from `firebase/*` in vite.config.ts) | MVP |
 | `frontend/public/**` | Static assets (favicons, PWA manifest icons) | MVP |
-| `frontend/.ladle/**` | Ladle showcase config (added in Ladle pivot Phase 2) | MVP |
-| `frontend/src/**/*.stories.tsx` | Ladle stories (added incrementally during pivot Phases 4–6.3) | MVP |
+| `frontend/.storybook/**` | Storybook 10 showcase config (per pivot DECISIONS D25) | MVP |
+| `frontend/src/**/*.stories.tsx` | Storybook stories (CSF3) | MVP |
 
 <!-- ### Web App (any stack)
 

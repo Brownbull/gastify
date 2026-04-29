@@ -42,9 +42,9 @@ apps/web/dist/
 apps/web/dist-ssr/
 *.local
 
-# Ladle build output (the source config under .ladle/ is committed)
-frontend/build-ladle/
-apps/web/build-ladle/
+# Storybook build output (the source config under .storybook/ is committed)
+frontend/storybook-static/
+apps/web/storybook-static/
 
 # IDE
 .vscode/

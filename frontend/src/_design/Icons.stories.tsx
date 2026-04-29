@@ -2,7 +2,7 @@
 // representative sample of icons used across views, dialogs, and the top bar.
 // Full library: https://lucide.dev (~1000 icons).
 
-import type { Story } from '@ladle/react';
+import type { Meta, StoryFn } from '@storybook/react-vite';
 import {
   Home,
   BarChart3,
@@ -38,9 +38,11 @@ import {
   BookMarked,
 } from 'lucide-react';
 
-export default {
+const meta: Meta = {
   title: 'Atoms/Icons',
 };
+
+export default meta;
 
 const ICONS = [
   // Bottom nav
@@ -95,7 +97,7 @@ const ICONS = [
   ]},
 ];
 
-export const Library: Story = () => (
+export const Library: StoryFn =() => (
   <div className="p-6 max-w-2xl">
     <h1 className="text-2xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>
       Icons (lucide-react)
@@ -132,7 +134,7 @@ export const Library: Story = () => (
   </div>
 );
 
-export const Sizes: Story = () => (
+export const Sizes: StoryFn =() => (
   <div className="p-6 max-w-2xl">
     <h1 className="text-2xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>
       Icon Sizes
@@ -153,7 +155,7 @@ export const Sizes: Story = () => (
   </div>
 );
 
-export const Colors: Story = () => (
+export const Colors: StoryFn =() => (
   <div className="p-6 max-w-2xl">
     <h1 className="text-2xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>
       Icon Colors

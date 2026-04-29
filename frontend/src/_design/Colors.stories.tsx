@@ -1,12 +1,14 @@
 // Atoms/Colors — design-token showcase. Not a React component; purely a
 // visual reference for the theme palette migrated from index.html into
-// frontend/src/styles/global.css (Phase 1 of the Ladle pivot).
+// frontend/src/styles/global.css (Phase 1 of the pivot).
 
-import type { Story } from '@ladle/react';
+import type { Meta, StoryFn } from '@storybook/react-vite';
 
-export default {
+const meta: Meta = {
   title: 'Atoms/Colors',
 };
+
+export default meta;
 
 interface SwatchProps {
   name: string;
@@ -48,7 +50,7 @@ const Section = ({ title, swatches }: SectionProps) => (
   </section>
 );
 
-export const Palette: Story = () => (
+export const Palette: StoryFn =() => (
   <div className="p-6 max-w-2xl">
     <h1 className="text-2xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>
       Color Tokens — Palette
@@ -126,7 +128,7 @@ const SEMANTIC_GROUPS = [
   { name: 'Neutral (no change)', prefix: 'neutral' },
 ];
 
-export const Semantic: Story = () => (
+export const Semantic: StoryFn =() => (
   <div className="p-6 max-w-2xl">
     <h1 className="text-2xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>
       Color Tokens — Semantic
@@ -168,7 +170,7 @@ const INSIGHT_TYPES = [
   { label: 'Trend', slug: 'trend' },
 ];
 
-export const Insights: Story = () => (
+export const Insights: StoryFn =() => (
   <div className="p-6 max-w-2xl">
     <h1 className="text-2xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>
       Color Tokens — Insights

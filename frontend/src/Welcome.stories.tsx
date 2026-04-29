@@ -1,16 +1,18 @@
-// Sentinel story for Ladle pivot Phase 2 — verifies the showcase pipeline boots:
-// decorators apply (theme + mode + viewport switchers), theme tokens cascade,
-// and Tailwind 4 utilities compile from src/styles/global.css.
+// Sentinel story for Storybook 10 — verifies the showcase pipeline boots:
+// decorators apply (theme + viewport switchers), theme tokens cascade, and
+// Tailwind 4 utilities compile from src/styles/global.css.
 //
 // Replace or delete when Phase 4 lands real atom stories.
 
-import type { Story } from '@ladle/react';
+import type { Meta, StoryFn } from '@storybook/react-vite';
 
-export default {
+const meta: Meta = {
   title: 'Welcome',
 };
 
-export const Hello: Story = () => (
+export default meta;
+
+export const Hello: StoryFn = () => (
   <div className="p-8 max-w-md mx-auto">
     <h1 className="text-3xl font-bold mb-4" style={{ color: 'var(--primary)' }}>
       Ladle is up.

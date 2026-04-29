@@ -8,9 +8,8 @@
     "build": "bash -c 'for v in $(env | grep -oE \"^VITE_FIREBASE_[A-Z_]+\"); do unset $v; done; unset VITE_GEMINI_API_KEY VITE_E2E_MODE; tsc && vite build'",
     "preview": "vite preview",
     "type-check": "tsc --noEmit",
-    "ladle": "ladle serve",
-    "ladle:build": "ladle build",
-    "ladle:preview": "ladle preview"
+    "storybook": "storybook dev -p 6007 --no-open",
+    "storybook:build": "storybook build"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.90.16",
@@ -35,7 +34,8 @@
     "fast-xml-parser": "^5.3.4"
   },
   "devDependencies": {
-    "@ladle/react": "^5.1.1",
+    "@storybook/addon-themes": "^10.3.5",
+    "@storybook/react-vite": "^10.3.5",
     "@tailwindcss/vite": "^4.2.4",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
@@ -47,6 +47,7 @@
     "@types/testing-library__jest-dom": "^5.14.9",
     "@vitejs/plugin-react": "^4.3.0",
     "jsdom": "^29.1.0",
+    "storybook": "^10.3.5",
     "tailwindcss": "^4.2.4",
     "typescript": "^5.3.3",
     "vite": "^5.4.0",
