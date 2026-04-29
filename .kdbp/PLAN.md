@@ -471,17 +471,25 @@ decisions_entry: RF-2026-04-27
 
 ## Current Phase
 
-**Phase L2: mockups-legacy Molecules** — Exec 🔄 (L2a in progress: 7 of ~18)
+**Post-pivot scaling — mockup work happens in Storybook stories at `frontend/.storybook/`.** See DECISIONS.md D24/D25/D26/D27.
 
-L1 🎯 complete 2026-04-27 (all four gates passed). Phase 3, Phase 4, L0, Spike P14.0 had their Commit+Push columns retro-ticked on the same day — they shipped in `be9aefd` and reached origin/main in the P5 deployment, so the column state now matches reality. Their Review columns remain ⬜ — none received a `/gabe-review` pass; PENDING.md P11 tracks the retroactive review work as a deferred backlog item.
+**Status of the L-block (L0–L5 mockups-legacy track):** OBSOLETED 2026-04-28 by the mockup-to-React pivot. L2a/L2b/L3-L5 are not advancing. PENDING.md P12 (the 5 broken HTML molecule triples that batch 3-5 was gated on) is CLOSED — the path forward stopped requiring those gates. The legacy HTML mockup directories (`docs/mockups/`, `docs/mockups-legacy/`) remain in place as a frozen baseline + test harness target per D27 (not archived to filesystem because moving 1000 files breaks 4 configs for symbolic-only value).
 
-L2a batch 1 landed 2026-04-27: **banner** (atom-composing, button consumer), **state-tabs** (canonical pill-shape with sliding indicator from ItemViewToggle), **toast-system** (system layer wrapping the L1 toast atom + useToast single-toast hook). `molecules.css` populated with rule sets for all three. `molecules/index.html` flipped placeholder→live with catalog cards + inline previews. Atoms `button.html` + `toast.html` got "Used by molecules" backref entries (closes the bidirectional cross-ref contract). Root `INDEX.md` molecules table populated (3 of 18 rows live).
+**What's live now (post-pivot scaling):**
 
-L2a batch 2 landed 2026-04-27: **4 cards** — card-transaction (canonical, sourced from `components/transactions/TransactionCard.tsx` 571-line consolidated per Story 14.15b; consumed by RecentScansView / DashboardView / HistoryView), card-stat (sourced from `features/items/components/AggregatedItemCard.tsx`, consumed by ItemsView), card-empty (sourced from `features/history/components/HistoryEmptyStates.tsx` + ItemsViewEmptyState; consumed by HistoryView + ItemsView), card-celebration (sourced from `components/celebrations/PersonalRecordBanner.tsx` + useCelebration.ts; placeholder host in InsightsView CelebrationView per Story 14.33d "coming soon"). **card-feature deferred** — no live frontend equivalent (clean-slate-only marketing/hero pattern); documented in SCREEN-USAGE.md as "skipped from L2a, revisit if hero pattern lands in L4." Speculative-flag UX fix during this batch: dropped the floating pseudo-element badge that was clipping into adjacent banners; tied the marker to the existing `(speculative)` text in swatch labels via a ⚠ sign per user feedback. Total L2a count: 7 of ~18.
+- **Storybook 10** at `frontend/.storybook/` — atom showcase stories (`Atoms/Colors`, `Atoms/Typography`, `Atoms/Icons`) under `frontend/src/_design/`. Three self-contained screen stories (`Screens/Dashboard`, `Screens/Trends`, `Screens/History`) using the platform × state args pattern documented in `frontend/STORIES.md` "Screens convention".
+- **Reference doc** at `docs/reference/scan-flow.md` — navigable map of the orchestrator-driven scan flow (Storybook scope explicitly excludes orchestrator flows per D26).
+- **Tailwind 4 + theme tokens** at `frontend/src/styles/global.css` (migrated from CDN per D24 plan Phase 1).
 
-Next: continue L2a — remaining ~11 molecules. Suggested batch 3: modals (confirm / form / learning / error / credit) + sheet + drawer. Then batch 4: nav (bottom / top / sidebar) + FAB (the screenshot-confirmed scan-mode-selector lands here as a sibling sheet variant). Final batch: filters + form + list-item. After L2a ✅, queue L2b (~40-60 frontend-specific) and L2c (specialized long-tail). After L5 ✅ ships, Current Phase advances to **Phase 5: Auth + onboarding + consent**.
+**What's queued (optional, no longer blocking):**
 
-> **Retroactive Commit-column correction needed:** Phases 3, 4, and L0 — and Spike P14 — were all bundled into the same `be9aefd` commit but their Commit columns remain ⬜ because `/gabe-commit` Step 6.6 only auto-ticks the Current Phase. Manually retro-tick those four columns when convenient (or accept the ⬜ as accurate signal that they didn't follow per-phase commit hygiene).
+- More self-contained screen stories (ItemsView qualifies based on Step 2 investigation; Insights/Reports need theme+t injection). Add when a designer needs the inspection surface for a specific view.
+- Phase 7 of the pivot plan: Playwright snapshot suite over Storybook stories. Defer until CI hardening becomes priority.
+- Phase 8: production safety verification (grep `frontend/dist/` for `.stories.` / `@storybook` / `cdn.tailwind` leakage). Cheap; do before the next deploy.
+
+**Plan reference:** `~/.claude/plans/okay-here-s-something-that-ancient-graham.md` (mockup-to-React pivot plan with full architecture decision matrix and Phase 0–9 sequencing).
+
+> **Note on auto-tick during pivot:** every commit since 2026-04-28 in this session has had `COMMIT_COL_TICK: skipped (Current Phase = L2 mockups-legacy; commit is mockup-pivot work from a different plan)`. With this Phase advancement, future pivot-related commits should still auto-tick-skip because the pivot plan is external to this PLAN.md. That's the correct signal — the post-pivot scaling work is iterative + driven by the plan file in `~/.claude/plans/`, not by phase-row state in PLAN.md.
 
 ## Dependencies
 
