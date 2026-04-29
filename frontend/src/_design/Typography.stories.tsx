@@ -94,12 +94,13 @@ export const FontFamilies: StoryFn =() => (
 
     <div>
       <h2 className="text-sm font-semibold mb-1" style={{ color: 'var(--text-secondary)' }}>
-        Baloo 2 (wordmark only — Gastify logo)
+        Baloo 2 (wordmark only — Gastify logo, used by TopHeader at weight 700)
       </h2>
       <p
-        className="text-3xl"
         style={{
-          fontFamily: '"Baloo 2", cursive, sans-serif',
+          fontFamily: 'var(--font-family-wordmark, "Baloo 2", cursive)',
+          fontWeight: 700,
+          fontSize: '28px',
           color: 'var(--text-primary)',
         }}
       >
