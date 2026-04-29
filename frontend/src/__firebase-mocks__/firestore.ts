@@ -262,7 +262,7 @@ export function query<T>(
 }
 
 export interface QueryConstraint {
-  apply: (q: Query) => void;
+  apply: <T = DocumentData>(q: Query<T>) => void;
 }
 
 export function where(field: string, op: WhereFilterOp, value: unknown): QueryConstraint {
@@ -275,7 +275,15 @@ export function limit(n: number): QueryConstraint {
   return { apply: (q) => (q._limit = n) };
 }
 export function startAfter<T>(snapshot: DocumentSnapshot<T>): QueryConstraint {
-  return { apply: (q) => (q._startAfter = snapshot as DocumentSnapshot) };
+  // Mock-only: cast q through a structural type to write _startAfter loosely.
+  // startAfter's outer T (snapshot type) and apply's inner T (query type) aren't
+  // constrained to match in this mock; the runtime contract is that the snapshot
+  // is opaque to query execution (used only as a cursor reference).
+  return {
+    apply: (q) => {
+      (q as unknown as { _startAfter?: DocumentSnapshot })._startAfter = snapshot as unknown as DocumentSnapshot;
+    },
+  };
 }
 
 function snapshotFor<T>(firestore: Firestore, path: string, raw: T | undefined): DocumentSnapshot<T> {
@@ -321,17 +329,17 @@ export async function getDocs<T>(queryOrCol: Query<T> | CollectionReference<T>):
   };
 }
 
-function queryToSpec(q: Query | CollectionReference): {
+function queryToSpec<T>(q: Query<T> | CollectionReference<T>): {
   path: string;
   filters: WhereFilter[];
   orders: OrderClause[];
   limit?: number;
 } {
-  if ((q as Query)._filters !== undefined) {
-    const query = q as Query;
+  if ((q as Query<T>)._filters !== undefined) {
+    const query = q as Query<T>;
     return { path: query._path, filters: query._filters, orders: query._orders, limit: query._limit };
   }
-  return { path: (q as CollectionReference).path, filters: [], orders: [] };
+  return { path: (q as CollectionReference<T>).path, filters: [], orders: [] };
 }
 
 export async function addDoc<T>(
