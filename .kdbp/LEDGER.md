@@ -516,7 +516,7 @@ DEFERRED: none
 COMMIT_COL_TICK: skipped (Current Phase = L2; commit is mockup-pivot scope-narrowing from a different plan).
 NOTES: Step 1 of the post-revert recommendation approach. Adds Storybook scope boundary doc to frontend/STORIES.md (what belongs / doesn't / decision aid table). Direct response to Phase 6.3 batch 1 revert (5a39a10) — prevents future contributors from forcing orchestrator-driven flows into Storybook stories (which manufactured the translation-key leak bug previously). Next steps in this plan: investigate other views for self-containedness (Step 2), add 1-2 more screen stories if they fit (Step 3), build docs/reference/scan-flow.md for complex flows (Step 4), Phase 9 KDBP cleanup (Step 5).
 
-## 2026-04-28 22:24 — [main 12c9f10] feat(frontend): add Trends + History screen stories (post-revert recommendation Step 3)
+## 2026-04-28 22:24 — [main 70600b4] feat(frontend): add Trends + History screen stories (post-revert recommendation Step 3)
 FINDINGS: 0
 ACTIONS: none
 DEFERRED: none
