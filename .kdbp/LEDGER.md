@@ -522,3 +522,10 @@ ACTIONS: none
 DEFERRED: none
 COMMIT_COL_TICK: skipped (Current Phase = L2; commit is mockup-pivot scaling from a different plan).
 NOTES: Step 3 of the post-revert recommendation approach. Two more self-contained-screen stories shipped: Screens/Trends (4 variants) and Screens/History (4 variants). Both views use the Dashboard pattern — mount the view with no/optional props, read everything via the view's hook from Zustand + mocked Firestore. Verification gate (post-revert bar): Playwright iframe screenshot per variant + translation-key leak regex check + zero console/page errors. All 8 stories passed. Storybook scope now: atoms + 3 self-contained screen stories. Step 4 (docs/reference/scan-flow.md) and Step 5 (Phase 9 cleanup) pending.
+
+## 2026-04-28 22:35 — [main 6bb149e] docs(reference): add scan-flow navigable map (post-revert recommendation Step 4)
+FINDINGS: 0
+ACTIONS: none
+DEFERRED: none
+COMMIT_COL_TICK: skipped (Current Phase = L2; commit is mockup-pivot reference doc from a different plan).
+NOTES: Step 4 of the post-revert recommendation approach. Replaces the failed Storybook approach for the scan flow with a navigable markdown reference at docs/reference/scan-flow.md. Orchestrator → component mapping table, dialog overlay table, 4-phase walkthrough (01-Capture / 02-Processing / 03-Review / 04-Save), error variants table, full PENDING.md P6-P10 cross-reference, "Why this isn't a Storybook story" rationale linking back to the IdleState revert (5a39a10). No screenshots embedded — designers grab them from the live app when needed; doc stays low-maintenance. Step 5 (Phase 9 KDBP cleanup) remaining.
