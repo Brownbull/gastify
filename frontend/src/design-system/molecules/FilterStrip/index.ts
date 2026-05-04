@@ -1,0 +1,1 @@
+export { FilterStrip } from './FilterStrip';

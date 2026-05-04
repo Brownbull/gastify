@@ -59,5 +59,13 @@ export default defineConfig({
         baseURL: "http://localhost:4176",
       },
     },
+    {
+      name: "storybook",
+      testDir: "./tests/storybook",
+      use: {
+        ...devices["Desktop Chrome"],
+        baseURL: "http://localhost:6007",
+      },
+    },
   ],
 });

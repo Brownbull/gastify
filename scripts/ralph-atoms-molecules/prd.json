@@ -1,0 +1,1734 @@
+{
+  "project": "gastify",
+  "branchName": "rebuild/fe-atoms-batch-01",
+  "description": "Shared atoms + molecules — cross-feature UI primitives (Tier 1 + Tier 2)",
+  "userStories": [
+    {
+      "id": "AM-001",
+      "title": "Button atom",
+      "description": "Primary UI button with 5 variants (primary, secondary, ghost, danger, link) × 3 sizes (sm, md, lg) × states (default, hover, disabled, loading).",
+      "acceptanceCriteria": [
+        "Renders all variant × size combinations",
+        "Loading state shows spinner",
+        "Disabled state is non-interactive",
+        "axe passes"
+      ],
+      "priority": 1,
+      "passes": true,
+      "notes": "",
+      "tier": "atom",
+      "source": "clean-slate",
+      "platform": [
+        "mobile",
+        "tablet",
+        "desktop"
+      ],
+      "spec_path": "docs/mockups/atoms/button.html",
+      "snapshot_paths": [],
+      "deps": [],
+      "api_endpoints": [],
+      "gate": "atom",
+      "play_function": false,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "AM-002",
+      "title": "Input atom",
+      "description": "Text input with types (text, number, search, date, textarea) × 3 sizes × states (default, filled, focus, error, disabled).",
+      "acceptanceCriteria": [
+        "Renders all type × size combinations",
+        "Error state shows red border + message",
+        "Focus state shows ring",
+        "axe passes"
+      ],
+      "priority": 2,
+      "passes": true,
+      "notes": "",
+      "tier": "atom",
+      "source": "clean-slate",
+      "platform": [
+        "mobile",
+        "tablet",
+        "desktop"
+      ],
+      "spec_path": "docs/mockups/atoms/input.html",
+      "snapshot_paths": [],
+      "deps": [],
+      "api_endpoints": [],
+      "gate": "atom",
+      "play_function": false,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "AM-003",
+      "title": "Select atom",
+      "description": "Dropdown select with 3 filling states (empty, selected, disabled).",
+      "acceptanceCriteria": [
+        "Renders open/closed states",
+        "Shows selected value",
+        "Disabled state blocks interaction",
+        "axe passes"
+      ],
+      "priority": 3,
+      "passes": true,
+      "notes": "",
+      "tier": "atom",
+      "source": "clean-slate",
+      "platform": [
+        "mobile",
+        "tablet",
+        "desktop"
+      ],
+      "spec_path": "docs/mockups/atoms/select.html",
+      "snapshot_paths": [],
+      "deps": [],
+      "api_endpoints": [],
+      "gate": "atom",
+      "play_function": false,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "AM-004",
+      "title": "Pill atom",
+      "description": "Category/status pill with 6 color variants + optional icon.",
+      "acceptanceCriteria": [
+        "Renders all 6 color variants",
+        "With-icon variant shows icon + text",
+        "Text truncates on overflow",
+        "axe passes"
+      ],
+      "priority": 4,
+      "passes": true,
+      "notes": "",
+      "tier": "atom",
+      "source": "clean-slate",
+      "platform": [
+        "mobile",
+        "tablet",
+        "desktop"
+      ],
+      "spec_path": "docs/mockups/atoms/pill.html",
+      "snapshot_paths": [],
+      "deps": [],
+      "api_endpoints": [],
+      "gate": "atom",
+      "play_function": false,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "AM-005",
+      "title": "Badge atom",
+      "description": "Notification count badge with 4 variants (default, success, warning, danger) for nav items.",
+      "acceptanceCriteria": [
+        "Renders count correctly",
+        "Truncates to 99+ above 99",
+        "Positions correctly on host element",
+        "axe passes"
+      ],
+      "priority": 5,
+      "passes": true,
+      "notes": "",
+      "tier": "atom",
+      "source": "clean-slate",
+      "platform": [
+        "mobile",
+        "tablet",
+        "desktop"
+      ],
+      "spec_path": "docs/mockups/atoms/badge.html",
+      "snapshot_paths": [],
+      "deps": [],
+      "api_endpoints": [],
+      "gate": "atom",
+      "play_function": false,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "AM-006",
+      "title": "Avatar atom",
+      "description": "User avatar with 5 sizes (xs, sm, md, lg, xl) × 4 color variants × initials/image modes.",
+      "acceptanceCriteria": [
+        "Image mode renders img",
+        "Initials mode shows 1-2 chars",
+        "Fallback to initials on image error",
+        "axe passes"
+      ],
+      "priority": 6,
+      "passes": true,
+      "notes": "",
+      "tier": "atom",
+      "source": "clean-slate",
+      "platform": [
+        "mobile",
+        "tablet",
+        "desktop"
+      ],
+      "spec_path": "docs/mockups/atoms/avatar.html",
+      "snapshot_paths": [],
+      "deps": [],
+      "api_endpoints": [],
+      "gate": "atom",
+      "play_function": false,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "AM-007",
+      "title": "Chip atom",
+      "description": "Filter chip with states (default, selected, removable) + optional count badge.",
+      "acceptanceCriteria": [
+        "Selected state shows checkmark",
+        "Removable shows × button",
+        "Count badge renders on trailing edge",
+        "axe passes"
+      ],
+      "priority": 7,
+      "passes": true,
+      "notes": "",
+      "tier": "atom",
+      "source": "clean-slate",
+      "platform": [
+        "mobile",
+        "tablet",
+        "desktop"
+      ],
+      "spec_path": "docs/mockups/atoms/chip.html",
+      "snapshot_paths": [],
+      "deps": [],
+      "api_endpoints": [],
+      "gate": "atom",
+      "play_function": false,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "AM-008",
+      "title": "Skeleton atom",
+      "description": "Loading placeholder with 5 shapes (text, circle, rect, card, list-item).",
+      "acceptanceCriteria": [
+        "Renders all 5 shapes",
+        "Pulse animation runs",
+        "Respects width/height props",
+        "axe passes"
+      ],
+      "priority": 8,
+      "passes": true,
+      "notes": "",
+      "tier": "atom",
+      "source": "clean-slate",
+      "platform": [
+        "mobile",
+        "tablet",
+        "desktop"
+      ],
+      "spec_path": "docs/mockups/atoms/skeleton.html",
+      "snapshot_paths": [],
+      "deps": [],
+      "api_endpoints": [],
+      "gate": "atom",
+      "play_function": false,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "AM-009",
+      "title": "Progress bar atom",
+      "description": "Linear progress bar with 3 sizes × 5 color variants × determinate/indeterminate.",
+      "acceptanceCriteria": [
+        "Determinate shows fill percentage",
+        "Indeterminate shows animation",
+        "aria-valuenow set correctly",
+        "axe passes"
+      ],
+      "priority": 9,
+      "passes": true,
+      "notes": "",
+      "tier": "atom",
+      "source": "clean-slate",
+      "platform": [
+        "mobile",
+        "tablet",
+        "desktop"
+      ],
+      "spec_path": "docs/mockups/atoms/progress.html",
+      "snapshot_paths": [],
+      "deps": [],
+      "api_endpoints": [],
+      "gate": "atom",
+      "play_function": false,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "AM-010",
+      "title": "Spinner atom",
+      "description": "Circular loading spinner with 3 sizes × 6 color variants + inline-with-label option.",
+      "acceptanceCriteria": [
+        "Spins continuously",
+        "Inline variant renders label alongside",
+        "aria-label set",
+        "axe passes"
+      ],
+      "priority": 10,
+      "passes": true,
+      "notes": "",
+      "tier": "atom",
+      "source": "clean-slate",
+      "platform": [
+        "mobile",
+        "tablet",
+        "desktop"
+      ],
+      "spec_path": "docs/mockups/atoms/spinner.html",
+      "snapshot_paths": [],
+      "deps": [],
+      "api_endpoints": [],
+      "gate": "atom",
+      "play_function": false,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "AM-011",
+      "title": "Toast atom",
+      "description": "Single notification toast with 4 variants (success, info, warning, error) + dismiss action.",
+      "acceptanceCriteria": [
+        "Renders all 4 variants with correct icons",
+        "Dismiss button closes",
+        "ARIA role=alert set",
+        "axe passes"
+      ],
+      "priority": 11,
+      "passes": true,
+      "notes": "",
+      "tier": "atom",
+      "source": "clean-slate",
+      "platform": [
+        "mobile",
+        "tablet",
+        "desktop"
+      ],
+      "spec_path": "docs/mockups/atoms/toast.html",
+      "snapshot_paths": [],
+      "deps": [],
+      "api_endpoints": [],
+      "gate": "atom",
+      "play_function": false,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "AM-012",
+      "title": "Icon atom",
+      "description": "Icon system wrapper supporting Lucide icons with size/color/className props.",
+      "acceptanceCriteria": [
+        "Renders named icons from Lucide set",
+        "Size prop controls dimensions",
+        "Color inherits from parent or explicit prop",
+        "axe passes"
+      ],
+      "priority": 12,
+      "passes": true,
+      "notes": "",
+      "tier": "atom",
+      "source": "new",
+      "platform": [
+        "mobile",
+        "tablet",
+        "desktop"
+      ],
+      "spec_path": "",
+      "snapshot_paths": [],
+      "deps": [],
+      "api_endpoints": [],
+      "gate": "atom",
+      "play_function": false,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "AM-013",
+      "title": "Toggle atom",
+      "description": "On/off switch with label, disabled state, and accessible role=switch.",
+      "acceptanceCriteria": [
+        "Toggles on click",
+        "Disabled state blocks toggle",
+        "role=switch + aria-checked set",
+        "axe passes"
+      ],
+      "priority": 13,
+      "passes": true,
+      "notes": "",
+      "tier": "atom",
+      "source": "new",
+      "platform": [
+        "mobile",
+        "tablet",
+        "desktop"
+      ],
+      "spec_path": "",
+      "snapshot_paths": [],
+      "deps": [],
+      "api_endpoints": [],
+      "gate": "atom",
+      "play_function": false,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "AM-014",
+      "title": "Divider atom",
+      "description": "Visual separator (horizontal/vertical) with optional label.",
+      "acceptanceCriteria": [
+        "Horizontal renders full-width line",
+        "Vertical renders full-height line",
+        "Label variant shows centered text",
+        "axe passes"
+      ],
+      "priority": 14,
+      "passes": true,
+      "notes": "",
+      "tier": "atom",
+      "source": "new",
+      "platform": [
+        "mobile",
+        "tablet",
+        "desktop"
+      ],
+      "spec_path": "",
+      "snapshot_paths": [],
+      "deps": [],
+      "api_endpoints": [],
+      "gate": "atom",
+      "play_function": false,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "AM-015",
+      "title": "StateTabs molecule",
+      "description": "Tab switcher with pill (sliding indicator) and flat variants, 2-5 slots, ARIA tabs pattern.",
+      "acceptanceCriteria": [
+        "Renders pill and flat variants",
+        "Active tab has aria-selected=true",
+        "Click switches tab",
+        "play() asserts tab switch interaction"
+      ],
+      "priority": 15,
+      "passes": true,
+      "notes": "",
+      "tier": "molecule",
+      "source": "clean-slate",
+      "platform": [
+        "mobile",
+        "tablet",
+        "desktop"
+      ],
+      "spec_path": "docs/mockups/molecules/state-tabs.html",
+      "snapshot_paths": [],
+      "deps": [],
+      "api_endpoints": [],
+      "gate": "molecule",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 1,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "AM-016",
+      "title": "CardTransaction molecule",
+      "description": "Transaction list card with 9-state matrix: default, selection-mode, expanded, duplicate-flagged, grouped, income, expense, multi-currency, pending.",
+      "acceptanceCriteria": [
+        "Renders expense and income variants with correct colors",
+        "Selection-mode shows checkbox",
+        "Expanded state shows line items",
+        "play() asserts expand/collapse"
+      ],
+      "priority": 16,
+      "passes": true,
+      "notes": "",
+      "tier": "molecule",
+      "source": "clean-slate",
+      "platform": [
+        "mobile",
+        "tablet",
+        "desktop"
+      ],
+      "spec_path": "docs/mockups/molecules/card-transaction.html",
+      "snapshot_paths": [],
+      "deps": [
+        "AM-004",
+        "AM-012"
+      ],
+      "api_endpoints": [],
+      "gate": "molecule",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 1,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "AM-017",
+      "title": "CardStat molecule",
+      "description": "Statistics summary card with up/down/flat delta indicator, optional action pill and click handler.",
+      "acceptanceCriteria": [
+        "Up/down/flat delta renders correct arrow + color",
+        "Long text truncates",
+        "Clickable variant has cursor pointer",
+        "play() asserts click handler fires"
+      ],
+      "priority": 17,
+      "passes": true,
+      "notes": "",
+      "tier": "molecule",
+      "source": "clean-slate",
+      "platform": [
+        "mobile",
+        "tablet",
+        "desktop"
+      ],
+      "spec_path": "docs/mockups/molecules/card-stat.html",
+      "snapshot_paths": [],
+      "deps": [
+        "AM-004"
+      ],
+      "api_endpoints": [],
+      "gate": "molecule",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 1,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "AM-018",
+      "title": "CardEmpty molecule",
+      "description": "Empty state card with illustration, message, and optional CTA button. Variants: primary, filter-empty, filter-empty-duplicates.",
+      "acceptanceCriteria": [
+        "Primary variant shows CTA button",
+        "Filter-empty shows 'clear filters' action",
+        "Illustration renders",
+        "play() asserts CTA click"
+      ],
+      "priority": 18,
+      "passes": true,
+      "notes": "",
+      "tier": "molecule",
+      "source": "clean-slate",
+      "platform": [
+        "mobile",
+        "tablet",
+        "desktop"
+      ],
+      "spec_path": "docs/mockups/molecules/card-empty.html",
+      "snapshot_paths": [],
+      "deps": [
+        "AM-001"
+      ],
+      "api_endpoints": [],
+      "gate": "molecule",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 1,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "AM-019",
+      "title": "CardFeature molecule",
+      "description": "Promotional card for features/upgrades: promotion, cohort opt-in, upgrade variants.",
+      "acceptanceCriteria": [
+        "Renders promotion variant with CTA",
+        "Cohort opt-in shows toggle",
+        "Upgrade shows pricing info",
+        "play() asserts CTA interaction"
+      ],
+      "priority": 19,
+      "passes": true,
+      "notes": "",
+      "tier": "molecule",
+      "source": "clean-slate",
+      "platform": [
+        "mobile",
+        "tablet",
+        "desktop"
+      ],
+      "spec_path": "docs/mockups/molecules/card-feature.html",
+      "snapshot_paths": [],
+      "deps": [
+        "AM-001"
+      ],
+      "api_endpoints": [],
+      "gate": "molecule",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 1,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "AM-020",
+      "title": "CardCelebration molecule",
+      "description": "Achievement/celebration card: first-scan, streak, savings-goal variants with dismissible animation.",
+      "acceptanceCriteria": [
+        "Renders confetti/celebration visual",
+        "Dismissible via close button",
+        "Streak variant shows count",
+        "play() asserts dismiss"
+      ],
+      "priority": 20,
+      "passes": true,
+      "notes": "",
+      "tier": "molecule",
+      "source": "clean-slate",
+      "platform": [
+        "mobile",
+        "tablet",
+        "desktop"
+      ],
+      "spec_path": "docs/mockups/molecules/card-celebration.html",
+      "snapshot_paths": [],
+      "deps": [],
+      "api_endpoints": [],
+      "gate": "molecule",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 1,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "AM-021",
+      "title": "Modal molecule",
+      "description": "Dialog overlay with variants: confirm, form, learning, error, credit. Accessible focus trap.",
+      "acceptanceCriteria": [
+        "Renders backdrop + centered content",
+        "ESC closes modal",
+        "Focus trapped inside",
+        "play() asserts open/close cycle"
+      ],
+      "priority": 21,
+      "passes": true,
+      "notes": "",
+      "tier": "molecule",
+      "source": "clean-slate",
+      "platform": [
+        "mobile",
+        "tablet",
+        "desktop"
+      ],
+      "spec_path": "docs/mockups/molecules/modal.html",
+      "snapshot_paths": [],
+      "deps": [
+        "AM-001"
+      ],
+      "api_endpoints": [],
+      "gate": "molecule",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 1,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "AM-022",
+      "title": "Sheet molecule",
+      "description": "Bottom sheet overlay with action and filter variants. Mobile-primary, adapts to drawer on desktop.",
+      "acceptanceCriteria": [
+        "Slides up from bottom on mobile",
+        "Adapts to side panel on desktop",
+        "Drag-to-dismiss on mobile",
+        "play() asserts open/close"
+      ],
+      "priority": 22,
+      "passes": true,
+      "notes": "",
+      "tier": "molecule",
+      "source": "clean-slate",
+      "platform": [
+        "mobile",
+        "tablet",
+        "desktop"
+      ],
+      "spec_path": "docs/mockups/molecules/sheet.html",
+      "snapshot_paths": [],
+      "deps": [],
+      "api_endpoints": [],
+      "gate": "molecule",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 1,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "AM-023",
+      "title": "Drawer molecule",
+      "description": "Side panel drawer (right/left) for detail views. Desktop-primary.",
+      "acceptanceCriteria": [
+        "Slides from designated side",
+        "Backdrop click closes",
+        "Focus management correct",
+        "play() asserts open/close"
+      ],
+      "priority": 23,
+      "passes": true,
+      "notes": "",
+      "tier": "molecule",
+      "source": "clean-slate",
+      "platform": [
+        "mobile",
+        "tablet",
+        "desktop"
+      ],
+      "spec_path": "docs/mockups/molecules/drawer.html",
+      "snapshot_paths": [],
+      "deps": [],
+      "api_endpoints": [],
+      "gate": "molecule",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 1,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "AM-024",
+      "title": "ToastSystem molecule",
+      "description": "Toast queue manager: stacks up to 3 toasts, auto-dismiss at 3s/6s, exit animation.",
+      "acceptanceCriteria": [
+        "Queues multiple toasts",
+        "Auto-dismisses after timeout",
+        "Exit animation plays",
+        "play() asserts toast queue behavior"
+      ],
+      "priority": 24,
+      "passes": true,
+      "notes": "",
+      "tier": "molecule",
+      "source": "clean-slate",
+      "platform": [
+        "mobile",
+        "tablet",
+        "desktop"
+      ],
+      "spec_path": "docs/mockups/molecules/toast-system.html",
+      "snapshot_paths": [],
+      "deps": [
+        "AM-011"
+      ],
+      "api_endpoints": [],
+      "gate": "molecule",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 1,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "AM-025",
+      "title": "Banner molecule",
+      "description": "Full-width banner strip with info/warning/error/offline variants and optional dismiss action.",
+      "acceptanceCriteria": [
+        "Renders 4 variants with correct colors/icons",
+        "Dismiss button removes banner",
+        "Edge-bleed layout for offline variant",
+        "play() asserts dismiss"
+      ],
+      "priority": 25,
+      "passes": true,
+      "notes": "",
+      "tier": "molecule",
+      "source": "clean-slate",
+      "platform": [
+        "mobile",
+        "tablet",
+        "desktop"
+      ],
+      "spec_path": "docs/mockups/molecules/banner.html",
+      "snapshot_paths": [],
+      "deps": [
+        "AM-001"
+      ],
+      "api_endpoints": [],
+      "gate": "molecule",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 1,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "AM-026",
+      "title": "NavBottom molecule",
+      "description": "Mobile bottom navigation with 5 tabs, active indicator, badge support.",
+      "acceptanceCriteria": [
+        "Renders 5 tab items with icons",
+        "Active tab highlighted",
+        "Badge renders on tab",
+        "play() asserts tab switch"
+      ],
+      "priority": 26,
+      "passes": true,
+      "notes": "",
+      "tier": "molecule",
+      "source": "clean-slate",
+      "platform": [
+        "mobile"
+      ],
+      "spec_path": "docs/mockups/molecules/nav-bottom.html",
+      "snapshot_paths": [],
+      "deps": [
+        "AM-005",
+        "AM-012"
+      ],
+      "api_endpoints": [],
+      "gate": "molecule",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 1,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "AM-027",
+      "title": "NavTop molecule",
+      "description": "Desktop top header bar with default/elevated/minimal variants, search, profile dropdown.",
+      "acceptanceCriteria": [
+        "Default shows full nav items",
+        "Minimal variant for auth pages",
+        "Elevated adds shadow on scroll",
+        "play() asserts search focus"
+      ],
+      "priority": 27,
+      "passes": true,
+      "notes": "",
+      "tier": "molecule",
+      "source": "clean-slate",
+      "platform": [
+        "tablet",
+        "desktop"
+      ],
+      "spec_path": "docs/mockups/molecules/nav-top.html",
+      "snapshot_paths": [],
+      "deps": [
+        "AM-006",
+        "AM-012"
+      ],
+      "api_endpoints": [],
+      "gate": "molecule",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 1,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "AM-028",
+      "title": "NavSidebar molecule",
+      "description": "Desktop sidebar navigation with expanded/collapsed states.",
+      "acceptanceCriteria": [
+        "Expanded shows icon + label",
+        "Collapsed shows icon only",
+        "Active item highlighted",
+        "play() asserts expand/collapse toggle"
+      ],
+      "priority": 28,
+      "passes": true,
+      "notes": "",
+      "tier": "molecule",
+      "source": "clean-slate",
+      "platform": [
+        "desktop"
+      ],
+      "spec_path": "docs/mockups/molecules/nav-sidebar.html",
+      "snapshot_paths": [],
+      "deps": [
+        "AM-005",
+        "AM-012"
+      ],
+      "api_endpoints": [],
+      "gate": "molecule",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 1,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "AM-029",
+      "title": "FAB molecule",
+      "description": "Floating action button with sm/md/lg sizes + expandable mode menu for capture actions.",
+      "acceptanceCriteria": [
+        "Renders at fixed position bottom-right",
+        "Mode menu expands on click",
+        "Menu items have icons + labels",
+        "play() asserts menu open/select"
+      ],
+      "priority": 29,
+      "passes": true,
+      "notes": "",
+      "tier": "molecule",
+      "source": "clean-slate",
+      "platform": [
+        "mobile"
+      ],
+      "spec_path": "docs/mockups/molecules/fab.html",
+      "snapshot_paths": [],
+      "deps": [
+        "AM-001",
+        "AM-012"
+      ],
+      "api_endpoints": [],
+      "gate": "molecule",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 1,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "AM-030",
+      "title": "Form molecule",
+      "description": "Multi-step form container with step indicator, conditional field reveal, and error summary.",
+      "acceptanceCriteria": [
+        "Renders step indicator",
+        "Conditional fields show/hide based on selection",
+        "Error summary collects all field errors",
+        "play() asserts step navigation"
+      ],
+      "priority": 30,
+      "passes": true,
+      "notes": "",
+      "tier": "molecule",
+      "source": "clean-slate",
+      "platform": [
+        "mobile",
+        "tablet",
+        "desktop"
+      ],
+      "spec_path": "docs/mockups/molecules/form.html",
+      "snapshot_paths": [],
+      "deps": [
+        "AM-001",
+        "AM-002",
+        "AM-003"
+      ],
+      "api_endpoints": [],
+      "gate": "molecule",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 1,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "AM-031",
+      "title": "FilterStrip molecule",
+      "description": "Horizontal filter bar with date, category, amount, tag, and search filter slots.",
+      "acceptanceCriteria": [
+        "Renders all 5 filter types",
+        "Active filters show as chips",
+        "Clear-all button resets filters",
+        "play() asserts filter toggle"
+      ],
+      "priority": 31,
+      "passes": true,
+      "notes": "",
+      "tier": "molecule",
+      "source": "clean-slate",
+      "platform": [
+        "mobile",
+        "tablet",
+        "desktop"
+      ],
+      "spec_path": "docs/mockups/molecules/filters.html",
+      "snapshot_paths": [],
+      "deps": [
+        "AM-007"
+      ],
+      "api_endpoints": [],
+      "gate": "molecule",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 1,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "AM-032",
+      "title": "ListItem molecule",
+      "description": "List row with navigable, selectable, and swipeable variants for settings/menus.",
+      "acceptanceCriteria": [
+        "Navigable variant shows chevron",
+        "Selectable shows checkbox/radio",
+        "Swipeable reveals action buttons",
+        "play() asserts selection toggle"
+      ],
+      "priority": 32,
+      "passes": true,
+      "notes": "",
+      "tier": "molecule",
+      "source": "clean-slate",
+      "platform": [
+        "mobile",
+        "tablet",
+        "desktop"
+      ],
+      "spec_path": "docs/mockups/molecules/list-item.html",
+      "snapshot_paths": [],
+      "deps": [
+        "AM-012"
+      ],
+      "api_endpoints": [],
+      "gate": "molecule",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 1,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "AM-033",
+      "title": "SearchBar molecule",
+      "description": "Search input with icon, clear button, and debounced onChange.",
+      "acceptanceCriteria": [
+        "Search icon renders",
+        "Clear button appears when text entered",
+        "Placeholder text from i18n",
+        "play() asserts type + clear"
+      ],
+      "priority": 33,
+      "passes": true,
+      "notes": "",
+      "tier": "molecule",
+      "source": "legacy",
+      "platform": [
+        "mobile",
+        "tablet",
+        "desktop"
+      ],
+      "spec_path": "",
+      "snapshot_paths": [],
+      "deps": [
+        "AM-002",
+        "AM-012"
+      ],
+      "api_endpoints": [],
+      "gate": "molecule",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 1,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "AM-034",
+      "title": "FilterChips molecule",
+      "description": "Horizontal scrollable row of active filter chips with remove actions.",
+      "acceptanceCriteria": [
+        "Renders active filters as removable chips",
+        "Horizontal scroll on overflow",
+        "Remove chip fires onRemove",
+        "play() asserts chip removal"
+      ],
+      "priority": 34,
+      "passes": true,
+      "notes": "",
+      "tier": "molecule",
+      "source": "legacy",
+      "platform": [
+        "mobile",
+        "tablet",
+        "desktop"
+      ],
+      "spec_path": "",
+      "snapshot_paths": [],
+      "deps": [
+        "AM-007"
+      ],
+      "api_endpoints": [],
+      "gate": "molecule",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 1,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "AM-035",
+      "title": "SelectionBar molecule",
+      "description": "Multi-select action bar showing count + bulk actions (delete, categorize, export).",
+      "acceptanceCriteria": [
+        "Shows selected count",
+        "Action buttons render",
+        "Dismiss deselects all",
+        "play() asserts dismiss action"
+      ],
+      "priority": 35,
+      "passes": true,
+      "notes": "",
+      "tier": "molecule",
+      "source": "legacy",
+      "platform": [
+        "mobile",
+        "tablet",
+        "desktop"
+      ],
+      "spec_path": "",
+      "snapshot_paths": [],
+      "deps": [
+        "AM-001",
+        "AM-005"
+      ],
+      "api_endpoints": [],
+      "gate": "molecule",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 1,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "AM-036",
+      "title": "SortControl molecule",
+      "description": "Sort dropdown with field + direction selection.",
+      "acceptanceCriteria": [
+        "Shows current sort field",
+        "Direction toggle (asc/desc)",
+        "Dropdown lists sort options",
+        "play() asserts sort change"
+      ],
+      "priority": 36,
+      "passes": true,
+      "notes": "",
+      "tier": "molecule",
+      "source": "legacy",
+      "platform": [
+        "mobile",
+        "tablet",
+        "desktop"
+      ],
+      "spec_path": "",
+      "snapshot_paths": [],
+      "deps": [
+        "AM-003",
+        "AM-012"
+      ],
+      "api_endpoints": [],
+      "gate": "molecule",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 1,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "AM-037",
+      "title": "Pagination molecule",
+      "description": "Page navigation with page numbers, prev/next, and page size selector.",
+      "acceptanceCriteria": [
+        "Renders page numbers with active highlight",
+        "Prev/next disabled at boundaries",
+        "Page size dropdown works",
+        "play() asserts page navigation"
+      ],
+      "priority": 37,
+      "passes": true,
+      "notes": "",
+      "tier": "molecule",
+      "source": "legacy",
+      "platform": [
+        "mobile",
+        "tablet",
+        "desktop"
+      ],
+      "spec_path": "",
+      "snapshot_paths": [],
+      "deps": [
+        "AM-001",
+        "AM-003"
+      ],
+      "api_endpoints": [],
+      "gate": "molecule",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 1,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "AM-038",
+      "title": "DateGroupHeader molecule",
+      "description": "Date section header for grouped transaction lists (Today, Yesterday, date string).",
+      "acceptanceCriteria": [
+        "Renders relative labels for today/yesterday",
+        "Renders formatted date for older groups",
+        "Sticky positioning option",
+        "axe passes"
+      ],
+      "priority": 38,
+      "passes": true,
+      "notes": "",
+      "tier": "molecule",
+      "source": "legacy",
+      "platform": [
+        "mobile",
+        "tablet",
+        "desktop"
+      ],
+      "spec_path": "",
+      "snapshot_paths": [],
+      "deps": [],
+      "api_endpoints": [],
+      "gate": "molecule",
+      "play_function": false,
+      "maxAttempts": 3,
+      "attemptCount": 1,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "AM-039",
+      "title": "CategoryBadge molecule",
+      "description": "Category icon + label badge using V4 taxonomy colors.",
+      "acceptanceCriteria": [
+        "Renders correct icon per category",
+        "Background color matches taxonomy",
+        "Truncates long category names",
+        "axe passes"
+      ],
+      "priority": 39,
+      "passes": true,
+      "notes": "",
+      "tier": "molecule",
+      "source": "legacy",
+      "platform": [
+        "mobile",
+        "tablet",
+        "desktop"
+      ],
+      "spec_path": "",
+      "snapshot_paths": [],
+      "deps": [
+        "AM-012"
+      ],
+      "api_endpoints": [],
+      "gate": "molecule",
+      "play_function": false,
+      "maxAttempts": 3,
+      "attemptCount": 1,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "AM-040",
+      "title": "CurrencyTag molecule",
+      "description": "Currency indicator showing CLP/USD/EUR with flag icon and formatted amount.",
+      "acceptanceCriteria": [
+        "Renders currency code + flag",
+        "CLP formatted without decimals",
+        "USD/EUR with 2 decimals",
+        "axe passes"
+      ],
+      "priority": 40,
+      "passes": true,
+      "notes": "",
+      "tier": "molecule",
+      "source": "legacy",
+      "platform": [
+        "mobile",
+        "tablet",
+        "desktop"
+      ],
+      "spec_path": "",
+      "snapshot_paths": [],
+      "deps": [
+        "AM-012"
+      ],
+      "api_endpoints": [],
+      "gate": "molecule",
+      "play_function": false,
+      "maxAttempts": 3,
+      "attemptCount": 1,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "AM-041",
+      "title": "DateTimeTag molecule",
+      "description": "Date/time display with relative (3h ago) and absolute (May 4, 2026 14:30) modes.",
+      "acceptanceCriteria": [
+        "Relative mode shows human-readable time ago",
+        "Absolute mode shows formatted date",
+        "Tooltip shows alternate format",
+        "axe passes"
+      ],
+      "priority": 41,
+      "passes": true,
+      "notes": "",
+      "tier": "molecule",
+      "source": "legacy",
+      "platform": [
+        "mobile",
+        "tablet",
+        "desktop"
+      ],
+      "spec_path": "",
+      "snapshot_paths": [],
+      "deps": [],
+      "api_endpoints": [],
+      "gate": "molecule",
+      "play_function": false,
+      "maxAttempts": 3,
+      "attemptCount": 1,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "AM-042",
+      "title": "ConfirmationDialog molecule",
+      "description": "Simple yes/no confirmation dialog for destructive actions.",
+      "acceptanceCriteria": [
+        "Renders title + message + confirm/cancel buttons",
+        "Confirm button is danger variant for destructive actions",
+        "Focus trapped inside dialog",
+        "play() asserts confirm + cancel flows"
+      ],
+      "priority": 42,
+      "passes": true,
+      "notes": "",
+      "tier": "molecule",
+      "source": "legacy",
+      "platform": [
+        "mobile",
+        "tablet",
+        "desktop"
+      ],
+      "spec_path": "",
+      "snapshot_paths": [],
+      "deps": [
+        "AM-001",
+        "AM-021"
+      ],
+      "api_endpoints": [],
+      "gate": "molecule",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 1,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "AM-043",
+      "title": "CreditInfoModal molecule",
+      "description": "Credit balance display modal showing scan credits remaining, purchase CTA.",
+      "acceptanceCriteria": [
+        "Shows credit count",
+        "Purchase CTA button renders",
+        "Balance-zero shows warning styling",
+        "play() asserts open/close"
+      ],
+      "priority": 43,
+      "passes": true,
+      "notes": "",
+      "tier": "molecule",
+      "source": "legacy",
+      "platform": [
+        "mobile",
+        "tablet",
+        "desktop"
+      ],
+      "spec_path": "",
+      "snapshot_paths": [],
+      "deps": [
+        "AM-001",
+        "AM-021"
+      ],
+      "api_endpoints": [
+        "getCreditBalance"
+      ],
+      "gate": "molecule",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 1,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "AM-044",
+      "title": "LearningPrompt molecule",
+      "description": "Category/merchant learning prompt asking user to confirm AI-suggested mapping.",
+      "acceptanceCriteria": [
+        "Shows suggested category with confidence",
+        "Accept/reject buttons",
+        "Learn-always checkbox option",
+        "play() asserts accept flow"
+      ],
+      "priority": 44,
+      "passes": true,
+      "notes": "",
+      "tier": "molecule",
+      "source": "legacy",
+      "platform": [
+        "mobile",
+        "tablet",
+        "desktop"
+      ],
+      "spec_path": "",
+      "snapshot_paths": [],
+      "deps": [
+        "AM-001",
+        "AM-039"
+      ],
+      "api_endpoints": [],
+      "gate": "molecule",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 1,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "AM-045",
+      "title": "ImageViewer molecule",
+      "description": "Receipt image viewer with zoom, pan, and rotate controls.",
+      "acceptanceCriteria": [
+        "Renders image with zoom controls",
+        "Pinch-to-zoom on mobile",
+        "Rotate button rotates 90°",
+        "play() asserts zoom interaction"
+      ],
+      "priority": 45,
+      "passes": true,
+      "notes": "",
+      "tier": "molecule",
+      "source": "legacy",
+      "platform": [
+        "mobile",
+        "tablet",
+        "desktop"
+      ],
+      "spec_path": "",
+      "snapshot_paths": [],
+      "deps": [
+        "AM-001"
+      ],
+      "api_endpoints": [],
+      "gate": "molecule",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 1,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "AM-046",
+      "title": "ProfileDropdown molecule",
+      "description": "User profile menu with avatar, name, and dropdown actions (settings, sign-out).",
+      "acceptanceCriteria": [
+        "Avatar + name render",
+        "Click opens dropdown",
+        "Menu items have icons",
+        "play() asserts dropdown open + item click"
+      ],
+      "priority": 46,
+      "passes": true,
+      "notes": "",
+      "tier": "molecule",
+      "source": "legacy",
+      "platform": [
+        "tablet",
+        "desktop"
+      ],
+      "spec_path": "",
+      "snapshot_paths": [],
+      "deps": [
+        "AM-006",
+        "AM-012"
+      ],
+      "api_endpoints": [
+        "getMe"
+      ],
+      "gate": "molecule",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 1,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "AM-047",
+      "title": "QuickSaveCard molecule",
+      "description": "Quick transaction save card shown after scan completion for one-tap save.",
+      "acceptanceCriteria": [
+        "Shows extracted amount + merchant",
+        "Save button commits transaction",
+        "Edit button opens editor",
+        "play() asserts save + edit actions"
+      ],
+      "priority": 47,
+      "passes": true,
+      "notes": "",
+      "tier": "molecule",
+      "source": "clean-slate",
+      "platform": [
+        "mobile",
+        "tablet",
+        "desktop"
+      ],
+      "spec_path": "docs/mockups/screens/gastify-quicksave-card.html",
+      "snapshot_paths": [],
+      "deps": [
+        "AM-001",
+        "AM-040"
+      ],
+      "api_endpoints": [
+        "createTransaction"
+      ],
+      "gate": "molecule",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 1,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "AM-048",
+      "title": "ScanProgress molecule",
+      "description": "Dual-progress indicator for scan submission (upload + extraction) per REQ-04.",
+      "acceptanceCriteria": [
+        "Shows two progress bars (upload, extraction)",
+        "Labels update with stage",
+        "Indeterminate mode for extraction",
+        "axe passes"
+      ],
+      "priority": 48,
+      "passes": true,
+      "notes": "",
+      "tier": "molecule",
+      "source": "clean-slate",
+      "platform": [
+        "mobile",
+        "tablet",
+        "desktop"
+      ],
+      "spec_path": "docs/mockups/screens/gastify-single-scan-states.html",
+      "snapshot_paths": [],
+      "deps": [
+        "AM-009",
+        "AM-010"
+      ],
+      "api_endpoints": [],
+      "gate": "molecule",
+      "play_function": false,
+      "maxAttempts": 3,
+      "attemptCount": 1,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "AM-049",
+      "title": "ScanStatusIndicator molecule",
+      "description": "Scan state badge showing current status (idle, processing, complete, error) with icon + label.",
+      "acceptanceCriteria": [
+        "Renders all 4 states with correct icons/colors",
+        "Error state shows red",
+        "Complete shows green check",
+        "axe passes"
+      ],
+      "priority": 49,
+      "passes": true,
+      "notes": "",
+      "tier": "molecule",
+      "source": "legacy",
+      "platform": [
+        "mobile",
+        "tablet",
+        "desktop"
+      ],
+      "spec_path": "",
+      "snapshot_paths": [],
+      "deps": [
+        "AM-004",
+        "AM-012"
+      ],
+      "api_endpoints": [],
+      "gate": "molecule",
+      "play_function": false,
+      "maxAttempts": 3,
+      "attemptCount": 1,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "AM-050",
+      "title": "PWAUpdatePrompt molecule",
+      "description": "Service worker update notification prompting user to refresh for new version.",
+      "acceptanceCriteria": [
+        "Shows update available message",
+        "Refresh button triggers reload",
+        "Dismiss option available",
+        "play() asserts refresh click"
+      ],
+      "priority": 50,
+      "passes": true,
+      "notes": "",
+      "tier": "molecule",
+      "source": "new",
+      "platform": [
+        "mobile",
+        "tablet",
+        "desktop"
+      ],
+      "spec_path": "",
+      "snapshot_paths": [],
+      "deps": [
+        "AM-001",
+        "AM-025"
+      ],
+      "api_endpoints": [],
+      "gate": "molecule",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 1,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "AM-051",
+      "title": "ErrorFallback molecule",
+      "description": "Error boundary fallback UI with error message and retry/go-home actions.",
+      "acceptanceCriteria": [
+        "Shows error icon + message",
+        "Retry button attempts recovery",
+        "Go home button navigates to /",
+        "play() asserts retry click"
+      ],
+      "priority": 51,
+      "passes": true,
+      "notes": "",
+      "tier": "molecule",
+      "source": "new",
+      "platform": [
+        "mobile",
+        "tablet",
+        "desktop"
+      ],
+      "spec_path": "",
+      "snapshot_paths": [],
+      "deps": [
+        "AM-001"
+      ],
+      "api_endpoints": [],
+      "gate": "molecule",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 1,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "AM-052",
+      "title": "MappingsList molecule",
+      "description": "Data mappings list for settings (merchant→category, card aliases) with edit/delete actions.",
+      "acceptanceCriteria": [
+        "Renders list of key→value mappings",
+        "Edit action opens inline editor",
+        "Delete shows confirmation",
+        "play() asserts edit + delete flows"
+      ],
+      "priority": 52,
+      "passes": true,
+      "notes": "",
+      "tier": "molecule",
+      "source": "legacy",
+      "platform": [
+        "mobile",
+        "tablet",
+        "desktop"
+      ],
+      "spec_path": "",
+      "snapshot_paths": [],
+      "deps": [
+        "AM-032"
+      ],
+      "api_endpoints": [],
+      "gate": "molecule",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 1,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "AM-053",
+      "title": "TimeSelector molecule",
+      "description": "Period selector for reports/analytics with preset ranges (week, month, quarter, year, custom).",
+      "acceptanceCriteria": [
+        "Renders preset period buttons",
+        "Custom opens date range picker",
+        "Active period highlighted",
+        "play() asserts period switch"
+      ],
+      "priority": 53,
+      "passes": true,
+      "notes": "",
+      "tier": "molecule",
+      "source": "legacy",
+      "platform": [
+        "mobile",
+        "tablet",
+        "desktop"
+      ],
+      "spec_path": "",
+      "snapshot_paths": [],
+      "deps": [
+        "AM-001",
+        "AM-007"
+      ],
+      "api_endpoints": [],
+      "gate": "molecule",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 1,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    }
+  ]
+}
