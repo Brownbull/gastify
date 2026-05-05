@@ -32,8 +32,9 @@ import { useRecentScans } from '@/hooks/useRecentScans';
 import { mergeTransactionsWithRecentScans } from '@/utils/transactionMerge';
 import { toMillis } from '@/utils/timestamp';
 import { useUserPreferences } from '@/hooks/useUserPreferences';
+import { useNavigate } from '@tanstack/react-router';
 // Story 15-7c: Theme settings from Zustand store (ThemeContext removed)
-import { useThemeSettings, useNavigationActions } from '@/shared/stores';
+import { useThemeSettings } from '@/shared/stores';
 import { formatCurrency as formatCurrencyUtil } from '@/utils/currency';
 import { formatDate as formatDateUtil } from '@/utils/date';
 import { TRANSLATIONS } from '@/utils/translations';
@@ -196,8 +197,8 @@ export function useDashboardViewData(): UseDashboardViewDataReturn {
             .slice(0, 10);
     }, [transactionsWithRecentScans]);
 
-    // === Navigation Actions (Story 14e-25d) ===
-    const { setView } = useNavigationActions();
+    // === Navigation ===
+    const navigate = useNavigate();
 
     // === Formatters ===
     // Translation function - memoized to prevent unnecessary re-renders
@@ -239,10 +240,9 @@ export function useDashboardViewData(): UseDashboardViewDataReturn {
         }
     }, []);
 
-    // Story 14e-25d: Navigate to TrendsView
     const onViewTrends = useCallback((_month: string | null) => {
-        setView('trends');
-    }, [setView]);
+        navigate({ to: '/trends' });
+    }, [navigate]);
 
     const onEditTransaction = useCallback((_transaction: Transaction) => {
         if (import.meta.env.DEV) {
@@ -262,10 +262,9 @@ export function useDashboardViewData(): UseDashboardViewDataReturn {
         }
     }, []);
 
-    // Story 14e-25d: Navigate to RecentScansView
     const onViewRecentScans = useCallback(() => {
-        setView('recent-scans');
-    }, [setView]);
+        navigate({ to: '/recent-scans' });
+    }, [navigate]);
 
     // === Return Complete Data ===
     return {

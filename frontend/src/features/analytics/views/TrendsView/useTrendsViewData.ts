@@ -31,7 +31,6 @@ import { useTransactions } from '@/hooks/useTransactions';
 import { useUserPreferences } from '@/hooks/useUserPreferences';
 // Story 15-7c: Theme settings from Zustand store (ThemeContext removed)
 import { useThemeSettings } from '@/shared/stores';
-import { useNavigationStore } from '@/shared/stores/useNavigationStore';
 import { searchParamsToAnalyticsState } from '@/lib/searchParamSerializers';
 import { TRANSLATIONS } from '@/utils/translations';
 import type { Transaction } from '@/types/transaction';
@@ -178,9 +177,9 @@ export function useTrendsViewData(): UseTrendsViewDataReturn {
     const { preferences } = useUserPreferences(user, services);
 
     // === Navigation State (derived from URL search params) ===
-    const trendsSearchParams = useRouterState({ select: (s) => s.location.search });
-    const analyticsInitialState = searchParamsToAnalyticsState(trendsSearchParams as Record<string, string>);
-    const pendingDistributionView = useNavigationStore((s) => s.pendingDistributionView);
+    const trendsLocation = useRouterState({ select: (s) => s.location });
+    const analyticsInitialState = searchParamsToAnalyticsState(trendsLocation.search as Record<string, string>);
+    const pendingDistributionView = (trendsLocation.search as Record<string, string>)?.distView as 'treemap' | 'donut' | undefined ?? null;
 
     // === User Info ===
     const userInfo: UserInfo = useMemo(

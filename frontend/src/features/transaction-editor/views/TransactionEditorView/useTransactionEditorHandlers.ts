@@ -56,12 +56,13 @@ import type { ConflictResult } from '@features/scan';
 // Story 16-7: batchReviewActions replaced by event bus (AC-ARCH-NO-2)
 import { appEvents } from '@shared/events';
 import {
-    useNavigationActions,
     useWorkflowImages,
     useWorkflowBatchEditingIndex,
     useWorkflowBatchReceipts,
     getWorkflowState,
 } from '@/shared/stores';
+import { useNavigate, useRouter } from '@tanstack/react-router';
+import { viewToPath } from '@/lib/routeMapping';
 // Story 14e-36c: Transaction editor store (replaces App.tsx props)
 // Story 15b-1c: Use intra-feature relative import to avoid circular dependency via barrel
 import {
@@ -203,7 +204,11 @@ export function useTransactionEditorHandlers(
     const workflowBatchEditingIndex = useWorkflowBatchEditingIndex();
     const workflowBatchReceipts = useWorkflowBatchReceipts();
 
-    const { setView, navigateBack, navigateToView } = useNavigationActions();
+    const tehNavigate = useNavigate();
+    const tehRouter = useRouter();
+    const setView = (view: string) => tehNavigate({ to: viewToPath(view as any) });
+    const navigateBack = () => tehRouter.history.back();
+    const navigateToView = (view: string) => tehNavigate({ to: viewToPath(view as any) });
 
     // ==========================================================================
     // Scan Image Wrapper (mirrors App.tsx pattern)

@@ -35,8 +35,8 @@ import {
   useWorkflowMode as useScanMode,
   useWorkflowBatchReceipts,
   useWorkflowBatchProgress,
-  useNavigationActions,
 } from '@shared/stores';
+import { useRouter } from '@tanstack/react-router';
 import { useModalActions } from '@/managers/ModalManager';
 
 /**
@@ -147,9 +147,9 @@ export const BatchReviewView: React.FC<BatchReviewViewProps> = ({
   const isBatchProcessing = scanPhase === 'scanning' && scanMode === 'batch';
 
   // Story 14e-25d: Direct hooks (ViewHandlersContext deleted)
-  const { navigateBack } = useNavigationActions();
+  const brRouter = useRouter();
   const { openModal, closeModal } = useModalActions();
-  const onBack = navigateBack;
+  const onBack = () => brRouter.history.back();
   const onCreditInfoClick = () => openModal('creditInfo', {
     normalCredits: credits?.remaining ?? 0,
     superCredits: credits?.superRemaining ?? 0,

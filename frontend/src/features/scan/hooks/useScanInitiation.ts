@@ -28,7 +28,8 @@ import { uploadScanImages } from '../services/pendingScanUpload';
 // Store imports
 import { useScanStore } from '../store/useScanStore';
 import { registerCreditRefundCallback } from '../store';
-import { useNavigationStore } from '@/shared/stores/useNavigationStore';
+import { useNavigate } from '@tanstack/react-router';
+import { viewToPath } from '@/lib/routeMapping';
 
 // =============================================================================
 // Types
@@ -235,7 +236,9 @@ export function useScanInitiation(props: ScanInitiationProps): ScanInitiationHan
     setOverlayError,
     setPendingScan,
   } = useScanStore();
-  const { setView, navigateToView } = useNavigationStore();
+  const siNavigate = useNavigate();
+  const setView = (view: string) => siNavigate({ to: viewToPath(view as any) });
+  const navigateToView = (view: string) => siNavigate({ to: viewToPath(view as any) });
 
   // Guard against duplicate scan queueing (re-entrant handleFileSelect)
   const isQueueingRef = useRef(false);

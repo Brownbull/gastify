@@ -11,9 +11,6 @@ import {
     useLang,
     useCurrency,
     useDateFormat,
-    useCurrentView,
-    usePendingDistributionView,
-    useNavigationActions,
     useCurrentInsight,
     useShowInsightCard,
     useShowSessionComplete,
@@ -21,7 +18,7 @@ import {
     useShowBatchSummary,
     useInsightActions,
 } from '@/shared/stores';
-import { pathToSettingsSubview, settingsSubviewToPath } from '@/lib/routeMapping';
+import { pathToView, pathToSettingsSubview, settingsSubviewToPath, viewToPath } from '@/lib/routeMapping';
 import {
     useCurrentTransaction,
     useNavigationList,
@@ -46,22 +43,35 @@ import type { UserPreferences } from '../../types/preferences';
 export function useViewHandlersOrchestrator(
     userPreferences: UserPreferences,
 ) {
-    // Navigation state from Zustand store + TanStack Router for settings subview
-    const view = useCurrentView();
-    const settingsPathname = useRouterState({ select: (s) => s.location.pathname });
-    const settingsSubview = pathToSettingsSubview(settingsPathname);
-    const settingsNav = useNavigate();
-    const pendingDistributionView = usePendingDistributionView();
-    const {
-        setView,
-        saveScrollPosition,
-        setPendingDistributionView,
-    } = useNavigationActions();
+    // Navigation state derived from TanStack Router URL
+    const routerState = useRouterState({ select: (s) => s.location });
+    const view = pathToView(routerState.pathname) ?? 'dashboard';
+    const settingsSubview = pathToSettingsSubview(routerState.pathname);
+    const orchNavigate = useNavigate();
+    const pendingDistributionView = (routerState.search as Record<string, string>)?.distView as 'treemap' | 'donut' | undefined ?? null;
+    const setView = useCallback(
+        (v: string) => orchNavigate({ to: viewToPath(v as any) }),
+        [orchNavigate]
+    );
     const setSettingsSubview = useCallback(
         (subview: string) => {
-            settingsNav({ to: settingsSubviewToPath(subview as Parameters<typeof settingsSubviewToPath>[0]) });
+            orchNavigate({ to: settingsSubviewToPath(subview as Parameters<typeof settingsSubviewToPath>[0]) });
         },
-        [settingsNav]
+        [orchNavigate]
+    );
+    const setPendingDistributionView = useCallback(
+        (dv: 'treemap' | 'donut' | null) => {
+            if (dv) {
+                orchNavigate({ to: '/trends', search: { distView: dv } as any, replace: true });
+            }
+        },
+        [orchNavigate]
+    );
+    const saveScrollPosition = useCallback(
+        (_view: string, _scrollTop: number) => {
+            // Scroll restoration handled by browser with TanStack Router
+        },
+        []
     );
 
     // Transaction editor state from Zustand store

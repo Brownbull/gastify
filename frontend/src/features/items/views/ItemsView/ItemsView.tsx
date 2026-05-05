@@ -30,7 +30,8 @@ import { filterToDuplicatesGrouped, getItemDuplicateCount } from '@features/item
 import { extractAvailableFilters } from '@shared/utils/historyFilterUtils';
 import type { FlattenedItem, ItemFilters, AggregatedItem } from '@/types/item';
 import { downloadAggregatedItemsCSV } from '@/utils/csvExport';
-import { useNavigationActions } from '@/shared/stores';
+import { useNavigate, useRouter } from '@tanstack/react-router';
+import { viewToPath } from '@/lib/routeMapping';
 import type { View } from '@app/types';
 import { useItemsViewData } from './useItemsViewData';
 import {
@@ -79,10 +80,11 @@ export const ItemsView: React.FC<ItemsViewProps> = ({
     // Widen the formatDate type to match component expectations (string format)
     const formatDate = formatDateHook as (date: string, format: string) => string;
 
-    // Story 14e-25d: Direct navigation from store (ViewHandlersContext deleted)
-    const { navigateBack, setView } = useNavigationActions();
-    const onBack = navigateBack;
-    const onNavigateToView = setView;
+    // Story 14e-25d: Direct navigation via TanStack Router
+    const navigate = useNavigate();
+    const router = useRouter();
+    const onBack = () => router.history.back();
+    const onNavigateToView = (view: View) => navigate({ to: viewToPath(view) });
 
     // Profile dropdown state
     const [isProfileOpen, setIsProfileOpen] = useState(false);

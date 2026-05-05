@@ -39,8 +39,8 @@ import { useRecentScans } from '@/hooks/useRecentScans';
 import { mergeTransactionsWithRecentScans } from '@/utils/transactionMerge';
 import { sanitizeInput } from '@/utils/sanitize';
 import { useNavigate } from '@tanstack/react-router';
-// Story 14e-25c.2: Navigation via Zustand store
-import { useNavigation } from '@/shared/stores/useNavigationStore';
+import { useRouter } from '@tanstack/react-router';
+import { viewToPath } from '@/lib/routeMapping';
 import { isValidView } from '@/app/types';
 import { historyFilterToSearchParams } from '@/lib/searchParamSerializers';
 import type { Transaction } from '@/types/transaction';
@@ -91,9 +91,9 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
   t,
   theme,
 }) => {
-  // Story 14e-25c.2: Get navigation from Zustand store
-  const { navigateBack, navigateToView } = useNavigation();
   const navigate = useNavigate();
+  const router = useRouter();
+  const navigateBack = () => router.history.back();
 
   // Story 14e-25c.2: Get auth and transactions from internal hooks
   const { user, services } = useAuth();
@@ -118,12 +118,11 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const profileButtonRef = useRef<HTMLButtonElement>(null);
 
-  // Story 14e-25c.2: Handle profile navigation via Zustand store
   const handleProfileNavigate = useCallback((view: string) => {
     if (isValidView(view)) {
-      navigateToView(view);
+      navigate({ to: viewToPath(view as any) });
     }
-  }, [navigateToView]);
+  }, [navigate]);
 
   const prefersReducedMotion = useReducedMotion();
 

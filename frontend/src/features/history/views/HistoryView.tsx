@@ -44,9 +44,8 @@ import { useSelectionMode } from '@/hooks/useSelectionMode';
 import { useTransactionRepository } from '@/repositories';
 // Story 14.15c: CSV Export utilities
 import { downloadMonthlyTransactions, downloadYearlyStatistics } from '@/utils/csvExport';
-// Story 14e-25d: Direct navigation from store (ViewHandlersContext deleted)
-import { useNavigationActions } from '@/shared/stores';
-// Story 14c-refactor.27: View type for navigation
+import { useNavigate, useRouter } from '@tanstack/react-router';
+import { viewToPath } from '@/lib/routeMapping';
 import type { View } from '@app/types';
 // Story 14e-25a.2b: HistoryView data hook
 import { useHistoryViewData, type UseHistoryViewDataReturn } from './useHistoryViewData';
@@ -133,10 +132,10 @@ const HistoryViewInner: React.FC<HistoryViewProps> = ({ _testOverrides }) => {
     const userName = user.displayName || '';
     const userEmail = user.email || '';
 
-    // Story 14e-25d: Direct navigation from store (ViewHandlersContext deleted)
-    const { navigateBack, setView } = useNavigationActions();
-    const onBack = navigateBack;
-    const onNavigateToView = setView;
+    const navigate = useNavigate();
+    const router = useRouter();
+    const onBack = () => router.history.back();
+    const onNavigateToView = (view: View) => navigate({ to: viewToPath(view) });
 
     const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
     // Story 14.14: Search functionality

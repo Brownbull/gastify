@@ -50,8 +50,8 @@ import {
     getItemCategoryEmoji,
 } from '@/utils/categoryTranslations';
 import { calculateTreemapLayout } from '@/utils/treemapLayout';
+import { useNavigate } from '@tanstack/react-router';
 import { useHistoryNavigation } from '@/shared/hooks';
-import { useNavigationActions } from '@/shared/stores';
 import { useDashboardViewData, type UseDashboardViewDataReturn } from './useDashboardViewData';
 import { TransactionCard } from '@/components/transactions';
 import { getStorageString, setStorageString } from '@/utils/storage';
@@ -114,10 +114,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ _testOverrides }) 
     const isDark = theme === 'dark';
 
     // Navigation hooks
+    const navigate = useNavigate();
     const { handleNavigateToHistory } = useHistoryNavigation();
-    const { setView } = useNavigationActions();
     const onNavigateToHistory = handleNavigateToHistory;
-    const onViewHistory = () => setView('history');
+    const onViewHistory = () => navigate({ to: '/history' });
 
     useReducedMotion();
     // Story 15b-3a: DAL migration — repository replaces direct service imports

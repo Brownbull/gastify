@@ -51,8 +51,9 @@ import {
     isDateInPeriod,
     type PeriodIdentifier,
 } from '@features/analytics/utils/periodComparison';
-// Story 14e-25d: Direct navigation from store and shared hooks (ViewHandlersContext deleted)
-import { useNavigationActions } from '@/shared/stores';
+// Story 14e-25d: Direct navigation via TanStack Router
+import { useNavigate, useRouter } from '@tanstack/react-router';
+import { viewToPath } from '@/lib/routeMapping';
 import { useHistoryNavigation } from '@/shared/hooks';
 // Story 14c-refactor.31a: View type for proper type assertion
 import type { View } from '@app/types';
@@ -137,12 +138,12 @@ export const TrendsView: React.FC<TrendsViewProps> = ({ _testOverrides }) => {
     const prefersReducedMotion = useReducedMotion();
     const carouselRef = useRef<HTMLDivElement>(null);
 
-    // Story 14e-25d: Direct navigation from store and shared hooks (ViewHandlersContext deleted)
+    // Story 14e-25d: Direct navigation via TanStack Router
     const { handleNavigateToHistory } = useHistoryNavigation();
-    const { navigateBack, setView } = useNavigationActions();
+    const tNavigate = useNavigate();
+    const tRouter = useRouter();
     const onNavigateToHistory = handleNavigateToHistory;
-    const onBack = navigateBack;
-    const navigateToView = setView;
+    const onBack = () => tRouter.history.back();
 
     const carouselTitles = CAROUSEL_TITLES_BASE;
     const maxCarouselSlide = 1;
@@ -235,11 +236,10 @@ export const TrendsView: React.FC<TrendsViewProps> = ({ _testOverrides }) => {
 
     // Note: Filter dropdown states moved to IconFilterBar component via useHistoryFiltersStore
 
-    // Story 14.14b/14e-25d: Handle profile navigation via direct store actions
     const handleProfileNavigate = useCallback((view: string) => {
         setIsProfileOpen(false);
-        navigateToView(view as View);
-    }, [navigateToView]);
+        tNavigate({ to: viewToPath(view as View) });
+    }, [tNavigate]);
     // Filter transactions by current period AND apply category/location/group filters from filterState
     // Story 14.13.2: TrendsView manages its own time period selection via timePeriod/currentPeriod,
     // but category/location/group filters from CategorySelectorOverlay should still apply

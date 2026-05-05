@@ -103,7 +103,7 @@ import { FeatureOrchestrator } from '@app/FeatureOrchestrator';
 import { reconcileItemsTotal } from '@entities/transaction';
 import { useWorkflowState, getWorkflowState } from '@shared/stores';
 import type { ScanState } from '@shared/types/scanWorkflow';
-import { useRouterSync } from './hooks/useRouterSync';
+// useRouterSync removed — all navigation now goes through TanStack Router directly
 
 function App() {
     // Story 15b-4f: All hook initialization composed into useAppDataHooks
@@ -1106,8 +1106,7 @@ function App() {
 
     const activeTransactions = transactions;
 
-    // Bridge: keep URL in sync with Zustand view state
-    useRouterSync();
+    // Router sync bridge removed — navigation is URL-first via TanStack Router
     const routerNavigate = useNavigate();
 
     // ==========================================================================

@@ -19,24 +19,8 @@ export {
   settingsActions,
 } from './useSettingsStore';
 
-// Story 14e-25a.1: Navigation store
-export {
-  useNavigationStore,
-  useNavigation,
-  useCurrentView,
-  usePreviousView,
-  useSettingsSubview,
-  usePendingHistoryFilters,
-  usePendingDistributionView,
-  useAnalyticsInitialState,
-  useNavigationActions,
-  getNavigationState,
-  navigationActions,
-  type NavigationState,
-  type NavigationActions,
-  type SettingsSubview,
-  type NavigateToViewOptions,
-} from './useNavigationStore';
+// Navigation: all navigation goes through TanStack Router.
+// useNavigationStore.ts deleted — see routeMapping.ts for view↔path helpers.
 
 // Story 15-7a: History filters store (replaces HistoryFiltersContext)
 export {

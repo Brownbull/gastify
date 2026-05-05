@@ -75,12 +75,7 @@ export {
 // Navigation & Dialog Handler Hooks
 // =============================================================================
 
-// Story 14c-refactor.21: Navigation handlers
-export {
-    useNavigationHandlers,
-    type UseNavigationHandlersProps,
-    type UseNavigationHandlersResult,
-} from './useNavigationHandlers';
+// useNavigationHandlers deleted — navigation via TanStack Router directly.
 
 // Story 14c-refactor.21: Dialog handlers
 export {
