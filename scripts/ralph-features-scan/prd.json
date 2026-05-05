@@ -1,0 +1,1560 @@
+{
+  "project": "gastify",
+  "branchName": "rebuild/fe-scan-batch-01",
+  "description": "Scan + Batch gravity well — screen-shells + screen-states (Tier 3 + Tier 4)",
+  "userStories": [
+    {
+      "id": "SCAN-001",
+      "title": "Scan mode selector shell — mobile",
+      "description": "Scan mode selection screen at 390×844 with three mode cards: single scan, batch capture, statement upload.",
+      "acceptanceCriteria": [
+        "Layout matches mockup at 390×844",
+        "Three mode cards render (single/batch/statement)",
+        "Credit balance indicator visible",
+        "axe passes"
+      ],
+      "priority": 1,
+      "passes": true,
+      "notes": "",
+      "tier": "screen-shell",
+      "source": "clean-slate",
+      "platform": [
+        "mobile"
+      ],
+      "spec_path": "docs/mockups/screens/gastify-scan-mode-selector.html",
+      "snapshot_paths": [],
+      "deps": [],
+      "api_endpoints": [
+        "getCreditBalance"
+      ],
+      "gate": "screen",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "SCAN-002",
+      "title": "Scan mode selector shell — tablet/desktop",
+      "description": "Scan mode selector at wider viewports with horizontal card layout.",
+      "acceptanceCriteria": [
+        "Cards in horizontal layout",
+        "Desktop shows sidebar nav",
+        "axe passes"
+      ],
+      "priority": 2,
+      "passes": true,
+      "notes": "",
+      "tier": "screen-shell",
+      "source": "clean-slate",
+      "platform": [
+        "tablet",
+        "desktop"
+      ],
+      "spec_path": "docs/mockups/screens/gastify-scan-mode-selector-desktop.html",
+      "snapshot_paths": [],
+      "deps": [
+        "SCAN-001"
+      ],
+      "api_endpoints": [
+        "getCreditBalance"
+      ],
+      "gate": "screen",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "SCAN-003",
+      "title": "Single scan — idle state — mobile",
+      "description": "Single scan screen at 390×844: camera viewfinder, capture button, credit balance.",
+      "acceptanceCriteria": [
+        "Camera viewfinder area renders",
+        "Capture button prominent",
+        "Credit balance shown",
+        "axe passes"
+      ],
+      "priority": 3,
+      "passes": false,
+      "notes": "",
+      "tier": "screen-shell",
+      "source": "clean-slate",
+      "platform": [
+        "mobile"
+      ],
+      "spec_path": "docs/mockups/screens/gastify-single-scan-states.html",
+      "snapshot_paths": [],
+      "deps": [],
+      "api_endpoints": [
+        "getCreditBalance"
+      ],
+      "gate": "screen",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "SCAN-004",
+      "title": "Single scan — idle state — desktop",
+      "description": "Single scan idle at desktop with upload dropzone instead of camera.",
+      "acceptanceCriteria": [
+        "Upload dropzone renders",
+        "Drag-and-drop area visible",
+        "Credit balance shown",
+        "axe passes"
+      ],
+      "priority": 4,
+      "passes": false,
+      "notes": "",
+      "tier": "screen-shell",
+      "source": "clean-slate",
+      "platform": [
+        "desktop"
+      ],
+      "spec_path": "docs/mockups/screens/gastify-single-scan-states-desktop.html",
+      "snapshot_paths": [],
+      "deps": [
+        "SCAN-003"
+      ],
+      "api_endpoints": [
+        "getCreditBalance"
+      ],
+      "gate": "screen",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "SCAN-005",
+      "title": "Single scan — capturing — mobile",
+      "description": "Scan in progress: shutter animation, image preview, 'Processing...' indicator.",
+      "acceptanceCriteria": [
+        "Image preview shown",
+        "Processing indicator visible",
+        "Cancel button available",
+        "play() asserts processing state"
+      ],
+      "priority": 5,
+      "passes": false,
+      "notes": "",
+      "tier": "screen-state",
+      "source": "clean-slate",
+      "platform": [
+        "mobile"
+      ],
+      "spec_path": "docs/mockups/screens/gastify-single-scan-states.html",
+      "snapshot_paths": [],
+      "deps": [
+        "SCAN-003"
+      ],
+      "api_endpoints": [
+        "createScan"
+      ],
+      "gate": "screen",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "SCAN-006",
+      "title": "Single scan — processing (SSE stream) — mobile",
+      "description": "Scan SSE stream active: progress steps (uploading → analyzing → extracting) with animated indicators.",
+      "acceptanceCriteria": [
+        "Progress steps render sequentially",
+        "Current step highlighted",
+        "Completed steps show checkmarks",
+        "play() asserts step progression"
+      ],
+      "priority": 6,
+      "passes": false,
+      "notes": "Mocks SSE event stream via hooks/ui boundary.",
+      "tier": "screen-state",
+      "source": "clean-slate",
+      "platform": [
+        "mobile"
+      ],
+      "spec_path": "docs/mockups/screens/gastify-single-scan-states.html",
+      "snapshot_paths": [],
+      "deps": [
+        "SCAN-003"
+      ],
+      "api_endpoints": [
+        "createScan"
+      ],
+      "gate": "screen",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "SCAN-007",
+      "title": "Single scan — processing (SSE stream) — desktop",
+      "description": "Scan processing at desktop viewport.",
+      "acceptanceCriteria": [
+        "Progress steps in centered layout",
+        "play() asserts step progression"
+      ],
+      "priority": 7,
+      "passes": false,
+      "notes": "",
+      "tier": "screen-state",
+      "source": "clean-slate",
+      "platform": [
+        "desktop"
+      ],
+      "spec_path": "docs/mockups/screens/gastify-single-scan-states-desktop.html",
+      "snapshot_paths": [],
+      "deps": [
+        "SCAN-004"
+      ],
+      "api_endpoints": [
+        "createScan"
+      ],
+      "gate": "screen",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "SCAN-008",
+      "title": "Single scan — extracting — mobile",
+      "description": "Scan extraction phase: extracted fields appearing one by one (merchant, total, items, date).",
+      "acceptanceCriteria": [
+        "Extracted fields animate in",
+        "Merchant + total + date shown",
+        "Items list populates",
+        "play() asserts field appearance"
+      ],
+      "priority": 8,
+      "passes": false,
+      "notes": "",
+      "tier": "screen-state",
+      "source": "clean-slate",
+      "platform": [
+        "mobile"
+      ],
+      "spec_path": "docs/mockups/screens/gastify-single-scan-states.html",
+      "snapshot_paths": [],
+      "deps": [
+        "SCAN-003"
+      ],
+      "api_endpoints": [
+        "createScan"
+      ],
+      "gate": "screen",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "SCAN-009",
+      "title": "Single scan — review — mobile",
+      "description": "Scan review screen: extracted data editable, confirm/discard actions, item list with edit capability.",
+      "acceptanceCriteria": [
+        "All extracted fields editable",
+        "Confirm saves transaction",
+        "Discard returns to scan",
+        "Item list editable",
+        "play() asserts edit + confirm"
+      ],
+      "priority": 9,
+      "passes": false,
+      "notes": "",
+      "tier": "screen-state",
+      "source": "clean-slate",
+      "platform": [
+        "mobile"
+      ],
+      "spec_path": "docs/mockups/screens/gastify-single-scan-states.html",
+      "snapshot_paths": [],
+      "deps": [
+        "SCAN-003"
+      ],
+      "api_endpoints": [
+        "createScan",
+        "confirmScan"
+      ],
+      "gate": "screen",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "SCAN-010",
+      "title": "Single scan — review — desktop",
+      "description": "Scan review at desktop with side-by-side image + form layout.",
+      "acceptanceCriteria": [
+        "Receipt image on left, form on right",
+        "All fields editable",
+        "play() asserts edit + confirm"
+      ],
+      "priority": 10,
+      "passes": false,
+      "notes": "",
+      "tier": "screen-state",
+      "source": "clean-slate",
+      "platform": [
+        "desktop"
+      ],
+      "spec_path": "docs/mockups/screens/gastify-single-scan-states-desktop.html",
+      "snapshot_paths": [],
+      "deps": [
+        "SCAN-004"
+      ],
+      "api_endpoints": [
+        "createScan",
+        "confirmScan"
+      ],
+      "gate": "screen",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "SCAN-011",
+      "title": "Single scan — confirmed — mobile",
+      "description": "Scan confirmed: success animation, QuickSave card preview, 'scan another' + 'go to dashboard' actions.",
+      "acceptanceCriteria": [
+        "Success animation renders",
+        "QuickSave card shows saved data",
+        "Both action buttons work",
+        "play() asserts actions"
+      ],
+      "priority": 11,
+      "passes": false,
+      "notes": "",
+      "tier": "screen-state",
+      "source": "clean-slate",
+      "platform": [
+        "mobile"
+      ],
+      "spec_path": "docs/mockups/screens/gastify-single-scan-states.html",
+      "snapshot_paths": [],
+      "deps": [
+        "SCAN-003"
+      ],
+      "api_endpoints": [],
+      "gate": "screen",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "SCAN-012",
+      "title": "Single scan — error — mobile",
+      "description": "Scan error state: error message, retry button, option to enter manually.",
+      "acceptanceCriteria": [
+        "Error message explains failure",
+        "Retry button re-scans",
+        "Manual entry link available",
+        "play() asserts retry + manual link"
+      ],
+      "priority": 12,
+      "passes": false,
+      "notes": "",
+      "tier": "screen-state",
+      "source": "clean-slate",
+      "platform": [
+        "mobile"
+      ],
+      "spec_path": "docs/mockups/screens/gastify-single-scan-states.html",
+      "snapshot_paths": [],
+      "deps": [
+        "SCAN-003"
+      ],
+      "api_endpoints": [],
+      "gate": "screen",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "SCAN-013",
+      "title": "Single scan — error — desktop",
+      "description": "Scan error at desktop.",
+      "acceptanceCriteria": [
+        "Error in centered layout",
+        "play() asserts retry"
+      ],
+      "priority": 13,
+      "passes": false,
+      "notes": "",
+      "tier": "screen-state",
+      "source": "new",
+      "platform": [
+        "desktop"
+      ],
+      "spec_path": "",
+      "snapshot_paths": [],
+      "deps": [
+        "SCAN-004"
+      ],
+      "api_endpoints": [],
+      "gate": "screen",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "SCAN-014",
+      "title": "Single scan — credit insufficient — mobile",
+      "description": "Scan blocked: insufficient credits, credit purchase CTA, remaining balance shown.",
+      "acceptanceCriteria": [
+        "Insufficient credit message renders",
+        "Current balance shown",
+        "Purchase CTA links to subscription",
+        "play() asserts CTA"
+      ],
+      "priority": 14,
+      "passes": false,
+      "notes": "",
+      "tier": "screen-state",
+      "source": "new",
+      "platform": [
+        "mobile"
+      ],
+      "spec_path": "",
+      "snapshot_paths": [],
+      "deps": [
+        "SCAN-003"
+      ],
+      "api_endpoints": [
+        "getCreditBalance"
+      ],
+      "gate": "screen",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "SCAN-015",
+      "title": "Single scan — credit insufficient — tablet/desktop",
+      "description": "Scan credit insufficient at wider viewports.",
+      "acceptanceCriteria": [
+        "Credit message centered",
+        "play() asserts CTA"
+      ],
+      "priority": 15,
+      "passes": false,
+      "notes": "",
+      "tier": "screen-state",
+      "source": "new",
+      "platform": [
+        "tablet",
+        "desktop"
+      ],
+      "spec_path": "",
+      "snapshot_paths": [],
+      "deps": [
+        "SCAN-002"
+      ],
+      "api_endpoints": [
+        "getCreditBalance"
+      ],
+      "gate": "screen",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "SCAN-016",
+      "title": "Manual entry shell — mobile",
+      "description": "Manual transaction entry form at 390×844: merchant, amount, date, category, items.",
+      "acceptanceCriteria": [
+        "Form renders with all required fields",
+        "Amount input uses CLP formatting",
+        "Category selector works",
+        "axe passes"
+      ],
+      "priority": 16,
+      "passes": true,
+      "notes": "",
+      "tier": "screen-shell",
+      "source": "clean-slate",
+      "platform": [
+        "mobile"
+      ],
+      "spec_path": "docs/mockups/screens/gastify-manual-entry.html",
+      "snapshot_paths": [],
+      "deps": [],
+      "api_endpoints": [
+        "createTransaction"
+      ],
+      "gate": "screen",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "SCAN-017",
+      "title": "Manual entry — filled state — mobile",
+      "description": "Manual entry with all fields filled, validation passing, save button active.",
+      "acceptanceCriteria": [
+        "All fields populated",
+        "Validation passes",
+        "Save button enabled",
+        "play() asserts fill + save"
+      ],
+      "priority": 17,
+      "passes": false,
+      "notes": "",
+      "tier": "screen-state",
+      "source": "clean-slate",
+      "platform": [
+        "mobile"
+      ],
+      "spec_path": "docs/mockups/screens/gastify-manual-entry.html",
+      "snapshot_paths": [],
+      "deps": [
+        "SCAN-016"
+      ],
+      "api_endpoints": [
+        "createTransaction"
+      ],
+      "gate": "screen",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "SCAN-018",
+      "title": "Manual entry — validation error — mobile",
+      "description": "Manual entry with validation errors: missing required fields, invalid amount.",
+      "acceptanceCriteria": [
+        "Error messages on invalid fields",
+        "Save button disabled",
+        "play() asserts validation"
+      ],
+      "priority": 18,
+      "passes": false,
+      "notes": "",
+      "tier": "screen-state",
+      "source": "new",
+      "platform": [
+        "mobile"
+      ],
+      "spec_path": "",
+      "snapshot_paths": [],
+      "deps": [
+        "SCAN-016"
+      ],
+      "api_endpoints": [],
+      "gate": "screen",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "SCAN-019",
+      "title": "Transaction editor shell — mobile",
+      "description": "Transaction editor at 390×844 for editing existing transactions: all fields editable, delete action.",
+      "acceptanceCriteria": [
+        "All transaction fields editable",
+        "Delete button with confirmation",
+        "Save/cancel actions",
+        "axe passes"
+      ],
+      "priority": 19,
+      "passes": true,
+      "notes": "",
+      "tier": "screen-shell",
+      "source": "clean-slate",
+      "platform": [
+        "mobile"
+      ],
+      "spec_path": "docs/mockups/screens/gastify-transaction-editor.html",
+      "snapshot_paths": [],
+      "deps": [],
+      "api_endpoints": [
+        "getTransaction",
+        "updateTransaction",
+        "deleteTransaction"
+      ],
+      "gate": "screen",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "SCAN-020",
+      "title": "Transaction editor shell — desktop",
+      "description": "Transaction editor at desktop with side-by-side receipt image + form.",
+      "acceptanceCriteria": [
+        "Receipt image panel on left",
+        "Edit form on right",
+        "Delete + save + cancel actions",
+        "axe passes"
+      ],
+      "priority": 20,
+      "passes": true,
+      "notes": "",
+      "tier": "screen-shell",
+      "source": "clean-slate",
+      "platform": [
+        "desktop"
+      ],
+      "spec_path": "docs/mockups/screens/gastify-transaction-editor-desktop.html",
+      "snapshot_paths": [],
+      "deps": [
+        "SCAN-019"
+      ],
+      "api_endpoints": [
+        "getTransaction",
+        "updateTransaction",
+        "deleteTransaction"
+      ],
+      "gate": "screen",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "SCAN-021",
+      "title": "Transaction editor — edit mode — mobile",
+      "description": "Transaction editor with data loaded, fields editable, dirty state tracking.",
+      "acceptanceCriteria": [
+        "Fields populated from transaction data",
+        "Dirty indicator on changes",
+        "Save enabled only when dirty",
+        "play() asserts edit + dirty state"
+      ],
+      "priority": 21,
+      "passes": false,
+      "notes": "",
+      "tier": "screen-state",
+      "source": "clean-slate",
+      "platform": [
+        "mobile"
+      ],
+      "spec_path": "docs/mockups/screens/gastify-transaction-editor.html",
+      "snapshot_paths": [],
+      "deps": [
+        "SCAN-019"
+      ],
+      "api_endpoints": [
+        "getTransaction",
+        "updateTransaction"
+      ],
+      "gate": "screen",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "SCAN-022",
+      "title": "Transaction editor — view mode — mobile",
+      "description": "Transaction editor in read-only view mode: all fields disabled, edit button to switch.",
+      "acceptanceCriteria": [
+        "Fields rendered read-only",
+        "Edit button visible",
+        "play() asserts read-only + edit switch"
+      ],
+      "priority": 22,
+      "passes": false,
+      "notes": "",
+      "tier": "screen-state",
+      "source": "new",
+      "platform": [
+        "mobile"
+      ],
+      "spec_path": "",
+      "snapshot_paths": [],
+      "deps": [
+        "SCAN-019"
+      ],
+      "api_endpoints": [
+        "getTransaction"
+      ],
+      "gate": "screen",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "SCAN-023",
+      "title": "Transaction editor — delete confirmation — mobile",
+      "description": "Transaction editor showing delete confirmation dialog.",
+      "acceptanceCriteria": [
+        "Confirmation dialog renders",
+        "Confirm deletes + navigates away",
+        "Cancel returns to editor",
+        "play() asserts confirm + cancel"
+      ],
+      "priority": 23,
+      "passes": false,
+      "notes": "",
+      "tier": "screen-state",
+      "source": "new",
+      "platform": [
+        "mobile"
+      ],
+      "spec_path": "",
+      "snapshot_paths": [],
+      "deps": [
+        "SCAN-019"
+      ],
+      "api_endpoints": [
+        "deleteTransaction"
+      ],
+      "gate": "screen",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "SCAN-024",
+      "title": "Transaction editor — learning prompt — mobile",
+      "description": "Transaction editor showing learning prompt: 'Always categorize [merchant] as [category]?'",
+      "acceptanceCriteria": [
+        "Learning prompt banner renders",
+        "Accept saves mapping",
+        "Dismiss hides prompt",
+        "play() asserts accept + dismiss"
+      ],
+      "priority": 24,
+      "passes": false,
+      "notes": "",
+      "tier": "screen-state",
+      "source": "clean-slate",
+      "platform": [
+        "mobile"
+      ],
+      "spec_path": "",
+      "snapshot_paths": [],
+      "deps": [
+        "SCAN-019"
+      ],
+      "api_endpoints": [
+        "createCardAlias"
+      ],
+      "gate": "screen",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "SCAN-025",
+      "title": "Batch capture shell — mobile",
+      "description": "Batch capture screen at 390×844: multi-receipt camera, thumbnail strip, capture counter.",
+      "acceptanceCriteria": [
+        "Camera viewfinder renders",
+        "Thumbnail strip at bottom",
+        "Capture counter visible",
+        "Done button",
+        "axe passes"
+      ],
+      "priority": 25,
+      "passes": true,
+      "notes": "Mobile-primary — no desktop equivalent (uses upload dropzone instead).",
+      "tier": "screen-shell",
+      "source": "clean-slate",
+      "platform": [
+        "mobile"
+      ],
+      "spec_path": "docs/mockups/screens/gastify-batch-capture.html",
+      "snapshot_paths": [],
+      "deps": [],
+      "api_endpoints": [
+        "getCreditBalance"
+      ],
+      "gate": "screen",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "SCAN-026",
+      "title": "Batch capture — empty — mobile",
+      "description": "Batch capture with no receipts yet: prompt to start capturing.",
+      "acceptanceCriteria": [
+        "Empty prompt renders",
+        "Capture button prominent",
+        "play() asserts prompt"
+      ],
+      "priority": 26,
+      "passes": false,
+      "notes": "",
+      "tier": "screen-state",
+      "source": "clean-slate",
+      "platform": [
+        "mobile"
+      ],
+      "spec_path": "docs/mockups/screens/gastify-batch-capture.html",
+      "snapshot_paths": [],
+      "deps": [
+        "SCAN-025"
+      ],
+      "api_endpoints": [],
+      "gate": "screen",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "SCAN-027",
+      "title": "Batch capture — multi-receipt — mobile",
+      "description": "Batch capture with 3+ receipts captured: thumbnail strip populated, counter shows count.",
+      "acceptanceCriteria": [
+        "Thumbnails show captured images",
+        "Counter shows receipt count",
+        "Remove individual receipt works",
+        "play() asserts add + remove"
+      ],
+      "priority": 27,
+      "passes": false,
+      "notes": "",
+      "tier": "screen-state",
+      "source": "clean-slate",
+      "platform": [
+        "mobile"
+      ],
+      "spec_path": "docs/mockups/screens/gastify-batch-capture.html",
+      "snapshot_paths": [],
+      "deps": [
+        "SCAN-025"
+      ],
+      "api_endpoints": [],
+      "gate": "screen",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "SCAN-028",
+      "title": "Batch review shell — mobile",
+      "description": "Batch review screen at 390×844: list of extracted transactions from batch, per-item edit/confirm.",
+      "acceptanceCriteria": [
+        "Transaction list from batch renders",
+        "Each item has edit/confirm actions",
+        "Overall confirm all + discard actions",
+        "axe passes"
+      ],
+      "priority": 28,
+      "passes": true,
+      "notes": "",
+      "tier": "screen-shell",
+      "source": "clean-slate",
+      "platform": [
+        "mobile"
+      ],
+      "spec_path": "docs/mockups/screens/gastify-batch-review.html",
+      "snapshot_paths": [],
+      "deps": [],
+      "api_endpoints": [
+        "getBatchResults"
+      ],
+      "gate": "screen",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "SCAN-029",
+      "title": "Batch review — pending — mobile",
+      "description": "Batch review with all items pending review: none confirmed yet.",
+      "acceptanceCriteria": [
+        "All items show pending status",
+        "Confirm all button available",
+        "play() asserts pending state"
+      ],
+      "priority": 29,
+      "passes": false,
+      "notes": "",
+      "tier": "screen-state",
+      "source": "clean-slate",
+      "platform": [
+        "mobile"
+      ],
+      "spec_path": "docs/mockups/screens/gastify-batch-review.html",
+      "snapshot_paths": [],
+      "deps": [
+        "SCAN-028"
+      ],
+      "api_endpoints": [
+        "getBatchResults"
+      ],
+      "gate": "screen",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "SCAN-030",
+      "title": "Batch review — partial — mobile",
+      "description": "Batch review with some items confirmed, some pending: mixed state.",
+      "acceptanceCriteria": [
+        "Confirmed items show checkmark",
+        "Pending items still editable",
+        "Progress indicator shows N/M confirmed",
+        "play() asserts confirm individual"
+      ],
+      "priority": 30,
+      "passes": false,
+      "notes": "",
+      "tier": "screen-state",
+      "source": "new",
+      "platform": [
+        "mobile"
+      ],
+      "spec_path": "",
+      "snapshot_paths": [],
+      "deps": [
+        "SCAN-028"
+      ],
+      "api_endpoints": [
+        "getBatchResults",
+        "confirmBatchItem"
+      ],
+      "gate": "screen",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "SCAN-031",
+      "title": "Batch review — complete — mobile",
+      "description": "Batch review with all items confirmed: success state, navigate away.",
+      "acceptanceCriteria": [
+        "All items show confirmed",
+        "Success message renders",
+        "Navigate to dashboard/history actions",
+        "play() asserts completion"
+      ],
+      "priority": 31,
+      "passes": false,
+      "notes": "",
+      "tier": "screen-state",
+      "source": "new",
+      "platform": [
+        "mobile"
+      ],
+      "spec_path": "",
+      "snapshot_paths": [],
+      "deps": [
+        "SCAN-028"
+      ],
+      "api_endpoints": [
+        "confirmBatchItem"
+      ],
+      "gate": "screen",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "SCAN-032",
+      "title": "Statement upload shell — mobile",
+      "description": "Statement upload screen at 390×844: file picker, bank selector, date range, upload button.",
+      "acceptanceCriteria": [
+        "File picker renders",
+        "Bank selector dropdown",
+        "Date range inputs",
+        "Upload button",
+        "axe passes"
+      ],
+      "priority": 32,
+      "passes": true,
+      "notes": "",
+      "tier": "screen-shell",
+      "source": "clean-slate",
+      "platform": [
+        "mobile"
+      ],
+      "spec_path": "docs/mockups/screens/gastify-statement-upload.html",
+      "snapshot_paths": [],
+      "deps": [],
+      "api_endpoints": [
+        "uploadStatement"
+      ],
+      "gate": "screen",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "SCAN-033",
+      "title": "Statement upload — processing — mobile",
+      "description": "Statement being processed: progress bar, step indicators (parsing → matching → categorizing).",
+      "acceptanceCriteria": [
+        "Progress bar renders",
+        "Step indicators show current step",
+        "Cancel button available",
+        "play() asserts step progression"
+      ],
+      "priority": 33,
+      "passes": false,
+      "notes": "",
+      "tier": "screen-state",
+      "source": "new",
+      "platform": [
+        "mobile"
+      ],
+      "spec_path": "",
+      "snapshot_paths": [],
+      "deps": [
+        "SCAN-032"
+      ],
+      "api_endpoints": [
+        "uploadStatement"
+      ],
+      "gate": "screen",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "SCAN-034",
+      "title": "Statement review shell — mobile",
+      "description": "Statement review at 390×844: list of parsed transactions from statement, match indicators, bulk actions.",
+      "acceptanceCriteria": [
+        "Transaction list renders from statement",
+        "Match indicators (new/duplicate/partial)",
+        "Bulk confirm/skip actions",
+        "axe passes"
+      ],
+      "priority": 34,
+      "passes": true,
+      "notes": "",
+      "tier": "screen-shell",
+      "source": "clean-slate",
+      "platform": [
+        "mobile"
+      ],
+      "spec_path": "docs/mockups/screens/gastify-statement-review.html",
+      "snapshot_paths": [],
+      "deps": [],
+      "api_endpoints": [
+        "getStatementResults"
+      ],
+      "gate": "screen",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "SCAN-035",
+      "title": "Statement review — results — mobile",
+      "description": "Statement review with parsed results: new + duplicate + partial match items.",
+      "acceptanceCriteria": [
+        "New items marked for import",
+        "Duplicates flagged with skip suggestion",
+        "Partial matches show merge option",
+        "play() asserts categorization"
+      ],
+      "priority": 35,
+      "passes": false,
+      "notes": "",
+      "tier": "screen-state",
+      "source": "clean-slate",
+      "platform": [
+        "mobile"
+      ],
+      "spec_path": "docs/mockups/screens/gastify-statement-review.html",
+      "snapshot_paths": [],
+      "deps": [
+        "SCAN-034"
+      ],
+      "api_endpoints": [
+        "getStatementResults",
+        "confirmStatementItems"
+      ],
+      "gate": "screen",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "SCAN-036",
+      "title": "Statement review — merge preview — mobile",
+      "description": "Statement review merge preview: side-by-side comparison of statement row vs existing transaction.",
+      "acceptanceCriteria": [
+        "Side-by-side comparison renders",
+        "Differences highlighted",
+        "Merge/skip actions",
+        "play() asserts merge action"
+      ],
+      "priority": 36,
+      "passes": false,
+      "notes": "",
+      "tier": "screen-state",
+      "source": "new",
+      "platform": [
+        "mobile"
+      ],
+      "spec_path": "",
+      "snapshot_paths": [],
+      "deps": [
+        "SCAN-034"
+      ],
+      "api_endpoints": [
+        "getStatementResults"
+      ],
+      "gate": "screen",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "SCAN-037",
+      "title": "Recent scans shell — mobile",
+      "description": "Recent scans list at 390×844: chronological scan history with status indicators.",
+      "acceptanceCriteria": [
+        "Scan list renders chronologically",
+        "Status indicators (success/error/pending)",
+        "Tap opens transaction",
+        "axe passes"
+      ],
+      "priority": 37,
+      "passes": true,
+      "notes": "",
+      "tier": "screen-shell",
+      "source": "new",
+      "platform": [
+        "mobile"
+      ],
+      "spec_path": "",
+      "snapshot_paths": [],
+      "deps": [],
+      "api_endpoints": [
+        "listScans"
+      ],
+      "gate": "screen",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "SCAN-038",
+      "title": "Recent scans — default state — mobile",
+      "description": "Recent scans with populated scan history.",
+      "acceptanceCriteria": [
+        "Scan cards show image thumbnail + merchant + amount + status",
+        "Date grouping headers",
+        "play() asserts card content"
+      ],
+      "priority": 38,
+      "passes": false,
+      "notes": "",
+      "tier": "screen-state",
+      "source": "new",
+      "platform": [
+        "mobile"
+      ],
+      "spec_path": "",
+      "snapshot_paths": [],
+      "deps": [
+        "SCAN-037"
+      ],
+      "api_endpoints": [
+        "listScans"
+      ],
+      "gate": "screen",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "SCAN-039",
+      "title": "Recent scans — default state — tablet/desktop",
+      "description": "Recent scans at wider viewports.",
+      "acceptanceCriteria": [
+        "Grid layout for scan cards",
+        "play() asserts content"
+      ],
+      "priority": 39,
+      "passes": false,
+      "notes": "",
+      "tier": "screen-state",
+      "source": "new",
+      "platform": [
+        "tablet",
+        "desktop"
+      ],
+      "spec_path": "",
+      "snapshot_paths": [],
+      "deps": [
+        "SCAN-037"
+      ],
+      "api_endpoints": [
+        "listScans"
+      ],
+      "gate": "screen",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "SCAN-040",
+      "title": "Recent scans — empty — mobile",
+      "description": "Recent scans with no scan history.",
+      "acceptanceCriteria": [
+        "Empty illustration",
+        "CTA to start scanning",
+        "play() asserts CTA"
+      ],
+      "priority": 40,
+      "passes": false,
+      "notes": "",
+      "tier": "screen-state",
+      "source": "new",
+      "platform": [
+        "mobile"
+      ],
+      "spec_path": "",
+      "snapshot_paths": [],
+      "deps": [
+        "SCAN-037"
+      ],
+      "api_endpoints": [
+        "listScans"
+      ],
+      "gate": "screen",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "SCAN-041",
+      "title": "QuickSave card — save flow — mobile",
+      "description": "QuickSave card after scan: one-tap save with default category, or edit before save.",
+      "acceptanceCriteria": [
+        "QuickSave card renders with scan data",
+        "Save button saves with defaults",
+        "Edit button opens editor",
+        "play() asserts save + edit paths"
+      ],
+      "priority": 41,
+      "passes": false,
+      "notes": "",
+      "tier": "screen-state",
+      "source": "clean-slate",
+      "platform": [
+        "mobile"
+      ],
+      "spec_path": "docs/mockups/screens/gastify-quicksave-card.html",
+      "snapshot_paths": [],
+      "deps": [],
+      "api_endpoints": [
+        "confirmScan"
+      ],
+      "gate": "screen",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "SCAN-042",
+      "title": "QuickSave card — save flow — tablet/desktop",
+      "description": "QuickSave card at wider viewports.",
+      "acceptanceCriteria": [
+        "QuickSave adapts to wider layout",
+        "play() asserts save + edit paths"
+      ],
+      "priority": 42,
+      "passes": false,
+      "notes": "",
+      "tier": "screen-state",
+      "source": "clean-slate",
+      "platform": [
+        "tablet",
+        "desktop"
+      ],
+      "spec_path": "",
+      "snapshot_paths": [],
+      "deps": [
+        "SCAN-041"
+      ],
+      "api_endpoints": [
+        "confirmScan"
+      ],
+      "gate": "screen",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "SCAN-043",
+      "title": "Scan → review → confirm → dashboard flow",
+      "description": "Full scan flow: capture → SSE processing → review → confirm → QuickSave on dashboard.",
+      "acceptanceCriteria": [
+        "Full flow navigates through all scan states",
+        "Confirmed transaction appears on dashboard",
+        "Credit balance decremented"
+      ],
+      "priority": 43,
+      "passes": false,
+      "notes": "Cross-feature flow — requires scan + dashboard screens.",
+      "tier": "screen-state",
+      "source": "clean-slate",
+      "platform": [
+        "mobile"
+      ],
+      "spec_path": "",
+      "snapshot_paths": [],
+      "deps": [
+        "SCAN-009",
+        "SCAN-011"
+      ],
+      "api_endpoints": [
+        "createScan",
+        "confirmScan"
+      ],
+      "gate": "screen",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "human-authored"
+    },
+    {
+      "id": "SCAN-044",
+      "title": "Scan → error → retry → success flow",
+      "description": "Error recovery flow: scan fails → retry → succeeds.",
+      "acceptanceCriteria": [
+        "Error state shown",
+        "Retry triggers new scan",
+        "Success state reached"
+      ],
+      "priority": 44,
+      "passes": false,
+      "notes": "Cross-state flow within scan feature.",
+      "tier": "screen-state",
+      "source": "new",
+      "platform": [
+        "mobile"
+      ],
+      "spec_path": "",
+      "snapshot_paths": [],
+      "deps": [
+        "SCAN-012",
+        "SCAN-011"
+      ],
+      "api_endpoints": [
+        "createScan"
+      ],
+      "gate": "screen",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "human-authored"
+    },
+    {
+      "id": "SCAN-045",
+      "title": "Batch capture → batch review → confirm all flow",
+      "description": "Full batch flow: capture 3 receipts → review all → confirm all → navigate to history.",
+      "acceptanceCriteria": [
+        "Batch capture completes with 3 receipts",
+        "Review shows all 3",
+        "Confirm all saves + navigates"
+      ],
+      "priority": 45,
+      "passes": false,
+      "notes": "Cross-screen flow within scan/batch features.",
+      "tier": "screen-state",
+      "source": "clean-slate",
+      "platform": [
+        "mobile"
+      ],
+      "spec_path": "",
+      "snapshot_paths": [],
+      "deps": [
+        "SCAN-027",
+        "SCAN-031"
+      ],
+      "api_endpoints": [
+        "createBatch",
+        "confirmBatchItem"
+      ],
+      "gate": "screen",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "human-authored"
+    },
+    {
+      "id": "SCAN-046",
+      "title": "Statement upload → review → selective import flow",
+      "description": "Full statement flow: upload → process → review → selectively import new items, skip duplicates.",
+      "acceptanceCriteria": [
+        "Upload completes",
+        "Review categorizes items",
+        "Selective import works",
+        "Duplicates skipped"
+      ],
+      "priority": 46,
+      "passes": false,
+      "notes": "Cross-screen flow within scan/statement features.",
+      "tier": "screen-state",
+      "source": "clean-slate",
+      "platform": [
+        "mobile"
+      ],
+      "spec_path": "",
+      "snapshot_paths": [],
+      "deps": [
+        "SCAN-035"
+      ],
+      "api_endpoints": [
+        "uploadStatement",
+        "confirmStatementItems"
+      ],
+      "gate": "screen",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "human-authored"
+    },
+    {
+      "id": "SCAN-047",
+      "title": "Transaction editor — learning → trust flow",
+      "description": "Learning flow: edit category → learning prompt appears → accept → future scans auto-categorize.",
+      "acceptanceCriteria": [
+        "Category change triggers learning prompt",
+        "Accept saves card alias",
+        "Confirmation shown"
+      ],
+      "priority": 47,
+      "passes": false,
+      "notes": "Cross-feature flow — requires transaction editor + settings data.",
+      "tier": "screen-state",
+      "source": "clean-slate",
+      "platform": [
+        "mobile"
+      ],
+      "spec_path": "",
+      "snapshot_paths": [],
+      "deps": [
+        "SCAN-024"
+      ],
+      "api_endpoints": [
+        "updateTransaction",
+        "createCardAlias"
+      ],
+      "gate": "screen",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "human-authored"
+    },
+    {
+      "id": "SCAN-048",
+      "title": "Credit depletion warning — mobile",
+      "description": "Credit warning modal when balance drops below threshold during scan.",
+      "acceptanceCriteria": [
+        "Warning modal renders",
+        "Shows remaining credits",
+        "Continue/buy-more actions",
+        "play() asserts actions"
+      ],
+      "priority": 48,
+      "passes": false,
+      "notes": "",
+      "tier": "screen-state",
+      "source": "new",
+      "platform": [
+        "mobile"
+      ],
+      "spec_path": "",
+      "snapshot_paths": [],
+      "deps": [
+        "SCAN-003"
+      ],
+      "api_endpoints": [
+        "getCreditBalance"
+      ],
+      "gate": "screen",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    }
+  ]
+}

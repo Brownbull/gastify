@@ -17,12 +17,13 @@ async function getDesignSystemStories(
     (e) =>
       e.type === "story" &&
       (e.id.startsWith("design-system-atoms-") ||
-        e.id.startsWith("design-system-molecules-"))
+        e.id.startsWith("design-system-molecules-") ||
+        e.id.startsWith("design-system-screens-"))
   );
 }
 
 test.describe("Design System stories render without errors", () => {
-  test("all atoms and molecules render", async ({ page, baseURL }) => {
+  test("all atoms, molecules, and screens render", async ({ page, baseURL }) => {
     test.setTimeout(300_000);
 
     const allStories = await getDesignSystemStories(baseURL!);

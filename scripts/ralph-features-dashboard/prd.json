@@ -1,0 +1,599 @@
+{
+  "project": "gastify",
+  "branchName": "rebuild/fe-dashboard-batch-01",
+  "description": "Dashboard gravity well — screen-shells + screen-states (Tier 3 + Tier 4)",
+  "userStories": [
+    {
+      "id": "DASH-001",
+      "title": "Dashboard shell — mobile",
+      "description": "Dashboard layout at 390×844 with mocked data: hero stat cards, recent transactions list, FAB.",
+      "acceptanceCriteria": [
+        "Layout matches mockup at 390×844",
+        "Hero stat cards render",
+        "Recent transactions list shows 5 items",
+        "axe passes"
+      ],
+      "priority": 1,
+      "passes": true,
+      "notes": "",
+      "tier": "screen-shell",
+      "source": "clean-slate",
+      "platform": [
+        "mobile"
+      ],
+      "spec_path": "docs/mockups/screens/gastify-dashboard.html",
+      "snapshot_paths": [
+        "docs/rebuild/ux/baseline-snapshots/dashboard-mobile.png"
+      ],
+      "deps": [],
+      "api_endpoints": [
+        "listTransactions",
+        "getAnalyticsSummary"
+      ],
+      "gate": "screen",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "DASH-002",
+      "title": "Dashboard shell — tablet",
+      "description": "Dashboard layout at 768×1024 with two-column stat cards, wider transaction list.",
+      "acceptanceCriteria": [
+        "Layout adapts to tablet width",
+        "Two-column stat card grid",
+        "Transaction list uses wider cards",
+        "axe passes"
+      ],
+      "priority": 2,
+      "passes": true,
+      "notes": "",
+      "tier": "screen-shell",
+      "source": "clean-slate",
+      "platform": [
+        "tablet"
+      ],
+      "spec_path": "docs/mockups/screens/gastify-dashboard.html",
+      "snapshot_paths": [
+        "docs/rebuild/ux/baseline-snapshots/dashboard-tablet.png"
+      ],
+      "deps": [
+        "DASH-001"
+      ],
+      "api_endpoints": [
+        "listTransactions",
+        "getAnalyticsSummary"
+      ],
+      "gate": "screen",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "DASH-003",
+      "title": "Dashboard shell — desktop",
+      "description": "Dashboard layout at 1440×900 with sidebar nav, three-column stat cards, transaction list + sidebar detail.",
+      "acceptanceCriteria": [
+        "Sidebar navigation renders",
+        "Three-column stat card grid",
+        "Transaction detail in side panel",
+        "axe passes"
+      ],
+      "priority": 3,
+      "passes": true,
+      "notes": "",
+      "tier": "screen-shell",
+      "source": "clean-slate",
+      "platform": [
+        "desktop"
+      ],
+      "spec_path": "docs/mockups/screens/gastify-dashboard-desktop.html",
+      "snapshot_paths": [
+        "docs/rebuild/ux/baseline-snapshots/dashboard-desktop.png"
+      ],
+      "deps": [
+        "DASH-001"
+      ],
+      "api_endpoints": [
+        "listTransactions",
+        "getAnalyticsSummary"
+      ],
+      "gate": "screen",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "DASH-004",
+      "title": "Dashboard — default state — mobile",
+      "description": "Dashboard with populated data: recent transactions, summary stats, no alerts.",
+      "acceptanceCriteria": [
+        "Summary stats show amounts in CLP",
+        "Recent transactions sorted by date desc",
+        "No empty state shown",
+        "play() asserts stat card content"
+      ],
+      "priority": 4,
+      "passes": false,
+      "notes": "",
+      "tier": "screen-state",
+      "source": "clean-slate",
+      "platform": [
+        "mobile"
+      ],
+      "spec_path": "docs/mockups/screens/gastify-dashboard.html",
+      "snapshot_paths": [],
+      "deps": [
+        "DASH-001"
+      ],
+      "api_endpoints": [
+        "listTransactions",
+        "getAnalyticsSummary"
+      ],
+      "gate": "screen",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "DASH-005",
+      "title": "Dashboard — default state — tablet",
+      "description": "Dashboard default state at tablet viewport.",
+      "acceptanceCriteria": [
+        "Two-column layout with data",
+        "Stat cards show trends",
+        "play() asserts content"
+      ],
+      "priority": 5,
+      "passes": false,
+      "notes": "",
+      "tier": "screen-state",
+      "source": "clean-slate",
+      "platform": [
+        "tablet"
+      ],
+      "spec_path": "docs/mockups/screens/gastify-dashboard.html",
+      "snapshot_paths": [],
+      "deps": [
+        "DASH-002"
+      ],
+      "api_endpoints": [
+        "listTransactions",
+        "getAnalyticsSummary"
+      ],
+      "gate": "screen",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "DASH-006",
+      "title": "Dashboard — default state — desktop",
+      "description": "Dashboard default state at desktop viewport.",
+      "acceptanceCriteria": [
+        "Three-column layout with data",
+        "Side panel shows latest transaction detail",
+        "play() asserts content"
+      ],
+      "priority": 6,
+      "passes": false,
+      "notes": "",
+      "tier": "screen-state",
+      "source": "clean-slate",
+      "platform": [
+        "desktop"
+      ],
+      "spec_path": "docs/mockups/screens/gastify-dashboard-desktop.html",
+      "snapshot_paths": [],
+      "deps": [
+        "DASH-003"
+      ],
+      "api_endpoints": [
+        "listTransactions",
+        "getAnalyticsSummary"
+      ],
+      "gate": "screen",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "DASH-007",
+      "title": "Dashboard — empty state — mobile",
+      "description": "Dashboard with no transactions: empty illustration + 'scan your first receipt' CTA.",
+      "acceptanceCriteria": [
+        "Empty illustration renders",
+        "CTA button links to /scan",
+        "Stat cards show zero",
+        "play() asserts CTA present"
+      ],
+      "priority": 7,
+      "passes": false,
+      "notes": "",
+      "tier": "screen-state",
+      "source": "clean-slate",
+      "platform": [
+        "mobile"
+      ],
+      "spec_path": "",
+      "snapshot_paths": [],
+      "deps": [
+        "DASH-001"
+      ],
+      "api_endpoints": [
+        "listTransactions",
+        "getAnalyticsSummary"
+      ],
+      "gate": "screen",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "DASH-008",
+      "title": "Dashboard — empty state — tablet",
+      "description": "Dashboard empty state at tablet viewport.",
+      "acceptanceCriteria": [
+        "Empty state adapts to tablet",
+        "CTA centered",
+        "play() asserts CTA"
+      ],
+      "priority": 8,
+      "passes": false,
+      "notes": "",
+      "tier": "screen-state",
+      "source": "clean-slate",
+      "platform": [
+        "tablet"
+      ],
+      "spec_path": "",
+      "snapshot_paths": [],
+      "deps": [
+        "DASH-002"
+      ],
+      "api_endpoints": [
+        "listTransactions",
+        "getAnalyticsSummary"
+      ],
+      "gate": "screen",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "DASH-009",
+      "title": "Dashboard — empty state — desktop",
+      "description": "Dashboard empty state at desktop viewport.",
+      "acceptanceCriteria": [
+        "Empty state centered in main content area",
+        "Sidebar still renders",
+        "play() asserts CTA"
+      ],
+      "priority": 9,
+      "passes": false,
+      "notes": "",
+      "tier": "screen-state",
+      "source": "clean-slate",
+      "platform": [
+        "desktop"
+      ],
+      "spec_path": "",
+      "snapshot_paths": [],
+      "deps": [
+        "DASH-003"
+      ],
+      "api_endpoints": [
+        "listTransactions",
+        "getAnalyticsSummary"
+      ],
+      "gate": "screen",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "DASH-010",
+      "title": "Dashboard — loading state — mobile",
+      "description": "Dashboard during initial data fetch: skeleton cards + skeleton transaction list.",
+      "acceptanceCriteria": [
+        "Skeleton stat cards pulse",
+        "Skeleton transaction rows render",
+        "No content flash before skeleton",
+        "axe passes"
+      ],
+      "priority": 10,
+      "passes": false,
+      "notes": "",
+      "tier": "screen-state",
+      "source": "new",
+      "platform": [
+        "mobile"
+      ],
+      "spec_path": "",
+      "snapshot_paths": [],
+      "deps": [
+        "DASH-001"
+      ],
+      "api_endpoints": [],
+      "gate": "screen",
+      "play_function": false,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "DASH-011",
+      "title": "Dashboard — loading state — tablet",
+      "description": "Dashboard loading skeleton at tablet.",
+      "acceptanceCriteria": [
+        "Skeleton adapts to tablet grid",
+        "axe passes"
+      ],
+      "priority": 11,
+      "passes": false,
+      "notes": "",
+      "tier": "screen-state",
+      "source": "new",
+      "platform": [
+        "tablet"
+      ],
+      "spec_path": "",
+      "snapshot_paths": [],
+      "deps": [
+        "DASH-002"
+      ],
+      "api_endpoints": [],
+      "gate": "screen",
+      "play_function": false,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "DASH-012",
+      "title": "Dashboard — loading state — desktop",
+      "description": "Dashboard loading skeleton at desktop.",
+      "acceptanceCriteria": [
+        "Skeleton adapts to desktop layout",
+        "Sidebar nav still interactive during load",
+        "axe passes"
+      ],
+      "priority": 12,
+      "passes": false,
+      "notes": "",
+      "tier": "screen-state",
+      "source": "new",
+      "platform": [
+        "desktop"
+      ],
+      "spec_path": "",
+      "snapshot_paths": [],
+      "deps": [
+        "DASH-003"
+      ],
+      "api_endpoints": [],
+      "gate": "screen",
+      "play_function": false,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "DASH-013",
+      "title": "Dashboard — server error — mobile",
+      "description": "Dashboard when API returns 5xx: error illustration + retry button.",
+      "acceptanceCriteria": [
+        "Error message + retry button render",
+        "Retry re-fetches data",
+        "play() asserts retry click"
+      ],
+      "priority": 13,
+      "passes": false,
+      "notes": "",
+      "tier": "screen-state",
+      "source": "new",
+      "platform": [
+        "mobile"
+      ],
+      "spec_path": "",
+      "snapshot_paths": [],
+      "deps": [
+        "DASH-001"
+      ],
+      "api_endpoints": [],
+      "gate": "screen",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "DASH-014",
+      "title": "Dashboard — server error — tablet/desktop",
+      "description": "Dashboard error state at wider viewports.",
+      "acceptanceCriteria": [
+        "Error centered in content area",
+        "Nav still functional",
+        "play() asserts retry"
+      ],
+      "priority": 14,
+      "passes": false,
+      "notes": "",
+      "tier": "screen-state",
+      "source": "new",
+      "platform": [
+        "tablet",
+        "desktop"
+      ],
+      "spec_path": "",
+      "snapshot_paths": [],
+      "deps": [
+        "DASH-002"
+      ],
+      "api_endpoints": [],
+      "gate": "screen",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "DASH-015",
+      "title": "Dashboard — with recent scan — mobile",
+      "description": "Dashboard showing a QuickSave card at top after a recent scan completion.",
+      "acceptanceCriteria": [
+        "QuickSave card renders above transaction list",
+        "Card shows scanned amount + merchant",
+        "Save/Edit actions work",
+        "play() asserts QuickSave interaction"
+      ],
+      "priority": 15,
+      "passes": false,
+      "notes": "",
+      "tier": "screen-state",
+      "source": "clean-slate",
+      "platform": [
+        "mobile"
+      ],
+      "spec_path": "docs/mockups/screens/gastify-quicksave-card.html",
+      "snapshot_paths": [],
+      "deps": [
+        "DASH-001"
+      ],
+      "api_endpoints": [
+        "listTransactions",
+        "getAnalyticsSummary"
+      ],
+      "gate": "screen",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "DASH-016",
+      "title": "Dashboard — with recent scan — tablet/desktop",
+      "description": "QuickSave card on wider viewports.",
+      "acceptanceCriteria": [
+        "QuickSave adapts to wider layout",
+        "play() asserts interaction"
+      ],
+      "priority": 16,
+      "passes": false,
+      "notes": "",
+      "tier": "screen-state",
+      "source": "clean-slate",
+      "platform": [
+        "tablet",
+        "desktop"
+      ],
+      "spec_path": "",
+      "snapshot_paths": [],
+      "deps": [
+        "DASH-002"
+      ],
+      "api_endpoints": [
+        "listTransactions",
+        "getAnalyticsSummary"
+      ],
+      "gate": "screen",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "DASH-017",
+      "title": "Dashboard — with concentration flag — mobile",
+      "description": "Dashboard showing concentration warning banner when spending anomaly detected in a category.",
+      "acceptanceCriteria": [
+        "Concentration banner renders with warning styling",
+        "Category name shown in banner",
+        "Dismiss action works",
+        "play() asserts banner interaction"
+      ],
+      "priority": 17,
+      "passes": false,
+      "notes": "",
+      "tier": "screen-state",
+      "source": "new",
+      "platform": [
+        "mobile"
+      ],
+      "spec_path": "",
+      "snapshot_paths": [],
+      "deps": [
+        "DASH-001"
+      ],
+      "api_endpoints": [
+        "listTransactions",
+        "getAnalyticsSummary"
+      ],
+      "gate": "screen",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "DASH-018",
+      "title": "Dashboard category-card → History drill-down",
+      "description": "Clicking a category card on dashboard navigates to /history with pre-filled category filter.",
+      "acceptanceCriteria": [
+        "Category card click navigates to /history?category=X",
+        "History pre-filters to selected category",
+        "Back navigation returns to dashboard"
+      ],
+      "priority": 18,
+      "passes": false,
+      "notes": "Cross-feature interactivity — requires both Dashboard and History screens.",
+      "tier": "screen-state",
+      "source": "new",
+      "platform": [
+        "mobile",
+        "tablet",
+        "desktop"
+      ],
+      "spec_path": "",
+      "snapshot_paths": [],
+      "deps": [
+        "DASH-004"
+      ],
+      "api_endpoints": [
+        "listTransactions"
+      ],
+      "gate": "screen",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "human-authored"
+    }
+  ]
+}

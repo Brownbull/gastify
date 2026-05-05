@@ -1,0 +1,1 @@
+export { RecentScansShell } from './RecentScansShell';
