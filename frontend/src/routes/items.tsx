@@ -4,14 +4,21 @@ import { zodSearchValidator } from '@tanstack/router-zod-adapter';
 import { ItemsShell } from '../design-system/screens/Items';
 
 const itemsSearchSchema = z.object({
-  category: z.string().optional(),
-  item_group: z.string().optional(),
-  item_category: z.string().optional(),
-  merchant: z.string().optional(),
-  temporal_level: z.enum(['month', 'year', 'quarter']).optional(),
-  year: z.string().optional(),
-  month: z.string().optional(),
-  quarter: z.string().optional(),
+  tLevel: z.enum(['all', 'year', 'quarter', 'month', 'week', 'day']).optional(),
+  tYear: z.string().optional(),
+  tQuarter: z.string().optional(),
+  tMonth: z.string().optional(),
+  tWeek: z.string().optional(),
+  tDay: z.string().optional(),
+  cLevel: z.enum(['all', 'category', 'group', 'subcategory']).optional(),
+  cCategory: z.string().optional(),
+  cGroup: z.string().optional(),
+  cSubcategory: z.string().optional(),
+  cDrillPath: z.string().optional(),
+  lCountry: z.string().optional(),
+  lCity: z.string().optional(),
+  lCities: z.string().optional(),
+  sourceView: z.enum(['donut', 'treemap']).optional(),
 });
 
 export type ItemsSearch = z.infer<typeof itemsSearchSchema>;

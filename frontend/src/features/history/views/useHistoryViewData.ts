@@ -24,7 +24,7 @@
  * ```
  */
 
-import { useMemo, useEffect, useCallback } from 'react';
+import { useMemo, useCallback } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { usePaginatedTransactions } from '@/hooks/usePaginatedTransactions';
 import { useRecentScans } from '@/hooks/useRecentScans';
@@ -32,10 +32,6 @@ import { mergeTransactionsWithRecentScans } from '@/utils/transactionMerge';
 import { useUserPreferences } from '@/hooks/useUserPreferences';
 // Story 15-7c: Theme settings from Zustand store (ThemeContext removed)
 import { useThemeSettings } from '@/shared/stores';
-import {
-    useNavigationStore,
-    usePendingHistoryFilters,
-} from '@/shared/stores/useNavigationStore';
 import { formatCurrency as formatCurrencyUtil } from '@/utils/currency';
 import { formatDate as formatDateUtil } from '@/utils/date';
 import { TRANSLATIONS } from '@/utils/translations';
@@ -180,22 +176,7 @@ export function useHistoryViewData(): UseHistoryViewDataReturn {
     const defaultCountry = preferences.defaultCountry || '';
     const foreignLocationFormat = preferences.foreignLocationFormat || 'code';
 
-    // === Navigation Store ===
-    const pendingHistoryFilters = usePendingHistoryFilters();
-    const clearPendingFilters = useNavigationStore((s) => s.clearPendingFilters);
-
-    // Consume pending filters on mount/change
-    // Note: We don't apply filters here - that's useHistoryFiltersInit's job
-    // We expose them via pendingFilters return value and clear after consumption
-    useEffect(() => {
-        if (pendingHistoryFilters) {
-            // Clear filters after a microtask delay to allow useHistoryFiltersInit to read them
-            const timer = setTimeout(() => {
-                clearPendingFilters();
-            }, 0);
-            return () => clearTimeout(timer);
-        }
-    }, [pendingHistoryFilters, clearPendingFilters]);
+    // Filters are now initialized from URL search params via useHistoryFiltersInit
 
     // === Transaction Data ===
     const {
@@ -288,8 +269,8 @@ export function useHistoryViewData(): UseHistoryViewDataReturn {
         // Group mode
         isGroupMode: false,
 
-        // Filter state
-        pendingFilters: pendingHistoryFilters,
+        // Filter state — now initialized from URL search params via useHistoryFiltersInit
+        pendingFilters: null,
 
         // Callbacks - stub implementation, override via _testOverrides in production
         // Story 14e-25a.2b: No-op stub - App.tsx passes real callback via _testOverrides

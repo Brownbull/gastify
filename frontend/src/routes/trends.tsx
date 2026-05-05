@@ -4,11 +4,18 @@ import { zodSearchValidator } from '@tanstack/router-zod-adapter';
 import { AnalyticsShell } from '../design-system/screens/Analytics';
 
 const trendsSearchSchema = z.object({
-  month: z.string().optional(),
+  level: z.enum(['year', 'quarter', 'month', 'week', 'day']).optional(),
   year: z.string().optional(),
-  chart_mode: z.string().optional(),
-  drill_down_mode: z.string().optional(),
+  quarter: z.string().optional(),
+  month: z.string().optional(),
+  week: z.string().optional(),
+  day: z.string().optional(),
+  cLevel: z.enum(['all', 'category', 'group', 'subcategory']).optional(),
   category: z.string().optional(),
+  group: z.string().optional(),
+  subcategory: z.string().optional(),
+  chartMode: z.enum(['aggregation', 'comparison']).optional(),
+  drillMode: z.enum(['temporal', 'category']).optional(),
 });
 
 export type TrendsSearch = z.infer<typeof trendsSearchSchema>;

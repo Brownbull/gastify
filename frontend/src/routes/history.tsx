@@ -4,13 +4,21 @@ import { zodSearchValidator } from '@tanstack/router-zod-adapter';
 import { HistoryShell } from '../design-system/screens/History';
 
 const historySearchSchema = z.object({
-  category: z.string().optional(),
-  group: z.string().optional(),
-  temporal_level: z.enum(['month', 'year', 'quarter']).optional(),
-  year: z.string().optional(),
-  month: z.string().optional(),
-  quarter: z.string().optional(),
-  source_view: z.enum(['donut', 'treemap']).optional(),
+  tLevel: z.enum(['all', 'year', 'quarter', 'month', 'week', 'day']).optional(),
+  tYear: z.string().optional(),
+  tQuarter: z.string().optional(),
+  tMonth: z.string().optional(),
+  tWeek: z.string().optional(),
+  tDay: z.string().optional(),
+  cLevel: z.enum(['all', 'category', 'group', 'subcategory']).optional(),
+  cCategory: z.string().optional(),
+  cGroup: z.string().optional(),
+  cSubcategory: z.string().optional(),
+  cDrillPath: z.string().optional(),
+  lCountry: z.string().optional(),
+  lCity: z.string().optional(),
+  lCities: z.string().optional(),
+  sourceView: z.enum(['donut', 'treemap']).optional(),
 });
 
 export type HistorySearch = z.infer<typeof historySearchSchema>;

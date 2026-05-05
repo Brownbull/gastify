@@ -15,6 +15,7 @@
  * Story 15b-4f: Hook initialization composed into useAppDataHooks orchestrator.
  */
 import { useEffect, useRef, useCallback, useMemo } from 'react';
+import { useNavigate, useRouterState } from '@tanstack/react-router';
 // App architecture components
 import { AppLayout, AppOverlays, shouldShowTopHeader } from './components/App';
 import type { View } from '@app/types';
@@ -36,6 +37,7 @@ import { CategoriesFeature } from '@features/categories';
 import { Toast } from '@/shared/ui';
 // App-level handler hooks
 import { useTransactionHandlers, useScanHandlers, useDialogHandlers } from './hooks/app';
+import { useHistoryNavigation } from '@/shared/hooks/useHistoryNavigation';
 import { AppProviders } from '@app/AppProviders';
 import { DIALOG_TYPES } from '@shared/types/scanWorkflow';
 import { LoginScreen } from './views/LoginScreen';
@@ -63,8 +65,7 @@ import type { FirestorePendingScan } from '@/types/pendingScan';
 import type { TrustPromptEligibility } from './types/trust';
 import { analyticsActions } from '@features/analytics/stores/useAnalyticsStore';
 import { getQuarterFromMonth } from '@features/analytics/utils/analyticsHelpers';
-import type { HistoryFilterState, TemporalFilterState } from '@/types/historyFilters';
-import type { HistoryNavigationPayload } from '@features/analytics/utils/analyticsToHistoryFilters';
+import { searchParamsToAnalyticsState } from '@/lib/searchParamSerializers';
 import { analyzeReceipt } from './services/gemini';
 import { addTransaction as firestoreAddTransaction } from './services/firestore';
 import {
@@ -84,12 +85,6 @@ import {
 } from './services/pendingScanStorage';
 import { formatCurrency, DEFAULT_CURRENCY } from './utils/currency';
 import { formatDate } from './utils/date';
-import {
-    expandStoreCategoryGroup,
-    expandItemCategoryGroup,
-    type StoreCategoryGroup,
-    type ItemCategoryGroup,
-} from './config/categoryColors';
 import { applyCategoryMappings } from './utils/categoryMatcher';
 import { classifyError, getErrorInfo } from './utils/errorHandler';
 import { incrementMappingUsage } from './services/categoryMappingService';
@@ -166,10 +161,9 @@ function App() {
 
     // Destructure viewHandlers
     const {
-        view, settingsSubview, pendingHistoryFilters, pendingDistributionView, analyticsInitialState,
+        view, settingsSubview, pendingDistributionView,
         setView, setSettingsSubview, saveScrollPosition,
-        setPendingHistoryFilters, setPendingDistributionView,
-        setAnalyticsInitialState, clearAnalyticsInitialState,
+        setPendingDistributionView,
         currentTransaction, transactionNavigationList, isViewingReadOnly, creditUsedInSession,
         isTransactionSaving, animateEditViewItems, transactionEditorMode,
         setCurrentTransaction, setTransactionNavigationList, setIsViewingReadOnly,
@@ -247,33 +241,18 @@ function App() {
     // These use the navigation store actions + scroll/dialog handling
     // ==========================================================================
 
-    // Filter clearing effects (from useNavigationHandlers)
-    // Story 14.13: Clear filters when navigating away from history/insights/transaction-editor views
+    // Story 15b-3f: Initialize analytics store from URL search params
+    // TrendsView reads params via useTrendsViewData; App initializes the analytics store
+    const trendsSearchParams = useRouterState({ select: (s) => s.location.search });
+    const analyticsFromUrl = useMemo(
+        () => searchParamsToAnalyticsState(trendsSearchParams as Record<string, string>),
+        [trendsSearchParams]
+    );
     useEffect(() => {
-        if (
-            view !== 'insights' &&
-            view !== 'history' &&
-            view !== 'items' &&
-            view !== 'transaction-editor' &&
-            pendingHistoryFilters
-        ) {
-            setPendingHistoryFilters(null);
+        if (view === 'trends' && analyticsFromUrl) {
+            analyticsActions.initialize(analyticsFromUrl);
         }
-    }, [view, pendingHistoryFilters, setPendingHistoryFilters]);
-
-    // Story 10a.2: Clear analytics initial state when navigating AWAY from trends view
-    useEffect(() => {
-        if (view !== 'trends' && analyticsInitialState) {
-            clearAnalyticsInitialState();
-        }
-    }, [view, analyticsInitialState, clearAnalyticsInitialState]);
-
-    // Story 15b-3f: Initialize analytics store when analyticsInitialState changes
-    useEffect(() => {
-        if (view === 'trends' && analyticsInitialState) {
-            analyticsActions.initialize(analyticsInitialState);
-        }
-    }, [view, analyticsInitialState]);
+    }, [view, analyticsFromUrl]);
 
     // Story 14.13 Session 7: Clear pending distribution view when navigating AWAY from trends
     useEffect(() => {
@@ -298,19 +277,6 @@ function App() {
             saveScrollPosition(view, mainRef.current.scrollTop);
         }
 
-        // Story 14.13b: Clear filters when navigating to history/items from outside
-        const isFromRelatedView =
-            view === 'history' ||
-            view === 'items' ||
-            view === 'transaction-editor' ||
-            view === 'trends' ||
-            view === 'insights' ||
-            view === 'dashboard';
-        const isToHistoryOrItems = targetView === 'history' || targetView === 'items';
-        if (isToHistoryOrItems && !isFromRelatedView) {
-            setPendingHistoryFilters(null);
-        }
-
         // Navigate using store (tracks previousView automatically)
         setView(targetView);
 
@@ -332,7 +298,6 @@ function App() {
         setView,
         mainRef,
         saveScrollPosition,
-        setPendingHistoryFilters,
         scanState.activeDialog,
         dismissScanDialog,
     ]);
@@ -343,43 +308,7 @@ function App() {
      * Navigate from Analytics to History/Items with pre-applied filters.
      * Story 14e-25a.1 (V1 fix): Moved from useNavigationHandlers
      */
-    const handleNavigateToHistory = useCallback((payload: HistoryNavigationPayload) => {
-        // Build category filter based on payload
-        let categoryFilter: HistoryFilterState['category'] = { level: 'all' };
-        if (payload.category) {
-            categoryFilter = { level: 'category', category: payload.category };
-        } else if (payload.storeGroup) {
-            const storeCategories = expandStoreCategoryGroup(payload.storeGroup as StoreCategoryGroup);
-            categoryFilter = { level: 'category', category: storeCategories.join(',') };
-        } else if (payload.itemGroup) {
-            const itemCategories = expandItemCategoryGroup(payload.itemGroup as ItemCategoryGroup);
-            categoryFilter = { level: 'group', group: itemCategories.join(',') };
-        } else if (payload.itemCategory) {
-            categoryFilter = { level: 'group', group: payload.itemCategory };
-        }
-
-        // Story 14.13a: Include drillDownPath for multi-dimension filtering
-        if (payload.drillDownPath) {
-            categoryFilter.drillDownPath = payload.drillDownPath;
-        }
-
-        const filterState: HistoryFilterState = {
-            temporal: payload.temporal
-                ? { ...payload.temporal, level: payload.temporal.level as TemporalFilterState['level'] }
-                : { level: 'all' },
-            category: categoryFilter,
-            location: {},
-        };
-
-        // Store filters and navigate
-        setPendingHistoryFilters(filterState);
-        if (payload.sourceDistributionView) {
-            setPendingDistributionView(payload.sourceDistributionView);
-        }
-
-        const targetView = payload.targetView || 'history';
-        navigateToView(targetView);
-    }, [navigateToView, setPendingHistoryFilters, setPendingDistributionView]);
+    const { handleNavigateToHistory } = useHistoryNavigation();
 
     // Dialog handlers (conflict dialog uses Modal Manager)
     useDialogHandlers({
@@ -1179,6 +1108,7 @@ function App() {
 
     // Bridge: keep URL in sync with Zustand view state
     useRouterSync();
+    const routerNavigate = useNavigate();
 
     // ==========================================================================
     // View Props Composition (views own data via internal hooks)
@@ -1234,26 +1164,23 @@ function App() {
             if (month) {
                 const year = month.substring(0, 4);
                 const quarter = getQuarterFromMonth(month);
-                setAnalyticsInitialState({
-                    temporal: {
-                        level: 'month',
+                routerNavigate({
+                    to: '/trends',
+                    search: {
+                        level: 'month' as const,
                         year,
                         quarter,
                         month,
                     },
-                    category: { level: 'all' },
-                    chartMode: 'aggregation',
-                    drillDownMode: 'temporal',
                 });
             } else {
-                setAnalyticsInitialState(null);
+                routerNavigate({ to: '/trends' });
             }
-            setView('trends');
         },
         onEditTransaction: (transaction: any) => {
             navigateToTransactionDetail(transaction as Transaction);
         },
-    }), [navigateToTransactionDetail, setView]);
+    }), [navigateToTransactionDetail, routerNavigate]);
 
     // Story 14e-25b.2: handleClearAllLearnedData removed - now handled by SettingsView directly
 
@@ -1728,8 +1655,6 @@ function App() {
 
                 {/* Transaction History View - Story 14e-25a.2b: HistoryView now owns its data */}
                 {view === 'history' && renderHistoryView({
-                    initialState: pendingHistoryFilters || undefined,
-                    onStateChange: setPendingHistoryFilters,
                     _testOverrides: {
                         onEditTransaction: (tx) => navigateToTransactionDetail(tx as Transaction),
                     },
@@ -1755,8 +1680,6 @@ function App() {
                 {/* Items History View - filtered navigation from analytics */}
                 {/* Story 14e-31: ItemsView owns data via useItemsViewData, handler via _testOverrides */}
                 {view === 'items' && renderItemsView({
-                    initialState: pendingHistoryFilters || undefined,
-                    onStateChange: setPendingHistoryFilters,
                     _testOverrides: {
                         onEditTransaction: handleItemsEditTransaction,
                     },
