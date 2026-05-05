@@ -14,6 +14,12 @@ import pkg from './package.json';
 const firebaseMocks = path.resolve(__dirname, 'src/__firebase-mocks__');
 
 export default defineConfig({
+  test: {
+    environment: 'jsdom',
+    setupFiles: ['./src/test/setup.ts'],
+    include: ['src/**/*.{test,spec}.{ts,tsx}'],
+    exclude: ['src/**/*.stories.{ts,tsx}'],
+  },
   define: {
     __APP_VERSION__: JSON.stringify(pkg.version),
   },
