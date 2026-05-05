@@ -78,7 +78,7 @@
         "play() asserts navigation to sub-page"
       ],
       "priority": 3,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "clean-slate",
@@ -111,7 +111,7 @@
         "play() asserts edit + save"
       ],
       "priority": 4,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "clean-slate",
@@ -143,7 +143,7 @@
         "play() asserts edit + save"
       ],
       "priority": 5,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "clean-slate",
@@ -179,7 +179,7 @@
         "play() asserts toggle change"
       ],
       "priority": 6,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "clean-slate",
@@ -211,7 +211,7 @@
         "play() asserts toggle change"
       ],
       "priority": 7,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "clean-slate",
@@ -246,7 +246,7 @@
         "play() asserts toggle"
       ],
       "priority": 8,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "new",
@@ -280,7 +280,7 @@
         "play() asserts limit change"
       ],
       "priority": 9,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "clean-slate",
@@ -312,7 +312,7 @@
         "play() asserts limit change"
       ],
       "priority": 10,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "clean-slate",
@@ -348,7 +348,7 @@
         "play() asserts upgrade CTA"
       ],
       "priority": 11,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "new",
@@ -380,7 +380,7 @@
         "play() asserts upgrade CTA"
       ],
       "priority": 12,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "new",
@@ -415,7 +415,7 @@
         "play() asserts edit + delete"
       ],
       "priority": 13,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "new",
@@ -447,7 +447,7 @@
         "play() asserts edit + delete"
       ],
       "priority": 14,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "new",
@@ -482,7 +482,7 @@
         "play() asserts navigation to group"
       ],
       "priority": 15,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "new",
@@ -515,7 +515,7 @@
         "play() asserts clear cache action"
       ],
       "priority": 16,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "new",
@@ -546,7 +546,7 @@
         "play() asserts delete confirmation dialog"
       ],
       "priority": 17,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "new",
@@ -578,7 +578,7 @@
         "play() asserts delete confirmation"
       ],
       "priority": 18,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "new",
@@ -612,7 +612,7 @@
         "axe passes"
       ],
       "priority": 19,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "new",
@@ -642,7 +642,7 @@
         "play() asserts retry"
       ],
       "priority": 20,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "new",
@@ -673,7 +673,7 @@
         "play() asserts save + toast"
       ],
       "priority": 21,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "new",
@@ -703,7 +703,7 @@
         "play() asserts validation"
       ],
       "priority": 22,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "new",
@@ -735,7 +735,7 @@
         "play() asserts continue"
       ],
       "priority": 23,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "new",
@@ -765,7 +765,7 @@
         "play() asserts selections + continue"
       ],
       "priority": 24,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "new",
@@ -798,7 +798,7 @@
         "play() asserts scan CTA + skip"
       ],
       "priority": 25,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "new",
@@ -828,7 +828,7 @@
         "play() asserts completion"
       ],
       "priority": 26,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "new",
@@ -860,7 +860,7 @@
         "Filtered data included in printout"
       ],
       "priority": 27,
-      "passes": false,
+      "passes": true,
       "notes": "Uses window.print() per R51 — not PDF generation.",
       "tier": "screen-state",
       "source": "new",
@@ -892,7 +892,7 @@
         "Redirect to dashboard with empty state"
       ],
       "priority": 28,
-      "passes": false,
+      "passes": true,
       "notes": "Cross-feature flow — requires onboarding + dashboard.",
       "tier": "screen-state",
       "source": "new",

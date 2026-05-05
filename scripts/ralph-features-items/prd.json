@@ -109,7 +109,7 @@
         "play() asserts card content"
       ],
       "priority": 4,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "clean-slate",
@@ -140,7 +140,7 @@
         "play() asserts content"
       ],
       "priority": 5,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "clean-slate",
@@ -172,7 +172,7 @@
         "play() asserts content"
       ],
       "priority": 6,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "clean-slate",
@@ -205,7 +205,7 @@
         "play() asserts filter + clear"
       ],
       "priority": 7,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "clean-slate",
@@ -236,7 +236,7 @@
         "play() asserts filter"
       ],
       "priority": 8,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "clean-slate",
@@ -267,7 +267,7 @@
         "play() asserts filter"
       ],
       "priority": 9,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "clean-slate",
@@ -299,7 +299,7 @@
         "play() asserts sort toggle"
       ],
       "priority": 10,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "new",
@@ -330,7 +330,7 @@
         "play() asserts sort toggle"
       ],
       "priority": 11,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "new",
@@ -364,7 +364,7 @@
         "play() asserts search + clear"
       ],
       "priority": 12,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "new",
@@ -395,7 +395,7 @@
         "play() asserts search"
       ],
       "priority": 13,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "new",
@@ -428,7 +428,7 @@
         "play() asserts CTA present"
       ],
       "priority": 14,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "clean-slate",
@@ -459,7 +459,7 @@
         "play() asserts CTA"
       ],
       "priority": 15,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "clean-slate",
@@ -490,7 +490,7 @@
         "play() asserts CTA"
       ],
       "priority": 16,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "clean-slate",
@@ -522,7 +522,7 @@
         "axe passes"
       ],
       "priority": 17,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "new",
@@ -553,7 +553,7 @@
         "axe passes"
       ],
       "priority": 18,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "new",
@@ -586,7 +586,7 @@
         "play() asserts retry"
       ],
       "priority": 19,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "new",
@@ -615,7 +615,7 @@
         "play() asserts retry"
       ],
       "priority": 20,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "new",
@@ -645,7 +645,7 @@
         "play() asserts retry"
       ],
       "priority": 21,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "new",

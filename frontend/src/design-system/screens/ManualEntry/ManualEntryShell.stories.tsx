@@ -10,6 +10,28 @@ const meta: Meta<typeof ManualEntryShell> = {
 export default meta;
 type Story = StoryObj<typeof ManualEntryShell>;
 
-export const Mobile: Story = {
+export const MobileDefault: Story = {
+  args: {
+    state: 'default',
+    title: 'Ingreso manual',
+    submitLabel: 'Guardar',
+  },
+  parameters: { viewport: { defaultViewport: 'mobile' } },
+};
+
+export const MobileSubmitting: Story = {
+  args: {
+    state: 'submitting',
+    title: 'Ingreso manual',
+    submitLabel: 'Guardando...',
+  },
+  parameters: { viewport: { defaultViewport: 'mobile' } },
+};
+
+export const MobileSuccess: Story = {
+  args: {
+    state: 'success',
+    successMessage: 'Gasto guardado correctamente',
+  },
   parameters: { viewport: { defaultViewport: 'mobile' } },
 };

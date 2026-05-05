@@ -120,7 +120,7 @@
         "play() asserts stat card content"
       ],
       "priority": 4,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "clean-slate",
@@ -153,7 +153,7 @@
         "play() asserts content"
       ],
       "priority": 5,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "clean-slate",
@@ -186,7 +186,7 @@
         "play() asserts content"
       ],
       "priority": 6,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "clean-slate",
@@ -220,7 +220,7 @@
         "play() asserts CTA present"
       ],
       "priority": 7,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "clean-slate",
@@ -253,7 +253,7 @@
         "play() asserts CTA"
       ],
       "priority": 8,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "clean-slate",
@@ -286,7 +286,7 @@
         "play() asserts CTA"
       ],
       "priority": 9,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "clean-slate",
@@ -320,7 +320,7 @@
         "axe passes"
       ],
       "priority": 10,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "new",
@@ -349,7 +349,7 @@
         "axe passes"
       ],
       "priority": 11,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "new",
@@ -379,7 +379,7 @@
         "axe passes"
       ],
       "priority": 12,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "new",
@@ -409,7 +409,7 @@
         "play() asserts retry click"
       ],
       "priority": 13,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "new",
@@ -439,7 +439,7 @@
         "play() asserts retry"
       ],
       "priority": 14,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "new",
@@ -471,7 +471,7 @@
         "play() asserts QuickSave interaction"
       ],
       "priority": 15,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "clean-slate",
@@ -503,7 +503,7 @@
         "play() asserts interaction"
       ],
       "priority": 16,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "clean-slate",
@@ -538,7 +538,7 @@
         "play() asserts banner interaction"
       ],
       "priority": 17,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "new",
@@ -571,7 +571,7 @@
         "Back navigation returns to dashboard"
       ],
       "priority": 18,
-      "passes": false,
+      "passes": true,
       "notes": "Cross-feature interactivity — requires both Dashboard and History screens.",
       "tier": "screen-state",
       "source": "new",

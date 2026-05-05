@@ -2,6 +2,7 @@ import { ScanStatusIndicator } from '../../molecules/ScanStatusIndicator';
 import { Button } from '../../atoms/Button';
 
 type ScanStatus = 'complete' | 'processing' | 'error';
+type BatchReviewState = 'default' | 'confirming';
 
 interface BatchItem {
   id: number;
@@ -10,13 +11,23 @@ interface BatchItem {
   status: ScanStatus;
 }
 
+interface BatchReviewShellProps {
+  state?: BatchReviewState;
+  items?: readonly BatchItem[];
+  confirmLabel?: string;
+}
+
 const MOCK_ITEMS: readonly BatchItem[] = [
   { id: 1, merchant: 'Jumbo Costanera Center', amount: '$24.890', status: 'complete' },
-  { id: 2, merchant: 'Procesando...', amount: '—', status: 'processing' },
-  { id: 3, merchant: 'Error de lectura', amount: '—', status: 'error' },
+  { id: 2, merchant: 'Processing...', amount: '—', status: 'processing' },
+  { id: 3, merchant: 'Read error', amount: '—', status: 'error' },
 ] as const;
 
-export function BatchReviewShell() {
+export function BatchReviewShell({
+  state = 'default',
+  items = MOCK_ITEMS,
+  confirmLabel = 'Confirm all',
+}: BatchReviewShellProps) {
   return (
     <div
       style={{
@@ -35,11 +46,11 @@ export function BatchReviewShell() {
           marginBottom: '24px',
         }}
       >
-        Batch review (3)
+        Batch review ({items.length})
       </h1>
 
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '12px' }}>
-        {MOCK_ITEMS.map((item) => (
+        {items.map((item) => (
           <div
             key={item.id}
             style={{
@@ -77,8 +88,12 @@ export function BatchReviewShell() {
       </div>
 
       <div style={{ marginTop: '24px' }}>
-        <Button style={{ width: '100%' }}>
-          Confirmar todo
+        <Button
+          style={{ width: '100%' }}
+          loading={state === 'confirming'}
+          disabled={state === 'confirming'}
+        >
+          {confirmLabel}
         </Button>
       </div>
     </div>

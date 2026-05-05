@@ -10,6 +10,12 @@ const meta: Meta<typeof BatchReviewShell> = {
 export default meta;
 type Story = StoryObj<typeof BatchReviewShell>;
 
-export const Mobile: Story = {
+export const MobileDefault: Story = {
+  args: { state: 'default', confirmLabel: 'Confirmar todo' },
+  parameters: { viewport: { defaultViewport: 'mobile' } },
+};
+
+export const MobileConfirming: Story = {
+  args: { state: 'confirming', confirmLabel: 'Confirmando...' },
   parameters: { viewport: { defaultViewport: 'mobile' } },
 };

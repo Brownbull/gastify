@@ -11,11 +11,21 @@ export default meta;
 type Story = StoryObj<typeof ScanModeShell>;
 
 export const Mobile: Story = {
-  args: { layout: 'mobile' },
+  args: { layout: 'mobile', title: 'Escanear' },
   parameters: { viewport: { defaultViewport: 'mobile' } },
 };
 
 export const Desktop: Story = {
-  args: { layout: 'desktop' },
+  args: { layout: 'desktop', title: 'Escanear' },
   parameters: { viewport: { defaultViewport: 'desktop' } },
+};
+
+export const MobileNoCredits: Story = {
+  args: {
+    layout: 'mobile',
+    title: 'Escanear',
+    disabled: true,
+    disabledMessage: 'No te quedan creditos. Compra mas para seguir escaneando.',
+  },
+  parameters: { viewport: { defaultViewport: 'mobile' } },
 };

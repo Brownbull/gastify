@@ -10,6 +10,12 @@ const meta: Meta<typeof BatchCaptureShell> = {
 export default meta;
 type Story = StoryObj<typeof BatchCaptureShell>;
 
-export const Mobile: Story = {
+export const MobileCapturing: Story = {
+  args: { state: 'capturing', capturedCount: 3 },
+  parameters: { viewport: { defaultViewport: 'mobile' } },
+};
+
+export const MobileLimitReached: Story = {
+  args: { state: 'limit-reached', capturedCount: 10 },
   parameters: { viewport: { defaultViewport: 'mobile' } },
 };

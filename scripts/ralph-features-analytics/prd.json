@@ -111,7 +111,7 @@
         "play() asserts chart content"
       ],
       "priority": 4,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "clean-slate",
@@ -142,7 +142,7 @@
         "play() asserts chart content"
       ],
       "priority": 5,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "clean-slate",
@@ -173,7 +173,7 @@
         "play() asserts chart content"
       ],
       "priority": 6,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "clean-slate",
@@ -206,7 +206,7 @@
         "play() asserts drill + back"
       ],
       "priority": 7,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "new",
@@ -237,7 +237,7 @@
         "play() asserts drill + back"
       ],
       "priority": 8,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "new",
@@ -271,7 +271,7 @@
         "play() asserts drill + back"
       ],
       "priority": 9,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "new",
@@ -302,7 +302,7 @@
         "play() asserts drill + back"
       ],
       "priority": 10,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "new",
@@ -335,7 +335,7 @@
         "play() asserts aggregation change"
       ],
       "priority": 11,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "new",
@@ -366,7 +366,7 @@
         "play() asserts aggregation change"
       ],
       "priority": 12,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "new",
@@ -400,7 +400,7 @@
         "play() asserts comparison toggle"
       ],
       "priority": 13,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "new",
@@ -432,7 +432,7 @@
         "play() asserts comparison toggle"
       ],
       "priority": 14,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "new",
@@ -466,7 +466,7 @@
         "play() asserts treemap elements"
       ],
       "priority": 15,
-      "passes": false,
+      "passes": true,
       "notes": "Shares data with TREND-004 but isolates view-mode testing.",
       "tier": "screen-state",
       "source": "clean-slate",
@@ -499,7 +499,7 @@
         "play() asserts donut elements"
       ],
       "priority": 16,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "clean-slate",
@@ -530,7 +530,7 @@
         "play() asserts donut elements"
       ],
       "priority": 17,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "clean-slate",
@@ -563,7 +563,7 @@
         "play() asserts sankey elements"
       ],
       "priority": 18,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "new",
@@ -594,7 +594,7 @@
         "play() asserts sankey elements"
       ],
       "priority": 19,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "new",
@@ -627,7 +627,7 @@
         "play() asserts bump chart elements"
       ],
       "priority": 20,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "new",
@@ -658,7 +658,7 @@
         "play() asserts bump elements"
       ],
       "priority": 21,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "new",
@@ -691,7 +691,7 @@
         "play() asserts radar elements"
       ],
       "priority": 22,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "new",
@@ -722,7 +722,7 @@
         "play() asserts radar elements"
       ],
       "priority": 23,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "new",
@@ -755,7 +755,7 @@
         "play() asserts CTA present"
       ],
       "priority": 24,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "clean-slate",
@@ -786,7 +786,7 @@
         "play() asserts CTA"
       ],
       "priority": 25,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "clean-slate",
@@ -817,7 +817,7 @@
         "play() asserts CTA"
       ],
       "priority": 26,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "clean-slate",
@@ -849,7 +849,7 @@
         "play() asserts retry"
       ],
       "priority": 27,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "new",
@@ -879,7 +879,7 @@
         "play() asserts retry"
       ],
       "priority": 28,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "new",
@@ -911,7 +911,7 @@
         "axe passes"
       ],
       "priority": 29,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "new",
@@ -940,7 +940,7 @@
         "axe passes"
       ],
       "priority": 30,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "new",
@@ -971,7 +971,7 @@
         "Back navigation returns to trends"
       ],
       "priority": 31,
-      "passes": false,
+      "passes": true,
       "notes": "Cross-feature interactivity — requires both Trends and History screens.",
       "tier": "screen-state",
       "source": "new",

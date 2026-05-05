@@ -1,5 +1,7 @@
 import { Button } from '../../atoms/Button';
 
+type StatementReviewState = 'default' | 'confirming';
+
 interface ParsedTransaction {
   id: number;
   date: string;
@@ -7,15 +9,31 @@ interface ParsedTransaction {
   amount: string;
 }
 
+interface StatementReviewShellProps {
+  state?: StatementReviewState;
+  transactions?: readonly ParsedTransaction[];
+  confirmLabel?: string;
+  rejectLabel?: string;
+  summaryLabel?: string;
+}
+
 const MOCK_TRANSACTIONS: readonly ParsedTransaction[] = [
-  { id: 1, date: '28 abr', merchant: 'Jumbo Costanera Center', amount: '$24.890' },
-  { id: 2, date: '27 abr', merchant: 'Copec Av. Providencia', amount: '$45.000' },
-  { id: 3, date: '26 abr', merchant: 'Netflix', amount: '$6.990' },
-  { id: 4, date: '25 abr', merchant: 'Uber Eats', amount: '$12.350' },
-  { id: 5, date: '24 abr', merchant: 'Farmacia Cruz Verde', amount: '$8.790' },
+  { id: 1, date: '28 Apr', merchant: 'Jumbo Costanera Center', amount: '$24.890' },
+  { id: 2, date: '27 Apr', merchant: 'Copec Av. Providencia', amount: '$45.000' },
+  { id: 3, date: '26 Apr', merchant: 'Netflix', amount: '$6.990' },
+  { id: 4, date: '25 Apr', merchant: 'Uber Eats', amount: '$12.350' },
+  { id: 5, date: '24 Apr', merchant: 'Farmacia Cruz Verde', amount: '$8.790' },
 ] as const;
 
-export function StatementReviewShell() {
+export function StatementReviewShell({
+  state = 'default',
+  transactions = MOCK_TRANSACTIONS,
+  confirmLabel = 'Confirm all',
+  rejectLabel = 'Reject selection',
+  summaryLabel = '15 transactions found',
+}: StatementReviewShellProps) {
+  const isBusy = state === 'confirming';
+
   return (
     <div
       style={{
@@ -43,11 +61,11 @@ export function StatementReviewShell() {
           marginBottom: '24px',
         }}
       >
-        15 transacciones encontradas
+        {summaryLabel}
       </p>
 
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px' }}>
-        {MOCK_TRANSACTIONS.map((tx) => (
+        {transactions.map((tx) => (
           <div
             key={tx.id}
             style={{
@@ -97,11 +115,15 @@ export function StatementReviewShell() {
           borderTop: '1px solid var(--border)',
         }}
       >
-        <Button style={{ flex: 1 }}>
-          Confirmar todo
+        <Button
+          style={{ flex: 1 }}
+          loading={isBusy}
+          disabled={isBusy}
+        >
+          {confirmLabel}
         </Button>
-        <Button variant="secondary" style={{ flex: 1 }}>
-          Reject selection
+        <Button variant="secondary" style={{ flex: 1 }} disabled={isBusy}>
+          {rejectLabel}
         </Button>
       </div>
     </div>

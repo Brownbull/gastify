@@ -4,27 +4,35 @@ type LayoutMode = 'mobile' | 'desktop';
 
 interface ScanModeShellProps {
   layout?: LayoutMode;
+  disabled?: boolean;
+  title?: string;
+  disabledMessage?: string;
 }
 
 const MODES = [
   {
     icon: Camera,
-    title: 'Escaneo individual',
+    title: 'Single scan',
     description: 'Capture a receipt with your device camera',
   },
   {
     icon: Images,
-    title: 'Captura por lote',
+    title: 'Batch capture',
     description: 'Scan multiple receipts in quick sequence',
   },
   {
     icon: FileText,
-    title: 'Subir estado de cuenta',
-    description: 'Importa transacciones desde tu cartola bancaria',
+    title: 'Upload statement',
+    description: 'Import transactions from your bank statement',
   },
 ] as const;
 
-export function ScanModeShell({ layout = 'mobile' }: ScanModeShellProps) {
+export function ScanModeShell({
+  layout = 'mobile',
+  disabled = false,
+  title = 'Scan',
+  disabledMessage,
+}: ScanModeShellProps) {
   const isDesktop = layout === 'desktop';
 
   return (
@@ -43,8 +51,31 @@ export function ScanModeShell({ layout = 'mobile' }: ScanModeShellProps) {
           marginBottom: '24px',
         }}
       >
-        Escanear
+        {title}
       </h1>
+
+      {disabled && disabledMessage && (
+        <div
+          style={{
+            padding: '12px 16px',
+            borderRadius: '12px',
+            backgroundColor: 'var(--warning-bg, rgba(245, 158, 11, 0.1))',
+            border: '1px solid var(--warning, #f59e0b)',
+            marginBottom: '16px',
+          }}
+          role="status"
+        >
+          <p
+            style={{
+              fontSize: '0.875rem',
+              color: 'var(--text-primary)',
+              fontWeight: 500,
+            }}
+          >
+            {disabledMessage}
+          </p>
+        </div>
+      )}
 
       <div
         style={{
@@ -64,20 +95,23 @@ export function ScanModeShell({ layout = 'mobile' }: ScanModeShellProps) {
                 borderRadius: '16px',
                 backgroundColor: 'var(--surface)',
                 border: '1px solid var(--border)',
-                cursor: 'pointer',
+                cursor: disabled ? 'not-allowed' : 'pointer',
+                opacity: disabled ? 0.5 : 1,
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: isDesktop ? 'center' : 'flex-start',
                 gap: '12px',
                 textAlign: isDesktop ? 'center' : 'left',
+                pointerEvents: disabled ? 'none' : undefined,
               }}
+              aria-disabled={disabled || undefined}
             >
               <div
                 style={{
                   width: 48,
                   height: 48,
                   borderRadius: '12px',
-                  backgroundColor: 'var(--primary)',
+                  backgroundColor: disabled ? 'var(--text-tertiary)' : 'var(--primary)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',

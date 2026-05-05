@@ -1,4 +1,4 @@
-import { Home, Receipt, Camera, TrendingUp, Settings } from 'lucide-react';
+import { Home, Receipt, Camera, TrendingUp, Settings, Inbox } from 'lucide-react';
 import { CardStat } from '../../molecules/CardStat';
 import { NavBottom } from '../../molecules/NavBottom';
 import { NavSidebar } from '../../molecules/NavSidebar';
@@ -7,11 +7,19 @@ import { Avatar } from '../../atoms/Avatar';
 import { Badge } from '../../atoms/Badge';
 import { CardTransaction } from '../../molecules/CardTransaction';
 import { FAB } from '../../molecules/FAB';
+import { Skeleton } from '../../atoms/Skeleton';
+import { ErrorFallback } from '../../molecules/ErrorFallback';
 
 type Viewport = 'mobile' | 'tablet' | 'desktop';
+type ScreenState = 'default' | 'loading' | 'empty' | 'error';
 
 interface DashboardShellProps {
   viewport: Viewport;
+  state?: ScreenState;
+  errorMessage?: string;
+  emptyMessage?: string;
+  onRetry?: () => void;
+  onGoHome?: () => void;
 }
 
 const MOCK_USER = 'Carlos Munoz';
@@ -44,6 +52,46 @@ const FAB_ITEMS = [
 ] as const;
 
 const NOOP = () => {};
+
+function StatGridLoading({ columns }: { columns: number }) {
+  return (
+    <div
+      className="grid gap-3"
+      style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}
+    >
+      {Array.from({ length: columns }).map((_, i) => (
+        <Skeleton key={i} shape="card" height="100px" />
+      ))}
+    </div>
+  );
+}
+
+function TransactionListLoading() {
+  return (
+    <section className="flex flex-col gap-2">
+      <Skeleton shape="text" width="50%" height="14px" />
+      {Array.from({ length: 5 }).map((_, i) => (
+        <Skeleton key={i} shape="list-item" />
+      ))}
+    </section>
+  );
+}
+
+function EmptyState({ message }: { message: string }) {
+  return (
+    <section className="flex flex-col items-center justify-center gap-3 py-12 text-center">
+      <div
+        className="flex items-center justify-center rounded-full p-4"
+        style={{ backgroundColor: 'var(--surface-elevated, var(--surface))' }}
+      >
+        <Inbox size={40} style={{ color: 'var(--text-tertiary)' }} aria-hidden="true" />
+      </div>
+      <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+        {message}
+      </p>
+    </section>
+  );
+}
 
 function MobileHeader() {
   return (
@@ -104,7 +152,56 @@ function TransactionList() {
   );
 }
 
-function MobileLayout() {
+interface LayoutStateProps {
+  state: ScreenState;
+  errorMessage: string;
+  emptyMessage: string;
+  onRetry: () => void;
+  onGoHome: () => void;
+}
+
+function ContentArea({
+  state,
+  columns,
+  errorMessage,
+  emptyMessage,
+  onRetry,
+  onGoHome,
+}: LayoutStateProps & { columns: number }) {
+  switch (state) {
+    case 'loading':
+      return (
+        <>
+          <StatGridLoading columns={columns} />
+          <TransactionListLoading />
+        </>
+      );
+    case 'empty':
+      return (
+        <>
+          <StatGrid columns={columns} />
+          <EmptyState message={emptyMessage} />
+        </>
+      );
+    case 'error':
+      return (
+        <ErrorFallback
+          error={errorMessage}
+          onRetry={onRetry}
+          onGoHome={onGoHome}
+        />
+      );
+    default:
+      return (
+        <>
+          <StatGrid columns={columns} />
+          <TransactionList />
+        </>
+      );
+  }
+}
+
+function MobileLayout({ state, errorMessage, emptyMessage, onRetry, onGoHome }: LayoutStateProps) {
   return (
     <div
       className="flex flex-col min-h-screen"
@@ -112,10 +209,16 @@ function MobileLayout() {
     >
       <MobileHeader />
       <main className="flex-1 flex flex-col gap-4 px-4 py-3 pb-20">
-        <StatGrid columns={2} />
-        <TransactionList />
+        <ContentArea
+          state={state}
+          columns={2}
+          errorMessage={errorMessage}
+          emptyMessage={emptyMessage}
+          onRetry={onRetry}
+          onGoHome={onGoHome}
+        />
       </main>
-      <FAB items={[...FAB_ITEMS]} onSelect={NOOP} />
+      {state === 'default' && <FAB items={[...FAB_ITEMS]} onSelect={NOOP} />}
       <div className="fixed bottom-0 left-0 right-0">
         <NavBottom items={[...NAV_ITEMS]} activeItem="home" onItemChange={NOOP} />
       </div>
@@ -123,7 +226,7 @@ function MobileLayout() {
   );
 }
 
-function TabletLayout() {
+function TabletLayout({ state, errorMessage, emptyMessage, onRetry, onGoHome }: LayoutStateProps) {
   return (
     <div
       className="flex flex-col min-h-screen"
@@ -138,8 +241,14 @@ function TabletLayout() {
         </div>
       </NavTop>
       <main className="flex-1 flex flex-col gap-4 px-6 py-4">
-        <StatGrid columns={2} />
-        <TransactionList />
+        <ContentArea
+          state={state}
+          columns={2}
+          errorMessage={errorMessage}
+          emptyMessage={emptyMessage}
+          onRetry={onRetry}
+          onGoHome={onGoHome}
+        />
       </main>
       <div className="fixed bottom-0 left-0 right-0">
         <NavBottom items={[...NAV_ITEMS]} activeItem="home" onItemChange={NOOP} />
@@ -148,7 +257,7 @@ function TabletLayout() {
   );
 }
 
-function DesktopLayout() {
+function DesktopLayout({ state, errorMessage, emptyMessage, onRetry, onGoHome }: LayoutStateProps) {
   return (
     <div
       className="flex min-h-screen"
@@ -179,21 +288,45 @@ function DesktopLayout() {
               Resumen de mayo 2026
             </p>
           </div>
-          <StatGrid columns={3} />
-          <TransactionList />
+          <ContentArea
+            state={state}
+            columns={3}
+            errorMessage={errorMessage}
+            emptyMessage={emptyMessage}
+            onRetry={onRetry}
+            onGoHome={onGoHome}
+          />
         </main>
       </div>
     </div>
   );
 }
 
-const LAYOUTS: Record<Viewport, () => JSX.Element> = {
+const DEFAULT_ERROR_MESSAGE = 'Could not load dashboard data. Please try again.';
+const DEFAULT_EMPTY_MESSAGE = 'No transactions yet';
+
+const LAYOUTS: Record<Viewport, (props: LayoutStateProps) => JSX.Element> = {
   mobile: MobileLayout,
   tablet: TabletLayout,
   desktop: DesktopLayout,
 };
 
-export function DashboardShell({ viewport }: DashboardShellProps) {
+export function DashboardShell({
+  viewport,
+  state = 'default',
+  errorMessage = DEFAULT_ERROR_MESSAGE,
+  emptyMessage = DEFAULT_EMPTY_MESSAGE,
+  onRetry = NOOP,
+  onGoHome = NOOP,
+}: DashboardShellProps) {
   const Layout = LAYOUTS[viewport];
-  return <Layout />;
+  return (
+    <Layout
+      state={state}
+      errorMessage={errorMessage}
+      emptyMessage={emptyMessage}
+      onRetry={onRetry}
+      onGoHome={onGoHome}
+    />
+  );
 }

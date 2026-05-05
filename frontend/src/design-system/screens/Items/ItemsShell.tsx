@@ -1,15 +1,22 @@
 import * as React from 'react';
-import { Home, Receipt, Camera, BarChart3, User, Sliders } from 'lucide-react';
+import { Home, Receipt, Camera, BarChart3, User, Sliders, Package } from 'lucide-react';
 import { Chip } from '../../atoms/Chip';
+import { Skeleton } from '../../atoms/Skeleton';
+import { ErrorFallback } from '../../molecules/ErrorFallback';
 import { SearchBar } from '../../molecules/SearchBar';
 import { NavBottom } from '../../molecules/NavBottom';
 import { NavSidebar } from '../../molecules/NavSidebar';
 import { NavTop } from '../../molecules/NavTop';
 
 type ItemsLayout = 'mobile' | 'tablet' | 'desktop';
+type ItemsState = 'default' | 'loading' | 'empty' | 'error' | 'filtered';
 
 interface ItemsShellProps {
   layout: ItemsLayout;
+  state?: ItemsState;
+  errorMessage?: string;
+  onRetry?: () => void;
+  onGoHome?: () => void;
 }
 
 interface MockItem {
@@ -85,18 +92,94 @@ function FilterBar({ active, onChange }: { readonly active: string; readonly onC
   );
 }
 
-function ItemsGrid({ layout }: { readonly layout: ItemsLayout }) {
+const FILTERED_ITEMS: readonly MockItem[] = MOCK_ITEMS.slice(0, 3);
+
+function SkeletonGrid({ layout }: { readonly layout: ItemsLayout }) {
+  const count = layout === 'mobile' ? 6 : layout === 'tablet' ? 6 : 8;
   return (
     <div className={`grid ${GRID_COLS[layout]} gap-3`}>
-      {MOCK_ITEMS.map((item) => <ItemCard key={item.id} item={item} />)}
+      {Array.from({ length: count }, (_, i) => (
+        <Skeleton key={i} shape="card" height="96px" />
+      ))}
     </div>
   );
 }
 
+function EmptyState() {
+  return (
+    <div className="flex flex-col items-center justify-center text-center px-6 py-16">
+      <div
+        className="w-12 h-12 rounded-full flex items-center justify-center mb-4"
+        style={{ backgroundColor: 'var(--primary-bg, rgba(99, 102, 241, 0.1))' }}
+      >
+        <Package size={24} style={{ color: 'var(--primary)' }} aria-hidden="true" />
+      </div>
+      <h3 className="text-base font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>
+        No items found
+      </h3>
+      <p className="text-sm max-w-70" style={{ color: 'var(--text-tertiary)' }}>
+        Items will appear here once receipts are scanned.
+      </p>
+    </div>
+  );
+}
+
+function ItemsGrid({ layout, items }: { readonly layout: ItemsLayout; readonly items: readonly MockItem[] }) {
+  return (
+    <div className={`grid ${GRID_COLS[layout]} gap-3`}>
+      {items.map((item) => <ItemCard key={item.id} item={item} />)}
+    </div>
+  );
+}
+
+/** Renders the state-dependent body: skeleton grid, empty, error, or item cards. */
+function ItemsBody({
+  layout,
+  state,
+  errorMessage,
+  onRetry,
+  onGoHome,
+}: {
+  readonly layout: ItemsLayout;
+  readonly state: ItemsState;
+  readonly errorMessage: string;
+  readonly onRetry: () => void;
+  readonly onGoHome: () => void;
+}) {
+  switch (state) {
+    case 'loading':
+      return <SkeletonGrid layout={layout} />;
+    case 'empty':
+      return <EmptyState />;
+    case 'error':
+      return <ErrorFallback error={errorMessage} onRetry={onRetry} onGoHome={onGoHome} />;
+    case 'filtered':
+      return <ItemsGrid layout={layout} items={FILTERED_ITEMS} />;
+    default:
+      return <ItemsGrid layout={layout} items={MOCK_ITEMS} />;
+  }
+}
+
 /** Shared content area used by mobile, tablet, and the main panel of desktop. */
-function ItemsContent({ layout, px }: { readonly layout: ItemsLayout; readonly px: string }) {
+function ItemsContent({
+  layout,
+  px,
+  state,
+  errorMessage,
+  onRetry,
+  onGoHome,
+}: {
+  readonly layout: ItemsLayout;
+  readonly px: string;
+  readonly state: ItemsState;
+  readonly errorMessage: string;
+  readonly onRetry: () => void;
+  readonly onGoHome: () => void;
+}) {
   const [search, setSearch] = React.useState('');
-  const [activeFilter, setActiveFilter] = React.useState('all');
+  const [activeFilter, setActiveFilter] = React.useState(
+    state === 'filtered' ? 'frequent' : 'all',
+  );
 
   return (
     <div className={`flex-1 overflow-y-auto ${px}`}>
@@ -106,13 +189,31 @@ function ItemsContent({ layout, px }: { readonly layout: ItemsLayout; readonly p
       <div className="pb-3">
         <FilterBar active={activeFilter} onChange={setActiveFilter} />
       </div>
-      <ItemsGrid layout={layout} />
+      <ItemsBody
+        layout={layout}
+        state={state}
+        errorMessage={errorMessage}
+        onRetry={onRetry}
+        onGoHome={onGoHome}
+      />
       <div className="h-4" />
     </div>
   );
 }
 
-function CompactItems({ layout }: { readonly layout: 'mobile' | 'tablet' }) {
+function CompactItems({
+  layout,
+  state,
+  errorMessage,
+  onRetry,
+  onGoHome,
+}: {
+  readonly layout: 'mobile' | 'tablet';
+  readonly state: ItemsState;
+  readonly errorMessage: string;
+  readonly onRetry: () => void;
+  readonly onGoHome: () => void;
+}) {
   const px = layout === 'tablet' ? 'px-6' : 'px-4';
   return (
     <div className="flex flex-col h-full" style={{ backgroundColor: 'var(--background)' }}>
@@ -120,15 +221,34 @@ function CompactItems({ layout }: { readonly layout: 'mobile' | 'tablet' }) {
         style={{ backgroundColor: 'var(--surface)', borderBottom: '1px solid var(--border)' }}>
         <h1 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>Items</h1>
       </header>
-      <ItemsContent layout={layout} px={px} />
+      <ItemsContent
+        layout={layout}
+        px={px}
+        state={state}
+        errorMessage={errorMessage}
+        onRetry={onRetry}
+        onGoHome={onGoHome}
+      />
       <NavBottom items={NAV_ITEMS} activeItem="expenses" onItemChange={() => {}} />
     </div>
   );
 }
 
-function DesktopItems() {
+function DesktopItems({
+  state,
+  errorMessage,
+  onRetry,
+  onGoHome,
+}: {
+  readonly state: ItemsState;
+  readonly errorMessage: string;
+  readonly onRetry: () => void;
+  readonly onGoHome: () => void;
+}) {
   const [search, setSearch] = React.useState('');
-  const [activeFilter, setActiveFilter] = React.useState('all');
+  const [activeFilter, setActiveFilter] = React.useState(
+    state === 'filtered' ? 'frequent' : 'all',
+  );
 
   return (
     <div className="flex h-full" style={{ backgroundColor: 'var(--background)' }}>
@@ -148,7 +268,13 @@ function DesktopItems() {
             <div className="mb-4">
               <FilterBar active={activeFilter} onChange={setActiveFilter} />
             </div>
-            <ItemsGrid layout="desktop" />
+            <ItemsBody
+              layout="desktop"
+              state={state}
+              errorMessage={errorMessage}
+              onRetry={onRetry}
+              onGoHome={onGoHome}
+            />
           </div>
           <div className="w-80 shrink-0 flex items-center justify-center"
             style={{ backgroundColor: 'var(--surface)', borderLeft: '1px solid var(--border)' }}>
@@ -162,7 +288,30 @@ function DesktopItems() {
   );
 }
 
-export function ItemsShell({ layout }: ItemsShellProps) {
-  if (layout === 'desktop') return <DesktopItems />;
-  return <CompactItems layout={layout} />;
+export function ItemsShell({
+  layout,
+  state = 'default',
+  errorMessage = 'Failed to load items. Please try again.',
+  onRetry = () => {},
+  onGoHome = () => {},
+}: ItemsShellProps) {
+  if (layout === 'desktop') {
+    return (
+      <DesktopItems
+        state={state}
+        errorMessage={errorMessage}
+        onRetry={onRetry}
+        onGoHome={onGoHome}
+      />
+    );
+  }
+  return (
+    <CompactItems
+      layout={layout}
+      state={state}
+      errorMessage={errorMessage}
+      onRetry={onRetry}
+      onGoHome={onGoHome}
+    />
+  );
 }

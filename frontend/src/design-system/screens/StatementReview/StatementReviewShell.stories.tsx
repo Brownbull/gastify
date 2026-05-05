@@ -10,6 +10,22 @@ const meta: Meta<typeof StatementReviewShell> = {
 export default meta;
 type Story = StoryObj<typeof StatementReviewShell>;
 
-export const Mobile: Story = {
+export const MobileDefault: Story = {
+  args: {
+    state: 'default',
+    confirmLabel: 'Confirmar todo',
+    rejectLabel: 'Rechazar seleccion',
+    summaryLabel: '15 transacciones encontradas',
+  },
+  parameters: { viewport: { defaultViewport: 'mobile' } },
+};
+
+export const MobileConfirming: Story = {
+  args: {
+    state: 'confirming',
+    confirmLabel: 'Confirmando...',
+    rejectLabel: 'Rechazar seleccion',
+    summaryLabel: '15 transacciones encontradas',
+  },
   parameters: { viewport: { defaultViewport: 'mobile' } },
 };

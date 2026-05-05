@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Home, Receipt, BarChart3, Settings, Tag } from 'lucide-react';
+import { Home, Receipt, BarChart3, Settings, Tag, TrendingUp } from 'lucide-react';
 import { TimeSelector } from '../../molecules/TimeSelector';
 import { StateTabs } from '../../molecules/StateTabs';
 import { CardStat } from '../../molecules/CardStat';
@@ -8,8 +8,11 @@ import { NavBottom } from '../../molecules/NavBottom';
 import { NavSidebar } from '../../molecules/NavSidebar';
 import { NavTop } from '../../molecules/NavTop';
 import { Progress } from '../../atoms/Progress';
+import { Skeleton } from '../../atoms/Skeleton';
+import { ErrorFallback } from '../../molecules/ErrorFallback';
 
 type AnalyticsLayout = 'mobile' | 'tablet' | 'desktop';
+type AnalyticsState = 'default' | 'loading' | 'empty' | 'error';
 
 interface CategoryRow {
   readonly category: 'supermercado' | 'transporte' | 'restaurante' | 'salud' | 'otro';
@@ -21,6 +24,12 @@ interface CategoryRow {
 
 interface AnalyticsShellProps {
   readonly layout: AnalyticsLayout;
+  readonly state?: AnalyticsState;
+  readonly emptyTitle?: string;
+  readonly emptyMessage?: string;
+  readonly errorMessage?: string;
+  readonly onRetry?: () => void;
+  readonly onGoHome?: () => void;
 }
 
 const PERIODS = [
@@ -75,6 +84,53 @@ function ChartPlaceholder({ className = '' }: { className?: string }) {
   );
 }
 
+function LoadingChart() {
+  return <Skeleton shape="rect" height="200px" />;
+}
+
+function LoadingStats({ columns }: { columns: 1 | 3 }) {
+  return (
+    <div className={columns === 3 ? 'grid grid-cols-3 gap-4' : 'flex gap-3 overflow-x-auto pb-1'}>
+      {[0, 1, 2].map((i) => (
+        <div key={i} className={columns === 1 ? 'min-w-[140px] flex-shrink-0' : ''}>
+          <Skeleton shape="card" height="96px" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function LoadingCategories({ count }: { count: number }) {
+  return (
+    <div className="flex flex-col gap-3">
+      {Array.from({ length: count }, (_, i) => (
+        <Skeleton key={i} shape="list-item" height="48px" />
+      ))}
+    </div>
+  );
+}
+
+function EmptyContent({ title, message }: { title: string; message: string }) {
+  return (
+    <div className="flex flex-col items-center justify-center gap-4 py-12 px-6 text-center">
+      <div
+        className="flex items-center justify-center rounded-full p-4"
+        style={{ backgroundColor: 'var(--surface-elevated, var(--surface))' }}
+      >
+        <TrendingUp size={40} style={{ color: 'var(--text-tertiary)' }} aria-hidden="true" />
+      </div>
+      <div className="flex flex-col gap-1">
+        <h2 className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>
+          {title}
+        </h2>
+        <p className="text-sm max-w-sm" style={{ color: 'var(--text-secondary)' }}>
+          {message}
+        </p>
+      </div>
+    </div>
+  );
+}
+
 function CategoryList({ columns }: { columns: 1 | 2 }) {
   return (
     <div className={columns === 2 ? 'grid grid-cols-2 gap-3' : 'flex flex-col gap-3'}>
@@ -96,7 +152,15 @@ function CategoryList({ columns }: { columns: 1 | 2 }) {
   );
 }
 
-export function AnalyticsShell({ layout }: AnalyticsShellProps) {
+export function AnalyticsShell({
+  layout,
+  state = 'default',
+  emptyTitle = 'Not enough data for analytics',
+  emptyMessage = 'Start scanning receipts or adding transactions to see your spending trends here.',
+  errorMessage = 'We could not load your analytics data. Please try again.',
+  onRetry = () => {},
+  onGoHome = () => {},
+}: AnalyticsShellProps) {
   const [period, setPeriod] = React.useState('mes');
   const [chartTab, setChartTab] = React.useState('barras');
   const [sidebarCollapsed, setSidebarCollapsed] = React.useState(false);
@@ -115,27 +179,50 @@ export function AnalyticsShell({ layout }: AnalyticsShellProps) {
           <NavTop>
             <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>Mayo 2026</span>
           </NavTop>
-          <div className="flex flex-1 gap-6 p-6 overflow-auto">
-            <div className="flex flex-col gap-6 flex-[2] min-w-0">
-              <div className="flex items-center justify-between">
-                <h1 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>Tendencias</h1>
-                <StateTabs tabs={CHART_TABS} activeTab={chartTab} onTabChange={setChartTab} />
-              </div>
-              <ChartPlaceholder className="flex-1" />
-              <div className="grid grid-cols-3 gap-4">
-                {STATS.map((s) => <CardStat key={s.title} {...s} />)}
-              </div>
+          {state === 'error' ? (
+            <div className="flex flex-1 items-center justify-center p-6">
+              <ErrorFallback error={errorMessage} onRetry={onRetry} onGoHome={onGoHome} />
             </div>
-            <aside className="flex flex-col gap-6 w-72 shrink-0">
-              <TimeSelector activePeriod={period} periods={PERIODS} onPeriodChange={setPeriod} />
-              <div>
-                <h2 className="text-sm font-semibold mb-3" style={{ color: 'var(--text-secondary)' }}>
-                  Category breakdown
-                </h2>
-                <CategoryList columns={1} />
+          ) : (
+            <div className="flex flex-1 gap-6 p-6 overflow-auto">
+              <div className="flex flex-col gap-6 flex-[2] min-w-0">
+                <div className="flex items-center justify-between">
+                  <h1 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>Tendencias</h1>
+                  {state !== 'loading' && (
+                    <StateTabs tabs={CHART_TABS} activeTab={chartTab} onTabChange={setChartTab} />
+                  )}
+                </div>
+                {state === 'loading' && (
+                  <>
+                    <LoadingChart />
+                    <LoadingStats columns={3} />
+                  </>
+                )}
+                {state === 'empty' && <EmptyContent title={emptyTitle} message={emptyMessage} />}
+                {state === 'default' && (
+                  <>
+                    <ChartPlaceholder className="flex-1" />
+                    <div className="grid grid-cols-3 gap-4">
+                      {STATS.map((s) => <CardStat key={s.title} {...s} />)}
+                    </div>
+                  </>
+                )}
               </div>
-            </aside>
-          </div>
+              <aside className="flex flex-col gap-6 w-72 shrink-0">
+                <TimeSelector activePeriod={period} periods={PERIODS} onPeriodChange={setPeriod} />
+                <div>
+                  <h2 className="text-sm font-semibold mb-3" style={{ color: 'var(--text-secondary)' }}>
+                    Category breakdown
+                  </h2>
+                  {state === 'loading' ? (
+                    <LoadingCategories count={5} />
+                  ) : state === 'empty' ? null : (
+                    <CategoryList columns={1} />
+                  )}
+                </div>
+              </aside>
+            </div>
+          )}
         </div>
       </div>
     );
@@ -149,18 +236,42 @@ export function AnalyticsShell({ layout }: AnalyticsShellProps) {
           <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>Mayo 2026</span>
         </header>
         <div className="flex-1 overflow-auto p-6 flex flex-col gap-6">
-          <TimeSelector activePeriod={period} periods={PERIODS} onPeriodChange={setPeriod} />
-          <StateTabs tabs={CHART_TABS} activeTab={chartTab} onTabChange={setChartTab} />
-          <ChartPlaceholder />
-          <div className="grid grid-cols-3 gap-4">
-            {STATS.map((s) => <CardStat key={s.title} {...s} />)}
-          </div>
-          <div>
-            <h2 className="text-sm font-semibold mb-3" style={{ color: 'var(--text-secondary)' }}>
-              Category breakdown
-            </h2>
-            <CategoryList columns={2} />
-          </div>
+          {state === 'error' ? (
+            <div className="flex flex-1 items-center justify-center">
+              <ErrorFallback error={errorMessage} onRetry={onRetry} onGoHome={onGoHome} />
+            </div>
+          ) : state === 'loading' ? (
+            <>
+              <Skeleton shape="rect" height="36px" width="280px" />
+              <Skeleton shape="rect" height="36px" width="220px" />
+              <LoadingChart />
+              <LoadingStats columns={3} />
+              <div>
+                <Skeleton shape="text" width="140px" className="mb-3" />
+                <LoadingCategories count={5} />
+              </div>
+            </>
+          ) : state === 'empty' ? (
+            <>
+              <TimeSelector activePeriod={period} periods={PERIODS} onPeriodChange={setPeriod} />
+              <EmptyContent title={emptyTitle} message={emptyMessage} />
+            </>
+          ) : (
+            <>
+              <TimeSelector activePeriod={period} periods={PERIODS} onPeriodChange={setPeriod} />
+              <StateTabs tabs={CHART_TABS} activeTab={chartTab} onTabChange={setChartTab} />
+              <ChartPlaceholder />
+              <div className="grid grid-cols-3 gap-4">
+                {STATS.map((s) => <CardStat key={s.title} {...s} />)}
+              </div>
+              <div>
+                <h2 className="text-sm font-semibold mb-3" style={{ color: 'var(--text-secondary)' }}>
+                  Category breakdown
+                </h2>
+                <CategoryList columns={2} />
+              </div>
+            </>
+          )}
         </div>
         <NavBottom items={NAV_ITEMS} activeItem="analytics" onItemChange={() => {}} />
       </div>
@@ -175,22 +286,46 @@ export function AnalyticsShell({ layout }: AnalyticsShellProps) {
         <span className="text-xs" style={{ color: 'var(--text-secondary)' }}>Mayo 2026</span>
       </header>
       <div className="flex-1 overflow-auto px-4 py-4 flex flex-col gap-4">
-        <TimeSelector activePeriod={period} periods={PERIODS} onPeriodChange={setPeriod} />
-        <StateTabs tabs={CHART_TABS} activeTab={chartTab} onTabChange={setChartTab} />
-        <ChartPlaceholder />
-        <div className="flex gap-3 overflow-x-auto pb-1" style={{ scrollSnapType: 'x mandatory' }}>
-          {STATS.map((s) => (
-            <div key={s.title} className="min-w-[140px] flex-shrink-0" style={{ scrollSnapAlign: 'start' }}>
-              <CardStat {...s} />
+        {state === 'error' ? (
+          <div className="flex flex-1 items-center justify-center">
+            <ErrorFallback error={errorMessage} onRetry={onRetry} onGoHome={onGoHome} />
+          </div>
+        ) : state === 'loading' ? (
+          <>
+            <Skeleton shape="rect" height="36px" width="100%" />
+            <Skeleton shape="rect" height="36px" width="200px" />
+            <LoadingChart />
+            <LoadingStats columns={1} />
+            <div>
+              <Skeleton shape="text" width="140px" className="mb-3" />
+              <LoadingCategories count={5} />
             </div>
-          ))}
-        </div>
-        <div>
-          <h2 className="text-sm font-semibold mb-3" style={{ color: 'var(--text-secondary)' }}>
-            Category breakdown
-          </h2>
-          <CategoryList columns={1} />
-        </div>
+          </>
+        ) : state === 'empty' ? (
+          <>
+            <TimeSelector activePeriod={period} periods={PERIODS} onPeriodChange={setPeriod} />
+            <EmptyContent title={emptyTitle} message={emptyMessage} />
+          </>
+        ) : (
+          <>
+            <TimeSelector activePeriod={period} periods={PERIODS} onPeriodChange={setPeriod} />
+            <StateTabs tabs={CHART_TABS} activeTab={chartTab} onTabChange={setChartTab} />
+            <ChartPlaceholder />
+            <div className="flex gap-3 overflow-x-auto pb-1" style={{ scrollSnapType: 'x mandatory' }}>
+              {STATS.map((s) => (
+                <div key={s.title} className="min-w-[140px] flex-shrink-0" style={{ scrollSnapAlign: 'start' }}>
+                  <CardStat {...s} />
+                </div>
+              ))}
+            </div>
+            <div>
+              <h2 className="text-sm font-semibold mb-3" style={{ color: 'var(--text-secondary)' }}>
+                Category breakdown
+              </h2>
+              <CategoryList columns={1} />
+            </div>
+          </>
+        )}
       </div>
       <NavBottom items={NAV_ITEMS} activeItem="analytics" onItemChange={() => {}} />
     </div>
