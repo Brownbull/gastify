@@ -105,11 +105,10 @@ import type { BatchReviewHandlersProps } from '@features/batch-review';
 import { createBatchReceiptsFromResults } from './hooks/useBatchReview';
 // Story 14e-21: FeatureOrchestrator - centralized feature composition
 import { FeatureOrchestrator } from '@app/FeatureOrchestrator';
-// Story 14e-41: reconcileItemsTotal moved to entity (single source of truth)
 import { reconcileItemsTotal } from '@entities/transaction';
-// Story 16-6: Workflow store for fields moved out of scan store
 import { useWorkflowState, getWorkflowState } from '@shared/stores';
 import type { ScanState } from '@shared/types/scanWorkflow';
+import { useRouterSync } from './hooks/useRouterSync';
 
 function App() {
     // Story 15b-4f: All hook initialization composed into useAppDataHooks
@@ -1177,6 +1176,9 @@ function App() {
     // ==========================================================================
 
     const activeTransactions = transactions;
+
+    // Bridge: keep URL in sync with Zustand view state
+    useRouterSync();
 
     // ==========================================================================
     // View Props Composition (views own data via internal hooks)

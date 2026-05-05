@@ -22,6 +22,7 @@ import { useShallow } from 'zustand/react/shallow';
 import type { View } from '@app/types';
 import type { HistoryFilterState } from '@/types/historyFilters';
 import type { AnalyticsNavigationState } from '@/types/analytics';
+import { pathToView } from '@/lib/routeMapping';
 
 // =============================================================================
 // Types
@@ -144,8 +145,13 @@ export interface NavigationActions {
 // Initial State
 // =============================================================================
 
+function getInitialView(): View {
+    if (typeof window === 'undefined') return 'dashboard';
+    return pathToView(window.location.pathname) ?? 'dashboard';
+}
+
 const initialNavigationState: NavigationState = {
-    view: 'dashboard',
+    view: getInitialView(),
     previousView: 'dashboard',
     settingsSubview: 'main',
     scrollPositions: {},
