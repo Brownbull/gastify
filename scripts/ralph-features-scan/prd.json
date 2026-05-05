@@ -1,20 +1,20 @@
 {
   "project": "gastify",
   "branchName": "rebuild/fe-scan-batch-01",
-  "description": "Scan + Batch gravity well — screen-shells + screen-states (Tier 3 + Tier 4)",
+  "description": "Scan + Batch gravity well \u2014 screen-shells + screen-states (Tier 3 + Tier 4)",
   "userStories": [
     {
       "id": "SCAN-001",
-      "title": "Scan mode selector shell — mobile",
-      "description": "Scan mode selection screen at 390×844 with three mode cards: single scan, batch capture, statement upload.",
+      "title": "Scan mode selector shell \u2014 mobile",
+      "description": "Scan mode selection screen at 390\u00d7844 with three mode cards: single scan, batch capture, statement upload.",
       "acceptanceCriteria": [
-        "Layout matches mockup at 390×844",
+        "Layout matches mockup at 390\u00d7844",
         "Three mode cards render (single/batch/statement)",
         "Credit balance indicator visible",
         "axe passes"
       ],
       "priority": 1,
-      "passes": true,
+      "passes": false,
       "notes": "",
       "tier": "screen-shell",
       "source": "clean-slate",
@@ -36,7 +36,7 @@
     },
     {
       "id": "SCAN-002",
-      "title": "Scan mode selector shell — tablet/desktop",
+      "title": "Scan mode selector shell \u2014 tablet/desktop",
       "description": "Scan mode selector at wider viewports with horizontal card layout.",
       "acceptanceCriteria": [
         "Cards in horizontal layout",
@@ -44,7 +44,7 @@
         "axe passes"
       ],
       "priority": 2,
-      "passes": true,
+      "passes": false,
       "notes": "",
       "tier": "screen-shell",
       "source": "clean-slate",
@@ -69,8 +69,8 @@
     },
     {
       "id": "SCAN-003",
-      "title": "Single scan — idle state — mobile",
-      "description": "Single scan screen at 390×844: camera viewfinder, capture button, credit balance.",
+      "title": "Single scan \u2014 idle state \u2014 mobile",
+      "description": "Single scan screen at 390\u00d7844: camera viewfinder, capture button, credit balance.",
       "acceptanceCriteria": [
         "Camera viewfinder area renders",
         "Capture button prominent",
@@ -78,7 +78,7 @@
         "axe passes"
       ],
       "priority": 3,
-      "passes": true,
+      "passes": false,
       "notes": "",
       "tier": "screen-shell",
       "source": "clean-slate",
@@ -100,7 +100,7 @@
     },
     {
       "id": "SCAN-004",
-      "title": "Single scan — idle state — desktop",
+      "title": "Single scan \u2014 idle state \u2014 desktop",
       "description": "Single scan idle at desktop with upload dropzone instead of camera.",
       "acceptanceCriteria": [
         "Upload dropzone renders",
@@ -109,7 +109,7 @@
         "axe passes"
       ],
       "priority": 4,
-      "passes": true,
+      "passes": false,
       "notes": "",
       "tier": "screen-shell",
       "source": "clean-slate",
@@ -133,7 +133,7 @@
     },
     {
       "id": "SCAN-005",
-      "title": "Single scan — capturing — mobile",
+      "title": "Single scan \u2014 capturing \u2014 mobile",
       "description": "Scan in progress: shutter animation, image preview, 'Processing...' indicator.",
       "acceptanceCriteria": [
         "Image preview shown",
@@ -142,7 +142,7 @@
         "play() asserts processing state"
       ],
       "priority": 5,
-      "passes": true,
+      "passes": false,
       "notes": "",
       "tier": "screen-state",
       "source": "clean-slate",
@@ -166,8 +166,8 @@
     },
     {
       "id": "SCAN-006",
-      "title": "Single scan — processing (SSE stream) — mobile",
-      "description": "Scan SSE stream active: progress steps (uploading → analyzing → extracting) with animated indicators.",
+      "title": "Single scan \u2014 processing (SSE stream) \u2014 mobile",
+      "description": "Scan SSE stream active: progress steps (uploading \u2192 analyzing \u2192 extracting) with animated indicators.",
       "acceptanceCriteria": [
         "Progress steps render sequentially",
         "Current step highlighted",
@@ -175,7 +175,7 @@
         "play() asserts step progression"
       ],
       "priority": 6,
-      "passes": true,
+      "passes": false,
       "notes": "Mocks SSE event stream via hooks/ui boundary.",
       "tier": "screen-state",
       "source": "clean-slate",
@@ -199,14 +199,14 @@
     },
     {
       "id": "SCAN-007",
-      "title": "Single scan — processing (SSE stream) — desktop",
+      "title": "Single scan \u2014 processing (SSE stream) \u2014 desktop",
       "description": "Scan processing at desktop viewport.",
       "acceptanceCriteria": [
         "Progress steps in centered layout",
         "play() asserts step progression"
       ],
       "priority": 7,
-      "passes": true,
+      "passes": false,
       "notes": "",
       "tier": "screen-state",
       "source": "clean-slate",
@@ -230,7 +230,7 @@
     },
     {
       "id": "SCAN-008",
-      "title": "Single scan — extracting — mobile",
+      "title": "Single scan \u2014 extracting \u2014 mobile",
       "description": "Scan extraction phase: extracted fields appearing one by one (merchant, total, items, date).",
       "acceptanceCriteria": [
         "Extracted fields animate in",
@@ -239,7 +239,7 @@
         "play() asserts field appearance"
       ],
       "priority": 8,
-      "passes": true,
+      "passes": false,
       "notes": "",
       "tier": "screen-state",
       "source": "clean-slate",
@@ -263,7 +263,7 @@
     },
     {
       "id": "SCAN-009",
-      "title": "Single scan — review — mobile",
+      "title": "Single scan \u2014 review \u2014 mobile",
       "description": "Scan review screen: extracted data editable, confirm/discard actions, item list with edit capability.",
       "acceptanceCriteria": [
         "All extracted fields editable",
@@ -273,7 +273,7 @@
         "play() asserts edit + confirm"
       ],
       "priority": 9,
-      "passes": true,
+      "passes": false,
       "notes": "",
       "tier": "screen-state",
       "source": "clean-slate",
@@ -298,7 +298,7 @@
     },
     {
       "id": "SCAN-010",
-      "title": "Single scan — review — desktop",
+      "title": "Single scan \u2014 review \u2014 desktop",
       "description": "Scan review at desktop with side-by-side image + form layout.",
       "acceptanceCriteria": [
         "Receipt image on left, form on right",
@@ -306,7 +306,7 @@
         "play() asserts edit + confirm"
       ],
       "priority": 10,
-      "passes": true,
+      "passes": false,
       "notes": "",
       "tier": "screen-state",
       "source": "clean-slate",
@@ -331,7 +331,7 @@
     },
     {
       "id": "SCAN-011",
-      "title": "Single scan — confirmed — mobile",
+      "title": "Single scan \u2014 confirmed \u2014 mobile",
       "description": "Scan confirmed: success animation, QuickSave card preview, 'scan another' + 'go to dashboard' actions.",
       "acceptanceCriteria": [
         "Success animation renders",
@@ -340,7 +340,7 @@
         "play() asserts actions"
       ],
       "priority": 11,
-      "passes": true,
+      "passes": false,
       "notes": "",
       "tier": "screen-state",
       "source": "clean-slate",
@@ -362,7 +362,7 @@
     },
     {
       "id": "SCAN-012",
-      "title": "Single scan — error — mobile",
+      "title": "Single scan \u2014 error \u2014 mobile",
       "description": "Scan error state: error message, retry button, option to enter manually.",
       "acceptanceCriteria": [
         "Error message explains failure",
@@ -371,7 +371,7 @@
         "play() asserts retry + manual link"
       ],
       "priority": 12,
-      "passes": true,
+      "passes": false,
       "notes": "",
       "tier": "screen-state",
       "source": "clean-slate",
@@ -393,14 +393,14 @@
     },
     {
       "id": "SCAN-013",
-      "title": "Single scan — error — desktop",
+      "title": "Single scan \u2014 error \u2014 desktop",
       "description": "Scan error at desktop.",
       "acceptanceCriteria": [
         "Error in centered layout",
         "play() asserts retry"
       ],
       "priority": 13,
-      "passes": true,
+      "passes": false,
       "notes": "",
       "tier": "screen-state",
       "source": "new",
@@ -422,7 +422,7 @@
     },
     {
       "id": "SCAN-014",
-      "title": "Single scan — credit insufficient — mobile",
+      "title": "Single scan \u2014 credit insufficient \u2014 mobile",
       "description": "Scan blocked: insufficient credits, credit purchase CTA, remaining balance shown.",
       "acceptanceCriteria": [
         "Insufficient credit message renders",
@@ -431,7 +431,7 @@
         "play() asserts CTA"
       ],
       "priority": 14,
-      "passes": true,
+      "passes": false,
       "notes": "",
       "tier": "screen-state",
       "source": "new",
@@ -455,14 +455,14 @@
     },
     {
       "id": "SCAN-015",
-      "title": "Single scan — credit insufficient — tablet/desktop",
+      "title": "Single scan \u2014 credit insufficient \u2014 tablet/desktop",
       "description": "Scan credit insufficient at wider viewports.",
       "acceptanceCriteria": [
         "Credit message centered",
         "play() asserts CTA"
       ],
       "priority": 15,
-      "passes": true,
+      "passes": false,
       "notes": "",
       "tier": "screen-state",
       "source": "new",
@@ -487,8 +487,8 @@
     },
     {
       "id": "SCAN-016",
-      "title": "Manual entry shell — mobile",
-      "description": "Manual transaction entry form at 390×844: merchant, amount, date, category, items.",
+      "title": "Manual entry shell \u2014 mobile",
+      "description": "Manual transaction entry form at 390\u00d7844: merchant, amount, date, category, items.",
       "acceptanceCriteria": [
         "Form renders with all required fields",
         "Amount input uses CLP formatting",
@@ -496,7 +496,7 @@
         "axe passes"
       ],
       "priority": 16,
-      "passes": true,
+      "passes": false,
       "notes": "",
       "tier": "screen-shell",
       "source": "clean-slate",
@@ -518,7 +518,7 @@
     },
     {
       "id": "SCAN-017",
-      "title": "Manual entry — filled state — mobile",
+      "title": "Manual entry \u2014 filled state \u2014 mobile",
       "description": "Manual entry with all fields filled, validation passing, save button active.",
       "acceptanceCriteria": [
         "All fields populated",
@@ -527,7 +527,7 @@
         "play() asserts fill + save"
       ],
       "priority": 17,
-      "passes": true,
+      "passes": false,
       "notes": "",
       "tier": "screen-state",
       "source": "clean-slate",
@@ -551,7 +551,7 @@
     },
     {
       "id": "SCAN-018",
-      "title": "Manual entry — validation error — mobile",
+      "title": "Manual entry \u2014 validation error \u2014 mobile",
       "description": "Manual entry with validation errors: missing required fields, invalid amount.",
       "acceptanceCriteria": [
         "Error messages on invalid fields",
@@ -559,7 +559,7 @@
         "play() asserts validation"
       ],
       "priority": 18,
-      "passes": true,
+      "passes": false,
       "notes": "",
       "tier": "screen-state",
       "source": "new",
@@ -581,8 +581,8 @@
     },
     {
       "id": "SCAN-019",
-      "title": "Transaction editor shell — mobile",
-      "description": "Transaction editor at 390×844 for editing existing transactions: all fields editable, delete action.",
+      "title": "Transaction editor shell \u2014 mobile",
+      "description": "Transaction editor at 390\u00d7844 for editing existing transactions: all fields editable, delete action.",
       "acceptanceCriteria": [
         "All transaction fields editable",
         "Delete button with confirmation",
@@ -590,7 +590,7 @@
         "axe passes"
       ],
       "priority": 19,
-      "passes": true,
+      "passes": false,
       "notes": "",
       "tier": "screen-shell",
       "source": "clean-slate",
@@ -614,7 +614,7 @@
     },
     {
       "id": "SCAN-020",
-      "title": "Transaction editor shell — desktop",
+      "title": "Transaction editor shell \u2014 desktop",
       "description": "Transaction editor at desktop with side-by-side receipt image + form.",
       "acceptanceCriteria": [
         "Receipt image panel on left",
@@ -623,7 +623,7 @@
         "axe passes"
       ],
       "priority": 20,
-      "passes": true,
+      "passes": false,
       "notes": "",
       "tier": "screen-shell",
       "source": "clean-slate",
@@ -649,7 +649,7 @@
     },
     {
       "id": "SCAN-021",
-      "title": "Transaction editor — edit mode — mobile",
+      "title": "Transaction editor \u2014 edit mode \u2014 mobile",
       "description": "Transaction editor with data loaded, fields editable, dirty state tracking.",
       "acceptanceCriteria": [
         "Fields populated from transaction data",
@@ -658,7 +658,7 @@
         "play() asserts edit + dirty state"
       ],
       "priority": 21,
-      "passes": true,
+      "passes": false,
       "notes": "",
       "tier": "screen-state",
       "source": "clean-slate",
@@ -683,7 +683,7 @@
     },
     {
       "id": "SCAN-022",
-      "title": "Transaction editor — view mode — mobile",
+      "title": "Transaction editor \u2014 view mode \u2014 mobile",
       "description": "Transaction editor in read-only view mode: all fields disabled, edit button to switch.",
       "acceptanceCriteria": [
         "Fields rendered read-only",
@@ -691,7 +691,7 @@
         "play() asserts read-only + edit switch"
       ],
       "priority": 22,
-      "passes": true,
+      "passes": false,
       "notes": "",
       "tier": "screen-state",
       "source": "new",
@@ -715,7 +715,7 @@
     },
     {
       "id": "SCAN-023",
-      "title": "Transaction editor — delete confirmation — mobile",
+      "title": "Transaction editor \u2014 delete confirmation \u2014 mobile",
       "description": "Transaction editor showing delete confirmation dialog.",
       "acceptanceCriteria": [
         "Confirmation dialog renders",
@@ -724,7 +724,7 @@
         "play() asserts confirm + cancel"
       ],
       "priority": 23,
-      "passes": true,
+      "passes": false,
       "notes": "",
       "tier": "screen-state",
       "source": "new",
@@ -748,7 +748,7 @@
     },
     {
       "id": "SCAN-024",
-      "title": "Transaction editor — learning prompt — mobile",
+      "title": "Transaction editor \u2014 learning prompt \u2014 mobile",
       "description": "Transaction editor showing learning prompt: 'Always categorize [merchant] as [category]?'",
       "acceptanceCriteria": [
         "Learning prompt banner renders",
@@ -757,7 +757,7 @@
         "play() asserts accept + dismiss"
       ],
       "priority": 24,
-      "passes": true,
+      "passes": false,
       "notes": "",
       "tier": "screen-state",
       "source": "clean-slate",
@@ -781,8 +781,8 @@
     },
     {
       "id": "SCAN-025",
-      "title": "Batch capture shell — mobile",
-      "description": "Batch capture screen at 390×844: multi-receipt camera, thumbnail strip, capture counter.",
+      "title": "Batch capture shell \u2014 mobile",
+      "description": "Batch capture screen at 390\u00d7844: multi-receipt camera, thumbnail strip, capture counter.",
       "acceptanceCriteria": [
         "Camera viewfinder renders",
         "Thumbnail strip at bottom",
@@ -791,8 +791,8 @@
         "axe passes"
       ],
       "priority": 25,
-      "passes": true,
-      "notes": "Mobile-primary — no desktop equivalent (uses upload dropzone instead).",
+      "passes": false,
+      "notes": "Mobile-primary \u2014 no desktop equivalent (uses upload dropzone instead).",
       "tier": "screen-shell",
       "source": "clean-slate",
       "platform": [
@@ -813,7 +813,7 @@
     },
     {
       "id": "SCAN-026",
-      "title": "Batch capture — empty — mobile",
+      "title": "Batch capture \u2014 empty \u2014 mobile",
       "description": "Batch capture with no receipts yet: prompt to start capturing.",
       "acceptanceCriteria": [
         "Empty prompt renders",
@@ -821,7 +821,7 @@
         "play() asserts prompt"
       ],
       "priority": 26,
-      "passes": true,
+      "passes": false,
       "notes": "",
       "tier": "screen-state",
       "source": "clean-slate",
@@ -843,7 +843,7 @@
     },
     {
       "id": "SCAN-027",
-      "title": "Batch capture — multi-receipt — mobile",
+      "title": "Batch capture \u2014 multi-receipt \u2014 mobile",
       "description": "Batch capture with 3+ receipts captured: thumbnail strip populated, counter shows count.",
       "acceptanceCriteria": [
         "Thumbnails show captured images",
@@ -852,7 +852,7 @@
         "play() asserts add + remove"
       ],
       "priority": 27,
-      "passes": true,
+      "passes": false,
       "notes": "",
       "tier": "screen-state",
       "source": "clean-slate",
@@ -874,8 +874,8 @@
     },
     {
       "id": "SCAN-028",
-      "title": "Batch review shell — mobile",
-      "description": "Batch review screen at 390×844: list of extracted transactions from batch, per-item edit/confirm.",
+      "title": "Batch review shell \u2014 mobile",
+      "description": "Batch review screen at 390\u00d7844: list of extracted transactions from batch, per-item edit/confirm.",
       "acceptanceCriteria": [
         "Transaction list from batch renders",
         "Each item has edit/confirm actions",
@@ -883,7 +883,7 @@
         "axe passes"
       ],
       "priority": 28,
-      "passes": true,
+      "passes": false,
       "notes": "",
       "tier": "screen-shell",
       "source": "clean-slate",
@@ -905,7 +905,7 @@
     },
     {
       "id": "SCAN-029",
-      "title": "Batch review — pending — mobile",
+      "title": "Batch review \u2014 pending \u2014 mobile",
       "description": "Batch review with all items pending review: none confirmed yet.",
       "acceptanceCriteria": [
         "All items show pending status",
@@ -913,7 +913,7 @@
         "play() asserts pending state"
       ],
       "priority": 29,
-      "passes": true,
+      "passes": false,
       "notes": "",
       "tier": "screen-state",
       "source": "clean-slate",
@@ -937,7 +937,7 @@
     },
     {
       "id": "SCAN-030",
-      "title": "Batch review — partial — mobile",
+      "title": "Batch review \u2014 partial \u2014 mobile",
       "description": "Batch review with some items confirmed, some pending: mixed state.",
       "acceptanceCriteria": [
         "Confirmed items show checkmark",
@@ -946,7 +946,7 @@
         "play() asserts confirm individual"
       ],
       "priority": 30,
-      "passes": true,
+      "passes": false,
       "notes": "",
       "tier": "screen-state",
       "source": "new",
@@ -971,7 +971,7 @@
     },
     {
       "id": "SCAN-031",
-      "title": "Batch review — complete — mobile",
+      "title": "Batch review \u2014 complete \u2014 mobile",
       "description": "Batch review with all items confirmed: success state, navigate away.",
       "acceptanceCriteria": [
         "All items show confirmed",
@@ -980,7 +980,7 @@
         "play() asserts completion"
       ],
       "priority": 31,
-      "passes": true,
+      "passes": false,
       "notes": "",
       "tier": "screen-state",
       "source": "new",
@@ -1004,8 +1004,8 @@
     },
     {
       "id": "SCAN-032",
-      "title": "Statement upload shell — mobile",
-      "description": "Statement upload screen at 390×844: file picker, bank selector, date range, upload button.",
+      "title": "Statement upload shell \u2014 mobile",
+      "description": "Statement upload screen at 390\u00d7844: file picker, bank selector, date range, upload button.",
       "acceptanceCriteria": [
         "File picker renders",
         "Bank selector dropdown",
@@ -1014,7 +1014,7 @@
         "axe passes"
       ],
       "priority": 32,
-      "passes": true,
+      "passes": false,
       "notes": "",
       "tier": "screen-shell",
       "source": "clean-slate",
@@ -1036,8 +1036,8 @@
     },
     {
       "id": "SCAN-033",
-      "title": "Statement upload — processing — mobile",
-      "description": "Statement being processed: progress bar, step indicators (parsing → matching → categorizing).",
+      "title": "Statement upload \u2014 processing \u2014 mobile",
+      "description": "Statement being processed: progress bar, step indicators (parsing \u2192 matching \u2192 categorizing).",
       "acceptanceCriteria": [
         "Progress bar renders",
         "Step indicators show current step",
@@ -1045,7 +1045,7 @@
         "play() asserts step progression"
       ],
       "priority": 33,
-      "passes": true,
+      "passes": false,
       "notes": "",
       "tier": "screen-state",
       "source": "new",
@@ -1069,8 +1069,8 @@
     },
     {
       "id": "SCAN-034",
-      "title": "Statement review shell — mobile",
-      "description": "Statement review at 390×844: list of parsed transactions from statement, match indicators, bulk actions.",
+      "title": "Statement review shell \u2014 mobile",
+      "description": "Statement review at 390\u00d7844: list of parsed transactions from statement, match indicators, bulk actions.",
       "acceptanceCriteria": [
         "Transaction list renders from statement",
         "Match indicators (new/duplicate/partial)",
@@ -1078,7 +1078,7 @@
         "axe passes"
       ],
       "priority": 34,
-      "passes": true,
+      "passes": false,
       "notes": "",
       "tier": "screen-shell",
       "source": "clean-slate",
@@ -1100,7 +1100,7 @@
     },
     {
       "id": "SCAN-035",
-      "title": "Statement review — results — mobile",
+      "title": "Statement review \u2014 results \u2014 mobile",
       "description": "Statement review with parsed results: new + duplicate + partial match items.",
       "acceptanceCriteria": [
         "New items marked for import",
@@ -1109,7 +1109,7 @@
         "play() asserts categorization"
       ],
       "priority": 35,
-      "passes": true,
+      "passes": false,
       "notes": "",
       "tier": "screen-state",
       "source": "clean-slate",
@@ -1134,7 +1134,7 @@
     },
     {
       "id": "SCAN-036",
-      "title": "Statement review — merge preview — mobile",
+      "title": "Statement review \u2014 merge preview \u2014 mobile",
       "description": "Statement review merge preview: side-by-side comparison of statement row vs existing transaction.",
       "acceptanceCriteria": [
         "Side-by-side comparison renders",
@@ -1143,7 +1143,7 @@
         "play() asserts merge action"
       ],
       "priority": 36,
-      "passes": true,
+      "passes": false,
       "notes": "",
       "tier": "screen-state",
       "source": "new",
@@ -1167,8 +1167,8 @@
     },
     {
       "id": "SCAN-037",
-      "title": "Recent scans shell — mobile",
-      "description": "Recent scans list at 390×844: chronological scan history with status indicators.",
+      "title": "Recent scans shell \u2014 mobile",
+      "description": "Recent scans list at 390\u00d7844: chronological scan history with status indicators.",
       "acceptanceCriteria": [
         "Scan list renders chronologically",
         "Status indicators (success/error/pending)",
@@ -1176,7 +1176,7 @@
         "axe passes"
       ],
       "priority": 37,
-      "passes": true,
+      "passes": false,
       "notes": "",
       "tier": "screen-shell",
       "source": "new",
@@ -1198,7 +1198,7 @@
     },
     {
       "id": "SCAN-038",
-      "title": "Recent scans — default state — mobile",
+      "title": "Recent scans \u2014 default state \u2014 mobile",
       "description": "Recent scans with populated scan history.",
       "acceptanceCriteria": [
         "Scan cards show image thumbnail + merchant + amount + status",
@@ -1206,7 +1206,7 @@
         "play() asserts card content"
       ],
       "priority": 38,
-      "passes": true,
+      "passes": false,
       "notes": "",
       "tier": "screen-state",
       "source": "new",
@@ -1230,14 +1230,14 @@
     },
     {
       "id": "SCAN-039",
-      "title": "Recent scans — default state — tablet/desktop",
+      "title": "Recent scans \u2014 default state \u2014 tablet/desktop",
       "description": "Recent scans at wider viewports.",
       "acceptanceCriteria": [
         "Grid layout for scan cards",
         "play() asserts content"
       ],
       "priority": 39,
-      "passes": true,
+      "passes": false,
       "notes": "",
       "tier": "screen-state",
       "source": "new",
@@ -1262,7 +1262,7 @@
     },
     {
       "id": "SCAN-040",
-      "title": "Recent scans — empty — mobile",
+      "title": "Recent scans \u2014 empty \u2014 mobile",
       "description": "Recent scans with no scan history.",
       "acceptanceCriteria": [
         "Empty illustration",
@@ -1270,7 +1270,7 @@
         "play() asserts CTA"
       ],
       "priority": 40,
-      "passes": true,
+      "passes": false,
       "notes": "",
       "tier": "screen-state",
       "source": "new",
@@ -1294,7 +1294,7 @@
     },
     {
       "id": "SCAN-041",
-      "title": "QuickSave card — save flow — mobile",
+      "title": "QuickSave card \u2014 save flow \u2014 mobile",
       "description": "QuickSave card after scan: one-tap save with default category, or edit before save.",
       "acceptanceCriteria": [
         "QuickSave card renders with scan data",
@@ -1303,7 +1303,7 @@
         "play() asserts save + edit paths"
       ],
       "priority": 41,
-      "passes": true,
+      "passes": false,
       "notes": "",
       "tier": "screen-state",
       "source": "clean-slate",
@@ -1325,14 +1325,14 @@
     },
     {
       "id": "SCAN-042",
-      "title": "QuickSave card — save flow — tablet/desktop",
+      "title": "QuickSave card \u2014 save flow \u2014 tablet/desktop",
       "description": "QuickSave card at wider viewports.",
       "acceptanceCriteria": [
         "QuickSave adapts to wider layout",
         "play() asserts save + edit paths"
       ],
       "priority": 42,
-      "passes": true,
+      "passes": false,
       "notes": "",
       "tier": "screen-state",
       "source": "clean-slate",
@@ -1357,16 +1357,16 @@
     },
     {
       "id": "SCAN-043",
-      "title": "Scan → review → confirm → dashboard flow",
-      "description": "Full scan flow: capture → SSE processing → review → confirm → QuickSave on dashboard.",
+      "title": "Scan \u2192 review \u2192 confirm \u2192 dashboard flow",
+      "description": "Full scan flow: capture \u2192 SSE processing \u2192 review \u2192 confirm \u2192 QuickSave on dashboard.",
       "acceptanceCriteria": [
         "Full flow navigates through all scan states",
         "Confirmed transaction appears on dashboard",
         "Credit balance decremented"
       ],
       "priority": 43,
-      "passes": true,
-      "notes": "Cross-feature flow — requires scan + dashboard screens.",
+      "passes": false,
+      "notes": "Cross-feature flow \u2014 requires scan + dashboard screens.",
       "tier": "screen-state",
       "source": "clean-slate",
       "platform": [
@@ -1391,15 +1391,15 @@
     },
     {
       "id": "SCAN-044",
-      "title": "Scan → error → retry → success flow",
-      "description": "Error recovery flow: scan fails → retry → succeeds.",
+      "title": "Scan \u2192 error \u2192 retry \u2192 success flow",
+      "description": "Error recovery flow: scan fails \u2192 retry \u2192 succeeds.",
       "acceptanceCriteria": [
         "Error state shown",
         "Retry triggers new scan",
         "Success state reached"
       ],
       "priority": 44,
-      "passes": true,
+      "passes": false,
       "notes": "Cross-state flow within scan feature.",
       "tier": "screen-state",
       "source": "new",
@@ -1424,15 +1424,15 @@
     },
     {
       "id": "SCAN-045",
-      "title": "Batch capture → batch review → confirm all flow",
-      "description": "Full batch flow: capture 3 receipts → review all → confirm all → navigate to history.",
+      "title": "Batch capture \u2192 batch review \u2192 confirm all flow",
+      "description": "Full batch flow: capture 3 receipts \u2192 review all \u2192 confirm all \u2192 navigate to history.",
       "acceptanceCriteria": [
         "Batch capture completes with 3 receipts",
         "Review shows all 3",
         "Confirm all saves + navigates"
       ],
       "priority": 45,
-      "passes": true,
+      "passes": false,
       "notes": "Cross-screen flow within scan/batch features.",
       "tier": "screen-state",
       "source": "clean-slate",
@@ -1458,8 +1458,8 @@
     },
     {
       "id": "SCAN-046",
-      "title": "Statement upload → review → selective import flow",
-      "description": "Full statement flow: upload → process → review → selectively import new items, skip duplicates.",
+      "title": "Statement upload \u2192 review \u2192 selective import flow",
+      "description": "Full statement flow: upload \u2192 process \u2192 review \u2192 selectively import new items, skip duplicates.",
       "acceptanceCriteria": [
         "Upload completes",
         "Review categorizes items",
@@ -1467,7 +1467,7 @@
         "Duplicates skipped"
       ],
       "priority": 46,
-      "passes": true,
+      "passes": false,
       "notes": "Cross-screen flow within scan/statement features.",
       "tier": "screen-state",
       "source": "clean-slate",
@@ -1492,16 +1492,16 @@
     },
     {
       "id": "SCAN-047",
-      "title": "Transaction editor — learning → trust flow",
-      "description": "Learning flow: edit category → learning prompt appears → accept → future scans auto-categorize.",
+      "title": "Transaction editor \u2014 learning \u2192 trust flow",
+      "description": "Learning flow: edit category \u2192 learning prompt appears \u2192 accept \u2192 future scans auto-categorize.",
       "acceptanceCriteria": [
         "Category change triggers learning prompt",
         "Accept saves card alias",
         "Confirmation shown"
       ],
       "priority": 47,
-      "passes": true,
-      "notes": "Cross-feature flow — requires transaction editor + settings data.",
+      "passes": false,
+      "notes": "Cross-feature flow \u2014 requires transaction editor + settings data.",
       "tier": "screen-state",
       "source": "clean-slate",
       "platform": [
@@ -1525,7 +1525,7 @@
     },
     {
       "id": "SCAN-048",
-      "title": "Credit depletion warning — mobile",
+      "title": "Credit depletion warning \u2014 mobile",
       "description": "Credit warning modal when balance drops below threshold during scan.",
       "acceptanceCriteria": [
         "Warning modal renders",
@@ -1534,7 +1534,7 @@
         "play() asserts actions"
       ],
       "priority": 48,
-      "passes": true,
+      "passes": false,
       "notes": "",
       "tier": "screen-state",
       "source": "new",

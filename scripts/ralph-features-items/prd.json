@@ -1,14 +1,14 @@
 {
   "project": "gastify",
   "branchName": "rebuild/fe-items-batch-01",
-  "description": "Items gravity well — screen-shells + screen-states (Tier 3 + Tier 4)",
+  "description": "Items gravity well \u2014 screen-shells + screen-states (Tier 3 + Tier 4)",
   "userStories": [
     {
       "id": "ITEM-001",
-      "title": "Items shell — mobile",
-      "description": "Items list layout at 390×844 with aggregated item cards, filter bar, view toggle (list/grid).",
+      "title": "Items shell \u2014 mobile",
+      "description": "Items list layout at 390\u00d7844 with aggregated item cards, filter bar, view toggle (list/grid).",
       "acceptanceCriteria": [
-        "Layout matches mockup at 390×844",
+        "Layout matches mockup at 390\u00d7844",
         "Filter bar renders",
         "View toggle works",
         "axe passes"
@@ -36,8 +36,8 @@
     },
     {
       "id": "ITEM-002",
-      "title": "Items shell — tablet",
-      "description": "Items layout at 768×1024 with two-column grid, wider filter bar.",
+      "title": "Items shell \u2014 tablet",
+      "description": "Items layout at 768\u00d71024 with two-column grid, wider filter bar.",
       "acceptanceCriteria": [
         "Two-column grid layout",
         "Filter bar adapts",
@@ -68,8 +68,8 @@
     },
     {
       "id": "ITEM-003",
-      "title": "Items shell — desktop",
-      "description": "Items layout at 1440×900 with sidebar nav, three-column grid, item detail panel.",
+      "title": "Items shell \u2014 desktop",
+      "description": "Items layout at 1440\u00d7900 with sidebar nav, three-column grid, item detail panel.",
       "acceptanceCriteria": [
         "Sidebar navigation renders",
         "Three-column grid",
@@ -101,7 +101,7 @@
     },
     {
       "id": "ITEM-004",
-      "title": "Items — default state — mobile",
+      "title": "Items \u2014 default state \u2014 mobile",
       "description": "Items list with populated data, default sort, no active filters.",
       "acceptanceCriteria": [
         "Aggregated item cards show merchant + total + count",
@@ -133,7 +133,7 @@
     },
     {
       "id": "ITEM-005",
-      "title": "Items — default state — tablet",
+      "title": "Items \u2014 default state \u2014 tablet",
       "description": "Items default state at tablet viewport.",
       "acceptanceCriteria": [
         "Two-column grid with data",
@@ -164,7 +164,7 @@
     },
     {
       "id": "ITEM-006",
-      "title": "Items — default state — desktop",
+      "title": "Items \u2014 default state \u2014 desktop",
       "description": "Items default state at desktop viewport.",
       "acceptanceCriteria": [
         "Three-column grid with data",
@@ -196,7 +196,7 @@
     },
     {
       "id": "ITEM-007",
-      "title": "Items — filtered state — mobile",
+      "title": "Items \u2014 filtered state \u2014 mobile",
       "description": "Items with category filter active, showing filtered results + active filter chips.",
       "acceptanceCriteria": [
         "Filter chips show active category",
@@ -205,7 +205,7 @@
         "play() asserts filter + clear"
       ],
       "priority": 7,
-      "passes": true,
+      "passes": false,
       "notes": "",
       "tier": "screen-state",
       "source": "clean-slate",
@@ -229,14 +229,14 @@
     },
     {
       "id": "ITEM-008",
-      "title": "Items — filtered state — tablet",
+      "title": "Items \u2014 filtered state \u2014 tablet",
       "description": "Items filtered at tablet viewport.",
       "acceptanceCriteria": [
         "Filter adapts to tablet",
         "play() asserts filter"
       ],
       "priority": 8,
-      "passes": true,
+      "passes": false,
       "notes": "",
       "tier": "screen-state",
       "source": "clean-slate",
@@ -260,14 +260,14 @@
     },
     {
       "id": "ITEM-009",
-      "title": "Items — filtered state — desktop",
+      "title": "Items \u2014 filtered state \u2014 desktop",
       "description": "Items filtered at desktop viewport.",
       "acceptanceCriteria": [
         "Filter in header area",
         "play() asserts filter"
       ],
       "priority": 9,
-      "passes": true,
+      "passes": false,
       "notes": "",
       "tier": "screen-state",
       "source": "clean-slate",
@@ -291,7 +291,7 @@
     },
     {
       "id": "ITEM-010",
-      "title": "Items — sort changed — mobile",
+      "title": "Items \u2014 sort changed \u2014 mobile",
       "description": "Items with non-default sort (e.g., by count asc).",
       "acceptanceCriteria": [
         "Sort indicator shows current sort",
@@ -299,7 +299,7 @@
         "play() asserts sort toggle"
       ],
       "priority": 10,
-      "passes": true,
+      "passes": false,
       "notes": "",
       "tier": "screen-state",
       "source": "new",
@@ -323,14 +323,14 @@
     },
     {
       "id": "ITEM-011",
-      "title": "Items — sort changed — tablet/desktop",
+      "title": "Items \u2014 sort changed \u2014 tablet/desktop",
       "description": "Items sort changed at wider viewports.",
       "acceptanceCriteria": [
         "Sort control visible in header",
         "play() asserts sort toggle"
       ],
       "priority": 11,
-      "passes": true,
+      "passes": false,
       "notes": "",
       "tier": "screen-state",
       "source": "new",
@@ -355,7 +355,7 @@
     },
     {
       "id": "ITEM-012",
-      "title": "Items — search active — mobile",
+      "title": "Items \u2014 search active \u2014 mobile",
       "description": "Items with search query entered, results filtered by text match.",
       "acceptanceCriteria": [
         "Search bar shows query text",
@@ -364,7 +364,7 @@
         "play() asserts search + clear"
       ],
       "priority": 12,
-      "passes": true,
+      "passes": false,
       "notes": "",
       "tier": "screen-state",
       "source": "new",
@@ -388,14 +388,14 @@
     },
     {
       "id": "ITEM-013",
-      "title": "Items — search active — tablet/desktop",
+      "title": "Items \u2014 search active \u2014 tablet/desktop",
       "description": "Items search at wider viewports.",
       "acceptanceCriteria": [
         "Search in header area",
         "play() asserts search"
       ],
       "priority": 13,
-      "passes": true,
+      "passes": false,
       "notes": "",
       "tier": "screen-state",
       "source": "new",
@@ -420,7 +420,7 @@
     },
     {
       "id": "ITEM-014",
-      "title": "Items — empty state — mobile",
+      "title": "Items \u2014 empty state \u2014 mobile",
       "description": "Items with no data: empty illustration + prompt to scan receipts.",
       "acceptanceCriteria": [
         "Empty illustration renders",
@@ -452,14 +452,14 @@
     },
     {
       "id": "ITEM-015",
-      "title": "Items — empty state — tablet",
+      "title": "Items \u2014 empty state \u2014 tablet",
       "description": "Items empty at tablet.",
       "acceptanceCriteria": [
         "Empty state adapts",
         "play() asserts CTA"
       ],
       "priority": 15,
-      "passes": true,
+      "passes": false,
       "notes": "",
       "tier": "screen-state",
       "source": "clean-slate",
@@ -483,14 +483,14 @@
     },
     {
       "id": "ITEM-016",
-      "title": "Items — empty state — desktop",
+      "title": "Items \u2014 empty state \u2014 desktop",
       "description": "Items empty at desktop.",
       "acceptanceCriteria": [
         "Empty state centered in main area",
         "play() asserts CTA"
       ],
       "priority": 16,
-      "passes": true,
+      "passes": false,
       "notes": "",
       "tier": "screen-state",
       "source": "clean-slate",
@@ -514,7 +514,7 @@
     },
     {
       "id": "ITEM-017",
-      "title": "Items — loading next page — mobile",
+      "title": "Items \u2014 loading next page \u2014 mobile",
       "description": "Items showing loading spinner at bottom while fetching next page via infinite scroll.",
       "acceptanceCriteria": [
         "Spinner at list bottom",
@@ -522,7 +522,7 @@
         "axe passes"
       ],
       "priority": 17,
-      "passes": true,
+      "passes": false,
       "notes": "",
       "tier": "screen-state",
       "source": "new",
@@ -546,14 +546,14 @@
     },
     {
       "id": "ITEM-018",
-      "title": "Items — loading next page — tablet/desktop",
+      "title": "Items \u2014 loading next page \u2014 tablet/desktop",
       "description": "Items infinite scroll loading at wider viewports.",
       "acceptanceCriteria": [
         "Spinner in grid area",
         "axe passes"
       ],
       "priority": 18,
-      "passes": true,
+      "passes": false,
       "notes": "",
       "tier": "screen-state",
       "source": "new",
@@ -578,7 +578,7 @@
     },
     {
       "id": "ITEM-019",
-      "title": "Items — server error — mobile",
+      "title": "Items \u2014 server error \u2014 mobile",
       "description": "Items when API returns 5xx: error illustration + retry.",
       "acceptanceCriteria": [
         "Error message renders",
@@ -586,7 +586,7 @@
         "play() asserts retry"
       ],
       "priority": 19,
-      "passes": true,
+      "passes": false,
       "notes": "",
       "tier": "screen-state",
       "source": "new",
@@ -608,14 +608,14 @@
     },
     {
       "id": "ITEM-020",
-      "title": "Items — server error — tablet",
+      "title": "Items \u2014 server error \u2014 tablet",
       "description": "Items error at tablet.",
       "acceptanceCriteria": [
         "Error adapts to tablet",
         "play() asserts retry"
       ],
       "priority": 20,
-      "passes": true,
+      "passes": false,
       "notes": "",
       "tier": "screen-state",
       "source": "new",
@@ -637,7 +637,7 @@
     },
     {
       "id": "ITEM-021",
-      "title": "Items — server error — desktop",
+      "title": "Items \u2014 server error \u2014 desktop",
       "description": "Items error at desktop.",
       "acceptanceCriteria": [
         "Error centered in main area",
@@ -645,7 +645,7 @@
         "play() asserts retry"
       ],
       "priority": 21,
-      "passes": true,
+      "passes": false,
       "notes": "",
       "tier": "screen-state",
       "source": "new",
