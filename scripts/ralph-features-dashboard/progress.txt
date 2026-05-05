@@ -1,0 +1,28 @@
+# Ralph Progress Log — dashboard
+Started: Mon May  4 16:02:27 -04 2026
+---
+
+## Codebase Patterns
+- StoreCategory uses English names (Supermarket, Restaurant, Pharmacy, GasStation)
+- Play functions import from `storybook/test` (Storybook 10.x), not `@storybook/test`
+- DashboardView accepts `_testOverrides?: Partial<UseDashboardViewDataReturn>` for mock injection
+- Skeleton atom at `@/design-system/atoms/Skeleton/Skeleton` for loading states
+- ErrorFallback molecule at `@/design-system/molecules/ErrorFallback/ErrorFallback` for error states
+---
+
+## 2026-05-05 14:30 - DASH-001 through DASH-016 (batch)
+- Implemented 16 stories covering: default (3 platforms), empty (3), loading (3), error (2), recent-scan (2), shells (3 — combined with defaults)
+- Added play() functions with `within` + `expect` assertions for interactive states
+- Loading stories use DashboardLoadingSkeleton wrapper (Skeleton atom)
+- Error stories use ErrorFallback molecule directly
+- Recent-scan stories inject MOCK_RECENT_SCANS via _testOverrides
+- DASH-017 (concentration flag) blocked: DashboardView lacks banner component
+- DASH-018 (category drill-down) skipped: human-authored
+- Files changed: DashboardView.stories.tsx (full rewrite), prd.json (16 stories → passes: true)
+- cost_usd: $0.00 (manual session)
+- **Learnings for future iterations:**
+  - Category types are English (Supermarket not Supermercado) — fixed after first typecheck
+  - DashboardView has no loading/error UI of its own — use design-system atoms/molecules as wrappers
+  - Storybook 10.x: `storybook/test` not `@storybook/test`
+  - `data-testid="carousel-card"` and `data-testid="carousel-content"` are the main testable selectors
+---
