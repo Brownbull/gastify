@@ -38,9 +38,11 @@ import { usePaginatedTransactions } from '@/hooks/usePaginatedTransactions';
 import { useRecentScans } from '@/hooks/useRecentScans';
 import { mergeTransactionsWithRecentScans } from '@/utils/transactionMerge';
 import { sanitizeInput } from '@/utils/sanitize';
+import { useNavigate } from '@tanstack/react-router';
 // Story 14e-25c.2: Navigation via Zustand store
-import { useNavigation, useNavigationActions } from '@/shared/stores/useNavigationStore';
+import { useNavigation } from '@/shared/stores/useNavigationStore';
 import { isValidView } from '@/app/types';
+import { historyFilterToSearchParams } from '@/lib/searchParamSerializers';
 import type { Transaction } from '@/types/transaction';
 import type { ReportPeriodType } from '@/types/report';
 import type { TemporalFilterState, HistoryFilterState } from '@/types/historyFilters';
@@ -91,7 +93,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
 }) => {
   // Story 14e-25c.2: Get navigation from Zustand store
   const { navigateBack, navigateToView } = useNavigation();
-  const { setPendingHistoryFilters } = useNavigationActions();
+  const navigate = useNavigate();
 
   // Story 14e-25c.2: Get auth and transactions from internal hooks
   const { user, services } = useAuth();
@@ -332,11 +334,9 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
       temporal: temporalFilter,
     };
 
-    // Story 14e-25c.2: Set the pending filters and navigate to history via store
-    setPendingHistoryFilters(historyFilters);
     closeOverlay();
-    navigateToView('history');
-  }, [setPendingHistoryFilters, navigateToView, closeOverlay]);
+    navigate({ to: '/history', search: historyFilterToSearchParams(historyFilters) });
+  }, [navigate, closeOverlay]);
 
   // Get placeholder message based on period type
   const getEmptyPlaceholder = (periodType: string): string => {

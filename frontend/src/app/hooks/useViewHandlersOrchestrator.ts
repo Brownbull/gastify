@@ -12,9 +12,7 @@ import {
     useCurrency,
     useDateFormat,
     useCurrentView,
-    usePendingHistoryFilters,
     usePendingDistributionView,
-    useAnalyticsInitialState,
     useNavigationActions,
     useCurrentInsight,
     useShowInsightCard,
@@ -53,16 +51,11 @@ export function useViewHandlersOrchestrator(
     const settingsPathname = useRouterState({ select: (s) => s.location.pathname });
     const settingsSubview = pathToSettingsSubview(settingsPathname);
     const settingsNav = useNavigate();
-    const pendingHistoryFilters = usePendingHistoryFilters();
     const pendingDistributionView = usePendingDistributionView();
-    const analyticsInitialState = useAnalyticsInitialState();
     const {
         setView,
         saveScrollPosition,
-        setPendingHistoryFilters,
         setPendingDistributionView,
-        setAnalyticsInitialState,
-        clearAnalyticsInitialState,
     } = useNavigationActions();
     const setSettingsSubview = useCallback(
         (subview: string) => {
@@ -205,16 +198,11 @@ export function useViewHandlersOrchestrator(
         // Navigation
         view,
         settingsSubview,
-        pendingHistoryFilters,
         pendingDistributionView,
-        analyticsInitialState,
         setView,
         setSettingsSubview,
         saveScrollPosition,
-        setPendingHistoryFilters,
         setPendingDistributionView,
-        setAnalyticsInitialState,
-        clearAnalyticsInitialState,
         // Transaction editor
         currentTransaction,
         transactionNavigationList,
