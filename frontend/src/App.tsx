@@ -1773,8 +1773,6 @@ function App() {
             </main>
 
             <Nav
-                view={view}
-                setView={(v: string) => navigateToView(v as View)}
                 onScanClick={() => {
                     // If in statement mode, return to statement view
                     if (scanState.mode === 'statement') {

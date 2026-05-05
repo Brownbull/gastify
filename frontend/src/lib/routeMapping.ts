@@ -1,4 +1,5 @@
 import type { View } from '@app/types';
+import type { SettingsSubView } from '@/types/settings';
 
 const URL_TO_VIEW: Record<string, View> = {
   '/': 'dashboard',
@@ -50,4 +51,39 @@ export function normalizePath(pathname: string): string {
   if (pathname.startsWith('/settings/')) return '/settings';
   if (pathname.startsWith('/transactions/')) return '/scan';
   return pathname;
+}
+
+// Settings subview ↔ URL path mapping (reuses SettingsSubView from @/types/settings)
+const SETTINGS_PATH_TO_SUBVIEW: Record<string, SettingsSubView> = {
+  'limits': 'limites',
+  'profile': 'perfil',
+  'preferences': 'preferencias',
+  'scanning': 'escaneo',
+  'subscription': 'suscripcion',
+  'data': 'datos',
+  'groups': 'grupos',
+  'app': 'app',
+  'account': 'cuenta',
+};
+
+const SETTINGS_SUBVIEW_TO_PATH: Record<SettingsSubView, string> = {
+  'main': '/settings',
+  'limites': '/settings/limits',
+  'perfil': '/settings/profile',
+  'preferencias': '/settings/preferences',
+  'escaneo': '/settings/scanning',
+  'suscripcion': '/settings/subscription',
+  'datos': '/settings/data',
+  'grupos': '/settings/groups',
+  'app': '/settings/app',
+  'cuenta': '/settings/account',
+};
+
+export function pathToSettingsSubview(pathname: string): SettingsSubView {
+  const segment = pathname.replace('/settings/', '').replace(/\/$/, '');
+  return SETTINGS_PATH_TO_SUBVIEW[segment] ?? 'main';
+}
+
+export function settingsSubviewToPath(subview: SettingsSubView): string {
+  return SETTINGS_SUBVIEW_TO_PATH[subview] ?? '/settings';
 }

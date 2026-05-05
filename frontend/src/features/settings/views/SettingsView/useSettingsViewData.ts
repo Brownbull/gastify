@@ -37,6 +37,7 @@
 
 import { useMemo, useCallback } from 'react';
 import type { Firestore } from 'firebase/firestore';
+import { useNavigate, useRouterState } from '@tanstack/react-router';
 import { useAuth } from '@/hooks/useAuth';
 // Story 15-7c: Theme settings from Zustand store (ThemeContext removed)
 import { useThemeSettings } from '@/shared/stores';
@@ -46,10 +47,7 @@ import { useUserCredits } from '@/hooks/useUserCredits';
 import { useMerchantMappings } from '@/hooks/useMerchantMappings';
 import { useTrustedMerchants } from '@/hooks/useTrustedMerchants';
 import { useItemNameMappings } from '@/hooks/useItemNameMappings';
-import {
-    useNavigationStore,
-    useSettingsSubview,
-} from '@/shared/stores/useNavigationStore';
+import { pathToSettingsSubview, settingsSubviewToPath } from '@/lib/routeMapping';
 import { useCategoriesContextOptional } from '@features/categories';
 import { TRANSLATIONS } from '@/utils/translations';
 import type { SettingsSubView } from '@/types/settings';
@@ -300,9 +298,16 @@ export function useSettingsViewData(): UseSettingsViewDataReturn {
     // Category/subcategory mappings from CategoriesContext
     const categoriesContext = useCategoriesContextOptional();
 
-    // === Navigation ===
-    const settingsSubview = useSettingsSubview();
-    const setSettingsSubview = useNavigationStore((s) => s.setSettingsSubview);
+    // === Navigation (derived from URL via TanStack Router) ===
+    const settingsNavigate = useNavigate();
+    const settingsPathname = useRouterState({ select: (s) => s.location.pathname });
+    const settingsSubview = pathToSettingsSubview(settingsPathname);
+    const setSettingsSubview = useCallback(
+        (subview: SettingsSubView) => {
+            settingsNavigate({ to: settingsSubviewToPath(subview) });
+        },
+        [settingsNavigate]
+    );
 
     // === Account Action States ===
     // Story 14e-25c.1: wiping/exporting states are provided via _testOverrides from App.tsx.

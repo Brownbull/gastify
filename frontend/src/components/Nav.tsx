@@ -33,9 +33,12 @@
 
 import React, { useRef, useCallback, useState, useEffect, useMemo } from 'react';
 import { Camera, Home, Lightbulb, BarChart3, Bell, Layers, CreditCard, AlertTriangle } from 'lucide-react';
+import { useNavigate, useRouterState } from '@tanstack/react-router';
 import { useReducedMotion } from '../hooks/useReducedMotion';
 import { DURATION, EASING } from './animation/constants';
 import { formatCreditsDisplay, formatSuperCreditsDisplay } from '@/utils/creditFormatters';
+import { pathToView, viewToPath } from '@/lib/routeMapping';
+import type { View } from '@app/types';
 // Story 14e-11: Migrated from useScanOptional (ScanContext) to Zustand store selectors
 import {
   useHasActiveRequest,
@@ -58,8 +61,6 @@ import { useModalActions } from '../managers/ModalManager';
 export type ScanStatus = 'idle' | 'processing' | 'ready';
 
 interface NavProps {
-    view: string;
-    setView: (view: string) => void;
     onScanClick: () => void;
     // Story 12.1: Long-press or batch button triggers batch mode
     onBatchClick?: () => void;
@@ -83,7 +84,12 @@ interface NavProps {
     alertsBadgeCount?: number;
 }
 
-export const Nav: React.FC<NavProps> = ({ view, setView, onScanClick, onBatchClick, onStatementClick, onTrendsClick, theme, t, scanStatus = 'idle', scanCredits, superCredits, onCreditInfoClick, isBatchMode = false, onShowToast, alertsBadgeCount = 0 }) => {
+export const Nav: React.FC<NavProps> = ({ onScanClick, onBatchClick, onStatementClick, onTrendsClick, theme, t, scanStatus = 'idle', scanCredits, superCredits, onCreditInfoClick, isBatchMode = false, onShowToast, alertsBadgeCount = 0 }) => {
+    // TanStack Router: derive active view from URL
+    const navigate = useNavigate();
+    const pathname = useRouterState({ select: (s) => s.location.pathname });
+    const view = pathToView(pathname) ?? 'dashboard';
+
     // Story 14.11: Reduced motion preference for AC #5
     const prefersReducedMotion = useReducedMotion();
 
@@ -146,16 +152,16 @@ export const Nav: React.FC<NavProps> = ({ view, setView, onScanClick, onBatchCli
         if (scanMode === 'batch') {
             // Batch reviewing or scanning → show batch-review (for results or progress)
             if (scanPhase === 'reviewing' || scanPhase === 'scanning') {
-                setView('batch-review');
+                navigate({ to: viewToPath('batch-review') });
                 return;
             } else if (scanPhase === 'capturing') {
-                setView('batch-capture');
+                navigate({ to: viewToPath('batch-capture') });
                 return;
             }
         }
         // Default fallback for single mode or unknown state
-        setView('transaction-editor');
-    }, [onShowToast, setView, t, scanMode, scanPhase]);
+        navigate({ to: viewToPath('transaction-editor') });
+    }, [onShowToast, navigate, t, scanMode, scanPhase]);
 
     const handlePointerDown = useCallback(() => {
         isLongPress.current = false;
@@ -249,8 +255,8 @@ export const Nav: React.FC<NavProps> = ({ view, setView, onScanClick, onBatchCli
         if (additionalCallback) {
             additionalCallback();
         }
-        setView(targetView);
-    }, [setView, triggerHaptic, shouldBlockNavigation, prefersReducedMotion]);
+        navigate({ to: viewToPath(targetView as View) });
+    }, [navigate, triggerHaptic, shouldBlockNavigation, prefersReducedMotion]);
 
     // Story 14e-4: Handle credit badge click - opens credit info modal via Modal Manager
     const handleCreditInfoClick = useCallback(() => {
