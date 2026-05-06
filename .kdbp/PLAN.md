@@ -21,9 +21,9 @@ Deliver P1 Foundation backend — FastAPI + Postgres with identity, ownership sc
 
 | # | Phase | Types | Description | Tier | Complexity | Exec | Review | Commit | Push |
 |---|-------|-------|-------------|------|------------|------|--------|--------|------|
-| 1 | Scaffold + DB baseline | `deployment-release` | FastAPI app, uv env, pytest/ruff, alembic init, Postgres connect, structured logger + metrics exporter baseline, CI smoke | ent (Obs→scale) | low | ✅ | ✅ | ✅ | ⬜ |
-| 2 | Money + currency + FX + i18n | `data, integration` | Integer-minor-units convention, `currencies` table (10 codes), `fx_rates` write-once with lazy read-through cache, USD-shadow compute, i18n string registry (es/en/pt) | ent | medium | ✅ | ✅ | ✅ | ⬜ |
-| 3 | Identity + ownership scope + RLS | `auth-session, multi-tenant` | Firebase token-verify middleware, JIT user provision, `ownership_scope` + `ownership_scope_members` tables, RLS policies keyed off scope, initial scan-credit balance | ent | high | ✅ | ✅ | ✅ | ⬜ |
+| 1 | Scaffold + DB baseline | `deployment-release` | FastAPI app, uv env, pytest/ruff, alembic init, Postgres connect, structured logger + metrics exporter baseline, CI smoke | ent (Obs→scale) | low | ✅ | ✅ | ✅ | ✅ |
+| 2 | Money + currency + FX + i18n | `data, integration` | Integer-minor-units convention, `currencies` table (10 codes), `fx_rates` write-once with lazy read-through cache, USD-shadow compute, i18n string registry (es/en/pt) | ent | medium | ✅ | ✅ | ✅ | ✅ |
+| 3 | Identity + ownership scope + RLS | `auth-session, multi-tenant` | Firebase token-verify middleware, JIT user provision, `ownership_scope` + `ownership_scope_members` tables, RLS policies keyed off scope, initial scan-credit balance | ent | high | ✅ | ✅ | ✅ | ✅ |
 | 4 | Consent + processing register + DSR | `data, multi-tenant` | `consent_records` + `processing_register` tables, per-purpose consent API, access/rectification/erasure/portability endpoints (Law 21.719 + GDPR + PIPEDA + CCPA/CPRA), audit event log | ent | high | ⬜ | ⬜ | ⬜ | ⬜ |
 | 5 | Observability pipeline | `core-only` | Per-scan metric columns, metric exporter endpoint (OTel/Prometheus-compatible), U8 cost/latency baseline | ent (Obs→scale) | medium | ⬜ | ⬜ | ⬜ | ⬜ |
 | 6 | Exit-signal smoke test | `core-only` | Integration E2E: JIT sign-in → transaction in non-primary currency → read USD shadow → consent-audit returns 1 record | mvp | low | ⬜ | ⬜ | ⬜ | ⬜ |
@@ -187,12 +187,14 @@ decisions_entry: D6
 
 ## Current Phase
 
-Phase 2: Money + currency + FX + i18n / Phase 3: Identity + ownership scope + RLS (parallel)
+Phase 4: Consent + DSR / Phase 5: Observability pipeline (parallel — P4 needs P3 ✅, P5 needs P1 ✅, both satisfied)
 
-**Progress as of 2026-05-05 (branch `rebuild/be-phase-01`):**
-- P1 🔄: FastAPI scaffold, uv env, pytest/ruff, alembic init, Postgres connect, CI pipeline shipped in PR #1. Remaining: **structlog** JSON logger + **metrics exporter** baseline endpoint (REQ-21 / Obs→scale).
-- P2 🔄: `currencies` table seeded (10 codes), integer-minor-units convention enforced in models + migration. Remaining: `fx_rates` table + write-once trigger, lazy read-through FX cache service, USD-shadow compute on transaction create.
-- P3 🔄: Firebase token-verify middleware done, JIT user provision done (`auth/deps.py`), `ownership_scopes` + `ownership_scope_members` + `users` tables created. Transactions CRUD scope-bound. Remaining: RLS policies (PostgreSQL-level), `test_rls` fixture, scan-credit balance initialization.
+**Progress as of 2026-05-06 (branch `rebuild/be-phase-01`, PR #2):**
+- P1 ✅: FastAPI scaffold, structlog JSON logger, MetricsRegistry + `/metrics` endpoint, request-ID middleware, access logging. Shipped in `3eff76f`.
+- P2 ✅: `currencies` seeded (10 codes), `fx_rates` write-once with lazy read-through cache, USD-shadow compute on transaction create, i18n registry (es/en/pt). 14 FX tests. Shipped in `3eff76f`.
+- P3 ✅: Firebase token-verify → JIT user + scope provisioning, `SET LOCAL rls.ownership_scope_id` per-request, `credit_balances` with initial allocation, 3 Alembic migrations. 8 RLS + 3 auth tests. Shipped in `3eff76f`.
+- P4 ⬜: Next — `consent_records` + `processing_register` tables, per-purpose consent API, DSR endpoints (access/rectification/erasure/portability), 4-jurisdiction compliance (Law 21.719 + GDPR + PIPEDA + CCPA/CPRA).
+- P5 ⬜: Next — per-scan metric columns, metric exporter endpoint (OTel/Prometheus-compatible), U8 cost/latency baseline.
 
 ## Dependencies
 
