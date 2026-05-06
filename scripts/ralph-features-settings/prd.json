@@ -1,14 +1,14 @@
 {
   "project": "gastify",
   "branchName": "rebuild/fe-settings-batch-01",
-  "description": "Settings + Onboarding + Profile gravity well \u2014 screen-shells + screen-states (Tier 3 + Tier 4)",
+  "description": "Settings + Onboarding + Profile gravity well — screen-shells + screen-states (Tier 3 + Tier 4)",
   "userStories": [
     {
       "id": "SET-001",
-      "title": "Settings hub shell \u2014 mobile",
-      "description": "Settings main menu at 390\u00d7844 with grouped setting categories, profile summary card at top.",
+      "title": "Settings hub shell — mobile",
+      "description": "Settings main menu at 390×844 with grouped setting categories, profile summary card at top.",
       "acceptanceCriteria": [
-        "Layout matches mockup at 390\u00d7844",
+        "Layout matches mockup at 390×844",
         "Profile summary card renders",
         "Setting categories grouped (account/app/data/subscription)",
         "axe passes"
@@ -36,7 +36,7 @@
     },
     {
       "id": "SET-002",
-      "title": "Settings hub shell \u2014 tablet/desktop",
+      "title": "Settings hub shell — tablet/desktop",
       "description": "Settings hub at wider viewports with sidebar navigation + content panel.",
       "acceptanceCriteria": [
         "Sidebar navigation with setting categories",
@@ -70,7 +70,7 @@
     },
     {
       "id": "SET-003",
-      "title": "Settings hub \u2014 default state \u2014 mobile",
+      "title": "Settings hub — default state — mobile",
       "description": "Settings hub with user profile data loaded, all categories navigable.",
       "acceptanceCriteria": [
         "Profile card shows user name + email + avatar",
@@ -102,8 +102,8 @@
     },
     {
       "id": "SET-004",
-      "title": "Settings \u2014 profile sub-page \u2014 mobile",
-      "description": "Profile settings at 390\u00d7844: name, email, avatar upload, phone number.",
+      "title": "Settings — profile sub-page — mobile",
+      "description": "Profile settings at 390×844: name, email, avatar upload, phone number.",
       "acceptanceCriteria": [
         "Profile form renders with current data",
         "Avatar upload area",
@@ -136,7 +136,7 @@
     },
     {
       "id": "SET-005",
-      "title": "Settings \u2014 profile sub-page \u2014 tablet/desktop",
+      "title": "Settings — profile sub-page — tablet/desktop",
       "description": "Profile settings at wider viewports.",
       "acceptanceCriteria": [
         "Form adapts to wider layout",
@@ -169,8 +169,8 @@
     },
     {
       "id": "SET-006",
-      "title": "Settings \u2014 preferences sub-page \u2014 mobile",
-      "description": "Preferences at 390\u00d7844: language, currency, theme, notifications toggle, default category.",
+      "title": "Settings — preferences sub-page — mobile",
+      "description": "Preferences at 390×844: language, currency, theme, notifications toggle, default category.",
       "acceptanceCriteria": [
         "Language selector",
         "Currency selector (CLP default)",
@@ -204,7 +204,7 @@
     },
     {
       "id": "SET-007",
-      "title": "Settings \u2014 preferences sub-page \u2014 tablet/desktop",
+      "title": "Settings — preferences sub-page — tablet/desktop",
       "description": "Preferences at wider viewports.",
       "acceptanceCriteria": [
         "Form in content panel",
@@ -237,8 +237,8 @@
     },
     {
       "id": "SET-008",
-      "title": "Settings \u2014 scanning sub-page \u2014 mobile",
-      "description": "Scanning settings at 390\u00d7844: default receipt type, auto-categorize toggle, scan quality.",
+      "title": "Settings — scanning sub-page — mobile",
+      "description": "Scanning settings at 390×844: default receipt type, auto-categorize toggle, scan quality.",
       "acceptanceCriteria": [
         "Receipt type selector",
         "Auto-categorize toggle",
@@ -271,8 +271,8 @@
     },
     {
       "id": "SET-009",
-      "title": "Settings \u2014 limits sub-page \u2014 mobile",
-      "description": "Limits/goals at 390\u00d7844: monthly budget, per-category limits, alerts threshold.",
+      "title": "Settings — limits sub-page — mobile",
+      "description": "Limits/goals at 390×844: monthly budget, per-category limits, alerts threshold.",
       "acceptanceCriteria": [
         "Monthly budget input",
         "Per-category limit list",
@@ -305,7 +305,7 @@
     },
     {
       "id": "SET-010",
-      "title": "Settings \u2014 limits sub-page \u2014 tablet/desktop",
+      "title": "Settings — limits sub-page — tablet/desktop",
       "description": "Limits at wider viewports.",
       "acceptanceCriteria": [
         "Form in content panel",
@@ -338,8 +338,8 @@
     },
     {
       "id": "SET-011",
-      "title": "Settings \u2014 subscription sub-page \u2014 mobile",
-      "description": "Subscription at 390\u00d7844: current plan, credit balance, purchase history, upgrade CTA.",
+      "title": "Settings — subscription sub-page — mobile",
+      "description": "Subscription at 390×844: current plan, credit balance, purchase history, upgrade CTA.",
       "acceptanceCriteria": [
         "Current plan displayed",
         "Credit balance shown",
@@ -373,7 +373,7 @@
     },
     {
       "id": "SET-012",
-      "title": "Settings \u2014 subscription sub-page \u2014 tablet/desktop",
+      "title": "Settings — subscription sub-page — tablet/desktop",
       "description": "Subscription at wider viewports.",
       "acceptanceCriteria": [
         "Plan + credits in content panel",
@@ -406,8 +406,8 @@
     },
     {
       "id": "SET-013",
-      "title": "Settings \u2014 data sub-page \u2014 mobile",
-      "description": "Data management at 390\u00d7844: card alias mappings list, trusted merchants, category overrides.",
+      "title": "Settings — data sub-page — mobile",
+      "description": "Data management at 390×844: card alias mappings list, trusted merchants, category overrides.",
       "acceptanceCriteria": [
         "Card alias list renders",
         "Edit/delete per alias",
@@ -440,7 +440,7 @@
     },
     {
       "id": "SET-014",
-      "title": "Settings \u2014 data sub-page \u2014 tablet/desktop",
+      "title": "Settings — data sub-page — tablet/desktop",
       "description": "Data management at wider viewports.",
       "acceptanceCriteria": [
         "Table layout for aliases",
@@ -473,8 +473,8 @@
     },
     {
       "id": "SET-015",
-      "title": "Settings \u2014 groups sub-page \u2014 mobile",
-      "description": "Groups management at 390\u00d7844: group list, create group button, pending invites.",
+      "title": "Settings — groups sub-page — mobile",
+      "description": "Groups management at 390×844: group list, create group button, pending invites.",
       "acceptanceCriteria": [
         "Group list renders",
         "Create group button",
@@ -506,8 +506,8 @@
     },
     {
       "id": "SET-016",
-      "title": "Settings \u2014 app sub-page \u2014 mobile",
-      "description": "App settings at 390\u00d7844: version info, clear cache, feature flags (dev only), about.",
+      "title": "Settings — app sub-page — mobile",
+      "description": "App settings at 390×844: version info, clear cache, feature flags (dev only), about.",
       "acceptanceCriteria": [
         "Version info displayed",
         "Clear cache button",
@@ -537,8 +537,8 @@
     },
     {
       "id": "SET-017",
-      "title": "Settings \u2014 account sub-page \u2014 mobile",
-      "description": "Account at 390\u00d7844: change password, export data, delete account with confirmation.",
+      "title": "Settings — account sub-page — mobile",
+      "description": "Account at 390×844: change password, export data, delete account with confirmation.",
       "acceptanceCriteria": [
         "Change password section",
         "Export data button",
@@ -571,7 +571,7 @@
     },
     {
       "id": "SET-018",
-      "title": "Settings \u2014 account sub-page \u2014 tablet/desktop",
+      "title": "Settings — account sub-page — tablet/desktop",
       "description": "Account at wider viewports.",
       "acceptanceCriteria": [
         "Account options in content panel",
@@ -604,7 +604,7 @@
     },
     {
       "id": "SET-019",
-      "title": "Settings hub \u2014 loading state \u2014 mobile",
+      "title": "Settings hub — loading state — mobile",
       "description": "Settings hub during profile data fetch: skeleton profile card + skeleton category list.",
       "acceptanceCriteria": [
         "Skeleton profile card pulses",
@@ -634,7 +634,7 @@
     },
     {
       "id": "SET-020",
-      "title": "Settings hub \u2014 server error \u2014 mobile",
+      "title": "Settings hub — server error — mobile",
       "description": "Settings hub when profile API fails: error message + retry.",
       "acceptanceCriteria": [
         "Error message renders",
@@ -664,7 +664,7 @@
     },
     {
       "id": "SET-021",
-      "title": "Settings \u2014 sub-page saving state \u2014 mobile",
+      "title": "Settings — sub-page saving state — mobile",
       "description": "Any settings sub-page during save: optimistic update with spinner on save button.",
       "acceptanceCriteria": [
         "Save button shows spinner",
@@ -674,7 +674,7 @@
       ],
       "priority": 21,
       "passes": false,
-      "notes": "",
+      "notes": "Saving state is internal to each sub-page. Needs per-subpage _testOverrides.",
       "tier": "screen-state",
       "source": "new",
       "platform": [
@@ -690,12 +690,12 @@
       "play_function": true,
       "maxAttempts": 3,
       "attemptCount": 0,
-      "blocked": false,
+      "blocked": true,
       "tier_suitability": "ralph-eligible"
     },
     {
       "id": "SET-022",
-      "title": "Settings \u2014 sub-page validation error \u2014 mobile",
+      "title": "Settings — sub-page validation error — mobile",
       "description": "Settings sub-page with form validation errors: inline error messages on invalid fields.",
       "acceptanceCriteria": [
         "Error messages on invalid fields",
@@ -704,7 +704,7 @@
       ],
       "priority": 22,
       "passes": false,
-      "notes": "",
+      "notes": "Validation state is internal to each sub-page. Needs per-subpage _testOverrides.",
       "tier": "screen-state",
       "source": "new",
       "platform": [
@@ -720,12 +720,12 @@
       "play_function": true,
       "maxAttempts": 3,
       "attemptCount": 0,
-      "blocked": false,
+      "blocked": true,
       "tier_suitability": "ralph-eligible"
     },
     {
       "id": "SET-023",
-      "title": "Onboarding \u2014 step 1 (welcome) \u2014 mobile",
+      "title": "Onboarding — step 1 (welcome) — mobile",
       "description": "Onboarding step 1: welcome screen with app introduction, continue button.",
       "acceptanceCriteria": [
         "Welcome message renders",
@@ -736,7 +736,7 @@
       ],
       "priority": 23,
       "passes": false,
-      "notes": "",
+      "notes": "Onboarding flow component does not yet exist.",
       "tier": "screen-state",
       "source": "new",
       "platform": [
@@ -750,12 +750,12 @@
       "play_function": true,
       "maxAttempts": 3,
       "attemptCount": 0,
-      "blocked": false,
+      "blocked": true,
       "tier_suitability": "ralph-eligible"
     },
     {
       "id": "SET-024",
-      "title": "Onboarding \u2014 step 2 (preferences) \u2014 mobile",
+      "title": "Onboarding — step 2 (preferences) — mobile",
       "description": "Onboarding step 2: set currency + language + budget goal.",
       "acceptanceCriteria": [
         "Currency selector (CLP default)",
@@ -766,7 +766,7 @@
       ],
       "priority": 24,
       "passes": false,
-      "notes": "",
+      "notes": "Onboarding flow component does not yet exist.",
       "tier": "screen-state",
       "source": "new",
       "platform": [
@@ -784,12 +784,12 @@
       "play_function": true,
       "maxAttempts": 3,
       "attemptCount": 0,
-      "blocked": false,
+      "blocked": true,
       "tier_suitability": "ralph-eligible"
     },
     {
       "id": "SET-025",
-      "title": "Onboarding \u2014 step 3 (first scan) \u2014 mobile",
+      "title": "Onboarding — step 3 (first scan) — mobile",
       "description": "Onboarding step 3: prompt to scan first receipt or skip.",
       "acceptanceCriteria": [
         "Scan CTA prominent",
@@ -799,7 +799,7 @@
       ],
       "priority": 25,
       "passes": false,
-      "notes": "",
+      "notes": "Onboarding flow component does not yet exist.",
       "tier": "screen-state",
       "source": "new",
       "platform": [
@@ -815,12 +815,12 @@
       "play_function": true,
       "maxAttempts": 3,
       "attemptCount": 0,
-      "blocked": false,
+      "blocked": true,
       "tier_suitability": "ralph-eligible"
     },
     {
       "id": "SET-026",
-      "title": "Onboarding \u2014 complete \u2014 mobile",
+      "title": "Onboarding — complete — mobile",
       "description": "Onboarding complete: celebration animation, redirect to dashboard.",
       "acceptanceCriteria": [
         "Celebration animation renders",
@@ -829,7 +829,7 @@
       ],
       "priority": 26,
       "passes": false,
-      "notes": "",
+      "notes": "Onboarding flow component does not yet exist.",
       "tier": "screen-state",
       "source": "new",
       "platform": [
@@ -847,12 +847,12 @@
       "play_function": true,
       "maxAttempts": 3,
       "attemptCount": 0,
-      "blocked": false,
+      "blocked": true,
       "tier_suitability": "ralph-eligible"
     },
     {
       "id": "SET-027",
-      "title": "Settings \u2014 data export (window.print) \u2014 desktop",
+      "title": "Settings — data export (window.print) — desktop",
       "description": "Data export via window.print() on desktop per R51: print-optimized CSS, filtered data.",
       "acceptanceCriteria": [
         "Print button triggers window.print()",
@@ -861,7 +861,7 @@
       ],
       "priority": 27,
       "passes": true,
-      "notes": "Uses window.print() per R51 \u2014 not PDF generation.",
+      "notes": "Uses window.print() per R51 — not PDF generation.",
       "tier": "screen-state",
       "source": "new",
       "platform": [
@@ -879,13 +879,12 @@
       "play_function": true,
       "maxAttempts": 3,
       "attemptCount": 0,
-      "blocked": false,
       "tier_suitability": "ralph-eligible"
     },
     {
       "id": "SET-028",
-      "title": "Onboarding \u2192 Dashboard full flow",
-      "description": "Full onboarding flow: step 1 \u2192 step 2 \u2192 step 3 \u2192 complete \u2192 dashboard.",
+      "title": "Onboarding → Dashboard full flow",
+      "description": "Full onboarding flow: step 1 → step 2 → step 3 → complete → dashboard.",
       "acceptanceCriteria": [
         "All steps complete in sequence",
         "Preferences saved",
@@ -893,7 +892,7 @@
       ],
       "priority": 28,
       "passes": false,
-      "notes": "Cross-feature flow \u2014 requires onboarding + dashboard.",
+      "notes": "Onboarding flow + cross-feature navigation to Dashboard. Component does not exist.",
       "tier": "screen-state",
       "source": "new",
       "platform": [
@@ -912,7 +911,7 @@
       "play_function": true,
       "maxAttempts": 3,
       "attemptCount": 0,
-      "blocked": false,
+      "blocked": true,
       "tier_suitability": "human-authored"
     }
   ]

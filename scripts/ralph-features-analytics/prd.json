@@ -1,14 +1,14 @@
 {
   "project": "gastify",
   "branchName": "rebuild/fe-analytics-batch-01",
-  "description": "Analytics/Trends gravity well \u2014 screen-shells + screen-states (Tier 3 + Tier 4)",
+  "description": "Analytics/Trends gravity well — screen-shells + screen-states (Tier 3 + Tier 4)",
   "userStories": [
     {
       "id": "TREND-001",
-      "title": "Trends shell \u2014 mobile",
-      "description": "Trends layout at 390\u00d7844 with chart area, period selector, category filter, view mode tabs.",
+      "title": "Trends shell — mobile",
+      "description": "Trends layout at 390×844 with chart area, period selector, category filter, view mode tabs.",
       "acceptanceCriteria": [
-        "Layout matches mockup at 390\u00d7844",
+        "Layout matches mockup at 390×844",
         "Chart area renders placeholder",
         "Period selector renders",
         "View mode tabs render (treemap default)",
@@ -37,8 +37,8 @@
     },
     {
       "id": "TREND-002",
-      "title": "Trends shell \u2014 tablet",
-      "description": "Trends layout at 768\u00d71024 with wider chart area, horizontal period + filter controls.",
+      "title": "Trends shell — tablet",
+      "description": "Trends layout at 768×1024 with wider chart area, horizontal period + filter controls.",
       "acceptanceCriteria": [
         "Chart area adapts to tablet width",
         "Controls in horizontal layout",
@@ -69,8 +69,8 @@
     },
     {
       "id": "TREND-003",
-      "title": "Trends shell \u2014 desktop",
-      "description": "Trends layout at 1440\u00d7900 with sidebar nav, large chart area, sidebar controls panel.",
+      "title": "Trends shell — desktop",
+      "description": "Trends layout at 1440×900 with sidebar nav, large chart area, sidebar controls panel.",
       "acceptanceCriteria": [
         "Sidebar navigation renders",
         "Large chart area",
@@ -102,7 +102,7 @@
     },
     {
       "id": "TREND-004",
-      "title": "Trends \u2014 default state \u2014 mobile",
+      "title": "Trends — default state — mobile",
       "description": "Trends with populated data, default treemap view, current month period.",
       "acceptanceCriteria": [
         "Treemap chart renders with category data",
@@ -135,7 +135,7 @@
     },
     {
       "id": "TREND-005",
-      "title": "Trends \u2014 default state \u2014 tablet",
+      "title": "Trends — default state — tablet",
       "description": "Trends default state at tablet viewport.",
       "acceptanceCriteria": [
         "Treemap adapts to tablet width",
@@ -166,7 +166,7 @@
     },
     {
       "id": "TREND-006",
-      "title": "Trends \u2014 default state \u2014 desktop",
+      "title": "Trends — default state — desktop",
       "description": "Trends default state at desktop viewport.",
       "acceptanceCriteria": [
         "Large treemap with detail panel",
@@ -197,10 +197,10 @@
     },
     {
       "id": "TREND-007",
-      "title": "Trends \u2014 drill temporal \u2014 mobile",
-      "description": "Trends with temporal drill-down active: monthly \u2192 weekly breakdown chart.",
+      "title": "Trends — drill temporal — mobile",
+      "description": "Trends with temporal drill-down active: monthly → weekly breakdown chart.",
       "acceptanceCriteria": [
-        "Drill-down breadcrumb shows month \u2192 week",
+        "Drill-down breadcrumb shows month → week",
         "Weekly breakdown chart renders",
         "Back button returns to monthly",
         "play() asserts drill + back"
@@ -230,7 +230,7 @@
     },
     {
       "id": "TREND-008",
-      "title": "Trends \u2014 drill temporal \u2014 tablet/desktop",
+      "title": "Trends — drill temporal — tablet/desktop",
       "description": "Trends temporal drill-down at wider viewports.",
       "acceptanceCriteria": [
         "Drill-down breadcrumb in header",
@@ -262,11 +262,11 @@
     },
     {
       "id": "TREND-009",
-      "title": "Trends \u2014 drill category \u2014 mobile",
+      "title": "Trends — drill category — mobile",
       "description": "Trends with category drill-down: clicking a treemap leaf shows sub-category breakdown.",
       "acceptanceCriteria": [
         "Sub-category chart renders",
-        "Breadcrumb shows parent \u2192 child",
+        "Breadcrumb shows parent → child",
         "Back returns to parent",
         "play() asserts drill + back"
       ],
@@ -295,7 +295,7 @@
     },
     {
       "id": "TREND-010",
-      "title": "Trends \u2014 drill category \u2014 tablet/desktop",
+      "title": "Trends — drill category — tablet/desktop",
       "description": "Trends category drill-down at wider viewports.",
       "acceptanceCriteria": [
         "Drill-down with larger chart area",
@@ -327,7 +327,7 @@
     },
     {
       "id": "TREND-011",
-      "title": "Trends \u2014 chart aggregation \u2014 mobile",
+      "title": "Trends — chart aggregation — mobile",
       "description": "Trends showing aggregation toggle (daily/weekly/monthly) changing chart granularity.",
       "acceptanceCriteria": [
         "Aggregation toggle renders",
@@ -359,7 +359,7 @@
     },
     {
       "id": "TREND-012",
-      "title": "Trends \u2014 chart aggregation \u2014 tablet/desktop",
+      "title": "Trends — chart aggregation — tablet/desktop",
       "description": "Trends aggregation toggle at wider viewports.",
       "acceptanceCriteria": [
         "Aggregation in controls panel",
@@ -391,7 +391,7 @@
     },
     {
       "id": "TREND-013",
-      "title": "Trends \u2014 chart comparison \u2014 mobile",
+      "title": "Trends — chart comparison — mobile",
       "description": "Trends showing period comparison overlay (current vs previous month).",
       "acceptanceCriteria": [
         "Comparison toggle active",
@@ -425,7 +425,7 @@
     },
     {
       "id": "TREND-014",
-      "title": "Trends \u2014 chart comparison \u2014 tablet/desktop",
+      "title": "Trends — chart comparison — tablet/desktop",
       "description": "Trends comparison at wider viewports.",
       "acceptanceCriteria": [
         "Comparison with larger chart area",
@@ -458,7 +458,7 @@
     },
     {
       "id": "TREND-015",
-      "title": "Trends \u2014 view treemap \u2014 mobile",
+      "title": "Trends — view treemap — mobile",
       "description": "Trends with treemap view selected (default view).",
       "acceptanceCriteria": [
         "Treemap chart renders with proportional rectangles",
@@ -490,7 +490,7 @@
     },
     {
       "id": "TREND-016",
-      "title": "Trends \u2014 view donut \u2014 mobile",
+      "title": "Trends — view donut — mobile",
       "description": "Trends with donut chart view selected.",
       "acceptanceCriteria": [
         "Donut chart renders with category segments",
@@ -523,7 +523,7 @@
     },
     {
       "id": "TREND-017",
-      "title": "Trends \u2014 view donut \u2014 tablet/desktop",
+      "title": "Trends — view donut — tablet/desktop",
       "description": "Trends donut view at wider viewports.",
       "acceptanceCriteria": [
         "Donut adapts to wider area",
@@ -555,7 +555,7 @@
     },
     {
       "id": "TREND-018",
-      "title": "Trends \u2014 view sankey \u2014 mobile",
+      "title": "Trends — view sankey — mobile",
       "description": "Trends with sankey diagram view showing category flow over time.",
       "acceptanceCriteria": [
         "Sankey diagram renders with flow links",
@@ -587,7 +587,7 @@
     },
     {
       "id": "TREND-019",
-      "title": "Trends \u2014 view sankey \u2014 tablet/desktop",
+      "title": "Trends — view sankey — tablet/desktop",
       "description": "Trends sankey view at wider viewports.",
       "acceptanceCriteria": [
         "Sankey adapts to wider area with more detail",
@@ -619,7 +619,7 @@
     },
     {
       "id": "TREND-020",
-      "title": "Trends \u2014 view bump \u2014 mobile",
+      "title": "Trends — view bump — mobile",
       "description": "Trends with bump chart view showing category rank changes over time.",
       "acceptanceCriteria": [
         "Bump chart renders with rank lines",
@@ -628,7 +628,7 @@
       ],
       "priority": 20,
       "passes": false,
-      "notes": "",
+      "notes": "Bump and Radar view types do not exist in TrendenciaView/DistributionView unions. Requires adding new chart components.",
       "tier": "screen-state",
       "source": "new",
       "platform": [
@@ -646,12 +646,12 @@
       "play_function": true,
       "maxAttempts": 3,
       "attemptCount": 0,
-      "blocked": false,
+      "blocked": true,
       "tier_suitability": "ralph-eligible"
     },
     {
       "id": "TREND-021",
-      "title": "Trends \u2014 view bump \u2014 tablet/desktop",
+      "title": "Trends — view bump — tablet/desktop",
       "description": "Trends bump chart at wider viewports.",
       "acceptanceCriteria": [
         "Bump chart uses wider area",
@@ -659,7 +659,7 @@
       ],
       "priority": 21,
       "passes": false,
-      "notes": "",
+      "notes": "Bump and Radar view types do not exist in TrendenciaView/DistributionView unions. Requires adding new chart components.",
       "tier": "screen-state",
       "source": "new",
       "platform": [
@@ -678,12 +678,12 @@
       "play_function": true,
       "maxAttempts": 3,
       "attemptCount": 0,
-      "blocked": false,
+      "blocked": true,
       "tier_suitability": "ralph-eligible"
     },
     {
       "id": "TREND-022",
-      "title": "Trends \u2014 view radar \u2014 mobile",
+      "title": "Trends — view radar — mobile",
       "description": "Trends with radar chart view showing multi-category spending profile.",
       "acceptanceCriteria": [
         "Radar chart renders with category axes",
@@ -692,7 +692,7 @@
       ],
       "priority": 22,
       "passes": false,
-      "notes": "",
+      "notes": "Bump and Radar view types do not exist in TrendenciaView/DistributionView unions. Requires adding new chart components.",
       "tier": "screen-state",
       "source": "new",
       "platform": [
@@ -710,12 +710,12 @@
       "play_function": true,
       "maxAttempts": 3,
       "attemptCount": 0,
-      "blocked": false,
+      "blocked": true,
       "tier_suitability": "ralph-eligible"
     },
     {
       "id": "TREND-023",
-      "title": "Trends \u2014 view radar \u2014 tablet/desktop",
+      "title": "Trends — view radar — tablet/desktop",
       "description": "Trends radar chart at wider viewports.",
       "acceptanceCriteria": [
         "Radar chart adapts to wider area",
@@ -723,7 +723,7 @@
       ],
       "priority": 23,
       "passes": false,
-      "notes": "",
+      "notes": "Bump and Radar view types do not exist in TrendenciaView/DistributionView unions. Requires adding new chart components.",
       "tier": "screen-state",
       "source": "new",
       "platform": [
@@ -742,12 +742,12 @@
       "play_function": true,
       "maxAttempts": 3,
       "attemptCount": 0,
-      "blocked": false,
+      "blocked": true,
       "tier_suitability": "ralph-eligible"
     },
     {
       "id": "TREND-024",
-      "title": "Trends \u2014 empty state \u2014 mobile",
+      "title": "Trends — empty state — mobile",
       "description": "Trends with no data: empty illustration + prompt to scan receipts.",
       "acceptanceCriteria": [
         "Empty illustration renders",
@@ -779,7 +779,7 @@
     },
     {
       "id": "TREND-025",
-      "title": "Trends \u2014 empty state \u2014 tablet",
+      "title": "Trends — empty state — tablet",
       "description": "Trends empty at tablet.",
       "acceptanceCriteria": [
         "Empty state adapts",
@@ -810,7 +810,7 @@
     },
     {
       "id": "TREND-026",
-      "title": "Trends \u2014 empty state \u2014 desktop",
+      "title": "Trends — empty state — desktop",
       "description": "Trends empty at desktop.",
       "acceptanceCriteria": [
         "Empty state centered in main area",
@@ -841,7 +841,7 @@
     },
     {
       "id": "TREND-027",
-      "title": "Trends \u2014 server error \u2014 mobile",
+      "title": "Trends — server error — mobile",
       "description": "Trends when API returns 5xx: error illustration + retry.",
       "acceptanceCriteria": [
         "Error message renders",
@@ -871,7 +871,7 @@
     },
     {
       "id": "TREND-028",
-      "title": "Trends \u2014 server error \u2014 tablet/desktop",
+      "title": "Trends — server error — tablet/desktop",
       "description": "Trends error at wider viewports.",
       "acceptanceCriteria": [
         "Error centered in content area",
@@ -902,7 +902,7 @@
     },
     {
       "id": "TREND-029",
-      "title": "Trends \u2014 loading state \u2014 mobile",
+      "title": "Trends — loading state — mobile",
       "description": "Trends during initial data fetch: skeleton chart + skeleton controls.",
       "acceptanceCriteria": [
         "Skeleton chart area pulses",
@@ -933,7 +933,7 @@
     },
     {
       "id": "TREND-030",
-      "title": "Trends \u2014 loading state \u2014 tablet/desktop",
+      "title": "Trends — loading state — tablet/desktop",
       "description": "Trends loading skeleton at wider viewports.",
       "acceptanceCriteria": [
         "Skeleton adapts to layout",
@@ -963,7 +963,7 @@
     },
     {
       "id": "TREND-031",
-      "title": "Trends \u2014 treemap drill-down \u2192 History",
+      "title": "Trends — treemap drill-down → History",
       "description": "Clicking a treemap leaf navigates to /history with pre-filled category filter for drill-out.",
       "acceptanceCriteria": [
         "Treemap leaf click navigates to /history?category=X",
@@ -972,7 +972,7 @@
       ],
       "priority": 31,
       "passes": true,
-      "notes": "Cross-feature interactivity \u2014 requires both Trends and History screens.",
+      "notes": "Cross-feature interactivity — requires both Trends and History screens.",
       "tier": "screen-state",
       "source": "new",
       "platform": [

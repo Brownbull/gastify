@@ -78,6 +78,7 @@ const buildOverrides = (
         ...defaultOverrides,
         isLoadingMore: true,
         hasMore: true,
+        isAtListenerLimit: true,
         loadMore: fn(),
       };
     case 'default':
@@ -410,6 +411,12 @@ export const MobileLoadingMore: Story = {
   name: 'Mobile · Loading More',
   args: { platform: 'mobile', state: 'loading-more' },
   parameters: { viewport: { defaultViewport: 'mobile' } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByTestId('load-more-transactions')).toBeInTheDocument();
+    await expect(canvas.getByText('Cargando...')).toBeInTheDocument();
+    await expect(canvas.getByText('Jumbo')).toBeInTheDocument();
+  },
 };
 
 // ─── HIST-022: Tablet/Desktop · Loading More ────────────────────────────────
@@ -418,6 +425,11 @@ export const TabletDesktopLoadingMore: Story = {
   name: 'Tablet · Loading More',
   args: { platform: 'tablet', state: 'loading-more' },
   parameters: { viewport: { defaultViewport: 'tablet' } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByTestId('load-more-transactions')).toBeInTheDocument();
+    await expect(canvas.getByText('Cargando...')).toBeInTheDocument();
+  },
 };
 
 // ─── HIST-023: Mobile · Server Error ────────────────────────────────────────
@@ -463,15 +475,16 @@ export const DesktopError: Story = {
 // yet consume it for visual grouping by category. Requires component work.
 
 export const MobileGroupMode: Story = {
-  name: 'Mobile · Group Mode',
+  name: 'Mobile · Group Mode (blocked)',
   args: { platform: 'mobile', state: 'default' },
   parameters: { viewport: { defaultViewport: 'mobile' } },
 };
 
 // ─── HIST-027: Tablet/Desktop · Group Mode ──────────────────────────────────
+// Blocked: same as HIST-026.
 
 export const TabletDesktopGroupMode: Story = {
-  name: 'Tablet · Group Mode',
+  name: 'Tablet · Group Mode (blocked)',
   args: { platform: 'tablet', state: 'default' },
   parameters: { viewport: { defaultViewport: 'tablet' } },
 };

@@ -572,7 +572,7 @@
       ],
       "priority": 18,
       "passes": false,
-      "notes": "Cross-feature interactivity — requires both Dashboard and History screens.",
+      "notes": "Cross-feature navigation requires TanStack Router context + both Dashboard and History wired. Integration test, not a component story.",
       "tier": "screen-state",
       "source": "new",
       "platform": [
@@ -592,7 +592,7 @@
       "play_function": true,
       "maxAttempts": 3,
       "attemptCount": 0,
-      "blocked": false,
+      "blocked": true,
       "tier_suitability": "human-authored"
     }
   ]

@@ -1,14 +1,14 @@
 {
   "project": "gastify",
   "branchName": "rebuild/fe-history-batch-01",
-  "description": "History gravity well \u2014 screen-shells + screen-states (Tier 3 + Tier 4)",
+  "description": "History gravity well — screen-shells + screen-states (Tier 3 + Tier 4)",
   "userStories": [
     {
       "id": "HIST-001",
-      "title": "History shell \u2014 mobile",
-      "description": "History list layout at 390\u00d7844 with transaction list, filter bar, search input, sort control.",
+      "title": "History shell — mobile",
+      "description": "History list layout at 390×844 with transaction list, filter bar, search input, sort control.",
       "acceptanceCriteria": [
-        "Layout matches mockup at 390\u00d7844",
+        "Layout matches mockup at 390×844",
         "Filter bar renders with category/date/amount controls",
         "Search input renders",
         "Sort control visible",
@@ -37,8 +37,8 @@
     },
     {
       "id": "HIST-002",
-      "title": "History shell \u2014 tablet",
-      "description": "History layout at 768\u00d71024 with wider filter bar, two-column transaction cards.",
+      "title": "History shell — tablet",
+      "description": "History layout at 768×1024 with wider filter bar, two-column transaction cards.",
       "acceptanceCriteria": [
         "Layout adapts to tablet width",
         "Filter bar uses horizontal layout",
@@ -70,8 +70,8 @@
     },
     {
       "id": "HIST-003",
-      "title": "History shell \u2014 desktop",
-      "description": "History layout at 1440\u00d7900 with sidebar nav, transaction list + detail panel, inline filters.",
+      "title": "History shell — desktop",
+      "description": "History layout at 1440×900 with sidebar nav, transaction list + detail panel, inline filters.",
       "acceptanceCriteria": [
         "Sidebar navigation renders",
         "Transaction list with detail panel on selection",
@@ -103,7 +103,7 @@
     },
     {
       "id": "HIST-004",
-      "title": "History \u2014 default state \u2014 mobile",
+      "title": "History — default state — mobile",
       "description": "History with populated transactions, default sort (date desc), no active filters.",
       "acceptanceCriteria": [
         "Transaction cards show merchant + amount + date",
@@ -136,7 +136,7 @@
     },
     {
       "id": "HIST-005",
-      "title": "History \u2014 default state \u2014 tablet",
+      "title": "History — default state — tablet",
       "description": "History default state at tablet viewport.",
       "acceptanceCriteria": [
         "Two-column card layout with data",
@@ -168,7 +168,7 @@
     },
     {
       "id": "HIST-006",
-      "title": "History \u2014 default state \u2014 desktop",
+      "title": "History — default state — desktop",
       "description": "History default state at desktop viewport.",
       "acceptanceCriteria": [
         "Transaction list with detail panel",
@@ -200,7 +200,7 @@
     },
     {
       "id": "HIST-007",
-      "title": "History \u2014 filtered state \u2014 mobile",
+      "title": "History — filtered state — mobile",
       "description": "History with category + date range filters active, showing filtered results + active filter chips.",
       "acceptanceCriteria": [
         "Filter chips show active category + date range",
@@ -233,7 +233,7 @@
     },
     {
       "id": "HIST-008",
-      "title": "History \u2014 filtered state \u2014 tablet",
+      "title": "History — filtered state — tablet",
       "description": "History filtered at tablet viewport.",
       "acceptanceCriteria": [
         "Filter controls adapt to tablet",
@@ -264,7 +264,7 @@
     },
     {
       "id": "HIST-009",
-      "title": "History \u2014 filtered state \u2014 desktop",
+      "title": "History — filtered state — desktop",
       "description": "History filtered at desktop viewport.",
       "acceptanceCriteria": [
         "Inline filters in header show active state",
@@ -295,7 +295,7 @@
     },
     {
       "id": "HIST-010",
-      "title": "History \u2014 search active \u2014 mobile",
+      "title": "History — search active — mobile",
       "description": "History with search query entered, results filtered by text match on merchant/description.",
       "acceptanceCriteria": [
         "Search bar shows query text",
@@ -328,7 +328,7 @@
     },
     {
       "id": "HIST-011",
-      "title": "History \u2014 search active \u2014 tablet/desktop",
+      "title": "History — search active — tablet/desktop",
       "description": "History search at wider viewports.",
       "acceptanceCriteria": [
         "Search in header area",
@@ -360,7 +360,7 @@
     },
     {
       "id": "HIST-012",
-      "title": "History \u2014 selection mode \u2014 mobile",
+      "title": "History — selection mode — mobile",
       "description": "History with multi-select mode active, showing checkboxes on transaction cards + batch action bar.",
       "acceptanceCriteria": [
         "Checkboxes visible on each card",
@@ -393,7 +393,7 @@
     },
     {
       "id": "HIST-013",
-      "title": "History \u2014 selection mode \u2014 tablet/desktop",
+      "title": "History — selection mode — tablet/desktop",
       "description": "History selection mode at wider viewports.",
       "acceptanceCriteria": [
         "Checkboxes in list/grid",
@@ -426,7 +426,7 @@
     },
     {
       "id": "HIST-014",
-      "title": "History \u2014 empty no data \u2014 mobile",
+      "title": "History — empty no data — mobile",
       "description": "History with no transactions: empty illustration + prompt to scan receipts.",
       "acceptanceCriteria": [
         "Empty illustration renders",
@@ -458,7 +458,7 @@
     },
     {
       "id": "HIST-015",
-      "title": "History \u2014 empty no data \u2014 tablet",
+      "title": "History — empty no data — tablet",
       "description": "History empty at tablet.",
       "acceptanceCriteria": [
         "Empty state adapts",
@@ -489,7 +489,7 @@
     },
     {
       "id": "HIST-016",
-      "title": "History \u2014 empty no data \u2014 desktop",
+      "title": "History — empty no data — desktop",
       "description": "History empty at desktop.",
       "acceptanceCriteria": [
         "Empty state centered in main area",
@@ -520,7 +520,7 @@
     },
     {
       "id": "HIST-017",
-      "title": "History \u2014 empty after filter \u2014 mobile",
+      "title": "History — empty after filter — mobile",
       "description": "History with filters active but no matching results: 'no results' message + clear filters CTA.",
       "acceptanceCriteria": [
         "No results message renders",
@@ -553,7 +553,7 @@
     },
     {
       "id": "HIST-018",
-      "title": "History \u2014 empty after filter \u2014 tablet/desktop",
+      "title": "History — empty after filter — tablet/desktop",
       "description": "History empty-after-filter at wider viewports.",
       "acceptanceCriteria": [
         "No results adapts to layout",
@@ -585,7 +585,7 @@
     },
     {
       "id": "HIST-019",
-      "title": "History \u2014 loading first page \u2014 mobile",
+      "title": "History — loading first page — mobile",
       "description": "History during initial data fetch: skeleton transaction cards.",
       "acceptanceCriteria": [
         "Skeleton transaction cards pulse",
@@ -616,7 +616,7 @@
     },
     {
       "id": "HIST-020",
-      "title": "History \u2014 loading first page \u2014 tablet/desktop",
+      "title": "History — loading first page — tablet/desktop",
       "description": "History loading skeleton at wider viewports.",
       "acceptanceCriteria": [
         "Skeleton adapts to layout",
@@ -646,7 +646,7 @@
     },
     {
       "id": "HIST-021",
-      "title": "History \u2014 loading next page \u2014 mobile",
+      "title": "History — loading next page — mobile",
       "description": "History showing spinner at bottom while fetching next page via infinite scroll.",
       "acceptanceCriteria": [
         "Spinner at list bottom",
@@ -654,8 +654,8 @@
         "axe passes"
       ],
       "priority": 21,
-      "passes": false,
-      "notes": "",
+      "passes": true,
+      "notes": "play() asserts load-more spinner + existing transactions",
       "tier": "screen-state",
       "source": "new",
       "platform": [
@@ -678,15 +678,15 @@
     },
     {
       "id": "HIST-022",
-      "title": "History \u2014 loading next page \u2014 tablet/desktop",
+      "title": "History — loading next page — tablet/desktop",
       "description": "History infinite scroll loading at wider viewports.",
       "acceptanceCriteria": [
         "Spinner in content area",
         "axe passes"
       ],
       "priority": 22,
-      "passes": false,
-      "notes": "",
+      "passes": true,
+      "notes": "play() asserts load-more spinner + existing transactions",
       "tier": "screen-state",
       "source": "new",
       "platform": [
@@ -710,7 +710,7 @@
     },
     {
       "id": "HIST-023",
-      "title": "History \u2014 server error \u2014 mobile",
+      "title": "History — server error — mobile",
       "description": "History when API returns 5xx: error illustration + retry.",
       "acceptanceCriteria": [
         "Error message renders",
@@ -740,7 +740,7 @@
     },
     {
       "id": "HIST-024",
-      "title": "History \u2014 server error \u2014 tablet",
+      "title": "History — server error — tablet",
       "description": "History error at tablet.",
       "acceptanceCriteria": [
         "Error adapts to tablet",
@@ -769,7 +769,7 @@
     },
     {
       "id": "HIST-025",
-      "title": "History \u2014 server error \u2014 desktop",
+      "title": "History — server error — desktop",
       "description": "History error at desktop.",
       "acceptanceCriteria": [
         "Error centered in main area",
@@ -799,7 +799,7 @@
     },
     {
       "id": "HIST-026",
-      "title": "History \u2014 group mode \u2014 mobile",
+      "title": "History — group mode — mobile",
       "description": "History showing transactions grouped by category with collapsible sections and category totals.",
       "acceptanceCriteria": [
         "Category group headers with totals",
@@ -809,7 +809,7 @@
       ],
       "priority": 26,
       "passes": false,
-      "notes": "",
+      "notes": "isGroupMode exists in data hook but HistoryView does not consume it for visual grouping. Requires component work.",
       "tier": "screen-state",
       "source": "new",
       "platform": [
@@ -827,12 +827,12 @@
       "play_function": true,
       "maxAttempts": 3,
       "attemptCount": 0,
-      "blocked": false,
+      "blocked": true,
       "tier_suitability": "ralph-eligible"
     },
     {
       "id": "HIST-027",
-      "title": "History \u2014 group mode \u2014 tablet/desktop",
+      "title": "History — group mode — tablet/desktop",
       "description": "History group mode at wider viewports.",
       "acceptanceCriteria": [
         "Group headers adapt to layout",
@@ -840,7 +840,7 @@
       ],
       "priority": 27,
       "passes": false,
-      "notes": "",
+      "notes": "isGroupMode exists in data hook but HistoryView does not consume it for visual grouping. Requires component work.",
       "tier": "screen-state",
       "source": "new",
       "platform": [
@@ -859,12 +859,12 @@
       "play_function": true,
       "maxAttempts": 3,
       "attemptCount": 0,
-      "blocked": false,
+      "blocked": true,
       "tier_suitability": "ralph-eligible"
     },
     {
       "id": "HIST-028",
-      "title": "History \u2014 sort changed \u2014 mobile",
+      "title": "History — sort changed — mobile",
       "description": "History with non-default sort (e.g., amount desc).",
       "acceptanceCriteria": [
         "Sort indicator shows current sort",
@@ -896,7 +896,7 @@
     },
     {
       "id": "HIST-029",
-      "title": "History \u2014 sort changed \u2014 tablet/desktop",
+      "title": "History — sort changed — tablet/desktop",
       "description": "History sort changed at wider viewports.",
       "acceptanceCriteria": [
         "Sort control visible in header",
@@ -928,7 +928,7 @@
     },
     {
       "id": "HIST-030",
-      "title": "History \u2014 page size 60 \u2014 mobile",
+      "title": "History — page size 60 — mobile",
       "description": "History with page size set to 60 (vs default 20), showing denser list.",
       "acceptanceCriteria": [
         "Page size selector shows 60",
@@ -960,7 +960,7 @@
     },
     {
       "id": "HIST-031",
-      "title": "History \u2014 page size 60 \u2014 tablet/desktop",
+      "title": "History — page size 60 — tablet/desktop",
       "description": "History page size 60 at wider viewports.",
       "acceptanceCriteria": [
         "Page size selector in header",
@@ -992,7 +992,7 @@
     },
     {
       "id": "HIST-032",
-      "title": "History \u2014 drill-down from Dashboard",
+      "title": "History — drill-down from Dashboard",
       "description": "History opened with pre-filled category filter from Dashboard category-card click (/history?category=X).",
       "acceptanceCriteria": [
         "Category filter pre-filled from search params",
@@ -1002,7 +1002,7 @@
       ],
       "priority": 32,
       "passes": true,
-      "notes": "Cross-feature interactivity \u2014 requires both Dashboard and History screens.",
+      "notes": "Cross-feature interactivity — requires both Dashboard and History screens.",
       "tier": "screen-state",
       "source": "new",
       "platform": [
