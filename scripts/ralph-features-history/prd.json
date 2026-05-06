@@ -209,7 +209,7 @@
         "play() asserts filter + clear"
       ],
       "priority": 7,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "clean-slate",
@@ -240,7 +240,7 @@
         "play() asserts filter"
       ],
       "priority": 8,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "clean-slate",
@@ -271,7 +271,7 @@
         "play() asserts filter"
       ],
       "priority": 9,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "clean-slate",
@@ -304,7 +304,7 @@
         "play() asserts search + clear"
       ],
       "priority": 10,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "new",
@@ -335,7 +335,7 @@
         "play() asserts search"
       ],
       "priority": 11,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "new",
@@ -369,7 +369,7 @@
         "play() asserts select + deselect"
       ],
       "priority": 12,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "new",
@@ -401,7 +401,7 @@
         "play() asserts select"
       ],
       "priority": 13,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "new",
@@ -465,7 +465,7 @@
         "play() asserts CTA"
       ],
       "priority": 15,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "clean-slate",
@@ -496,7 +496,7 @@
         "play() asserts CTA"
       ],
       "priority": 16,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "clean-slate",
@@ -529,7 +529,7 @@
         "play() asserts clear CTA"
       ],
       "priority": 17,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "new",
@@ -560,7 +560,7 @@
         "play() asserts clear CTA"
       ],
       "priority": 18,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "new",
@@ -594,7 +594,7 @@
         "axe passes"
       ],
       "priority": 19,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "new",
@@ -623,7 +623,7 @@
         "axe passes"
       ],
       "priority": 20,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "new",
@@ -718,7 +718,7 @@
         "play() asserts retry"
       ],
       "priority": 23,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "new",
@@ -747,7 +747,7 @@
         "play() asserts retry"
       ],
       "priority": 24,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "new",
@@ -777,7 +777,7 @@
         "play() asserts retry"
       ],
       "priority": 25,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "new",
@@ -872,7 +872,7 @@
         "play() asserts sort toggle"
       ],
       "priority": 28,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "new",
@@ -903,7 +903,7 @@
         "play() asserts sort toggle"
       ],
       "priority": 29,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "new",
@@ -936,7 +936,7 @@
         "play() asserts page size change"
       ],
       "priority": 30,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "new",
@@ -967,7 +967,7 @@
         "play() asserts page size change"
       ],
       "priority": 31,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "tier": "screen-state",
       "source": "new",
@@ -1001,7 +1001,7 @@
         "play() asserts pre-filled filter"
       ],
       "priority": 32,
-      "passes": false,
+      "passes": true,
       "notes": "Cross-feature interactivity \u2014 requires both Dashboard and History screens.",
       "tier": "screen-state",
       "source": "new",

@@ -76,12 +76,18 @@ import { HistoryPagination } from '@features/history/components/HistoryPaginatio
  * HistoryView now owns its data via useHistoryViewData hook.
  * Props are minimal - only test overrides for testing.
  */
-interface HistoryViewProps {
-    /**
-     * Optional overrides for testing.
-     * Allows tests to inject mock data without needing to mock hooks.
-     */
+export interface HistoryViewInitialState {
+    searchQuery?: string;
+    sortBy?: HistorySortKey;
+    sortDirection?: 'asc' | 'desc';
+    pageSize?: PageSizeOption;
+    showDuplicatesOnly?: boolean;
+    selectionIds?: string[];
+}
+
+export interface HistoryViewProps {
     _testOverrides?: Partial<UseHistoryViewDataReturn>;
+    _initialState?: HistoryViewInitialState;
 }
 
 // ============================================================================
@@ -95,7 +101,7 @@ interface HistoryViewProps {
  * Story 14e-25a.2b: Now owns its data via useHistoryViewData hook.
  * Receives NO props from App.tsx except optional test overrides.
  */
-const HistoryViewInner: React.FC<HistoryViewProps> = ({ _testOverrides }) => {
+const HistoryViewInner: React.FC<HistoryViewProps> = ({ _testOverrides, _initialState }) => {
     // Story 14e-25a.2b: Get all data from hook
     const hookData = useHistoryViewData();
 
@@ -138,10 +144,8 @@ const HistoryViewInner: React.FC<HistoryViewProps> = ({ _testOverrides }) => {
     const onNavigateToView = (view: View) => navigate({ to: viewToPath(view) });
 
     const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
-    // Story 14.14: Search functionality
-    const [searchQuery, setSearchQuery] = useState('');
-    // Story 14.14: Page size state (15, 30, or 60 items per page)
-    const [pageSize, setPageSize] = useState<PageSizeOption>(DEFAULT_PAGE_SIZE);
+    const [searchQuery, setSearchQuery] = useState(_initialState?.searchQuery ?? '');
+    const [pageSize, setPageSize] = useState<PageSizeOption>(_initialState?.pageSize ?? DEFAULT_PAGE_SIZE);
     // Story 14.14: Internal page state - ignore historyPage prop, manage internally
     const [currentPage, setCurrentPage] = useState(1);
     // Story 15b-2c: Collapsible header extracted to useCollapsibleHeader hook
@@ -152,6 +156,7 @@ const HistoryViewInner: React.FC<HistoryViewProps> = ({ _testOverrides }) => {
         isSelectionMode,
         selectedIds,
         selectedCount,
+        enterSelectionMode,
         exitSelectionMode,
         toggleSelection,
         selectAll,
@@ -163,13 +168,20 @@ const HistoryViewInner: React.FC<HistoryViewProps> = ({ _testOverrides }) => {
     } = useSelectionMode();
     // Story 14e-5: Delete modal now uses Modal Manager
     const { openModal, closeModal } = useModalActions();
+
+    useEffect(() => {
+        if (_initialState?.selectionIds?.length) {
+            enterSelectionMode(_initialState.selectionIds[0]);
+            if (_initialState.selectionIds.length > 1) {
+                selectAll(_initialState.selectionIds);
+            }
+        }
+    }, []);
     // Story 14.15c: Export state
     const [isExporting, setIsExporting] = useState(false);
-    // Story 14.31 Session 3: Sort state
-    const [sortBy, setSortBy] = useState<HistorySortKey>(DEFAULT_HISTORY_SORT_KEY);
-    const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>(DEFAULT_HISTORY_SORT_DIRECTION);
-    // Story 14.13: Duplicate filter state
-    const [showDuplicatesOnly, setShowDuplicatesOnly] = useState(false);
+    const [sortBy, setSortBy] = useState<HistorySortKey>(_initialState?.sortBy ?? DEFAULT_HISTORY_SORT_KEY);
+    const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>(_initialState?.sortDirection ?? DEFAULT_HISTORY_SORT_DIRECTION);
+    const [showDuplicatesOnly, setShowDuplicatesOnly] = useState(_initialState?.showDuplicatesOnly ?? false);
     // Story 14.15b: Profile dropdown state
     const [isProfileOpen, setIsProfileOpen] = useState(false);
     const profileButtonRef = useRef<HTMLButtonElement>(null);

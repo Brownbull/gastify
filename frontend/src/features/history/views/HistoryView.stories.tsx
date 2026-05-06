@@ -2,7 +2,9 @@ import * as React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect, within, fn } from 'storybook/test';
 import { HistoryView } from './HistoryView';
+import type { HistoryViewInitialState } from './HistoryView';
 import { useHistoryFiltersInit } from '@shared/hooks';
+import { historyFiltersActions } from '@/shared/stores/useHistoryFiltersStore';
 import { Skeleton } from '@/design-system/atoms/Skeleton/Skeleton';
 import { ErrorFallback } from '@/design-system/molecules/ErrorFallback/ErrorFallback';
 import type { UseHistoryViewDataReturn } from './useHistoryViewData';
@@ -19,6 +21,8 @@ type DataState =
 interface HistoryScreenArgs {
   platform: Platform;
   state: DataState;
+  initialState?: HistoryViewInitialState;
+  categoryFilter?: string;
 }
 
 const PLATFORM_WIDTH: Record<Platform, number | undefined> = {
@@ -33,7 +37,7 @@ const THIS_MONTH = `${NOW.getFullYear()}-${String(NOW.getMonth() + 1).padStart(2
 const makeTx = (
   partial: Partial<Transaction> & { merchant: string; total: number },
 ): Transaction => ({
-  id: `tx-${Math.random().toString(36).slice(2, 8)}`,
+  id: `tx-${partial.merchant.toLowerCase().replace(/\s+/g, '-')}-${partial.total}`,
   date: `${THIS_MONTH}-${String(Math.floor(Math.random() * 28) + 1).padStart(2, '0')}`,
   category: 'Supermarket',
   items: [],
@@ -57,6 +61,12 @@ const baseCallbacks = {
   onEditTransaction: fn(),
 };
 
+const defaultOverrides: Partial<UseHistoryViewDataReturn> = {
+  transactions: MOCK_TRANSACTIONS,
+  allTransactions: MOCK_TRANSACTIONS,
+  ...baseCallbacks,
+};
+
 const buildOverrides = (
   state: DataState,
 ): Partial<UseHistoryViewDataReturn> | undefined => {
@@ -65,19 +75,13 @@ const buildOverrides = (
       return { transactions: [], allTransactions: [], ...baseCallbacks };
     case 'loading-more':
       return {
-        transactions: MOCK_TRANSACTIONS,
-        allTransactions: MOCK_TRANSACTIONS,
+        ...defaultOverrides,
         isLoadingMore: true,
         hasMore: true,
         loadMore: fn(),
-        ...baseCallbacks,
       };
     case 'default':
-      return {
-        transactions: MOCK_TRANSACTIONS,
-        allTransactions: MOCK_TRANSACTIONS,
-        ...baseCallbacks,
-      };
+      return defaultOverrides;
     case 'loading':
     case 'error':
       return undefined;
@@ -86,8 +90,21 @@ const buildOverrides = (
   }
 };
 
-function HistoryScreen({ platform, state }: HistoryScreenArgs) {
+function HistoryScreen({ platform, state, initialState, categoryFilter }: HistoryScreenArgs) {
   useHistoryFiltersInit();
+
+  React.useEffect(() => {
+    if (categoryFilter) {
+      historyFiltersActions.dispatch({
+        type: 'SET_CATEGORY_FILTER',
+        payload: { level: 'category', category: categoryFilter },
+      });
+    }
+    return () => {
+      historyFiltersActions.dispatch({ type: 'CLEAR_ALL_FILTERS' });
+    };
+  }, [categoryFilter]);
+
   const width = PLATFORM_WIDTH[platform];
   const wrapper = (children: React.ReactNode) => (
     <div
@@ -117,7 +134,10 @@ function HistoryScreen({ platform, state }: HistoryScreenArgs) {
 
   const overrides = buildOverrides(state);
   return wrapper(
-    overrides ? <HistoryView _testOverrides={overrides} /> : <HistoryView />,
+    <HistoryView
+      _testOverrides={overrides}
+      _initialState={initialState}
+    />,
   );
 }
 
@@ -163,6 +183,10 @@ export const MobileDefault: Story = {
   name: 'Mobile · Default',
   args: { platform: 'mobile', state: 'default' },
   parameters: { viewport: { defaultViewport: 'mobile' } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByTestId('back-button')).toBeInTheDocument();
+  },
 };
 
 // ─── HIST-002/005: Tablet · Default ─────────────────────────────────────────
@@ -181,12 +205,123 @@ export const DesktopDefault: Story = {
   parameters: { viewport: { defaultViewport: 'desktop' } },
 };
 
+// ─── HIST-007: Mobile · Filtered ────────────────────────────────────────────
+
+export const MobileFiltered: Story = {
+  name: 'Mobile · Filtered',
+  args: {
+    platform: 'mobile',
+    state: 'default',
+    categoryFilter: 'Supermarket',
+  },
+  parameters: { viewport: { defaultViewport: 'mobile' } },
+};
+
+// ─── HIST-008: Tablet · Filtered ────────────────────────────────────────────
+
+export const TabletFiltered: Story = {
+  name: 'Tablet · Filtered',
+  args: {
+    platform: 'tablet',
+    state: 'default',
+    categoryFilter: 'Supermarket',
+  },
+  parameters: { viewport: { defaultViewport: 'tablet' } },
+};
+
+// ─── HIST-009: Desktop · Filtered ───────────────────────────────────────────
+
+export const DesktopFiltered: Story = {
+  name: 'Desktop · Filtered',
+  args: {
+    platform: 'desktop',
+    state: 'default',
+    categoryFilter: 'Supermarket',
+  },
+  parameters: { viewport: { defaultViewport: 'desktop' } },
+};
+
+// ─── HIST-010: Mobile · Search Active ───────────────────────────────────────
+
+export const MobileSearchActive: Story = {
+  name: 'Mobile · Search Active',
+  args: {
+    platform: 'mobile',
+    state: 'default',
+    initialState: { searchQuery: 'Jumbo' },
+  },
+  parameters: { viewport: { defaultViewport: 'mobile' } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const searchInput = canvas.getByPlaceholderText(/buscar/i);
+    await expect(searchInput).toHaveValue('Jumbo');
+  },
+};
+
+// ─── HIST-011: Tablet/Desktop · Search Active ───────────────────────────────
+
+export const TabletDesktopSearchActive: Story = {
+  name: 'Tablet · Search Active',
+  args: {
+    platform: 'tablet',
+    state: 'default',
+    initialState: { searchQuery: 'Starbucks' },
+  },
+  parameters: { viewport: { defaultViewport: 'tablet' } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const searchInput = canvas.getByPlaceholderText(/buscar|search/i);
+    await expect(searchInput).toHaveValue('Starbucks');
+  },
+};
+
+// ─── HIST-012: Mobile · Selection Mode ──────────────────────────────────────
+
+export const MobileSelectionMode: Story = {
+  name: 'Mobile · Selection Mode',
+  args: {
+    platform: 'mobile',
+    state: 'default',
+    initialState: {
+      selectionIds: [MOCK_TRANSACTIONS[0].id!, MOCK_TRANSACTIONS[1].id!],
+    },
+  },
+  parameters: { viewport: { defaultViewport: 'mobile' } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByTestId('selection-bar')).toBeInTheDocument();
+    await expect(canvas.getByTestId('selection-bar-delete')).toBeInTheDocument();
+  },
+};
+
+// ─── HIST-013: Tablet/Desktop · Selection Mode ─────────────────────────────
+
+export const TabletDesktopSelectionMode: Story = {
+  name: 'Tablet · Selection Mode',
+  args: {
+    platform: 'tablet',
+    state: 'default',
+    initialState: {
+      selectionIds: [MOCK_TRANSACTIONS[0].id!, MOCK_TRANSACTIONS[2].id!],
+    },
+  },
+  parameters: { viewport: { defaultViewport: 'tablet' } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByTestId('selection-bar')).toBeInTheDocument();
+  },
+};
+
 // ─── HIST-014: Mobile · Empty ───────────────────────────────────────────────
 
 export const MobileEmpty: Story = {
   name: 'Mobile · Empty',
   args: { platform: 'mobile', state: 'empty' },
   parameters: { viewport: { defaultViewport: 'mobile' } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByTestId('empty-state')).toBeInTheDocument();
+  },
 };
 
 // ─── HIST-015: Tablet · Empty ───────────────────────────────────────────────
@@ -195,6 +330,10 @@ export const TabletEmpty: Story = {
   name: 'Tablet · Empty',
   args: { platform: 'tablet', state: 'empty' },
   parameters: { viewport: { defaultViewport: 'tablet' } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByTestId('empty-state')).toBeInTheDocument();
+  },
 };
 
 // ─── HIST-016: Desktop · Empty ──────────────────────────────────────────────
@@ -203,86 +342,42 @@ export const DesktopEmpty: Story = {
   name: 'Desktop · Empty',
   args: { platform: 'desktop', state: 'empty' },
   parameters: { viewport: { defaultViewport: 'desktop' } },
-};
-
-// ─── HIST-007: Mobile · Filtered ────────────────────────────────────────────
-// Blocked: Filter state lives in Zustand's useHistoryFiltersStore, not in
-// _testOverrides. Story renders default data; filter UI is interactive manually.
-
-export const MobileFiltered: Story = {
-  name: 'Mobile · Filtered',
-  args: { platform: 'mobile', state: 'default' },
-  parameters: { viewport: { defaultViewport: 'mobile' } },
-};
-
-// ─── HIST-008: Tablet · Filtered ────────────────────────────────────────────
-
-export const TabletFiltered: Story = {
-  name: 'Tablet · Filtered',
-  args: { platform: 'tablet', state: 'default' },
-  parameters: { viewport: { defaultViewport: 'tablet' } },
-};
-
-// ─── HIST-009: Desktop · Filtered ───────────────────────────────────────────
-
-export const DesktopFiltered: Story = {
-  name: 'Desktop · Filtered',
-  args: { platform: 'desktop', state: 'default' },
-  parameters: { viewport: { defaultViewport: 'desktop' } },
-};
-
-// ─── HIST-010: Mobile · Search Active ───────────────────────────────────────
-// Blocked: Search query is internal useState. Story renders default data;
-// search input is interactive manually in Storybook.
-
-export const MobileSearchActive: Story = {
-  name: 'Mobile · Search Active',
-  args: { platform: 'mobile', state: 'default' },
-  parameters: { viewport: { defaultViewport: 'mobile' } },
-};
-
-// ─── HIST-011: Tablet/Desktop · Search Active ───────────────────────────────
-
-export const TabletDesktopSearchActive: Story = {
-  name: 'Tablet · Search Active',
-  args: { platform: 'tablet', state: 'default' },
-  parameters: { viewport: { defaultViewport: 'tablet' } },
-};
-
-// ─── HIST-012: Mobile · Selection Mode ──────────────────────────────────────
-// Blocked: Selection mode requires long-press gesture which is not easily
-// simulated in Storybook play() functions.
-
-export const MobileSelectionMode: Story = {
-  name: 'Mobile · Selection Mode',
-  args: { platform: 'mobile', state: 'default' },
-  parameters: { viewport: { defaultViewport: 'mobile' } },
-};
-
-// ─── HIST-013: Tablet/Desktop · Selection Mode ─────────────────────────────
-
-export const TabletDesktopSelectionMode: Story = {
-  name: 'Tablet · Selection Mode',
-  args: { platform: 'tablet', state: 'default' },
-  parameters: { viewport: { defaultViewport: 'tablet' } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByTestId('empty-state')).toBeInTheDocument();
+  },
 };
 
 // ─── HIST-017: Mobile · Empty After Filter ──────────────────────────────────
-// Blocked: Requires hasActiveFilters=true from Zustand store + empty filtered
-// results. Not injectable via _testOverrides.
 
 export const MobileEmptyAfterFilter: Story = {
   name: 'Mobile · Empty After Filter',
-  args: { platform: 'mobile', state: 'default' },
+  args: {
+    platform: 'mobile',
+    state: 'default',
+    categoryFilter: 'NonExistentCategory',
+  },
   parameters: { viewport: { defaultViewport: 'mobile' } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByTestId('empty-filter-state')).toBeInTheDocument();
+  },
 };
 
 // ─── HIST-018: Tablet/Desktop · Empty After Filter ──────────────────────────
 
 export const TabletDesktopEmptyAfterFilter: Story = {
   name: 'Tablet · Empty After Filter',
-  args: { platform: 'tablet', state: 'default' },
+  args: {
+    platform: 'tablet',
+    state: 'default',
+    categoryFilter: 'NonExistentCategory',
+  },
   parameters: { viewport: { defaultViewport: 'tablet' } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByTestId('empty-filter-state')).toBeInTheDocument();
+  },
 };
 
 // ─── HIST-019: Mobile · Loading ─────────────────────────────────────────────
@@ -291,6 +386,10 @@ export const MobileLoading: Story = {
   name: 'Mobile · Loading',
   args: { platform: 'mobile', state: 'loading' },
   parameters: { viewport: { defaultViewport: 'mobile' } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByTestId('history-loading')).toBeInTheDocument();
+  },
 };
 
 // ─── HIST-020: Tablet/Desktop · Loading ─────────────────────────────────────
@@ -299,6 +398,10 @@ export const TabletDesktopLoading: Story = {
   name: 'Tablet · Loading',
   args: { platform: 'tablet', state: 'loading' },
   parameters: { viewport: { defaultViewport: 'tablet' } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByTestId('history-loading')).toBeInTheDocument();
+  },
 };
 
 // ─── HIST-021: Mobile · Loading More ────────────────────────────────────────
@@ -325,8 +428,7 @@ export const MobileError: Story = {
   parameters: { viewport: { defaultViewport: 'mobile' } },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    const retryBtn = canvas.getByRole('button', { name: /reintentar/i });
-    await expect(retryBtn).toBeInTheDocument();
+    await expect(canvas.getByRole('button', { name: /reintentar/i })).toBeInTheDocument();
   },
 };
 
@@ -338,8 +440,7 @@ export const TabletError: Story = {
   parameters: { viewport: { defaultViewport: 'tablet' } },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    const retryBtn = canvas.getByRole('button', { name: /reintentar/i });
-    await expect(retryBtn).toBeInTheDocument();
+    await expect(canvas.getByRole('button', { name: /reintentar/i })).toBeInTheDocument();
     await expect(canvas.getByRole('alert')).toBeInTheDocument();
   },
 };
@@ -352,15 +453,14 @@ export const DesktopError: Story = {
   parameters: { viewport: { defaultViewport: 'desktop' } },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    const retryBtn = canvas.getByRole('button', { name: /reintentar/i });
-    await expect(retryBtn).toBeInTheDocument();
+    await expect(canvas.getByRole('button', { name: /reintentar/i })).toBeInTheDocument();
     await expect(canvas.getByRole('alert')).toBeInTheDocument();
   },
 };
 
 // ─── HIST-026: Mobile · Group Mode ──────────────────────────────────────────
 // Blocked: isGroupMode is in UseHistoryViewDataReturn but HistoryView does not
-// yet consume it for visual grouping by category.
+// yet consume it for visual grouping by category. Requires component work.
 
 export const MobileGroupMode: Story = {
   name: 'Mobile · Group Mode',
@@ -377,12 +477,14 @@ export const TabletDesktopGroupMode: Story = {
 };
 
 // ─── HIST-028: Mobile · Sort Changed ────────────────────────────────────────
-// Blocked: Sort state is internal useState. Story renders default data;
-// sort control is interactive manually in Storybook.
 
 export const MobileSortChanged: Story = {
   name: 'Mobile · Sort Changed',
-  args: { platform: 'mobile', state: 'default' },
+  args: {
+    platform: 'mobile',
+    state: 'default',
+    initialState: { sortBy: 'total', sortDirection: 'desc' },
+  },
   parameters: { viewport: { defaultViewport: 'mobile' } },
 };
 
@@ -390,34 +492,56 @@ export const MobileSortChanged: Story = {
 
 export const TabletDesktopSortChanged: Story = {
   name: 'Tablet · Sort Changed',
-  args: { platform: 'tablet', state: 'default' },
+  args: {
+    platform: 'tablet',
+    state: 'default',
+    initialState: { sortBy: 'total', sortDirection: 'desc' },
+  },
   parameters: { viewport: { defaultViewport: 'tablet' } },
 };
 
 // ─── HIST-030: Mobile · Page Size 60 ────────────────────────────────────────
-// Blocked: Page size is internal useState. Story renders default data;
-// page size selector is interactive manually in Storybook.
 
 export const MobilePageSize60: Story = {
   name: 'Mobile · Page Size 60',
-  args: { platform: 'mobile', state: 'default' },
+  args: {
+    platform: 'mobile',
+    state: 'default',
+    initialState: { pageSize: 60 },
+  },
   parameters: { viewport: { defaultViewport: 'mobile' } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByTestId('page-size-60')).toBeInTheDocument();
+  },
 };
 
 // ─── HIST-031: Tablet/Desktop · Page Size 60 ────────────────────────────────
 
 export const TabletDesktopPageSize60: Story = {
   name: 'Tablet · Page Size 60',
-  args: { platform: 'tablet', state: 'default' },
+  args: {
+    platform: 'tablet',
+    state: 'default',
+    initialState: { pageSize: 60 },
+  },
   parameters: { viewport: { defaultViewport: 'tablet' } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByTestId('page-size-60')).toBeInTheDocument();
+  },
 };
 
 // ─── HIST-032: Drill-down from Dashboard ────────────────────────────────────
-// Human-authored: Cross-feature interactivity requiring both Dashboard and
-// History screens with URL search params for pre-filled category filter.
+// Cross-feature interactivity: Dashboard category-card click navigates to
+// /history?category=X. This story seeds the category filter to simulate that.
 
 export const DrillDownFromDashboard: Story = {
   name: 'Mobile · Drill-down from Dashboard',
-  args: { platform: 'mobile', state: 'default' },
+  args: {
+    platform: 'mobile',
+    state: 'default',
+    categoryFilter: 'Restaurant',
+  },
   parameters: { viewport: { defaultViewport: 'mobile' } },
 };

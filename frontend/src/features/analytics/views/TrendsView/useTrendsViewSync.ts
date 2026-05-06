@@ -24,6 +24,7 @@ import type { TimePeriod, CurrentPeriod, CarouselSlide } from './types';
 export interface UseTrendsViewSyncProps {
     filterState: HistoryFilterState;
     filterDispatch: React.Dispatch<HistoryFilterAction>;
+    initialCarouselSlide?: CarouselSlide;
 }
 
 export interface UseTrendsViewSyncReturn {
@@ -38,6 +39,7 @@ export interface UseTrendsViewSyncReturn {
 export function useTrendsViewSync({
     filterState,
     filterDispatch,
+    initialCarouselSlide,
 }: UseTrendsViewSyncProps): UseTrendsViewSyncReturn {
     // Time period selection (AC #2)
     // Persist time period to localStorage so it's retained on back navigation
@@ -302,6 +304,7 @@ export function useTrendsViewSync({
     // Carousel state (AC #4)
     // Persist carousel position so navigating back returns to same slide
     const [carouselSlide, setCarouselSlideLocal] = useState<CarouselSlide>(() => {
+        if (initialCarouselSlide !== undefined) return initialCarouselSlide;
         const saved = getStorageString('boletapp-analytics-carousel', '0');
         if (saved === '0' || saved === '1') {
             return parseInt(saved) as CarouselSlide;

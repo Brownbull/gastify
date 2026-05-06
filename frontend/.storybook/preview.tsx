@@ -22,6 +22,7 @@ import 'flag-icons/css/flag-icons.min.css';
 
 import { queryClient } from '../src/lib/queryClient';
 import { AuthProvider } from '../src/contexts/AuthContext';
+import { withRouter } from './withRouter';
 
 const withProviders: Decorator = (Story, context) => {
   // Custom global from globalTypes.colorTheme — picked from the toolbar.
@@ -76,12 +77,11 @@ const preview: Preview = {
     },
   },
   decorators: [
-    // Light/dark via Storybook's themes addon — toggles the `.dark` class on
-    // the story container, which the project's CSS uses to switch tokens.
     withThemeByClassName({
       themes: { light: '', dark: 'dark' },
       defaultTheme: 'light',
     }),
+    withRouter,
     withProviders,
   ],
   globalTypes: {

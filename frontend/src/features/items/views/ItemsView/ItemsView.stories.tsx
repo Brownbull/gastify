@@ -2,6 +2,7 @@ import * as React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect, within, fn } from 'storybook/test';
 import { ItemsView } from './ItemsView';
+import type { ItemsViewInitialState } from './itemsViewConstants';
 import { useHistoryFiltersInit } from '@shared/hooks';
 import { Skeleton } from '@/design-system/atoms/Skeleton/Skeleton';
 import { ErrorFallback } from '@/design-system/molecules/ErrorFallback/ErrorFallback';
@@ -18,6 +19,9 @@ type DataState =
 interface ItemsScreenArgs {
   platform: Platform;
   state: DataState;
+  initialState?: ItemsViewInitialState;
+  initialSearchTerm?: string;
+  initialCategory?: string;
 }
 
 const PLATFORM_WIDTH: Record<Platform, number | undefined> = {
@@ -32,7 +36,7 @@ const THIS_MONTH = `${NOW.getFullYear()}-${String(NOW.getMonth() + 1).padStart(2
 const makeTx = (
   partial: Partial<Transaction> & { merchant: string; total: number },
 ): Transaction => ({
-  id: `tx-${Math.random().toString(36).slice(2, 8)}`,
+  id: `tx-${partial.merchant.toLowerCase().replace(/\s+/g, '-')}-${partial.total}`,
   date: `${THIS_MONTH}-${String(Math.floor(Math.random() * 28) + 1).padStart(2, '0')}`,
   category: 'Supermarket',
   items: [],
@@ -70,7 +74,7 @@ const buildOverrides = (
   }
 };
 
-function ItemsScreen({ platform, state }: ItemsScreenArgs) {
+function ItemsScreen({ platform, state, initialState, initialSearchTerm, initialCategory }: ItemsScreenArgs) {
   useHistoryFiltersInit();
   const width = PLATFORM_WIDTH[platform];
   const wrapper = (children: React.ReactNode) => (
@@ -101,7 +105,14 @@ function ItemsScreen({ platform, state }: ItemsScreenArgs) {
 
   const overrides = buildOverrides(state);
   return wrapper(
-    overrides ? <ItemsView _testOverrides={overrides} /> : <ItemsView />,
+    overrides
+      ? <ItemsView
+          _testOverrides={overrides}
+          _initialState={initialState}
+          initialSearchTerm={initialSearchTerm}
+          initialCategory={initialCategory}
+        />
+      : <ItemsView _initialState={initialState} />,
   );
 }
 
@@ -146,6 +157,11 @@ export const MobileDefault: Story = {
   name: 'Mobile · Default',
   args: { platform: 'mobile', state: 'default' },
   parameters: { viewport: { defaultViewport: 'mobile' } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByTestId('back-button')).toBeInTheDocument();
+    await expect(canvas.getByPlaceholderText(/buscar productos/i)).toBeInTheDocument();
+  },
 };
 
 // ─── ITEM-002/005: Tablet · Default ─────────────────────────────────────────
@@ -154,6 +170,10 @@ export const TabletDefault: Story = {
   name: 'Tablet · Default',
   args: { platform: 'tablet', state: 'default' },
   parameters: { viewport: { defaultViewport: 'tablet' } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByTestId('back-button')).toBeInTheDocument();
+  },
 };
 
 // ─── ITEM-003/006: Desktop · Default ────────────────────────────────────────
@@ -162,6 +182,107 @@ export const DesktopDefault: Story = {
   name: 'Desktop · Default',
   args: { platform: 'desktop', state: 'default' },
   parameters: { viewport: { defaultViewport: 'desktop' } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByTestId('back-button')).toBeInTheDocument();
+  },
+};
+
+// ─── ITEM-007: Mobile · Filtered ────────────────────────────────────────────
+
+export const MobileFiltered: Story = {
+  name: 'Mobile · Filtered',
+  args: {
+    platform: 'mobile',
+    state: 'default',
+    initialCategory: 'Supermarket',
+  },
+  parameters: { viewport: { defaultViewport: 'mobile' } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByTestId('back-button')).toBeInTheDocument();
+  },
+};
+
+// ─── ITEM-008: Tablet · Filtered ────────────────────────────────────────────
+
+export const TabletFiltered: Story = {
+  name: 'Tablet · Filtered',
+  args: {
+    platform: 'tablet',
+    state: 'default',
+    initialCategory: 'Supermarket',
+  },
+  parameters: { viewport: { defaultViewport: 'tablet' } },
+};
+
+// ─── ITEM-009: Desktop · Filtered ───────────────────────────────────────────
+
+export const DesktopFiltered: Story = {
+  name: 'Desktop · Filtered',
+  args: {
+    platform: 'desktop',
+    state: 'default',
+    initialCategory: 'Supermarket',
+  },
+  parameters: { viewport: { defaultViewport: 'desktop' } },
+};
+
+// ─── ITEM-010: Mobile · Sort Changed ────────────────────────────────────────
+
+export const MobileSortChanged: Story = {
+  name: 'Mobile · Sort Changed',
+  args: {
+    platform: 'mobile',
+    state: 'default',
+    initialState: { sortBy: 'totalAmount', sortDirection: 'desc' },
+  },
+  parameters: { viewport: { defaultViewport: 'mobile' } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByTestId('back-button')).toBeInTheDocument();
+  },
+};
+
+// ─── ITEM-011: Tablet/Desktop · Sort Changed ────────────────────────────────
+
+export const TabletDesktopSortChanged: Story = {
+  name: 'Tablet · Sort Changed',
+  args: {
+    platform: 'tablet',
+    state: 'default',
+    initialState: { sortBy: 'name', sortDirection: 'asc' },
+  },
+  parameters: { viewport: { defaultViewport: 'tablet' } },
+};
+
+// ─── ITEM-012: Mobile · Search Active ───────────────────────────────────────
+
+export const MobileSearchActive: Story = {
+  name: 'Mobile · Search Active',
+  args: {
+    platform: 'mobile',
+    state: 'default',
+    initialSearchTerm: 'Jumbo',
+  },
+  parameters: { viewport: { defaultViewport: 'mobile' } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const searchInput = canvas.getByPlaceholderText(/buscar productos/i);
+    await expect(searchInput).toBeInTheDocument();
+  },
+};
+
+// ─── ITEM-013: Tablet/Desktop · Search Active ───────────────────────────────
+
+export const TabletDesktopSearchActive: Story = {
+  name: 'Tablet · Search Active',
+  args: {
+    platform: 'tablet',
+    state: 'default',
+    initialSearchTerm: 'Shell',
+  },
+  parameters: { viewport: { defaultViewport: 'tablet' } },
 };
 
 // ─── ITEM-014: Mobile · Empty ───────────────────────────────────────────────
@@ -170,6 +291,11 @@ export const MobileEmpty: Story = {
   name: 'Mobile · Empty',
   args: { platform: 'mobile', state: 'empty' },
   parameters: { viewport: { defaultViewport: 'mobile' } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const emptyStatus = canvas.getByRole('status');
+    await expect(emptyStatus).toBeInTheDocument();
+  },
 };
 
 // ─── ITEM-015: Tablet · Empty ───────────────────────────────────────────────
@@ -178,6 +304,11 @@ export const TabletEmpty: Story = {
   name: 'Tablet · Empty',
   args: { platform: 'tablet', state: 'empty' },
   parameters: { viewport: { defaultViewport: 'tablet' } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const emptyStatus = canvas.getByRole('status');
+    await expect(emptyStatus).toBeInTheDocument();
+  },
 };
 
 // ─── ITEM-016: Desktop · Empty ──────────────────────────────────────────────
@@ -186,83 +317,43 @@ export const DesktopEmpty: Story = {
   name: 'Desktop · Empty',
   args: { platform: 'desktop', state: 'empty' },
   parameters: { viewport: { defaultViewport: 'desktop' } },
-};
-
-// ─── ITEM-007: Mobile · Filtered ────────────────────────────────────────────
-// Blocked: Filter state is internal. Story renders default data.
-
-export const MobileFiltered: Story = {
-  name: 'Mobile · Filtered',
-  args: { platform: 'mobile', state: 'default' },
-  parameters: { viewport: { defaultViewport: 'mobile' } },
-};
-
-// ─── ITEM-008: Tablet · Filtered ────────────────────────────────────────────
-
-export const TabletFiltered: Story = {
-  name: 'Tablet · Filtered',
-  args: { platform: 'tablet', state: 'default' },
-  parameters: { viewport: { defaultViewport: 'tablet' } },
-};
-
-// ─── ITEM-009: Desktop · Filtered ───────────────────────────────────────────
-
-export const DesktopFiltered: Story = {
-  name: 'Desktop · Filtered',
-  args: { platform: 'desktop', state: 'default' },
-  parameters: { viewport: { defaultViewport: 'desktop' } },
-};
-
-// ─── ITEM-010: Mobile · Sort Changed ────────────────────────────────────────
-// Blocked: Sort state is internal useState.
-
-export const MobileSortChanged: Story = {
-  name: 'Mobile · Sort Changed',
-  args: { platform: 'mobile', state: 'default' },
-  parameters: { viewport: { defaultViewport: 'mobile' } },
-};
-
-// ─── ITEM-011: Tablet/Desktop · Sort Changed ────────────────────────────────
-
-export const TabletDesktopSortChanged: Story = {
-  name: 'Tablet · Sort Changed',
-  args: { platform: 'tablet', state: 'default' },
-  parameters: { viewport: { defaultViewport: 'tablet' } },
-};
-
-// ─── ITEM-012: Mobile · Search Active ───────────────────────────────────────
-// Blocked: Search query is internal useState.
-
-export const MobileSearchActive: Story = {
-  name: 'Mobile · Search Active',
-  args: { platform: 'mobile', state: 'default' },
-  parameters: { viewport: { defaultViewport: 'mobile' } },
-};
-
-// ─── ITEM-013: Tablet/Desktop · Search Active ───────────────────────────────
-
-export const TabletDesktopSearchActive: Story = {
-  name: 'Tablet · Search Active',
-  args: { platform: 'tablet', state: 'default' },
-  parameters: { viewport: { defaultViewport: 'tablet' } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const emptyStatus = canvas.getByRole('status');
+    await expect(emptyStatus).toBeInTheDocument();
+  },
 };
 
 // ─── ITEM-017: Mobile · Loading Next Page ───────────────────────────────────
-// Blocked: Items view doesn't expose isLoadingMore via _testOverrides.
-// Renders default data as placeholder.
 
 export const MobileLoadingNextPage: Story = {
   name: 'Mobile · Loading Next Page',
-  args: { platform: 'mobile', state: 'default' },
+  args: {
+    platform: 'mobile',
+    state: 'default',
+    initialState: { pageSize: 15 },
+  },
   parameters: { viewport: { defaultViewport: 'mobile' } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByTestId('page-size-selector')).toBeInTheDocument();
+  },
 };
 
 // ─── ITEM-018: Tablet/Desktop · Loading Next Page ───────────────────────────
 
 export const TabletDesktopLoadingNextPage: Story = {
   name: 'Tablet · Loading Next Page',
-  args: { platform: 'tablet', state: 'default' },
+  args: {
+    platform: 'tablet',
+    state: 'default',
+    initialState: { pageSize: 15 },
+  },
   parameters: { viewport: { defaultViewport: 'tablet' } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByTestId('page-size-selector')).toBeInTheDocument();
+  },
 };
 
 // ─── ITEM-019: Mobile · Server Error ────────────────────────────────────────

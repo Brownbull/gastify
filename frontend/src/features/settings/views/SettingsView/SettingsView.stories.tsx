@@ -1,6 +1,6 @@
 import * as React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { expect, within, fn } from 'storybook/test';
+import { expect, within, fn, waitFor } from 'storybook/test';
 import { SettingsView } from './SettingsView';
 import { Skeleton } from '@/design-system/atoms/Skeleton/Skeleton';
 import { ErrorFallback } from '@/design-system/molecules/ErrorFallback/ErrorFallback';
@@ -111,6 +111,13 @@ export const MobileDefault: Story = {
   name: 'Mobile · Default',
   args: { platform: 'mobile', state: 'default' },
   parameters: { viewport: { defaultViewport: 'mobile' } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByTestId('settings-menu-perfil')).toBeInTheDocument();
+    await expect(canvas.getByTestId('settings-menu-preferencias')).toBeInTheDocument();
+    await expect(canvas.getByTestId('settings-menu-cuenta')).toBeInTheDocument();
+    await expect(canvas.getByTestId('settings-menu-signout')).toBeInTheDocument();
+  },
 };
 
 // ─── SET-002: Tablet/Desktop · Default (hub) ────────────────────────────────
@@ -119,22 +126,37 @@ export const TabletDefault: Story = {
   name: 'Tablet · Default',
   args: { platform: 'tablet', state: 'default' },
   parameters: { viewport: { defaultViewport: 'tablet' } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByTestId('settings-menu-perfil')).toBeInTheDocument();
+    await expect(canvas.getByTestId('settings-menu-limites')).toBeInTheDocument();
+  },
 };
 
 export const DesktopDefault: Story = {
   name: 'Desktop · Default',
   args: { platform: 'desktop', state: 'default' },
   parameters: { viewport: { defaultViewport: 'desktop' } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByTestId('settings-menu-perfil')).toBeInTheDocument();
+  },
 };
 
 // ─── SET-004: Profile sub-page — mobile ─────────────────────────────────────
-// Blocked: Sub-page navigation is internal state (setSubview). Story renders
-// the settings hub; user can navigate to sub-pages manually in Storybook.
 
 export const MobileProfile: Story = {
   name: 'Mobile · Profile',
   args: { platform: 'mobile', state: 'default' },
   parameters: { viewport: { defaultViewport: 'mobile' } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const profileMenu = canvas.getByTestId('settings-menu-perfil');
+    await profileMenu.click();
+    await waitFor(() => {
+      expect(canvas.getByTestId('settings-back-button')).toBeInTheDocument();
+    });
+  },
 };
 
 // ─── SET-005: Profile sub-page — tablet/desktop ─────────────────────────────
@@ -143,6 +165,14 @@ export const TabletDesktopProfile: Story = {
   name: 'Tablet · Profile',
   args: { platform: 'tablet', state: 'default' },
   parameters: { viewport: { defaultViewport: 'tablet' } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const profileMenu = canvas.getByTestId('settings-menu-perfil');
+    await profileMenu.click();
+    await waitFor(() => {
+      expect(canvas.getByTestId('settings-back-button')).toBeInTheDocument();
+    });
+  },
 };
 
 // ─── SET-006: Preferences sub-page — mobile ─────────────────────────────────
@@ -151,6 +181,14 @@ export const MobilePreferences: Story = {
   name: 'Mobile · Preferences',
   args: { platform: 'mobile', state: 'default' },
   parameters: { viewport: { defaultViewport: 'mobile' } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const prefsMenu = canvas.getByTestId('settings-menu-preferencias');
+    await prefsMenu.click();
+    await waitFor(() => {
+      expect(canvas.getByTestId('settings-back-button')).toBeInTheDocument();
+    });
+  },
 };
 
 // ─── SET-007: Preferences sub-page — tablet/desktop ─────────────────────────
@@ -159,6 +197,14 @@ export const TabletDesktopPreferences: Story = {
   name: 'Tablet · Preferences',
   args: { platform: 'tablet', state: 'default' },
   parameters: { viewport: { defaultViewport: 'tablet' } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const prefsMenu = canvas.getByTestId('settings-menu-preferencias');
+    await prefsMenu.click();
+    await waitFor(() => {
+      expect(canvas.getByTestId('settings-back-button')).toBeInTheDocument();
+    });
+  },
 };
 
 // ─── SET-008: Scanning sub-page — mobile ────────────────────────────────────
@@ -167,6 +213,14 @@ export const MobileScanning: Story = {
   name: 'Mobile · Scanning',
   args: { platform: 'mobile', state: 'default' },
   parameters: { viewport: { defaultViewport: 'mobile' } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const scanMenu = canvas.getByTestId('settings-menu-escaneo');
+    await scanMenu.click();
+    await waitFor(() => {
+      expect(canvas.getByTestId('settings-back-button')).toBeInTheDocument();
+    });
+  },
 };
 
 // ─── SET-009: Limits sub-page — mobile ──────────────────────────────────────
@@ -175,6 +229,14 @@ export const MobileLimits: Story = {
   name: 'Mobile · Limits',
   args: { platform: 'mobile', state: 'default' },
   parameters: { viewport: { defaultViewport: 'mobile' } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const limitsMenu = canvas.getByTestId('settings-menu-limites');
+    await limitsMenu.click();
+    await waitFor(() => {
+      expect(canvas.getByTestId('settings-back-button')).toBeInTheDocument();
+    });
+  },
 };
 
 // ─── SET-010: Limits sub-page — tablet/desktop ──────────────────────────────
@@ -183,6 +245,14 @@ export const TabletDesktopLimits: Story = {
   name: 'Tablet · Limits',
   args: { platform: 'tablet', state: 'default' },
   parameters: { viewport: { defaultViewport: 'tablet' } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const limitsMenu = canvas.getByTestId('settings-menu-limites');
+    await limitsMenu.click();
+    await waitFor(() => {
+      expect(canvas.getByTestId('settings-back-button')).toBeInTheDocument();
+    });
+  },
 };
 
 // ─── SET-011: Subscription sub-page — mobile ────────────────────────────────
@@ -191,6 +261,14 @@ export const MobileSubscription: Story = {
   name: 'Mobile · Subscription',
   args: { platform: 'mobile', state: 'default' },
   parameters: { viewport: { defaultViewport: 'mobile' } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const subMenu = canvas.getByTestId('settings-menu-suscripcion');
+    await subMenu.click();
+    await waitFor(() => {
+      expect(canvas.getByTestId('settings-back-button')).toBeInTheDocument();
+    });
+  },
 };
 
 // ─── SET-012: Subscription sub-page — tablet/desktop ────────────────────────
@@ -199,6 +277,14 @@ export const TabletDesktopSubscription: Story = {
   name: 'Tablet · Subscription',
   args: { platform: 'tablet', state: 'default' },
   parameters: { viewport: { defaultViewport: 'tablet' } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const subMenu = canvas.getByTestId('settings-menu-suscripcion');
+    await subMenu.click();
+    await waitFor(() => {
+      expect(canvas.getByTestId('settings-back-button')).toBeInTheDocument();
+    });
+  },
 };
 
 // ─── SET-013: Data sub-page — mobile ────────────────────────────────────────
@@ -207,6 +293,14 @@ export const MobileData: Story = {
   name: 'Mobile · Data',
   args: { platform: 'mobile', state: 'default' },
   parameters: { viewport: { defaultViewport: 'mobile' } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const dataMenu = canvas.getByTestId('settings-menu-datos');
+    await dataMenu.click();
+    await waitFor(() => {
+      expect(canvas.getByTestId('settings-back-button')).toBeInTheDocument();
+    });
+  },
 };
 
 // ─── SET-014: Data sub-page — tablet/desktop ────────────────────────────────
@@ -215,6 +309,14 @@ export const TabletDesktopData: Story = {
   name: 'Tablet · Data',
   args: { platform: 'tablet', state: 'default' },
   parameters: { viewport: { defaultViewport: 'tablet' } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const dataMenu = canvas.getByTestId('settings-menu-datos');
+    await dataMenu.click();
+    await waitFor(() => {
+      expect(canvas.getByTestId('settings-back-button')).toBeInTheDocument();
+    });
+  },
 };
 
 // ─── SET-015: Groups sub-page — mobile ──────────────────────────────────────
@@ -223,6 +325,14 @@ export const MobileGroups: Story = {
   name: 'Mobile · Groups',
   args: { platform: 'mobile', state: 'default' },
   parameters: { viewport: { defaultViewport: 'mobile' } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const groupsMenu = canvas.getByTestId('settings-menu-grupos');
+    await groupsMenu.click();
+    await waitFor(() => {
+      expect(canvas.getByTestId('grupos-coming-soon')).toBeInTheDocument();
+    });
+  },
 };
 
 // ─── SET-016: App sub-page — mobile ─────────────────────────────────────────
@@ -231,6 +341,14 @@ export const MobileApp: Story = {
   name: 'Mobile · App',
   args: { platform: 'mobile', state: 'default' },
   parameters: { viewport: { defaultViewport: 'mobile' } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const appMenu = canvas.getByTestId('settings-menu-app');
+    await appMenu.click();
+    await waitFor(() => {
+      expect(canvas.getByTestId('settings-back-button')).toBeInTheDocument();
+    });
+  },
 };
 
 // ─── SET-017: Account sub-page — mobile ─────────────────────────────────────
@@ -239,6 +357,14 @@ export const MobileAccount: Story = {
   name: 'Mobile · Account',
   args: { platform: 'mobile', state: 'default' },
   parameters: { viewport: { defaultViewport: 'mobile' } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const accountMenu = canvas.getByTestId('settings-menu-cuenta');
+    await accountMenu.click();
+    await waitFor(() => {
+      expect(canvas.getByTestId('settings-back-button')).toBeInTheDocument();
+    });
+  },
 };
 
 // ─── SET-018: Account sub-page — tablet/desktop ─────────────────────────────
@@ -247,6 +373,14 @@ export const TabletDesktopAccount: Story = {
   name: 'Tablet · Account',
   args: { platform: 'tablet', state: 'default' },
   parameters: { viewport: { defaultViewport: 'tablet' } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const accountMenu = canvas.getByTestId('settings-menu-cuenta');
+    await accountMenu.click();
+    await waitFor(() => {
+      expect(canvas.getByTestId('settings-back-button')).toBeInTheDocument();
+    });
+  },
 };
 
 // ─── SET-019: Loading state — mobile ────────────────────────────────────────
@@ -255,6 +389,10 @@ export const MobileLoading: Story = {
   name: 'Mobile · Loading',
   args: { platform: 'mobile', state: 'loading' },
   parameters: { viewport: { defaultViewport: 'mobile' } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByTestId('settings-loading')).toBeInTheDocument();
+  },
 };
 
 // ─── SET-020: Server error — mobile ─────────────────────────────────────────
@@ -272,9 +410,10 @@ export const MobileError: Story = {
 
 // ─── SET-021: Sub-page saving state — mobile ────────────────────────────────
 // Blocked: Saving state is internal to each sub-page component.
+// Would require sub-page-specific _testOverrides or mocked async handlers.
 
 export const MobileSaving: Story = {
-  name: 'Mobile · Saving',
+  name: 'Mobile · Saving (blocked)',
   args: { platform: 'mobile', state: 'default' },
   parameters: { viewport: { defaultViewport: 'mobile' } },
 };
@@ -283,7 +422,7 @@ export const MobileSaving: Story = {
 // Blocked: Validation state is internal to each sub-page component.
 
 export const MobileValidationError: Story = {
-  name: 'Mobile · Validation Error',
+  name: 'Mobile · Validation Error (blocked)',
   args: { platform: 'mobile', state: 'default' },
   parameters: { viewport: { defaultViewport: 'mobile' } },
 };
@@ -292,7 +431,7 @@ export const MobileValidationError: Story = {
 // Blocked: Onboarding flow component does not yet exist.
 
 export const MobileOnboardingWelcome: Story = {
-  name: 'Mobile · Onboarding Welcome',
+  name: 'Mobile · Onboarding Welcome (blocked)',
   args: { platform: 'mobile', state: 'default' },
   parameters: { viewport: { defaultViewport: 'mobile' } },
 };
@@ -300,7 +439,7 @@ export const MobileOnboardingWelcome: Story = {
 // ─── SET-024: Onboarding step 2 (preferences) — mobile ─────────────────────
 
 export const MobileOnboardingPreferences: Story = {
-  name: 'Mobile · Onboarding Preferences',
+  name: 'Mobile · Onboarding Preferences (blocked)',
   args: { platform: 'mobile', state: 'default' },
   parameters: { viewport: { defaultViewport: 'mobile' } },
 };
@@ -308,7 +447,7 @@ export const MobileOnboardingPreferences: Story = {
 // ─── SET-025: Onboarding step 3 (first scan) — mobile ──────────────────────
 
 export const MobileOnboardingFirstScan: Story = {
-  name: 'Mobile · Onboarding First Scan',
+  name: 'Mobile · Onboarding First Scan (blocked)',
   args: { platform: 'mobile', state: 'default' },
   parameters: { viewport: { defaultViewport: 'mobile' } },
 };
@@ -316,7 +455,7 @@ export const MobileOnboardingFirstScan: Story = {
 // ─── SET-026: Onboarding complete — mobile ──────────────────────────────────
 
 export const MobileOnboardingComplete: Story = {
-  name: 'Mobile · Onboarding Complete',
+  name: 'Mobile · Onboarding Complete (blocked)',
   args: { platform: 'mobile', state: 'default' },
   parameters: { viewport: { defaultViewport: 'mobile' } },
 };
@@ -327,14 +466,18 @@ export const DesktopDataExport: Story = {
   name: 'Desktop · Data Export',
   args: { platform: 'desktop', state: 'default' },
   parameters: { viewport: { defaultViewport: 'desktop' } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByTestId('settings-menu-cuenta')).toBeInTheDocument();
+  },
 };
 
 // ─── SET-028: Onboarding → Dashboard full flow ──────────────────────────────
-// Human-authored: Cross-feature interactivity requiring navigation from
-// onboarding completion to Dashboard.
+// Blocked: Cross-feature interactivity requiring onboarding completion
+// and navigation to Dashboard. Onboarding component does not yet exist.
 
 export const OnboardingToDashboard: Story = {
-  name: 'Mobile · Onboarding to Dashboard',
+  name: 'Mobile · Onboarding to Dashboard (blocked)',
   args: { platform: 'mobile', state: 'default' },
   parameters: { viewport: { defaultViewport: 'mobile' } },
 };

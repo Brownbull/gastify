@@ -55,6 +55,7 @@ export const ItemsView: React.FC<ItemsViewProps> = ({
     _testOverrides,
     initialCategory,
     initialSearchTerm,
+    _initialState,
 }) => {
     // Story 14e-31: Data ownership via internal hook
     const hookData = useItemsViewData();
@@ -101,14 +102,12 @@ export const ItemsView: React.FC<ItemsViewProps> = ({
 
     // Pagination state
     const [currentPage, setCurrentPage] = useState(1);
-    const [pageSize, setPageSize] = useState<PageSizeOption>(DEFAULT_PAGE_SIZE);
+    const [pageSize, setPageSize] = useState<PageSizeOption>(_initialState?.pageSize ?? DEFAULT_PAGE_SIZE);
 
-    // Story 14.31 Session 2: Duplicate filter state
-    const [showDuplicatesOnly, setShowDuplicatesOnly] = useState(false);
+    const [showDuplicatesOnly, setShowDuplicatesOnly] = useState(_initialState?.showDuplicatesOnly ?? false);
 
-    // Story 14.31 Session 3: Sort state
-    const [sortBy, setSortBy] = useState<ItemSortKey>(DEFAULT_SORT_KEY);
-    const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>(DEFAULT_SORT_DIRECTION);
+    const [sortBy, setSortBy] = useState<ItemSortKey>(_initialState?.sortBy ?? DEFAULT_SORT_KEY);
+    const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>(_initialState?.sortDirection ?? DEFAULT_SORT_DIRECTION);
 
     // Animation preference
     const prefersReducedMotion = useReducedMotion();

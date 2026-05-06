@@ -73,13 +73,15 @@ export type { DrillDownPath, HistoryNavigationPayload } from '@/types/navigation
  * Props are ONLY used for test data injection via _testOverrides.
  * In production, App.tsx renders <TrendsView /> with no props.
  */
+export interface TrendsViewInitialState {
+    distributionView?: DistributionView;
+    tendenciaView?: TendenciaView;
+    carouselSlide?: 0 | 1;
+}
+
 export interface TrendsViewProps {
-    /**
-     * Story 14e-25b.1: Test data override for testing.
-     * When provided, these values override the hook data.
-     * Production code should NOT pass this prop.
-     */
     _testOverrides?: Partial<TrendsViewData>;
+    _initialState?: TrendsViewInitialState;
 }
 import {
     computeStoreGroupsData, computeItemGroupsData,
@@ -108,7 +110,7 @@ import { TrendsHeader } from './TrendsHeader';
 import { TreemapSlide } from './TreemapSlide';
 import { SankeySlide } from './SankeySlide';
 import { useCategoryStatsPopup } from './useCategoryStatsPopup';
-export const TrendsView: React.FC<TrendsViewProps> = ({ _testOverrides }) => {
+export const TrendsView: React.FC<TrendsViewProps> = ({ _testOverrides, _initialState }) => {
     // Story 14e-25b.1: Get all data from internal hook
     const hookData = useTrendsViewData();
 
@@ -164,15 +166,15 @@ export const TrendsView: React.FC<TrendsViewProps> = ({ _testOverrides }) => {
         timePeriod, setTimePeriod,
         currentPeriod, setCurrentPeriod,
         carouselSlide, setCarouselSlide,
-    } = useTrendsViewSync({ filterState, filterDispatch });
+    } = useTrendsViewSync({ filterState, filterDispatch, initialCarouselSlide: _initialState?.carouselSlide });
 
     // Animation trigger key - increments when slide changes to restart animations
     const [animationKey, setAnimationKey] = useState(0);
 
     // View toggle states (AC #7)
     // Story 14.13 Session 7: Initialize from prop for back navigation restoration
-    const [distributionView, setDistributionView] = useState<DistributionView>(initialDistributionView || 'treemap');
-    const [tendenciaView, setTendenciaView] = useState<TendenciaView>('list');
+    const [distributionView, setDistributionView] = useState<DistributionView>(_initialState?.distributionView ?? initialDistributionView ?? 'treemap');
+    const [tendenciaView, setTendenciaView] = useState<TendenciaView>(_initialState?.tendenciaView ?? 'list');
 
     // Story 14.13.3 Phase 5: Sankey mode state (3-level-groups or 3-level-categories)
     const [sankeyMode, setSankeyMode] = useState<SankeyMode>('3-level-groups');
