@@ -1,5 +1,12 @@
 # Session Ledger
 
+## 2026-05-06 16:58 — PUSH rebuild/be-phase-01 → origin/main (PR #2)
+PR: https://github.com/Brownbull/gastify/pull/2
+CI: ✅ 9/9 (all green after 5 CI-fix commits)
+DEPLOYMENTS: P7 updated (initial push, CI failed) + P8 added (CI-fix iteration, all green)
+SOURCE: 5 CI-fix commits (e266afd → 059d642) covering: uv.lock tracked, ruff format, biome install + lint script, vitest test script, backend coverage 74→81%, deprecated nav refs rename, dependency-groups migration, esbuild peer dep, pip-audit addition, serialize-javascript audit fix.
+FIXES APPLIED: 10 distinct CI issues resolved across 7 originally-failing jobs + 3 cascade issues discovered during iteration.
+
 ## 2026-04-28 — [main bb934e1] feat(mockups): D18 file-triple cascade + KDBP audit (D23) + parallel validate-mode scaffold
 FINDINGS: 3 (0 critical, 0 high, 2 medium, 1 low)
   - medium: tests/mockups/validate/runner.mjs — `.mjs` not in STRUCTURE.md test pattern (stream B / not-mine; accepted)
