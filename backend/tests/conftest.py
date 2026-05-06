@@ -47,6 +47,46 @@ async def engine():
             ),
             {"scope_id": TEST_SCOPE_ID.hex},
         )
+        await conn.execute(
+            sa.text(
+                "INSERT INTO processing_register"
+                " (id, purpose, description, legal_basis, data_categories,"
+                " recipients, retention_period, jurisdictions, is_active)"
+                " VALUES"
+                " (:id1, 'receipt_scanning', 'AI receipt processing',"
+                " 'contract', 'receipt images', 'internal',"
+                " '7 years', 'CL,EU,CA,US-CA', 1),"
+                " (:id2, 'analytics', 'Usage analytics',"
+                " 'legitimate_interest', 'transaction history', 'internal',"
+                " '1 year', 'CL,EU,CA,US-CA', 1),"
+                " (:id3, 'marketing', 'Marketing comms',"
+                " 'consent', 'email, name', 'internal',"
+                " 'until revoked', 'CL,EU,CA,US-CA', 1),"
+                " (:id4, 'data_sharing', 'Third-party sharing',"
+                " 'consent', 'anonymized data', 'partners',"
+                " 'until revoked', 'CL,EU,CA,US-CA', 1),"
+                " (:id5, 'ai_training', 'AI model improvement',"
+                " 'consent', 'anonymized receipts', 'internal ML',"
+                " 'until revoked', 'CL,EU,CA,US-CA', 1)"
+            ),
+            {
+                "id1": uuid.uuid4().hex,
+                "id2": uuid.uuid4().hex,
+                "id3": uuid.uuid4().hex,
+                "id4": uuid.uuid4().hex,
+                "id5": uuid.uuid4().hex,
+            },
+        )
+        await conn.execute(
+            sa.text(
+                "INSERT INTO users"
+                " (id, firebase_uid, email, display_name,"
+                " default_currency, locale, ownership_scope_id)"
+                " VALUES (:uid, 'test-firebase-uid', 'test@example.com',"
+                " 'Test User', 'CLP', 'es', :scope_id)"
+            ),
+            {"uid": TEST_USER_ID.hex, "scope_id": TEST_SCOPE_ID.hex},
+        )
 
     yield eng
     await eng.dispose()
@@ -95,8 +135,11 @@ def _mock_external_fx():
 
 @pytest.fixture
 def mock_auth_context() -> AuthContext:
+    from datetime import UTC, datetime
+
     from app.models.user import User
 
+    now = datetime.now(UTC)
     user = User(
         id=TEST_USER_ID,
         firebase_uid="test-firebase-uid",
@@ -105,6 +148,8 @@ def mock_auth_context() -> AuthContext:
         ownership_scope_id=TEST_SCOPE_ID,
         default_currency="CLP",
         locale="es",
+        created_at=now,
+        updated_at=now,
     )
     return AuthContext(user=user, ownership_scope_id=TEST_SCOPE_ID)
 

@@ -1,5 +1,6 @@
 """SQLAlchemy models — import all to register with Base.metadata."""
 
+from app.models.consent import AuditEvent, ConsentRecord, ProcessingRegister
 from app.models.credit import CreditBalance
 from app.models.fx import FxRate
 from app.models.mapping import CategoryMapping, MerchantMapping
@@ -8,7 +9,9 @@ from app.models.transaction import Transaction, TransactionImage, TransactionIte
 from app.models.user import OwnershipScope, OwnershipScopeMember, User
 
 __all__ = [
+    "AuditEvent",
     "CategoryMapping",
+    "ConsentRecord",
     "CreditBalance",
     "Currency",
     "FxRate",
@@ -16,6 +19,7 @@ __all__ = [
     "MerchantMapping",
     "OwnershipScope",
     "OwnershipScopeMember",
+    "ProcessingRegister",
     "StoreCategory",
     "Transaction",
     "TransactionImage",
