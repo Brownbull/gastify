@@ -551,6 +551,15 @@ DEFERRED: none
 COMMIT_COL_TICK: skipped (Current Phase = Post-pivot scaling; commit is more of the same scaling pattern).
 NOTES: 4th self-contained-screen story shipped. Storybook scope: 9 atom stories + 16 screen stories (Dashboard 4 + Trends 4 + History 4 + Items 4) = 25 stories total + Welcome sentinel. Phase 7 (Playwright snapshot suite) is the only remaining optional/queued item from the original pivot plan.
 
+## 2026-05-06 — [3eff76f] feat: implement P1 scaffold + P2 money/FX/i18n + P3 identity/RLS — backend foundation phases 1-3
+FINDINGS: 3 (0 critical, 0 high, 2 medium, 1 low)
+ACTIONS: 1:accept (new API routes, docs deferred to P6), 2:accept (README drift, P14 tracks), 3:update-structure (added backend/ patterns to STRUCTURE.md)
+DEFERRED: 0
+TESTS: 52/52 pass | LINT: 0 errors
+SCOPE: 39 files, +3993 -472. P1 (structlog + metrics + middleware), P2 (fx_rates + USD-shadow + i18n), P3 (Firebase JIT + RLS + credits). 3 Alembic migrations. 25 new source files + 11 modified + 3 KDBP state files.
+TICK: ✅ Phase 1/2/3 Exec + Commit columns ticked
+STRUCTURE: STRUCTURE.md backend/ section added (16 patterns replacing template api/ paths)
+
 ## 2026-05-06 15:30 — PHASE 3 REVIEW: Identity + ownership scope + RLS
 VERDICT: APPROVE
 FINDINGS: 8 total (1 critical, 4 high, 2 medium, 1 low) — all 8 resolved
