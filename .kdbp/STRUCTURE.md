@@ -32,6 +32,7 @@
 | Pattern | Description | Tier |
 |---------|-------------|------|
 | `backend/pyproject.toml` | Python deps + tool config | MVP |
+| `backend/uv.lock` | uv lockfile (committed for reproducible installs) | MVP |
 | `backend/app/main.py` | FastAPI entry | MVP |
 | `backend/app/config.py` | Settings (pydantic-settings) | MVP |
 | `backend/app/*.py` | Top-level app modules (logging, observability, middleware, i18n) | MVP |
@@ -106,6 +107,7 @@
 | `frontend/index.html` | Vite entry HTML | MVP |
 | `frontend/package.json` | Frontend deps | MVP |
 | `frontend/package-lock.json` | npm lockfile | MVP |
+| `frontend/biome.json` | Biome linter config | MVP |
 | `frontend/tsconfig.json` | TypeScript config | MVP |
 | `frontend/tsconfig.node.json` | TypeScript Node config (Vite tooling) | MVP |
 | `frontend/vite.config.ts` | Vite config | MVP |

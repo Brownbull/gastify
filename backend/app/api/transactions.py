@@ -344,7 +344,9 @@ async def update_transaction(
                     txn.fx_rate_to_usd = fx.rate
                     txn.fx_captured_at = fx.captured_at
                     txn.amount_usd_minor = compute_usd_shadow(
-                        txn.total_minor, from_exponent, fx.rate,
+                        txn.total_minor,
+                        from_exponent,
+                        fx.rate,
                     )
             except FxServiceError:
                 logger.warning("fx_unavailable_on_update", extra={"currency": txn.currency})

@@ -12,7 +12,7 @@
  * - Calls useRecentScans() for recent scan merge
  * - Calls useTheme() for theme/locale settings
  * - Calls useUserPreferences() for user defaults
- * - Consumes pendingHistoryFilters from navigation store
+ * - Provides pending filters (hardcoded null, no navigation store dependency)
  * - Provides formatters (t, formatCurrency, formatDate) internally
  *
  * @example

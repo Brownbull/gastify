@@ -42,6 +42,33 @@ class TestMetricsRegistry:
         assert snap["counters"] == {}
         assert snap["histograms"] == {}
 
+    def test_reservoir_overflow(self):
+        reg = MetricsRegistry()
+        for i in range(200):
+            reg.observe("overflow_hist", float(i))
+        snap = reg.snapshot()
+        h = snap["histograms"]["overflow_hist"]
+        assert h["count"] == 200
+
+
+class TestHealthEndpoints:
+    @pytest.fixture
+    async def bare_client(self):
+        transport = ASGITransport(app=app)
+        async with AsyncClient(transport=transport, base_url="http://test") as ac:
+            yield ac
+
+    async def test_liveness(self, bare_client):
+        resp = await bare_client.get("/api/v1/health")
+        assert resp.status_code == 200
+        assert resp.json()["status"] == "ok"
+
+    async def test_readiness_no_db(self, bare_client):
+        resp = await bare_client.get("/api/v1/health/ready")
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["status"] in ("ok", "unhealthy")
+
 
 class TestMetricsEndpoint:
     @pytest.fixture

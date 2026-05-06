@@ -23,9 +23,7 @@ async def other_scope_txn_id(engine) -> uuid.UUID:
     factory = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
     async with factory() as session:
         await session.execute(
-            sa.text(
-                "INSERT INTO ownership_scopes (id, scope_type) VALUES (:sid, 'individual')"
-            ),
+            sa.text("INSERT INTO ownership_scopes (id, scope_type) VALUES (:sid, 'individual')"),
             {"sid": SECOND_SCOPE_ID.hex},
         )
         await session.execute(
@@ -139,9 +137,7 @@ class TestScopeIsolation:
 class TestCreditBalanceInit:
     """Verify credit balance is created on JIT user provision."""
 
-    async def test_jit_creates_credit_balance(
-        self, jit_client: AsyncClient, engine
-    ) -> None:
+    async def test_jit_creates_credit_balance(self, jit_client: AsyncClient, engine) -> None:
         resp = await jit_client.get("/api/v1/transactions")
         assert resp.status_code == 200
 

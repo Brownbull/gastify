@@ -1,7 +1,7 @@
 """Tests for FX rate service, USD-shadow compute, and i18n."""
 
 from decimal import Decimal
-from unittest.mock import AsyncMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 from httpx import AsyncClient
@@ -28,6 +28,104 @@ class TestComputeUsdShadow:
         # 1,000,000 CLP at 0.001 → 100,000 cents = $1000
         result = compute_usd_shadow(1_000_000, from_exponent=0, fx_rate=Decimal("0.001"))
         assert result == 100_000
+
+
+class TestGetFxRateDirect:
+    """Direct tests for get_fx_rate — bypasses HTTP, covers DB read-through cache."""
+
+    async def test_same_currency_returns_one(self, engine) -> None:
+        from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
+
+        from app.services.fx import get_fx_rate
+
+        session_factory = async_sessionmaker(engine, class_=AsyncSession)
+        async with session_factory() as session:
+            result = await get_fx_rate(session, "USD", "USD")
+            assert result.rate == Decimal("1")
+
+    async def test_cache_miss_fetches_external(self, engine) -> None:
+        from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
+
+        from app.services.fx import get_fx_rate
+
+        session_factory = async_sessionmaker(engine, class_=AsyncSession)
+        async with session_factory() as session:
+            with patch(
+                "app.services.fx._fetch_external_rate",
+                new_callable=AsyncMock,
+                return_value=Decimal("0.00105"),
+            ) as mock:
+                result = await get_fx_rate(session, "CLP", "USD")
+                assert result.rate is not None
+                assert mock.call_count == 1
+
+    async def test_cache_hit_no_external_call(self, engine) -> None:
+        from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
+
+        from app.services.fx import get_fx_rate
+
+        session_factory = async_sessionmaker(engine, class_=AsyncSession)
+        async with session_factory() as session:
+            with patch(
+                "app.services.fx._fetch_external_rate",
+                new_callable=AsyncMock,
+                return_value=Decimal("1.08"),
+            ) as mock:
+                await get_fx_rate(session, "EUR", "USD")
+                assert mock.call_count == 1
+            await session.commit()
+        async with session_factory() as session:
+            with patch(
+                "app.services.fx._fetch_external_rate",
+                new_callable=AsyncMock,
+            ) as mock2:
+                result = await get_fx_rate(session, "EUR", "USD")
+                assert mock2.call_count == 0
+                assert result.rate == Decimal("1.08")
+
+
+class TestFetchExternalRate:
+    """Tests for _fetch_external_rate with mocked httpx."""
+
+    @pytest.fixture(autouse=True)
+    def _mock_external_fx(self):
+        """Override the conftest autouse mock so we can test the real function."""
+        yield
+
+    async def test_success(self) -> None:
+        from app.services.fx import _fetch_external_rate
+
+        mock_response = MagicMock()
+        mock_response.json.return_value = {"rate": "0.00105"}
+        mock_response.raise_for_status = MagicMock()
+
+        with patch("httpx.AsyncClient") as mock_cls:
+            mock_client = AsyncMock()
+            mock_client.get.return_value = mock_response
+            mock_client.__aenter__ = AsyncMock(return_value=mock_client)
+            mock_client.__aexit__ = AsyncMock(return_value=False)
+            mock_cls.return_value = mock_client
+
+            rate = await _fetch_external_rate("CLP", "USD")
+            assert rate == Decimal("0.00105")
+
+    async def test_all_retries_fail(self) -> None:
+        import httpx
+
+        from app.services.fx import FxServiceError, _fetch_external_rate
+
+        with patch("httpx.AsyncClient") as mock_cls:
+            mock_client = AsyncMock()
+            mock_client.get.side_effect = httpx.HTTPError("timeout")
+            mock_client.__aenter__ = AsyncMock(return_value=mock_client)
+            mock_client.__aexit__ = AsyncMock(return_value=False)
+            mock_cls.return_value = mock_client
+
+            with (
+                patch("asyncio.sleep", new_callable=AsyncMock),
+                pytest.raises(FxServiceError, match="unavailable after 3"),
+            ):
+                await _fetch_external_rate("CLP", "USD")
 
 
 class TestFxServiceIntegration:
@@ -79,9 +177,7 @@ class TestFxServiceIntegration:
         assert data["amount_usd_minor"] == 2999
         assert data["fx_rate_to_usd"] is None
 
-    async def test_fx_failure_rejects_transaction(
-        self, client: AsyncClient
-    ) -> None:
+    async def test_fx_failure_rejects_transaction(self, client: AsyncClient) -> None:
         """Per D2 ent tier: FX failure = reject with retry hint."""
         with patch(
             "app.services.fx._fetch_external_rate",

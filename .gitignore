@@ -27,7 +27,6 @@ coverage.xml
 
 # uv
 .uv/
-uv.lock
 
 # Node / Frontend
 node_modules/

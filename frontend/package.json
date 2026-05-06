@@ -8,6 +8,8 @@
     "build": "bash -c 'for v in $(env | grep -oE \"^VITE_FIREBASE_[A-Z_]+\"); do unset $v; done; unset VITE_GEMINI_API_KEY VITE_E2E_MODE; tsc && vite build'",
     "preview": "vite preview",
     "type-check": "tsc --noEmit",
+    "test": "vitest",
+    "lint": "biome check src/",
     "storybook": "storybook dev -p 6007 --no-open",
     "storybook:build": "storybook build"
   },
@@ -37,6 +39,7 @@
     "fast-xml-parser": "^5.3.4"
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.4.14",
     "@storybook/addon-themes": "^10.3.5",
     "@storybook/react-vite": "^10.3.5",
     "@tailwindcss/vite": "^4.2.4",

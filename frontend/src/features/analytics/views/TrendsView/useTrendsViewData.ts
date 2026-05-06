@@ -10,7 +10,7 @@
  * - Calls useTransactions() for transaction data
  * - Calls useUserPreferences() for user defaults
  * - Calls useThemeSettings() for theme/locale settings (via useThemeSettings from useSettingsStore)
- * - Gets analyticsInitialState from useNavigationStore()
+ * - Derives analytics URL params from search params via searchParamsToAnalyticsState()
  * - Provides formatters (t) internally
  *
  * Note: Theme settings come from useThemeSettings() context (ThemeContext)
@@ -115,7 +115,7 @@ export interface UseTrendsViewDataReturn {
     /** Initial distribution view for back navigation */
     initialDistributionView: 'treemap' | 'donut' | undefined;
     /** Analytics initial state for drill-down restoration */
-    analyticsInitialState: AnalyticsNavigationState | null;
+    analyticsUrlParams: AnalyticsNavigationState | null;
 
     // === Group Mode ===
     /** Whether viewing shared group transactions */
@@ -178,7 +178,7 @@ export function useTrendsViewData(): UseTrendsViewDataReturn {
 
     // === Navigation State (derived from URL search params) ===
     const trendsLocation = useRouterState({ select: (s) => s.location });
-    const analyticsInitialState = searchParamsToAnalyticsState(trendsLocation.search as Record<string, string>);
+    const analyticsUrlParams = searchParamsToAnalyticsState(trendsLocation.search as Record<string, string>);
     const pendingDistributionView = (trendsLocation.search as Record<string, string>)?.distView as 'treemap' | 'donut' | undefined ?? null;
 
     // === User Info ===
@@ -232,7 +232,7 @@ export function useTrendsViewData(): UseTrendsViewDataReturn {
 
         // Navigation state
         initialDistributionView: pendingDistributionView ?? undefined,
-        analyticsInitialState,
+        analyticsUrlParams,
 
         // Group mode
         isGroupMode: false,
