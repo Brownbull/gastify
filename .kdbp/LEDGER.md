@@ -551,6 +551,13 @@ DEFERRED: none
 COMMIT_COL_TICK: skipped (Current Phase = Post-pivot scaling; commit is more of the same scaling pattern).
 NOTES: 4th self-contained-screen story shipped. Storybook scope: 9 atom stories + 16 screen stories (Dashboard 4 + Trends 4 + History 4 + Items 4) = 25 stories total + Welcome sentinel. Phase 7 (Playwright snapshot suite) is the only remaining optional/queued item from the original pivot plan.
 
+## 2026-05-06 — PUSH rebuild/be-phase-01 -> main
+PR: https://github.com/Brownbull/gastify/pull/2
+CI: — (none configured)
+PROMOTION: N/A (staging not on remote; direct feature-branch push)
+DEPLOYMENTS: P7 added to .kdbp/DEPLOYMENTS.md
+DRIFT: origin/rebuild/fe-dashboard-batch-01 detected — old frontend batch branch, ignored
+
 ## 2026-05-06 — [3eff76f] feat: implement P1 scaffold + P2 money/FX/i18n + P3 identity/RLS — backend foundation phases 1-3
 FINDINGS: 3 (0 critical, 0 high, 2 medium, 1 low)
 ACTIONS: 1:accept (new API routes, docs deferred to P6), 2:accept (README drift, P14 tracks), 3:update-structure (added backend/ patterns to STRUCTURE.md)
