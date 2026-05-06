@@ -595,6 +595,17 @@ TRIAGE: option [2] Fix all MVP + Enterprise items — 8 fixes applied, 1 reverte
 KEY FIXES: middleware 500 try/except, setattr→field allowlist, Literal types + IntegrityError handler, batch max_length=200, float→Decimal FX rate, 3 JIT auth tests, ruff format 13 files, PRAGMA FK + UUID seed format, raise-from + naming + unused import lint fixes
 ACTIVE: .kdbp/REVIEW.md (schema 1.1, claude/opus-4-6 source)
 
+## 2026-05-06 — [e266afd] fix(ci): green all 7 CI checks — backend coverage 81%, frontend lint/test scripts, deprecated nav refs cleanup
+FINDINGS: 3 (0 critical, 0 high, 2 medium, 1 low)
+  - low: README.md not updated when package.json deps changed (already tracked as P14; accepted)
+  - medium: frontend/biome.json no STRUCTURE.md pattern (update-structure applied)
+  - medium: backend/uv.lock no STRUCTURE.md pattern (update-structure applied)
+ACTIONS: 1:accept 2:update-structure 3:update-structure
+DEFERRED: 0
+TESTS: 82/82 pass | LINT: 0 errors (ruff + biome) | COVERAGE: 81.03% (mvp skip)
+SCOPE: 14 files, +2440 -19. Backend: uv.lock tracked (.gitignore rule removed), ruff format 3 files, 30 new test functions (auth 100%, fx 98%, health 94%, obs 91%). Frontend: biome 2.4.14 installed + tuned config, vitest/lint scripts added, package-lock regenerated. Custom gates: analyticsInitialState→analyticsUrlParams rename, stale pendingHistoryFilters comment fix.
+STRUCTURE: +2 patterns (backend/uv.lock, frontend/biome.json)
+
 ## 2026-05-06 12:00 — PHASE 1 REVIEW: Scaffold + DB baseline
 VERDICT: APPROVE
 FINDINGS: 6 total (0 critical, 1 high, 3 medium, 2 low)
