@@ -1,3 +1,4 @@
+import asyncio
 from typing import Annotated
 
 import firebase_admin
@@ -20,9 +21,7 @@ def _get_firebase_app() -> firebase_admin.App:
     else:
         cred = credentials.ApplicationDefault()
 
-    _app = firebase_admin.initialize_app(
-        cred, {"projectId": settings.firebase_project_id}
-    )
+    _app = firebase_admin.initialize_app(cred, {"projectId": settings.firebase_project_id})
     return _app
 
 
@@ -48,7 +47,7 @@ async def get_current_user(request: Request) -> FirebaseUser:
     _get_firebase_app()
 
     try:
-        decoded = firebase_auth.verify_id_token(token)
+        decoded = await asyncio.to_thread(firebase_auth.verify_id_token, token)
     except Exception as exc:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

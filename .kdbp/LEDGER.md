@@ -550,3 +550,43 @@ ACTIONS: none
 DEFERRED: none
 COMMIT_COL_TICK: skipped (Current Phase = Post-pivot scaling; commit is more of the same scaling pattern).
 NOTES: 4th self-contained-screen story shipped. Storybook scope: 9 atom stories + 16 screen stories (Dashboard 4 + Trends 4 + History 4 + Items 4) = 25 stories total + Welcome sentinel. Phase 7 (Playwright snapshot suite) is the only remaining optional/queued item from the original pivot plan.
+
+## 2026-05-06 15:30 — PHASE 3 REVIEW: Identity + ownership scope + RLS
+VERDICT: APPROVE
+FINDINGS: 8 total (1 critical, 4 high, 2 medium, 1 low) — all 8 resolved
+COVERAGE: MEDIUM — 52 tests pass; app-level scope isolation proven with real cross-scope data; RLS not exercised at DB level (SQLite)
+CONFIDENCE: 90/100 (was 20 pre-triage; +70 from fixing all 8 findings via option [3] Fix all including Scale)
+DEFERRED: none
+ALIGNMENT: DRIFTED (branch carries P2 + P3 work; findings span both phases)
+TIER: ent | DRIFT: none
+TICK: ✅ Phase 3 Review column ticked
+TRIAGE: option [3] Fix all including Scale — all 8 findings fixed
+KEY FIXES: SET LOCAL before RLS inserts (#1 CRITICAL), real cross-scope test data (#2), FX rejection + autouse mock (#3), PATCH USD-shadow recompute (#4), credit backfill before RLS (#5), unused import removal (#6), asyncio.to_thread for Firebase (#7), credit balance DB verification (#8)
+POST-TRIAGE LINT: E501 ×2 + B904 raise-from chain
+SOURCES: codex/gpt-5 (inbox, 6 findings) + claude/opus-4-6 (blind, 8 findings) — 6 strict matches, 2 Claude-only
+ARCHIVED: .kdbp/reviews-archive/REVIEW_2026-05-06-153000_resolved.md
+
+## 2026-05-06 14:45 — PHASE 2 REVIEW: Money + currency + FX + i18n
+VERDICT: PASS
+FINDINGS: 9 total (1 critical, 4 high, 2 medium, 2 low) — 8 resolved, 1 deferred (P21)
+COVERAGE: MEDIUM — 29 tests, 78% line coverage; transactions.py at 38%, auth paths ~50%
+CONFIDENCE: 83/100 (was 35 pre-triage; +48 from fixing 8 of 9 findings via option [2] Fix MVP + Enterprise)
+DEFERRED: P21 (JSON/JSONB ORM-migration mismatch — cosmetic autogenerate noise, not runtime defect)
+ALIGNMENT: DRIFTED (branch mixes P1 obs, P2 money, P3 identity — all 3 phases Exec=🔄 on this branch)
+TIER: ent | DRIFT: none
+TICK: ✅ Phase 2 Review column ticked
+TRIAGE: option [2] Fix all MVP + Enterprise items — 8 fixes applied, 1 reverted (JSONB broke SQLite)
+KEY FIXES: middleware 500 try/except, setattr→field allowlist, Literal types + IntegrityError handler, batch max_length=200, float→Decimal FX rate, 3 JIT auth tests, ruff format 13 files, PRAGMA FK + UUID seed format, raise-from + naming + unused import lint fixes
+ACTIVE: .kdbp/REVIEW.md (schema 1.1, claude/opus-4-6 source)
+
+## 2026-05-06 12:00 — PHASE 1 REVIEW: Scaffold + DB baseline
+VERDICT: APPROVE
+FINDINGS: 6 total (0 critical, 1 high, 3 medium, 2 low)
+COVERAGE: MEDIUM — core registry + endpoint + request-id + access-log→metrics tested; structlog format untested
+CONFIDENCE: 76/100 (was 64 pre-triage; +12 from fixing #1)
+DEFERRED: P16 (conftest metadata mutation), P17 (metrics endpoint auth), P18 (BaseHTTPMiddleware), P19 (structlog format test), P20 (threading.Lock at scale)
+ALIGNMENT: DRIFTED (branch mixes P1 obs with P2/P3 concurrent work; P1 subset complete)
+TIER: ent (Obs→scale) | DRIFT: none
+TICK: ✅ Phase 1 Review column ticked
+TRIAGE: option [1] Fix MVP items only — #1 fixed (access-log→metrics test), #2-#6 deferred to PENDING.md P16-P20
+ARCHIVED: .kdbp/reviews-archive/REVIEW_2026-05-06-120000_resolved.md

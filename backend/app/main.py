@@ -2,7 +2,13 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.health import router as health_router
+from app.api.metrics import router as metrics_router
+from app.api.transactions import router as transactions_router
 from app.config import settings
+from app.logging import setup_logging
+from app.middleware import AccessLogMiddleware, RequestIdMiddleware
+
+setup_logging()
 
 app = FastAPI(
     title="Gastify API",
@@ -12,6 +18,8 @@ app = FastAPI(
     redoc_url="/api/redoc" if settings.debug else None,
 )
 
+app.add_middleware(AccessLogMiddleware)
+app.add_middleware(RequestIdMiddleware)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins,
@@ -21,3 +29,5 @@ app.add_middleware(
 )
 
 app.include_router(health_router, prefix="/api/v1")
+app.include_router(transactions_router, prefix="/api/v1")
+app.include_router(metrics_router, prefix="/api/v1")

@@ -10,6 +10,8 @@ class Settings(BaseSettings):
     firebase_project_id: str = "boletapp-d609f"
     firebase_credentials_path: str | None = None
 
+    fx_api_url: str = "https://api.frankfurter.dev"
+
     cors_origins: list[str] = ["http://localhost:5173", "http://localhost:5174"]
 
     environment: str = "development"

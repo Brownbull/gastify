@@ -25,34 +25,50 @@
 | `tests/**/*.{py,ts,tsx,js,jsx}` | Test files | MVP |
 | `scripts/**/*.{sh,py}` | Utility scripts | MVP |
 
-### Agent App (Python + FastAPI + PydanticAI + React + Bun + Postgres)
+### Backend (FastAPI + SQLAlchemy + Alembic + Firebase Auth)
+
+<!-- Actual layout: backend/ prefix with app/ for source, alembic/ for migrations, tests/ for pytest. -->
 
 | Pattern | Description | Tier |
 |---------|-------------|------|
-| `api/main.py` | FastAPI entry | MVP |
-| `api/config.py` | Settings | MVP |
-| `api/database.py` | DB session/engine | MVP |
-| `api/types.py` | Shared enums/constants | MVP |
-| `api/routes/*.py` | HTTP handlers (thin) | MVP |
-| `api/models/*.py` | SQLAlchemy ORM | MVP |
-| `api/schemas/*.py` | Pydantic request/response | MVP |
-| `api/services/*.py` | Business logic (no FastAPI/agent imports) | MVP |
-| `api/agents/*.py` | PydanticAI agent definition | MVP |
-| `api/guardrails/*.py` | Prompt-injection, validation, moderation | MVP |
-| `api/integrations/*.py` | External service adapters | E |
-| `api/context/*.py` | Context engineering | E |
-| `api/observability/*.py` | Tracing, metrics, logging | E |
+| `backend/pyproject.toml` | Python deps + tool config | MVP |
+| `backend/app/main.py` | FastAPI entry | MVP |
+| `backend/app/config.py` | Settings (pydantic-settings) | MVP |
+| `backend/app/*.py` | Top-level app modules (logging, observability, middleware, i18n) | MVP |
+| `backend/app/api/*.py` | HTTP route handlers | MVP |
+| `backend/app/auth/*.py` | Firebase auth middleware + dependency injection | MVP |
+| `backend/app/models/*.py` | SQLAlchemy ORM models | MVP |
+| `backend/app/schemas/*.py` | Pydantic request/response schemas | MVP |
+| `backend/app/services/*.py` | Business logic (no FastAPI imports) | MVP |
+| `backend/app/agents/*.py` | PydanticAI agent definitions | MVP |
+| `backend/app/guardrails/*.py` | Prompt-injection, validation, moderation | MVP |
+| `backend/app/integrations/*.py` | External service adapters | E |
+| `backend/alembic/*.py` | Alembic env + config | MVP |
+| `backend/alembic/versions/*.py` | Database migrations | MVP |
+| `backend/tests/*.py` | Pytest test files | MVP |
+| `backend/tests/**/*.py` | Nested test modules | MVP |
+
+### Frontend Web (React + Vite + Zustand + TanStack Query)
+
+<!-- Template patterns — activate when web/ directory is created. -->
+
+| Pattern | Description | Tier |
+|---------|-------------|------|
 | `web/src/pages/*.tsx` | Route-level components | MVP |
 | `web/src/components/**/*.tsx` | Shared UI components | MVP |
 | `web/src/lib/*.ts` | Client utilities (api, fetcher) | MVP |
 | `web/src/hooks/*.ts` | React hooks | MVP |
 | `web/src/stores/*.ts` | State management | E |
 | `web/public/**` | Static assets | MVP |
-| `docker/**` | Dockerfiles + compose | MVP |
-| `infra/**` | Deployment configs | E |
-| `pyproject.toml` | Python deps | MVP |
 | `web/package.json` | Frontend deps | MVP |
+
+### Infrastructure
+
+| Pattern | Description | Tier |
+|---------|-------------|------|
+| `docker/**` | Dockerfiles + compose | MVP |
 | `docker-compose.yml` | Local dev stack | MVP |
+| `infra/**` | Deployment configs | E |
 
 ### UX Mockups (design-system + HTML prototypes)
 
