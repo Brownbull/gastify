@@ -54,6 +54,7 @@
     "@types/react-window": "^1.8.8",
     "@types/testing-library__jest-dom": "^5.14.9",
     "@vitejs/plugin-react": "^4.3.0",
+    "esbuild": "^0.28.0",
     "jsdom": "^29.1.0",
     "storybook": "^10.3.5",
     "tailwindcss": "^4.2.4",
