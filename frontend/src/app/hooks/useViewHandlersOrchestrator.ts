@@ -5,17 +5,12 @@
  * Story 15b-4f: App.tsx fan-out reduction
  */
 import { useState, useRef, useCallback, type RefObject } from 'react';
+import { useNavigate, useRouterState } from '@tanstack/react-router';
 import {
     useSettingsStore,
     useLang,
     useCurrency,
     useDateFormat,
-    useCurrentView,
-    useSettingsSubview,
-    usePendingHistoryFilters,
-    usePendingDistributionView,
-    useAnalyticsInitialState,
-    useNavigationActions,
     useCurrentInsight,
     useShowInsightCard,
     useShowSessionComplete,
@@ -23,6 +18,7 @@ import {
     useShowBatchSummary,
     useInsightActions,
 } from '@/shared/stores';
+import { pathToView, pathToSettingsSubview, settingsSubviewToPath, viewToPath } from '@/lib/routeMapping';
 import {
     useCurrentTransaction,
     useNavigationList,
@@ -47,21 +43,36 @@ import type { UserPreferences } from '../../types/preferences';
 export function useViewHandlersOrchestrator(
     userPreferences: UserPreferences,
 ) {
-    // Navigation state from Zustand store
-    const view = useCurrentView();
-    const settingsSubview = useSettingsSubview();
-    const pendingHistoryFilters = usePendingHistoryFilters();
-    const pendingDistributionView = usePendingDistributionView();
-    const analyticsInitialState = useAnalyticsInitialState();
-    const {
-        setView,
-        setSettingsSubview,
-        saveScrollPosition,
-        setPendingHistoryFilters,
-        setPendingDistributionView,
-        setAnalyticsInitialState,
-        clearAnalyticsInitialState,
-    } = useNavigationActions();
+    // Navigation state derived from TanStack Router URL
+    const routerState = useRouterState({ select: (s) => s.location });
+    const view = pathToView(routerState.pathname) ?? 'dashboard';
+    const settingsSubview = pathToSettingsSubview(routerState.pathname);
+    const orchNavigate = useNavigate();
+    const pendingDistributionView = (routerState.search as Record<string, string>)?.distView as 'treemap' | 'donut' | undefined ?? null;
+    const setView = useCallback(
+        (v: string) => orchNavigate({ to: viewToPath(v as any) }),
+        [orchNavigate]
+    );
+    const setSettingsSubview = useCallback(
+        (subview: string) => {
+            orchNavigate({ to: settingsSubviewToPath(subview as Parameters<typeof settingsSubviewToPath>[0]) });
+        },
+        [orchNavigate]
+    );
+    const setPendingDistributionView = useCallback(
+        (dv: 'treemap' | 'donut' | null) => {
+            if (dv) {
+                orchNavigate({ to: '/trends', search: { distView: dv } as any, replace: true });
+            }
+        },
+        [orchNavigate]
+    );
+    const saveScrollPosition = useCallback(
+        (_view: string, _scrollTop: number) => {
+            // Scroll restoration handled by browser with TanStack Router
+        },
+        []
+    );
 
     // Transaction editor state from Zustand store
     const currentTransaction = useCurrentTransaction();
@@ -197,16 +208,11 @@ export function useViewHandlersOrchestrator(
         // Navigation
         view,
         settingsSubview,
-        pendingHistoryFilters,
         pendingDistributionView,
-        analyticsInitialState,
         setView,
         setSettingsSubview,
         saveScrollPosition,
-        setPendingHistoryFilters,
         setPendingDistributionView,
-        setAnalyticsInitialState,
-        clearAnalyticsInitialState,
         // Transaction editor
         currentTransaction,
         transactionNavigationList,

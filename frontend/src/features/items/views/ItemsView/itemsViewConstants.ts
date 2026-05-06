@@ -49,15 +49,16 @@ export const DEFAULT_SORT_DIRECTION: 'asc' | 'desc' = 'desc';
  * View now owns its data via useItemsViewData hook.
  * Uses _testOverrides pattern for handler injection from App.tsx.
  */
+export interface ItemsViewInitialState {
+    sortBy?: ItemSortKey;
+    sortDirection?: 'asc' | 'desc';
+    pageSize?: PageSizeOption;
+    showDuplicatesOnly?: boolean;
+}
+
 export interface ItemsViewProps {
-    /**
-     * Override hook values from parent (App.tsx).
-     * Used to inject handlers that require App.tsx state coordination.
-     * Example: onEditTransaction needs setCurrentTransaction from App.tsx.
-     */
     _testOverrides?: Partial<UseItemsViewDataReturn>;
-    /** Initial category filter (for navigation from analytics) */
     initialCategory?: string;
-    /** Initial search term (for navigation from analytics) */
     initialSearchTerm?: string;
+    _initialState?: ItemsViewInitialState;
 }

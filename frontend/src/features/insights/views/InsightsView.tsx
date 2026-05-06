@@ -59,8 +59,8 @@ import { toDateSafe } from '@/utils/timestamp';
 /** Long press delay for batch selection activation. */
 const LONG_PRESS_DELAY_MS = 500;
 import { ProfileDropdown, ProfileAvatar, getInitials } from '@/components/ProfileDropdown';
-// Story 14e-25c.2: Navigation via Zustand store
-import { useNavigation } from '@shared/stores/useNavigationStore';
+import { useNavigate, useRouter } from '@tanstack/react-router';
+import { viewToPath } from '@/lib/routeMapping';
 import type { View } from '@app/types';
 
 // localStorage key for view preference persistence
@@ -200,8 +200,10 @@ export const InsightsView: React.FC<InsightsViewProps> = ({
   theme,
   t,
 }) => {
-  // Story 14e-25c.2: Get navigation from Zustand store
-  const { navigateBack, navigateToView } = useNavigation();
+  const insNavigate = useNavigate();
+  const insRouter = useRouter();
+  const navigateBack = () => insRouter.history.back();
+  const navigateToView = (view: View) => insNavigate({ to: viewToPath(view) });
 
   const { user, services } = useAuth();
   const insightProfileRepo = useInsightProfileRepository();

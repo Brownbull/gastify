@@ -27,12 +27,10 @@ export {
 // Story 14e-45: NavigationContext DELETED
 // =============================================================================
 //
-// NavigationContext was removed in Story 14e-45. Navigation now uses Zustand:
-// - State: useNavigationStore from @/shared/stores
-// - Actions: useNavigationActions() from @/shared/stores
-// - Combined: useNavigation() from @/shared/stores
+// NavigationContext removed (Story 14e-45), then Zustand store removed.
+// Navigation now uses TanStack Router directly.
 // - View type: import { View } from '@app/types'
-// - SettingsSubview type: import { SettingsSubview } from '@/shared/stores/useNavigationStore'
+// - Route helpers: import { viewToPath, pathToView } from '@/lib/routeMapping'
 
 // Story 15-7c: ThemeContext DELETED (15-TD-7) — theme settings use useSettingsStore (Zustand)
 // Use useThemeSettings() from '@/shared/stores'.

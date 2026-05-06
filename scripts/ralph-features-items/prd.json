@@ -1,0 +1,669 @@
+{
+  "project": "gastify",
+  "branchName": "rebuild/fe-items-batch-01",
+  "description": "Items gravity well \u2014 screen-shells + screen-states (Tier 3 + Tier 4)",
+  "userStories": [
+    {
+      "id": "ITEM-001",
+      "title": "Items shell \u2014 mobile",
+      "description": "Items list layout at 390\u00d7844 with aggregated item cards, filter bar, view toggle (list/grid).",
+      "acceptanceCriteria": [
+        "Layout matches mockup at 390\u00d7844",
+        "Filter bar renders",
+        "View toggle works",
+        "axe passes"
+      ],
+      "priority": 1,
+      "passes": true,
+      "notes": "",
+      "tier": "screen-shell",
+      "source": "clean-slate",
+      "platform": [
+        "mobile"
+      ],
+      "spec_path": "docs/mockups/screens/gastify-items.html",
+      "snapshot_paths": [],
+      "deps": [],
+      "api_endpoints": [
+        "listItems"
+      ],
+      "gate": "screen",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "ITEM-002",
+      "title": "Items shell \u2014 tablet",
+      "description": "Items layout at 768\u00d71024 with two-column grid, wider filter bar.",
+      "acceptanceCriteria": [
+        "Two-column grid layout",
+        "Filter bar adapts",
+        "axe passes"
+      ],
+      "priority": 2,
+      "passes": true,
+      "notes": "",
+      "tier": "screen-shell",
+      "source": "clean-slate",
+      "platform": [
+        "tablet"
+      ],
+      "spec_path": "docs/mockups/screens/gastify-items.html",
+      "snapshot_paths": [],
+      "deps": [
+        "ITEM-001"
+      ],
+      "api_endpoints": [
+        "listItems"
+      ],
+      "gate": "screen",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "ITEM-003",
+      "title": "Items shell \u2014 desktop",
+      "description": "Items layout at 1440\u00d7900 with sidebar nav, three-column grid, item detail panel.",
+      "acceptanceCriteria": [
+        "Sidebar navigation renders",
+        "Three-column grid",
+        "Item detail in side panel on click",
+        "axe passes"
+      ],
+      "priority": 3,
+      "passes": true,
+      "notes": "",
+      "tier": "screen-shell",
+      "source": "clean-slate",
+      "platform": [
+        "desktop"
+      ],
+      "spec_path": "docs/mockups/screens/gastify-items-desktop.html",
+      "snapshot_paths": [],
+      "deps": [
+        "ITEM-001"
+      ],
+      "api_endpoints": [
+        "listItems"
+      ],
+      "gate": "screen",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "ITEM-004",
+      "title": "Items \u2014 default state \u2014 mobile",
+      "description": "Items list with populated data, default sort, no active filters.",
+      "acceptanceCriteria": [
+        "Aggregated item cards show merchant + total + count",
+        "Default sort by total desc",
+        "play() asserts card content"
+      ],
+      "priority": 4,
+      "passes": true,
+      "notes": "",
+      "tier": "screen-state",
+      "source": "clean-slate",
+      "platform": [
+        "mobile"
+      ],
+      "spec_path": "docs/mockups/screens/gastify-items.html",
+      "snapshot_paths": [],
+      "deps": [
+        "ITEM-001"
+      ],
+      "api_endpoints": [
+        "listItems"
+      ],
+      "gate": "screen",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "ITEM-005",
+      "title": "Items \u2014 default state \u2014 tablet",
+      "description": "Items default state at tablet viewport.",
+      "acceptanceCriteria": [
+        "Two-column grid with data",
+        "play() asserts content"
+      ],
+      "priority": 5,
+      "passes": true,
+      "notes": "",
+      "tier": "screen-state",
+      "source": "clean-slate",
+      "platform": [
+        "tablet"
+      ],
+      "spec_path": "",
+      "snapshot_paths": [],
+      "deps": [
+        "ITEM-002"
+      ],
+      "api_endpoints": [
+        "listItems"
+      ],
+      "gate": "screen",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "ITEM-006",
+      "title": "Items \u2014 default state \u2014 desktop",
+      "description": "Items default state at desktop viewport.",
+      "acceptanceCriteria": [
+        "Three-column grid with data",
+        "Side panel shows detail on selection",
+        "play() asserts content"
+      ],
+      "priority": 6,
+      "passes": true,
+      "notes": "",
+      "tier": "screen-state",
+      "source": "clean-slate",
+      "platform": [
+        "desktop"
+      ],
+      "spec_path": "",
+      "snapshot_paths": [],
+      "deps": [
+        "ITEM-003"
+      ],
+      "api_endpoints": [
+        "listItems"
+      ],
+      "gate": "screen",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "ITEM-007",
+      "title": "Items \u2014 filtered state \u2014 mobile",
+      "description": "Items with category filter active, showing filtered results + active filter chips.",
+      "acceptanceCriteria": [
+        "Filter chips show active category",
+        "Results filtered to category",
+        "Clear filter resets",
+        "play() asserts filter + clear"
+      ],
+      "priority": 7,
+      "passes": true,
+      "notes": "",
+      "tier": "screen-state",
+      "source": "clean-slate",
+      "platform": [
+        "mobile"
+      ],
+      "spec_path": "",
+      "snapshot_paths": [],
+      "deps": [
+        "ITEM-001"
+      ],
+      "api_endpoints": [
+        "listItems"
+      ],
+      "gate": "screen",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "ITEM-008",
+      "title": "Items \u2014 filtered state \u2014 tablet",
+      "description": "Items filtered at tablet viewport.",
+      "acceptanceCriteria": [
+        "Filter adapts to tablet",
+        "play() asserts filter"
+      ],
+      "priority": 8,
+      "passes": true,
+      "notes": "",
+      "tier": "screen-state",
+      "source": "clean-slate",
+      "platform": [
+        "tablet"
+      ],
+      "spec_path": "",
+      "snapshot_paths": [],
+      "deps": [
+        "ITEM-002"
+      ],
+      "api_endpoints": [
+        "listItems"
+      ],
+      "gate": "screen",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "ITEM-009",
+      "title": "Items \u2014 filtered state \u2014 desktop",
+      "description": "Items filtered at desktop viewport.",
+      "acceptanceCriteria": [
+        "Filter in header area",
+        "play() asserts filter"
+      ],
+      "priority": 9,
+      "passes": true,
+      "notes": "",
+      "tier": "screen-state",
+      "source": "clean-slate",
+      "platform": [
+        "desktop"
+      ],
+      "spec_path": "",
+      "snapshot_paths": [],
+      "deps": [
+        "ITEM-003"
+      ],
+      "api_endpoints": [
+        "listItems"
+      ],
+      "gate": "screen",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "ITEM-010",
+      "title": "Items \u2014 sort changed \u2014 mobile",
+      "description": "Items with non-default sort (e.g., by count asc).",
+      "acceptanceCriteria": [
+        "Sort indicator shows current sort",
+        "Items reordered",
+        "play() asserts sort toggle"
+      ],
+      "priority": 10,
+      "passes": true,
+      "notes": "",
+      "tier": "screen-state",
+      "source": "new",
+      "platform": [
+        "mobile"
+      ],
+      "spec_path": "",
+      "snapshot_paths": [],
+      "deps": [
+        "ITEM-001"
+      ],
+      "api_endpoints": [
+        "listItems"
+      ],
+      "gate": "screen",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "ITEM-011",
+      "title": "Items \u2014 sort changed \u2014 tablet/desktop",
+      "description": "Items sort changed at wider viewports.",
+      "acceptanceCriteria": [
+        "Sort control visible in header",
+        "play() asserts sort toggle"
+      ],
+      "priority": 11,
+      "passes": true,
+      "notes": "",
+      "tier": "screen-state",
+      "source": "new",
+      "platform": [
+        "tablet",
+        "desktop"
+      ],
+      "spec_path": "",
+      "snapshot_paths": [],
+      "deps": [
+        "ITEM-002"
+      ],
+      "api_endpoints": [
+        "listItems"
+      ],
+      "gate": "screen",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "ITEM-012",
+      "title": "Items \u2014 search active \u2014 mobile",
+      "description": "Items with search query entered, results filtered by text match.",
+      "acceptanceCriteria": [
+        "Search bar shows query text",
+        "Results filtered to matching items",
+        "Clear search resets",
+        "play() asserts search + clear"
+      ],
+      "priority": 12,
+      "passes": true,
+      "notes": "",
+      "tier": "screen-state",
+      "source": "new",
+      "platform": [
+        "mobile"
+      ],
+      "spec_path": "",
+      "snapshot_paths": [],
+      "deps": [
+        "ITEM-001"
+      ],
+      "api_endpoints": [
+        "listItems"
+      ],
+      "gate": "screen",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "ITEM-013",
+      "title": "Items \u2014 search active \u2014 tablet/desktop",
+      "description": "Items search at wider viewports.",
+      "acceptanceCriteria": [
+        "Search in header area",
+        "play() asserts search"
+      ],
+      "priority": 13,
+      "passes": true,
+      "notes": "",
+      "tier": "screen-state",
+      "source": "new",
+      "platform": [
+        "tablet",
+        "desktop"
+      ],
+      "spec_path": "",
+      "snapshot_paths": [],
+      "deps": [
+        "ITEM-002"
+      ],
+      "api_endpoints": [
+        "listItems"
+      ],
+      "gate": "screen",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "ITEM-014",
+      "title": "Items \u2014 empty state \u2014 mobile",
+      "description": "Items with no data: empty illustration + prompt to scan receipts.",
+      "acceptanceCriteria": [
+        "Empty illustration renders",
+        "CTA to /scan",
+        "play() asserts CTA present"
+      ],
+      "priority": 14,
+      "passes": true,
+      "notes": "",
+      "tier": "screen-state",
+      "source": "clean-slate",
+      "platform": [
+        "mobile"
+      ],
+      "spec_path": "",
+      "snapshot_paths": [],
+      "deps": [
+        "ITEM-001"
+      ],
+      "api_endpoints": [
+        "listItems"
+      ],
+      "gate": "screen",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "ITEM-015",
+      "title": "Items \u2014 empty state \u2014 tablet",
+      "description": "Items empty at tablet.",
+      "acceptanceCriteria": [
+        "Empty state adapts",
+        "play() asserts CTA"
+      ],
+      "priority": 15,
+      "passes": true,
+      "notes": "",
+      "tier": "screen-state",
+      "source": "clean-slate",
+      "platform": [
+        "tablet"
+      ],
+      "spec_path": "",
+      "snapshot_paths": [],
+      "deps": [
+        "ITEM-002"
+      ],
+      "api_endpoints": [
+        "listItems"
+      ],
+      "gate": "screen",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "ITEM-016",
+      "title": "Items \u2014 empty state \u2014 desktop",
+      "description": "Items empty at desktop.",
+      "acceptanceCriteria": [
+        "Empty state centered in main area",
+        "play() asserts CTA"
+      ],
+      "priority": 16,
+      "passes": true,
+      "notes": "",
+      "tier": "screen-state",
+      "source": "clean-slate",
+      "platform": [
+        "desktop"
+      ],
+      "spec_path": "",
+      "snapshot_paths": [],
+      "deps": [
+        "ITEM-003"
+      ],
+      "api_endpoints": [
+        "listItems"
+      ],
+      "gate": "screen",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "ITEM-017",
+      "title": "Items \u2014 loading next page \u2014 mobile",
+      "description": "Items showing loading spinner at bottom while fetching next page via infinite scroll.",
+      "acceptanceCriteria": [
+        "Spinner at list bottom",
+        "Existing items remain visible",
+        "axe passes"
+      ],
+      "priority": 17,
+      "passes": true,
+      "notes": "",
+      "tier": "screen-state",
+      "source": "new",
+      "platform": [
+        "mobile"
+      ],
+      "spec_path": "",
+      "snapshot_paths": [],
+      "deps": [
+        "ITEM-001"
+      ],
+      "api_endpoints": [
+        "listItems"
+      ],
+      "gate": "screen",
+      "play_function": false,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "ITEM-018",
+      "title": "Items \u2014 loading next page \u2014 tablet/desktop",
+      "description": "Items infinite scroll loading at wider viewports.",
+      "acceptanceCriteria": [
+        "Spinner in grid area",
+        "axe passes"
+      ],
+      "priority": 18,
+      "passes": true,
+      "notes": "",
+      "tier": "screen-state",
+      "source": "new",
+      "platform": [
+        "tablet",
+        "desktop"
+      ],
+      "spec_path": "",
+      "snapshot_paths": [],
+      "deps": [
+        "ITEM-002"
+      ],
+      "api_endpoints": [
+        "listItems"
+      ],
+      "gate": "screen",
+      "play_function": false,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "ITEM-019",
+      "title": "Items \u2014 server error \u2014 mobile",
+      "description": "Items when API returns 5xx: error illustration + retry.",
+      "acceptanceCriteria": [
+        "Error message renders",
+        "Retry button re-fetches",
+        "play() asserts retry"
+      ],
+      "priority": 19,
+      "passes": true,
+      "notes": "",
+      "tier": "screen-state",
+      "source": "new",
+      "platform": [
+        "mobile"
+      ],
+      "spec_path": "",
+      "snapshot_paths": [],
+      "deps": [
+        "ITEM-001"
+      ],
+      "api_endpoints": [],
+      "gate": "screen",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "ITEM-020",
+      "title": "Items \u2014 server error \u2014 tablet",
+      "description": "Items error at tablet.",
+      "acceptanceCriteria": [
+        "Error adapts to tablet",
+        "play() asserts retry"
+      ],
+      "priority": 20,
+      "passes": true,
+      "notes": "",
+      "tier": "screen-state",
+      "source": "new",
+      "platform": [
+        "tablet"
+      ],
+      "spec_path": "",
+      "snapshot_paths": [],
+      "deps": [
+        "ITEM-002"
+      ],
+      "api_endpoints": [],
+      "gate": "screen",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    },
+    {
+      "id": "ITEM-021",
+      "title": "Items \u2014 server error \u2014 desktop",
+      "description": "Items error at desktop.",
+      "acceptanceCriteria": [
+        "Error centered in main area",
+        "Nav still functional",
+        "play() asserts retry"
+      ],
+      "priority": 21,
+      "passes": true,
+      "notes": "",
+      "tier": "screen-state",
+      "source": "new",
+      "platform": [
+        "desktop"
+      ],
+      "spec_path": "",
+      "snapshot_paths": [],
+      "deps": [
+        "ITEM-003"
+      ],
+      "api_endpoints": [],
+      "gate": "screen",
+      "play_function": true,
+      "maxAttempts": 3,
+      "attemptCount": 0,
+      "blocked": false,
+      "tier_suitability": "ralph-eligible"
+    }
+  ]
+}

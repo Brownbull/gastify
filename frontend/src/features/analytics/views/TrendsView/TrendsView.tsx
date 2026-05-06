@@ -51,8 +51,9 @@ import {
     isDateInPeriod,
     type PeriodIdentifier,
 } from '@features/analytics/utils/periodComparison';
-// Story 14e-25d: Direct navigation from store and shared hooks (ViewHandlersContext deleted)
-import { useNavigationActions } from '@/shared/stores';
+// Story 14e-25d: Direct navigation via TanStack Router
+import { useNavigate, useRouter } from '@tanstack/react-router';
+import { viewToPath } from '@/lib/routeMapping';
 import { useHistoryNavigation } from '@/shared/hooks';
 // Story 14c-refactor.31a: View type for proper type assertion
 import type { View } from '@app/types';
@@ -72,13 +73,15 @@ export type { DrillDownPath, HistoryNavigationPayload } from '@/types/navigation
  * Props are ONLY used for test data injection via _testOverrides.
  * In production, App.tsx renders <TrendsView /> with no props.
  */
+export interface TrendsViewInitialState {
+    distributionView?: DistributionView;
+    tendenciaView?: TendenciaView;
+    carouselSlide?: 0 | 1;
+}
+
 export interface TrendsViewProps {
-    /**
-     * Story 14e-25b.1: Test data override for testing.
-     * When provided, these values override the hook data.
-     * Production code should NOT pass this prop.
-     */
     _testOverrides?: Partial<TrendsViewData>;
+    _initialState?: TrendsViewInitialState;
 }
 import {
     computeStoreGroupsData, computeItemGroupsData,
@@ -107,7 +110,7 @@ import { TrendsHeader } from './TrendsHeader';
 import { TreemapSlide } from './TreemapSlide';
 import { SankeySlide } from './SankeySlide';
 import { useCategoryStatsPopup } from './useCategoryStatsPopup';
-export const TrendsView: React.FC<TrendsViewProps> = ({ _testOverrides }) => {
+export const TrendsView: React.FC<TrendsViewProps> = ({ _testOverrides, _initialState }) => {
     // Story 14e-25b.1: Get all data from internal hook
     const hookData = useTrendsViewData();
 
@@ -137,12 +140,12 @@ export const TrendsView: React.FC<TrendsViewProps> = ({ _testOverrides }) => {
     const prefersReducedMotion = useReducedMotion();
     const carouselRef = useRef<HTMLDivElement>(null);
 
-    // Story 14e-25d: Direct navigation from store and shared hooks (ViewHandlersContext deleted)
+    // Story 14e-25d: Direct navigation via TanStack Router
     const { handleNavigateToHistory } = useHistoryNavigation();
-    const { navigateBack, setView } = useNavigationActions();
+    const tNavigate = useNavigate();
+    const tRouter = useRouter();
     const onNavigateToHistory = handleNavigateToHistory;
-    const onBack = navigateBack;
-    const navigateToView = setView;
+    const onBack = () => tRouter.history.back();
 
     const carouselTitles = CAROUSEL_TITLES_BASE;
     const maxCarouselSlide = 1;
@@ -163,15 +166,15 @@ export const TrendsView: React.FC<TrendsViewProps> = ({ _testOverrides }) => {
         timePeriod, setTimePeriod,
         currentPeriod, setCurrentPeriod,
         carouselSlide, setCarouselSlide,
-    } = useTrendsViewSync({ filterState, filterDispatch });
+    } = useTrendsViewSync({ filterState, filterDispatch, initialCarouselSlide: _initialState?.carouselSlide });
 
     // Animation trigger key - increments when slide changes to restart animations
     const [animationKey, setAnimationKey] = useState(0);
 
     // View toggle states (AC #7)
     // Story 14.13 Session 7: Initialize from prop for back navigation restoration
-    const [distributionView, setDistributionView] = useState<DistributionView>(initialDistributionView || 'treemap');
-    const [tendenciaView, setTendenciaView] = useState<TendenciaView>('list');
+    const [distributionView, setDistributionView] = useState<DistributionView>(_initialState?.distributionView ?? initialDistributionView ?? 'treemap');
+    const [tendenciaView, setTendenciaView] = useState<TendenciaView>(_initialState?.tendenciaView ?? 'list');
 
     // Story 14.13.3 Phase 5: Sankey mode state (3-level-groups or 3-level-categories)
     const [sankeyMode, setSankeyMode] = useState<SankeyMode>('3-level-groups');
@@ -235,11 +238,10 @@ export const TrendsView: React.FC<TrendsViewProps> = ({ _testOverrides }) => {
 
     // Note: Filter dropdown states moved to IconFilterBar component via useHistoryFiltersStore
 
-    // Story 14.14b/14e-25d: Handle profile navigation via direct store actions
     const handleProfileNavigate = useCallback((view: string) => {
         setIsProfileOpen(false);
-        navigateToView(view as View);
-    }, [navigateToView]);
+        tNavigate({ to: viewToPath(view as View) });
+    }, [tNavigate]);
     // Filter transactions by current period AND apply category/location/group filters from filterState
     // Story 14.13.2: TrendsView manages its own time period selection via timePeriod/currentPeriod,
     // but category/location/group filters from CategorySelectorOverlay should still apply

@@ -1,5 +1,12 @@
 # Session Ledger
 
+## 2026-05-06 16:58 — PUSH rebuild/be-phase-01 → origin/main (PR #2)
+PR: https://github.com/Brownbull/gastify/pull/2
+CI: ✅ 9/9 (all green after 5 CI-fix commits)
+DEPLOYMENTS: P7 updated (initial push, CI failed) + P8 added (CI-fix iteration, all green)
+SOURCE: 5 CI-fix commits (e266afd → 059d642) covering: uv.lock tracked, ruff format, biome install + lint script, vitest test script, backend coverage 74→81%, deprecated nav refs rename, dependency-groups migration, esbuild peer dep, pip-audit addition, serialize-javascript audit fix.
+FIXES APPLIED: 10 distinct CI issues resolved across 7 originally-failing jobs + 3 cascade issues discovered during iteration.
+
 ## 2026-04-28 — [main bb934e1] feat(mockups): D18 file-triple cascade + KDBP audit (D23) + parallel validate-mode scaffold
 FINDINGS: 3 (0 critical, 0 high, 2 medium, 1 low)
   - medium: tests/mockups/validate/runner.mjs — `.mjs` not in STRUCTURE.md test pattern (stream B / not-mine; accepted)
@@ -450,3 +457,170 @@ PUSH_COL_TICK: skipped (L2 Exec=🔄, not ✅; auto-tick precondition failed per
 ## 2026-04-28 13:13 — [main 5eb8ba6] chore(kdbp): record 0269fae push entry in LEDGER
 
 ## 2026-04-28 13:14 — [main 9f660be] docs(mockups): rework cross-session handoff brief
+
+## 2026-04-28 13:14 — [main 7a41233] chore(kdbp): record 5eb8ba6 + 9f660be entries in LEDGER
+
+## 2026-04-28 16:37 — [main d562685] feat(frontend): migrate Tailwind CDN to built Tailwind 4
+FINDINGS: 4 (0 critical, 1 high, 2 medium, 1 low)
+ACTIONS: 1:defer 2:update-structure 3:defer 4:defer-to-pivot-phase-9
+DEFERRED: +P13 (firestore.ts pre-existing type errors), +P14 (README Tailwind update — folded into pivot Phase 9), +P15 (PLAN.md L2 → Ladle pivot reconciliation — folded into pivot Phase 9)
+COMMIT_COL_TICK: skipped (Current Phase = L2 mockups-legacy, but commit is Ladle pivot Phase 1 from a different plan; auto-tick precondition failed per Step 6.6 mismatch rule — silent no-op as designed). Manually reconcile in pivot Phase 9.
+NOTES: Phase 1 of the Ladle pivot. Tailwind 4 + @tailwindcss/vite installed. Inline <style> block (1057 lines) extracted to frontend/src/styles/global.css. STRUCTURE.md gained a Frontend section (React + Vite + TS — port of BoletApp). Dev server boots clean (383ms); dashboard renders correctly at 390×844 Normal Light. Build still fails on the same 2 pre-existing firestore.ts errors (now tracked as P13). Plan reference: ~/.claude/plans/okay-here-s-something-that-ancient-graham.md.
+
+## 2026-04-28 16:49 — [main 0f8bbbb] feat(frontend): stand up Ladle showcase + author story conventions
+FINDINGS: 3 (0 critical, 1 high, 1 medium, 1 low)
+ACTIONS: 1:accept (P13 already tracks firestore type errors) 2:accept (P14 already tracks README drift) 3:update-structure (frontend/*.md pattern added)
+DEFERRED: none new (re-flags of P13/P14 accepted without re-deferring)
+COMMIT_COL_TICK: skipped (Current Phase = L2 mockups-legacy; commit is Ladle pivot Phases 2+3 from a different plan; auto-tick precondition failed per Step 6.6 mismatch rule). Manually reconcile in pivot Phase 9.
+NOTES: Phases 2+3 of the Ladle pivot. Ladle 5.1.1 installed; sentinel Welcome story serves at http://localhost:5175 with theme/viewport/mode switchers. STORIES.md documents authoring conventions (CSF3, Atoms/Molecules/Organisms/Templates/Screens/Flows hierarchy, args, parameters.tags forward-look, production-isolation rule). Lint guard at scripts/check-no-story-imports.sh — fails CI if any non-story file imports *.stories.*. Side fix: root .gitignore had a stale `.ladle/` rule hiding source config; corrected to `frontend/build-ladle/` (the real Ladle build output). Plan reference: ~/.claude/plans/okay-here-s-something-that-ancient-graham.md.
+
+## 2026-04-28 17:30 — [main 108aad0] feat(frontend): atom showcase stories + Ladle stylesheet/theme wiring fixes
+FINDINGS: 1 (0 critical, 1 high, 0 medium, 0 low)
+ACTIONS: 1:accept (P13 firestore type errors already tracked)
+DEFERRED: none new
+COMMIT_COL_TICK: skipped (Current Phase = L2 mockups-legacy; commit is Ladle pivot Phase 4 from a different plan; auto-tick precondition failed per Step 6.6 mismatch rule). Manually reconcile in pivot Phase 9.
+NOTES: Phase 4 of the Ladle pivot — 3 atom showcase stories (Colors / Typography / Icons) under src/_design/ with 9 named variants total. Plus critical Ladle wiring fixes: useMirrorStylesheetsToOwnerDoc (clones parent stylesheets into iframe head when stories run iframed), theme vs mode disambiguation (URL ?theme=dark, not ?mode=dark), config.mjs schema correction (width.defaultState=0; theme.defaultState='light'), Tailwind 4 @source directive (default scan skips _design/ underscore-prefixed dirs). Verified end-to-end via 42-combination Playwright sweep (7 stories × 3 viewports × 2 modes); zero errors, all utilities compile, all themes cascade. Plan reference: ~/.claude/plans/okay-here-s-something-that-ancient-graham.md.
+
+## 2026-04-28 21:14 — [main 1c54c34] feat(frontend): pivot showcase tool from Ladle to Storybook 10
+FINDINGS: 1 (0 critical, 1 high, 0 medium, 0 low)
+ACTIONS: 1:accept (P13 firestore type errors already tracked)
+DEFERRED: none new
+COMMIT_COL_TICK: skipped (Current Phase = L2 mockups-legacy; commit is mockup-pivot showcase-tool reversal from a different plan; auto-tick precondition failed per Step 6.6 mismatch rule). Manually reconcile in pivot Phase 9.
+NOTES: Reversed axis 2 of the mockup-to-React pivot plan from Ladle (2A) to Storybook 10 (2B) per user direction. Storybook handles iframe CSS injection natively, removing the useMirrorStylesheetsToOwnerDoc hack from .ladle/components.tsx. CSF3 stories migrated with minimal changes. 28-combination Playwright verification: zero errors, all stories render with theme tokens + Tailwind utilities + viewport switching. Plan reference: ~/.claude/plans/okay-here-s-something-that-ancient-graham.md. DECISION D25 records the pivot rationale (to be added in pivot Phase 9 archive cleanup).
+
+## 2026-04-28 21:21 — [main b98e314] fix(frontend): inject Google Fonts into Storybook preview iframe
+FINDINGS: 0
+ACTIONS: none
+DEFERRED: none
+COMMIT_COL_TICK: skipped (Current Phase = L2 mockups-legacy; commit is mockup-pivot showcase fix from a different plan).
+NOTES: Storybook preview iframe head was missing the Google Fonts <link>, so Baloo 2 (Gastify wordmark) fell back silently. Added .storybook/preview-head.html mirroring index.html's preconnect + fonts.googleapis.com link. Updated Typography story's Baloo 2 sample to match TopHeader.tsx shape: var(--font-family-wordmark) + fontWeight: 700 + fontSize: 28px (Baloo 2 is loaded at weight 700 only; without explicit weight match, browser falls back). Verified via document.fonts API: Baloo 2/700 status="loaded".
+
+## 2026-04-28 21:32 — [main 8795b52] feat(frontend): ship Dashboard screen story (Phase 6 milestone)
+FINDINGS: 1 (0 critical, 1 high, 0 medium, 0 low)
+ACTIONS: 1:accept (P13 firestore type errors already tracked)
+DEFERRED: none new
+COMMIT_COL_TICK: skipped (Current Phase = L2 mockups-legacy; commit is Ladle-pivot Phase 6 milestone from a different plan).
+NOTES: **PHASE 6 MILESTONE LANDED.** The handoff brief's named first deliverable shipped: Dashboard, Mobile 390×844, Normal theme, Light mode, with real Transaction data shape. Story mounts <DashboardView /> with no props — reads everything via useDashboardViewData() from Zustand stores + repositories backed by mocked Firestore. Wrapper calls useHistoryFiltersInit() to mirror viewRenderers.tsx's DashboardViewWithFilters. Layout 'fullscreen' so the view fills the iframe. 5 transactions surface from seed data (Jumbo, Café Altura, Shell, Farmacias Cruz Verde, Spotify Premium); 5 category groups (Supermercado, Bencinera, Restaurante, Farmacia, Más). Layout + visual language matches docs/mockups-legacy/screens/gastify-dashboard.html. Verified via Playwright. The pivot has now demonstrated end-to-end that Storybook + mocked Firebase + real React component = a viable mockup surface.
+
+## 2026-04-28 21:48 — [main 8dc7262] feat(frontend): adopt platform × state args pattern for screen stories
+FINDINGS: 0
+ACTIONS: none
+DEFERRED: none
+COMMIT_COL_TICK: skipped (Current Phase = L2 mockups-legacy; commit is mockup-pivot screens-convention pattern from a different plan).
+NOTES: Mirrored the sibling Storybook's screen-story pattern after user pointed to a Storybook running on :6006. Pattern: each screen exposes `platform` (mobile/tablet/desktop) + `state` (default/empty/loading/error/...) as args, with pre-baked named stories like "Mobile · Default" locking in the canonical combinations. Drilling into a story shows the args panel below for live tweaking. Documented in frontend/STORIES.md under "Screens convention — platform × state args" with the canonical wrapper + meta + named-story snippet so future screens follow the same shape. 4 Dashboard stories shipped (Mobile · Default, Mobile · Empty, Tablet · Default, Desktop · Default).
+
+## 2026-04-28 22:08 — [main 5a39a10] revert: scan flow batch 1 (1c75ef4) and its LEDGER chore (95f3051)
+FINDINGS: 0 (revert; no new work)
+ACTIONS: none
+DEFERRED: none
+COMMIT_COL_TICK: skipped (revert commit; no phase advancement).
+NOTES: User flagged that visual verification of Phase 6.3 batch 1 (IdleState) revealed two issues warranting redo not fix-forward: (1) translation keys leaked to UI because the stub `t = (key) => key` short-circuited the component's `||` fallback (manufactured the same bug PENDING.md P10 tracks for production scan flow); (2) IdleState is documented as "often handled by FAB" — not the user-facing first step of the scan flow. The plan's "01-Capture" expected the camera viewfinder UI (CameraView / BatchCaptureView), not the small IdleState fallback card. Combined revert: 1c75ef4 + 95f3051 → 5a39a10. Phase 6.3 paused pending a clearer plan that picks the right entry component(s) and locks the translation strategy before any story authoring.
+
+## 2026-04-28 22:18 — [main da4e022] docs(frontend): lock Storybook scope boundary in STORIES.md
+FINDINGS: 0
+ACTIONS: none
+DEFERRED: none
+COMMIT_COL_TICK: skipped (Current Phase = L2; commit is mockup-pivot scope-narrowing from a different plan).
+NOTES: Step 1 of the post-revert recommendation approach. Adds Storybook scope boundary doc to frontend/STORIES.md (what belongs / doesn't / decision aid table). Direct response to Phase 6.3 batch 1 revert (5a39a10) — prevents future contributors from forcing orchestrator-driven flows into Storybook stories (which manufactured the translation-key leak bug previously). Next steps in this plan: investigate other views for self-containedness (Step 2), add 1-2 more screen stories if they fit (Step 3), build docs/reference/scan-flow.md for complex flows (Step 4), Phase 9 KDBP cleanup (Step 5).
+
+## 2026-04-28 22:24 — [main 70600b4] feat(frontend): add Trends + History screen stories (post-revert recommendation Step 3)
+FINDINGS: 0
+ACTIONS: none
+DEFERRED: none
+COMMIT_COL_TICK: skipped (Current Phase = L2; commit is mockup-pivot scaling from a different plan).
+NOTES: Step 3 of the post-revert recommendation approach. Two more self-contained-screen stories shipped: Screens/Trends (4 variants) and Screens/History (4 variants). Both views use the Dashboard pattern — mount the view with no/optional props, read everything via the view's hook from Zustand + mocked Firestore. Verification gate (post-revert bar): Playwright iframe screenshot per variant + translation-key leak regex check + zero console/page errors. All 8 stories passed. Storybook scope now: atoms + 3 self-contained screen stories. Step 4 (docs/reference/scan-flow.md) and Step 5 (Phase 9 cleanup) pending.
+
+## 2026-04-28 22:35 — [main 6bb149e] docs(reference): add scan-flow navigable map (post-revert recommendation Step 4)
+FINDINGS: 0
+ACTIONS: none
+DEFERRED: none
+COMMIT_COL_TICK: skipped (Current Phase = L2; commit is mockup-pivot reference doc from a different plan).
+NOTES: Step 4 of the post-revert recommendation approach. Replaces the failed Storybook approach for the scan flow with a navigable markdown reference at docs/reference/scan-flow.md. Orchestrator → component mapping table, dialog overlay table, 4-phase walkthrough (01-Capture / 02-Processing / 03-Review / 04-Save), error variants table, full PENDING.md P6-P10 cross-reference, "Why this isn't a Storybook story" rationale linking back to the IdleState revert (5a39a10). No screenshots embedded — designers grab them from the live app when needed; doc stays low-maintenance. Step 5 (Phase 9 KDBP cleanup) remaining.
+
+## 2026-04-28 22:50 — [main da3ceb4] chore(kdbp): Phase 9 cleanup — close P12, log D24-27, advance Current Phase, rewrite handoff doc
+FINDINGS: 0
+ACTIONS: none
+DEFERRED: none
+COMMIT_COL_TICK: skipped (Current Phase = L2 in commit's diff base; commit itself ADVANCES Current Phase to "Post-pivot scaling" — the auto-tick precondition still skips because the new Phase isn't a numbered row in the Phases table).
+NOTES: Step 5 (final step) of the post-revert recommendation approach. KDBP-only cleanup per D27 — directories not moved. PENDING.md P12 closed (pivot superseded the rebuild gate). DECISIONS.md +D24 (pivot), +D25 (Storybook 10 over Ladle), +D26 (Storybook scope boundary), +D27 (don't move directories). PLAN.md Current Phase: "Phase L2: mockups-legacy Molecules" → "Post-pivot scaling — mockup work happens in Storybook stories at frontend/.storybook/" with L0-L5 marked OBSOLETED. docs/MOCKUP-REWORK-HANDOFF.md rewritten 153 → 47 lines as a status pointer. Pivot session: done. The 5 steps of the post-revert recommendation approach all landed: STORIES.md scope boundary (da4e022), Trends + History stories (70600b4), scan-flow reference doc (6bb149e), Phase 9 KDBP cleanup (this commit).
+
+## 2026-04-28 23:05 — [main 3c4bbf2] feat(scripts): add prod-bundle leakage check + close P13 firestore mock typing
+FINDINGS: 0
+ACTIONS: none
+DEFERRED: none
+COMMIT_COL_TICK: skipped (Current Phase = Post-pivot scaling; commit is pivot plan Phase 8 from external plan).
+NOTES: Pivot plan Phase 8 — production safety verification. Added scripts/check-prod-bundle.sh (6 checks: story files, framework refs, Tailwind CDN, atom showcase, story identifiers, Storybook config). All checks pass on current dist/ (exit 0). Closed P13 (firestore mock typing) as prerequisite — generic-ified QueryConstraint.apply + queryToSpec; structural cast for startAfter. npm run build now passes cleanly. Remaining optional: more screen stories (Items qualifies), Phase 7 Playwright snapshot suite. Pivot plan now has Phases 0-9 + post-revert Steps 1-5 + Phase 8 all completed; only Phase 7 (snapshot suite) remains in the original plan.
+
+## 2026-04-28 23:14 — [main b6b6ea5] feat(frontend): add Items screen story (4th self-contained-screen example)
+FINDINGS: 0
+ACTIONS: none
+DEFERRED: none
+COMMIT_COL_TICK: skipped (Current Phase = Post-pivot scaling; commit is more of the same scaling pattern).
+NOTES: 4th self-contained-screen story shipped. Storybook scope: 9 atom stories + 16 screen stories (Dashboard 4 + Trends 4 + History 4 + Items 4) = 25 stories total + Welcome sentinel. Phase 7 (Playwright snapshot suite) is the only remaining optional/queued item from the original pivot plan.
+
+## 2026-05-06 — PUSH rebuild/be-phase-01 -> main
+PR: https://github.com/Brownbull/gastify/pull/2
+CI: — (none configured)
+PROMOTION: N/A (staging not on remote; direct feature-branch push)
+DEPLOYMENTS: P7 added to .kdbp/DEPLOYMENTS.md
+DRIFT: origin/rebuild/fe-dashboard-batch-01 detected — old frontend batch branch, ignored
+
+## 2026-05-06 — [3eff76f] feat: implement P1 scaffold + P2 money/FX/i18n + P3 identity/RLS — backend foundation phases 1-3
+FINDINGS: 3 (0 critical, 0 high, 2 medium, 1 low)
+ACTIONS: 1:accept (new API routes, docs deferred to P6), 2:accept (README drift, P14 tracks), 3:update-structure (added backend/ patterns to STRUCTURE.md)
+DEFERRED: 0
+TESTS: 52/52 pass | LINT: 0 errors
+SCOPE: 39 files, +3993 -472. P1 (structlog + metrics + middleware), P2 (fx_rates + USD-shadow + i18n), P3 (Firebase JIT + RLS + credits). 3 Alembic migrations. 25 new source files + 11 modified + 3 KDBP state files.
+TICK: ✅ Phase 1/2/3 Exec + Commit columns ticked
+STRUCTURE: STRUCTURE.md backend/ section added (16 patterns replacing template api/ paths)
+
+## 2026-05-06 15:30 — PHASE 3 REVIEW: Identity + ownership scope + RLS
+VERDICT: APPROVE
+FINDINGS: 8 total (1 critical, 4 high, 2 medium, 1 low) — all 8 resolved
+COVERAGE: MEDIUM — 52 tests pass; app-level scope isolation proven with real cross-scope data; RLS not exercised at DB level (SQLite)
+CONFIDENCE: 90/100 (was 20 pre-triage; +70 from fixing all 8 findings via option [3] Fix all including Scale)
+DEFERRED: none
+ALIGNMENT: DRIFTED (branch carries P2 + P3 work; findings span both phases)
+TIER: ent | DRIFT: none
+TICK: ✅ Phase 3 Review column ticked
+TRIAGE: option [3] Fix all including Scale — all 8 findings fixed
+KEY FIXES: SET LOCAL before RLS inserts (#1 CRITICAL), real cross-scope test data (#2), FX rejection + autouse mock (#3), PATCH USD-shadow recompute (#4), credit backfill before RLS (#5), unused import removal (#6), asyncio.to_thread for Firebase (#7), credit balance DB verification (#8)
+POST-TRIAGE LINT: E501 ×2 + B904 raise-from chain
+SOURCES: codex/gpt-5 (inbox, 6 findings) + claude/opus-4-6 (blind, 8 findings) — 6 strict matches, 2 Claude-only
+ARCHIVED: .kdbp/reviews-archive/REVIEW_2026-05-06-153000_resolved.md
+
+## 2026-05-06 14:45 — PHASE 2 REVIEW: Money + currency + FX + i18n
+VERDICT: PASS
+FINDINGS: 9 total (1 critical, 4 high, 2 medium, 2 low) — 8 resolved, 1 deferred (P21)
+COVERAGE: MEDIUM — 29 tests, 78% line coverage; transactions.py at 38%, auth paths ~50%
+CONFIDENCE: 83/100 (was 35 pre-triage; +48 from fixing 8 of 9 findings via option [2] Fix MVP + Enterprise)
+DEFERRED: P21 (JSON/JSONB ORM-migration mismatch — cosmetic autogenerate noise, not runtime defect)
+ALIGNMENT: DRIFTED (branch mixes P1 obs, P2 money, P3 identity — all 3 phases Exec=🔄 on this branch)
+TIER: ent | DRIFT: none
+TICK: ✅ Phase 2 Review column ticked
+TRIAGE: option [2] Fix all MVP + Enterprise items — 8 fixes applied, 1 reverted (JSONB broke SQLite)
+KEY FIXES: middleware 500 try/except, setattr→field allowlist, Literal types + IntegrityError handler, batch max_length=200, float→Decimal FX rate, 3 JIT auth tests, ruff format 13 files, PRAGMA FK + UUID seed format, raise-from + naming + unused import lint fixes
+ACTIVE: .kdbp/REVIEW.md (schema 1.1, claude/opus-4-6 source)
+
+## 2026-05-06 — [e266afd] fix(ci): green all 7 CI checks — backend coverage 81%, frontend lint/test scripts, deprecated nav refs cleanup
+FINDINGS: 3 (0 critical, 0 high, 2 medium, 1 low)
+  - low: README.md not updated when package.json deps changed (already tracked as P14; accepted)
+  - medium: frontend/biome.json no STRUCTURE.md pattern (update-structure applied)
+  - medium: backend/uv.lock no STRUCTURE.md pattern (update-structure applied)
+ACTIONS: 1:accept 2:update-structure 3:update-structure
+DEFERRED: 0
+TESTS: 82/82 pass | LINT: 0 errors (ruff + biome) | COVERAGE: 81.03% (mvp skip)
+SCOPE: 14 files, +2440 -19. Backend: uv.lock tracked (.gitignore rule removed), ruff format 3 files, 30 new test functions (auth 100%, fx 98%, health 94%, obs 91%). Frontend: biome 2.4.14 installed + tuned config, vitest/lint scripts added, package-lock regenerated. Custom gates: analyticsInitialState→analyticsUrlParams rename, stale pendingHistoryFilters comment fix.
+STRUCTURE: +2 patterns (backend/uv.lock, frontend/biome.json)
+
+## 2026-05-06 12:00 — PHASE 1 REVIEW: Scaffold + DB baseline
+VERDICT: APPROVE
+FINDINGS: 6 total (0 critical, 1 high, 3 medium, 2 low)
+COVERAGE: MEDIUM — core registry + endpoint + request-id + access-log→metrics tested; structlog format untested
+CONFIDENCE: 76/100 (was 64 pre-triage; +12 from fixing #1)
+DEFERRED: P16 (conftest metadata mutation), P17 (metrics endpoint auth), P18 (BaseHTTPMiddleware), P19 (structlog format test), P20 (threading.Lock at scale)
+ALIGNMENT: DRIFTED (branch mixes P1 obs with P2/P3 concurrent work; P1 subset complete)
+TIER: ent (Obs→scale) | DRIFT: none
+TICK: ✅ Phase 1 Review column ticked
+TRIAGE: option [1] Fix MVP items only — #1 fixed (access-log→metrics test), #2-#6 deferred to PENDING.md P16-P20
+ARCHIVED: .kdbp/reviews-archive/REVIEW_2026-05-06-120000_resolved.md

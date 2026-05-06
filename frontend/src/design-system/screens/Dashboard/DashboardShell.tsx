@@ -1,0 +1,332 @@
+import { Home, Receipt, Camera, TrendingUp, Settings, Inbox } from 'lucide-react';
+import { CardStat } from '../../molecules/CardStat';
+import { NavBottom } from '../../molecules/NavBottom';
+import { NavSidebar } from '../../molecules/NavSidebar';
+import { NavTop } from '../../molecules/NavTop';
+import { Avatar } from '../../atoms/Avatar';
+import { Badge } from '../../atoms/Badge';
+import { CardTransaction } from '../../molecules/CardTransaction';
+import { FAB } from '../../molecules/FAB';
+import { Skeleton } from '../../atoms/Skeleton';
+import { ErrorFallback } from '../../molecules/ErrorFallback';
+
+type Viewport = 'mobile' | 'tablet' | 'desktop';
+type ScreenState = 'default' | 'loading' | 'empty' | 'error';
+
+interface DashboardShellProps {
+  viewport: Viewport;
+  state?: ScreenState;
+  errorMessage?: string;
+  emptyMessage?: string;
+  onRetry?: () => void;
+  onGoHome?: () => void;
+}
+
+const MOCK_USER = 'Carlos Munoz';
+
+const MOCK_STATS = [
+  { title: 'Total gastado', value: '$245.890', delta: { direction: 'down' as const, label: '-8% vs mes anterior' } },
+  { title: 'Transacciones', value: '47', delta: { direction: 'up' as const, label: '+5 esta semana' } },
+  { title: 'Promedio', value: '$5.230', delta: { direction: 'flat' as const, label: 'Sin cambio' } },
+];
+
+const MOCK_TRANSACTIONS = [
+  { merchant: 'Supermercado Lider', amount: 34520, category: 'Food', date: new Date(2026, 4, 3) },
+  { merchant: 'Farmacia Cruz Verde', amount: 12890, category: 'Salud', date: new Date(2026, 4, 2) },
+  { merchant: 'Metro de Santiago', amount: 1500, category: 'Transporte', date: new Date(2026, 4, 2) },
+  { merchant: 'Cafe Colonia', amount: 4200, category: 'Food', date: new Date(2026, 4, 1) },
+  { merchant: 'Falabella', amount: 67800, category: 'Hogar', date: new Date(2026, 3, 30) },
+];
+
+const NAV_ITEMS = [
+  { id: 'home', label: 'Inicio', icon: Home },
+  { id: 'transactions', label: 'Gastos', icon: Receipt },
+  { id: 'scan', label: 'Escanear', icon: Camera },
+  { id: 'analytics', label: 'Analytics', icon: TrendingUp },
+  { id: 'settings', label: 'Ajustes', icon: Settings },
+] as const;
+
+const FAB_ITEMS = [
+  { id: 'scan', label: 'Escanear boleta', icon: Camera },
+  { id: 'manual', label: 'Ingreso manual', icon: Receipt },
+] as const;
+
+const NOOP = () => {};
+
+function StatGridLoading({ columns }: { columns: number }) {
+  return (
+    <div
+      className="grid gap-3"
+      style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}
+    >
+      {Array.from({ length: columns }).map((_, i) => (
+        <Skeleton key={i} shape="card" height="100px" />
+      ))}
+    </div>
+  );
+}
+
+function TransactionListLoading() {
+  return (
+    <section className="flex flex-col gap-2">
+      <Skeleton shape="text" width="50%" height="14px" />
+      {Array.from({ length: 5 }).map((_, i) => (
+        <Skeleton key={i} shape="list-item" />
+      ))}
+    </section>
+  );
+}
+
+function EmptyState({ message }: { message: string }) {
+  return (
+    <section className="flex flex-col items-center justify-center gap-3 py-12 text-center">
+      <div
+        className="flex items-center justify-center rounded-full p-4"
+        style={{ backgroundColor: 'var(--surface-elevated, var(--surface))' }}
+      >
+        <Inbox size={40} style={{ color: 'var(--text-tertiary)' }} aria-hidden="true" />
+      </div>
+      <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+        {message}
+      </p>
+    </section>
+  );
+}
+
+function MobileHeader() {
+  return (
+    <header
+      className="flex items-center justify-between px-4 py-3"
+      style={{ backgroundColor: 'var(--surface)' }}
+    >
+      <div>
+        <p className="text-xs font-medium" style={{ color: 'var(--text-tertiary)' }}>
+          Hola,
+        </p>
+        <p className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>
+          {MOCK_USER}
+        </p>
+      </div>
+      <div className="relative">
+        <Avatar name={MOCK_USER} size="md" />
+        <span className="absolute -top-1 -right-1">
+          <Badge count={3} variant="danger" />
+        </span>
+      </div>
+    </header>
+  );
+}
+
+function StatGrid({ columns }: { columns: number }) {
+  const stats = columns === 3 ? MOCK_STATS : MOCK_STATS.slice(0, 2);
+  return (
+    <div
+      className="grid gap-3"
+      style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}
+    >
+      {stats.map((s) => (
+        <CardStat key={s.title} title={s.title} value={s.value} delta={s.delta} />
+      ))}
+    </div>
+  );
+}
+
+function TransactionList() {
+  return (
+    <section className="flex flex-col gap-2">
+      <h2 className="text-sm font-semibold" style={{ color: 'var(--text-secondary)' }}>
+        Transacciones recientes
+      </h2>
+      {MOCK_TRANSACTIONS.map((tx) => (
+        <CardTransaction
+          key={`${tx.merchant}-${tx.amount}`}
+          merchant={tx.merchant}
+          amount={tx.amount}
+          currency="CLP"
+          category={tx.category}
+          date={tx.date}
+          type="expense"
+        />
+      ))}
+    </section>
+  );
+}
+
+interface LayoutStateProps {
+  state: ScreenState;
+  errorMessage: string;
+  emptyMessage: string;
+  onRetry: () => void;
+  onGoHome: () => void;
+}
+
+function ContentArea({
+  state,
+  columns,
+  errorMessage,
+  emptyMessage,
+  onRetry,
+  onGoHome,
+}: LayoutStateProps & { columns: number }) {
+  switch (state) {
+    case 'loading':
+      return (
+        <>
+          <StatGridLoading columns={columns} />
+          <TransactionListLoading />
+        </>
+      );
+    case 'empty':
+      return (
+        <>
+          <StatGrid columns={columns} />
+          <EmptyState message={emptyMessage} />
+        </>
+      );
+    case 'error':
+      return (
+        <ErrorFallback
+          error={errorMessage}
+          onRetry={onRetry}
+          onGoHome={onGoHome}
+        />
+      );
+    default:
+      return (
+        <>
+          <StatGrid columns={columns} />
+          <TransactionList />
+        </>
+      );
+  }
+}
+
+function MobileLayout({ state, errorMessage, emptyMessage, onRetry, onGoHome }: LayoutStateProps) {
+  return (
+    <div
+      className="flex flex-col min-h-screen"
+      style={{ backgroundColor: 'var(--background)' }}
+    >
+      <MobileHeader />
+      <main className="flex-1 flex flex-col gap-4 px-4 py-3 pb-20">
+        <ContentArea
+          state={state}
+          columns={2}
+          errorMessage={errorMessage}
+          emptyMessage={emptyMessage}
+          onRetry={onRetry}
+          onGoHome={onGoHome}
+        />
+      </main>
+      {state === 'default' && <FAB items={[...FAB_ITEMS]} onSelect={NOOP} />}
+      <div className="fixed bottom-0 left-0 right-0">
+        <NavBottom items={[...NAV_ITEMS]} activeItem="home" onItemChange={NOOP} />
+      </div>
+    </div>
+  );
+}
+
+function TabletLayout({ state, errorMessage, emptyMessage, onRetry, onGoHome }: LayoutStateProps) {
+  return (
+    <div
+      className="flex flex-col min-h-screen"
+      style={{ backgroundColor: 'var(--background)' }}
+    >
+      <NavTop onSearch={NOOP}>
+        <div className="relative">
+          <Avatar name={MOCK_USER} size="sm" />
+          <span className="absolute -top-1 -right-1">
+            <Badge count={3} variant="danger" />
+          </span>
+        </div>
+      </NavTop>
+      <main className="flex-1 flex flex-col gap-4 px-6 py-4">
+        <ContentArea
+          state={state}
+          columns={2}
+          errorMessage={errorMessage}
+          emptyMessage={emptyMessage}
+          onRetry={onRetry}
+          onGoHome={onGoHome}
+        />
+      </main>
+      <div className="fixed bottom-0 left-0 right-0">
+        <NavBottom items={[...NAV_ITEMS]} activeItem="home" onItemChange={NOOP} />
+      </div>
+    </div>
+  );
+}
+
+function DesktopLayout({ state, errorMessage, emptyMessage, onRetry, onGoHome }: LayoutStateProps) {
+  return (
+    <div
+      className="flex min-h-screen"
+      style={{ backgroundColor: 'var(--background)' }}
+    >
+      <NavSidebar
+        items={[...NAV_ITEMS]}
+        activeItem="home"
+        onItemChange={NOOP}
+        collapsed={false}
+        onToggleCollapse={NOOP}
+      />
+      <div className="flex-1 flex flex-col">
+        <NavTop onSearch={NOOP}>
+          <div className="relative">
+            <Avatar name={MOCK_USER} size="sm" />
+            <span className="absolute -top-1 -right-1">
+              <Badge count={3} variant="danger" />
+            </span>
+          </div>
+        </NavTop>
+        <main className="flex-1 flex flex-col gap-6 px-8 py-6">
+          <div>
+            <h1 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>
+              Hola, {MOCK_USER}
+            </h1>
+            <p className="text-sm mt-1" style={{ color: 'var(--text-tertiary)' }}>
+              Resumen de mayo 2026
+            </p>
+          </div>
+          <ContentArea
+            state={state}
+            columns={3}
+            errorMessage={errorMessage}
+            emptyMessage={emptyMessage}
+            onRetry={onRetry}
+            onGoHome={onGoHome}
+          />
+        </main>
+      </div>
+    </div>
+  );
+}
+
+const DEFAULT_ERROR_MESSAGE = 'Could not load dashboard data. Please try again.';
+const DEFAULT_EMPTY_MESSAGE = 'No transactions yet';
+
+const LAYOUTS: Record<Viewport, (props: LayoutStateProps) => JSX.Element> = {
+  mobile: MobileLayout,
+  tablet: TabletLayout,
+  desktop: DesktopLayout,
+};
+
+export function DashboardShell({
+  viewport,
+  state = 'default',
+  errorMessage = DEFAULT_ERROR_MESSAGE,
+  emptyMessage = DEFAULT_EMPTY_MESSAGE,
+  onRetry = NOOP,
+  onGoHome = NOOP,
+}: DashboardShellProps) {
+  const Layout = LAYOUTS[viewport];
+  return (
+    <Layout
+      state={state}
+      errorMessage={errorMessage}
+      emptyMessage={emptyMessage}
+      onRetry={onRetry}
+      onGoHome={onGoHome}
+    />
+  );
+}

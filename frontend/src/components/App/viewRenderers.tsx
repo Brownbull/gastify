@@ -47,7 +47,6 @@ import { BatchReviewView } from '../../views/BatchReviewView';
 
 // Story 15b-3g: HistoryFiltersProvider replaced by useHistoryFiltersInit hook
 import { useHistoryFiltersInit } from '@/shared/hooks/useHistoryFiltersInit';
-import type { HistoryFilterState } from '@/types/historyFilters';
 
 
 // View type for switch
@@ -128,21 +127,17 @@ export function renderInsightsView(props: RenderInsightsViewProps) {
 /**
  * Story 14e-25a.2b: RenderHistoryViewProps updated for data-owning HistoryView.
  * HistoryView now gets its data via useHistoryViewData hook internally.
+ * Filters initialized from URL search params via useHistoryFiltersInit.
  */
-export interface RenderHistoryViewProps extends HistoryViewProps {
-    /** Initial filter state for useHistoryFiltersInit */
-    initialState?: HistoryFilterState;
-    /** Callback when filter state changes */
-    onStateChange?: (state: HistoryFilterState) => void;
-}
+export type RenderHistoryViewProps = HistoryViewProps;
 
 export function renderHistoryView(props: RenderHistoryViewProps) {
     return <HistoryViewWithFilters {...props} />;
 }
 
 function HistoryViewWithFilters(props: RenderHistoryViewProps) {
-    const { initialState, onStateChange, _testOverrides } = props;
-    useHistoryFiltersInit({ initialState, onStateChange });
+    const { _testOverrides } = props;
+    useHistoryFiltersInit();
     return <HistoryView _testOverrides={_testOverrides} />;
 }
 
@@ -156,21 +151,15 @@ function HistoryViewWithFilters(props: RenderHistoryViewProps) {
  * User info obtained via useAuth().
  * Theme settings obtained via useTheme().
  */
-export interface RenderItemsViewProps extends ItemsViewProps {
-    /** Initial filter state for useHistoryFiltersInit */
-    initialState?: HistoryFilterState;
-    /** Callback when filter state changes */
-    onStateChange?: (state: HistoryFilterState) => void;
-}
+export type RenderItemsViewProps = ItemsViewProps;
 
 export function renderItemsView(props: RenderItemsViewProps) {
     return <ItemsViewWithFilters {...props} />;
 }
 
 function ItemsViewWithFilters(props: RenderItemsViewProps) {
-    const { initialState, onStateChange, ...itemsProps } = props;
-    useHistoryFiltersInit({ initialState, onStateChange });
-    return <ItemsView {...itemsProps} />;
+    useHistoryFiltersInit();
+    return <ItemsView {...props} />;
 }
 
 // =============================================================================

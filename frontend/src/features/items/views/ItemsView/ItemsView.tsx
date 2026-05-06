@@ -30,7 +30,8 @@ import { filterToDuplicatesGrouped, getItemDuplicateCount } from '@features/item
 import { extractAvailableFilters } from '@shared/utils/historyFilterUtils';
 import type { FlattenedItem, ItemFilters, AggregatedItem } from '@/types/item';
 import { downloadAggregatedItemsCSV } from '@/utils/csvExport';
-import { useNavigationActions } from '@/shared/stores';
+import { useNavigate, useRouter } from '@tanstack/react-router';
+import { viewToPath } from '@/lib/routeMapping';
 import type { View } from '@app/types';
 import { useItemsViewData } from './useItemsViewData';
 import {
@@ -54,6 +55,7 @@ export const ItemsView: React.FC<ItemsViewProps> = ({
     _testOverrides,
     initialCategory,
     initialSearchTerm,
+    _initialState,
 }) => {
     // Story 14e-31: Data ownership via internal hook
     const hookData = useItemsViewData();
@@ -79,10 +81,11 @@ export const ItemsView: React.FC<ItemsViewProps> = ({
     // Widen the formatDate type to match component expectations (string format)
     const formatDate = formatDateHook as (date: string, format: string) => string;
 
-    // Story 14e-25d: Direct navigation from store (ViewHandlersContext deleted)
-    const { navigateBack, setView } = useNavigationActions();
-    const onBack = navigateBack;
-    const onNavigateToView = setView;
+    // Story 14e-25d: Direct navigation via TanStack Router
+    const navigate = useNavigate();
+    const router = useRouter();
+    const onBack = () => router.history.back();
+    const onNavigateToView = (view: View) => navigate({ to: viewToPath(view) });
 
     // Profile dropdown state
     const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -99,14 +102,12 @@ export const ItemsView: React.FC<ItemsViewProps> = ({
 
     // Pagination state
     const [currentPage, setCurrentPage] = useState(1);
-    const [pageSize, setPageSize] = useState<PageSizeOption>(DEFAULT_PAGE_SIZE);
+    const [pageSize, setPageSize] = useState<PageSizeOption>(_initialState?.pageSize ?? DEFAULT_PAGE_SIZE);
 
-    // Story 14.31 Session 2: Duplicate filter state
-    const [showDuplicatesOnly, setShowDuplicatesOnly] = useState(false);
+    const [showDuplicatesOnly, setShowDuplicatesOnly] = useState(_initialState?.showDuplicatesOnly ?? false);
 
-    // Story 14.31 Session 3: Sort state
-    const [sortBy, setSortBy] = useState<ItemSortKey>(DEFAULT_SORT_KEY);
-    const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>(DEFAULT_SORT_DIRECTION);
+    const [sortBy, setSortBy] = useState<ItemSortKey>(_initialState?.sortBy ?? DEFAULT_SORT_KEY);
+    const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>(_initialState?.sortDirection ?? DEFAULT_SORT_DIRECTION);
 
     // Animation preference
     const prefersReducedMotion = useReducedMotion();

@@ -525,3 +525,93 @@ Load-bearing items deferred:
 **Status:** accepted
 
 **Status:** accepted
+
+---
+
+## D24 — Mockup-to-React pivot (legacy HTML mockups → React app + Storybook, 2026-04-28)
+
+**Phase:** Independent of the L-block; effectively closes Phases L2a / L2b / L3-L5 by superseding their goal.
+**Types:** `mockup-strategy, react-storybook`
+**Tier:** mvp
+**Source:** User-driven session 2026-04-28 — frustration with Opus 4.7 max-thinking failing to produce accurate HTML mockups despite a "dedicated frontend mockup app" already existing. Diagnostic: the React app at `frontend/` and the HTML mockups at `docs/mockups/` + `docs/mockups-legacy/` use different CSS engines (Tailwind CDN vs hand-rolled BEM), so the model was hand-translating between two styling systems with no canonical mapping. The 5 broken molecule triples (PENDING P12) traced back to that fork.
+
+**Decision:** Stop authoring HTML mockups. Use the operational React app (`frontend/`) as the mockup surface, viewed through Storybook stories. Each new screen / atom / molecule becomes a Storybook story colocated with the React component. Mocked Firebase backend (already in place at `frontend/src/__firebase-mocks__/`) feeds real Transaction shapes through repositories so stories render with real data, not lorem ipsum.
+
+**Plan reference:** `~/.claude/plans/okay-here-s-something-that-ancient-graham.md` — full architecture decision matrix (1A/1B/1C × 2A/2B/2C/2D × 3A/3B/3C). Picked 1A + 2A (later reversed to 2B per D25) + 3B.
+
+**Pattern landed:**
+- Phase 1: Tailwind CDN → built Tailwind 4 (`@tailwindcss/vite`) with theme tokens migrated to `frontend/src/styles/global.css`.
+- Phase 2-3: Showcase tool installed (initially Ladle, later Storybook 10 per D25).
+- Phase 4: Atom showcase stories (Colors / Typography / Icons) under `Atoms/` in Storybook sidebar.
+- Phase 6: Dashboard screen story (`Screens/Dashboard`) — proved end-to-end that mounting `<DashboardView />` with no props renders the full screen via mocked Firestore + repositories.
+- Post-pivot scaling: Trends + History stories shipped using the same pattern (commits 70600b4).
+
+**Status:** accepted
+
+---
+
+## D25 — Pivot 2A→2B: Storybook 10 instead of Ladle (2026-04-28)
+
+**Phase:** Reverses axis 2 of D24's architecture matrix.
+**Types:** `mockup-strategy, react-storybook`
+**Tier:** mvp
+**Source:** User direction during the same session — they were using Storybook 9 in the sibling project and found it "ridiculously better than ladle." Triggered after several hours of debugging Ladle's iframe stylesheet propagation (manual `useMirrorStylesheetsToOwnerDoc` hack), Tailwind 4 `@source` directive coupling, theme/mode addon disambiguation, and viewport-default config schema mismatches.
+
+**Decision:** Replace Ladle (`@ladle/react`) with Storybook 10 (`storybook` + `@storybook/react-vite` + `@storybook/addon-themes`). Storybook handles iframe CSS injection natively (preview.tsx imports auto-propagate), has the richer addon ecosystem the user expected, and matches the convention used elsewhere in their projects.
+
+**Concrete changes:**
+- `npm uninstall @ladle/react` → `npm install -D storybook @storybook/react-vite @storybook/addon-themes` (Storybook 10.3.5 installed)
+- `frontend/.ladle/{config.mjs,components.tsx}` → `frontend/.storybook/{main.ts,preview.tsx}`
+- The `useMirrorStylesheetsToOwnerDoc` hack (clones parent stylesheets into iframe head) deleted — no longer needed
+- Story format unchanged (CSF3 was already compatible between Ladle + Storybook)
+- Added `frontend/.storybook/preview-head.html` to inject Google Fonts (Outfit / Space Grotesk / Baloo 2) into the preview iframe
+- `withThemeByClassName` decorator handles light/dark via `.dark` class swap; custom `colorTheme` global toolbar exposes Normal/Professional/Mono variants
+
+**Verification:** 28-combination Playwright sweep (7 stories × 2 viewports × 2 themes) pre-Storybook migration, all passed. Post-migration, the same coverage was reproduced via Storybook iframe URLs.
+
+**Status:** accepted (commit `1c54c34`)
+
+---
+
+## D26 — Storybook scope boundary: self-contained screens only (2026-04-28)
+
+**Phase:** Reaction to the Phase 6.3 batch 1 revert (1c75ef4 → 5a39a10). Locks the scope of what Storybook covers vs what lives elsewhere.
+**Types:** `mockup-strategy, react-storybook`
+**Tier:** mvp
+**Source:** Phase 6.3 batch 1 (story `IdleState` as `Flows/Scan/01-Idle`) shipped without proper visual verification. User flagged that translation keys were leaking to UI (`scanSinglePrompt` instead of "Tap to scan a receipt") and that IdleState — documented in `ScanFeature.tsx` as "optional - often handled by FAB" — wasn't the right component for the scan flow's "first step" framing. Both classes of bug traced back to the same root cause: forcing an orchestrator-driven flow into the Storybook surface required wrappers (Zustand store seeding, translation stub, etc.) and each wrapper introduced its own bug surface.
+
+**Decision:** Storybook's scope is **atoms + molecules + self-contained screens only**. A screen is "self-contained" when:
+- It mounts with `<View />` (no required props) OR with only optional `_testOverrides` of the type `Partial<UseXViewDataReturn>`
+- It reads everything via hooks already provided by `frontend/.storybook/preview.tsx` (Firebase mocks + QueryClient + Auth)
+
+**Excluded from Storybook:**
+- **Orchestrator-driven flows** — components selected by a state machine (e.g., `ScanFeature.tsx` switching between `IdleState` / `CameraView` / `ProcessingState` / `ReviewingState` by `phase`).
+- **Device-API-coupled views** — anything depending on `getUserMedia`, geolocation, file APIs requiring real browser permission flow.
+- **Deep multi-context views** — screens that need >2 mocked contexts beyond what `preview.tsx` provides (e.g., `TransactionEditorView` with category-picker context + scan results + confidence wiring).
+
+**For excluded views:** use the running app (`cd frontend && npm run dev`). For "see all states at once" overviews, author a per-flow reference doc under `docs/reference/<flow>.md` (canonical example: `docs/reference/scan-flow.md` shipped as Step 4 of the post-revert recommendation).
+
+**Decision aid (5-row table) lives in `frontend/STORIES.md` "Scope boundary" section** so future contributors don't re-litigate.
+
+**Status:** accepted (`frontend/STORIES.md` updated in commit `da4e022`; reference doc shipped in `6bb149e`)
+
+---
+
+## D27 — KDBP-only Phase 9 cleanup; don't move legacy mockup directories (2026-04-28)
+
+**Phase:** Phase 9 of the pivot plan (originally specified "archive HTML mockups + spike-toast"). Substituted scope per cost/value evaluation.
+**Types:** `mockup-strategy, kdbp-bookkeeping`
+**Tier:** mvp
+**Source:** Sizing pass before pulling the trigger on `git mv docs/mockups → docs/archive/`. ~1000 files across `docs/mockups/` (8.3 MB, 586 files), `docs/mockups-legacy/` (3.1 MB, 402 files), and `frontend/_spike-toast/` (148 KB, 16 files). Reference scan revealed active production dependencies on the `docs/mockups/` path: `package.json:serve:mockups`, `playwright.config.ts:webServer`, `tests/mockups/validate/runner.mjs` (hardcoded paths to `docs/mockups/screens` + `docs/mockups/assets/js/tweaks.js`), `tests/legacy-extract/` writes to `docs/mockups/atoms/legacy-snapshots/`.
+
+**Decision:** Don't move the directories. Keep `docs/mockups/` and `docs/mockups-legacy/` in place as a **frozen baseline + test target**. Achieve the cognitive closure of "we are done with this layer" via KDBP updates only:
+- Close PENDING.md P12 (`open` → `closed`) — see also D24/D25/D26 reasoning.
+- Add D24 / D25 / D26 / D27 to DECISIONS.md (this entry).
+- Update PLAN.md Current Phase from "L2 mockups-legacy Molecules" → "post-pivot scaling" with explicit note that L2a/L2b/L3-L5 are obsoleted by D24.
+- Rewrite `docs/MOCKUP-REWORK-HANDOFF.md` as a Storybook + reference-doc pointer (drops the §3 first-deliverable framing — that target was met by the Dashboard story).
+
+**Why not move directories:** moving 1000 files for symbolic-only value while breaking 4 config files and a working test harness contradicts the user's stated goal ("stop overcomplicating"). The substance of "archived" — no new work goes here, the React app is the source of truth — is achieved by KDBP updates. Filesystem layout staying as-is preserves the test harness baseline (gastify shows 0 active findings per the most recent validate run, per LEDGER 14:25 entry).
+
+**Future opt-in:** if the directory layout needs to reflect archival status later (e.g., before open-sourcing), that's a separate, more careful migration that retires the test harness as a unit.
+
+**Status:** accepted

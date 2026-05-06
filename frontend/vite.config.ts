@@ -1,7 +1,9 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import tailwindcss from '@tailwindcss/vite';
 import { VitePWA } from 'vite-plugin-pwa';
 import tsconfigPaths from 'vite-tsconfig-paths';
+import { TanStackRouterVite } from '@tanstack/router-plugin/vite';
 import path from 'path';
 import pkg from './package.json';
 
@@ -12,11 +14,22 @@ import pkg from './package.json';
 const firebaseMocks = path.resolve(__dirname, 'src/__firebase-mocks__');
 
 export default defineConfig({
+  test: {
+    environment: 'jsdom',
+    setupFiles: ['./src/test/setup.ts'],
+    include: ['src/**/*.{test,spec}.{ts,tsx}'],
+    exclude: ['src/**/*.stories.{ts,tsx}'],
+  },
   define: {
     __APP_VERSION__: JSON.stringify(pkg.version),
   },
   plugins: [
+    TanStackRouterVite({
+      routesDirectory: './src/routes',
+      generatedRouteTree: './src/routeTree.gen.ts',
+    }),
     react(),
+    tailwindcss(),
     tsconfigPaths(),
     VitePWA({
       strategies: 'injectManifest',

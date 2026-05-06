@@ -41,8 +41,7 @@ import { useScanActions } from '@features/scan/store';
 // Story 16-6: images + isProcessing from shared workflow store
 import { useWorkflowImages, useWorkflowIsProcessing } from '@shared/stores';
 import { processFilesForCapture, type ProcessedImage } from '@features/batch-review/utils/imageUtils';
-// Story 14e-25c.2: Navigation via Zustand store
-import { useNavigation } from '@/shared/stores/useNavigationStore';
+import { useRouter } from '@tanstack/react-router';
 
 /**
  * Story 14e-25c.2: Minimal props interface for BatchCaptureView.
@@ -93,8 +92,8 @@ export const BatchCaptureView: React.FC<BatchCaptureViewProps> = ({
   imageDataUrls,
   onImagesChange,
 }) => {
-  // Story 14e-25c.2: Get navigation from Zustand store
-  const { navigateBack } = useNavigation();
+  const bcRouter = useRouter();
+  const navigateBack = () => bcRouter.history.back();
 
   // Story 16-6: Read images from shared workflow store (source of truth)
   const scanStoreImages = useWorkflowImages();

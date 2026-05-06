@@ -19,7 +19,7 @@ Edit values directly or rerun `/gabe-push --reconfigure` to redo the interview.
 |---------|-------|
 | target_branch | main |
 | promote_from | staging |
-| ci | none |
+| ci | github-actions |
 | branch_cleanup | ask |
 
 ### staging
@@ -28,20 +28,21 @@ Edit values directly or rerun `/gabe-push --reconfigure` to redo the interview.
 |---------|-------|
 | target_branch | staging |
 | promote_from | — |
-| ci | none |
+| ci | github-actions |
 | branch_cleanup | ask |
 
 ## Remote branch policy
 
 | Setting | Value |
 |---------|-------|
-| known_branches | main |
+| known_branches | main, rebuild/fe-dashboard-batch-01, rebuild/be-phase-01 |
 | on_extra | prompt |
 
 ## Decisions log
 
 | Branch | Action | Decided | Notes |
 |--------|--------|---------|-------|
+| rebuild/fe-dashboard-batch-01 | ignore-always | 2026-05-06 | Old frontend batch branch from prior Storybook pivot work |
 
 <!--
 Migrated 2026-04-23 from v1 trunk-based shape (single env, promotion chain
@@ -58,6 +59,6 @@ origin/staging does not exist yet. Will auto-create on first
 /gabe-push staging. After that it joins known_branches via env resolution
 and Step 2.7 drift check stays quiet.
 
-CI: none today (pre-scaffold). Flip to github-actions when .github/workflows/
-lands during the backend phase.
+CI: github-actions — flipped from none on 2026-05-06 after .github/workflows/ci.yml
+landed during backend P1-P3. 9 jobs: 4 frontend + 1 backend + 2 security + 1 custom gates.
 -->

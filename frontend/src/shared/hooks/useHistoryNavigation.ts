@@ -2,23 +2,14 @@
  * Story 14e-25d: useHistoryNavigation Hook
  *
  * Provides the handleNavigateToHistory function for analytics-to-history navigation.
- * This replaces the function previously provided via ViewHandlersContext.navigation.
+ * Navigates via TanStack Router with filter state encoded in URL search params.
  *
  * Used by: TrendsView, DashboardView for drill-down navigation to HistoryView/ItemsView.
- *
- * @example
- * ```tsx
- * const { handleNavigateToHistory } = useHistoryNavigation();
- * handleNavigateToHistory({
- *   category: 'Food',
- *   temporal: { level: 'month', year: 2026, month: 1 },
- *   targetView: 'history'
- * });
- * ```
  */
 
 import { useCallback } from 'react';
-import { useNavigationActions } from '@/shared/stores';
+import { useNavigate } from '@tanstack/react-router';
+import { historyFilterToSearchParams } from '@/lib/searchParamSerializers';
 import type { HistoryFilterState, TemporalFilterState } from '@/types/historyFilters';
 import type { HistoryNavigationPayload } from '@/types/navigation';
 import {
@@ -28,24 +19,10 @@ import {
     type ItemCategoryGroup,
 } from '@/config/categoryColors';
 
-/**
- * Hook providing analytics-to-history navigation with filter building.
- *
- * @returns Object with handleNavigateToHistory function
- */
 export function useHistoryNavigation() {
-    const {
-        setView,
-        setPendingHistoryFilters,
-        setPendingDistributionView,
-    } = useNavigationActions();
+    const navigate = useNavigate();
 
-    /**
-     * Navigate from Analytics to History/Items with pre-applied filters.
-     * Builds filter state from the payload and stores it for consumption by the target view.
-     */
     const handleNavigateToHistory = useCallback((payload: HistoryNavigationPayload) => {
-        // Build category filter based on payload
         let categoryFilter: HistoryFilterState['category'] = { level: 'all' };
         if (payload.category) {
             categoryFilter = { level: 'category', category: payload.category };
@@ -59,7 +36,6 @@ export function useHistoryNavigation() {
             categoryFilter = { level: 'group', group: payload.itemCategory };
         }
 
-        // Story 14.13a: Include drillDownPath for multi-dimension filtering
         if (payload.drillDownPath) {
             categoryFilter.drillDownPath = payload.drillDownPath;
         }
@@ -72,15 +48,13 @@ export function useHistoryNavigation() {
             location: {},
         };
 
-        // Store filters and navigate
-        setPendingHistoryFilters(filterState);
-        if (payload.sourceDistributionView) {
-            setPendingDistributionView(payload.sourceDistributionView);
-        }
-
-        const targetView = payload.targetView || 'history';
-        setView(targetView);
-    }, [setView, setPendingHistoryFilters, setPendingDistributionView]);
+        const searchParams = historyFilterToSearchParams(
+            filterState,
+            payload.sourceDistributionView,
+        );
+        const targetPath = payload.targetView === 'items' ? '/items' : '/history';
+        navigate({ to: targetPath, search: searchParams });
+    }, [navigate]);
 
     return { handleNavigateToHistory };
 }

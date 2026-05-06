@@ -1,0 +1,7 @@
+# Ralph Progress Log — items
+Started: Mon May  4 16:02:27 -04 2026
+---
+
+## Codebase Patterns
+(populated by RALPH iterations)
+---

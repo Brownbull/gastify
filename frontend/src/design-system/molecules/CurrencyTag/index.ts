@@ -1,0 +1,1 @@
+export { CurrencyTag } from './CurrencyTag';

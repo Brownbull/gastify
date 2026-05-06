@@ -52,12 +52,13 @@ import { classifyError, extractErrorMessage } from '@/utils/errorHandler';
 // Pattern:
 //   scanActions.processError('error')      // Instead of: ui.setScanError('error')
 //   appEvents.emit('scan:completed', ...)  // Instead of: transactionEditorActions.setTransaction(tx)
-//   navigationActions.setView('dashboard')  // Instead of: ui.setView('dashboard')
+//   router.navigate({ to: '/' })  // Navigate to dashboard after auto-save
 
 import { scanActions } from '@features/scan/store';
 // Story 16-7: transactionEditorActions replaced by event bus (AC-ARCH-NO-1)
 import { appEvents } from '@shared/events';
-import { navigationActions, insightActions } from '@shared/stores';
+import { insightActions } from '@shared/stores';
+import { router } from '@/router';
 
 // =============================================================================
 // Constants
@@ -327,7 +328,7 @@ export async function processScan(params: ProcessScanParams): Promise<ProcessSca
         // Story 16-7: setTransaction(null) removed — scan:completed subscriber handles editor state
         scanActions.setImages([]);
         ui.setToastMessage({ text: t('autoSaved'), type: 'success' });
-        navigationActions.setView('dashboard');
+        router.navigate({ to: '/' });
 
         // Story 14e-43: Show insight or batch summary using store actions directly
         const silenced = trustedAutoSave.isInsightsSilenced(trustedAutoSave.insightCache);

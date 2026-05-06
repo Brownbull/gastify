@@ -1,0 +1,9 @@
+<!--
+  Injected into Storybook's preview iframe <head>. Mirrors the Google Fonts
+  loading chain from frontend/index.html so the wordmark (Baloo 2) and the
+  alternate UI font (Space Grotesk) render correctly in stories. Without this,
+  font-family declarations in stories silently fall back to system serifs.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=Baloo+2:wght@700&display=swap" rel="stylesheet">
