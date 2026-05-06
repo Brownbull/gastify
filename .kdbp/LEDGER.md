@@ -1,5 +1,12 @@
 # Session Ledger
 
+## 2026-05-06 — PHASE EXEC COMPLETE: Phase 4 — Consent + processing register + DSR
+TIER: ent
+TASKS: 5 tasks, 1 commit (02d089c)
+DEVIATIONS: 0 structural, 1 minor (conftest: seeded user + processing_register rows; set explicit updated_at on consent mutations to avoid SQLite lazy-load)
+FILES: 12 changed (+1394 / -1)
+TESTS: 20 new (10 consent + 10 DSR), 102 total passing, 0 regressions
+
 ## 2026-05-06 16:58 — PUSH rebuild/be-phase-01 → origin/main (PR #2)
 PR: https://github.com/Brownbull/gastify/pull/2
 CI: ✅ 9/9 (all green after 5 CI-fix commits)
