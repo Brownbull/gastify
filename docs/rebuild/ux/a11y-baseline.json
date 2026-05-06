@@ -1,0 +1,113 @@
+{
+  "captured_at": "2026-05-04T19:33:57.552Z",
+  "tool": "@axe-core/playwright 4.x",
+  "tags": [
+    "wcag2a",
+    "wcag2aa",
+    "wcag21a",
+    "wcag21aa"
+  ],
+  "viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "note": "Pre-TanStack-Router baseline. Navigation via bottom nav clicks.",
+  "views": {
+    "dashboard": {
+      "violations": [
+        {
+          "id": "aria-required-children",
+          "impact": "critical",
+          "description": "Ensure elements with an ARIA role that require child roles contain them",
+          "help": "Certain ARIA roles must contain particular children",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/aria-required-children?application=playwright",
+          "nodes": 1
+        },
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+          "help": "Elements must meet minimum color contrast ratio thresholds",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/color-contrast?application=playwright",
+          "nodes": 15
+        },
+        {
+          "id": "nested-interactive",
+          "impact": "serious",
+          "description": "Ensure interactive controls are not nested as they are not always announced by screen readers or can cause focus problems for assistive technologies",
+          "help": "Interactive controls must not be nested",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/nested-interactive?application=playwright",
+          "nodes": 6
+        }
+      ],
+      "passes": 20,
+      "incomplete": 1
+    },
+    "nav-0": {
+      "violations": [
+        {
+          "id": "aria-required-children",
+          "impact": "critical",
+          "description": "Ensure elements with an ARIA role that require child roles contain them",
+          "help": "Certain ARIA roles must contain particular children",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/aria-required-children?application=playwright",
+          "nodes": 1
+        },
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+          "help": "Elements must meet minimum color contrast ratio thresholds",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/color-contrast?application=playwright",
+          "nodes": 15
+        },
+        {
+          "id": "nested-interactive",
+          "impact": "serious",
+          "description": "Ensure interactive controls are not nested as they are not always announced by screen readers or can cause focus problems for assistive technologies",
+          "help": "Interactive controls must not be nested",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/nested-interactive?application=playwright",
+          "nodes": 6
+        }
+      ],
+      "passes": 20,
+      "incomplete": 1
+    },
+    "nav-1": {
+      "violations": [
+        {
+          "id": "aria-required-children",
+          "impact": "critical",
+          "description": "Ensure elements with an ARIA role that require child roles contain them",
+          "help": "Certain ARIA roles must contain particular children",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/aria-required-children?application=playwright",
+          "nodes": 2
+        },
+        {
+          "id": "nested-interactive",
+          "impact": "serious",
+          "description": "Ensure interactive controls are not nested as they are not always announced by screen readers or can cause focus problems for assistive technologies",
+          "help": "Interactive controls must not be nested",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/nested-interactive?application=playwright",
+          "nodes": 5
+        }
+      ],
+      "passes": 21,
+      "incomplete": 1
+    },
+    "nav-2": {
+      "violations": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+          "help": "Elements must meet minimum color contrast ratio thresholds",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/color-contrast?application=playwright",
+          "nodes": 3
+        }
+      ],
+      "passes": 18,
+      "incomplete": 1
+    }
+  }
+}

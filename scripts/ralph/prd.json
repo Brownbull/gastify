@@ -1,0 +1,6 @@
+{
+  "project": "gastify",
+  "branchName": "rebuild/ralph",
+  "description": "Gastify UI rebuild via RALPH. Stories will be generated in Phase C of ~/.claude/plans/i-would-like-to-elegant-tarjan.md. RALPH must NOT run until Phase A prerequisites are complete.",
+  "userStories": []
+}
