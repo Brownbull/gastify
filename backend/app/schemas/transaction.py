@@ -143,6 +143,7 @@ class TransactionDetail(BaseModel):
     currency: str
     amount_usd_minor: int | None = None
     fx_rate_to_usd: Decimal | None = None
+    fx_captured_at: datetime | None = None
     card_alias_id: UUID | None = None
     receipt_type: str | None = None
     thumbnail_url: str | None = None
