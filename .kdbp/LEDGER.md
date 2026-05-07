@@ -1,5 +1,27 @@
 # Session Ledger
 
+## 2026-05-07 21:00 — PHASE 6 REVIEW: Exit-signal smoke test
+VERDICT: APPROVE
+FINDINGS: 0 total (0 critical, 0 high, 0 medium, 0 low)
+COVERAGE: HIGH — Phase 6 deliverable IS the smoke test; 126/126 pass, 96% coverage
+CONFIDENCE: 100/100
+DEFERRED: none
+ALIGNMENT: ALIGNED — 3/3 on-scope, 0 off-scope
+TIER: mvp | DRIFT: none
+TICK: ✅ Phase 6 Review column ticked
+SOURCES: codex/gpt-5 (inbox, 0 findings) + claude/opus-4-6 (blind, 0 findings) — union consolidation, zero findings both passes
+ARCHIVED: .kdbp/reviews-archive/REVIEW_2026-05-07-164744_resolved.md
+
+## 2026-05-07 — PHASE EXEC COMPLETE: Phase 6 — Exit-signal smoke test
+TIER: mvp
+TASKS: 1 tasks, 1 commits
+DEVIATIONS: 0 structural, 1 minor (fx_captured_at added to TransactionDetail — not in original Scope but required by assertion chain)
+
+## 2026-05-07 — [e8cf7ed] test(p1): add exit-signal smoke test proving all P1 REQs end-to-end
+FINDINGS: 0 (0 critical, 0 high, 0 medium, 0 low)
+ACTIONS: (none)
+DEFERRED: 0
+
 ## 2026-05-07 15:01 — PUSH main -> main
 PR: — (direct push)
 CI: ✅ 8/8 (70s) — all checks passed
