@@ -1,5 +1,16 @@
 # Session Ledger
 
+## 2026-05-07 15:01 — PUSH main -> main
+PR: — (direct push)
+CI: ✅ 8/8 (70s) — all checks passed
+PROMOTION: N/A
+DEPLOYMENTS: P10 (added row to .kdbp/DEPLOYMENTS.md)
+
+## 2026-05-07 — [790b9bb] fix(observability): add ge≥0 constraints and metrics API-key auth
+FINDINGS: 0 (0 critical, 0 high, 0 medium, 0 low)
+ACTIONS: none — all checks passed
+DEFERRED: none
+
 ## 2026-05-07 — PHASE 5 REVIEW: Observability pipeline
 VERDICT: APPROVE
 FINDINGS: 4 total (0 critical, 3 high, 1 medium, 0 low) — all 4 resolved
