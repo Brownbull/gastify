@@ -1,5 +1,10 @@
 # Session Ledger
 
+## 2026-05-07 — [8f4cd8b] feat(observability): add per-scan metric columns and Prometheus text exporter
+FINDINGS: 0 (0 critical, 0 high, 0 medium, 0 low)
+ACTIONS: none
+DEFERRED: 0
+
 ## 2026-05-07 — PUSH main → origin/main
 PR: — (direct push to main, no PR)
 CI: ✅ 8/8 (all green after coverage config fix)

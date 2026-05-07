@@ -22,8 +22,6 @@ from app.schemas.transaction import (
     BatchUpdateRequest,
     TransactionCreate,
     TransactionDetail,
-    TransactionImageResponse,
-    TransactionItemResponse,
     TransactionListItem,
     TransactionUpdate,
 )
@@ -142,29 +140,7 @@ async def get_transaction(
     if txn is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Transaction not found")
 
-    return TransactionDetail(
-        id=txn.id,
-        transaction_date=txn.transaction_date,
-        transaction_time=txn.transaction_time,
-        merchant=txn.merchant,
-        merchant_user_edited_at=txn.merchant_user_edited_at,
-        alias=txn.alias,
-        store_category_id=txn.store_category_id,
-        store_category_user_edited_at=txn.store_category_user_edited_at,
-        total_minor=txn.total_minor,
-        currency=txn.currency,
-        amount_usd_minor=txn.amount_usd_minor,
-        fx_rate_to_usd=txn.fx_rate_to_usd,
-        card_alias_id=txn.card_alias_id,
-        receipt_type=txn.receipt_type,
-        thumbnail_url=txn.thumbnail_url,
-        country=txn.country,
-        city=txn.city,
-        items=[TransactionItemResponse.model_validate(i) for i in txn.items],
-        images=[TransactionImageResponse.model_validate(i) for i in txn.images],
-        created_at=txn.created_at,
-        updated_at=txn.updated_at,
-    )
+    return TransactionDetail.model_validate(txn)
 
 
 @router.post("", status_code=status.HTTP_201_CREATED)
@@ -220,6 +196,13 @@ async def create_transaction(
         city=body.city,
         card_alias_id=body.card_alias_id,
         merchant_source=body.merchant_source,
+        llm_tokens_in=body.llm_tokens_in,
+        llm_tokens_out=body.llm_tokens_out,
+        llm_cost_usd=body.llm_cost_usd,
+        scan_duration_ms=body.scan_duration_ms,
+        llm_latency_ms=body.llm_latency_ms,
+        queue_wait_ms=body.queue_wait_ms,
+        thumbnail_gen_ms=body.thumbnail_gen_ms,
     )
     db.add(txn)
     await db.flush()
@@ -361,29 +344,7 @@ async def update_transaction(
     await db.commit()
     await db.refresh(txn)
 
-    return TransactionDetail(
-        id=txn.id,
-        transaction_date=txn.transaction_date,
-        transaction_time=txn.transaction_time,
-        merchant=txn.merchant,
-        merchant_user_edited_at=txn.merchant_user_edited_at,
-        alias=txn.alias,
-        store_category_id=txn.store_category_id,
-        store_category_user_edited_at=txn.store_category_user_edited_at,
-        total_minor=txn.total_minor,
-        currency=txn.currency,
-        amount_usd_minor=txn.amount_usd_minor,
-        fx_rate_to_usd=txn.fx_rate_to_usd,
-        card_alias_id=txn.card_alias_id,
-        receipt_type=txn.receipt_type,
-        thumbnail_url=txn.thumbnail_url,
-        country=txn.country,
-        city=txn.city,
-        items=[TransactionItemResponse.model_validate(i) for i in txn.items],
-        images=[TransactionImageResponse.model_validate(i) for i in txn.images],
-        created_at=txn.created_at,
-        updated_at=txn.updated_at,
-    )
+    return TransactionDetail.model_validate(txn)
 
 
 @router.delete("/{transaction_id}", status_code=status.HTTP_204_NO_CONTENT)
