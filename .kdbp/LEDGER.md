@@ -1,5 +1,20 @@
 # Session Ledger
 
+## 2026-05-07 — PHASE 5 REVIEW: Observability pipeline
+VERDICT: APPROVE
+FINDINGS: 4 total (0 critical, 3 high, 1 medium, 0 low) — all 4 resolved
+COVERAGE: HIGH — 32 observability tests pass; negative validation, metrics auth, Prometheus format, content negotiation, scan-metric round-trip all exercised
+CONFIDENCE: 95/100 (was 50 pre-triage; +45 from fixing all 4 findings via option [2] Fix MVP + Enterprise)
+DEFERRED: none
+ALIGNMENT: ALIGNED — 7/7 on-scope, 0 off-scope
+TIER: ent (Obs→scale) | DRIFT: none
+TICK: ✅ Phase 5 Review column ticked
+TRIAGE: option [2] Fix MVP + Enterprise items — all 4 findings fixed
+KEY FIXES: ruff format migration (#1), ge=0 Pydantic constraints + 4 negative/zero tests (#2), METRICS_API_KEY env-gated auth dependency + 4 auth tests (#3), CHECK constraints in migration + model __table_args__ (#4)
+SOURCES: codex/gpt-5 (inbox, 3 findings) + claude/opus-4-6 (blind, 4 findings) — 3 strict matches, 1 Claude-only, union consolidation
+RESOLVED: P17 (metrics auth — recurring, now fixed with API key guard)
+ARCHIVED: .kdbp/reviews-archive/REVIEW_2026-05-07-041500_resolved.md
+
 ## 2026-05-07 — PHASE EXEC COMPLETE: Phase 5 — Observability pipeline
 TIER: ent (Core.Observability → scale)
 TASKS: 3 tasks, 2 commits

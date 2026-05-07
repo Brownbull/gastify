@@ -78,13 +78,13 @@ class TransactionCreate(BaseModel):
     city: str | None = None
     card_alias_id: UUID | None = None
     merchant_source: Literal["ocr", "user", "ai", "mapping"] | None = None
-    llm_tokens_in: int | None = None
-    llm_tokens_out: int | None = None
-    llm_cost_usd: Decimal | None = None
-    scan_duration_ms: int | None = None
-    llm_latency_ms: int | None = None
-    queue_wait_ms: int | None = None
-    thumbnail_gen_ms: int | None = None
+    llm_tokens_in: int | None = Field(default=None, ge=0)
+    llm_tokens_out: int | None = Field(default=None, ge=0)
+    llm_cost_usd: Decimal | None = Field(default=None, ge=0)
+    scan_duration_ms: int | None = Field(default=None, ge=0)
+    llm_latency_ms: int | None = Field(default=None, ge=0)
+    queue_wait_ms: int | None = Field(default=None, ge=0)
+    thumbnail_gen_ms: int | None = Field(default=None, ge=0)
     items: list[TransactionItemCreate] = []
     image_urls: list[str] = []
 

@@ -7,6 +7,7 @@ from decimal import Decimal
 from sqlalchemy import (
     BigInteger,
     Boolean,
+    CheckConstraint,
     Date,
     DateTime,
     ForeignKey,
@@ -26,6 +27,15 @@ from app.db import Base
 
 class Transaction(Base):
     __tablename__ = "transactions"
+    __table_args__ = (
+        CheckConstraint("llm_tokens_in >= 0", name="ck_transactions_llm_tokens_in_gte0"),
+        CheckConstraint("llm_tokens_out >= 0", name="ck_transactions_llm_tokens_out_gte0"),
+        CheckConstraint("llm_cost_usd >= 0", name="ck_transactions_llm_cost_usd_gte0"),
+        CheckConstraint("scan_duration_ms >= 0", name="ck_transactions_scan_duration_ms_gte0"),
+        CheckConstraint("llm_latency_ms >= 0", name="ck_transactions_llm_latency_ms_gte0"),
+        CheckConstraint("queue_wait_ms >= 0", name="ck_transactions_queue_wait_ms_gte0"),
+        CheckConstraint("thumbnail_gen_ms >= 0", name="ck_transactions_thumbnail_gen_ms_gte0"),
+    )
 
     id: Mapped[uuid.UUID] = mapped_column(
         Uuid, primary_key=True, server_default=func.gen_random_uuid()

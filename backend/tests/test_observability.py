@@ -229,6 +229,100 @@ class TestMetricsContentNegotiation:
         assert "counters" in data
 
 
+class TestMetricsAuth:
+    @pytest.fixture
+    async def bare_client(self):
+        transport = ASGITransport(app=app)
+        async with AsyncClient(transport=transport, base_url="http://test") as ac:
+            yield ac
+
+    async def test_open_without_api_key(self, bare_client, monkeypatch):
+        monkeypatch.delenv("METRICS_API_KEY", raising=False)
+        resp = await bare_client.get("/api/v1/metrics")
+        assert resp.status_code == 200
+
+    async def test_requires_key_when_configured(self, bare_client, monkeypatch):
+        monkeypatch.setenv("METRICS_API_KEY", "test-secret")
+        resp = await bare_client.get("/api/v1/metrics")
+        assert resp.status_code == 403
+
+    async def test_accepts_correct_key(self, bare_client, monkeypatch):
+        monkeypatch.setenv("METRICS_API_KEY", "test-secret")
+        resp = await bare_client.get(
+            "/api/v1/metrics",
+            headers={"x-metrics-key": "test-secret"},
+        )
+        assert resp.status_code == 200
+
+    async def test_rejects_wrong_key(self, bare_client, monkeypatch):
+        monkeypatch.setenv("METRICS_API_KEY", "test-secret")
+        resp = await bare_client.get(
+            "/api/v1/metrics",
+            headers={"x-metrics-key": "wrong-key"},
+        )
+        assert resp.status_code == 403
+
+
+class TestScanMetricValidation:
+    async def test_negative_tokens_rejected(self, client):
+        resp = await client.post(
+            "/api/v1/transactions",
+            json={
+                "transaction_date": "2026-01-15",
+                "merchant": "Test",
+                "total_minor": 1000,
+                "currency": "CLP",
+                "items": [{"name": "X", "total_price_minor": 1000}],
+                "llm_tokens_in": -1,
+            },
+        )
+        assert resp.status_code == 422
+
+    async def test_negative_cost_rejected(self, client):
+        resp = await client.post(
+            "/api/v1/transactions",
+            json={
+                "transaction_date": "2026-01-15",
+                "merchant": "Test",
+                "total_minor": 1000,
+                "currency": "CLP",
+                "items": [{"name": "X", "total_price_minor": 1000}],
+                "llm_cost_usd": "-0.01",
+            },
+        )
+        assert resp.status_code == 422
+
+    async def test_negative_duration_rejected(self, client):
+        resp = await client.post(
+            "/api/v1/transactions",
+            json={
+                "transaction_date": "2026-01-15",
+                "merchant": "Test",
+                "total_minor": 1000,
+                "currency": "CLP",
+                "items": [{"name": "X", "total_price_minor": 1000}],
+                "scan_duration_ms": -100,
+            },
+        )
+        assert resp.status_code == 422
+
+    async def test_zero_values_accepted(self, client):
+        resp = await client.post(
+            "/api/v1/transactions",
+            json={
+                "transaction_date": "2026-01-15",
+                "merchant": "Test",
+                "total_minor": 1000,
+                "currency": "CLP",
+                "items": [{"name": "X", "total_price_minor": 1000}],
+                "llm_tokens_in": 0,
+                "llm_cost_usd": "0",
+                "scan_duration_ms": 0,
+            },
+        )
+        assert resp.status_code == 201
+
+
 class TestScanMetricColumns:
     async def test_transaction_with_scan_metrics(self, client):
         create_resp = await client.post(
