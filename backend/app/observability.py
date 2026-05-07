@@ -1,7 +1,7 @@
-"""Metrics registry — in-memory counters for baseline observability.
+"""Metrics registry — in-memory counters + histograms with Prometheus export.
 
 P1 baseline: simple counters + histograms in JSON format.
-P5 upgrades to OTel/Prometheus-compatible exporter with per-scan metrics.
+P5: OTel/Prometheus-compatible text exposition + per-scan metric families.
 """
 
 import random
@@ -10,6 +10,27 @@ from collections import defaultdict
 from threading import Lock
 
 _MAX_RESERVOIR = 1024
+
+METRIC_HELP: dict[str, str] = {
+    "http_requests_total": "Total HTTP requests processed.",
+    "http_requests_2xx": "HTTP requests with 2xx status.",
+    "http_requests_3xx": "HTTP requests with 3xx status.",
+    "http_requests_4xx": "HTTP requests with 4xx status.",
+    "http_requests_5xx": "HTTP requests with 5xx status.",
+    "http_request_duration_ms": "HTTP request duration in milliseconds.",
+    "scans_total": "Total receipt scans initiated.",
+    "scans_success": "Receipt scans completed successfully.",
+    "scans_failed": "Receipt scans that failed.",
+    "scan_duration_ms": "End-to-end scan duration in milliseconds.",
+    "llm_latency_ms": "LLM inference latency in milliseconds.",
+    "llm_tokens_in": "LLM input tokens per scan.",
+    "llm_tokens_out": "LLM output tokens per scan.",
+    "llm_cost_usd": "LLM cost per scan in USD.",
+    "queue_wait_ms": "Queue wait time before scan processing in milliseconds.",
+    "thumbnail_gen_ms": "Thumbnail generation time in milliseconds.",
+}
+
+PROMETHEUS_CONTENT_TYPE = "text/plain; version=0.0.4; charset=utf-8"
 
 
 class MetricsRegistry:
@@ -47,32 +68,83 @@ class MetricsRegistry:
 
     def snapshot(self) -> dict:
         with self._lock:
-            histograms = {}
-            for name in self._hist_counts:
-                count = self._hist_counts[name]
-                if count == 0:
-                    continue
-                sorted_vals = sorted(self._reservoirs[name])
-                sample_len = len(sorted_vals)
-                histograms[name] = {
-                    "count": count,
-                    "sum": round(self._hist_sums[name], 2),
-                    "min": round(self._hist_mins[name], 2),
-                    "max": round(self._hist_maxs[name], 2),
-                    "p50": round(sorted_vals[sample_len // 2], 2),
-                    "p95": (
-                        round(sorted_vals[int(sample_len * 0.95)], 2) if sample_len >= 20 else None
-                    ),
-                    "p99": (
-                        round(sorted_vals[int(sample_len * 0.99)], 2) if sample_len >= 100 else None
-                    ),
-                }
+            return self._snapshot_unlocked()
 
-            return {
-                "uptime_seconds": round(time.time() - self._start_time, 1),
-                "counters": dict(self._counters),
-                "histograms": histograms,
+    def prometheus_text(self) -> str:
+        with self._lock:
+            return self._prometheus_unlocked()
+
+    def _snapshot_unlocked(self) -> dict:
+        histograms = {}
+        for name in self._hist_counts:
+            count = self._hist_counts[name]
+            if count == 0:
+                continue
+            sorted_vals = sorted(self._reservoirs[name])
+            sample_len = len(sorted_vals)
+            histograms[name] = {
+                "count": count,
+                "sum": round(self._hist_sums[name], 2),
+                "min": round(self._hist_mins[name], 2),
+                "max": round(self._hist_maxs[name], 2),
+                "p50": round(sorted_vals[sample_len // 2], 2),
+                "p95": (
+                    round(sorted_vals[int(sample_len * 0.95)], 2) if sample_len >= 20 else None
+                ),
+                "p99": (
+                    round(sorted_vals[int(sample_len * 0.99)], 2) if sample_len >= 100 else None
+                ),
             }
+
+        return {
+            "uptime_seconds": round(time.time() - self._start_time, 1),
+            "counters": dict(self._counters),
+            "histograms": histograms,
+        }
+
+    def _prometheus_unlocked(self) -> str:
+        lines: list[str] = []
+
+        uptime = round(time.time() - self._start_time, 1)
+        lines.append("# HELP gastify_uptime_seconds Process uptime in seconds.")
+        lines.append("# TYPE gastify_uptime_seconds gauge")
+        lines.append(f"gastify_uptime_seconds {uptime}")
+
+        for name, value in sorted(self._counters.items()):
+            prom_name = f"gastify_{name}"
+            help_text = METRIC_HELP.get(name, "")
+            if help_text:
+                lines.append(f"# HELP {prom_name} {help_text}")
+            lines.append(f"# TYPE {prom_name} counter")
+            lines.append(f"{prom_name} {value}")
+
+        for name in sorted(self._hist_counts.keys()):
+            count = self._hist_counts[name]
+            if count == 0:
+                continue
+            prom_name = f"gastify_{name}"
+            help_text = METRIC_HELP.get(name, "")
+            if help_text:
+                lines.append(f"# HELP {prom_name} {help_text}")
+            lines.append(f"# TYPE {prom_name} summary")
+
+            sorted_vals = sorted(self._reservoirs[name])
+            sample_len = len(sorted_vals)
+            if sample_len > 0:
+                p50 = sorted_vals[sample_len // 2]
+                lines.append(f'{prom_name}{{quantile="0.5"}} {p50}')
+            if sample_len >= 20:
+                p95 = sorted_vals[int(sample_len * 0.95)]
+                lines.append(f'{prom_name}{{quantile="0.95"}} {p95}')
+            if sample_len >= 100:
+                p99 = sorted_vals[int(sample_len * 0.99)]
+                lines.append(f'{prom_name}{{quantile="0.99"}} {p99}')
+
+            lines.append(f"{prom_name}_sum {self._hist_sums[name]}")
+            lines.append(f"{prom_name}_count {count}")
+
+        lines.append("")
+        return "\n".join(lines)
 
 
 metrics = MetricsRegistry()

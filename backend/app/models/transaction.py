@@ -10,6 +10,7 @@ from sqlalchemy import (
     Date,
     DateTime,
     ForeignKey,
+    Integer,
     Numeric,
     SmallInteger,
     String,
@@ -57,6 +58,15 @@ class Transaction(Base):
     city: Mapped[str | None] = mapped_column(Text, nullable=True)
     prompt_version: Mapped[str | None] = mapped_column(Text, nullable=True)
     merchant_source: Mapped[str | None] = mapped_column(String, nullable=True)
+
+    llm_tokens_in: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    llm_tokens_out: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    llm_cost_usd: Mapped[Decimal | None] = mapped_column(Numeric(10, 6), nullable=True)
+    scan_duration_ms: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    llm_latency_ms: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    queue_wait_ms: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    thumbnail_gen_ms: Mapped[int | None] = mapped_column(Integer, nullable=True)
+
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now()
     )

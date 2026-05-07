@@ -25,7 +25,7 @@ Deliver P1 Foundation backend — FastAPI + Postgres with identity, ownership sc
 | 2 | Money + currency + FX + i18n | `data, integration` | Integer-minor-units convention, `currencies` table (10 codes), `fx_rates` write-once with lazy read-through cache, USD-shadow compute, i18n string registry (es/en/pt) | ent | medium | ✅ | ✅ | ✅ | ✅ |
 | 3 | Identity + ownership scope + RLS | `auth-session, multi-tenant` | Firebase token-verify middleware, JIT user provision, `ownership_scope` + `ownership_scope_members` tables, RLS policies keyed off scope, initial scan-credit balance | ent | high | ✅ | ✅ | ✅ | ✅ |
 | 4 | Consent + processing register + DSR | `data, multi-tenant` | `consent_records` + `processing_register` tables, per-purpose consent API, access/rectification/erasure/portability endpoints (Law 21.719 + GDPR + PIPEDA + CCPA/CPRA), audit event log | ent | high | ✅ | ✅ | ✅ | ✅ |
-| 5 | Observability pipeline | `core-only` | Per-scan metric columns, metric exporter endpoint (OTel/Prometheus-compatible), U8 cost/latency baseline | ent (Obs→scale) | medium | ⬜ | ⬜ | ⬜ | ⬜ |
+| 5 | Observability pipeline | `core-only` | Per-scan metric columns, metric exporter endpoint (OTel/Prometheus-compatible), U8 cost/latency baseline | ent (Obs→scale) | medium | 🔄 | ⬜ | ⬜ | ⬜ |
 | 6 | Exit-signal smoke test | `core-only` | Integration E2E: JIT sign-in → transaction in non-primary currency → read USD shadow → consent-audit returns 1 record | mvp | low | ⬜ | ⬜ | ⬜ | ⬜ |
 
 <!-- Exec is written by /gabe-execute: ⬜ not started, 🔄 in progress, ✅ complete -->
@@ -187,7 +187,7 @@ decisions_entry: D6
 
 ## Current Phase
 
-Phase 4: Consent + DSR / Phase 5: Observability pipeline (parallel — P4 needs P3 ✅, P5 needs P1 ✅, both satisfied)
+Phase 5: Observability pipeline
 
 **Progress as of 2026-05-06 (branch `rebuild/be-phase-01`, PR #2):**
 - P1 ✅: FastAPI scaffold, structlog JSON logger, MetricsRegistry + `/metrics` endpoint, request-ID middleware, access logging. Shipped in `3eff76f`.
