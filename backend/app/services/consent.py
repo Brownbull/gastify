@@ -10,9 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.consent import AuditEvent, ConsentRecord, ProcessingRegister
 
 
-async def get_processing_purpose(
-    db: AsyncSession, purpose: str
-) -> ProcessingRegister | None:
+async def get_processing_purpose(db: AsyncSession, purpose: str) -> ProcessingRegister | None:
     result = await db.execute(
         select(ProcessingRegister).where(
             ProcessingRegister.purpose == purpose,
@@ -79,12 +77,14 @@ async def grant_consent(
         event_type="consent_granted",
         resource_type="consent_record",
         resource_id=record.id,
-        details=json.dumps({
-            "purpose": purpose,
-            "jurisdiction": jurisdiction,
-            "legal_basis": legal_basis,
-            "consent_version": consent_version,
-        }),
+        details=json.dumps(
+            {
+                "purpose": purpose,
+                "jurisdiction": jurisdiction,
+                "legal_basis": legal_basis,
+                "consent_version": consent_version,
+            }
+        ),
         ip_address=ip_address,
     )
 
@@ -138,10 +138,12 @@ async def list_consents(
     ownership_scope_id: uuid.UUID,
 ) -> list[ConsentRecord]:
     result = await db.execute(
-        select(ConsentRecord).where(
+        select(ConsentRecord)
+        .where(
             ConsentRecord.user_id == user_id,
             ConsentRecord.ownership_scope_id == ownership_scope_id,
-        ).order_by(ConsentRecord.purpose)
+        )
+        .order_by(ConsentRecord.purpose)
     )
     return list(result.scalars().all())
 
@@ -214,7 +216,7 @@ async def anonymize_user_transactions(
     *,
     ownership_scope_id: uuid.UUID,
 ) -> int:
-    from app.models.transaction import Transaction
+    from app.models.transaction import Transaction, TransactionImage, TransactionItem
 
     stmt = (
         update(Transaction)
@@ -224,7 +226,38 @@ async def anonymize_user_transactions(
             alias=None,
             thumbnail_url=None,
             city=None,
+            country=None,
         )
     )
     result = await db.execute(stmt)
-    return result.rowcount
+    txn_count = result.rowcount
+
+    scope_txn_ids = select(Transaction.id).where(
+        Transaction.ownership_scope_id == ownership_scope_id
+    )
+
+    await db.execute(
+        update(TransactionItem)
+        .where(TransactionItem.transaction_id.in_(scope_txn_ids))
+        .values(name="[REDACTED]", subcategory=None)
+    )
+
+    await db.execute(
+        update(TransactionImage)
+        .where(TransactionImage.transaction_id.in_(scope_txn_ids))
+        .values(image_url="[REDACTED]")
+    )
+
+    return txn_count
+
+
+async def anonymize_user_profile(
+    db: AsyncSession,
+    *,
+    user_id: uuid.UUID,
+) -> None:
+    from app.models.user import User
+
+    await db.execute(
+        update(User).where(User.id == user_id).values(email=None, display_name="[REDACTED]")
+    )

@@ -20,9 +20,7 @@ from app.db import Base
 
 class ConsentRecord(Base):
     __tablename__ = "consent_records"
-    __table_args__ = (
-        UniqueConstraint("user_id", "purpose", name="uq_consent_user_purpose"),
-    )
+    __table_args__ = (UniqueConstraint("user_id", "purpose", name="uq_consent_user_purpose"),)
 
     id: Mapped[uuid.UUID] = mapped_column(
         Uuid, primary_key=True, server_default=func.gen_random_uuid()
@@ -30,9 +28,7 @@ class ConsentRecord(Base):
     ownership_scope_id: Mapped[uuid.UUID] = mapped_column(
         Uuid, ForeignKey("ownership_scopes.id"), nullable=False
     )
-    user_id: Mapped[uuid.UUID] = mapped_column(
-        Uuid, ForeignKey("users.id"), nullable=False
-    )
+    user_id: Mapped[uuid.UUID] = mapped_column(Uuid, ForeignKey("users.id"), nullable=False)
     purpose: Mapped[str] = mapped_column(String, nullable=False)
     status: Mapped[str] = mapped_column(String, nullable=False, server_default="granted")
     legal_basis: Mapped[str] = mapped_column(String, nullable=False, server_default="consent")
@@ -40,9 +36,7 @@ class ConsentRecord(Base):
     granted_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now()
     )
-    revoked_at: Mapped[datetime | None] = mapped_column(
-        DateTime(timezone=True), nullable=True
-    )
+    revoked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     consent_version: Mapped[str] = mapped_column(String, nullable=False, server_default="1.0")
     ip_address: Mapped[str | None] = mapped_column(String, nullable=True)
     user_agent: Mapped[str | None] = mapped_column(Text, nullable=True)
@@ -85,9 +79,7 @@ class AuditEvent(Base):
     ownership_scope_id: Mapped[uuid.UUID] = mapped_column(
         Uuid, ForeignKey("ownership_scopes.id"), nullable=False
     )
-    user_id: Mapped[uuid.UUID | None] = mapped_column(
-        Uuid, ForeignKey("users.id"), nullable=True
-    )
+    user_id: Mapped[uuid.UUID | None] = mapped_column(Uuid, ForeignKey("users.id"), nullable=True)
     event_type: Mapped[str] = mapped_column(String, nullable=False)
     resource_type: Mapped[str | None] = mapped_column(String, nullable=True)
     resource_id: Mapped[uuid.UUID | None] = mapped_column(Uuid, nullable=True)

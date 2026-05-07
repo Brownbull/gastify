@@ -83,9 +83,7 @@ def upgrade() -> None:
         sa.Column("recipients", sa.Text(), nullable=False),
         sa.Column("retention_period", sa.String(), nullable=False),
         sa.Column("jurisdictions", sa.String(), nullable=False),
-        sa.Column(
-            "is_active", sa.Boolean(), nullable=False, server_default=sa.text("true")
-        ),
+        sa.Column("is_active", sa.Boolean(), nullable=False, server_default=sa.text("true")),
         sa.Column(
             "created_at",
             sa.DateTime(timezone=True),
@@ -205,14 +203,10 @@ def upgrade() -> None:
 
 def downgrade() -> None:
     # Drop RLS policies
-    op.execute(
-        "DROP POLICY IF EXISTS audit_events_scope_isolation ON audit_events"
-    )
+    op.execute("DROP POLICY IF EXISTS audit_events_scope_isolation ON audit_events")
     op.execute("ALTER TABLE audit_events DISABLE ROW LEVEL SECURITY")
 
-    op.execute(
-        "DROP POLICY IF EXISTS consent_records_scope_isolation ON consent_records"
-    )
+    op.execute("DROP POLICY IF EXISTS consent_records_scope_isolation ON consent_records")
     op.execute("ALTER TABLE consent_records DISABLE ROW LEVEL SECURITY")
 
     # Drop tables (reverse order)

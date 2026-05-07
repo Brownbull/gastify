@@ -1,20 +1,19 @@
 """Consent + DSR request/response schemas."""
 
 from datetime import date, datetime
+from typing import Literal
 from uuid import UUID
 
 from pydantic import BaseModel, Field
+
+VALID_JURISDICTIONS = Literal["CL", "EU", "CA", "US-CA"]
 
 # --- Consent schemas ---
 
 
 class ConsentGrant(BaseModel):
-    jurisdiction: str = Field(
-        description="Jurisdiction code: CL, EU, CA, US-CA"
-    )
+    jurisdiction: VALID_JURISDICTIONS = Field(description="Jurisdiction code: CL, EU, CA, US-CA")
     consent_version: str = "1.0"
-    ip_address: str | None = None
-    user_agent: str | None = None
 
 
 class ConsentResponse(BaseModel):
@@ -88,9 +87,7 @@ class UserDataExport(BaseModel):
 class RectificationRequest(BaseModel):
     display_name: str | None = None
     email: str | None = None
-    default_currency: str | None = Field(
-        default=None, max_length=3
-    )
+    default_currency: str | None = Field(default=None, max_length=3)
     locale: str | None = None
 
 
@@ -102,6 +99,7 @@ class RectificationResponse(BaseModel):
 class ErasureResponse(BaseModel):
     consents_revoked: int
     transactions_anonymized: int
+    user_anonymized: bool
     audit_event_id: UUID
     erased_at: datetime
 
@@ -126,3 +124,5 @@ class PortabilityResponse(BaseModel):
     user: UserDataExport
     consents: list[ConsentResponse]
     transactions: list[PortabilityTransaction]
+    total_transactions: int
+    truncated: bool = False

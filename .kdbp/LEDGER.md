@@ -1,5 +1,19 @@
 # Session Ledger
 
+## 2026-05-06 — PHASE 4 REVIEW: Consent + processing register + DSR
+VERDICT: APPROVE
+FINDINGS: 7 total (1 critical, 4 high, 1 medium, 1 low) — all 7 resolved
+COVERAGE: MEDIUM — 23 Phase 4 tests pass; erasure now exercised with real txn/item/image data; rectification FK validated; portability shape tested
+CONFIDENCE: 95/100 (was 15 pre-triage; +80 from fixing all 7 findings via option [3] Fix all including Scale)
+DEFERRED: none
+ALIGNMENT: ALIGNED — 12/12 on-scope, 0 off-scope
+TIER: ent | DRIFT: none
+TICK: ✅ Phase 4 Review column ticked
+TRIAGE: option [3] Fix all including Scale — all 7 findings fixed
+KEY FIXES: expanded erasure to redact all PII (#1 CRITICAL), currency FK pre-validation (#2), Literal jurisdiction enum (#3), server-derived IP/UA for audit (#4), real-data erasure test (#5), portability 10k cap + truncated flag (#6), removed VALID_PURPOSES frozenset (#7)
+SOURCES: codex/gpt-5 (inbox, 5 findings) + claude/opus-4-6 (blind, 7 findings) — 5 strict matches, 2 Claude-only, union consolidation
+ARCHIVED: .kdbp/reviews-archive/REVIEW_2026-05-06-230000_resolved.md
+
 ## 2026-05-06 — PHASE EXEC COMPLETE: Phase 4 — Consent + processing register + DSR
 TIER: ent
 TASKS: 5 tasks, 1 commit (02d089c)

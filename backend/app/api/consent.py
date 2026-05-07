@@ -2,7 +2,7 @@
 
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.deps import Auth
@@ -27,14 +27,6 @@ router = APIRouter(prefix="/consent", tags=["consent"])
 
 DB = Annotated[AsyncSession, Depends(get_db)]
 
-VALID_PURPOSES = frozenset({
-    "receipt_scanning",
-    "analytics",
-    "marketing",
-    "data_sharing",
-    "ai_training",
-})
-
 
 @router.get("", response_model=ConsentListResponse)
 async def get_consents(auth: Auth, db: DB) -> ConsentListResponse:
@@ -56,21 +48,19 @@ async def get_consents(auth: Auth, db: DB) -> ConsentListResponse:
 async def grant(
     purpose: str,
     body: ConsentGrant,
+    request: Request,
     auth: Auth,
     db: DB,
 ) -> ConsentResponse:
-    if purpose not in VALID_PURPOSES:
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail=f"Unknown purpose: {purpose}",
-        )
-
     register = await get_processing_purpose(db, purpose)
     if register is None:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail=f"Processing purpose not active: {purpose}",
         )
+
+    ip = request.client.host if request.client else None
+    ua = request.headers.get("user-agent")
 
     record = await grant_consent(
         db,
@@ -80,8 +70,8 @@ async def grant(
         jurisdiction=body.jurisdiction,
         legal_basis=register.legal_basis,
         consent_version=body.consent_version,
-        ip_address=body.ip_address,
-        user_agent=body.user_agent,
+        ip_address=ip,
+        user_agent=ua,
     )
     await db.commit()
     return ConsentResponse.model_validate(record)
@@ -93,20 +83,18 @@ async def grant(
 )
 async def revoke(
     purpose: str,
+    request: Request,
     auth: Auth,
     db: DB,
 ) -> ConsentResponse:
-    if purpose not in VALID_PURPOSES:
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail=f"Unknown purpose: {purpose}",
-        )
+    ip = request.client.host if request.client else None
 
     record = await revoke_consent(
         db,
         ownership_scope_id=auth.ownership_scope_id,
         user_id=auth.user_id,
         purpose=purpose,
+        ip_address=ip,
     )
     if record is None:
         raise HTTPException(
@@ -145,11 +133,8 @@ async def get_processing_register(
     from app.models.consent import ProcessingRegister
 
     result = await db.execute(
-        select(ProcessingRegister).where(
-            ProcessingRegister.is_active.is_(True)
-        ).order_by(ProcessingRegister.purpose)
+        select(ProcessingRegister)
+        .where(ProcessingRegister.is_active.is_(True))
+        .order_by(ProcessingRegister.purpose)
     )
-    return [
-        ProcessingRegisterResponse.model_validate(r)
-        for r in result.scalars().all()
-    ]
+    return [ProcessingRegisterResponse.model_validate(r) for r in result.scalars().all()]

@@ -8,8 +8,9 @@ import logging
 from datetime import UTC, datetime
 from typing import Annotated
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy import func, select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.deps import Auth
@@ -26,6 +27,7 @@ from app.schemas.consent import (
     UserDataExport,
 )
 from app.services.consent import (
+    anonymize_user_profile,
     anonymize_user_transactions,
     list_consents,
     log_audit_event,
@@ -40,9 +42,10 @@ DB = Annotated[AsyncSession, Depends(get_db)]
 
 
 @router.get("/data-access", response_model=DataAccessResponse)
-async def data_access(auth: Auth, db: DB) -> DataAccessResponse:
+async def data_access(request: Request, auth: Auth, db: DB) -> DataAccessResponse:
     """GDPR Art 15 / Law 21.719 Art 8 / PIPEDA / CCPA — right of access."""
     now = datetime.now(UTC)
+    ip = request.client.host if request.client else None
 
     consents = await list_consents(
         db,
@@ -51,9 +54,9 @@ async def data_access(auth: Auth, db: DB) -> DataAccessResponse:
     )
 
     count_result = await db.execute(
-        select(func.count()).select_from(Transaction).where(
-            Transaction.ownership_scope_id == auth.ownership_scope_id
-        )
+        select(func.count())
+        .select_from(Transaction)
+        .where(Transaction.ownership_scope_id == auth.ownership_scope_id)
     )
     txn_count = count_result.scalar_one()
 
@@ -62,10 +65,13 @@ async def data_access(auth: Auth, db: DB) -> DataAccessResponse:
         ownership_scope_id=auth.ownership_scope_id,
         user_id=auth.user_id,
         event_type="dsr_access",
-        details=json.dumps({
-            "transactions_count": txn_count,
-            "consents_count": len(consents),
-        }),
+        ip_address=ip,
+        details=json.dumps(
+            {
+                "transactions_count": txn_count,
+                "consents_count": len(consents),
+            }
+        ),
     )
     await db.commit()
 
@@ -79,9 +85,7 @@ async def data_access(auth: Auth, db: DB) -> DataAccessResponse:
             locale=user.locale,
             created_at=user.created_at,
         ),
-        consents=[
-            ConsentResponse.model_validate(c) for c in consents
-        ],
+        consents=[ConsentResponse.model_validate(c) for c in consents],
         transactions_count=txn_count,
         exported_at=now,
     )
@@ -90,11 +94,13 @@ async def data_access(auth: Auth, db: DB) -> DataAccessResponse:
 @router.post("/rectification", response_model=RectificationResponse)
 async def rectification(
     body: RectificationRequest,
+    request: Request,
     auth: Auth,
     db: DB,
 ) -> RectificationResponse:
     """GDPR Art 16 / Law 21.719 / CPRA — right to rectification."""
     now = datetime.now(UTC)
+    ip = request.client.host if request.client else None
     user = auth.user
     updated_fields: list[str] = []
     update_data = body.model_dump(exclude_unset=True)
@@ -106,6 +112,16 @@ async def rectification(
         user.email = update_data["email"]
         updated_fields.append("email")
     if "default_currency" in update_data:
+        from app.models.reference import Currency
+
+        valid = await db.execute(
+            select(Currency).where(Currency.code == update_data["default_currency"])
+        )
+        if valid.scalar_one_or_none() is None:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail=f"Invalid currency code: {update_data['default_currency']}",
+            )
         user.default_currency = update_data["default_currency"]
         updated_fields.append("default_currency")
     if "locale" in update_data:
@@ -119,9 +135,17 @@ async def rectification(
         event_type="dsr_rectification",
         resource_type="user",
         resource_id=user.id,
+        ip_address=ip,
         details=json.dumps({"updated_fields": updated_fields}),
     )
-    await db.commit()
+    try:
+        await db.commit()
+    except IntegrityError as exc:
+        await db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Invalid field value: default_currency must be a valid currency code",
+        ) from exc
 
     return RectificationResponse(
         updated_fields=updated_fields,
@@ -130,13 +154,14 @@ async def rectification(
 
 
 @router.post("/erasure", response_model=ErasureResponse)
-async def erasure(auth: Auth, db: DB) -> ErasureResponse:
+async def erasure(request: Request, auth: Auth, db: DB) -> ErasureResponse:
     """GDPR Art 17 / Law 21.719 / CCPA — right to erasure.
 
-    Soft-delete: anonymizes PII in transactions, revokes all consents.
-    Does not hard-delete rows (audit trail preserved per D4).
+    Soft-delete: anonymizes PII in user profile, transactions, items, images;
+    revokes all consents. Does not hard-delete rows (audit trail per D4).
     """
     now = datetime.now(UTC)
+    ip = request.client.host if request.client else None
 
     consents_revoked = await revoke_all_consents(
         db,
@@ -149,15 +174,21 @@ async def erasure(auth: Auth, db: DB) -> ErasureResponse:
         ownership_scope_id=auth.ownership_scope_id,
     )
 
+    await anonymize_user_profile(db, user_id=auth.user_id)
+
     event = await log_audit_event(
         db,
         ownership_scope_id=auth.ownership_scope_id,
         user_id=auth.user_id,
         event_type="dsr_erasure",
-        details=json.dumps({
-            "consents_revoked": consents_revoked,
-            "transactions_anonymized": txn_anonymized,
-        }),
+        ip_address=ip,
+        details=json.dumps(
+            {
+                "consents_revoked": consents_revoked,
+                "transactions_anonymized": txn_anonymized,
+                "user_anonymized": True,
+            }
+        ),
     )
     await db.commit()
 
@@ -173,19 +204,22 @@ async def erasure(auth: Auth, db: DB) -> ErasureResponse:
     return ErasureResponse(
         consents_revoked=consents_revoked,
         transactions_anonymized=txn_anonymized,
+        user_anonymized=True,
         audit_event_id=event.id,
         erased_at=now,
     )
 
 
 @router.get("/portability", response_model=PortabilityResponse)
-async def portability(auth: Auth, db: DB) -> PortabilityResponse:
+async def portability(request: Request, auth: Auth, db: DB) -> PortabilityResponse:
     """GDPR Art 20 / Law 21.719 / CCPA — right to data portability.
 
     Returns all user data in machine-readable JSON format.
     """
     now = datetime.now(UTC)
+    ip = request.client.host if request.client else None
     user = auth.user
+    export_limit = 10_000
 
     consents = await list_consents(
         db,
@@ -193,12 +227,18 @@ async def portability(auth: Auth, db: DB) -> PortabilityResponse:
         ownership_scope_id=auth.ownership_scope_id,
     )
 
+    total_result = await db.execute(
+        select(func.count())
+        .select_from(Transaction)
+        .where(Transaction.ownership_scope_id == auth.ownership_scope_id)
+    )
+    total_txn = total_result.scalar_one()
+
     txn_result = await db.execute(
         select(Transaction)
-        .where(
-            Transaction.ownership_scope_id == auth.ownership_scope_id
-        )
+        .where(Transaction.ownership_scope_id == auth.ownership_scope_id)
         .order_by(Transaction.transaction_date.desc())
+        .limit(export_limit)
     )
     transactions = list(txn_result.scalars().all())
 
@@ -207,10 +247,15 @@ async def portability(auth: Auth, db: DB) -> PortabilityResponse:
         ownership_scope_id=auth.ownership_scope_id,
         user_id=auth.user_id,
         event_type="dsr_portability",
-        details=json.dumps({
-            "transactions_count": len(transactions),
-            "consents_count": len(consents),
-        }),
+        ip_address=ip,
+        details=json.dumps(
+            {
+                "transactions_exported": len(transactions),
+                "transactions_total": total_txn,
+                "truncated": total_txn > export_limit,
+                "consents_count": len(consents),
+            }
+        ),
     )
     await db.commit()
 
@@ -224,9 +269,7 @@ async def portability(auth: Auth, db: DB) -> PortabilityResponse:
             locale=user.locale,
             created_at=user.created_at,
         ),
-        consents=[
-            ConsentResponse.model_validate(c) for c in consents
-        ],
+        consents=[ConsentResponse.model_validate(c) for c in consents],
         transactions=[
             PortabilityTransaction(
                 id=t.id,
@@ -242,4 +285,6 @@ async def portability(auth: Auth, db: DB) -> PortabilityResponse:
             )
             for t in transactions
         ],
+        total_transactions=total_txn,
+        truncated=total_txn > export_limit,
     )
