@@ -1,5 +1,13 @@
 # Session Ledger
 
+## 2026-05-07 21:01 — PUSH main -> main
+PR: — (direct push)
+CI: ✅ 8/8 (60s) — all checks passed
+PROMOTION: N/A
+DEPLOYMENTS: P11 (added row to .kdbp/DEPLOYMENTS.md)
+SOURCE: 3 commits since 790b9bb — addc2b2 (P10 bookkeeping) + e8cf7ed (P1 exit-signal smoke test) + 2fac518 (Phase 6 Review tick). 126 tests, 96% coverage.
+TICK: ✅ Phase 6 Push auto-ticked — all 6 phases complete (Exec/Review/Commit/Push = ✅)
+
 ## 2026-05-07 21:00 — PHASE 6 REVIEW: Exit-signal smoke test
 VERDICT: APPROVE
 FINDINGS: 0 total (0 critical, 0 high, 0 medium, 0 low)
