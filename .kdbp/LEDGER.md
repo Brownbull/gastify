@@ -1,5 +1,13 @@
 # Session Ledger
 
+## 2026-05-07 — PUSH main → origin/main
+PR: — (direct push to main, no PR)
+CI: ✅ 8/8 (all green after coverage config fix)
+PROMOTION: N/A (origin/staging does not exist)
+DEPLOYMENTS: P9 added to .kdbp/DEPLOYMENTS.md
+SOURCE: 3 commits since cc5d95c — 618a445 (KDBP Phase 4 tick) + 741e973 (review fixes: 7 findings) + 721ee06 (coverage greenlet concurrency fix). 105 tests, 96% coverage.
+TICK: ✅ Phase 4 Push auto-ticked
+
 ## 2026-05-06 — PHASE 4 REVIEW: Consent + processing register + DSR
 VERDICT: APPROVE
 FINDINGS: 7 total (1 critical, 4 high, 1 medium, 1 low) — all 7 resolved
