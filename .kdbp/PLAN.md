@@ -25,7 +25,7 @@ Deliver P1 Foundation backend — FastAPI + Postgres with identity, ownership sc
 | 2 | Money + currency + FX + i18n | `data, integration` | Integer-minor-units convention, `currencies` table (10 codes), `fx_rates` write-once with lazy read-through cache, USD-shadow compute, i18n string registry (es/en/pt) | ent | medium | ✅ | ✅ | ✅ | ✅ |
 | 3 | Identity + ownership scope + RLS | `auth-session, multi-tenant` | Firebase token-verify middleware, JIT user provision, `ownership_scope` + `ownership_scope_members` tables, RLS policies keyed off scope, initial scan-credit balance | ent | high | ✅ | ✅ | ✅ | ✅ |
 | 4 | Consent + processing register + DSR | `data, multi-tenant` | `consent_records` + `processing_register` tables, per-purpose consent API, access/rectification/erasure/portability endpoints (Law 21.719 + GDPR + PIPEDA + CCPA/CPRA), audit event log | ent | high | ✅ | ✅ | ✅ | ✅ |
-| 5 | Observability pipeline | `core-only` | Per-scan metric columns, metric exporter endpoint (OTel/Prometheus-compatible), U8 cost/latency baseline | ent (Obs→scale) | medium | 🔄 | ⬜ | ✅ | ⬜ |
+| 5 | Observability pipeline | `core-only` | Per-scan metric columns, metric exporter endpoint (OTel/Prometheus-compatible), U8 cost/latency baseline | ent (Obs→scale) | medium | ✅ | ⬜ | ✅ | ⬜ |
 | 6 | Exit-signal smoke test | `core-only` | Integration E2E: JIT sign-in → transaction in non-primary currency → read USD shadow → consent-audit returns 1 record | mvp | low | ⬜ | ⬜ | ⬜ | ⬜ |
 
 <!-- Exec is written by /gabe-execute: ⬜ not started, 🔄 in progress, ✅ complete -->
@@ -194,7 +194,7 @@ Phase 5: Observability pipeline
 - P2 ✅: `currencies` seeded (10 codes), `fx_rates` write-once with lazy read-through cache, USD-shadow compute on transaction create, i18n registry (es/en/pt). 14 FX tests. Shipped in `3eff76f`.
 - P3 ✅: Firebase token-verify → JIT user + scope provisioning, `SET LOCAL rls.ownership_scope_id` per-request, `credit_balances` with initial allocation, 3 Alembic migrations. 8 RLS + 3 auth tests. Shipped in `3eff76f`.
 - P4 ✅: `consent_records` + `processing_register` + `audit_events` tables, per-purpose consent API, DSR endpoints (access/rectification/erasure/portability), 4-jurisdiction compliance. RLS on consent_records + audit_events. 20 new tests. Shipped in `02d089c`.
-- P5 ⬜: Next — per-scan metric columns, metric exporter endpoint (OTel/Prometheus-compatible), U8 cost/latency baseline.
+- P5 ✅: 7 per-scan metric columns on transactions (llm_tokens_in/out, llm_cost_usd, scan_duration_ms, llm_latency_ms, queue_wait_ms, thumbnail_gen_ms), Prometheus text exposition format on /metrics with content negotiation, 12 new tests. Shipped in `8f4cd8b` + `dfa5ab2`.
 
 ## Dependencies
 

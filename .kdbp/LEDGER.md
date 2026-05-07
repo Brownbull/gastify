@@ -1,5 +1,15 @@
 # Session Ledger
 
+## 2026-05-07 — PHASE EXEC COMPLETE: Phase 5 — Observability pipeline
+TIER: ent (Core.Observability → scale)
+TASKS: 3 tasks, 2 commits
+DEVIATIONS: 0 structural, 1 minor (schema + endpoint wiring for scan metrics — scope-creep from pure observability into transaction API, necessary for round-trip)
+
+## 2026-05-07 — [dfa5ab2] test(observability): add scan metric columns, Prometheus format, and content negotiation tests
+FINDINGS: 0 (0 critical, 0 high, 0 medium, 0 low)
+ACTIONS: none
+DEFERRED: 0
+
 ## 2026-05-07 — [8f4cd8b] feat(observability): add per-scan metric columns and Prometheus text exporter
 FINDINGS: 0 (0 critical, 0 high, 0 medium, 0 low)
 ACTIONS: none
