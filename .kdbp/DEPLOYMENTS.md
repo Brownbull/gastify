@@ -30,6 +30,7 @@
 | P12 | 2026-05-12 16:36 | main → main (direct) | — | ✅ 8/8 (50s) | P2 Phase 1 push — 5 commits (900a1be → 59479ab): feat(scan) schema + V4 taxonomy + image compression + submission endpoint, review fixes (corrupt image guard, DB-failure cleanup, CHECK constraint), CI fixes (ruff format, urllib3 2.7.0, protobufjs audit). 140 tests pass. auto-fix applied: format,deps; CI re-run after fix | — |
 | P13 | 2026-05-12 19:15 | main → main (direct) | — | ✅ 8/8 (50s) | P2 Phase 2 push — 7 commits (59479ab → 870856b): PydanticAI extraction agent + idempotent worker + review fixes (RATE_LIMIT→transient, QUOTA_EXCEEDED split, stuck-scan recovery, async I/O, README API key fix). 232 tests pass. auto-fix applied: format; CI re-run after fix | — |
 | P14 | 2026-05-12 16:13 | main → main (direct) | — | ✅ 8/8 (64s) | P2 Phase 3 push — 4 commits (3aac413 → 5f70de7): Stage 2 categorization + math gate + persistence pipeline + review fixes (type annotations, error classification, always re-extract, persist tests). 270 tests pass. | — |
+| P15 | 2026-05-12 17:07 | main → main (direct) | — | ✅ 8/8 (67s) | P2 Phase 4 push — 4 commits (1a4e8c0 → bb53eb3): dual-transport scan progress streaming (SSE + WebSocket) + review fixes (terminal snapshots, WS heartbeat cleanup, formatting). 301 tests pass. | — |
 
 <!-- Example rows:
 | P1 | 2026-04-17 14:22 | feature/add-auth → main | #42 | ✅ 3/3 (47s) | promoted main → (none) | — |

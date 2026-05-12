@@ -1,5 +1,16 @@
 # Session Ledger
 
+## 2026-05-12 17:07 — PUSH main -> main
+PR: —
+CI: all passed (8/8, 67s)
+PROMOTION: N/A
+DEPLOYMENTS: P15 (added row to .kdbp/DEPLOYMENTS.md)
+
+## 2026-05-12 — [bb53eb3] fix(scan): apply Phase 4 review fixes — terminal snapshots, WS cleanup, formatting
+FINDINGS: 0 (0 critical, 0 high, 0 medium, 0 low)
+ACTIONS: none
+DEFERRED: none
+
 ## 2026-05-12 — PHASE 4 REVIEW: Scan progress streaming
 VERDICT: APPROVE
 FINDINGS: 3 total (0 critical, 2 high, 1 medium, 0 low) — all 3 fixed
