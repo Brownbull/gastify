@@ -206,9 +206,7 @@ class TestValidationError:
     @pytest.mark.asyncio
     async def test_extraction_parse_error_no_retry(self):
         scan = _mock_scan()
-        perm = PermanentScanError(
-            ScanErrorCode.EXTRACTION_PARSE_ERROR, "Output validation failed"
-        )
+        perm = PermanentScanError(ScanErrorCode.EXTRACTION_PARSE_ERROR, "Output validation failed")
         mock_extract = AsyncMock(side_effect=perm)
 
         with (
@@ -267,3 +265,22 @@ class TestUnknownError:
         err = classify_error(RuntimeError("internal state corrupted"))
         assert isinstance(err, PermanentScanError)
         assert err.code == ScanErrorCode.UNKNOWN_ERROR
+
+
+class TestCreditRefund:
+    """Credit refund on permanent failure — PLAN.md Phase 5 deliverable.
+
+    The credit debit/refund service does not exist yet (P2 pipeline processes
+    scans but has no credit accounting). This placeholder ensures the contract
+    is tracked and tested when the credit service lands.
+    """
+
+    @pytest.mark.skip(reason="Credit service not implemented — no debit/refund to test")
+    @pytest.mark.asyncio
+    async def test_permanent_failure_refunds_credit(self):
+        pass
+
+    @pytest.mark.skip(reason="Credit service not implemented — no debit/refund to test")
+    @pytest.mark.asyncio
+    async def test_transient_failure_does_not_refund_credit(self):
+        pass

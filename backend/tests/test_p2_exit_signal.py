@@ -49,6 +49,17 @@ CATEGORY_KEYS = [
     "Panaderia",
 ]
 
+MERCHANT_CATEGORY_MAP: dict[str, str] = {
+    "Supermercado Jumbo": "Supermercado",
+    "Starbucks Coffee": "CafeteriaSnack",
+    "Farmacias Cruz Verde": "Farmacia",
+    "The Italian Kitchen": "Restaurante",
+    "Sodimac Homecenter": "Miscelaneo",
+    "Almacén Don Hugo": "Supermercado",
+    "Walmart Supercenter": "Supermercado",
+    "Copec Estación Las Condes": "Combustible",
+}
+
 
 def _make_extraction_result(receipt: GeminiExtractionResult) -> ExtractionResult:
     return ExtractionResult(
@@ -58,10 +69,11 @@ def _make_extraction_result(receipt: GeminiExtractionResult) -> ExtractionResult
 
 
 def _make_categorization(receipt: GeminiExtractionResult) -> CategorizationOutput:
+    category = MERCHANT_CATEGORY_MAP.get(receipt.merchant_name, "Miscelaneo")
     assignments = [
         CategoryAssignment(
             line_item_index=i,
-            category_key="Supermercado",
+            category_key=category,
             confidence=0.90,
         )
         for i in range(len(receipt.line_items))
@@ -134,11 +146,7 @@ class TestP2ExitSignalBenign:
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
         "receipt_name,receipt",
-        [
-            (name, r)
-            for name, r in BENIGN_RECEIPTS
-            if name != "R06_MATH_INCONSISTENT"
-        ],
+        [(name, r) for name, r in BENIGN_RECEIPTS if name != "R06_MATH_INCONSISTENT"],
         ids=[name for name, _ in BENIGN_RECEIPTS if name != "R06_MATH_INCONSISTENT"],
     )
     async def test_benign_receipt_completes(self, scan_db, receipt_name, receipt):
@@ -156,16 +164,8 @@ class TestP2ExitSignalBenign:
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
         "receipt_name,receipt",
-        [
-            (name, r)
-            for name, r in BENIGN_RECEIPTS
-            if name != "R06_MATH_INCONSISTENT"
-        ],
-        ids=[
-            f"{name}_tx"
-            for name, _ in BENIGN_RECEIPTS
-            if name != "R06_MATH_INCONSISTENT"
-        ],
+        [(name, r) for name, r in BENIGN_RECEIPTS if name != "R06_MATH_INCONSISTENT"],
+        ids=[f"{name}_tx" for name, _ in BENIGN_RECEIPTS if name != "R06_MATH_INCONSISTENT"],
     )
     async def test_transaction_persisted(self, scan_db, receipt_name, receipt):
         scan_id, _ = await _run_receipt_through_pipeline(scan_db, receipt)
@@ -183,24 +183,14 @@ class TestP2ExitSignalBenign:
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
         "receipt_name,receipt",
-        [
-            (name, r)
-            for name, r in BENIGN_RECEIPTS
-            if name != "R06_MATH_INCONSISTENT"
-        ],
-        ids=[
-            f"{name}_items"
-            for name, _ in BENIGN_RECEIPTS
-            if name != "R06_MATH_INCONSISTENT"
-        ],
+        [(name, r) for name, r in BENIGN_RECEIPTS if name != "R06_MATH_INCONSISTENT"],
+        ids=[f"{name}_items" for name, _ in BENIGN_RECEIPTS if name != "R06_MATH_INCONSISTENT"],
     )
     async def test_line_items_persisted(self, scan_db, receipt_name, receipt):
         scan_id, _ = await _run_receipt_through_pipeline(scan_db, receipt)
 
         async with scan_db() as db:
-            row = await db.execute(
-                select(TransactionItem).order_by(TransactionItem.sort_order)
-            )
+            row = await db.execute(select(TransactionItem).order_by(TransactionItem.sort_order))
             items = row.scalars().all()
 
             assert len(items) == len(receipt.line_items), (
@@ -219,9 +209,7 @@ class TestP2ExitSignalMathGate:
 
     @pytest.mark.asyncio
     async def test_math_inconsistent_routes_to_needs_review(self, scan_db):
-        scan_id, result = await _run_receipt_through_pipeline(
-            scan_db, R06_MATH_INCONSISTENT
-        )
+        scan_id, result = await _run_receipt_through_pipeline(scan_db, R06_MATH_INCONSISTENT)
 
         assert result is True
 
@@ -233,9 +221,7 @@ class TestP2ExitSignalMathGate:
 
     @pytest.mark.asyncio
     async def test_math_inconsistent_still_persists_transaction(self, scan_db):
-        scan_id, _ = await _run_receipt_through_pipeline(
-            scan_db, R06_MATH_INCONSISTENT
-        )
+        scan_id, _ = await _run_receipt_through_pipeline(scan_db, R06_MATH_INCONSISTENT)
 
         async with scan_db() as db:
             row = await db.execute(select(Transaction))
@@ -287,10 +273,36 @@ class TestP2ExitSignalV4Taxonomy:
             items = row.scalars().all()
 
             for item in items:
-                assert item.item_category_id is not None, (
-                    f"Item '{item.name}' missing category_id"
-                )
+                assert item.item_category_id is not None, f"Item '{item.name}' missing category_id"
                 assert item.category_source == "ai"
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        "receipt_name,receipt,expected_key",
+        [
+            ("R01_JUMBO_CLP", BENIGN_RECEIPTS[0][1], "Supermercado"),
+            ("R02_STARBUCKS_USD", BENIGN_RECEIPTS[1][1], "CafeteriaSnack"),
+            ("R03_FARMACIA_CLP", BENIGN_RECEIPTS[2][1], "Farmacia"),
+            ("R04_RESTAURANT_USD", BENIGN_RECEIPTS[3][1], "Restaurante"),
+            ("R08_COPEC_CLP", BENIGN_RECEIPTS[7][1], "Combustible"),
+        ],
+        ids=["jumbo", "starbucks", "farmacia", "restaurant", "copec"],
+    )
+    async def test_varied_category_assignments(self, scan_db, receipt_name, receipt, expected_key):
+        scan_id, _ = await _run_receipt_through_pipeline(scan_db, receipt)
+
+        async with scan_db() as db:
+            rows = await db.execute(select(TransactionItem))
+            items = rows.scalars().all()
+
+            for item in items:
+                cat_row = await db.execute(
+                    select(ItemCategory).where(ItemCategory.id == item.item_category_id)
+                )
+                cat = cat_row.scalar_one()
+                assert cat.key == expected_key, (
+                    f"{receipt_name}: item '{item.name}' got '{cat.key}', expected '{expected_key}'"
+                )
 
 
 class TestP2ExitSignalAllReceipts:
@@ -307,9 +319,7 @@ class TestP2ExitSignalAllReceipts:
             assert ok is True, f"{name} pipeline returned False"
 
         async with scan_db() as db:
-            row = await db.execute(
-                sa.select(sa.func.count()).select_from(Transaction)
-            )
+            row = await db.execute(sa.select(sa.func.count()).select_from(Transaction))
             tx_count = row.scalar_one()
             assert tx_count == 10
 

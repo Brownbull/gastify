@@ -312,7 +312,14 @@ ALL_RECEIPTS = BENIGN_RECEIPTS + ADVERSARIAL_RECEIPTS
 
 MATH_INCONSISTENT_RECEIPT = R06_MATH_INCONSISTENT
 
-FINANCE_CATEGORY_KEYS = frozenset({
-    "Inversiones", "Prestamos", "Donaciones", "ComisionesBancarias",
-    "Impuestos", "Seguros", "Multas",
-})
+FINANCE_CATEGORY_KEYS = frozenset(
+    {
+        "Inversiones",
+        "Prestamos",
+        "Donaciones",
+        "ComisionesBancarias",
+        "Impuestos",
+        "Seguros",
+        "Multas",
+    }
+)

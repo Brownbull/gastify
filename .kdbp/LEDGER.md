@@ -1,5 +1,19 @@
 # Session Ledger
 
+## 2026-05-12 22:00 — PHASE 5 REVIEW: Exit-signal + error case tests
+VERDICT: APPROVE
+FINDINGS: 4 total (0 critical, 3 high, 1 medium, 0 low) — all 4 fixed
+COVERAGE: HIGH — 362 tests pass, 95.82% coverage; 70 Phase 5 tests (2 skipped credit placeholders)
+CONFIDENCE: 100/100 (was 59 pre-triage; +41 from fixing all 4 findings via option [1] Fix MVP items only)
+DEFERRED: none
+ALIGNMENT: ALIGNED — 7/7 on-scope, 0 off-scope
+TIER: mvp | DRIFT: none
+TICK: ✅ Phase 5 Review column ticked
+TRIAGE: option [1] Fix MVP items only — all 4 findings fixed
+KEY FIXES: ruff format 3 files (#4), MERCHANT_CATEGORY_MAP + 5 varied taxonomy tests (#3), finance category seeding + TestDefenseBoundary proving architectural defense (#1), TestCreditRefund skip-marked placeholders (#2)
+SOURCES: codex/gpt-5 (inbox, 4 findings) + claude/opus-4-6 (blind, 4 findings) — 3 strict matches, 1 fuzzy (severity: HIGH vs MEDIUM on #2, resolved as HIGH), union consolidation
+ARCHIVED: .kdbp/reviews-archive/REVIEW_2026-05-12-220000_resolved.md
+
 ## 2026-05-12 — PHASE EXEC COMPLETE: Phase 5 — Exit-signal + error case tests
 TIER: mvp
 TASKS: 5 tasks, 1 commit
