@@ -1,5 +1,10 @@
 # Session Ledger
 
+## 2026-05-13 — [077a1b0] feat(scan): add idempotent extraction worker, process trigger, and scan integration
+FINDINGS: 1 (0 critical, 0 high, 1 medium, 0 low)
+ACTIONS: 1:update-docs (docs/architecture.md#API Endpoints — added scan endpoints table)
+DEFERRED: none
+
 ## 2026-05-13 — [8f4ff3d] feat(scan): add PydanticAI extraction agent, JSON repair, coalescing, and scan error types
 FINDINGS: 1 (0 critical, 0 high, 0 medium, 1 low)
 ACTIONS: 1:update-docs (README.md — added Configuration section + PydanticAI link)
