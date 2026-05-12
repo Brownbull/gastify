@@ -33,7 +33,7 @@ The backend reads settings from environment variables (prefix `GASTIFY_`):
 |---|---|---|
 | `GASTIFY_DATABASE_URL` | PostgreSQL connection string | (required) |
 | `GASTIFY_FIREBASE_PROJECT_ID` | Firebase project for auth | (required) |
-| `GASTIFY_GEMINI_API_KEY` | Google AI API key for receipt extraction | (required) |
+| `GOOGLE_API_KEY` | Google AI API key for receipt extraction (read by PydanticAI) | (required) |
 | `GASTIFY_GEMINI_MODEL` | Gemini model name | `gemini-2.5-flash` |
 | `GASTIFY_GEMINI_MAX_RETRIES` | Max retries on transient AI errors | `3` |
 

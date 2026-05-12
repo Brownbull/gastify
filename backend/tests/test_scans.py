@@ -5,8 +5,11 @@ import uuid
 from unittest.mock import AsyncMock, patch
 
 import pytest
+import sqlalchemy as sa
 from PIL import Image
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
+from app.models.scan import Scan, ScanStatus
 from app.services.image import (
     MAX_HEIGHT,
     MAX_WIDTH,
@@ -175,3 +178,89 @@ class TestScanEndpoint:
 
         scan_id = response.json()["id"]
         uuid.UUID(scan_id)
+
+
+_TEST_SCOPE_ID = uuid.UUID("00000000-0000-0000-0000-000000000001")
+
+
+class TestTriggerEndpoint:
+    @pytest.fixture(autouse=True)
+    def _mock_worker(self):
+        with patch("app.api.scans.process_scan", new_callable=AsyncMock):
+            yield
+
+    async def _insert_scan(
+        self, engine, *, status=ScanStatus.SUBMITTED,
+        scope_id=None, error_code=None, error_message=None,
+    ):
+        sid = uuid.uuid4()
+        factory = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+        async with factory() as session:
+            if scope_id and scope_id != _TEST_SCOPE_ID:
+                await session.execute(
+                    sa.text(
+                        "INSERT INTO ownership_scopes (id, scope_type) "
+                        "VALUES (:id, 'individual')"
+                    ),
+                    {"id": scope_id.hex},
+                )
+            scan = Scan(
+                id=sid,
+                ownership_scope_id=scope_id or _TEST_SCOPE_ID,
+                status=status,
+                image_path="/tmp/test/receipt.jpg",
+                original_filename="test.jpg",
+                content_type="image/jpeg",
+                file_size_bytes=1024,
+                error_code=error_code,
+                error_message=error_message,
+            )
+            session.add(scan)
+            await session.commit()
+        return sid
+
+    @pytest.mark.asyncio
+    async def test_trigger_submitted_scan_202(self, client, engine):
+        scan_id = await self._insert_scan(engine)
+        resp = await client.post(f"/api/v1/scans/{scan_id}/process")
+        assert resp.status_code == 202
+        assert resp.json()["status"] == "submitted"
+
+    @pytest.mark.asyncio
+    async def test_trigger_failed_resets_to_submitted(self, client, engine):
+        scan_id = await self._insert_scan(
+            engine, status=ScanStatus.FAILED,
+            error_code="TIMEOUT_ERROR", error_message="timed out",
+        )
+        resp = await client.post(f"/api/v1/scans/{scan_id}/process")
+        assert resp.status_code == 202
+        data = resp.json()
+        assert data["status"] == "submitted"
+        assert data["error_code"] is None
+        assert data["error_message"] is None
+
+    @pytest.mark.asyncio
+    async def test_trigger_nonexistent_scan_404(self, client):
+        resp = await client.post(f"/api/v1/scans/{uuid.uuid4()}/process")
+        assert resp.status_code == 404
+
+    @pytest.mark.asyncio
+    async def test_trigger_wrong_owner_404(self, client, engine):
+        other_scope = uuid.uuid4()
+        scan_id = await self._insert_scan(engine, scope_id=other_scope)
+        resp = await client.post(f"/api/v1/scans/{scan_id}/process")
+        assert resp.status_code == 404
+
+    @pytest.mark.asyncio
+    async def test_trigger_processing_scan_409(self, client, engine):
+        scan_id = await self._insert_scan(engine, status=ScanStatus.PROCESSING)
+        resp = await client.post(f"/api/v1/scans/{scan_id}/process")
+        assert resp.status_code == 409
+        assert "processing" in resp.json()["detail"]
+
+    @pytest.mark.asyncio
+    async def test_trigger_extracted_scan_409(self, client, engine):
+        scan_id = await self._insert_scan(engine, status=ScanStatus.EXTRACTED)
+        resp = await client.post(f"/api/v1/scans/{scan_id}/process")
+        assert resp.status_code == 409
+        assert "extracted" in resp.json()["detail"]

@@ -14,13 +14,13 @@ class ScanErrorCode(enum.StrEnum):
     TIMEOUT_ERROR = "TIMEOUT_ERROR"
     SERVER_ERROR = "SERVER_ERROR"
     OVERLOADED = "OVERLOADED"
+    RATE_LIMIT = "RATE_LIMIT"
 
     # Permanent (dead-letter)
     INVALID_IMAGE = "INVALID_IMAGE"
     SAFETY_BLOCK = "SAFETY_BLOCK"
     EXTRACTION_PARSE_ERROR = "EXTRACTION_PARSE_ERROR"
     VALIDATION_ERROR = "VALIDATION_ERROR"
-    RATE_LIMIT = "RATE_LIMIT"
     QUOTA_EXCEEDED = "QUOTA_EXCEEDED"
     UNKNOWN_ERROR = "UNKNOWN_ERROR"
 
@@ -30,6 +30,7 @@ _TRANSIENT_CODES = frozenset({
     ScanErrorCode.TIMEOUT_ERROR,
     ScanErrorCode.SERVER_ERROR,
     ScanErrorCode.OVERLOADED,
+    ScanErrorCode.RATE_LIMIT,
 })
 
 _TRANSIENT_KEYWORDS = (
@@ -86,6 +87,9 @@ def _extract_error_code(error: Exception) -> ScanErrorCode:
     if _is_overloaded(msg):
         return ScanErrorCode.OVERLOADED
 
+    if _is_quota_exceeded(msg):
+        return ScanErrorCode.QUOTA_EXCEEDED
+
     if _is_rate_limit(error, msg):
         return ScanErrorCode.RATE_LIMIT
 
@@ -131,7 +135,11 @@ def _is_rate_limit(error: Exception, msg: str) -> bool:
     status = getattr(error, "status_code", None) or getattr(error, "status", None)
     if status == 429:
         return True
-    return "rate limit" in msg or "quota" in msg or "resource exhausted" in msg
+    return "rate limit" in msg
+
+
+def _is_quota_exceeded(msg: str) -> bool:
+    return "quota" in msg or "resource exhausted" in msg
 
 
 def _is_safety_block(msg: str) -> bool:

@@ -1,5 +1,19 @@
 # Session Ledger
 
+## 2026-05-13 — PHASE 2 REVIEW: Stage 1: Vision extraction worker
+VERDICT: PASS
+FINDINGS: 6 total (0 critical, 2 high, 3 medium, 1 low) — 5 fixed, 1 accepted
+COVERAGE: HIGH — 232 tests pass (106 Phase 2); trigger_process_scan endpoint covered (6 new tests)
+CONFIDENCE: 95/100 (was 54 pre-triage; +41 from fixing all findings via option [3] Fix all incl. Scale)
+DEFERRED: none
+ALIGNMENT: ALIGNED — 19/19 on-scope, 0 off-scope
+TIER: ent | DRIFT: none
+TICK: ✅ Phase 2 Review column ticked
+TRIAGE: option [3] Fix all incl. Scale — 5 fixed, 1 accepted
+KEY FIXES: asyncio.to_thread for read_bytes (#1), 6 trigger endpoint tests (#2), RATE_LIMIT→transient + QUOTA_EXCEEDED split (#3), removed unused gemini_api_key (#4), PROCESSING_TIMEOUT_S stuck-scan recovery (#5)
+ACCEPTED: #6 json_repair — PydanticAI output_type handles structured output; module retained for Stage 2
+SOURCES: claude/opus-4-6
+
 ## 2026-05-13 — PHASE EXEC COMPLETE: Phase 2 — Stage 1: Vision extraction worker
 TIER: ent
 TASKS: 5 tasks, 2 commits (8f4ff3d, 077a1b0)

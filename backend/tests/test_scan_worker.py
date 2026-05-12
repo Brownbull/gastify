@@ -80,8 +80,9 @@ class TestProcessScanIdempotency:
         assert result is None
 
     @pytest.mark.asyncio
-    async def test_already_processing_skipped(self):
+    async def test_recent_processing_skipped(self):
         scan = _mock_scan(status=ScanStatus.PROCESSING)
+        scan.submitted_at = datetime(2026, 5, 12, tzinfo=UTC)
         ctx, db = _mock_db_session(scan=scan)
         with patch("app.services.scan_worker.async_session", return_value=ctx):
             result = await process_scan(scan.id)
@@ -325,3 +326,37 @@ class TestMetricsLogging:
         inc_calls = {c[0][0] for c in mock_metrics.inc.call_args_list}
         assert "scans_total" in inc_calls
         assert "scans_failed" in inc_calls
+
+
+class TestProcessScanStuckRecovery:
+    @pytest.mark.asyncio
+    async def test_stuck_processing_recovered(self):
+        scan = _mock_scan(status=ScanStatus.PROCESSING)
+        scan.submitted_at = datetime(2020, 1, 1, tzinfo=UTC)
+        extraction_result = _mock_extraction_result()
+
+        call_count = 0
+
+        def session_factory():
+            nonlocal call_count
+            call_count += 1
+            ctx, _ = _mock_db_session(scan if call_count == 1 else None)
+            return ctx
+
+        with (
+            patch("app.services.scan_worker.async_session", side_effect=session_factory),
+            patch(
+                "app.services.scan_worker.extract_receipt",
+                new_callable=AsyncMock,
+                return_value=extraction_result,
+            ),
+            patch.object(Path, "exists", return_value=True),
+            patch.object(Path, "read_bytes", return_value=b"fake-jpeg"),
+            patch("app.services.scan_worker.settings") as mock_settings,
+        ):
+            mock_settings.gemini_max_retries = 3
+            mock_settings.gemini_retry_delay_seconds = 0.01
+            result = await process_scan(scan.id)
+
+        assert result is not None
+        assert result.extraction.merchant_name == "Jumbo"

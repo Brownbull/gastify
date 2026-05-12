@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import asyncio
 import time
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -34,6 +35,7 @@ logger = structlog.get_logger()
 
 GEMINI_INPUT_COST_PER_M = 0.15
 GEMINI_OUTPUT_COST_PER_M = 0.60
+PROCESSING_TIMEOUT_S = 600
 
 
 def _estimate_cost_usd(input_tokens: int, output_tokens: int) -> float:
@@ -61,7 +63,13 @@ async def process_scan(scan_id: uuid.UUID) -> ExtractionResult | None:
             log.warning("scan_not_found")
             return None
 
-        if scan.status != ScanStatus.SUBMITTED:
+        if scan.status == ScanStatus.PROCESSING:
+            age_s = (datetime.now(UTC) - scan.submitted_at).total_seconds()
+            if age_s < PROCESSING_TIMEOUT_S:
+                log.info("scan_skipped", status=scan.status.value)
+                return None
+            log.warning("scan_processing_stuck_recovered", age_s=round(age_s))
+        elif scan.status != ScanStatus.SUBMITTED:
             log.info("scan_skipped", status=scan.status.value)
             return None
 
@@ -81,7 +89,7 @@ async def process_scan(scan_id: uuid.UUID) -> ExtractionResult | None:
         metrics.inc("scans_failed")
         return None
 
-    image_bytes = image_path.read_bytes()
+    image_bytes = await asyncio.to_thread(image_path.read_bytes)
     content_type = scan.content_type
 
     last_error: Exception | None = None

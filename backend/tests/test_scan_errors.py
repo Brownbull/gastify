@@ -40,16 +40,16 @@ class TestClassifyError:
         assert isinstance(err, TransientScanError)
         assert err.code == ScanErrorCode.OVERLOADED
 
-    def test_429_rate_limit_is_permanent(self):
+    def test_429_rate_limit_is_transient(self):
         exc = Exception("Too many requests")
         exc.status_code = 429  # type: ignore[attr-defined]
         err = classify_error(exc)
-        assert isinstance(err, PermanentScanError)
+        assert isinstance(err, TransientScanError)
         assert err.code == ScanErrorCode.RATE_LIMIT
 
-    def test_rate_limit_keyword_is_permanent(self):
+    def test_rate_limit_keyword_is_transient(self):
         err = classify_error(Exception("rate limit exceeded for this API key"))
-        assert isinstance(err, PermanentScanError)
+        assert isinstance(err, TransientScanError)
         assert err.code == ScanErrorCode.RATE_LIMIT
 
     def test_safety_block_is_permanent(self):
@@ -80,7 +80,7 @@ class TestClassifyError:
         err = classify_error(Exception("service unavailable"))
         assert isinstance(err, TransientScanError)
 
-    def test_quota_in_message_is_rate_limit(self):
+    def test_quota_in_message_is_quota_exceeded(self):
         err = classify_error(Exception("resource exhausted: quota exceeded"))
         assert isinstance(err, PermanentScanError)
-        assert err.code == ScanErrorCode.RATE_LIMIT
+        assert err.code == ScanErrorCode.QUOTA_EXCEEDED
