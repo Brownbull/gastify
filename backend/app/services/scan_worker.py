@@ -1,9 +1,10 @@
-"""Scan extraction worker — idempotent, retry-aware, cost-logging.
+"""Scan pipeline worker — two-stage extraction + categorization + math gate + persist.
 
-Processes a single scan: reads image from disk, runs PydanticAI vision
-extraction, handles transient/permanent errors, logs metrics.
+Processes a single scan through the full pipeline:
+  Stage 1: Vision extraction (Gemini image → GeminiExtractionResult)
+  Stage 2: Categorization (text-only → CategorizationResult) + math gate + persist
 
-Status machine: SUBMITTED → PROCESSING → EXTRACTED | FAILED
+Status machine: SUBMITTED → PROCESSING → EXTRACTED → CATEGORIZED → COMPLETED | NEEDS_REVIEW | FAILED
 """
 
 from __future__ import annotations
@@ -17,19 +18,25 @@ from typing import TYPE_CHECKING
 import structlog
 from sqlalchemy import select, update
 
+from app.agents.categorization import categorize_items
 from app.agents.extraction import ExtractionResult, extract_receipt
 from app.config import settings
 from app.db import async_session
 from app.models.scan import Scan, ScanStatus
 from app.observability import metrics
+from app.services.math_gate import reconcile
+from app.services.persist_scan import persist_scan_result
 from app.services.scan_errors import (
     PermanentScanError,
+    ScanErrorCode,
     TransientScanError,
     classify_error,
 )
 
 if TYPE_CHECKING:
     import uuid
+
+    from app.agents.categorization import CategorizationOutput
 
 logger = structlog.get_logger()
 
@@ -43,32 +50,54 @@ def _estimate_cost_usd(input_tokens: int, output_tokens: int) -> float:
     return cost / 1_000_000
 
 
-async def process_scan(scan_id: uuid.UUID) -> ExtractionResult | None:
-    """Process a single scan through Stage 1 extraction.
+async def process_scan(scan_id: uuid.UUID) -> bool:
+    """Process a single scan through the full two-stage pipeline.
 
-    Returns the ExtractionResult on success, None if skipped or failed.
-    Idempotent: only processes scans in SUBMITTED status.
+    Returns True on success (COMPLETED or NEEDS_REVIEW), False on skip/failure.
+    Idempotent: SUBMITTED starts from Stage 1, EXTRACTED resumes from Stage 2.
     """
     log = logger.bind(scan_id=str(scan_id))
     start = time.monotonic()
 
+    scan, resume_from_stage2 = await _acquire_scan(scan_id, log)
+    if scan is None:
+        return False
+
+    if not resume_from_stage2:
+        extraction = await _run_stage1(scan, scan_id, log, start)
+        if extraction is None:
+            return False
+    else:
+        extraction = None
+
+    return await _run_stage2(scan, scan_id, extraction, log, start)
+
+
+async def _acquire_scan(
+    scan_id: uuid.UUID, log: structlog.stdlib.BoundLogger
+) -> tuple[Scan | None, bool]:
+    """Load scan and transition to PROCESSING. Returns (scan, resume_from_stage2)."""
     async with async_session() as db:
         row = await db.execute(select(Scan).where(Scan.id == scan_id))
         scan = row.scalar_one_or_none()
 
         if scan is None:
             log.warning("scan_not_found")
-            return None
+            return None, False
+
+        if scan.status == ScanStatus.EXTRACTED:
+            log.info("scan_resuming_stage2")
+            return scan, True
 
         if scan.status == ScanStatus.PROCESSING:
             age_s = (datetime.now(UTC) - scan.submitted_at).total_seconds()
             if age_s < PROCESSING_TIMEOUT_S:
                 log.info("scan_skipped", status=scan.status.value)
-                return None
+                return None, False
             log.warning("scan_processing_stuck_recovered", age_s=round(age_s))
         elif scan.status != ScanStatus.SUBMITTED:
             log.info("scan_skipped", status=scan.status.value)
-            return None
+            return None, False
 
         await db.execute(
             update(Scan).where(Scan.id == scan_id).values(status=ScanStatus.PROCESSING)
@@ -77,7 +106,16 @@ async def process_scan(scan_id: uuid.UUID) -> ExtractionResult | None:
 
     log.info("scan_processing_started")
     metrics.inc("scans_total")
+    return scan, False
 
+
+async def _run_stage1(
+    scan: Scan,
+    scan_id: uuid.UUID,
+    log: structlog.stdlib.BoundLogger,
+    start: float,
+) -> ExtractionResult | None:
+    """Stage 1: Vision extraction with retry."""
     image_path = Path(scan.image_path)
     if not image_path.exists():
         await _fail_scan(scan_id, "INVALID_IMAGE", "Image file not found on disk")
@@ -85,7 +123,6 @@ async def process_scan(scan_id: uuid.UUID) -> ExtractionResult | None:
         return None
 
     image_bytes = await asyncio.to_thread(image_path.read_bytes)
-    content_type = scan.content_type
 
     last_error: Exception | None = None
     max_retries = settings.gemini_max_retries
@@ -95,13 +132,13 @@ async def process_scan(scan_id: uuid.UUID) -> ExtractionResult | None:
         try:
             result = await extract_receipt(
                 image_bytes=image_bytes,
-                content_type=content_type,
+                content_type=scan.content_type,
                 scan_date=scan.submitted_at.date() if scan.submitted_at else None,
             )
 
             _log_extraction_metrics(result, time.monotonic() - start)
+            await _transition_scan(scan_id, ScanStatus.EXTRACTED)
 
-            await _succeed_scan(scan_id, result)
             log.info(
                 "scan_extraction_succeeded",
                 attempt=attempt,
@@ -118,7 +155,6 @@ async def process_scan(scan_id: uuid.UUID) -> ExtractionResult | None:
                 "scan_extraction_error",
                 attempt=attempt,
                 error_code=classified.code.value,
-                error_message=str(classified),
                 transient=isinstance(classified, TransientScanError),
             )
 
@@ -134,24 +170,117 @@ async def process_scan(scan_id: uuid.UUID) -> ExtractionResult | None:
         classified_final = error
     else:
         classified_final = classify_error(error)
-
     await _fail_scan(scan_id, classified_final.code.value, str(classified_final))
     metrics.inc("scans_failed")
+    return None
+
+
+async def _run_stage2(
+    scan: Scan,
+    scan_id: uuid.UUID,
+    extraction: ExtractionResult | None,
+    log: structlog.stdlib.BoundLogger,
+    start: float,
+) -> bool:
+    """Stage 2: Categorization → math gate → persist."""
+    if extraction is None:
+        log.warning("stage2_skipped_no_extraction", reason="resuming without cached extraction")
+        await _fail_scan(
+            scan_id,
+            ScanErrorCode.UNKNOWN_ERROR.value,
+            "Stage 2 resume requires re-extraction (not yet supported)",
+        )
+        return False
+
+    ext = extraction.extraction
+
+    cat_result: CategorizationOutput | None = None
+    max_retries = settings.gemini_max_retries
+    retry_delay = settings.gemini_retry_delay_seconds
+
+    for attempt in range(1, max_retries + 1):
+        try:
+            cat_result = await categorize_items(
+                items=ext.line_items,
+                merchant_name=ext.merchant_name,
+                currency_code=ext.currency_code,
+            )
+            log.info(
+                "scan_categorization_succeeded",
+                attempt=attempt,
+                assignments=len(cat_result.result.assignments),
+            )
+            break
+
+        except Exception as exc:
+            classified = classify_error(exc)
+            log.warning(
+                "scan_categorization_error",
+                attempt=attempt,
+                error_code=classified.code.value,
+                transient=isinstance(classified, TransientScanError),
+            )
+
+            if isinstance(classified, PermanentScanError):
+                await _fail_scan(scan_id, classified.code.value, str(classified))
+                metrics.inc("scans_failed")
+                return False
+
+            if attempt < max_retries:
+                delay = retry_delay * (2 ** (attempt - 1))
+                await asyncio.sleep(delay)
+
+    if cat_result is None:
+        await _fail_scan(
+            scan_id,
+            ScanErrorCode.CATEGORIZATION_TIMEOUT.value,
+            "Categorization failed after all retries",
+        )
+        metrics.inc("scans_failed")
+        return False
+
+    await _transition_scan(scan_id, ScanStatus.CATEGORIZED)
+
+    verdict = reconcile(ext)
+
+    async with async_session() as db:
+        try:
+            await persist_scan_result(
+                db=db,
+                scan=scan,
+                extraction=extraction,
+                categorization=cat_result,
+                verdict=verdict,
+            )
+            await db.commit()
+        except Exception as exc:
+            log.error("scan_persist_failed", error=str(exc))
+            msg = f"Persist failed: {exc!s}"[:500]
+            await _fail_scan(scan_id, ScanErrorCode.UNKNOWN_ERROR.value, msg)
+            metrics.inc("scans_failed")
+            return False
+
+    if verdict.passed:
+        await _complete_scan(scan_id)
+        metrics.inc("scans_success")
+    else:
+        await _needs_review_scan(scan_id, verdict.discrepancy_minor_units)
+        metrics.inc("scans_needs_review")
 
     elapsed_ms = (time.monotonic() - start) * 1000
-    log.error(
-        "scan_extraction_failed",
-        error_code=classified_final.code.value,
+    log.info(
+        "scan_pipeline_complete",
+        status="completed" if verdict.passed else "needs_review",
+        discrepancy=verdict.discrepancy_minor_units,
         elapsed_ms=round(elapsed_ms, 1),
     )
-    return None
+    return True
 
 
 def _log_extraction_metrics(result: ExtractionResult, elapsed_s: float) -> None:
     usage = result.usage
     cost = _estimate_cost_usd(usage.input_tokens, usage.output_tokens)
 
-    metrics.inc("scans_success")
     metrics.observe("scan_duration_ms", elapsed_s * 1000)
     metrics.observe("llm_latency_ms", usage.latency_ms)
     metrics.observe("llm_tokens_in", usage.input_tokens)
@@ -167,7 +296,23 @@ def _log_extraction_metrics(result: ExtractionResult, elapsed_s: float) -> None:
     )
 
 
-async def _succeed_scan(scan_id: uuid.UUID, result: ExtractionResult) -> None:
+async def _transition_scan(scan_id: uuid.UUID, status: ScanStatus) -> None:
+    from sqlalchemy import func
+
+    async with async_session() as db:
+        await db.execute(
+            update(Scan)
+            .where(Scan.id == scan_id)
+            .values(status=status, processed_at=func.now(), error_code=None, error_message=None)
+        )
+        await db.commit()
+
+
+async def _complete_scan(scan_id: uuid.UUID) -> None:
+    await _transition_scan(scan_id, ScanStatus.COMPLETED)
+
+
+async def _needs_review_scan(scan_id: uuid.UUID, discrepancy: int) -> None:
     from sqlalchemy import func
 
     async with async_session() as db:
@@ -175,10 +320,10 @@ async def _succeed_scan(scan_id: uuid.UUID, result: ExtractionResult) -> None:
             update(Scan)
             .where(Scan.id == scan_id)
             .values(
-                status=ScanStatus.EXTRACTED,
+                status=ScanStatus.NEEDS_REVIEW,
                 processed_at=func.now(),
-                error_code=None,
-                error_message=None,
+                error_code=ScanErrorCode.RECONCILIATION_MISMATCH.value,
+                error_message=f"Math gate failed: discrepancy={discrepancy} minor units",
             )
         )
         await db.commit()

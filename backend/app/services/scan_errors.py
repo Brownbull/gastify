@@ -24,6 +24,12 @@ class ScanErrorCode(enum.StrEnum):
     QUOTA_EXCEEDED = "QUOTA_EXCEEDED"
     UNKNOWN_ERROR = "UNKNOWN_ERROR"
 
+    # Stage 2 — categorization + math gate
+    CATEGORIZATION_TIMEOUT = "CATEGORIZATION_TIMEOUT"
+    CATEGORIZATION_PARSE_ERROR = "CATEGORIZATION_PARSE_ERROR"
+    CATEGORY_NOT_FOUND = "CATEGORY_NOT_FOUND"
+    RECONCILIATION_MISMATCH = "RECONCILIATION_MISMATCH"
+
 
 _TRANSIENT_CODES = frozenset(
     {
@@ -32,6 +38,7 @@ _TRANSIENT_CODES = frozenset(
         ScanErrorCode.SERVER_ERROR,
         ScanErrorCode.OVERLOADED,
         ScanErrorCode.RATE_LIMIT,
+        ScanErrorCode.CATEGORIZATION_TIMEOUT,
     }
 )
 
