@@ -36,6 +36,7 @@ from app.services.scan_errors import (
     TransientScanError,
     classify_error,
 )
+from app.services.scan_events import dispatcher
 
 if TYPE_CHECKING:
     import uuid
@@ -45,6 +46,28 @@ if TYPE_CHECKING:
 logger = structlog.get_logger()
 
 PROCESSING_TIMEOUT_S = 600
+
+
+def _emit(
+    scan_id: uuid.UUID,
+    event_type: str,
+    step: str,
+    progress_pct: int,
+    *,
+    data: dict[str, object] | None = None,
+    error: dict[str, object] | None = None,
+) -> None:
+    from app.schemas.scan import ScanEvent
+
+    event = ScanEvent(
+        event_type=event_type,
+        scan_id=scan_id,
+        step=step,
+        progress_pct=progress_pct,
+        data=data,
+        error=error,
+    )
+    dispatcher.emit(event)
 
 
 def _estimate_cost_usd(input_tokens: int, output_tokens: int) -> float:
@@ -105,6 +128,7 @@ async def _acquire_scan(
 
     log.info("scan_processing_started")
     metrics.inc("scans_total")
+    _emit(scan_id, "scan_started", "acquire", 0)
     return scan, False
 
 
@@ -118,10 +142,13 @@ async def _run_stage1(
     image_path = Path(scan.image_path)
     if not image_path.exists():
         await _fail_scan(scan_id, "INVALID_IMAGE", "Image file not found on disk")
+        _emit(scan_id, "scan_failed", "load_image", 0, error={"code": "INVALID_IMAGE", "message": "Image file not found on disk"})
+        dispatcher.close_scan(scan_id)
         metrics.inc("scans_failed")
         return None
 
     image_bytes = await asyncio.to_thread(image_path.read_bytes)
+    _emit(scan_id, "image_processed", "load_image", 5, data={"size_bytes": len(image_bytes)})
 
     last_error: Exception | None = None
     max_retries = settings.gemini_max_retries
@@ -145,6 +172,11 @@ async def _run_stage1(
                 total=str(result.extraction.total_amount),
                 items=len(result.extraction.line_items),
             )
+            _emit(scan_id, "extraction_complete", "stage1", 40, data={
+                "merchant": result.extraction.merchant_name,
+                "items": len(result.extraction.line_items),
+                "confidence": result.extraction.confidence_score,
+            })
             return result
 
         except Exception as exc:
@@ -170,6 +202,8 @@ async def _run_stage1(
     else:
         classified_final = classify_error(error)
     await _fail_scan(scan_id, classified_final.code.value, str(classified_final))
+    _emit(scan_id, "scan_failed", "stage1", 0, error={"code": classified_final.code.value, "message": str(classified_final)})
+    dispatcher.close_scan(scan_id)
     metrics.inc("scans_failed")
     return None
 
@@ -213,6 +247,8 @@ async def _run_stage2(
 
             if isinstance(classified, PermanentScanError):
                 await _fail_scan(scan_id, classified.code.value, str(classified))
+                _emit(scan_id, "scan_failed", "stage2", 40, error={"code": classified.code.value, "message": str(classified)})
+                dispatcher.close_scan(scan_id)
                 metrics.inc("scans_failed")
                 return False
 
@@ -226,12 +262,20 @@ async def _run_stage2(
             ScanErrorCode.CATEGORIZATION_TIMEOUT.value,
             "Categorization failed after all retries",
         )
+        _emit(scan_id, "scan_failed", "stage2", 40, error={"code": ScanErrorCode.CATEGORIZATION_TIMEOUT.value, "message": "Categorization failed after all retries"})
+        dispatcher.close_scan(scan_id)
         metrics.inc("scans_failed")
         return False
 
     await _transition_scan(scan_id, ScanStatus.CATEGORIZED)
+    _emit(scan_id, "categorized", "stage2", 70, data={"assignments": len(cat_result.result.assignments)})
 
     verdict = reconcile(ext)
+
+    _emit(scan_id, "math_verified", "math_gate", 80, data={
+        "passed": verdict.passed,
+        "discrepancy": verdict.discrepancy_minor_units,
+    })
 
     async with async_session() as db:
         try:
@@ -247,15 +291,21 @@ async def _run_stage2(
             log.error("scan_persist_failed", error=str(exc))
             msg = f"Persist failed: {exc!s}"[:500]
             await _fail_scan(scan_id, ScanErrorCode.UNKNOWN_ERROR.value, msg)
+            _emit(scan_id, "scan_failed", "persist", 80, error={"code": ScanErrorCode.UNKNOWN_ERROR.value, "message": msg})
+            dispatcher.close_scan(scan_id)
             metrics.inc("scans_failed")
             return False
 
     if verdict.passed:
         await _complete_scan(scan_id)
+        _emit(scan_id, "scan_complete", "done", 100, data={"status": "completed"})
         metrics.inc("scans_success")
     else:
         await _needs_review_scan(scan_id, verdict.discrepancy_minor_units)
+        _emit(scan_id, "scan_complete", "done", 100, data={"status": "needs_review", "discrepancy": verdict.discrepancy_minor_units})
         metrics.inc("scans_needs_review")
+
+    dispatcher.close_scan(scan_id)
 
     elapsed_ms = (time.monotonic() - start) * 1000
     log.info(

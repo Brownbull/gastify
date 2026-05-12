@@ -18,6 +18,9 @@ class Settings(BaseSettings):
     gemini_max_retries: int = 3
     gemini_retry_delay_seconds: float = 2.0
 
+    scan_event_buffer_size: int = 32
+    scan_event_heartbeat_interval_s: int = 15
+
     cors_origins: list[str] = ["http://localhost:5173", "http://localhost:5174"]
 
     environment: str = "development"

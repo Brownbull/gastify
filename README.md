@@ -17,7 +17,7 @@ See [`docs/rebuild/PLAN.md`](docs/rebuild/PLAN.md) for the phased implementation
 | ORM | SQLAlchemy 2.0 + Alembic |
 | Auth | Firebase Auth (Google OAuth) via `firebase-admin` |
 | AI | Google Gemini 2.5 Flash via [PydanticAI](https://ai.pydantic.dev/) |
-| Real-time | Postgres `LISTEN/NOTIFY` piped through SSE |
+| Real-time | In-memory pub/sub dispatcher → SSE (web) + WebSocket (mobile) |
 | Frontend | React 18 + TypeScript + Vite + Zustand + TanStack Query |
 | Component showcase | ladle |
 | API types | openapi-typescript + openapi-fetch |
@@ -36,6 +36,8 @@ The backend reads settings from environment variables (prefix `GASTIFY_`):
 | `GOOGLE_API_KEY` | Google AI API key for receipt extraction (read by PydanticAI) | (required) |
 | `GASTIFY_GEMINI_MODEL` | Gemini model name | `gemini-2.5-flash` |
 | `GASTIFY_GEMINI_MAX_RETRIES` | Max retries on transient AI errors | `3` |
+| `GASTIFY_SCAN_EVENT_BUFFER_SIZE` | Backpressure buffer per SSE/WS subscriber (drop-oldest) | `32` |
+| `GASTIFY_SCAN_EVENT_HEARTBEAT_INTERVAL_S` | Heartbeat keepalive interval for streaming connections | `15` |
 
 ## Architecture Highlights
 
