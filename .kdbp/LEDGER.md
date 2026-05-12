@@ -1,5 +1,15 @@
 # Session Ledger
 
+## 2026-05-12 — PHASE EXEC COMPLETE: Phase 5 — Exit-signal + error case tests
+TIER: mvp
+TASKS: 5 tasks, 1 commit
+DEVIATIONS: 0 structural, 1 minor (credit refund test skipped — no service exists)
+
+## 2026-05-12 — [d0d162c] test(scan): add Phase 5 exit-signal + error case tests for P2 pipeline
+FINDINGS: 0 (0 critical, 0 high, 0 medium, 0 low)
+ACTIONS: none
+DEFERRED: 0
+
 ## 2026-05-12 17:07 — PUSH main -> main
 PR: —
 CI: all passed (8/8, 67s)
