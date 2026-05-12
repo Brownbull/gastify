@@ -1,5 +1,16 @@
 # Session Ledger
 
+## 2026-05-12 16:36 — PUSH main -> main
+PR: — (direct push)
+CI: ✅ 8/8 (50s) — all passed after auto-fix (format + deps)
+PROMOTION: N/A (staging not available)
+DEPLOYMENTS: P12 (added row to .kdbp/DEPLOYMENTS.md)
+
+## 2026-05-12 — [5c5627e] fix(scan): add corrupt image guard, DB-failure cleanup, and file_size CHECK constraint
+FINDINGS: 0 (0 critical, 0 high, 0 medium, 0 low)
+ACTIONS: none
+DEFERRED: none
+
 ## 2026-05-12 — PHASE 1 REVIEW: Scan schema + V4 taxonomy + image processing
 VERDICT: APPROVE
 FINDINGS: 5 total (0 critical, 2 high, 2 medium, 1 low) — all 5 resolved
