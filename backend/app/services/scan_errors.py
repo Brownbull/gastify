@@ -25,13 +25,15 @@ class ScanErrorCode(enum.StrEnum):
     UNKNOWN_ERROR = "UNKNOWN_ERROR"
 
 
-_TRANSIENT_CODES = frozenset({
-    ScanErrorCode.NETWORK_ERROR,
-    ScanErrorCode.TIMEOUT_ERROR,
-    ScanErrorCode.SERVER_ERROR,
-    ScanErrorCode.OVERLOADED,
-    ScanErrorCode.RATE_LIMIT,
-})
+_TRANSIENT_CODES = frozenset(
+    {
+        ScanErrorCode.NETWORK_ERROR,
+        ScanErrorCode.TIMEOUT_ERROR,
+        ScanErrorCode.SERVER_ERROR,
+        ScanErrorCode.OVERLOADED,
+        ScanErrorCode.RATE_LIMIT,
+    }
+)
 
 _TRANSIENT_KEYWORDS = (
     "econnreset",

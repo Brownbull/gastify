@@ -9,10 +9,23 @@ from decimal import Decimal, InvalidOperation
 
 from app.schemas.scan import GeminiExtractionResult, LineItemExtraction
 
-ZERO_EXPONENT_CURRENCIES = frozenset({
-    "CLP", "JPY", "KRW", "VND", "ISK", "UGX", "RWF",
-    "DJF", "GNF", "KMF", "XAF", "XOF", "XPF",
-})
+ZERO_EXPONENT_CURRENCIES = frozenset(
+    {
+        "CLP",
+        "JPY",
+        "KRW",
+        "VND",
+        "ISK",
+        "UGX",
+        "RWF",
+        "DJF",
+        "GNF",
+        "KMF",
+        "XAF",
+        "XOF",
+        "XPF",
+    }
+)
 
 CLP_THOUSANDS_SEPARATORS = frozenset({"CLP"})
 
@@ -41,10 +54,7 @@ def coalesce_extraction(
     if not currency or len(currency) != 3:
         currency = "CLP"
 
-    items = [
-        _coalesce_line_item(item, currency)
-        for item in result.line_items
-    ]
+    items = [_coalesce_line_item(item, currency) for item in result.line_items]
     items = [item for item in items if item.total_price != Decimal(0)]
 
     total = result.total_amount

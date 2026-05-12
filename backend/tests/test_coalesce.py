@@ -60,10 +60,12 @@ class TestCoalesceExtraction:
         assert coalesced.transaction_date == "2026-05-12"
 
     def test_drops_zero_price_items(self):
-        result = _make_result(line_items=[
-            LineItemExtraction(name="Leche", total_price=Decimal("2990")),
-            LineItemExtraction(name="Free sample", total_price=Decimal("0")),
-        ])
+        result = _make_result(
+            line_items=[
+                LineItemExtraction(name="Leche", total_price=Decimal("2990")),
+                LineItemExtraction(name="Free sample", total_price=Decimal("0")),
+            ]
+        )
         coalesced = coalesce_extraction(result)
         assert len(coalesced.line_items) == 1
         assert coalesced.line_items[0].name == "Leche"
@@ -92,9 +94,11 @@ class TestCoalesceExtraction:
         assert coalesce_extraction(result).currency_code == "CLP"
 
     def test_null_item_name_defaults(self):
-        result = _make_result(line_items=[
-            LineItemExtraction(name="null", total_price=Decimal("500")),
-        ])
+        result = _make_result(
+            line_items=[
+                LineItemExtraction(name="null", total_price=Decimal("500")),
+            ]
+        )
         coalesced = coalesce_extraction(result)
         assert coalesced.line_items[0].name == "Item"
 

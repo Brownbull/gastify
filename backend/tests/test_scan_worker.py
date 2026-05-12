@@ -196,7 +196,8 @@ class TestProcessScanRetries:
     async def test_permanent_error_no_retry(self):
         scan = _mock_scan()
         permanent = PermanentScanError(
-            ScanErrorCode.SAFETY_BLOCK, "Content blocked by safety filters",
+            ScanErrorCode.SAFETY_BLOCK,
+            "Content blocked by safety filters",
         )
 
         call_count = 0

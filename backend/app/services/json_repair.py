@@ -16,7 +16,7 @@ _MAX_INPUT_BYTES = 524_288  # 512 KB — ReDoS mitigation
 
 _RE_LINE_COMMENT = re.compile(r"(?<!:)//[^\n]*")
 _RE_BLOCK_COMMENT = re.compile(r"/\*[\s\S]*?\*/")
-_RE_UNQUOTED_KEY = re.compile(r'([{,]\s*)([a-zA-Z_]\w*)\s*:')
+_RE_UNQUOTED_KEY = re.compile(r"([{,]\s*)([a-zA-Z_]\w*)\s*:")
 _RE_SINGLE_QUOTED = re.compile(r"'((?:[^'\\]|\\.)*)'")
 _RE_TRAILING_COMMA = re.compile(r",\s*([}\]])")
 

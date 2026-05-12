@@ -190,8 +190,13 @@ class TestTriggerEndpoint:
             yield
 
     async def _insert_scan(
-        self, engine, *, status=ScanStatus.SUBMITTED,
-        scope_id=None, error_code=None, error_message=None,
+        self,
+        engine,
+        *,
+        status=ScanStatus.SUBMITTED,
+        scope_id=None,
+        error_code=None,
+        error_message=None,
     ):
         sid = uuid.uuid4()
         factory = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
@@ -199,8 +204,7 @@ class TestTriggerEndpoint:
             if scope_id and scope_id != _TEST_SCOPE_ID:
                 await session.execute(
                     sa.text(
-                        "INSERT INTO ownership_scopes (id, scope_type) "
-                        "VALUES (:id, 'individual')"
+                        "INSERT INTO ownership_scopes (id, scope_type) VALUES (:id, 'individual')"
                     ),
                     {"id": scope_id.hex},
                 )
@@ -229,8 +233,10 @@ class TestTriggerEndpoint:
     @pytest.mark.asyncio
     async def test_trigger_failed_resets_to_submitted(self, client, engine):
         scan_id = await self._insert_scan(
-            engine, status=ScanStatus.FAILED,
-            error_code="TIMEOUT_ERROR", error_message="timed out",
+            engine,
+            status=ScanStatus.FAILED,
+            error_code="TIMEOUT_ERROR",
+            error_message="timed out",
         )
         resp = await client.post(f"/api/v1/scans/{scan_id}/process")
         assert resp.status_code == 202

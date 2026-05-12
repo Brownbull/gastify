@@ -39,10 +39,7 @@ PROCESSING_TIMEOUT_S = 600
 
 
 def _estimate_cost_usd(input_tokens: int, output_tokens: int) -> float:
-    cost = (
-        input_tokens * GEMINI_INPUT_COST_PER_M
-        + output_tokens * GEMINI_OUTPUT_COST_PER_M
-    )
+    cost = input_tokens * GEMINI_INPUT_COST_PER_M + output_tokens * GEMINI_OUTPUT_COST_PER_M
     return cost / 1_000_000
 
 
@@ -74,9 +71,7 @@ async def process_scan(scan_id: uuid.UUID) -> ExtractionResult | None:
             return None
 
         await db.execute(
-            update(Scan)
-            .where(Scan.id == scan_id)
-            .values(status=ScanStatus.PROCESSING)
+            update(Scan).where(Scan.id == scan_id).values(status=ScanStatus.PROCESSING)
         )
         await db.commit()
 
