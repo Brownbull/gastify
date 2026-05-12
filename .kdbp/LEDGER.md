@@ -1,5 +1,22 @@
 # Session Ledger
 
+## 2026-05-07 — PLAN CREATED: P2 Receipt Scan Pipeline
+PHASES: 5 | COMPLEXITY: high overall | MATURITY: mvp
+TIERS: mvp x 1, ent x 4, scale x 0 | PROTOTYPES: 0
+DECISIONS: D28 → D32 (5 phase tier decisions logged)
+SOURCE: /gabe-plan P2 Receipt Scan Pipeline
+COVERS: REQ-01, REQ-02, REQ-03, REQ-04, REQ-12
+RED-LINES: AI/Agent.Structured-output (Ph2+Ph3), BG-jobs.Idempotency (Ph2), BG-jobs.Dead-letter (Ph2), Real-time.Reconnection (Ph4), File/Media.Image-pipeline (Ph1)
+DEPENDS: P1 Foundation (completed 2026-05-07)
+
+## 2026-05-07 — PLAN COMPLETED: Backend P1 Foundation
+ARCHIVE: .kdbp/archive/completed_PLAN_2026-05-07_backend-p1-foundation.md
+PHASES COMPLETED: 6 of 6
+TIERS: mvp×1, ent×5, scale×0
+TESTS: 126/126 pass, 96% coverage
+REQs PROVEN: REQ-15 through REQ-22 (exit-signal smoke test)
+NEXT: No active plan. Run /gabe-plan [goal] to create one.
+
 ## 2026-05-07 21:01 — PUSH main -> main
 PR: — (direct push)
 CI: ✅ 8/8 (60s) — all checks passed

@@ -5,6 +5,7 @@ from app.api.consent import router as consent_router
 from app.api.health import router as health_router
 from app.api.metrics import router as metrics_router
 from app.api.privacy import router as privacy_router
+from app.api.scans import router as scans_router
 from app.api.transactions import router as transactions_router
 from app.config import settings
 from app.logging import setup_logging
@@ -34,4 +35,5 @@ app.include_router(health_router, prefix="/api/v1")
 app.include_router(transactions_router, prefix="/api/v1")
 app.include_router(consent_router, prefix="/api/v1")
 app.include_router(privacy_router, prefix="/api/v1")
+app.include_router(scans_router, prefix="/api/v1")
 app.include_router(metrics_router, prefix="/api/v1")

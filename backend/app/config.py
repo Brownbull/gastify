@@ -12,6 +12,8 @@ class Settings(BaseSettings):
 
     fx_api_url: str = "https://api.frankfurter.dev"
 
+    scan_storage_dir: str = "data/scans"
+
     cors_origins: list[str] = ["http://localhost:5173", "http://localhost:5174"]
 
     environment: str = "development"

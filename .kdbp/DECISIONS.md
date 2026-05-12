@@ -25,6 +25,12 @@
 | D21 | 2026-04-24 | /gabe-mockup suite retrofit — adopt peer-command architecture (/gabe-mockup ↔ /gabe-execute mutual redirect via `project_type: mockup` field). Added `.kdbp/ENTITIES.md` (9 principal entities). Landed `docs/mockups/assets/js/tweaks.js` (self-contained runtime Tweaks panel) from gabe_lens template; kept existing `docs/mockups/assets/css/desktop-shell.css` as canonical token source (P1 exit). Seeded `docs/mockups/INDEX.md` from template. P4 types renamed `[flows, index]` → `[mockup-flows, mockup-index]` + description upgraded to include 4-table INDEX governance + CRUD×entity matrix. P13 types renamed `[documentation, validation]` → `[mockup-docs, mockup-validation]`. STRUCTURE.md gained `docs/mockups/**/*.md` pattern row. HANDOFF.schema.json (Apache-2.0 derivative of impeccable DESIGN.json v2) available for P13 emission. Initial retrofit v1 landed `tokens.css` skeleton + `tweaks-panel.html` include file at mockups root; post-audit v2 deleted both — `desktop-shell.css` already canonical, and tweaks-panel.html `<link>`-to-HTML pattern is a deprecated/broken include (HTML Imports). tweaks.js now self-injects styles + panel DOM at boot. | Keep 13-phase plan hand-authored per project (next project reinvents); parallel lane architecture (complexity overhead); use `/gabe-execute` for mockup phases (no recipe fit — render-then-audit vs test-then-implement); duplicate tokens in fresh `tokens.css` alongside `desktop-shell.css` (drift risk); separate tweaks-panel.html file with `<link>` include (broken pattern) | accepted | Hybrid plans emerge requiring per-phase stream tagging OR additional mockup tier-sections needed |
 | D22 | 2026-04-24 | Adopt centralized mockup hub pattern (gastify project level). Principal `docs/mockups/index.html` becomes a section-card hub (Design / Atoms / Molecules / Flows / Screens / Handoff); each section that produces many files gets its own `<section>/index.html` sub-hub (`atoms/index.html` already exists, `flows/index.html` + `molecules/index.html` placeholder added in this amendment). `tweaks.js` breadcrumb generalized from atoms-only path-match to section-aware logic (`/<section>/<name>.html` → `← <section> index`; `/<section>/index.html` → `← Mockups home`). Token migration on top hub: inline `:root` block → `desktop-shell.css` canonical tokens (small visual shift accepted). Playwright `hubs.spec.ts` covers hub navigability + breadcrumb chain. Layer B — extracting this hub + sub-hub + Playwright pattern into `gabe_lens/templates/mockup/` so `/gabe-mockup` seeds it on future projects — is queued as a separate follow-up, NOT in this Phase 4 amendment. | Hand-authored single hub per project (current state — works once but reinvents structure on every new project); flat list of files at mockup root with no section grouping (doesn't scale past ~20 files); deep nested per-screen-phase HTML hubs (overkill for Phase 4); skip the HTML hub entirely and rely on markdown INDEX.md alone (loses visual gallery affordance for designers + product reviewers) | accepted | Layer B template extraction lands OR a 3rd section type (beyond atoms/flows/molecules) needs hub treatment |
 
+| D28 | 2026-05-07 | P2-Ph1 Scan schema + image = ent; image-pipeline resize-on-write forces ent | File/Media Image-pipeline MVP=none, ent=resize-on-write — compression load-bearing for Gemini input; Upload + Schema stability Ent baseline | MVP no compression (Gemini accuracy drops, bandwidth waste); Scale on-demand resize + resumable upload (premature) | active | Image storage backend changes (local → S3/GCS) |
+| D29 | 2026-05-07 | P2-Ph2 Vision extraction = ent; 3 red-lines: structured output (U4), idempotency (money), dead-letter (scan loss) | AI/Agent.Structured-output downstream-is-code; BG-jobs.Idempotency scan-debits-credits; BG-jobs.Dead-letter drop=silent-loss | MVP blocked by 3 red-lines; Scale multi-model cascade premature | active | Second LLM provider OR scan volume exceeds SLO |
+| D30 | 2026-05-07 | P2-Ph3 Categorization + math gate = ent; structured output red-line + typed math-gate errors | AI/Agent.Structured-output fires again (V4 binding → math gate → persistence); typed errors for reconciliation vs category miss | MVP blocked by structured output red-line; Scale auto-eval CI premature | active | V4 taxonomy > 100 categories OR math-gate tolerance changes |
+| D31 | 2026-05-07 | P2-Ph4 Scan streaming = ent; reconnection red-line + dual transport SSE+WS | Real-time.Reconnection user-facing stream dead-UI on disconnect; Fallback-transport SSE+WS = ent cell | MVP blocked by reconnection red-line; Scale jitter+long-poll for ~7 events overkill | active | Stream events > 50/scan OR WebSocket proxy issues |
+| D32 | 2026-05-07 | P2-Ph5 Exit-signal tests = mvp; test-only phase, no red-lines | Test code not production; production is ent. No domain triggers | Enterprise typed errors in test code unnecessary | active | Exit-signal definition changes |
+
 <!-- Status: active / superseded / revisit -->
 <!-- BEHAVIOR.md constraints reference decision IDs: "All integrations mocked (ref D1)" -->
 
@@ -615,3 +621,192 @@ Load-bearing items deferred:
 **Future opt-in:** if the directory layout needs to reflect archival status later (e.g., before open-sourcing), that's a separate, more careful migration that retires the test harness as a unit.
 
 **Status:** accepted
+
+---
+
+## D28 — P2-Phase 1 tier: ent (2026-05-07)
+
+**Phase:** Scan schema + V4 taxonomy + image processing
+**Types:** `upload, data-migration, persistence`
+**Tier chosen:** ent
+**Prototype:** no
+**Reason:** File/Media.Image-pipeline at Enterprise = resize-on-write. Image compression is load-bearing for the scan pipeline — reduces upload bandwidth, standardizes input dimensions for Gemini vision API, and produces thumbnails for UI. MVP cell `none` means raw image goes straight to Gemini (variable quality, wasted bandwidth, no thumbnail).
+
+### Sections rendered
+- Core (always, all 4 dims)
+- File/Media: 2 dims kept, 3 suppressed
+- Data: 2 dims kept, 2 suppressed
+
+### Dimensions suppressed (Layer 2 filter)
+- File/Media.Virus-scan — no virus scanning at MVP (add when upload volume warrants)
+- File/Media.CDN — no CDN; local filesystem storage at MVP
+- File/Media.Retention — no retention policy yet; images persist until explicit deletion
+- Data.Backup/restore — infrastructure-level concern (P1 established), not per-phase
+- Data.Indexing — scan table queries simple (by scan_id, by ownership_scope_id + status)
+
+### Grade overrides
+- None — Enterprise baseline across all kept dimensions
+
+### Δ deferred by tier choice
+- L × 2 (Core.Testing happy-path, Core.Abstractions inline)
+- M × 1 (File/Media.Upload ΔE→S — resumable upload deferred)
+- S × 1 (Core.Error ΔE→S — circuit breaker deferred)
+
+Load-bearing items deferred:
+- File/Media.Virus-scan at Enterprise (ClamAV) — add when upload volume makes malicious files a real risk
+- File/Media.CDN at Enterprise (origin + edge cache) — add when multi-region deployment needed
+
+### Review trigger
+- Image storage backend changes (local FS → S3/GCS)
+- Gemini accuracy drops with compressed images (adjust quality parameters)
+- Upload volume exceeds local disk capacity
+
+### Status
+- active
+
+---
+
+## D29 — P2-Phase 2 tier: ent (2026-05-07)
+
+**Phase:** Stage 1: Vision extraction worker
+**Types:** `ai-agent, async-worker, queue`
+**Tier chosen:** ent
+**Prototype:** no
+**Reason:** Three red-lines block MVP simultaneously: (1) AI/Agent.Structured-output — downstream consumer is code (math gate + persistence), regex parse is the documented anti-pattern per U4; (2) BG-jobs.Idempotency — scan deducts credits = money, duplicate processing = financial error; (3) BG-jobs.Dead-letter — dropped scan = silent data loss, unrecoverable without explicit DLQ.
+
+### Sections rendered
+- Core (always, all 4 dims)
+- AI/Agent: all 4 dims
+- Background jobs: 4 dims kept, 1 suppressed
+
+### Dimensions suppressed (Layer 2 filter)
+- BG-jobs.Scheduling — scans are user-initiated, not scheduled; no cron trigger
+
+### Grade overrides
+- None — Enterprise baseline across all kept dimensions
+
+### Δ deferred by tier choice
+- L × 2 (Core.Testing happy-path, Core.Abstractions inline)
+- M × 3 (AI/Agent.Prompt-eval ΔE→S auto-eval CI; AI/Agent.Cost-budget ΔE→S SLO+alert; BG-jobs.Concurrency ΔE→S worker pool tuning)
+- S × 1 (Core.Error ΔE→S circuit breaker)
+
+Load-bearing items deferred:
+- AI/Agent.Fallback-chain at Enterprise (1 retry + null) — multi-model cascade (Scale) deferred until second LLM provider justified
+- BG-jobs.Concurrency at Enterprise (bounded worker pool) — worker pool tuning (Scale) deferred until scan volume warrants
+
+### Review trigger
+- Second LLM provider added (escalate Fallback-chain to Scale multi-model cascade)
+- Scan volume exceeds SLO P95 30s (escalate Concurrency to Scale worker pool tuning)
+- Per-scan cost exceeds budget (escalate Cost/latency to Scale SLO + alert)
+
+### Status
+- active
+
+---
+
+## D30 — P2-Phase 3 tier: ent (2026-05-07)
+
+**Phase:** Stage 2: Categorization + math gate
+**Types:** `ai-agent, persistence`
+**Tier chosen:** ent
+**Prototype:** no
+**Reason:** AI/Agent.Structured-output red-line fires again — the categorization result (V4 taxonomy binding) feeds the math gate and Transaction persistence layer. Code consumes LLM output → `output_type` mandatory → Enterprise floor. Additionally, math-gate failures need typed errors (reconciliation_mismatch vs category_not_found vs extraction_timeout) to drive distinct downstream behavior (needs_review vs retry vs dead-letter).
+
+### Sections rendered
+- Core (always, all 4 dims)
+- AI/Agent: all 4 dims
+- Data: 2 dims kept, 2 suppressed
+
+### Dimensions suppressed (Layer 2 filter)
+- Data.Backup/restore — infrastructure-level concern (P1 established), not per-phase
+- Data.Migration-safety — no new migration in this phase; schema ships in Phase 1
+
+### Grade overrides
+- None — Enterprise baseline across all kept dimensions
+
+### Δ deferred by tier choice
+- L × 2 (Core.Testing happy-path, Core.Abstractions inline)
+- M × 3 (AI/Agent.Prompt-eval ΔE→S; AI/Agent.Cost-budget ΔE→S; Data.Schema-stability ΔE→S rollback+audit)
+- S × 1 (Core.Error ΔE→S circuit breaker)
+
+Load-bearing items deferred:
+- Data.Schema-stability at Enterprise (migration file) — rollback + audit (Scale) deferred until production schema changes are frequent
+
+### Review trigger
+- V4 taxonomy grows past 100 categories (re-evaluate categorization prompt strategy)
+- Math-gate tolerance needs per-currency tuning (adjust from 1 minor unit)
+- Categorization accuracy drops below 90% on eval set
+
+### Status
+- active
+
+---
+
+## D31 — P2-Phase 4 tier: ent (2026-05-07)
+
+**Phase:** Scan progress streaming
+**Types:** `realtime, streaming`
+**Tier chosen:** ent
+**Prototype:** no
+**Reason:** Real-time.Reconnection red-line fires — this is a user-facing scan progress stream. MVP `manual` (user reloads page on disconnect) means losing scan progress visibility mid-scan, which is the core UX promise (V2: Stream Progress). Additionally, the plan explicitly requires dual transport (SSE for web, WebSocket for mobile) — that's the Enterprise cell in Fallback-transport.
+
+### Sections rendered
+- Core (always, all 4 dims)
+- Real-time: 3 dims kept, 2 suppressed
+
+### Dimensions suppressed (Layer 2 filter)
+- Real-time.Presence — single-user scan stream, no multi-user awareness needed
+- Real-time.Message-order — scan pipeline events are naturally stage-ordered by processing phase, not reorderable
+
+### Grade overrides
+- None — Enterprise baseline across all kept dimensions
+
+### Δ deferred by tier choice
+- L × 2 (Core.Testing happy-path, Core.Abstractions inline)
+- M × 1 (Real-time.Reconnection ΔE→S jitter + reconnect budget)
+- S × 2 (Core.Error ΔE→S circuit breaker; Real-time.Fallback-transport ΔE→S long-poll)
+
+Load-bearing items deferred:
+- Real-time.Fallback-transport at Enterprise (SSE+WS) — long-poll last resort (Scale) deferred; SSE + WS covers all modern browsers and mobile clients
+
+### Review trigger
+- Stream event count exceeds 50/scan (re-evaluate backpressure policy)
+- WebSocket proxy issues on restrictive networks (escalate Fallback-transport to Scale with long-poll)
+- PENDING P18 BaseHTTPMiddleware conflict surfaces during SSE testing
+
+### Status
+- active
+
+---
+
+## D32 — P2-Phase 5 tier: mvp (2026-05-07)
+
+**Phase:** Exit-signal + error case tests
+**Types:** `core-only`
+**Tier chosen:** mvp
+**Prototype:** no
+**Reason:** Test-only phase — ships no production code. The production code it exercises (Phases 1-4) is already at Enterprise tier. Test infrastructure needs happy-path testing of its own fixtures, fail-loud error propagation (assert failures), print/log for test output, and inline helpers. No domain-section red-lines fire.
+
+### Sections rendered
+- Core (always, all 4 dims)
+
+### Dimensions suppressed
+- None
+
+### Grade overrides
+- None — all dims at MVP baseline
+
+### Δ deferred by tier choice
+- L × 2 (Core.Testing happy-path, Core.Abstractions inline)
+- L × 1 (Core.Error fail-loud)
+- M × 1 (Core.Observability print/log)
+
+Load-bearing items deferred:
+- None — test-only phase, no production code surface
+
+### Review trigger
+- Exit-signal definition changes in ROADMAP §Phase-2
+- Error case taxonomy expands beyond the 7 legacy types
+
+### Status
+- active

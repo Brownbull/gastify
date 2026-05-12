@@ -3,7 +3,7 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import JSON, Boolean, DateTime, SmallInteger, String, Text, Uuid, func
+from sqlalchemy import JSON, Boolean, DateTime, ForeignKey, SmallInteger, String, Text, Uuid, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db import Base
@@ -42,6 +42,10 @@ class ItemCategory(Base):
         Uuid, primary_key=True, server_default=func.gen_random_uuid()
     )
     key: Mapped[str] = mapped_column(Text, nullable=False, unique=True)
+    level: Mapped[int] = mapped_column(SmallInteger, nullable=False, server_default="1")
+    parent_id: Mapped[uuid.UUID | None] = mapped_column(
+        Uuid, ForeignKey("item_categories.id"), nullable=True
+    )
     display_labels: Mapped[dict] = mapped_column(JSON, nullable=False, server_default="{}")
     is_sensitive: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default="false")
     sort_order: Mapped[int] = mapped_column(SmallInteger, nullable=False, server_default="0")

@@ -1,32 +1,30 @@
-# Active Plan — Backend P1 Foundation
+# Active Plan — P2 Receipt Scan Pipeline
 
 <!-- status: active -->
 <!-- project_type: backend -->
 
 ## Goal
 
-Deliver P1 Foundation backend — FastAPI + Postgres with identity, ownership scope, money/FX, consent, observability, i18n infra — passing the P1 exit-signal smoke test (REQ-15 through REQ-22).
+Deliver P2 Receipt Scan Pipeline — photo upload → two-stage Gemini vision-LLM extraction → math-reconciliation gate → V4 categorization → persisted transaction with USD shadow + dual-transport scan-progress streaming (SSE + WebSocket).
 
 ## Context
 
 - **Maturity:** mvp
-- **Domain:** Smart personal expense tracker — multi-currency, four-jurisdiction compliance, AI receipt scanning (Chile + LATAM + EU + US + Canada)
-- **ROADMAP phase:** P1 Foundation (no dependencies — P1 root)
-- **Covers REQs:** REQ-15, REQ-16, REQ-17, REQ-18, REQ-19, REQ-20, REQ-21, REQ-22
-- **Authored:** 2026-04-23
-- **Activated:** 2026-05-05 (UX mockup plan archived to `.kdbp/archive/completed_ux-mockups.md`)
+- **Domain:** Smart personal expense tracker — AI receipt scanning with 86-category V4 taxonomy, multi-currency analytics with USD-shadow
+- **ROADMAP phase:** P2 Receipt Scan Pipeline (depends on P1 Foundation)
+- **Covers REQs:** REQ-01 (submission), REQ-02 (two-stage worker), REQ-03 (V4 taxonomy), REQ-04 (dual streaming), REQ-12 (math gate)
+- **Authored:** 2026-05-07
 - **Status:** active
 
 ## Phases
 
 | # | Phase | Types | Description | Tier | Complexity | Exec | Review | Commit | Push |
 |---|-------|-------|-------------|------|------------|------|--------|--------|------|
-| 1 | Scaffold + DB baseline | `deployment-release` | FastAPI app, uv env, pytest/ruff, alembic init, Postgres connect, structured logger + metrics exporter baseline, CI smoke | ent (Obs→scale) | low | ✅ | ✅ | ✅ | ✅ |
-| 2 | Money + currency + FX + i18n | `data, integration` | Integer-minor-units convention, `currencies` table (10 codes), `fx_rates` write-once with lazy read-through cache, USD-shadow compute, i18n string registry (es/en/pt) | ent | medium | ✅ | ✅ | ✅ | ✅ |
-| 3 | Identity + ownership scope + RLS | `auth-session, multi-tenant` | Firebase token-verify middleware, JIT user provision, `ownership_scope` + `ownership_scope_members` tables, RLS policies keyed off scope, initial scan-credit balance | ent | high | ✅ | ✅ | ✅ | ✅ |
-| 4 | Consent + processing register + DSR | `data, multi-tenant` | `consent_records` + `processing_register` tables, per-purpose consent API, access/rectification/erasure/portability endpoints (Law 21.719 + GDPR + PIPEDA + CCPA/CPRA), audit event log | ent | high | ✅ | ✅ | ✅ | ✅ |
-| 5 | Observability pipeline | `core-only` | Per-scan metric columns, metric exporter endpoint (OTel/Prometheus-compatible), U8 cost/latency baseline | ent (Obs→scale) | medium | ✅ | ✅ | ✅ | ✅ |
-| 6 | Exit-signal smoke test | `core-only` | Integration E2E: JIT sign-in → transaction in non-primary currency → read USD shadow → consent-audit returns 1 record | mvp | low | ✅ | ✅ | ✅ | ✅ |
+| 1 | Scan schema + V4 taxonomy + image processing | `upload, data-migration, persistence` | Alembic `scans` table, V4 86-category seed, Pydantic scan schemas, Pillow image compression (1200x1600 JPEG 80%, thumb 120x160 JPEG 70%, EXIF strip, auto-rotate), scan submission endpoint | ent | medium | 🔄 | ⬜ | ⬜ | ⬜ |
+| 2 | Stage 1: Vision extraction worker | `ai-agent, async-worker, queue` | PydanticAI Gemini vision agent (output_type), GeminiExtractionResult model, output coalescing, currency-aware coercion, JSON repair, idempotent scan job, dead-letter + credit refund, per-call cost logging | ent | high | ⬜ | ⬜ | ⬜ | ⬜ |
+| 3 | Stage 2: Categorization + math gate | `ai-agent, persistence` | PydanticAI text-only categorization agent, V4 taxonomy mapping, math reconciliation (sum check within 1 minor unit), MathReconciliationVerdict, persist Transaction + LineItem with USD shadow | ent | high | ⬜ | ⬜ | ⬜ | ⬜ |
+| 4 | Scan progress streaming | `realtime, streaming` | SSE endpoint (web), WebSocket endpoint (mobile), ScanEvent contract, auto-reconnect (exp backoff), buffer backpressure, pipeline event emission integration | ent | medium | ⬜ | ⬜ | ⬜ | ⬜ |
+| 5 | Exit-signal + error case tests | `core-only` | 10 test receipts (8 benign, 2 adversarial, 1 math-inconsistent), legacy error cases (7 types), E2E integration proving REQs 01-04 + 12 | mvp | medium | ⬜ | ⬜ | ⬜ | ⬜ |
 
 <!-- Exec is written by /gabe-execute: ⬜ not started, 🔄 in progress, ✅ complete -->
 <!-- Review/Commit/Push auto-ticked by /gabe-review, /gabe-commit, /gabe-push -->
@@ -36,144 +34,135 @@ Deliver P1 Foundation backend — FastAPI + Postgres with identity, ownership sc
 
 ## Phase Details
 
-### Phase 1 — Scaffold + DB baseline
+### Phase 1 — Scan schema + V4 taxonomy + image processing
 
 ```yaml
 phase: 1
-types: [deployment-release]
+types: [upload, data-migration, persistence]
 phase_tier: ent
 prototype: false
-dim_overrides:
-  - section: Core
-    dim: Observability
-    tier: scale
-    reason: REQ-21 + U8 mandate structured logger + metrics exporter at scaffold time
-sections_considered: [Core, Deployment/Release]
-suppressed_dims_count: 2
-decisions_entry: D1
+dim_overrides: []
+sections_considered: [Core, File/Media, Data]
+suppressed_dims_count: 5
+decisions_entry: D28
 ```
 
-- **Types:** `deployment-release`
+- **Types:** `upload, data-migration, persistence`
 - **Tier:** ent
 - **Prototype:** no
-- **Sections considered:** Core, Deployment/Release
-- **Suppressed dimensions:** 2 (Deploy.Feature-flags, Deploy.Canary — scaffold phase, no feature code, no prod targets yet)
-- **Grade overrides:**
-  - Core.Error-handling: default MVP → **Ent** (typed exceptions + retry — foundational posture for all later phases)
-  - Core.Observability: default MVP → **Scale** (structured logger + metrics exporter baked in at scaffold for REQ-21 + U8)
-  - Deploy.Migration-order: default MVP → **Ent** (migrate-first gated — Alembic deploy hook, not deploy-then-migrate)
-- **Trade-offs accepted:** See D1
+- **Sections considered:** Core, File/Media, Data
+- **Suppressed dimensions:** 5 (File/Media: Virus-scan, CDN, Retention; Data: Backup/restore, Indexing)
+- **Grade overrides:** None — Enterprise baseline driven by File/Media.Image-pipeline resize-on-write
+- **Key deliverables:**
+  - Alembic migration: `scans` table (id, ownership_scope_id, status enum, image_path, thumbnail_path, original_filename, content_type, file_size_bytes, submitted_at, processed_at, error_code, error_message)
+  - V4 category taxonomy seed: 86 categories (12 L1 + 44 L2 + 9 L3 + 42 L4), canonical PascalCase keys, trilingual display_labels (es/en/pt)
+  - Pydantic schemas: ScanSubmission, ImageMeta, ScanResult, ScanEvent, GeminiExtractionResult, CategorizationResult, MathReconciliationVerdict
+  - Image compression service (Pillow): 1200x1600 max JPEG 80%, thumbnail 120x160 JPEG 70%, EXIF strip via piexif, auto-rotate from EXIF orientation
+  - POST /api/v1/scans endpoint (accepts multipart image, runs compression, stores image + thumbnail, returns scan_id)
+- **Legacy port:** Image pipeline ported from BoletApp `functions/src/imageProcessing.ts` (sharp/MozJPEG → Pillow equivalent)
+- **Trade-offs accepted:** See D28
 
-### Phase 2 — Money + currency + FX + i18n
+### Phase 2 — Stage 1: Vision extraction worker
 
 ```yaml
 phase: 2
-types: [data, integration]
+types: [ai-agent, async-worker, queue]
 phase_tier: ent
 prototype: false
 dim_overrides: []
-sections_considered: [Core, Data, Integration]
-suppressed_dims_count: 0
-decisions_entry: D2
+sections_considered: [Core, AI/Agent, Background jobs]
+suppressed_dims_count: 1
+decisions_entry: D29
 ```
 
-- **Types:** `data, integration` (revised from `data, background-jobs` — no daily cron; lazy read-through cache on transaction create)
+- **Types:** `ai-agent, async-worker, queue`
 - **Tier:** ent
 - **Prototype:** no
-- **Sections considered:** Core, Data, Integration
-- **Suppressed dimensions:** 0 on Core/Data; Integration has none suppressed
-- **Grade overrides:**
-  - Data.Backup/restore: default MVP `none` → **Ent** (daily snapshot — financial data red-line)
-  - Integration.Retry/backoff: default MVP → **Ent** (exp backoff 3x — FX API flake)
-  - Integration.Idempotency: default MVP → **MVP-structural** (PK `(date, from, to)` + `ON CONFLICT DO NOTHING` + re-read covers cold-start race at zero code cost; effective Ent via structural invariant)
-  - Integration.Timeout: default MVP → **Ent** (explicit 3s + fail — transaction-create path can't block on stalled external)
-- **FX architecture:** Lazy read-through cache per REQ-18. Transaction create looks up `fx_rates(today, from, USD)`. Miss → call external FX API → insert with ON CONFLICT → re-read → compute USD shadow. No scheduled daily job.
-- **Trade-offs accepted:** See D2
+- **Sections considered:** Core, AI/Agent, Background jobs
+- **Suppressed dimensions:** 1 (BG-jobs.Scheduling — scans are user-initiated, not scheduled)
+- **Grade overrides:** None — Enterprise baseline forced by 3 red-lines (structured output, idempotency, dead-letter)
+- **Key deliverables:**
+  - PydanticAI agent: Gemini vision model with output_type=GeminiExtractionResult (V1 value: Enforce Output Structure)
+  - GeminiExtractionResult model: merchant_name, transaction_date, currency_code, total_amount, tax_amount, discount_amount, line_items[], confidence_score
+  - Output coalescing (legacy port from BoletApp `analyzeReceipt.ts`): null merchant→"Unknown", null date→scan_date, null category→"Other", strip Chilean thousands separators (e.g., "1.234" → 1234 for CLP), drop zero-price items, fallback total = sum(line_items)
+  - Currency-aware numeric coercion: CLP/JPY/KRW (exponent=0) treat integers as-is; USD/EUR/GBP (exponent=2) multiply parsed float by 100 to get minor units
+  - JSON markdown-wrapper repair: strip ```json...``` and trailing ``` from Gemini output (port from BoletApp `jsonRepair.ts`)
+  - Idempotent scan processing: scan_id as natural idempotency key, status machine (submitted → processing → extracted → categorized → completed | failed)
+  - Dead-letter on permanent failure: classify errors as transient (retry up to 3x) vs permanent (dead-letter + credit refund). Port from BoletApp error classification.
+  - Per-call cost logging: tokens_in, tokens_out, cost_usd, latency_ms logged to structured log per V4 value (Measure Every Run)
+- **Legacy port:** Extraction logic from BoletApp `processReceiptScan.ts` + `analyzeReceipt.ts`; error handling from `retryHelper.ts` + `errorHandler.ts`
+- **Trade-offs accepted:** See D29
 
-### Phase 3 — Identity + ownership scope + RLS
+### Phase 3 — Stage 2: Categorization + math gate
 
 ```yaml
 phase: 3
-types: [auth-session, multi-tenant]
+types: [ai-agent, persistence]
 phase_tier: ent
 prototype: false
 dim_overrides: []
-sections_considered: [Core, Auth/Session, Multi-tenant]
+sections_considered: [Core, AI/Agent, Data]
 suppressed_dims_count: 2
-decisions_entry: D3
+decisions_entry: D30
 ```
 
-- **Types:** `auth-session, multi-tenant`
+- **Types:** `ai-agent, persistence`
 - **Tier:** ent
 - **Prototype:** no
-- **Sections considered:** Core, Auth/Session, Multi-tenant
-- **Suppressed dimensions:** 2 (Auth.Multi-tab-sync — backend lane not client; MT.Noisy-neighbor — scope-of-one MVP)
-- **Grade overrides:**
-  - Auth.CSRF: MVP `none` **accepted** (bearer-token-only API, no cookies — spec red-line satisfied; escalation trigger: cookie-based session added)
-  - Auth.Refresh-token: default MVP long-lived → **Ent** rotating (Firebase native, zero code cost)
-  - MT.Row-isolation: default MVP `WHERE tenant_id` → **Ent** RLS policy (Postgres RLS keyed off `ownership_scope_id`, deny-by-default)
-- **Trade-offs accepted:** See D3
+- **Sections considered:** Core, AI/Agent, Data
+- **Suppressed dimensions:** 2 (Data: Backup/restore — infrastructure level; Migration safety — no new migration this phase)
+- **Grade overrides:** None — Enterprise baseline forced by AI/Agent.Structured-output red-line (V4 taxonomy binding feeds math gate + persistence)
+- **Key deliverables:**
+  - PydanticAI agent: Gemini text-only model with output_type=CategorizationResult (V1 + V3 values: Enforce Output Structure + Route by Cost — text-only cheaper than vision)
+  - CategorizationResult model: per line-item category mapping (L1→L4 hierarchy from V4 taxonomy), confidence per mapping
+  - Math reconciliation gate: sum(line_items) + tax - discount == total within 1 minor unit tolerance per currency. MathReconciliationVerdict(passed: bool, discrepancy_minor_units: int, adjusted_total: int | None)
+  - Route math-inconsistent receipts to status=needs_review instead of auto-completing
+  - Persist final Transaction + LineItem rows: ownership_scope_id from auth, USD shadow via P1 FX service, category_id FK to V4 taxonomy
+  - Typed error handling: reconciliation_mismatch, category_not_found, extraction_timeout — each drives distinct downstream behavior
+- **Two-stage defense against prompt injection:** Vision stage extracts raw fields only; categorization stage receives extracted text, never raw image. Injected text in receipt images cannot steer the categorization prompt.
+- **Trade-offs accepted:** See D30
 
-### Phase 4 — Consent + processing register + DSR
+### Phase 4 — Scan progress streaming
 
 ```yaml
 phase: 4
-types: [data, multi-tenant]
+types: [realtime, streaming]
 phase_tier: ent
 prototype: false
 dim_overrides: []
-sections_considered: [Core, Data, Multi-tenant]
+sections_considered: [Core, Real-time]
 suppressed_dims_count: 2
-decisions_entry: D4
+decisions_entry: D31
 ```
 
-- **Types:** `data, multi-tenant`
+- **Types:** `realtime, streaming`
 - **Tier:** ent
 - **Prototype:** no
-- **Sections considered:** Core, Data, Multi-tenant
-- **Suppressed dimensions:** 2 (Data.Indexing — few lookups; MT.Noisy-neighbor — scope-of-one)
-- **Grade overrides:** None — baseline Ent across all kept dimensions
-- **Compliance surface:** Law 21.719 (Chile) + GDPR (EU) + PIPEDA (Canada) + CCPA/CPRA (US/California). DSR endpoints cover access, rectification, erasure, portability. Audit event log at Ent tier; immutable/WORM deferred to Scale.
-- **Trade-offs accepted:** See D4
+- **Sections considered:** Core, Real-time
+- **Suppressed dimensions:** 2 (Real-time: Presence — single-user scan stream; Message order — pipeline events naturally stage-ordered)
+- **Grade overrides:** None — Enterprise baseline forced by Real-time.Reconnection red-line (user-facing stream, manual reload = dead UI mid-scan)
+- **Key deliverables:**
+  - SSE endpoint: GET /api/v1/scans/{scan_id}/events (web clients)
+  - WebSocket endpoint: /ws/scans/{scan_id} (mobile clients)
+  - ScanEvent contract: {event_type: str, scan_id: uuid, step: str, progress_pct: int, data: dict | None, error: dict | None}
+  - Event types: scan_started, image_processed, extraction_complete, categorized, math_verified, scan_complete, scan_failed
+  - Auto-reconnect: server heartbeat every 15s; client reconnects with exponential backoff (V2 value: Stream Progress)
+  - Buffer backpressure: server-side buffer with size limit (32 events max per connection, drop-oldest policy)
+  - Pipeline integration: event emission at each stage of Phase 2+3 processing
+  - PENDING P18 awareness: BaseHTTPMiddleware has known streaming limitations. SSE implementation must test under current middleware; if issues, extract streaming endpoints to pure ASGI.
+- **Trade-offs accepted:** See D31
 
-### Phase 5 — Observability pipeline
+### Phase 5 — Exit-signal + error case tests
 
 ```yaml
 phase: 5
-types: [core-only]
-phase_tier: ent
-prototype: false
-dim_overrides:
-  - section: Core
-    dim: Observability
-    tier: scale
-    reason: REQ-21 + U8 mandate exporter is the deliverable; phase IS observability
-sections_considered: [Core]
-suppressed_dims_count: 0
-decisions_entry: D5
-```
-
-- **Types:** core-only
-- **Tier:** ent
-- **Prototype:** no
-- **Sections considered:** Core
-- **Suppressed dimensions:** 0
-- **Grade overrides:**
-  - Core.Observability: Ent → **Scale** (REQ-21 + U8 mandate structured logs + metric exporter + per-scan metrics. Phase IS observability — exporter is the deliverable.)
-- **Deliverables:** Per-scan metric columns (`llm_tokens_in`, `llm_tokens_out`, `llm_cost_usd`, `scan_duration_ms`, `llm_latency_ms`, `queue_wait_ms`, `thumbnail_gen_ms` per REQ-21). Metric exporter endpoint. P1 establishes baseline; P2 Receipt Scan Pipeline emits into it.
-- **Trade-offs accepted:** See D5
-
-### Phase 6 — Exit-signal smoke test
-
-```yaml
-phase: 6
 types: [core-only]
 phase_tier: mvp
 prototype: false
 dim_overrides: []
 sections_considered: [Core]
 suppressed_dims_count: 0
-decisions_entry: D6
+decisions_entry: D32
 ```
 
 - **Types:** core-only
@@ -181,59 +170,50 @@ decisions_entry: D6
 - **Prototype:** no
 - **Sections considered:** Core
 - **Suppressed dimensions:** 0
-- **Grade overrides:** None — happy-path E2E assertion
-- **Assertion chain:** sign in via Firebase JIT → user row + ownership_scope-of-one provisioned → write transaction in CLP → USD shadow computed via lazy FX fetch → read back `amount_usd_minor` + `fx_rate_to_usd` + `fx_captured_at` → consent-audit endpoint returns ≥1 record. All P1 REQs proven end-to-end.
-- **Trade-offs accepted:** See D6
+- **Grade overrides:** None — happy-path + edge-case assertion
+- **Key deliverables:**
+  - 10 test receipts: 8 benign (mixed CLP/USD, Spanish + English, 5-40 line items, varied merchant types), 2 adversarial (embedded prompt-injection attempts in receipt text), 1 math-inconsistent (items don't sum to stated total)
+  - Legacy error case tests (port from BoletApp `errorHandler.ts`): NETWORK_ERROR, TIMEOUT_ERROR, PERMISSION_DENIED, STORAGE_QUOTA, NOT_FOUND, VALIDATION_ERROR, UNKNOWN_ERROR
+  - E2E integration tests: upload → compress → extract (Gemini) → categorize → math gate → persist → verify Transaction + LineItem correctness
+  - Streaming test: SSE events delivered in pipeline order for both successful and failed scans
+  - Adversarial test: prompt-injection receipt images produce safe extraction output (no category/merchant steering)
+  - Math-gate test: inconsistent receipt routes to needs_review, not completed
+  - Credit refund test: permanent failure returns credit to user balance
+  - REQs proven: REQ-01 (submission), REQ-02 (two-stage worker), REQ-03 (V4 taxonomy), REQ-04 (dual streaming), REQ-12 (math gate)
+- **Exit signal per ROADMAP:** 10 test receipts processed; 8 benign correct; 2 adversarial safe; 1 math-inconsistent routed to review. Streaming events delivered in order on both transports.
+- **Trade-offs accepted:** See D32
 
 ## Current Phase
 
-Phase 6: Exit-signal smoke test
-
-**Progress as of 2026-05-06 (branch `rebuild/be-phase-01`, PR #2):**
-- P1 ✅: FastAPI scaffold, structlog JSON logger, MetricsRegistry + `/metrics` endpoint, request-ID middleware, access logging. Shipped in `3eff76f`.
-- P2 ✅: `currencies` seeded (10 codes), `fx_rates` write-once with lazy read-through cache, USD-shadow compute on transaction create, i18n registry (es/en/pt). 14 FX tests. Shipped in `3eff76f`.
-- P3 ✅: Firebase token-verify → JIT user + scope provisioning, `SET LOCAL rls.ownership_scope_id` per-request, `credit_balances` with initial allocation, 3 Alembic migrations. 8 RLS + 3 auth tests. Shipped in `3eff76f`.
-- P4 ✅: `consent_records` + `processing_register` + `audit_events` tables, per-purpose consent API, DSR endpoints (access/rectification/erasure/portability), 4-jurisdiction compliance. RLS on consent_records + audit_events. 20 new tests. Shipped in `02d089c`.
-- P5 ✅: 7 per-scan metric columns on transactions (llm_tokens_in/out, llm_cost_usd, scan_duration_ms, llm_latency_ms, queue_wait_ms, thumbnail_gen_ms), Prometheus text exposition format on /metrics with content negotiation, 12 new tests. Shipped in `8f4cd8b` + `dfa5ab2`.
-- P6 ✅: Exit-signal integration test — JIT sign-in → CLP transaction → USD shadow (15990×0.00105=1679 cents) → fx_captured_at read-back → consent-audit ≥1 record. Added fx_captured_at to TransactionDetail schema. 126/126 tests pass. Shipped in `e8cf7ed`.
+Phase 1: Scan schema + V4 taxonomy + image processing
 
 ## Dependencies
 
-- P2 needs P1 (app + DB scaffold)
-- P3 needs P1 (app + DB scaffold); parallel with P2
-- P4 needs P3 (consent rows key off user/scope)
-- P5 needs P1 (structured logger baseline from P1; per-scan metrics + exporter added here)
-- P6 needs P2 + P3 + P4 + P5 (exit-signal assertion spans all)
+- Phase 1 depends on P1 Foundation (app + DB scaffold, auth, money/FX, observability)
+- Phase 2 depends on Phase 1 (scan schema + image processing service)
+- Phase 3 depends on Phase 2 (needs extraction results to categorize + reconcile)
+- Phase 4 depends on Phase 3 (needs full pipeline to emit all event types)
+- Phase 5 depends on Phases 1-4 (exit-signal spans entire pipeline)
 
 ## Risks
 
 | Risk | Severity | Mitigation |
 |------|----------|------------|
-| Firebase dev project not provisioned blocks P3 | high | Provision in P1; fail fast on missing env vars at startup |
-| RLS policy ownership leak (SC-07/SC-08 foundation) | critical | Ent tier on P3; deny-by-default + per-policy test; pg `test_rls` fixture |
-| DSR endpoint scope insufficient across 4 jurisdictions | critical | Ent tier on P4; legal-review checklist before merge; erasure-soft-delete review |
-| External FX API outage blocks transaction create | medium | Ent-tier retry + 3s timeout; fallback = reject with retry-hint; P5 statement path can backfill |
-| Integer-minor-units violated by later phases | medium | DB CHECK constraint + app validator at schema layer |
-| Structured log schema evolves across phases | low | Fixed schema contract written in P1; enforced via typed logger wrapper |
-| Cookie-based session added later silently breaks CSRF posture | medium | PENDING item — `/gabe-assess` gate on any session/cookie addition |
-| FX backfill path (UPDATE fx_rates) breaks structural idempotency | medium | PENDING item — escalate to job-ID dedupe before any UPDATE lands |
-
-## Pending (activate with the plan)
-
-| # | Date | Source | Finding | File | Scale | Priority | Impact | Times Deferred | Status |
-|---|------|--------|---------|------|-------|----------|--------|----------------|--------|
-| P1 | 2026-04-23 | gabe-plan (D3) | CSRF escalation trigger: if cookie-based session is introduced (e.g., HTTP-only cookie for refresh-token XSS defense), Auth.CSRF must escalate from MVP `none` to Ent double-submit token. Bearer-only API currently immune. | .kdbp/DECISIONS.md#D3 | mvp | medium | high | 0 | open |
-| P2 | 2026-04-23 | gabe-plan (D2) | FX backfill escalation trigger: if any code path adds UPDATE to `fx_rates` (e.g., statement-reconciliation backfill of corrected rates), structural PK+ON-CONFLICT idempotency breaks down. Escalate BG-jobs.Idempotency to Ent (job-ID dedupe Option B) before merging the UPDATE path. | .kdbp/DECISIONS.md#D2 | mvp | medium | medium | 0 | open |
+| Gemini vision API accuracy on Chilean receipts (Spanish text, CLP formatting) | high | V4 taxonomy prompt ported from BoletApp (proven on Chilean receipts); eval set of 10 receipts validates accuracy |
+| Prompt injection via receipt image text | high | Two-stage defense: vision extracts raw fields only, categorization receives text not image; adversarial test receipts validate |
+| Math reconciliation false-negatives (receipts with legitimate rounding) | medium | 1 minor-unit tolerance per currency; needs_review status prevents silent data loss |
+| BaseHTTPMiddleware streaming limitations (PENDING P18) | medium | Test SSE under current middleware; if issues, extract streaming endpoints to pure ASGI |
+| Gemini API rate limits at scale | low | Enterprise-tier retry + exponential backoff; per-call cost logging surfaces budget issues early |
+| Image compression quality vs file size trade-off | low | Port proven BoletApp parameters (80% quality, 1200x1600 max); adjust only if Gemini accuracy drops |
 
 ## Notes
 
-- Client-side concerns (SPA i18n consumption, mobile refresh-token storage, sign-out cache eviction) land after backend P1 — sequence TBD when UX mockup handoff is in hand.
-- P1 Exit signal per ROADMAP §Phase-1: smoke test signs in (JIT scope-of-one), writes transaction non-primary currency, reads USD shadow at captured FX rate, consent-audit endpoint returns one record. Phase 6 encodes exactly this.
-- Tier distribution: mvp×1, ent×5, scale×0. Two phases have Scale-grade overrides on Obs dim (P1.Obs + P5.Obs) justified by REQ-21 + U8.
+- Two-stage extraction is the defense architecture against prompt injection (SCOPE research). Stage 1 (vision) only extracts raw field values — no category mapping. Stage 2 (text-only) maps to V4 taxonomy from extracted text, never seeing the raw image. Injected instructions in receipt images cannot influence categorization.
+- Legacy BoletApp scan pipeline code at `/home/khujta/projects/bmad/boletapp/` serves as reference for: image compression parameters, V4 taxonomy prompt, output coalescing rules, error classification, retry logic, JSON repair. Port decisions should preserve proven behavior; depart only with documented rationale.
+- P1 Foundation's observability pipeline (per-scan metric columns) is the sink for this plan's per-call cost/latency logging. Phase 2+3 emit into the columns established in P1 Phase 5.
+- Tier distribution: mvp x 1 (Phase 5 test-only), ent x 4 (Phases 1-4). No scale-tier overrides. Enterprise floor driven by AI/Agent structured-output red-line (Phases 2, 3) + Real-time reconnection red-line (Phase 4) + File/Media image-pipeline (Phase 1).
+- PENDING P6-P10 (rebuild-only findings from BoletApp scan-picker verification) inform Phase 5 error case testing but are not directly fixed in this plan — they are UX-layer findings that land in P3 Web Portal / P4 Mobile App.
 
-## Plan Creation Log (preserved)
+## Plan Creation Log
 
-- **2026-04-23 04:45 — PLAN CREATED:** 6 phases | medium-high complexity | mvp maturity. TIERS: mvp×1, ent×5, scale×0. 10 grade overrides, 8 suppressed dims. DECISIONS D1→D6. PENDING P1, P2 (CSRF + FX backfill escalation triggers).
-- **2026-04-23 01:50 — PLAN RETROFIT to spec v7.1:** +Types col, +6 YAML blocks per phase, P1+P5 Tier-cell `ent (Obs→scale)` notation. Zero LLM calls (overrides already explicit in D1+D5). Zero tier decisions changed.
-- **2026-04-23 — lane rollback:** Plan migrated from `.kdbp/lanes/p1-backend/PLAN.md` (lane branch) → `.kdbp/archive/queued_backend-p1.md` (queued). Backend work parked until UX mockup plan ships.
-- **2026-05-05 — PLAN ACTIVATED:** UX mockup plan archived to `.kdbp/archive/completed_ux-mockups.md`. Backend P1 plan activated. P1 Exec ✅ (scaffold shipped in PR #1 `rebuild/fe-dashboard-batch-01` merged to main). P2/P3 Exec 🔄 — core tables migrated (11 tables: currencies, store/item_categories, ownership_scopes, users, ownership_scope_members, transactions, transaction_items, transaction_images, merchant_mappings, category_mappings), currencies seeded (10 codes), Firebase auth middleware + JIT user provisioning done, transactions CRUD endpoints operational with 17 passing tests. Branch: `rebuild/be-phase-01`. Remaining P2: fx_rates + USD-shadow service. Remaining P3: RLS policies + test_rls fixture + credit_balances init.
+- **2026-05-07 — PLAN CREATED:** 5 phases | high complexity | mvp maturity. TIERS: mvp x 1, ent x 4, scale x 0. 0 grade overrides (Enterprise baseline on all ent phases — red-lines set the floor, no overrides needed). 12 suppressed dims. DECISIONS D28→D32. Covers REQ-01, REQ-02, REQ-03, REQ-04, REQ-12.
