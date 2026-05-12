@@ -1,0 +1,142 @@
+"""Typed scan pipeline errors with transient/permanent classification.
+
+Port of BoletApp retryHelper.ts error classification to Python.
+Transient errors are retried (network failures, 5xx); permanent errors
+go to dead-letter (bad input, safety blocks, 4xx).
+"""
+
+import enum
+
+
+class ScanErrorCode(enum.StrEnum):
+    # Transient (retriable)
+    NETWORK_ERROR = "NETWORK_ERROR"
+    TIMEOUT_ERROR = "TIMEOUT_ERROR"
+    SERVER_ERROR = "SERVER_ERROR"
+    OVERLOADED = "OVERLOADED"
+
+    # Permanent (dead-letter)
+    INVALID_IMAGE = "INVALID_IMAGE"
+    SAFETY_BLOCK = "SAFETY_BLOCK"
+    EXTRACTION_PARSE_ERROR = "EXTRACTION_PARSE_ERROR"
+    VALIDATION_ERROR = "VALIDATION_ERROR"
+    RATE_LIMIT = "RATE_LIMIT"
+    QUOTA_EXCEEDED = "QUOTA_EXCEEDED"
+    UNKNOWN_ERROR = "UNKNOWN_ERROR"
+
+
+_TRANSIENT_CODES = frozenset({
+    ScanErrorCode.NETWORK_ERROR,
+    ScanErrorCode.TIMEOUT_ERROR,
+    ScanErrorCode.SERVER_ERROR,
+    ScanErrorCode.OVERLOADED,
+})
+
+_TRANSIENT_KEYWORDS = (
+    "econnreset",
+    "etimedout",
+    "enotfound",
+    "socket hang up",
+    "overloaded",
+    "unavailable",
+    "connection reset",
+    "connection refused",
+    "temporary failure",
+)
+
+
+class ScanError(Exception):
+    def __init__(self, code: ScanErrorCode, message: str) -> None:
+        self.code = code
+        self.message = message
+        super().__init__(f"[{code}] {message}")
+
+
+class TransientScanError(ScanError):
+    pass
+
+
+class PermanentScanError(ScanError):
+    pass
+
+
+def classify_error(error: Exception) -> ScanError:
+    """Classify an exception as transient or permanent for retry decisions."""
+    code = _extract_error_code(error)
+    message = str(error)[:500]
+
+    if code in _TRANSIENT_CODES:
+        return TransientScanError(code, message)
+    return PermanentScanError(code, message)
+
+
+def _extract_error_code(error: Exception) -> ScanErrorCode:
+    """Map exception types and messages to ScanErrorCode values."""
+    msg = str(error).lower()
+
+    if _is_timeout(msg):
+        return ScanErrorCode.TIMEOUT_ERROR
+
+    if _is_network(msg):
+        return ScanErrorCode.NETWORK_ERROR
+
+    if _is_server_error(error, msg):
+        return ScanErrorCode.SERVER_ERROR
+
+    if _is_overloaded(msg):
+        return ScanErrorCode.OVERLOADED
+
+    if _is_rate_limit(error, msg):
+        return ScanErrorCode.RATE_LIMIT
+
+    if _is_safety_block(msg):
+        return ScanErrorCode.SAFETY_BLOCK
+
+    if _is_invalid_input(msg):
+        return ScanErrorCode.INVALID_IMAGE
+
+    return ScanErrorCode.UNKNOWN_ERROR
+
+
+def _is_timeout(msg: str) -> bool:
+    return any(kw in msg for kw in ("timeout", "timed out", "deadline"))
+
+
+def _is_network(msg: str) -> bool:
+    return any(
+        kw in msg
+        for kw in (
+            "econnreset",
+            "enotfound",
+            "socket hang up",
+            "connection reset",
+            "connection refused",
+            "temporary failure",
+        )
+    )
+
+
+def _is_server_error(error: Exception, msg: str) -> bool:
+    status = getattr(error, "status_code", None) or getattr(error, "status", None)
+    if isinstance(status, int) and 500 <= status < 600:
+        return True
+    return "internal server error" in msg or "502" in msg or "503" in msg
+
+
+def _is_overloaded(msg: str) -> bool:
+    return "overloaded" in msg or "unavailable" in msg
+
+
+def _is_rate_limit(error: Exception, msg: str) -> bool:
+    status = getattr(error, "status_code", None) or getattr(error, "status", None)
+    if status == 429:
+        return True
+    return "rate limit" in msg or "quota" in msg or "resource exhausted" in msg
+
+
+def _is_safety_block(msg: str) -> bool:
+    return "safety" in msg or "blocked" in msg or "harm" in msg
+
+
+def _is_invalid_input(msg: str) -> bool:
+    return "invalid" in msg and ("image" in msg or "input" in msg or "request" in msg)

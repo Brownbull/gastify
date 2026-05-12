@@ -14,6 +14,11 @@ class Settings(BaseSettings):
 
     scan_storage_dir: str = "data/scans"
 
+    gemini_api_key: str = ""
+    gemini_model: str = "gemini-2.5-flash"
+    gemini_max_retries: int = 3
+    gemini_retry_delay_seconds: float = 2.0
+
     cors_origins: list[str] = ["http://localhost:5173", "http://localhost:5174"]
 
     environment: str = "development"

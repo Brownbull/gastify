@@ -16,7 +16,7 @@ See [`docs/rebuild/PLAN.md`](docs/rebuild/PLAN.md) for the phased implementation
 | Database | PostgreSQL 16 (`pg_cron`, `SKIP LOCKED` queue) |
 | ORM | SQLAlchemy 2.0 + Alembic |
 | Auth | Firebase Auth (Google OAuth) via `firebase-admin` |
-| AI | Google Gemini 2.5 Flash |
+| AI | Google Gemini 2.5 Flash via [PydanticAI](https://ai.pydantic.dev/) |
 | Real-time | Postgres `LISTEN/NOTIFY` piped through SSE |
 | Frontend | React 18 + TypeScript + Vite + Zustand + TanStack Query |
 | Component showcase | ladle |
@@ -25,10 +25,22 @@ See [`docs/rebuild/PLAN.md`](docs/rebuild/PLAN.md) for the phased implementation
 | Python deps | uv |
 | Testing | pytest + Vitest + Playwright |
 
+## Configuration
+
+The backend reads settings from environment variables (prefix `GASTIFY_`):
+
+| Variable | Purpose | Default |
+|---|---|---|
+| `GASTIFY_DATABASE_URL` | PostgreSQL connection string | (required) |
+| `GASTIFY_FIREBASE_PROJECT_ID` | Firebase project for auth | (required) |
+| `GASTIFY_GEMINI_API_KEY` | Google AI API key for receipt extraction | (required) |
+| `GASTIFY_GEMINI_MODEL` | Gemini model name | `gemini-2.5-flash` |
+| `GASTIFY_GEMINI_MAX_RETRIES` | Max retries on transient AI errors | `3` |
+
 ## Architecture Highlights
 
 - **Async scan pipeline:** Postgres IS the queue (`SELECT ... FOR UPDATE SKIP LOCKED`). No Celery, no Redis.
-- **Structured AI output:** Pydantic `output_type` on Gemini calls — malformed JSON rejected at parse time, not DB write time.
+- **Structured AI output:** PydanticAI `output_type` on Gemini calls — malformed JSON rejected at parse time, not DB write time.
 - **Credit atomicity:** `user_credits` update + `pending_scans` insert in one transaction; failure refunds atomically.
 - **Feature isolation:** scan module and editor module communicate via events, never direct action imports (LESSONS R2).
 - **View-only offline:** TanStack Query `persistQueryClient` + IndexedDB. Writes gated online.
