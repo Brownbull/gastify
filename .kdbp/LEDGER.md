@@ -1,5 +1,16 @@
 # Session Ledger
 
+## 2026-05-12 16:13 — PUSH main -> main
+PR: — (direct push)
+CI: ✅ 8/8 (64s) — all passed
+PROMOTION: N/A
+DEPLOYMENTS: P14 (added row to .kdbp/DEPLOYMENTS.md)
+
+## 2026-05-12 — [5f70de7] fix(scan): apply Phase 3 review fixes — type annotations, error classification, persist tests
+FINDINGS: 0 (all checks passed)
+ACTIONS: none
+DEFERRED: none
+
 ## 2026-05-12 20:00 — PHASE 3 REVIEW: Stage 2: Categorization + math gate
 VERDICT: APPROVE
 FINDINGS: 6 total (0 critical, 3 high, 2 medium, 1 low) — all 6 fixed
