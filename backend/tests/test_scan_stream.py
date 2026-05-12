@@ -3,7 +3,10 @@
 import asyncio
 import json
 import uuid
-from unittest.mock import AsyncMock, patch
+from datetime import UTC, datetime
+from decimal import Decimal
+from pathlib import Path
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 from httpx import ASGITransport, AsyncClient
@@ -239,3 +242,241 @@ class TestPipelineEventIntegration:
             e = ScanEvent(event_type=etype, scan_id=scan_id, step=step, progress_pct=pct)
             assert e.event_type == etype
             assert e.progress_pct == pct
+
+
+_W = "app.services.scan_worker"
+
+EXPECTED_SUCCESS_ORDER = [
+    "scan_started",
+    "image_processed",
+    "extraction_complete",
+    "categorized",
+    "math_verified",
+    "scan_complete",
+]
+
+EXPECTED_FAIL_ORDER = [
+    "scan_started",
+    "image_processed",
+    "scan_failed",
+]
+
+
+def _mock_scan(scan_id):
+    scan = MagicMock()
+    scan.id = scan_id
+    scan.status = "submitted"
+    scan.image_path = "/tmp/test/receipt.jpg"
+    scan.thumbnail_path = "/tmp/test/receipt_thumb.jpg"
+    scan.content_type = "image/jpeg"
+    scan.ownership_scope_id = uuid.UUID("00000000-0000-0000-0000-000000000001")
+    scan.submitted_at = datetime(2026, 5, 12, tzinfo=UTC)
+    return scan
+
+
+def _mock_extraction():
+    from app.agents.extraction import ExtractionResult, ExtractionUsage
+    from app.schemas.scan import GeminiExtractionResult, LineItemExtraction
+
+    extraction = GeminiExtractionResult(
+        merchant_name="TestStore",
+        transaction_date="2026-05-12",
+        currency_code="CLP",
+        total_amount=Decimal("5000"),
+        line_items=[
+            LineItemExtraction(name="Item A", total_price=Decimal("3000")),
+            LineItemExtraction(name="Item B", total_price=Decimal("2000")),
+        ],
+        confidence_score=0.92,
+    )
+    usage = ExtractionUsage(input_tokens=1500, output_tokens=250, latency_ms=800.0)
+    return ExtractionResult(extraction=extraction, usage=usage)
+
+
+def _mock_categorization():
+    from app.agents.categorization import CategorizationOutput, CategorizationUsage
+    from app.schemas.scan import CategorizationResult, CategoryAssignment
+
+    result = CategorizationResult(
+        assignments=[
+            CategoryAssignment(line_item_index=0, category_key="Supermercado", confidence=0.95),
+            CategoryAssignment(line_item_index=1, category_key="Supermercado", confidence=0.90),
+        ]
+    )
+    usage = CategorizationUsage(input_tokens=400, output_tokens=80, latency_ms=350.0)
+    return CategorizationOutput(result=result, usage=usage)
+
+
+def _session_factory(scan):
+    call_count = 0
+
+    def factory():
+        nonlocal call_count
+        call_count += 1
+        ctx = AsyncMock()
+        db = AsyncMock()
+        result_mock = MagicMock()
+        result_mock.scalar_one_or_none.return_value = scan if call_count == 1 else None
+        db.execute = AsyncMock(return_value=result_mock)
+        db.commit = AsyncMock()
+        ctx.__aenter__ = AsyncMock(return_value=db)
+        ctx.__aexit__ = AsyncMock(return_value=False)
+        return ctx
+
+    return factory
+
+
+class TestPipelineEventOrder:
+    """Verify full pipeline emits events in correct order (REQ-04)."""
+
+    @pytest.mark.asyncio
+    async def test_success_event_order(self) -> None:
+        """Successful scan emits 6 events in pipeline order with monotonic progress."""
+        from app.services.scan_worker import process_scan
+
+        scan_id = uuid.uuid4()
+        scan = _mock_scan(scan_id)
+        sub = dispatcher.subscribe(scan_id)
+
+        with (
+            patch(f"{_W}.async_session", side_effect=_session_factory(scan)),
+            patch(
+                f"{_W}.extract_receipt",
+                new_callable=AsyncMock,
+                return_value=_mock_extraction(),
+            ),
+            patch(
+                f"{_W}.categorize_items",
+                new_callable=AsyncMock,
+                return_value=_mock_categorization(),
+            ),
+            patch(
+                f"{_W}.persist_scan_result",
+                new_callable=AsyncMock,
+                return_value=MagicMock(),
+            ),
+            patch.object(Path, "exists", return_value=True),
+            patch.object(Path, "read_bytes", return_value=b"fake-jpeg"),
+            patch(f"{_W}.settings", gemini_max_retries=3, gemini_retry_delay_seconds=0.001),
+        ):
+            result = await process_scan(scan_id)
+
+        assert result is True
+
+        events = _drain_events(sub)
+
+        event_types = [e.event_type for e in events]
+        assert event_types == EXPECTED_SUCCESS_ORDER, (
+            f"Expected {EXPECTED_SUCCESS_ORDER}, got {event_types}"
+        )
+
+        progress_values = [e.progress_pct for e in events]
+        assert progress_values == sorted(progress_values), (
+            f"Progress not monotonically increasing: {progress_values}"
+        )
+        assert progress_values[-1] == 100
+
+    @pytest.mark.asyncio
+    async def test_failed_scan_event_order(self) -> None:
+        """Failed scan (permanent extraction error) emits events then scan_failed."""
+        from app.services.scan_errors import PermanentScanError, ScanErrorCode
+        from app.services.scan_worker import process_scan
+
+        scan_id = uuid.uuid4()
+        scan = _mock_scan(scan_id)
+        sub = dispatcher.subscribe(scan_id)
+
+        perm = PermanentScanError(ScanErrorCode.SAFETY_BLOCK, "Blocked by safety filter")
+
+        with (
+            patch(f"{_W}.async_session", side_effect=_session_factory(scan)),
+            patch(
+                f"{_W}.extract_receipt",
+                new_callable=AsyncMock,
+                side_effect=perm,
+            ),
+            patch.object(Path, "exists", return_value=True),
+            patch.object(Path, "read_bytes", return_value=b"fake-jpeg"),
+            patch(f"{_W}.settings", gemini_max_retries=3, gemini_retry_delay_seconds=0.001),
+        ):
+            result = await process_scan(scan_id)
+
+        assert result is False
+
+        events = _drain_events(sub)
+
+        event_types = [e.event_type for e in events]
+        assert event_types == EXPECTED_FAIL_ORDER, (
+            f"Expected {EXPECTED_FAIL_ORDER}, got {event_types}"
+        )
+
+        fail_event = events[-1]
+        assert fail_event.error is not None
+        assert fail_event.error["code"] == "SAFETY_BLOCK"
+
+    @pytest.mark.asyncio
+    async def test_needs_review_emits_scan_complete_not_failed(self) -> None:
+        """Math-inconsistent receipt emits scan_complete (not scan_failed)."""
+        from app.agents.extraction import ExtractionResult, ExtractionUsage
+        from app.schemas.scan import GeminiExtractionResult, LineItemExtraction
+        from app.services.scan_worker import process_scan
+
+        scan_id = uuid.uuid4()
+        scan = _mock_scan(scan_id)
+        sub = dispatcher.subscribe(scan_id)
+
+        mismatch_ext = GeminiExtractionResult(
+            merchant_name="Test",
+            transaction_date="2026-05-12",
+            currency_code="CLP",
+            total_amount=Decimal("20000"),
+            line_items=[
+                LineItemExtraction(name="Item", total_price=Decimal("5000")),
+            ],
+            confidence_score=0.80,
+        )
+        ext = ExtractionResult(
+            extraction=mismatch_ext,
+            usage=ExtractionUsage(input_tokens=1000, output_tokens=200, latency_ms=500.0),
+        )
+
+        with (
+            patch(f"{_W}.async_session", side_effect=_session_factory(scan)),
+            patch(f"{_W}.extract_receipt", new_callable=AsyncMock, return_value=ext),
+            patch(
+                f"{_W}.categorize_items",
+                new_callable=AsyncMock,
+                return_value=_mock_categorization(),
+            ),
+            patch(
+                f"{_W}.persist_scan_result",
+                new_callable=AsyncMock,
+                return_value=MagicMock(),
+            ),
+            patch.object(Path, "exists", return_value=True),
+            patch.object(Path, "read_bytes", return_value=b"fake-jpeg"),
+            patch(f"{_W}.settings", gemini_max_retries=3, gemini_retry_delay_seconds=0.001),
+        ):
+            result = await process_scan(scan_id)
+
+        assert result is True
+
+        events = _drain_events(sub)
+
+        event_types = [e.event_type for e in events]
+        assert event_types == EXPECTED_SUCCESS_ORDER
+
+        complete_event = events[-1]
+        assert complete_event.data["status"] == "needs_review"
+        assert complete_event.data["discrepancy"] > 0
+
+
+def _drain_events(sub) -> list[ScanEvent]:
+    """Drain subscriber queue, filtering out None sentinels from close_scan."""
+    dispatcher.unsubscribe(sub)
+    events = []
+    while not sub.queue.empty():
+        e = sub.queue.get_nowait()
+        if e is not None:
+            events.append(e)
+    return events
