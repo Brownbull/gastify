@@ -2,7 +2,7 @@
 
 import io
 import uuid
-from unittest.mock import patch
+from unittest.mock import AsyncMock, patch
 
 import pytest
 from PIL import Image
@@ -70,6 +70,11 @@ class TestImageCompression:
 
 
 class TestScanEndpoint:
+    @pytest.fixture(autouse=True)
+    def _mock_worker(self):
+        with patch("app.api.scans.process_scan", new_callable=AsyncMock):
+            yield
+
     @pytest.mark.asyncio
     async def test_submit_valid_jpeg(self, client, tmp_path):
         with patch("app.api.scans.settings") as mock_settings:

@@ -1,5 +1,10 @@
 # Session Ledger
 
+## 2026-05-13 — [8f4ff3d] feat(scan): add PydanticAI extraction agent, JSON repair, coalescing, and scan error types
+FINDINGS: 1 (0 critical, 0 high, 0 medium, 1 low)
+ACTIONS: 1:update-docs (README.md — added Configuration section + PydanticAI link)
+DEFERRED: none
+
 ## 2026-05-12 16:36 — PUSH main -> main
 PR: — (direct push)
 CI: ✅ 8/8 (50s) — all passed after auto-fix (format + deps)

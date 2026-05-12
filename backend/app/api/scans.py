@@ -1,4 +1,4 @@
-"""Scan submission endpoint — accepts receipt image, compresses, stores, returns scan_id."""
+"""Scan endpoints — submission + processing trigger."""
 
 import shutil
 import time
@@ -7,16 +7,18 @@ from pathlib import Path
 from typing import Annotated
 
 import structlog
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, status
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, UploadFile, status
 from PIL import UnidentifiedImageError
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.deps import Auth
 from app.config import settings
 from app.db import get_db
 from app.models.scan import Scan, ScanStatus
-from app.schemas.scan import ScanSubmission
+from app.schemas.scan import ScanResult, ScanSubmission
 from app.services.image import compress_receipt_image
+from app.services.scan_worker import process_scan
 
 logger = structlog.get_logger()
 
@@ -33,6 +35,7 @@ async def submit_scan(
     file: UploadFile,
     auth: Auth,
     db: DB,
+    background_tasks: BackgroundTasks,
 ) -> ScanSubmission:
     if file.content_type not in ALLOWED_CONTENT_TYPES:
         raise HTTPException(
@@ -99,4 +102,49 @@ async def submit_scan(
         compression_ms=elapsed_ms,
     )
 
+    background_tasks.add_task(process_scan, scan_id)
+
     return ScanSubmission.model_validate(scan)
+
+
+@router.post(
+    "/{scan_id}/process",
+    status_code=status.HTTP_202_ACCEPTED,
+    response_model=ScanResult,
+)
+async def trigger_process_scan(
+    scan_id: uuid.UUID,
+    auth: Auth,
+    db: DB,
+    background_tasks: BackgroundTasks,
+) -> ScanResult:
+    """Manually trigger extraction for a scan (retry or reprocess)."""
+    row = await db.execute(
+        select(Scan).where(
+            Scan.id == scan_id,
+            Scan.ownership_scope_id == auth.ownership_scope_id,
+        )
+    )
+    scan = row.scalar_one_or_none()
+    if scan is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Scan not found",
+        )
+
+    if scan.status not in (ScanStatus.SUBMITTED, ScanStatus.FAILED):
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=f"Scan is {scan.status.value}, cannot reprocess",
+        )
+
+    if scan.status == ScanStatus.FAILED:
+        scan.status = ScanStatus.SUBMITTED
+        scan.error_code = None
+        scan.error_message = None
+        await db.commit()
+        await db.refresh(scan)
+
+    background_tasks.add_task(process_scan, scan_id)
+
+    return ScanResult.model_validate(scan)

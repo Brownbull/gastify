@@ -1,7 +1,6 @@
 """Tests for the PydanticAI vision extraction agent."""
 
 from decimal import Decimal
-import os
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
