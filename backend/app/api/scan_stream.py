@@ -147,7 +147,7 @@ async def scan_events_ws(
     sub = dispatcher.subscribe(scan_id)
 
     try:
-        heartbeat_task = asyncio.create_task(_ws_heartbeat_loop(websocket, scan_id))
+        heartbeat_task = asyncio.create_task(_ws_heartbeat_loop(websocket, scan_id, sub))
         try:
             async for event in sub:
                 await websocket.send_text(event.model_dump_json())
@@ -163,7 +163,11 @@ async def scan_events_ws(
             await websocket.close()
 
 
-async def _ws_heartbeat_loop(websocket: WebSocket, scan_id: uuid.UUID) -> None:
+async def _ws_heartbeat_loop(
+    websocket: WebSocket,
+    scan_id: uuid.UUID,
+    sub: object,
+) -> None:
     from app.schemas.scan import ScanEvent
 
     while True:
@@ -177,4 +181,5 @@ async def _ws_heartbeat_loop(websocket: WebSocket, scan_id: uuid.UUID) -> None:
         try:
             await websocket.send_text(heartbeat.model_dump_json())
         except Exception:
+            sub.close()
             break

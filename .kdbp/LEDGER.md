@@ -1,5 +1,19 @@
 # Session Ledger
 
+## 2026-05-12 — PHASE 4 REVIEW: Scan progress streaming
+VERDICT: APPROVE
+FINDINGS: 3 total (0 critical, 2 high, 1 medium, 0 low) — all 3 fixed
+COVERAGE: HIGH — 301 tests pass, 96% coverage; late-subscribe, terminal snapshot, WS disconnect, eviction all tested (8 new tests)
+CONFIDENCE: 90/100 (was 57 pre-triage; +33 from fixing all 3 findings via option [2] Fix MVP + Enterprise)
+DEFERRED: none
+ALIGNMENT: ALIGNED — 10/10 on-scope, 0 off-scope
+TIER: ent | DRIFT: none
+TICK: ✅ Phase 4 Review column ticked
+TRIAGE: option [2] Fix MVP + Enterprise — all 3 findings fixed
+KEY FIXES: ruff format + lint (E501/B017/SIM117) (#1), terminal snapshot store + late-subscribe delivery + 8 tests (#2), WS heartbeat sub.close() on send failure (#3)
+SOURCES: codex/gpt-5 (inbox, 3 findings) + claude/opus-4-6 (blind, 3 findings) — 3 strict matches, 0 unique, union consolidation
+ARCHIVED: .kdbp/reviews-archive/REVIEW_2026-05-12-164438_resolved.md
+
 ## 2026-05-12 — PHASE EXEC COMPLETE: Phase 4 — Scan progress streaming
 TIER: ent
 TASKS: 5 tasks, 1 commit

@@ -54,15 +54,30 @@ class _Subscription:
             yield event
 
 
+_TERMINAL_EVENT_TYPES = frozenset({"scan_complete", "scan_failed"})
+_MAX_TERMINAL_SNAPSHOTS = 1024
+
+
 class ScanEventDispatcher:
     """Module-level singleton. Thread-safe via asyncio event loop serialization."""
 
     def __init__(self, buffer_size: int = 32) -> None:
         self._subs: dict[uuid.UUID, list[_Subscription]] = defaultdict(list)
         self._buffer_size = buffer_size
+        self._terminal: dict[uuid.UUID, ScanEvent] = {}
 
     def subscribe(self, scan_id: uuid.UUID) -> _Subscription:
         sub = _Subscription(scan_id, self._buffer_size)
+        terminal = self._terminal.get(scan_id)
+        if terminal is not None:
+            sub.put_nowait(terminal)
+            sub.close()
+            logger.debug(
+                "scan_event_late_subscribe",
+                scan_id=str(scan_id),
+                terminal_type=terminal.event_type,
+            )
+            return sub
         self._subs[scan_id].append(sub)
         sub_count = len(self._subs[scan_id])
         logger.debug("scan_event_subscribed", scan_id=str(scan_id), subscribers=sub_count)
@@ -90,6 +105,19 @@ class ScanEventDispatcher:
         for sub in subs:
             sub.close()
 
+    def store_terminal(self, event: ScanEvent) -> None:
+        """Store a terminal event snapshot for late subscribers."""
+        if event.event_type not in _TERMINAL_EVENT_TYPES:
+            return
+        if len(self._terminal) >= _MAX_TERMINAL_SNAPSHOTS:
+            oldest_key = next(iter(self._terminal))
+            del self._terminal[oldest_key]
+        self._terminal[event.scan_id] = event
+
+    def clear_terminal(self, scan_id: uuid.UUID) -> None:
+        """Remove terminal snapshot (e.g. when scan is reprocessed)."""
+        self._terminal.pop(scan_id, None)
+
     @property
     def active_scans(self) -> int:
         return len(self._subs)
@@ -101,6 +129,7 @@ class ScanEventDispatcher:
 def _default_buffer_size() -> int:
     try:
         from app.config import settings
+
         return settings.scan_event_buffer_size
     except Exception:
         return 32

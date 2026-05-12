@@ -106,9 +106,7 @@ class TestSSEEndpoint:
         ):
             transport = ASGITransport(app=app)
             async with AsyncClient(transport=transport, base_url="http://test") as client:
-                resp = await client.get(
-                    f"/api/v1/scans/{uuid.uuid4()}/events?token=bad-token"
-                )
+                resp = await client.get(f"/api/v1/scans/{uuid.uuid4()}/events?token=bad-token")
             assert resp.status_code == 401
 
 
@@ -120,6 +118,7 @@ class TestWebSocketEndpoint:
 
         def emit_in_background():
             import time
+
             time.sleep(0.1)
             dispatcher.emit(_event(scan_id, "scan_started", 0))
             dispatcher.emit(_event(scan_id, "scan_complete", 100))
@@ -142,19 +141,24 @@ class TestWebSocketEndpoint:
 
     def test_ws_auth_failure_closes_connection(self) -> None:
         from fastapi import HTTPException
+        from starlette.testclient import TestClient
+        from starlette.websockets import WebSocketDisconnect
 
         async def _bad_verify(token: str):
             raise HTTPException(status_code=401, detail="bad")
 
-        with patch(f"{_STREAM}._verify_token", side_effect=_bad_verify):
-            from starlette.testclient import TestClient
-
-            with TestClient(app) as tc:
-                with pytest.raises(Exception):
-                    with tc.websocket_connect(f"/ws/scans/{uuid.uuid4()}?token=bad"):
-                        pass
+        with (
+            patch(f"{_STREAM}._verify_token", side_effect=_bad_verify),
+            TestClient(app) as tc,
+            pytest.raises(WebSocketDisconnect),
+            tc.websocket_connect(f"/ws/scans/{uuid.uuid4()}?token=bad"),
+        ):
+            pass
 
     def test_ws_scan_not_found_closes_connection(self) -> None:
+        from starlette.testclient import TestClient
+        from starlette.websockets import WebSocketDisconnect
+
         from app.auth.firebase import FirebaseUser
 
         async def _verify(token: str):
@@ -162,15 +166,17 @@ class TestWebSocketEndpoint:
 
         with (
             patch(f"{_STREAM}._verify_token", side_effect=_verify),
-            patch(f"{_STREAM}._resolve_ownership", new_callable=AsyncMock, return_value=TEST_SCOPE_ID),
+            patch(
+                f"{_STREAM}._resolve_ownership",
+                new_callable=AsyncMock,
+                return_value=TEST_SCOPE_ID,
+            ),
             patch(f"{_STREAM}._check_scan_ownership", new_callable=AsyncMock, return_value=False),
+            TestClient(app) as tc,
+            pytest.raises(WebSocketDisconnect),
+            tc.websocket_connect(f"/ws/scans/{uuid.uuid4()}?token=fake"),
         ):
-            from starlette.testclient import TestClient
-
-            with TestClient(app) as tc:
-                with pytest.raises(Exception):
-                    with tc.websocket_connect(f"/ws/scans/{uuid.uuid4()}?token=fake"):
-                        pass
+            pass
 
 
 class TestPipelineEventIntegration:
@@ -202,7 +208,13 @@ class TestPipelineEventIntegration:
         scan_id = uuid.uuid4()
         sub = dispatcher.subscribe(scan_id)
 
-        _emit(scan_id, "scan_failed", "stage1", 0, error={"code": "INVALID_IMAGE", "message": "not found"})
+        _emit(
+            scan_id,
+            "scan_failed",
+            "stage1",
+            0,
+            error={"code": "INVALID_IMAGE", "message": "not found"},
+        )
 
         e = sub.queue.get_nowait()
         assert e.event_type == "scan_failed"

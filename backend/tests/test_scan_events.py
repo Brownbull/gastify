@@ -1,6 +1,5 @@
 """Tests for scan event dispatcher — pub/sub, backpressure, cleanup."""
 
-import asyncio
 import uuid
 
 import pytest
@@ -150,5 +149,91 @@ class TestScanEventDispatcher:
 
         events = [e async for e in sub]
         assert len(events) == 3
-        assert [e.event_type for e in events] == ["scan_started", "extraction_complete", "scan_complete"]
+        assert [e.event_type for e in events] == [
+            "scan_started",
+            "extraction_complete",
+            "scan_complete",
+        ]
         assert [e.progress_pct for e in events] == [0, 40, 100]
+
+
+class TestTerminalSnapshot:
+    def test_store_terminal_scan_complete(self) -> None:
+        d = ScanEventDispatcher(buffer_size=8)
+        scan_id = uuid.uuid4()
+        terminal = _event(scan_id, "scan_complete", 100)
+        d.store_terminal(terminal)
+        assert d._terminal[scan_id] is terminal
+
+    def test_store_terminal_scan_failed(self) -> None:
+        d = ScanEventDispatcher(buffer_size=8)
+        scan_id = uuid.uuid4()
+        terminal = _event(scan_id, "scan_failed", 0)
+        d.store_terminal(terminal)
+        assert d._terminal[scan_id] is terminal
+
+    def test_store_terminal_ignores_non_terminal(self) -> None:
+        d = ScanEventDispatcher(buffer_size=8)
+        scan_id = uuid.uuid4()
+        d.store_terminal(_event(scan_id, "scan_started", 0))
+        assert scan_id not in d._terminal
+
+    @pytest.mark.asyncio
+    async def test_late_subscribe_after_complete(self) -> None:
+        d = ScanEventDispatcher(buffer_size=8)
+        scan_id = uuid.uuid4()
+
+        sub_live = d.subscribe(scan_id)
+        d.emit(_event(scan_id, "scan_complete", 100))
+        d.store_terminal(_event(scan_id, "scan_complete", 100))
+        d.close_scan(scan_id)
+
+        _ = [e async for e in sub_live]
+
+        sub_late = d.subscribe(scan_id)
+        events = [e async for e in sub_late]
+        assert len(events) == 1
+        assert events[0].event_type == "scan_complete"
+        assert events[0].progress_pct == 100
+
+    @pytest.mark.asyncio
+    async def test_late_subscribe_after_failed(self) -> None:
+        d = ScanEventDispatcher(buffer_size=8)
+        scan_id = uuid.uuid4()
+
+        d.store_terminal(_event(scan_id, "scan_failed", 0))
+        d.close_scan(scan_id)
+
+        sub = d.subscribe(scan_id)
+        events = [e async for e in sub]
+        assert len(events) == 1
+        assert events[0].event_type == "scan_failed"
+
+    def test_late_subscribe_not_added_to_active_subs(self) -> None:
+        d = ScanEventDispatcher(buffer_size=8)
+        scan_id = uuid.uuid4()
+        d.store_terminal(_event(scan_id, "scan_complete", 100))
+
+        d.subscribe(scan_id)
+        assert d.subscriber_count(scan_id) == 0
+
+    def test_clear_terminal(self) -> None:
+        d = ScanEventDispatcher(buffer_size=8)
+        scan_id = uuid.uuid4()
+        d.store_terminal(_event(scan_id, "scan_complete", 100))
+        d.clear_terminal(scan_id)
+        assert scan_id not in d._terminal
+
+    def test_terminal_eviction_at_max(self) -> None:
+        from app.services.scan_events import _MAX_TERMINAL_SNAPSHOTS
+
+        d = ScanEventDispatcher(buffer_size=8)
+        ids = [uuid.uuid4() for _ in range(_MAX_TERMINAL_SNAPSHOTS)]
+        for sid in ids:
+            d.store_terminal(_event(sid, "scan_complete", 100))
+
+        new_id = uuid.uuid4()
+        d.store_terminal(_event(new_id, "scan_complete", 100))
+        assert new_id in d._terminal
+        assert ids[0] not in d._terminal
+        assert len(d._terminal) == _MAX_TERMINAL_SNAPSHOTS
