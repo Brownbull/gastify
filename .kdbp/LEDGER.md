@@ -1,5 +1,16 @@
 # Session Ledger
 
+## 2026-05-13 — PUSH main → origin/main
+PR: — (direct push)
+CI: ✅ 8/8 (50s) — all checks passed (2nd run after format fix)
+PROMOTION: N/A
+DEPLOYMENTS: P13 (added row to .kdbp/DEPLOYMENTS.md)
+
+## 2026-05-13 — [4c80cd1] fix(scan): apply Phase 2 review fixes
+FINDINGS: 1 (0 critical, 0 high, 0 medium, 1 low)
+ACTIONS: 1:update-docs (README.md — GEMINI_API_KEY → GOOGLE_API_KEY)
+DEFERRED: none
+
 ## 2026-05-13 — PHASE 2 REVIEW: Stage 1: Vision extraction worker
 VERDICT: PASS
 FINDINGS: 6 total (0 critical, 2 high, 3 medium, 1 low) — 5 fixed, 1 accepted
