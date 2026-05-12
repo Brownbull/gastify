@@ -1,5 +1,16 @@
 # Session Ledger
 
+## 2026-05-12 18:11 — PUSH main -> main
+PR: —
+CI: all passed (8/8 ~45s)
+PROMOTION: N/A
+DEPLOYMENTS: P16 (added row to .kdbp/DEPLOYMENTS.md)
+
+## 2026-05-12 — [16788f8] test(scan): apply Phase 5 review fixes
+FINDINGS: 0 (all checks passed)
+ACTIONS: none
+DEFERRED: none
+
 ## 2026-05-12 22:00 — PHASE 5 REVIEW: Exit-signal + error case tests
 VERDICT: APPROVE
 FINDINGS: 4 total (0 critical, 3 high, 1 medium, 0 low) — all 4 fixed
