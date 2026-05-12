@@ -1,5 +1,10 @@
 # Session Ledger
 
+## 2026-05-13 — PHASE EXEC COMPLETE: Phase 2 — Stage 1: Vision extraction worker
+TIER: ent
+TASKS: 5 tasks, 2 commits (8f4ff3d, 077a1b0)
+DEVIATIONS: 0 structural, 0 minor
+
 ## 2026-05-13 — [077a1b0] feat(scan): add idempotent extraction worker, process trigger, and scan integration
 FINDINGS: 1 (0 critical, 0 high, 1 medium, 0 low)
 ACTIONS: 1:update-docs (docs/architecture.md#API Endpoints — added scan endpoints table)
