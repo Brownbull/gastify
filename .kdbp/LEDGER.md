@@ -1,5 +1,15 @@
 # Session Ledger
 
+## 2026-05-12 — PHASE EXEC COMPLETE: Phase 4 — Scan progress streaming
+TIER: ent
+TASKS: 5 tasks, 1 commit
+DEVIATIONS: 0 structural, 0 minor
+
+## 2026-05-12 — [c8227ad] feat(scan): add dual-transport scan progress streaming (SSE + WebSocket)
+FINDINGS: 2 (0 critical, 0 high, 1 medium, 1 low)
+ACTIONS: 1:update-docs 2:update-docs
+DEFERRED: none
+
 ## 2026-05-12 16:13 — PUSH main -> main
 PR: — (direct push)
 CI: ✅ 8/8 (64s) — all passed
