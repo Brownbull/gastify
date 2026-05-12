@@ -4,7 +4,17 @@ import enum
 import uuid
 from datetime import datetime
 
-from sqlalchemy import DateTime, Enum, ForeignKey, Integer, String, Text, Uuid, func
+from sqlalchemy import (
+    CheckConstraint,
+    DateTime,
+    Enum,
+    ForeignKey,
+    Integer,
+    String,
+    Text,
+    Uuid,
+    func,
+)
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db import Base
@@ -22,6 +32,9 @@ class ScanStatus(enum.StrEnum):
 
 class Scan(Base):
     __tablename__ = "scans"
+    __table_args__ = (
+        CheckConstraint("file_size_bytes >= 0", name="ck_scans_file_size_bytes_gte0"),
+    )
 
     id: Mapped[uuid.UUID] = mapped_column(
         Uuid, primary_key=True, server_default=func.gen_random_uuid()

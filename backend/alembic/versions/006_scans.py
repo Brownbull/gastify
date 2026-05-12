@@ -55,6 +55,7 @@ def upgrade() -> None:
         sa.Column("original_filename", sa.Text(), nullable=False),
         sa.Column("content_type", sa.String(50), nullable=False),
         sa.Column("file_size_bytes", sa.Integer(), nullable=False),
+        sa.CheckConstraint("file_size_bytes >= 0", name="ck_scans_file_size_bytes_gte0"),
         sa.Column(
             "submitted_at",
             sa.DateTime(timezone=True),

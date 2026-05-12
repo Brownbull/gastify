@@ -14,13 +14,14 @@ Deliver P2 Receipt Scan Pipeline — photo upload → two-stage Gemini vision-LL
 - **ROADMAP phase:** P2 Receipt Scan Pipeline (depends on P1 Foundation)
 - **Covers REQs:** REQ-01 (submission), REQ-02 (two-stage worker), REQ-03 (V4 taxonomy), REQ-04 (dual streaming), REQ-12 (math gate)
 - **Authored:** 2026-05-07
+- **Last Updated:** 2026-05-12
 - **Status:** active
 
 ## Phases
 
 | # | Phase | Types | Description | Tier | Complexity | Exec | Review | Commit | Push |
 |---|-------|-------|-------------|------|------------|------|--------|--------|------|
-| 1 | Scan schema + V4 taxonomy + image processing | `upload, data-migration, persistence` | Alembic `scans` table, V4 86-category seed, Pydantic scan schemas, Pillow image compression (1200x1600 JPEG 80%, thumb 120x160 JPEG 70%, EXIF strip, auto-rotate), scan submission endpoint | ent | medium | 🔄 | ⬜ | ⬜ | ⬜ |
+| 1 | Scan schema + V4 taxonomy + image processing | `upload, data-migration, persistence` | Alembic `scans` table, V4 86-category seed, Pydantic scan schemas, Pillow image compression (1200x1600 JPEG 80%, thumb 120x160 JPEG 70%, EXIF strip, auto-rotate), scan submission endpoint | ent | medium | ✅ | ✅ | ✅ | ⬜ |
 | 2 | Stage 1: Vision extraction worker | `ai-agent, async-worker, queue` | PydanticAI Gemini vision agent (output_type), GeminiExtractionResult model, output coalescing, currency-aware coercion, JSON repair, idempotent scan job, dead-letter + credit refund, per-call cost logging | ent | high | ⬜ | ⬜ | ⬜ | ⬜ |
 | 3 | Stage 2: Categorization + math gate | `ai-agent, persistence` | PydanticAI text-only categorization agent, V4 taxonomy mapping, math reconciliation (sum check within 1 minor unit), MathReconciliationVerdict, persist Transaction + LineItem with USD shadow | ent | high | ⬜ | ⬜ | ⬜ | ⬜ |
 | 4 | Scan progress streaming | `realtime, streaming` | SSE endpoint (web), WebSocket endpoint (mobile), ScanEvent contract, auto-reconnect (exp backoff), buffer backpressure, pipeline event emission integration | ent | medium | ⬜ | ⬜ | ⬜ | ⬜ |
@@ -57,7 +58,7 @@ decisions_entry: D28
   - Alembic migration: `scans` table (id, ownership_scope_id, status enum, image_path, thumbnail_path, original_filename, content_type, file_size_bytes, submitted_at, processed_at, error_code, error_message)
   - V4 category taxonomy seed: 86 categories (12 L1 + 44 L2 + 9 L3 + 42 L4), canonical PascalCase keys, trilingual display_labels (es/en/pt)
   - Pydantic schemas: ScanSubmission, ImageMeta, ScanResult, ScanEvent, GeminiExtractionResult, CategorizationResult, MathReconciliationVerdict
-  - Image compression service (Pillow): 1200x1600 max JPEG 80%, thumbnail 120x160 JPEG 70%, EXIF strip via piexif, auto-rotate from EXIF orientation
+  - Image compression service (Pillow): 1200x1600 max JPEG 80%, thumbnail 120x160 JPEG 70%, EXIF strip (implicit on JPEG save), auto-rotate via ImageOps.exif_transpose
   - POST /api/v1/scans endpoint (accepts multipart image, runs compression, stores image + thumbnail, returns scan_id)
 - **Legacy port:** Image pipeline ported from BoletApp `functions/src/imageProcessing.ts` (sharp/MozJPEG → Pillow equivalent)
 - **Trade-offs accepted:** See D28

@@ -120,6 +120,15 @@ class TestScanEndpoint:
         assert "Empty file" in response.json()["detail"]
 
     @pytest.mark.asyncio
+    async def test_reject_corrupt_image_data(self, client):
+        response = await client.post(
+            "/api/v1/scans",
+            files={"file": ("corrupt.jpg", b"not-a-real-image", "image/jpeg")},
+        )
+        assert response.status_code == 422
+        assert "could not be processed" in response.json()["detail"]
+
+    @pytest.mark.asyncio
     async def test_reject_oversized_file(self, client):
         with patch("app.api.scans.MAX_FILE_SIZE", 100):
             raw = _make_test_jpeg(200, 200)

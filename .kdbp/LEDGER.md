@@ -1,5 +1,28 @@
 # Session Ledger
 
+## 2026-05-12 — PHASE 1 REVIEW: Scan schema + V4 taxonomy + image processing
+VERDICT: APPROVE
+FINDINGS: 5 total (0 critical, 2 high, 2 medium, 1 low) — all 5 resolved
+COVERAGE: MEDIUM — 140 tests pass, 97% coverage; corrupt image path now tested; missing disk-write-failure and DB-failure-cleanup integration tests
+CONFIDENCE: 95/100 (was 59 pre-triage; +36 from fixing all 5 findings via option [2] Fix MVP + Enterprise)
+DEFERRED: none
+ALIGNMENT: ALIGNED — 12/12 on-scope, 0 off-scope
+TIER: ent | DRIFT: none
+TICK: ✅ Phase 1 Review column ticked
+TRIAGE: option [2] Fix MVP + Enterprise items — all 5 findings fixed
+KEY FIXES: try/except for corrupt image → 422 (#1), shutil.rmtree cleanup on DB commit failure (#2), CHECK(file_size_bytes >= 0) constraint in migration + model (#3), corrupt image test (#4), PLAN piexif→Pillow text correction (#5)
+SOURCES: claude/opus-4-6
+
+## 2026-05-12 — [3acb5ee] feat(scan): add scan schema, V4 taxonomy, image compression, and submission endpoint
+FINDINGS: 2 (0 critical, 0 high, 1 medium, 1 low)
+ACTIONS: 1:accept 2:accept (all:commit)
+DEFERRED: none
+
+## 2026-05-12 — PHASE EXEC COMPLETE: Phase 1 — Scan schema + V4 taxonomy + image processing
+TIER: ent
+TASKS: 5 tasks, 1 commit (batched)
+DEVIATIONS: 0 structural, 0 minor
+
 ## 2026-05-07 — PLAN CREATED: P2 Receipt Scan Pipeline
 PHASES: 5 | COMPLEXITY: high overall | MATURITY: mvp
 TIERS: mvp x 1, ent x 4, scale x 0 | PROTOTYPES: 0

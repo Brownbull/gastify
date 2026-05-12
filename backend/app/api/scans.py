@@ -1,5 +1,6 @@
 """Scan submission endpoint — accepts receipt image, compresses, stores, returns scan_id."""
 
+import shutil
 import time
 import uuid
 from pathlib import Path
@@ -7,6 +8,7 @@ from typing import Annotated
 
 import structlog
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, status
+from PIL import UnidentifiedImageError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.deps import Auth
@@ -52,7 +54,13 @@ async def submit_scan(
         )
 
     start_ms = time.monotonic()
-    result = compress_receipt_image(raw_bytes)
+    try:
+        result = compress_receipt_image(raw_bytes)
+    except (UnidentifiedImageError, OSError) as exc:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="File could not be processed as an image",
+        ) from exc
     elapsed_ms = int((time.monotonic() - start_ms) * 1000)
 
     scan_id = uuid.uuid4()
@@ -75,7 +83,11 @@ async def submit_scan(
         file_size_bytes=len(raw_bytes),
     )
     db.add(scan)
-    await db.commit()
+    try:
+        await db.commit()
+    except Exception:
+        shutil.rmtree(scan_dir, ignore_errors=True)
+        raise
     await db.refresh(scan)
 
     logger.info(
