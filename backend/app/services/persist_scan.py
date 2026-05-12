@@ -8,7 +8,7 @@ category_id FK to V4 taxonomy, and attaches scan image as TransactionImage.
 from __future__ import annotations
 
 import uuid
-from datetime import date
+from datetime import date, datetime
 from decimal import Decimal
 from typing import TYPE_CHECKING
 
@@ -158,7 +158,7 @@ async def _get_usd_shadow(
     total_minor: int,
     from_exponent: int,
     tx_date: date,
-) -> tuple[int | None, Decimal | None, object]:
+) -> tuple[int | None, Decimal | None, datetime | None]:
     if currency_code == "USD":
         return total_minor, Decimal("1"), None
 
@@ -186,5 +186,12 @@ async def _build_category_map(
 
     result: dict[int, uuid.UUID | None] = {}
     for a in assignments:
-        result[a.line_item_index] = key_to_id.get(a.category_key)
+        cat_id = key_to_id.get(a.category_key)
+        if cat_id is None:
+            logger.warning(
+                "category_not_found",
+                category_key=a.category_key,
+                line_item_index=a.line_item_index,
+            )
+        result[a.line_item_index] = cat_id
     return result

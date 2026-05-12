@@ -25,7 +25,11 @@ from app.db import async_session
 from app.models.scan import Scan, ScanStatus
 from app.observability import metrics
 from app.services.math_gate import reconcile
-from app.services.persist_scan import persist_scan_result
+from app.services.persist_scan import (
+    GEMINI_INPUT_COST_PER_M,
+    GEMINI_OUTPUT_COST_PER_M,
+    persist_scan_result,
+)
 from app.services.scan_errors import (
     PermanentScanError,
     ScanErrorCode,
@@ -40,8 +44,6 @@ if TYPE_CHECKING:
 
 logger = structlog.get_logger()
 
-GEMINI_INPUT_COST_PER_M = 0.15
-GEMINI_OUTPUT_COST_PER_M = 0.60
 PROCESSING_TIMEOUT_S = 600
 
 
@@ -59,16 +61,13 @@ async def process_scan(scan_id: uuid.UUID) -> bool:
     log = logger.bind(scan_id=str(scan_id))
     start = time.monotonic()
 
-    scan, resume_from_stage2 = await _acquire_scan(scan_id, log)
+    scan, _ = await _acquire_scan(scan_id, log)
     if scan is None:
         return False
 
-    if not resume_from_stage2:
-        extraction = await _run_stage1(scan, scan_id, log, start)
-        if extraction is None:
-            return False
-    else:
-        extraction = None
+    extraction = await _run_stage1(scan, scan_id, log, start)
+    if extraction is None:
+        return False
 
     return await _run_stage2(scan, scan_id, extraction, log, start)
 
@@ -183,15 +182,6 @@ async def _run_stage2(
     start: float,
 ) -> bool:
     """Stage 2: Categorization → math gate → persist."""
-    if extraction is None:
-        log.warning("stage2_skipped_no_extraction", reason="resuming without cached extraction")
-        await _fail_scan(
-            scan_id,
-            ScanErrorCode.UNKNOWN_ERROR.value,
-            "Stage 2 resume requires re-extraction (not yet supported)",
-        )
-        return False
-
     ext = extraction.extraction
 
     cat_result: CategorizationOutput | None = None

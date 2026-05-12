@@ -108,6 +108,9 @@ def _extract_error_code(error: Exception) -> ScanErrorCode:
     if _is_invalid_input(msg):
         return ScanErrorCode.INVALID_IMAGE
 
+    if _is_categorization_parse_error(error):
+        return ScanErrorCode.CATEGORIZATION_PARSE_ERROR
+
     return ScanErrorCode.UNKNOWN_ERROR
 
 
@@ -157,3 +160,8 @@ def _is_safety_block(msg: str) -> bool:
 
 def _is_invalid_input(msg: str) -> bool:
     return "invalid" in msg and ("image" in msg or "input" in msg or "request" in msg)
+
+
+def _is_categorization_parse_error(error: Exception) -> bool:
+    type_name = type(error).__name__.lower()
+    return "validation" in type_name or "output" in type_name

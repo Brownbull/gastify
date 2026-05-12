@@ -1,5 +1,19 @@
 # Session Ledger
 
+## 2026-05-12 20:00 — PHASE 3 REVIEW: Stage 2: Categorization + math gate
+VERDICT: APPROVE
+FINDINGS: 6 total (0 critical, 3 high, 2 medium, 1 low) — all 6 fixed
+COVERAGE: HIGH — persist_scan.py 27%→100%, Phase 3 aggregate 78%→98%, 270 tests pass
+CONFIDENCE: 90/100 (was 36 pre-triage; +54 from fixing all 6 findings via option [3] Fix all incl. Scale)
+DEFERRED: none
+ALIGNMENT: ALIGNED — 8/8 on-scope, 0 off-scope
+TIER: ent | DRIFT: none
+TICK: ✅ Phase 3 Review column ticked
+TRIAGE: option [3] Fix all including Scale — all 6 findings fixed
+KEY FIXES: 16 persist_scan tests (#1), category_not_found warning log (#2), always re-run extraction on EXTRACTED resume (#3), CATEGORIZATION_PARSE_ERROR wired to classify_error (#4), deduplicated GEMINI cost constants (#5), datetime|None return type (#6)
+SOURCES: claude/opus-4-6
+ARCHIVED: .kdbp/reviews-archive/REVIEW_2026-05-12-200000_resolved.md
+
 ## 2026-05-13 — PHASE EXEC COMPLETE: Phase 3 — Stage 2: Categorization + math gate
 TIER: ent
 TASKS: 6 tasks, 1 commit (f2af679)
