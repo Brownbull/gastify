@@ -1067,3 +1067,17 @@ TIER: ent (Obs→scale) | DRIFT: none
 TICK: ✅ Phase 1 Review column ticked
 TRIAGE: option [1] Fix MVP items only — #1 fixed (access-log→metrics test), #2-#6 deferred to PENDING.md P16-P20
 ARCHIVED: .kdbp/reviews-archive/REVIEW_2026-05-06-120000_resolved.md
+
+## 2026-05-13 22:00 — PHASE 4 REVIEW: Sign-out isolation + responsive polish
+VERDICT: APPROVE
+FINDINGS: 4 total (0 critical, 3 high, 0 medium, 1 low) — all 4 resolved
+COVERAGE: MEDIUM — 5 new AuthProvider tests (storage-event handler, signOut cleanup, Firebase error resilience, non-broadcast filtering, token-refresh expiry) + 3 sessionIsolation + 4 i18n helpers. Coverage upgraded from LOW (pre-triage) to MEDIUM.
+CONFIDENCE: 90/100 (was 52 pre-triage; +38 from fixing all 4 findings via option [2] Fix MVP + Enterprise)
+DEFERRED: none added; P22 resolved (auth boundary tests now covered)
+ALIGNMENT: ALIGNED (Phase 4 scope matches feature commit 00c00e6)
+TIER: ent | DRIFT: none
+TICK: ✅ Phase 4 Review column ticked
+TRIAGE: option [2] Fix all MVP + Enterprise items — all 4 findings fixed
+KEY FIXES: selective localStorage key removal breaks rebroadcast loop (#1), locale state lifted from per-component useState to Zustand store (#2), 5 AuthProvider tests + signOut error handling (#3), theme-aware hover token (#4). Bonus: Node.js 25 localStorage polyfill in test setup + defensive try/catch in i18n localStorage access.
+SOURCES: codex/gpt-5 (inbox, 3 findings) + claude/opus-4-6 (blind, 4 findings) — 3 strict matches, 1 Claude-only
+ARCHIVED: .kdbp/reviews-archive/REVIEW_2026-05-13-220000_resolved.md

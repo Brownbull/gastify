@@ -66,8 +66,12 @@ export function negotiateLocale(languages: readonly string[]): SupportedLocale {
 export function getPreferredLocale(): SupportedLocale {
   if (typeof window === "undefined") return DEFAULT_LOCALE;
 
-  const stored = window.localStorage.getItem(LOCALE_STORAGE_KEY);
-  if (stored && isSupportedLocale(stored)) return stored;
+  try {
+    const stored = window.localStorage.getItem(LOCALE_STORAGE_KEY);
+    if (stored && isSupportedLocale(stored)) return stored;
+  } catch {
+    return DEFAULT_LOCALE;
+  }
 
   return negotiateLocale(
     window.navigator.languages ?? [window.navigator.language],
@@ -76,7 +80,11 @@ export function getPreferredLocale(): SupportedLocale {
 
 export function setPreferredLocale(locale: SupportedLocale) {
   if (typeof window === "undefined") return;
-  window.localStorage.setItem(LOCALE_STORAGE_KEY, locale);
+  try {
+    window.localStorage.setItem(LOCALE_STORAGE_KEY, locale);
+  } catch {
+    // localStorage unavailable
+  }
 }
 
 export function translate(key: MessageKey, locale = getPreferredLocale()) {

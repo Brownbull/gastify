@@ -112,11 +112,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   async function signOut() {
     try {
       await firebaseSignOut(auth);
-    } finally {
-      clearClientSession();
-      broadcastSignOut();
-      setState({ user: null, loading: false, error: null });
+    } catch {
+      // Firebase sign-out may fail (network, etc.) — proceed with local cleanup
     }
+    clearClientSession();
+    broadcastSignOut();
+    setState({ user: null, loading: false, error: null });
   }
 
   return (

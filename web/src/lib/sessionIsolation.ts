@@ -21,16 +21,18 @@ export function clearClientSession({
 
   if (!clearWebStorage || typeof window === "undefined") return;
 
-  const preservedBroadcast = preserveBroadcastMarker
-    ? window.localStorage.getItem(SIGN_OUT_BROADCAST_KEY)
-    : null;
-
-  window.localStorage.clear();
-  window.sessionStorage.clear();
-
-  if (preserveBroadcastMarker && preservedBroadcast !== null) {
-    window.localStorage.setItem(SIGN_OUT_BROADCAST_KEY, preservedBroadcast);
+  if (preserveBroadcastMarker) {
+    for (let i = window.localStorage.length - 1; i >= 0; i--) {
+      const key = window.localStorage.key(i);
+      if (key && key !== SIGN_OUT_BROADCAST_KEY) {
+        window.localStorage.removeItem(key);
+      }
+    }
+  } else {
+    window.localStorage.clear();
   }
+
+  window.sessionStorage.clear();
 }
 
 export function broadcastSignOut() {

@@ -71,7 +71,7 @@ function SignInPage() {
 
         <button
           onClick={signInWithGoogle}
-          className="flex w-full items-center justify-center gap-3 rounded-lg border px-4 py-3 text-sm font-medium transition-colors hover:bg-gray-50"
+          className="flex w-full items-center justify-center gap-3 rounded-lg border px-4 py-3 text-sm font-medium transition-colors hover:bg-(--primary-light)"
           style={{ borderColor: "var(--border)", color: "var(--text)" }}
         >
           <GoogleIcon />

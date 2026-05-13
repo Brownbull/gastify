@@ -3,16 +3,16 @@
 sources:
   - cli: codex
     model: gpt-5
-    timestamp: 2026-05-13T17:52:20-04:00
-    findings: 5
+    timestamp: 2026-05-13T19:24:00-04:00
+    findings: 3
   - cli: claude
     model: claude-opus-4-6
-    timestamp: 2026-05-15T00:00:00Z
-    findings: 6
-consolidated_at: 2026-05-15T00:00:00Z
+    timestamp: 2026-05-13T22:00:00-04:00
+    findings: 4
+consolidated_at: 2026-05-13T22:00:00-04:00
 consolidation: union
 project_root: /home/khujta/projects/apps/gastify
-target: P3 Phase 3 committed scope from LEDGER (ca39caf, a0f8b84, 2af8e3d)
+target: P3 Phase 4 committed scope from PLAN/LEDGER (00c00e6 feature commit; fa17870/08b1848 bookkeeping)
 maturity: mvp
 status: resolved
 ---
@@ -22,50 +22,47 @@ status: resolved
 **Verdict:** APPROVE
 **Confidence:** 90/100
 **Coverage:** MEDIUM
-**Findings:** 6 (CRITICAL: 0, HIGH: 4, MEDIUM: 1, LOW: 1) | **Sources:** codex+claude
-**Resolution:** 6/0/0 of 6 (pending: 0)
+**Findings:** 4 (CRITICAL: 0, HIGH: 3, MEDIUM: 0, LOW: 1) | **Sources:** codex+claude
+**Resolution:** 4/0/0 of 4 (pending: 0)
 
 ## Findings
 
 | # | Status | Severity | Finding | File | Churn | Fix Cost | Defer Risk | Maturity Gate | Escalation | Sources |
 |---|--------|----------|---------|------|-------|----------|------------|---------------|------------|---------|
-| 1 | fixed | HIGH | `npm run lint` fails: `react-hooks/set-state-in-effect` at L503 and L579. Both `EditableText` and `EditableDate` sync props→state via `useEffect(() => setDraft(value), [value])`. CI gate exits 1. | `web/src/routes/transactions.$transactionId.tsx:503` | STABLE | S | CI BLOCKED — P(certain), I(high) | MVP | - | codex, claude |
-| 2 | fixed | HIGH | Phase 3 promised inline category assignment editing with `user_edited_at` precedence; backend PATCH supports `store_category_id` + per-item `item_category_id`. UI only exposes merchant and date edits. Users cannot correct category data. | `web/src/routes/transactions.$transactionId.tsx:55` | STABLE | M | CATEGORY CORRECTIONS IMPOSSIBLE — P(high), I(high) | MVP | - | codex, claude |
-| 3 | fixed | HIGH | Transaction list omits category filter. `TransactionFilters` only has `dateFrom/dateTo/merchant/currency`. Backend `GET /api/v1/transactions` accepts `category` UUID query param. Phase 3 PLAN requires "filtered by period/category/card". | `web/src/hooks/useTransactions.ts:10` | STABLE | M | PRIMARY LEDGER SEARCH GAP — P(high), I(moderate) | MVP | - | codex, claude |
-| 4 | fixed | HIGH | Optimistic edit + rollback logic (`onMutate`/`onError`/`onSettled`) has zero frontend test coverage. `web/` has no test files. Extends open P22 harness gap. | `web/src/hooks/useTransactions.ts:95` | STABLE | M | UNTESTED EDIT ROLLBACK — P(high), I(high) | Enterprise | P22 open | codex, claude |
-| 5 | fixed | LOW | KDBP entries future-dated: PLAN.md `Last Updated: 2026-05-14` but commits from 2026-05-13. Repeats prior date-drift pattern. | `.kdbp/PLAN.md:17` | STABLE | S | AUDIT ORDER DRIFT — P(medium), I(low) | MVP | - | codex, claude |
-| 6 | fixed | MEDIUM | Optimistic update uses `{ ...previous, ...body } as TransactionDetail` type assertion. `TransactionUpdate` fields (e.g. `store_category_id`, `card_alias_id`, `items`) may not map 1:1 to `TransactionDetail`, producing malformed interim cache state. | `web/src/hooks/useTransactions.ts:108` | STABLE | S | UI GLITCH DURING OPTIMISTIC UPDATE — P(low), I(low) | Enterprise | - | claude |
+| 1 | fixed | HIGH | Multi-tab logout rebroadcast loop: storage-event handler calls `clearClientSession({ preserveBroadcastMarker: true })` which clears localStorage then writes the marker back. That write fires a new storage event in the other tab, creating an infinite ping-pong between tabs. | `web/src/lib/sessionIsolation.ts:23` | ✅ STABLE | S | LOGOUT EVENT STORM — P(high), I(high) | MVP | - | codex, claude |
+| 2 | fixed | HIGH | Locale state is component-local. `useI18n()` uses `useState` per caller; changing locale in Sidebar does not propagate to MobileHeader, MobileNav, or route components until remount/reload. Results in mixed-language portal. | `web/src/hooks/useI18n.ts:10` | ✅ STABLE | M | MIXED-LANGUAGE PORTAL — P(high), I(moderate) | MVP | - | codex, claude |
+| 3 | fixed | HIGH | AuthProvider session-invalidation branches untested. Storage-event logout path, explicit `signOut()` cleanup+broadcast, and token-refresh expiry catch branch have no component/hook tests. Only helper-level tests exist (sessionIsolation, i18n). Extends P22 scope. | `web/src/hooks/useAuth.tsx:65` | ✅ STABLE | M | UNTESTED SESSION EVICTION — P(medium), I(high) | Enterprise | P22 related | codex, claude |
+| 4 | fixed | LOW | Sign-in button uses hardcoded `hover:bg-gray-50` instead of CSS variable theme token. Inconsistent with rest of app (which uses `var(--primary-light)` etc.). Will show light-gray hover on dark theme surfaces. | `web/src/routes/sign-in.tsx:74` | ✅ STABLE | S | THEME INCONSISTENCY — P(low), I(low) | Enterprise | - | claude |
+
+## Fixes Applied
+
+- **#1** `sessionIsolation.ts`: Replaced `localStorage.clear()` + marker re-write with selective key removal (iterate backwards, skip broadcast marker key). Eliminates the storage event that caused the cross-tab ping-pong.
+- **#2** `uiStore.ts` + `useI18n.ts`: Lifted locale state from per-component `useState` into Zustand `useUiStore`. All components now share a single reactive locale slice. `setLocale` writes to localStorage AND updates the store atomically.
+- **#3** `useAuth.test.tsx`: 5 new tests covering explicit signOut (happy + error), storage-event sign-out from another tab, non-broadcast event filtering, and token-refresh expiry. Also fixed `signOut()` to swallow Firebase errors (was `try/finally` without `catch`, causing unhandled rejection).
+- **#4** `sign-in.tsx`: Changed `hover:bg-gray-50` to `hover:bg-(--primary-light)` to match theme token system.
+
+## Bonus fixes
+
+- **Test setup** `test/setup.ts`: Added localStorage/sessionStorage polyfill for Node.js 22+ environments where `--localstorage-file` flag corrupts JSDOM's Storage (pre-existing issue — all localStorage tests were failing).
+- **i18n.ts**: Added try/catch around localStorage access in `getPreferredLocale` and `setPreferredLocale` for environments where Storage methods throw.
 
 ## Plan Alignment (5a)
 
-ALIGNED — all 9 changed files are on-scope for Phase 3 (web ledger/detail/edit + KDBP bookkeeping + well doc). No off-scope files.
+ALIGNED — Phase 4 is the active plan row (Exec=✅, Review=⬜). Scope is sign-out eviction, multi-tab logout broadcast, responsive layout, i18n baseline. Feature commit `00c00e6` touches expected web auth/session/i18n/layout/store files.
 
 ## Stale Verified Topics (5c)
 
-None found.
+None. G6 Web Portal has 0 verified topics.
 
 ## Architectural Decisions (5b)
 
-None proposed. D35 already covers Phase 3 decisions.
+None proposed. D36 already records the Phase 4 storage-event decision.
 
 ## Tier Drift (5d)
 
-None detected. Phase 3 declared `ent`; all patterns within tier.
+None detected. Phase 4 declared `ent`; `storage` event pattern is within D36.
 
 ## Deferred Backlog Status
 
-- P22 partially addressed: test harness now exists in `web/` with 4 tests covering optimistic update/rollback.
-- P16-P21 backend-specific, not relevant to this web Phase 3 scope.
-
-## Triage Summary
-
-| Action | Count | Findings |
-|--------|-------|----------|
-| Fixed | 6 | #1 lint errors, #2 category editing, #3 category filter, #4 test harness, #5 date drift, #6 type assertion |
-| Deferred | 0 | — |
-| Dismissed | 0 | — |
-
-Review Confidence: 35 → 90 / 100 (+55)
-
----
-_Resolved. Archived by /gabe-review._
+- P22 (auth boundary tests): RESOLVED by finding #3 fix — 5 AuthProvider tests now cover the session-invalidation branches P22 was tracking.
+- Backend P16-P21, P23: outside Phase 4 web scope.
