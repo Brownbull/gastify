@@ -32,6 +32,7 @@
 | P14 | 2026-05-12 16:13 | main → main (direct) | — | ✅ 8/8 (64s) | P2 Phase 3 push — 4 commits (3aac413 → 5f70de7): Stage 2 categorization + math gate + persistence pipeline + review fixes (type annotations, error classification, always re-extract, persist tests). 270 tests pass. | — |
 | P15 | 2026-05-12 17:07 | main → main (direct) | — | ✅ 8/8 (67s) | P2 Phase 4 push — 4 commits (1a4e8c0 → bb53eb3): dual-transport scan progress streaming (SSE + WebSocket) + review fixes (terminal snapshots, WS heartbeat cleanup, formatting). 301 tests pass. | — |
 | P16 | 2026-05-12 18:11 | main → main (direct) | — | ✅ 8/8 (~45s) | P2 Phase 5 push — 4 commits (f5ea358 → 16788f8): exit-signal + error case tests + review fixes (defense boundary, varied taxonomy, credit placeholders, ruff format). 362 tests pass, 2 skipped. | — |
+| P17 | 2026-05-13 16:24 | main → main (direct) | — | ✅ 8/8 (65s) | P3 Phase 1 push — 5 commits (16788f8 → f49917c): web scaffold (Vite + React 19 + TanStack Router + Firebase Auth + openapi-fetch), review fixes (auth error handling, env-based API URL, theme token, README), P3 tier decisions D33-D37, archived P2 plan. | — |
 
 <!-- Example rows:
 | P1 | 2026-04-17 14:22 | feature/add-auth → main | #42 | ✅ 3/3 (47s) | promoted main → (none) | — |

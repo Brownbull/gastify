@@ -1,5 +1,16 @@
 # Session Ledger
 
+## 2026-05-13 16:24 — PUSH main -> main
+PR: —
+CI: all passed (8/8, 65s)
+PROMOTION: N/A
+DEPLOYMENTS: P17  (added row to .kdbp/DEPLOYMENTS.md)
+
+## 2026-05-15 — [f49917c] fix(web): apply Phase 1 review fixes — env config, auth error handling, README, theme token
+FINDINGS: 1 (0 critical, 0 high, 0 medium, 1 low)
+ACTIONS: 1:accept (lint warnings — TanStack Router file-based routing)
+DEFERRED: none
+
 ## 2026-05-15 — PHASE 1 REVIEW: Web scaffold + OpenAPI client + auth
 VERDICT: WARNING
 FINDINGS: 6 total (0 critical, 2 high, 2 medium, 2 low) — 5 fixed, 1 deferred
