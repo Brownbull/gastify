@@ -1,5 +1,29 @@
 # Session Ledger
 
+## 2026-05-14 — PHASE EXEC COMPLETE: Phase 1 — Web scaffold + OpenAPI client + auth
+TIER: ent
+TASKS: 7 tasks, 1 commit
+DEVIATIONS: 0 structural, 1 minor (React 19 instead of 18 — see DEVIATIONS.md)
+
+## 2026-05-14 — [cd6c123] feat(web): scaffold Vite + React 19 + TanStack Router + Firebase Auth web portal
+FINDINGS: 4 (0 critical, 0 high, 2 medium, 2 low)
+ACTIONS: 3:update-structure 4:update-structure 1:accept 2:accept
+DEFERRED: none
+STRUCTURE: updated web/ patterns in STRUCTURE.md (routes/ not pages/, tsx hooks, config files, stores→MVP)
+
+## 2026-05-13 — PLAN CREATED: P3 Web Portal MVP
+PHASES: 5 | COMPLEXITY: high | MATURITY: mvp
+TIERS: ent × 5 | PROTOTYPES: 0
+DECISIONS: D33 → D37 (5 phase tier decisions logged)
+COVERS: REQ-05, REQ-13, REQ-14, REQ-23
+PENDING ADDRESSED: P6 (error UX), P8 (unknown merchant), P9 (low confidence) — verified in Phase 5 E2E
+
+## 2026-05-12 — PLAN COMPLETED: P2 Receipt Scan Pipeline
+ARCHIVE: .kdbp/archive/completed_PLAN_2026-05-12_p2-receipt-scan-pipeline.md
+PHASES COMPLETED: 5 of 5
+TIERS: mvp × 1, ent × 4 | DECISIONS: D28→D32
+REQs PROVEN: REQ-01, REQ-02, REQ-03, REQ-04, REQ-12
+
 ## 2026-05-12 18:11 — PUSH main -> main
 PR: —
 CI: all passed (8/8 ~45s)

@@ -1,32 +1,30 @@
-# Active Plan — P2 Receipt Scan Pipeline
+# Active Plan — P3 Web Portal MVP
 
 <!-- status: active -->
-<!-- project_type: backend -->
+<!-- project_type: code -->
 
 ## Goal
 
-Deliver P2 Receipt Scan Pipeline — photo upload → two-stage Gemini vision-LLM extraction → math-reconciliation gate → V4 categorization → persisted transaction with USD shadow + dual-transport scan-progress streaming (SSE + WebSocket).
+Deliver a responsive web SPA — auth, receipt scan flow with streaming progress, transaction ledger with manual edits (user_edited_at precedence), sign-out isolation across tabs — proving the first end-to-end user journey on web.
 
 ## Context
 
 - **Maturity:** mvp
 - **Domain:** Smart personal expense tracker — AI receipt scanning with 86-category V4 taxonomy, multi-currency analytics with USD-shadow
-- **ROADMAP phase:** P2 Receipt Scan Pipeline (depends on P1 Foundation)
-- **Covers REQs:** REQ-01 (submission), REQ-02 (two-stage worker), REQ-03 (V4 taxonomy), REQ-04 (dual streaming), REQ-12 (math gate)
-- **Authored:** 2026-05-07
-- **Last Updated:** 2026-05-13
-
-- **Status:** active
+- **ROADMAP phase:** P3 Web Portal MVP (depends on P1 Foundation + P2 Receipt Scan Pipeline)
+- **Covers REQs:** REQ-05 (ledger API, web slice), REQ-13 (user-edit precedence), REQ-14 (web sign-out eviction), REQ-23 (responsive web portal)
+- **Authored:** 2026-05-13
+- **Last Updated:** 2026-05-15
 
 ## Phases
 
 | # | Phase | Types | Description | Tier | Complexity | Exec | Review | Commit | Push |
 |---|-------|-------|-------------|------|------------|------|--------|--------|------|
-| 1 | Scan schema + V4 taxonomy + image processing | `upload, data-migration, persistence` | Alembic `scans` table, V4 86-category seed, Pydantic scan schemas, Pillow image compression (1200x1600 JPEG 80%, thumb 120x160 JPEG 70%, EXIF strip, auto-rotate), scan submission endpoint | ent | medium | ✅ | ✅ | ✅ | ✅ |
-| 2 | Stage 1: Vision extraction worker | `ai-agent, async-worker, queue` | PydanticAI Gemini vision agent (output_type), GeminiExtractionResult model, output coalescing, currency-aware coercion, JSON repair, idempotent scan job, dead-letter + credit refund, per-call cost logging | ent | high | ✅ | ✅ | ✅ | ✅ |
-| 3 | Stage 2: Categorization + math gate | `ai-agent, persistence` | PydanticAI text-only categorization agent, V4 taxonomy mapping, math reconciliation (sum check within 1 minor unit), MathReconciliationVerdict, persist Transaction + LineItem with USD shadow | ent | high | ✅ | ✅ | ✅ | ✅ |
-| 4 | Scan progress streaming | `realtime, streaming` | SSE endpoint (web), WebSocket endpoint (mobile), ScanEvent contract, auto-reconnect (exp backoff), buffer backpressure, pipeline event emission integration | ent | medium | ✅ | ✅ | ✅ | ✅ |
-| 5 | Exit-signal + error case tests | `core-only` | 10 test receipts (8 benign, 2 adversarial, 1 math-inconsistent), legacy error cases (7 types), E2E integration proving REQs 01-04 + 12 | mvp | medium | ✅ | ✅ | ✅ | ✅ |
+| 1 | Web scaffold + OpenAPI client + auth | `auth, spa` | Vite + React 18 + TS strict in web/, TanStack Router, openapi-typescript/openapi-fetch gen from backend spec, Firebase Auth SDK (real), auth context + protected routes, sign-in page (Google OAuth), responsive layout shell | ent | high | ✅ | ⬜ | ✅ | ⬜ |
+| 2 | Scan flow + streaming progress UI | `upload, realtime, streaming` | File upload component (multipart image), scan submission via API, SSE EventSource client for progress events, progress UI (staged: uploading → processing → extracting → categorizing → verified → complete), auto-reconnect with exp backoff, error-code-specific UX (PENDING P6/P8/P9) | ent | high | ⬜ | ⬜ | ⬜ | ⬜ |
+| 3 | Transaction ledger + detail + edit | `client-state, user-facing` | Transaction list page (paginated, filtered by period/category/card), transaction detail view (line items, V4 categories, amounts, USD shadow), inline field editing with user_edited_at precedence (REQ-13), TanStack Query cache + optimistic updates | ent | medium | ⬜ | ⬜ | ⬜ | ⬜ |
+| 4 | Sign-out isolation + responsive polish | `auth, session, client-state` | Sign-out eviction (Firebase tokens, TanStack Query cache, Zustand stores, localStorage, sessionStorage), multi-tab logout broadcast via storage event, REQ-14 web verification, responsive layout (desktop-first + mobile-web), i18n baseline (es/en/pt) | ent | medium | ⬜ | ⬜ | ⬜ | ⬜ |
+| 5 | E2E journey + edge case tests | `core-only` | Playwright golden journey (sign in → scan → stream → view → edit → sign out → verify eviction) + 8 edge cases: scan failure UX (P6), unknown merchant (P8), low confidence (P9), edit network fail, multi-tab signout, token refresh, double submit, invalid file. Closes PENDING P6/P8/P9 | ent | medium | ⬜ | ⬜ | ⬜ | ⬜ |
 
 <!-- Exec is written by /gabe-execute: ⬜ not started, 🔄 in progress, ✅ complete -->
 <!-- Review/Commit/Push auto-ticked by /gabe-review, /gabe-commit, /gabe-push -->
@@ -36,186 +34,186 @@ Deliver P2 Receipt Scan Pipeline — photo upload → two-stage Gemini vision-LL
 
 ## Phase Details
 
-### Phase 1 — Scan schema + V4 taxonomy + image processing
+### Phase 1 — Web scaffold + OpenAPI client + auth
 
 ```yaml
 phase: 1
-types: [upload, data-migration, persistence]
+types: [auth, spa]
 phase_tier: ent
 prototype: false
 dim_overrides: []
-sections_considered: [Core, File/Media, Data]
+sections_considered: [Core, Auth/Session, Client State]
 suppressed_dims_count: 5
-decisions_entry: D28
+decisions_entry: D33
 ```
 
-- **Types:** `upload, data-migration, persistence`
+- **Types:** `auth, spa`
 - **Tier:** ent
 - **Prototype:** no
-- **Sections considered:** Core, File/Media, Data
-- **Suppressed dimensions:** 5 (File/Media: Virus-scan, CDN, Retention; Data: Backup/restore, Indexing)
-- **Grade overrides:** None — Enterprise baseline driven by File/Media.Image-pipeline resize-on-write
+- **Sections considered:** Core, Auth/Session, Client State
+- **Suppressed dimensions:** 5 (Auth/Session: Multi-tab sync; Client State: Optimistic updates, Mutation propagation, Cross-tab sync, Offline support)
 - **Key deliverables:**
-  - Alembic migration: `scans` table (id, ownership_scope_id, status enum, image_path, thumbnail_path, original_filename, content_type, file_size_bytes, submitted_at, processed_at, error_code, error_message)
-  - V4 category taxonomy seed: 86 categories (12 L1 + 44 L2 + 9 L3 + 42 L4), canonical PascalCase keys, trilingual display_labels (es/en/pt)
-  - Pydantic schemas: ScanSubmission, ImageMeta, ScanResult, ScanEvent, GeminiExtractionResult, CategorizationResult, MathReconciliationVerdict
-  - Image compression service (Pillow): 1200x1600 max JPEG 80%, thumbnail 120x160 JPEG 70%, EXIF strip (implicit on JPEG save), auto-rotate via ImageOps.exif_transpose
-  - POST /api/v1/scans endpoint (accepts multipart image, runs compression, stores image + thumbnail, returns scan_id)
-- **Legacy port:** Image pipeline ported from BoletApp `functions/src/imageProcessing.ts` (sharp/MozJPEG → Pillow equivalent)
-- **Trade-offs accepted:** See D28
+  - Vite + React 18 + TypeScript strict project in `web/`
+  - TanStack Router for file-based routing
+  - openapi-typescript client gen from backend `/openapi.json`
+  - openapi-fetch typed API client with auth header injection
+  - Firebase Auth SDK (real, not mocked) — Google OAuth sign-in
+  - Auth context: token management, auto-refresh, protected route guard
+  - TanStack Query v5 provider with refetch-on-focus + TTL config
+  - Zustand store architecture (scoped slices)
+  - Responsive layout shell (desktop-first, sidebar + content)
+  - Sign-in page
+- **Design reference:** `frontend/` BoletApp port components + design tokens
+- **CSRF posture:** `none` — bearer-token-only API, no cookies (D3 precedent)
+- **Trade-offs accepted:** See D33
 
-### Phase 2 — Stage 1: Vision extraction worker
+### Phase 2 — Scan flow + streaming progress UI
 
 ```yaml
 phase: 2
-types: [ai-agent, async-worker, queue]
+types: [upload, realtime, streaming]
 phase_tier: ent
 prototype: false
 dim_overrides: []
-sections_considered: [Core, AI/Agent, Background jobs]
-suppressed_dims_count: 1
-decisions_entry: D29
+sections_considered: [Core, Real-time, File/Media]
+suppressed_dims_count: 7
+decisions_entry: D34
 ```
 
-- **Types:** `ai-agent, async-worker, queue`
+- **Types:** `upload, realtime, streaming`
 - **Tier:** ent
 - **Prototype:** no
-- **Sections considered:** Core, AI/Agent, Background jobs
-- **Suppressed dimensions:** 1 (BG-jobs.Scheduling — scans are user-initiated, not scheduled)
-- **Grade overrides:** None — Enterprise baseline forced by 3 red-lines (structured output, idempotency, dead-letter)
+- **Sections considered:** Core, Real-time, File/Media
+- **Suppressed dimensions:** 7 (Real-time: Backpressure, Presence, Fallback transport; File/Media: Virus scan, CDN, Image pipeline, Retention)
 - **Key deliverables:**
-  - PydanticAI agent: Gemini vision model with output_type=GeminiExtractionResult (V1 value: Enforce Output Structure)
-  - GeminiExtractionResult model: merchant_name, transaction_date, currency_code, total_amount, tax_amount, discount_amount, line_items[], confidence_score
-  - Output coalescing (legacy port from BoletApp `analyzeReceipt.ts`): null merchant→"Unknown", null date→scan_date, null category→"Other", strip Chilean thousands separators (e.g., "1.234" → 1234 for CLP), drop zero-price items, fallback total = sum(line_items)
-  - Currency-aware numeric coercion: CLP/JPY/KRW (exponent=0) treat integers as-is; USD/EUR/GBP (exponent=2) multiply parsed float by 100 to get minor units
-  - JSON markdown-wrapper repair: strip ```json...``` and trailing ``` from Gemini output (port from BoletApp `jsonRepair.ts`)
-  - Idempotent scan processing: scan_id as natural idempotency key, status machine (submitted → processing → extracted → categorized → completed | failed)
-  - Dead-letter on permanent failure: classify errors as transient (retry up to 3x) vs permanent (dead-letter + credit refund). Port from BoletApp error classification.
-  - Per-call cost logging: tokens_in, tokens_out, cost_usd, latency_ms logged to structured log per V4 value (Measure Every Run)
-- **Legacy port:** Extraction logic from BoletApp `processReceiptScan.ts` + `analyzeReceipt.ts`; error handling from `retryHelper.ts` + `errorHandler.ts`
-- **Trade-offs accepted:** See D29
+  - File upload component: drag-drop + file picker, multipart POST to `/api/v1/scans`
+  - Client-side validation: file type (JPEG/PNG/HEIC/PDF), file size
+  - SSE EventSource client: `GET /api/v1/scans/{scan_id}/events` with auth token
+  - Auto-reconnect: exponential backoff on disconnect (Enterprise Reconnection red-line)
+  - Scan progress UI: staged display (submitted → processing → extracting → categorizing → verified → complete | failed)
+  - Error-code-specific UX: distinct messages per error type (PENDING P6)
+  - Unknown merchant state: first-scan affordance (PENDING P8)
+  - Low confidence display: confidence badge + review prompt (PENDING P9)
+- **SSE auth:** Token in query param (EventSource API doesn't support headers) — backend already supports this
+- **Trade-offs accepted:** See D34
 
-### Phase 3 — Stage 2: Categorization + math gate
+### Phase 3 — Transaction ledger + detail + edit
 
 ```yaml
 phase: 3
-types: [ai-agent, persistence]
+types: [client-state, user-facing]
 phase_tier: ent
 prototype: false
 dim_overrides: []
-sections_considered: [Core, AI/Agent, Data]
-suppressed_dims_count: 2
-decisions_entry: D30
+sections_considered: [Core, Client State, UI/UX]
+suppressed_dims_count: 4
+decisions_entry: D35
 ```
 
-- **Types:** `ai-agent, persistence`
+- **Types:** `client-state, user-facing`
 - **Tier:** ent
 - **Prototype:** no
-- **Sections considered:** Core, AI/Agent, Data
-- **Suppressed dimensions:** 2 (Data: Backup/restore — infrastructure level; Migration safety — no new migration this phase)
-- **Grade overrides:** None — Enterprise baseline forced by AI/Agent.Structured-output red-line (V4 taxonomy binding feeds math gate + persistence)
+- **Sections considered:** Core, Client State, UI/UX
+- **Suppressed dimensions:** 4 (Client State: Cross-tab sync, Offline support, Store coupling; UI/UX: Streaming)
 - **Key deliverables:**
-  - PydanticAI agent: Gemini text-only model with output_type=CategorizationResult (V1 + V3 values: Enforce Output Structure + Route by Cost — text-only cheaper than vision)
-  - CategorizationResult model: per line-item category mapping (L1→L4 hierarchy from V4 taxonomy), confidence per mapping
-  - Math reconciliation gate: sum(line_items) + tax - discount == total within 1 minor unit tolerance per currency. MathReconciliationVerdict(passed: bool, discrepancy_minor_units: int, adjusted_total: int | None)
-  - Route math-inconsistent receipts to status=needs_review instead of auto-completing
-  - Persist final Transaction + LineItem rows: ownership_scope_id from auth, USD shadow via P1 FX service, category_id FK to V4 taxonomy
-  - Typed error handling: reconciliation_mismatch, category_not_found, extraction_timeout — each drives distinct downstream behavior
-- **Two-stage defense against prompt injection:** Vision stage extracts raw fields only; categorization stage receives extracted text, never raw image. Injected text in receipt images cannot steer the categorization prompt.
-- **Trade-offs accepted:** See D30
+  - Transaction list page: paginated via `GET /api/v1/transactions`, filtered by period + category + card alias
+  - Transaction detail view: line items with V4 categories (L1→L4), amounts in original currency + USD shadow, merchant, date
+  - Inline field editing: click-to-edit merchant name, date, category assignments
+  - user_edited_at precedence (REQ-13): PATCH with user_edited_at timestamp, UI marks edited fields
+  - TanStack Query: tag/key cache invalidation on mutation, optimistic updates with rollback
+  - Loading states: skeleton for list, spinner for detail
+  - Error states: inline error with retry for failed edits
+  - Semantic HTML: proper table, button, label, heading hierarchy (a11y Enterprise floor)
+- **Trade-offs accepted:** See D35
 
-### Phase 4 — Scan progress streaming
+### Phase 4 — Sign-out isolation + responsive polish
 
 ```yaml
 phase: 4
-types: [realtime, streaming]
+types: [auth, session, client-state]
 phase_tier: ent
 prototype: false
 dim_overrides: []
-sections_considered: [Core, Real-time]
-suppressed_dims_count: 2
-decisions_entry: D31
+sections_considered: [Core, Auth/Session, Client State]
+suppressed_dims_count: 6
+decisions_entry: D36
 ```
 
-- **Types:** `realtime, streaming`
+- **Types:** `auth, session, client-state`
 - **Tier:** ent
 - **Prototype:** no
-- **Sections considered:** Core, Real-time
-- **Suppressed dimensions:** 2 (Real-time: Presence — single-user scan stream; Message order — pipeline events naturally stage-ordered)
-- **Grade overrides:** None — Enterprise baseline forced by Real-time.Reconnection red-line (user-facing stream, manual reload = dead UI mid-scan)
+- **Sections considered:** Core, Auth/Session, Client State
+- **Suppressed dimensions:** 6 (Auth/Session: Token refresh, Refresh token; Client State: Optimistic updates, Stale data, Mutation propagation, Store coupling)
 - **Key deliverables:**
-  - SSE endpoint: GET /api/v1/scans/{scan_id}/events (web clients)
-  - WebSocket endpoint: /ws/scans/{scan_id} (mobile clients)
-  - ScanEvent contract: {event_type: str, scan_id: uuid, step: str, progress_pct: int, data: dict | None, error: dict | None}
-  - Event types: scan_started, image_processed, extraction_complete, categorized, math_verified, scan_complete, scan_failed
-  - Auto-reconnect: server heartbeat every 15s; client reconnects with exponential backoff (V2 value: Stream Progress)
-  - Buffer backpressure: server-side buffer with size limit (32 events max per connection, drop-oldest policy)
-  - Pipeline integration: event emission at each stage of Phase 2+3 processing
-  - PENDING P18 awareness: BaseHTTPMiddleware has known streaming limitations. SSE implementation must test under current middleware; if issues, extract streaming endpoints to pure ASGI.
-- **Trade-offs accepted:** See D31
+  - Sign-out flow: Firebase `signOut()` → clear TanStack Query cache (`queryClient.clear()`) → reset Zustand stores → clear localStorage + sessionStorage
+  - Multi-tab logout broadcast: `storage` event listener detects sign-out in other tabs → triggers local cleanup + redirect to sign-in
+  - REQ-14 web sign-out eviction: verify no authenticated API responses cached, no auth tokens in storage, no user data in query cache post-sign-out
+  - Responsive layout polish: desktop-first grid, mobile-web single-column, test at 375px / 768px / 1280px breakpoints
+  - i18n baseline: es/en/pt string registry, locale-negotiation from accept-language + user preference
+- **SC-08 enforcement:** Sign-out leaves no authenticated data reachable on the device
+- **Trade-offs accepted:** See D36
 
-### Phase 5 — Exit-signal + error case tests
+### Phase 5 — E2E journey + edge case tests
 
 ```yaml
 phase: 5
 types: [core-only]
-phase_tier: mvp
+phase_tier: ent
 prototype: false
 dim_overrides: []
 sections_considered: [Core]
 suppressed_dims_count: 0
-decisions_entry: D32
+decisions_entry: D37
 ```
 
 - **Types:** core-only
-- **Tier:** mvp
+- **Tier:** ent
 - **Prototype:** no
 - **Sections considered:** Core
 - **Suppressed dimensions:** 0
-- **Grade overrides:** None — happy-path + edge-case assertion
 - **Key deliverables:**
-  - 10 test receipts: 8 benign (mixed CLP/USD, Spanish + English, 5-40 line items, varied merchant types), 2 adversarial (embedded prompt-injection attempts in receipt text), 1 math-inconsistent (items don't sum to stated total)
-  - Legacy error case tests (port from BoletApp `errorHandler.ts`): NETWORK_ERROR, TIMEOUT_ERROR, PERMISSION_DENIED, STORAGE_QUOTA, NOT_FOUND, VALIDATION_ERROR, UNKNOWN_ERROR
-  - E2E integration tests: upload → compress → extract (Gemini) → categorize → math gate → persist → verify Transaction + LineItem correctness
-  - Streaming test: SSE events delivered in pipeline order for both successful and failed scans
-  - Adversarial test: prompt-injection receipt images produce safe extraction output (no category/merchant steering)
-  - Math-gate test: inconsistent receipt routes to needs_review, not completed
-  - Credit refund test: permanent failure returns credit to user balance
-  - REQs proven: REQ-01 (submission), REQ-02 (two-stage worker), REQ-03 (V4 taxonomy), REQ-04 (dual streaming), REQ-12 (math gate)
-- **Exit signal per ROADMAP:** 10 test receipts processed; 8 benign correct; 2 adversarial safe; 1 math-inconsistent routed to review. Streaming events delivered in order on both transports.
-- **Trade-offs accepted:** See D32
+  - **Golden journey test:** sign in → scan receipt → watch streaming events → see transaction → edit merchant name → assert user_edited_at set → sign out → re-open tab → no cached account data fetchable
+  - **Edge case tests (8):**
+    1. Scan failure → error-code-specific UX (closes PENDING P6)
+    2. Unknown merchant → first-scan affordance (closes PENDING P8)
+    3. Low confidence → confidence badge + review prompt (closes PENDING P9)
+    4. Edit with network failure → optimistic rollback + retry
+    5. Multi-tab sign-out → storage event broadcast → all tabs cleared (SC-08 edge)
+    6. Token refresh mid-scan → SSE reconnects with new token
+    7. Double-submit scan → only 1 scan created
+    8. Invalid file type → client-side rejection message
+  - Page Object Model for test architecture (reusable for P4 Mobile)
+  - Structured HTML test reports + screenshots on failure
+- **Exit signal per ROADMAP:** Web E2E journey green: sign in → scan receipt → watch streaming events → see transaction → edit merchant name → assert user_edited_at set → sign out → re-open tab → no cached account data fetchable
+- **Trade-offs accepted:** See D37
 
 ## Current Phase
 
-Phase 5: Exit-signal + error case tests
+Phase 1: Web scaffold + OpenAPI client + auth
 
 ## Dependencies
 
-- Phase 1 depends on P1 Foundation (app + DB scaffold, auth, money/FX, observability)
-- Phase 2 depends on Phase 1 (scan schema + image processing service)
-- Phase 3 depends on Phase 2 (needs extraction results to categorize + reconcile)
-- Phase 4 depends on Phase 3 (needs full pipeline to emit all event types)
-- Phase 5 depends on Phases 1-4 (exit-signal spans entire pipeline)
+- Phase 1 depends on P1 Foundation + P2 Receipt Scan Pipeline (both complete)
+- Phase 2 depends on Phase 1 (app scaffold + auth + API client)
+- Phase 3 depends on Phase 1 (API client + auth context)
+- Phase 4 depends on Phases 1-3 (full app to evict)
+- Phase 5 depends on Phases 1-4 (end-to-end journey)
 
 ## Risks
 
 | Risk | Severity | Mitigation |
 |------|----------|------------|
-| Gemini vision API accuracy on Chilean receipts (Spanish text, CLP formatting) | high | V4 taxonomy prompt ported from BoletApp (proven on Chilean receipts); eval set of 10 receipts validates accuracy |
-| Prompt injection via receipt image text | high | Two-stage defense: vision extracts raw fields only, categorization receives text not image; adversarial test receipts validate |
-| Math reconciliation false-negatives (receipts with legitimate rounding) | medium | 1 minor-unit tolerance per currency; needs_review status prevents silent data loss |
-| BaseHTTPMiddleware streaming limitations (PENDING P18) | medium | Test SSE under current middleware; if issues, extract streaming endpoints to pure ASGI |
-| Gemini API rate limits at scale | low | Enterprise-tier retry + exponential backoff; per-call cost logging surfaces budget issues early |
-| Image compression quality vs file size trade-off | low | Port proven BoletApp parameters (80% quality, 1200x1600 max); adjust only if Gemini accuracy drops |
+| OpenAPI spec completeness — backend spec may miss edge-case response types | medium | Generate client early in Phase 1, audit mismatches against backend schemas |
+| Firebase Auth SDK web + CORS with FastAPI | medium | P1 backend already validates Firebase tokens; test cross-origin in Phase 1 |
+| SSE EventSource — no auth header support in browser API | medium | Token in query param; backend already supports this pattern |
+| BaseHTTPMiddleware streaming limitation (PENDING P18) | medium | Test SSE under current middleware in Phase 2; extract to pure ASGI if needed |
+| frontend/ design token drift from web/ implementation | low | Reference frontend/ tokens but don't import — web/ uses its own Tailwind config |
 
 ## Notes
 
-- Two-stage extraction is the defense architecture against prompt injection (SCOPE research). Stage 1 (vision) only extracts raw field values — no category mapping. Stage 2 (text-only) maps to V4 taxonomy from extracted text, never seeing the raw image. Injected instructions in receipt images cannot influence categorization.
-- Legacy BoletApp scan pipeline code at `/home/khujta/projects/bmad/boletapp/` serves as reference for: image compression parameters, V4 taxonomy prompt, output coalescing rules, error classification, retry logic, JSON repair. Port decisions should preserve proven behavior; depart only with documented rationale.
-- P1 Foundation's observability pipeline (per-scan metric columns) is the sink for this plan's per-call cost/latency logging. Phase 2+3 emit into the columns established in P1 Phase 5.
-- Tier distribution: mvp x 1 (Phase 5 test-only), ent x 4 (Phases 1-4). No scale-tier overrides. Enterprise floor driven by AI/Agent structured-output red-line (Phases 2, 3) + Real-time reconnection red-line (Phase 4) + File/Media image-pipeline (Phase 1).
-- PENDING P6-P10 (rebuild-only findings from BoletApp scan-picker verification) inform Phase 5 error case testing but are not directly fixed in this plan — they are UX-layer findings that land in P3 Web Portal / P4 Mobile App.
-
-## Plan Creation Log
-
-- **2026-05-07 — PLAN CREATED:** 5 phases | high complexity | mvp maturity. TIERS: mvp x 1, ent x 4, scale x 0. 0 grade overrides (Enterprise baseline on all ent phases — red-lines set the floor, no overrides needed). 12 suppressed dims. DECISIONS D28→D32. Covers REQ-01, REQ-02, REQ-03, REQ-04, REQ-12.
+- `frontend/` directory (BoletApp port with Firebase mocks + Storybook) serves as design reference for component patterns, design tokens, and visual language. `web/` is the production web app connecting to the real FastAPI backend.
+- Per SCOPE §10.2, monorepo topology places the web app at `web/` (not `frontend/`). `frontend/` stays as the design showcase.
+- STRUCTURE.md already has `web/src/` patterns defined (pages, components, lib, hooks, stores, public).
+- Tier distribution: ent × 5. No MVP phases — Edge case tests (Phase 5) escalated to ent to close PENDING P6/P8/P9 and prove multi-tab SC-08.
+- PENDING items addressed: P6 (distinct error UX), P8 (unknown merchant state), P9 (low-confidence scan UX) — all verified in Phase 5 E2E tests.
+- P3 is parallel with P4 (Mobile App MVP) per ROADMAP. Phase 5's Page Object Model investment enables test reuse for P4.
