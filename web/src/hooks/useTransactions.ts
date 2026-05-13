@@ -1,4 +1,4 @@
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api";
 
 export interface TransactionFilters {
@@ -16,6 +16,24 @@ export const transactionKeys = {
   details: () => [...transactionKeys.all, "detail"] as const,
   detail: (id: string) => [...transactionKeys.details(), id] as const,
 };
+
+export function useTransaction(id: string) {
+  return useQuery({
+    queryKey: transactionKeys.detail(id),
+    queryFn: async () => {
+      const { data, error } = await apiClient.GET(
+        "/api/v1/transactions/{transaction_id}",
+        { params: { path: { transaction_id: id } } },
+      );
+
+      if (error || !data) {
+        throw new Error("Failed to fetch transaction");
+      }
+
+      return data;
+    },
+  });
+}
 
 export function useTransactions(filters: TransactionFilters = {}) {
   return useInfiniteQuery({

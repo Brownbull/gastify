@@ -10,16 +10,15 @@
 
 ## Purpose
 
-<!-- 2-3 sentences: what this section of the application does and why it exists. -->
-<!-- Populated manually by the human, or auto-appended from verified /gabe-teach topics. -->
+Production web SPA connecting to the FastAPI backend via openapi-fetch typed client. Handles auth (Firebase Google OAuth), receipt scanning with SSE streaming progress, and a transaction ledger with paginated list, detail view, and inline editing. Desktop-first responsive layout with mobile-web support.
 
 ## Key Decisions
 
-<!-- Load-bearing choices for this well. Each entry: date + one-line title + 1-2 paragraph rationale. -->
-<!-- Example:
-### 2026-04-15 — Guardrails run before the LLM, not after
-Reasoning: ...
--->
+### 2026-05-13 — TanStack Query key factory for transaction cache
+Query keys use a factory object (`transactionKeys.all/lists/list/details/detail`) so list invalidation after mutations can target `transactionKeys.lists()` without blowing away in-flight detail queries. Enables optimistic updates in T3.
+
+### 2026-05-14 — Transaction detail uses `<details>` for processing metadata
+LLM processing stats (scan duration, tokens, cost) are secondary to the receipt data. Collapsible `<details>` keeps the primary view clean while making diagnostics accessible.
 
 ## Key Diagrams
 

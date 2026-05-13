@@ -1,5 +1,10 @@
 # Session Ledger
 
+## 2026-05-14 — [ca39caf] feat(web): add transaction list page with cursor pagination, filters, and skeleton loading
+FINDINGS: 1 (0 critical, 0 high, 0 medium, 1 low)
+ACTIONS: 1:accept (G6 well docs drift)
+DEFERRED: 0
+
 ## 2026-05-13 21:17 — PUSH main -> main
 PR: — (direct push)
 CI: all passed (8/8, ~45s)
