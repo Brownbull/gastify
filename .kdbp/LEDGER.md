@@ -1,5 +1,9 @@
 # Session Ledger
 
+## 2026-05-13 18:58 — PLAN UPDATED: P3 Web Portal MVP
+CHANGE: Current Phase advanced from Phase 3 (Transaction ledger + detail + edit) to Phase 4 (Sign-out isolation + responsive polish) after Phase 3 reached Exec/Review/Commit/Push ✅.
+SCOPE: bookkeeping only — no phase scope, tier, pending item, decision, or implementation changes.
+
 ## 2026-05-13 22:52 — PUSH main -> main
 PR: — (direct push)
 CI: ✅ 8/8 (~45s) — auto-fix lint (ruff TC003 in reference.py), CI re-run after fix

@@ -1,22 +1,29 @@
 import type { ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import { useAuth } from "@/hooks/useAuth";
+import { useI18n } from "@/hooks/useI18n";
+import { SUPPORTED_LOCALES, type SupportedLocale } from "@/lib/i18n";
 
 interface AppLayoutProps {
   children: ReactNode;
 }
 
 const NAV_ITEMS = [
-  { to: "/", label: "Dashboard", icon: "📊" },
-  { to: "/scan", label: "Scan", icon: "📷" },
-  { to: "/transactions", label: "Transactions", icon: "📋" },
+  { to: "/", labelKey: "nav.dashboard", icon: "📊" },
+  { to: "/scan", labelKey: "nav.scan", icon: "📷" },
+  { to: "/transactions", labelKey: "nav.transactions", icon: "📋" },
 ] as const;
 
 export function AppLayout({ children }: AppLayoutProps) {
   return (
-    <div className="flex min-h-screen">
+    <div className="min-h-screen lg:flex">
       <Sidebar />
-      <main className="flex-1 p-6 pb-20 lg:p-8 lg:pb-8">{children}</main>
+      <div className="flex min-h-screen flex-1 flex-col">
+        <MobileHeader />
+        <main className="flex-1 px-4 py-5 pb-24 sm:px-6 lg:p-8">
+          {children}
+        </main>
+      </div>
       <MobileNav />
     </div>
   );
@@ -24,6 +31,7 @@ export function AppLayout({ children }: AppLayoutProps) {
 
 function Sidebar() {
   const { user, signOut } = useAuth();
+  const { locale, setLocale, t } = useI18n();
 
   return (
     <aside
@@ -34,22 +42,29 @@ function Sidebar() {
       }}
     >
       <div className="p-6">
-        <h1
-          className="text-xl font-bold"
-          style={{ color: "var(--primary)" }}
-        >
-          Gastify
+        <h1 className="text-xl font-bold" style={{ color: "var(--primary)" }}>
+          {t("app.name")}
         </h1>
       </div>
       <nav className="flex-1 space-y-1 px-3">
         {NAV_ITEMS.map((item) => (
-          <NavLink key={item.to} to={item.to} label={item.label} icon={item.icon} />
+          <NavLink
+            key={item.to}
+            to={item.to}
+            label={t(item.labelKey)}
+            icon={item.icon}
+          />
         ))}
       </nav>
       <div
         className="space-y-2 border-t p-4"
         style={{ borderColor: "var(--border)" }}
       >
+        <LocaleSelect
+          label={t("locale.label")}
+          locale={locale}
+          onChange={setLocale}
+        />
         {user && (
           <p
             className="truncate text-xs"
@@ -63,14 +78,62 @@ function Sidebar() {
           className="w-full rounded-lg px-3 py-2 text-left text-sm transition-colors hover:bg-(--primary-light)"
           style={{ color: "var(--text-secondary)" }}
         >
-          Sign out
+          {t("auth.signOut")}
         </button>
       </div>
     </aside>
   );
 }
 
+function MobileHeader() {
+  const { user, signOut } = useAuth();
+  const { locale, setLocale, t } = useI18n();
+
+  return (
+    <header
+      className="sticky top-0 z-20 border-b px-4 py-3 lg:hidden"
+      style={{
+        backgroundColor: "var(--surface)",
+        borderColor: "var(--border)",
+      }}
+    >
+      <div className="flex items-center justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-lg font-bold" style={{ color: "var(--primary)" }}>
+            {t("app.name")}
+          </p>
+          {user && (
+            <p
+              className="truncate text-xs"
+              style={{ color: "var(--text-muted)" }}
+            >
+              {user.email}
+            </p>
+          )}
+        </div>
+        <div className="flex shrink-0 items-center gap-2">
+          <LocaleSelect
+            label={t("locale.label")}
+            locale={locale}
+            compact
+            onChange={setLocale}
+          />
+          <button
+            onClick={() => void signOut()}
+            className="rounded-lg px-3 py-2 text-xs font-medium transition-colors hover:bg-(--primary-light)"
+            style={{ color: "var(--text-secondary)" }}
+          >
+            {t("auth.signOut")}
+          </button>
+        </div>
+      </div>
+    </header>
+  );
+}
+
 function MobileNav() {
+  const { t } = useI18n();
+
   return (
     <nav
       className="fixed bottom-0 left-0 right-0 flex border-t lg:hidden"
@@ -80,9 +143,52 @@ function MobileNav() {
       }}
     >
       {NAV_ITEMS.map((item) => (
-        <MobileNavLink key={item.to} to={item.to} label={item.label} icon={item.icon} />
+        <MobileNavLink
+          key={item.to}
+          to={item.to}
+          label={t(item.labelKey)}
+          icon={item.icon}
+        />
       ))}
     </nav>
+  );
+}
+
+interface LocaleSelectProps {
+  label: string;
+  locale: SupportedLocale;
+  compact?: boolean;
+  onChange: (locale: SupportedLocale) => void;
+}
+
+function LocaleSelect({
+  label,
+  locale,
+  compact = false,
+  onChange,
+}: LocaleSelectProps) {
+  return (
+    <label className="block space-y-1 text-xs">
+      <span
+        className={compact ? "sr-only" : ""}
+        style={{ color: "var(--text-muted)" }}
+      >
+        {label}
+      </span>
+      <select
+        value={locale}
+        aria-label={label}
+        onChange={(event) => onChange(event.target.value as SupportedLocale)}
+        className="rounded-md border bg-transparent px-2 py-1 text-xs"
+        style={{ borderColor: "var(--border)", color: "var(--text-secondary)" }}
+      >
+        {SUPPORTED_LOCALES.map((supportedLocale) => (
+          <option key={supportedLocale} value={supportedLocale}>
+            {supportedLocale.toUpperCase()}
+          </option>
+        ))}
+      </select>
+    </label>
   );
 }
 

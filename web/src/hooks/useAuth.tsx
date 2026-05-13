@@ -13,6 +13,12 @@ import {
 } from "firebase/auth";
 import { auth, googleProvider } from "@/lib/firebase";
 import { setAuthToken } from "@/lib/api";
+import {
+  broadcastSignOut,
+  clearClientSession,
+  isSignOutBroadcast,
+} from "@/lib/sessionIsolation";
+import { translate } from "@/lib/i18n";
 
 interface AuthState {
   user: User | null;
@@ -48,7 +54,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           return;
         }
       } else {
-        setAuthToken(null);
+        clearClientSession({ clearWebStorage: false });
       }
       setState({ user, loading: false, error: null });
     });
@@ -57,17 +63,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
+    function handleStorage(event: StorageEvent) {
+      if (!isSignOutBroadcast(event)) return;
+
+      void firebaseSignOut(auth).finally(() => {
+        clearClientSession({ preserveBroadcastMarker: true });
+        setState({ user: null, loading: false, error: null });
+      });
+    }
+
+    window.addEventListener("storage", handleStorage);
+    return () => window.removeEventListener("storage", handleStorage);
+  }, []);
+
+  useEffect(() => {
     if (!state.user) return;
 
-    const interval = setInterval(async () => {
-      try {
-        const token = await state.user!.getIdToken(true);
-        setAuthToken(token);
-      } catch {
-        setAuthToken(null);
-        setState({ user: null, loading: false, error: "Session expired" });
-      }
-    }, 10 * 60 * 1000);
+    const interval = setInterval(
+      async () => {
+        try {
+          const token = await state.user!.getIdToken(true);
+          setAuthToken(token);
+        } catch {
+          clearClientSession({ clearWebStorage: false });
+          setState({
+            user: null,
+            loading: false,
+            error: translate("auth.sessionExpired"),
+          });
+        }
+      },
+      10 * 60 * 1000,
+    );
 
     return () => clearInterval(interval);
   }, [state.user]);
@@ -77,15 +104,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       await signInWithPopup(auth, googleProvider);
     } catch (err: unknown) {
-      const message =
-        err instanceof Error ? err.message : "Sign-in failed";
+      const message = err instanceof Error ? err.message : "Sign-in failed";
       setState((prev) => ({ ...prev, error: message }));
     }
   }
 
   async function signOut() {
-    await firebaseSignOut(auth);
-    setAuthToken(null);
+    try {
+      await firebaseSignOut(auth);
+    } finally {
+      clearClientSession();
+      broadcastSignOut();
+      setState({ user: null, loading: false, error: null });
+    }
   }
 
   return (

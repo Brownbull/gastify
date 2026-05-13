@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useAuth } from "@/hooks/useAuth";
+import { useI18n } from "@/hooks/useI18n";
 import { useEffect } from "react";
 
 export const Route = createFileRoute("/sign-in")({
@@ -8,6 +9,7 @@ export const Route = createFileRoute("/sign-in")({
 
 function SignInPage() {
   const { user, loading, error, signInWithGoogle } = useAuth();
+  const { t } = useI18n();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -21,7 +23,10 @@ function SignInPage() {
       <div className="flex min-h-screen items-center justify-center">
         <div
           className="h-8 w-8 animate-spin rounded-full border-4 border-t-transparent"
-          style={{ borderColor: "var(--primary)", borderTopColor: "transparent" }}
+          style={{
+            borderColor: "var(--primary)",
+            borderTopColor: "transparent",
+          }}
         />
       </div>
     );
@@ -41,13 +46,13 @@ function SignInPage() {
             className="text-2xl font-bold"
             style={{ color: "var(--primary)" }}
           >
-            Gastify
+            {t("app.name")}
           </h1>
           <p
             className="mt-2 text-sm"
             style={{ color: "var(--text-secondary)" }}
           >
-            Smart expense tracking
+            {t("auth.tagline")}
           </p>
         </div>
 
@@ -55,7 +60,8 @@ function SignInPage() {
           <div
             className="rounded-lg p-3 text-sm"
             style={{
-              backgroundColor: "color-mix(in srgb, var(--error) 10%, transparent)",
+              backgroundColor:
+                "color-mix(in srgb, var(--error) 10%, transparent)",
               color: "var(--error)",
             }}
           >
@@ -69,7 +75,7 @@ function SignInPage() {
           style={{ borderColor: "var(--border)", color: "var(--text)" }}
         >
           <GoogleIcon />
-          Sign in with Google
+          {t("auth.signInGoogle")}
         </button>
       </div>
     </div>
@@ -78,7 +84,12 @@ function SignInPage() {
 
 function GoogleIcon() {
   return (
-    <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 18 18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <path
         d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 01-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"
         fill="#4285F4"
