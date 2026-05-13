@@ -1,5 +1,10 @@
 # Session Ledger
 
+## 2026-05-13 19:14 — PHASE EXEC COMPLETE: Phase 4 — Sign-out isolation + responsive polish
+TIER: ent
+TASKS: 1 task, 1 feature commit (+1 KDBP bookkeeping commit)
+DEVIATIONS: 0 structural, 0 minor
+
 ## 2026-05-13 19:10 — [00c00e6] feat(web): isolate sign-out session state and add i18n chrome
 FINDINGS: 2 (0 critical, 0 high, 0 medium, 2 low)
 ACTIONS: 1:accept (existing Fast Refresh route warnings) 2:accept (G6 well docs drift)
