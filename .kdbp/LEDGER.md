@@ -1,11 +1,25 @@
 # Session Ledger
 
-## 2026-05-15 — PHASE EXEC COMPLETE: Phase 2 — Scan flow + streaming progress UI
+## 2026-05-13 — PHASE 2 REVIEW: Scan flow + streaming progress UI
+VERDICT: WARNING
+FINDINGS: 7 total (0 critical, 4 high, 3 medium, 0 low) — all 7 fixed
+COVERAGE: LOW — no frontend test harness in web/; verdict capped at WARNING
+CONFIDENCE: 90/100 (was 27 pre-triage; +63 from fixing all 7 MVP-gate findings via option [1])
+DEFERRED: none
+ALIGNMENT: ALIGNED — 10/10 on-scope, 0 off-scope
+TIER: ent | DRIFT: none
+TICK: ✅ Phase 2 Review column ticked
+TRIAGE: option [1] Fix MVP items only — 7 findings fixed, 0 deferred
+KEY FIXES: SSE event names aligned to backend vocabulary (#1), step-to-phase mapping aligned (#2), ScanResult handles minimal terminal data with completion state (#3), error codes case-normalized + vocabulary matched to ScanErrorCode enum (#4), PDF deviation logged (#5), LEDGER dates corrected 05-15→05-13 (#6), formatAmount heuristic removed — Intl.NumberFormat handles CLP/USD natively (#7)
+SOURCES: codex/gpt-5 (inbox, 6 findings) + claude/opus-4-6 (blind, 7 findings) — 6 strict matches, 0 fuzzy, union consolidation
+ARCHIVED: .kdbp/reviews-archive/REVIEW_2026-05-13-210000_resolved.md
+
+## 2026-05-13 — PHASE EXEC COMPLETE: Phase 2 — Scan flow + streaming progress UI
 TIER: ent
 TASKS: 5 tasks, 1 commit
 DEVIATIONS: 0 structural, 0 minor
 
-## 2026-05-15 — [61277a1] feat(web): implement scan flow with file upload, SSE streaming, and staged progress UI
+## 2026-05-13 — [61277a1] feat(web): implement scan flow with file upload, SSE streaming, and staged progress UI
 FINDINGS: 1 (0 critical, 0 high, 0 medium, 1 low)
 ACTIONS: 1:accept (G6 well docs drift)
 DEFERRED: 0
@@ -16,12 +30,12 @@ CI: all passed (8/8, 65s)
 PROMOTION: N/A
 DEPLOYMENTS: P17  (added row to .kdbp/DEPLOYMENTS.md)
 
-## 2026-05-15 — [f49917c] fix(web): apply Phase 1 review fixes — env config, auth error handling, README, theme token
+## 2026-05-13 — [f49917c] fix(web): apply Phase 1 review fixes — env config, auth error handling, README, theme token
 FINDINGS: 1 (0 critical, 0 high, 0 medium, 1 low)
 ACTIONS: 1:accept (lint warnings — TanStack Router file-based routing)
 DEFERRED: none
 
-## 2026-05-15 — PHASE 1 REVIEW: Web scaffold + OpenAPI client + auth
+## 2026-05-13 — PHASE 1 REVIEW: Web scaffold + OpenAPI client + auth
 VERDICT: WARNING
 FINDINGS: 6 total (0 critical, 2 high, 2 medium, 2 low) — 5 fixed, 1 deferred
 COVERAGE: LOW — no test harness in web/; verdict capped at WARNING

@@ -2,8 +2,7 @@ import { useScanStore } from "@/stores/scanStore";
 
 const LOW_CONFIDENCE_THRESHOLD = 0.6;
 
-function formatAmount(minorOrDecimal: number, currency: string): string {
-  const amount = minorOrDecimal > 1000 ? minorOrDecimal / 100 : minorOrDecimal;
+function formatAmount(amount: number, currency: string): string {
   try {
     return new Intl.NumberFormat(undefined, {
       style: "currency",
@@ -19,12 +18,54 @@ export function ScanResult() {
   const result = useScanStore((s) => s.result);
   const reset = useScanStore((s) => s.reset);
 
-  if (phase !== "complete" || !result) return null;
+  if (phase !== "complete") return null;
 
+  const hasDetailedResult = result != null && result.merchant_name != null;
   const isLowConfidence =
-    result.confidence_score != null &&
+    result?.confidence_score != null &&
     result.confidence_score < LOW_CONFIDENCE_THRESHOLD;
-  const isNewMerchant = result.is_new_merchant === true;
+  const isNewMerchant = result?.is_new_merchant === true;
+
+  if (!hasDetailedResult) {
+    return (
+      <div
+        className="space-y-4 rounded-xl border p-6"
+        style={{
+          backgroundColor: "var(--surface)",
+          borderColor: "var(--success, #22c55e)",
+        }}
+      >
+        <div className="flex items-center gap-3">
+          <span
+            className="flex h-10 w-10 items-center justify-center rounded-full text-lg text-white"
+            style={{ backgroundColor: "var(--success, #22c55e)" }}
+          >
+            ✓
+          </span>
+          <div>
+            <h3
+              className="text-lg font-semibold"
+              style={{ color: "var(--text)" }}
+            >
+              Scan Complete
+            </h3>
+            <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
+              Your receipt has been processed. View it in the transaction ledger.
+            </p>
+          </div>
+        </div>
+        <div className="flex gap-3 pt-2">
+          <button
+            onClick={reset}
+            className="rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors"
+            style={{ backgroundColor: "var(--primary)" }}
+          >
+            Scan Another
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -43,7 +84,7 @@ export function ScanResult() {
         >
           Scan Complete
         </h3>
-        <ConfidenceBadge score={result.confidence_score} />
+        <ConfidenceBadge score={result?.confidence_score} />
       </div>
 
       {isLowConfidence && (
@@ -88,33 +129,33 @@ export function ScanResult() {
       )}
 
       <dl className="grid grid-cols-2 gap-x-4 gap-y-2">
-        {result.merchant_name && (
-          <ResultField label="Merchant" value={result.merchant_name} />
+        {result!.merchant_name && (
+          <ResultField label="Merchant" value={result!.merchant_name} />
         )}
-        {result.transaction_date && (
-          <ResultField label="Date" value={result.transaction_date} />
+        {result!.transaction_date && (
+          <ResultField label="Date" value={result!.transaction_date} />
         )}
-        {result.total_amount != null && result.currency_code && (
+        {result!.total_amount != null && result!.currency_code && (
           <ResultField
             label="Total"
-            value={formatAmount(result.total_amount, result.currency_code)}
+            value={formatAmount(result!.total_amount, result!.currency_code)}
           />
         )}
-        {result.currency_code && (
-          <ResultField label="Currency" value={result.currency_code} />
+        {result!.currency_code && (
+          <ResultField label="Currency" value={result!.currency_code} />
         )}
       </dl>
 
-      {result.line_items && result.line_items.length > 0 && (
+      {result!.line_items && result!.line_items.length > 0 && (
         <div>
           <h4
             className="mb-2 text-sm font-medium"
             style={{ color: "var(--text-secondary)" }}
           >
-            Line Items ({result.line_items.length})
+            Line Items ({result!.line_items.length})
           </h4>
           <div className="space-y-1">
-            {result.line_items.map((item, idx) => (
+            {result!.line_items.map((item, idx) => (
               <div
                 key={idx}
                 className="flex justify-between rounded-lg px-3 py-2 text-sm"
@@ -128,8 +169,8 @@ export function ScanResult() {
                   className="font-medium"
                   style={{ color: "var(--text)" }}
                 >
-                  {result.currency_code
-                    ? formatAmount(item.total_price, result.currency_code)
+                  {result!.currency_code
+                    ? formatAmount(item.total_price, result!.currency_code)
                     : item.total_price.toFixed(2)}
                 </span>
               </div>
@@ -141,7 +182,6 @@ export function ScanResult() {
       <div className="flex gap-3 pt-2">
         <button
           onClick={() => {
-            // TODO: Phase 3 will add "save as transaction" flow
             reset();
           }}
           className="rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors"

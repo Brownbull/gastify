@@ -22,31 +22,46 @@ const ERROR_MAP: Record<string, ErrorConfig> = {
     description: "Lost connection to scan progress after multiple retries.",
     action: "Retry scan",
   },
-  extraction_failed: {
-    title: "Extraction Failed",
-    description: "Could not read the receipt. The image may be blurry or not a valid receipt.",
-    action: "Try a different image",
-  },
-  categorization_failed: {
-    title: "Categorization Failed",
-    description: "Items were extracted but could not be categorized. You can still review the results.",
-    action: "Review results",
-  },
-  rate_limited: {
-    title: "Too Many Requests",
-    description: "You've made too many scan requests. Please wait a moment before trying again.",
-    action: "Wait and retry",
-  },
   invalid_image: {
     title: "Invalid Image",
     description: "The file could not be processed as a receipt image. Please use a clear photo.",
     action: "Try a different image",
   },
-  reconciliation_failed: {
+  safety_block: {
+    title: "Content Blocked",
+    description: "The image was flagged by our safety filter. Please use a valid receipt photo.",
+    action: "Try a different image",
+  },
+  extraction_parse_error: {
+    title: "Extraction Failed",
+    description: "Could not read the receipt. The image may be blurry or not a valid receipt.",
+    action: "Try a different image",
+  },
+  rate_limit: {
+    title: "Too Many Requests",
+    description: "You've made too many scan requests. Please wait a moment before trying again.",
+    action: "Wait and retry",
+  },
+  categorization_timeout: {
+    title: "Categorization Timed Out",
+    description: "Item categorization took too long. Please try scanning again.",
+    action: "Retry scan",
+  },
+  categorization_parse_error: {
+    title: "Categorization Failed",
+    description: "Items were extracted but could not be categorized. You can still review the results.",
+    action: "Review results",
+  },
+  reconciliation_mismatch: {
     title: "Math Check Failed",
     description:
       "The line item totals don't match the receipt total. The scan may still be usable — please review.",
     action: "Review results",
+  },
+  unknown_error: {
+    title: "Scan Error",
+    description: "An unexpected error occurred while processing your receipt.",
+    action: "Try again",
   },
 };
 
@@ -68,7 +83,7 @@ export function ScanError({ onRetry }: ScanErrorProps) {
 
   if (phase !== "failed") return null;
 
-  const config = ERROR_MAP[errorCode ?? ""] ?? FALLBACK_ERROR;
+  const config = ERROR_MAP[errorCode?.toLowerCase() ?? ""] ?? FALLBACK_ERROR;
 
   return (
     <div

@@ -88,13 +88,12 @@ const INITIAL_STATE: ScanState = {
 };
 
 const STEP_TO_PHASE: Record<string, ScanPhase> = {
-  submitted: "submitted",
-  processing: "processing",
-  extracting: "extracting",
-  categorizing: "categorizing",
-  verified: "verified",
-  complete: "complete",
-  failed: "failed",
+  acquire: "submitted",
+  load_image: "processing",
+  extract: "extracting",
+  categorize: "categorizing",
+  verify: "verified",
+  done: "complete",
 };
 
 export const useScanStore = create<ScanStore>()((set) => ({
@@ -135,11 +134,12 @@ export const useScanStore = create<ScanStore>()((set) => ({
         events: [...state.events, event],
       };
 
-      if (event.step === "complete" && event.data) {
+      if (event.event_type === "scan_complete" && event.data) {
+        update.phase = "complete";
         update.result = event.data as unknown as ScanResultData;
       }
 
-      if (event.step === "failed" || event.event_type === "error") {
+      if (event.event_type === "scan_failed" || event.event_type === "error") {
         update.phase = "failed";
         update.errorCode = event.error?.code ?? "unknown_error";
         update.errorMessage =

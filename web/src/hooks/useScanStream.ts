@@ -6,7 +6,7 @@ const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "";
 const MAX_RETRIES = 5;
 const BASE_DELAY_MS = 1_000;
 const MAX_DELAY_MS = 30_000;
-const TERMINAL_STEPS = new Set(["complete", "failed"]);
+const TERMINAL_EVENT_TYPES = new Set(["scan_complete", "scan_failed"]);
 
 function backoffDelay(attempt: number): number {
   const delay = Math.min(BASE_DELAY_MS * 2 ** attempt, MAX_DELAY_MS);
@@ -65,7 +65,7 @@ export function useScanStream() {
           const event: ScanEvent = JSON.parse(msg.data);
           receiveEvent(event);
 
-          if (TERMINAL_STEPS.has(event.step)) {
+          if (TERMINAL_EVENT_TYPES.has(event.event_type)) {
             es.close();
             sourceRef.current = null;
           }
@@ -75,14 +75,13 @@ export function useScanStream() {
       };
 
       const EVENT_TYPES = [
-        "submitted",
-        "processing",
-        "extracting",
-        "categorizing",
-        "verified",
-        "complete",
-        "failed",
-        "error",
+        "scan_started",
+        "image_processed",
+        "extraction_complete",
+        "categorized",
+        "math_verified",
+        "scan_complete",
+        "scan_failed",
       ];
 
       for (const eventType of EVENT_TYPES) {
@@ -92,7 +91,7 @@ export function useScanStream() {
             const event: ScanEvent = JSON.parse(msg.data);
             receiveEvent(event);
 
-            if (TERMINAL_STEPS.has(event.step) || eventType === "complete" || eventType === "failed") {
+            if (TERMINAL_EVENT_TYPES.has(event.event_type)) {
               es.close();
               sourceRef.current = null;
             }
