@@ -20,6 +20,9 @@ Query keys use a factory object (`transactionKeys.all/lists/list/details/detail`
 ### 2026-05-14 — Transaction detail uses `<details>` for processing metadata
 LLM processing stats (scan duration, tokens, cost) are secondary to the receipt data. Collapsible `<details>` keeps the primary view clean while making diagnostics accessible.
 
+### 2026-05-14 — Optimistic updates with rollback for inline editing
+`useUpdateTransaction` applies PATCH body to the detail cache immediately via `onMutate`, then rolls back to the snapshot on error via `onError`. `onSettled` invalidates both the detail and list queries to ensure consistency. Click-to-edit components (`EditableText`, `EditableDate`) keep editing state local — no Zustand needed for ephemeral input focus.
+
 ## Key Diagrams
 
 <!-- Suggested diagram type for this well: flowchart (picked by gabe-docs per-well heuristic) -->

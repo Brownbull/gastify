@@ -1,5 +1,10 @@
 # Session Ledger
 
+## 2026-05-14 — [a0f8b84] feat(web): add transaction detail view with line items, images, and processing metadata
+FINDINGS: 1 (0 critical, 0 high, 0 medium, 1 low)
+ACTIONS: 1:update-docs (G6 well doc Purpose + Key Decisions populated)
+DEFERRED: 0
+
 ## 2026-05-14 — [ca39caf] feat(web): add transaction list page with cursor pagination, filters, and skeleton loading
 FINDINGS: 1 (0 critical, 0 high, 0 medium, 1 low)
 ACTIONS: 1:accept (G6 well docs drift)

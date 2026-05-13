@@ -1,5 +1,11 @@
-import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { apiClient } from "@/lib/api";
+import type { components } from "@/lib/api-types";
 
 export interface TransactionFilters {
   dateFrom?: string;
@@ -61,5 +67,64 @@ export function useTransactions(filters: TransactionFilters = {}) {
     initialPageParam: null as string | null,
     getNextPageParam: (lastPage) =>
       lastPage.has_more ? (lastPage.cursor ?? undefined) : undefined,
+  });
+}
+
+type TransactionUpdate = components["schemas"]["TransactionUpdate"];
+type TransactionDetail = components["schemas"]["TransactionDetail"];
+
+export function useUpdateTransaction(id: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (body: TransactionUpdate) => {
+      const { data, error } = await apiClient.PATCH(
+        "/api/v1/transactions/{transaction_id}",
+        {
+          params: { path: { transaction_id: id } },
+          body,
+        },
+      );
+
+      if (error || !data) {
+        throw new Error("Failed to update transaction");
+      }
+
+      return data;
+    },
+    onMutate: async (body) => {
+      await queryClient.cancelQueries({
+        queryKey: transactionKeys.detail(id),
+      });
+
+      const previous = queryClient.getQueryData<TransactionDetail>(
+        transactionKeys.detail(id),
+      );
+
+      if (previous) {
+        queryClient.setQueryData<TransactionDetail>(
+          transactionKeys.detail(id),
+          { ...previous, ...body } as TransactionDetail,
+        );
+      }
+
+      return { previous };
+    },
+    onError: (_err, _body, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(
+          transactionKeys.detail(id),
+          context.previous,
+        );
+      }
+    },
+    onSettled: () => {
+      void queryClient.invalidateQueries({
+        queryKey: transactionKeys.detail(id),
+      });
+      void queryClient.invalidateQueries({
+        queryKey: transactionKeys.lists(),
+      });
+    },
   });
 }

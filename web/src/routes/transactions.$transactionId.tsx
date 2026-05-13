@@ -1,5 +1,9 @@
+import { useState, useRef, useEffect } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useTransaction } from "@/hooks/useTransactions";
+import {
+  useTransaction,
+  useUpdateTransaction,
+} from "@/hooks/useTransactions";
 import { formatMinorAmount, formatDate } from "@/lib/format";
 import type { components } from "@/lib/api-types";
 
@@ -13,6 +17,7 @@ export const Route = createFileRoute("/transactions/$transactionId")({
 function TransactionDetailPage() {
   const { transactionId } = Route.useParams();
   const { data: txn, isLoading, error } = useTransaction(transactionId);
+  const mutation = useUpdateTransaction(transactionId);
 
   if (isLoading) return <DetailSkeleton />;
 
@@ -47,18 +52,41 @@ function TransactionDetailPage() {
       <div className="flex items-center gap-4">
         <BackLink />
         <div>
-          <h1
+          <EditableText
+            value={txn.merchant}
+            onSave={(v) => mutation.mutate({ merchant: v })}
             className="text-2xl font-semibold"
-            style={{ color: "var(--text)" }}
-          >
-            {txn.merchant}
-          </h1>
-          <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
-            {formatDate(txn.transaction_date)}
-            {txn.transaction_time && ` at ${txn.transaction_time}`}
-          </p>
+            editedAt={txn.merchant_user_edited_at}
+          />
+          <EditableDate
+            value={txn.transaction_date}
+            onSave={(v) => mutation.mutate({ transaction_date: v })}
+          />
         </div>
       </div>
+
+      {mutation.error && (
+        <div
+          className="flex items-center justify-between rounded-lg border px-4 py-3"
+          style={{
+            borderColor: "var(--error)",
+            backgroundColor:
+              "color-mix(in srgb, var(--error) 10%, transparent)",
+          }}
+          role="alert"
+        >
+          <p className="text-sm" style={{ color: "var(--error)" }}>
+            {mutation.error.message}
+          </p>
+          <button
+            onClick={() => mutation.reset()}
+            className="text-xs font-medium underline"
+            style={{ color: "var(--error)" }}
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
 
       <SummaryCard txn={txn} />
 
@@ -449,6 +477,152 @@ function MetaField({ label, value }: { label: string; value: string }) {
         {value}
       </span>
     </div>
+  );
+}
+
+function EditableText({
+  value,
+  onSave,
+  className = "",
+  editedAt,
+}: {
+  value: string;
+  onSave: (value: string) => void;
+  className?: string;
+  editedAt?: string | null;
+}) {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(value);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (editing) inputRef.current?.focus();
+  }, [editing]);
+
+  useEffect(() => {
+    setDraft(value);
+  }, [value]);
+
+  const commit = () => {
+    const trimmed = draft.trim();
+    if (trimmed && trimmed !== value) {
+      onSave(trimmed);
+    } else {
+      setDraft(value);
+    }
+    setEditing(false);
+  };
+
+  if (editing) {
+    return (
+      <input
+        ref={inputRef}
+        type="text"
+        value={draft}
+        onChange={(e) => setDraft(e.target.value)}
+        onBlur={commit}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") commit();
+          if (e.key === "Escape") {
+            setDraft(value);
+            setEditing(false);
+          }
+        }}
+        className={`${className} rounded border px-1 outline-none`}
+        style={{
+          borderColor: "var(--primary)",
+          backgroundColor: "var(--bg-secondary)",
+          color: "var(--text)",
+        }}
+      />
+    );
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={() => setEditing(true)}
+      className={`${className} cursor-pointer rounded px-1 text-left transition-colors hover:bg-[var(--primary-light)]`}
+      style={{ color: "var(--text)" }}
+      title="Click to edit"
+    >
+      {value}
+      {editedAt != null && (
+        <span
+          className="ml-1.5 text-xs font-normal"
+          style={{ color: "var(--secondary)" }}
+          title={`Edited ${new Date(editedAt).toLocaleString()}`}
+        >
+          (edited)
+        </span>
+      )}
+    </button>
+  );
+}
+
+function EditableDate({
+  value,
+  onSave,
+}: {
+  value: string;
+  onSave: (value: string) => void;
+}) {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(value);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (editing) inputRef.current?.focus();
+  }, [editing]);
+
+  useEffect(() => {
+    setDraft(value);
+  }, [value]);
+
+  const commit = () => {
+    if (draft && draft !== value) {
+      onSave(draft);
+    } else {
+      setDraft(value);
+    }
+    setEditing(false);
+  };
+
+  if (editing) {
+    return (
+      <input
+        ref={inputRef}
+        type="date"
+        value={draft}
+        onChange={(e) => setDraft(e.target.value)}
+        onBlur={commit}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") commit();
+          if (e.key === "Escape") {
+            setDraft(value);
+            setEditing(false);
+          }
+        }}
+        className="rounded border px-1 text-sm outline-none"
+        style={{
+          borderColor: "var(--primary)",
+          backgroundColor: "var(--bg-secondary)",
+          color: "var(--text)",
+        }}
+      />
+    );
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={() => setEditing(true)}
+      className="cursor-pointer rounded px-1 text-left text-sm transition-colors hover:bg-[var(--primary-light)]"
+      style={{ color: "var(--text-secondary)" }}
+      title="Click to edit date"
+    >
+      {formatDate(value)}
+    </button>
   );
 }
 
