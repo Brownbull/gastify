@@ -1,5 +1,15 @@
 # Session Ledger
 
+## 2026-05-15 — PHASE EXEC COMPLETE: Phase 2 — Scan flow + streaming progress UI
+TIER: ent
+TASKS: 5 tasks, 1 commit
+DEVIATIONS: 0 structural, 0 minor
+
+## 2026-05-15 — [61277a1] feat(web): implement scan flow with file upload, SSE streaming, and staged progress UI
+FINDINGS: 1 (0 critical, 0 high, 0 medium, 1 low)
+ACTIONS: 1:accept (G6 well docs drift)
+DEFERRED: 0
+
 ## 2026-05-13 16:24 — PUSH main -> main
 PR: —
 CI: all passed (8/8, 65s)
