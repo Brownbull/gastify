@@ -13,6 +13,8 @@ import { Route as TransactionsRouteImport } from "./routes/transactions"
 import { Route as SignInRouteImport } from "./routes/sign-in"
 import { Route as ScanRouteImport } from "./routes/scan"
 import { Route as IndexRouteImport } from "./routes/index"
+import { Route as TransactionsIndexRouteImport } from "./routes/transactions.index"
+import { Route as TransactionsTransactionIdRouteImport } from "./routes/transactions.$transactionId"
 
 const TransactionsRoute = TransactionsRouteImport.update({
   id: "/transactions",
@@ -34,39 +36,73 @@ const IndexRoute = IndexRouteImport.update({
   path: "/",
   getParentRoute: () => rootRouteImport,
 } as any)
+const TransactionsIndexRoute = TransactionsIndexRouteImport.update({
+  id: "/",
+  path: "/",
+  getParentRoute: () => TransactionsRoute,
+} as any)
+const TransactionsTransactionIdRoute =
+  TransactionsTransactionIdRouteImport.update({
+    id: "/$transactionId",
+    path: "/$transactionId",
+    getParentRoute: () => TransactionsRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   "/": typeof IndexRoute
   "/scan": typeof ScanRoute
   "/sign-in": typeof SignInRoute
-  "/transactions": typeof TransactionsRoute
+  "/transactions": typeof TransactionsRouteWithChildren
+  "/transactions/$transactionId": typeof TransactionsTransactionIdRoute
+  "/transactions/": typeof TransactionsIndexRoute
 }
 export interface FileRoutesByTo {
   "/": typeof IndexRoute
   "/scan": typeof ScanRoute
   "/sign-in": typeof SignInRoute
-  "/transactions": typeof TransactionsRoute
+  "/transactions/$transactionId": typeof TransactionsTransactionIdRoute
+  "/transactions": typeof TransactionsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   "/": typeof IndexRoute
   "/scan": typeof ScanRoute
   "/sign-in": typeof SignInRoute
-  "/transactions": typeof TransactionsRoute
+  "/transactions": typeof TransactionsRouteWithChildren
+  "/transactions/$transactionId": typeof TransactionsTransactionIdRoute
+  "/transactions/": typeof TransactionsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: "/" | "/scan" | "/sign-in" | "/transactions"
+  fullPaths:
+    | "/"
+    | "/scan"
+    | "/sign-in"
+    | "/transactions"
+    | "/transactions/$transactionId"
+    | "/transactions/"
   fileRoutesByTo: FileRoutesByTo
-  to: "/" | "/scan" | "/sign-in" | "/transactions"
-  id: "__root__" | "/" | "/scan" | "/sign-in" | "/transactions"
+  to:
+    | "/"
+    | "/scan"
+    | "/sign-in"
+    | "/transactions/$transactionId"
+    | "/transactions"
+  id:
+    | "__root__"
+    | "/"
+    | "/scan"
+    | "/sign-in"
+    | "/transactions"
+    | "/transactions/$transactionId"
+    | "/transactions/"
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ScanRoute: typeof ScanRoute
   SignInRoute: typeof SignInRoute
-  TransactionsRoute: typeof TransactionsRoute
+  TransactionsRoute: typeof TransactionsRouteWithChildren
 }
 
 declare module "@tanstack/react-router" {
@@ -99,14 +135,42 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    "/transactions/": {
+      id: "/transactions/"
+      path: "/"
+      fullPath: "/transactions/"
+      preLoaderRoute: typeof TransactionsIndexRouteImport
+      parentRoute: typeof TransactionsRoute
+    }
+    "/transactions/$transactionId": {
+      id: "/transactions/$transactionId"
+      path: "/$transactionId"
+      fullPath: "/transactions/$transactionId"
+      preLoaderRoute: typeof TransactionsTransactionIdRouteImport
+      parentRoute: typeof TransactionsRoute
+    }
   }
 }
+
+interface TransactionsRouteChildren {
+  TransactionsTransactionIdRoute: typeof TransactionsTransactionIdRoute
+  TransactionsIndexRoute: typeof TransactionsIndexRoute
+}
+
+const TransactionsRouteChildren: TransactionsRouteChildren = {
+  TransactionsTransactionIdRoute: TransactionsTransactionIdRoute,
+  TransactionsIndexRoute: TransactionsIndexRoute,
+}
+
+const TransactionsRouteWithChildren = TransactionsRoute._addFileChildren(
+  TransactionsRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ScanRoute: ScanRoute,
   SignInRoute: SignInRoute,
-  TransactionsRoute: TransactionsRoute,
+  TransactionsRoute: TransactionsRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
