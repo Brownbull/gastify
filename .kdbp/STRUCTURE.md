@@ -72,6 +72,7 @@
 | `web/src/lib/*.{ts,d.ts}` | Client utilities (api client, firebase, query config) | MVP |
 | `web/src/lib/*.json` | Generated specs (openapi-spec.json) | MVP |
 | `web/src/hooks/*.{ts,tsx}` | React hooks (tsx for hooks with JSX context) | MVP |
+| `web/src/test/**` | Vitest setup + test utilities | MVP |
 | `web/src/stores/*.ts` | Zustand state stores (scoped slices) | MVP |
 | `web/src/styles/*.css` | Global styles + design tokens | MVP |
 | `web/src/assets/**` | Static assets (images, icons) | MVP |

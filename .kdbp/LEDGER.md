@@ -1,5 +1,19 @@
 # Session Ledger
 
+## 2026-05-15 — PHASE 3 REVIEW: Transaction ledger + detail + edit
+VERDICT: APPROVE
+FINDINGS: 6 total (0 critical, 4 high, 1 medium, 1 low) — all 6 fixed
+COVERAGE: MEDIUM — 4 tests pass (vitest); optimistic update/rollback/invalidation/field-preservation covered; broader web harness still partial (P22)
+CONFIDENCE: 90/100 (was 35 pre-triage; +55 from fixing all 6 findings via option [2] Fix all including Enterprise)
+DEFERRED: none
+ALIGNMENT: ALIGNED — all changed files on-scope for Phase 3
+TIER: ent | DRIFT: none
+TICK: ✅ Phase 3 Review column ticked
+TRIAGE: option [2] Fix all (MVP + Enterprise) — all 6 findings fixed
+KEY FIXES: adjust-state-during-render pattern replacing useEffect+setState (#1), EditableCategory dropdown + backend reference endpoint (#2), category filter in TransactionFilters + FilterBar (#3), vitest harness + 4 optimistic mutation tests (#4), PLAN.md date corrected (#5), explicit field-level optimistic spread replacing type assertion (#6)
+SOURCES: codex/gpt-5 (inbox, 5 findings) + claude/claude-opus-4-6 (blind, 6 findings) — 4 strict matches, 1 fuzzy confirmed, 1 Claude-only
+ARCHIVED: .kdbp/reviews-archive/REVIEW_2026-05-15-000000_resolved.md
+
 ## 2026-05-14 — PHASE EXEC COMPLETE: Phase 3 — Transaction ledger + detail + edit
 TIER: ent
 TASKS: 3 tasks, 3 commits

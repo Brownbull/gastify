@@ -4,6 +4,7 @@ import {
   useTransactions,
   type TransactionFilters,
 } from "@/hooks/useTransactions";
+import { useStoreCategories } from "@/hooks/useCategories";
 import { formatMinorAmount, formatDate } from "@/lib/format";
 import type { components } from "@/lib/api-types";
 
@@ -85,6 +86,7 @@ interface FilterBarProps {
 function FilterBar({ filters, onChange }: FilterBarProps) {
   const update = (partial: Partial<TransactionFilters>) =>
     onChange({ ...filters, ...partial });
+  const { data: categories } = useStoreCategories();
 
   return (
     <fieldset
@@ -146,6 +148,29 @@ function FilterBar({ filters, onChange }: FilterBarProps) {
             color: "var(--text)",
           }}
         />
+      </label>
+
+      <label className="flex flex-col gap-1">
+        <span className="text-xs" style={{ color: "var(--text-muted)" }}>
+          Category
+        </span>
+        <select
+          value={filters.category ?? ""}
+          onChange={(e) => update({ category: e.target.value || undefined })}
+          className="rounded-md border px-3 py-1.5 text-sm"
+          style={{
+            borderColor: "var(--border)",
+            backgroundColor: "var(--bg-secondary)",
+            color: "var(--text)",
+          }}
+        >
+          <option value="">All</option>
+          {categories?.map((cat) => (
+            <option key={cat.id} value={cat.id}>
+              {(cat.display_labels?.en as string) ?? cat.key}
+            </option>
+          ))}
+        </select>
       </label>
 
       <label className="flex flex-col gap-1">

@@ -34,6 +34,9 @@
 
 <!-- P16-P20 from /gabe-review Phase 1 backend (2026-05-06) — deferred as option [1] MVP-only fix. P16-P17 Enterprise gate, P18+P20 Scale gate, P19 Enterprise gate. -->
 <!-- P21 from /gabe-review Phase 2 backend (2026-05-06) — JSONB→JSON revert; cosmetic autogenerate noise, not runtime defect. -->
-| P22 | 2026-05-15 | gabe-review P3-Ph1 | No test harness in web/ — auth boundary, protected route redirect, token propagation, sign-in error all untested | `web/package.json:6` | ent | medium | high | 1 | open |
+| P22 | 2026-05-15 | gabe-review P3-Ph1 | Test harness exists (vitest + 4 optimistic mutation tests) but auth boundary, protected route redirect, token propagation, sign-in error remain untested | `web/package.json:6` | ent | medium | moderate | 1 | open |
 
+| P23 | 2026-05-13 | gabe-commit | New `@router.get` decorator in `backend/app/api/reference.py` (store-categories endpoint) — no file in `docs/` updated | `backend/app/api/reference.py` | mvp | medium | moderate | 0 | open |
+
+<!-- P23 from /gabe-commit Phase 3 review-fixes (2026-05-13) — new route needs docs coverage -->
 <!-- Backend P1 pending items are tracked inside .kdbp/archive/queued_backend-p1.md and activate with that plan. -->

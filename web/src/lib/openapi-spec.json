@@ -883,6 +883,31 @@
         }
       }
     },
+    "/api/v1/reference/store-categories": {
+      "get": {
+        "tags": [
+          "reference"
+        ],
+        "summary": "List Store Categories",
+        "operationId": "list_store_categories_api_v1_reference_store_categories_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/StoreCategoryItem"
+                  },
+                  "type": "array",
+                  "title": "Response List Store Categories Api V1 Reference Store Categories Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/metrics": {
       "get": {
         "tags": [
@@ -1724,6 +1749,41 @@
           "submitted_at"
         ],
         "title": "ScanSubmission"
+      },
+      "StoreCategoryItem": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "key": {
+            "type": "string",
+            "title": "Key"
+          },
+          "display_labels": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Display Labels"
+          },
+          "is_sensitive": {
+            "type": "boolean",
+            "title": "Is Sensitive"
+          },
+          "sort_order": {
+            "type": "integer",
+            "title": "Sort Order"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "key",
+          "display_labels",
+          "is_sensitive",
+          "sort_order"
+        ],
+        "title": "StoreCategoryItem"
       },
       "TransactionCreate": {
         "properties": {

@@ -4,6 +4,7 @@ import {
   useTransaction,
   useUpdateTransaction,
 } from "@/hooks/useTransactions";
+import { useStoreCategories } from "@/hooks/useCategories";
 import { formatMinorAmount, formatDate } from "@/lib/format";
 import type { components } from "@/lib/api-types";
 
@@ -88,7 +89,7 @@ function TransactionDetailPage() {
         </div>
       )}
 
-      <SummaryCard txn={txn} />
+      <SummaryCard txn={txn} onCategoryChange={(id) => mutation.mutate({ store_category_id: id })} />
 
       {txn.items.length > 0 && <ItemsTable txn={txn} />}
 
@@ -111,7 +112,13 @@ function BackLink() {
   );
 }
 
-function SummaryCard({ txn }: { txn: TransactionDetail }) {
+function SummaryCard({
+  txn,
+  onCategoryChange,
+}: {
+  txn: TransactionDetail;
+  onCategoryChange: (id: string) => void;
+}) {
   const isEdited =
     txn.merchant_user_edited_at != null ||
     txn.store_category_user_edited_at != null;
@@ -167,6 +174,12 @@ function SummaryCard({ txn }: { txn: TransactionDetail }) {
           </span>
         )}
       </Field>
+
+      <EditableCategory
+        value={txn.store_category_id ?? undefined}
+        onSave={onCategoryChange}
+        editedAt={txn.store_category_user_edited_at}
+      />
 
       <Field label="Receipt type">
         {txn.receipt_type ? (
@@ -480,6 +493,61 @@ function MetaField({ label, value }: { label: string; value: string }) {
   );
 }
 
+function EditableCategory({
+  value,
+  onSave,
+  editedAt,
+}: {
+  value?: string;
+  onSave: (value: string) => void;
+  editedAt?: string | null;
+}) {
+  const { data: categories } = useStoreCategories();
+  const match = categories?.find((c) => c.id === value);
+  const currentLabel =
+    (match?.display_labels?.en as string | undefined) ??
+    match?.key ??
+    (value ? "Unknown" : "—");
+
+  return (
+    <Field label="Category">
+      <div className="flex items-center gap-1.5">
+        <select
+          value={value ?? ""}
+          onChange={(e) => {
+            if (e.target.value) onSave(e.target.value);
+          }}
+          className="rounded-md border px-2 py-0.5 text-sm"
+          style={{
+            borderColor: "var(--border)",
+            backgroundColor: "var(--bg-secondary)",
+            color: "var(--text)",
+          }}
+          title="Click to change category"
+        >
+          <option value="" disabled>
+            {currentLabel}
+          </option>
+          {categories?.map((cat) => (
+            <option key={cat.id} value={cat.id}>
+              {(cat.display_labels?.en as string) ?? cat.key}
+            </option>
+          ))}
+        </select>
+        {editedAt != null && (
+          <span
+            className="text-xs"
+            style={{ color: "var(--secondary)" }}
+            title={`Edited ${new Date(editedAt).toLocaleString()}`}
+          >
+            (edited)
+          </span>
+        )}
+      </div>
+    </Field>
+  );
+}
+
 function EditableText({
   value,
   onSave,
@@ -493,15 +561,17 @@ function EditableText({
 }) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(value);
+  const [prevValue, setPrevValue] = useState(value);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  if (prevValue !== value) {
+    setPrevValue(value);
+    setDraft(value);
+  }
 
   useEffect(() => {
     if (editing) inputRef.current?.focus();
   }, [editing]);
-
-  useEffect(() => {
-    setDraft(value);
-  }, [value]);
 
   const commit = () => {
     const trimmed = draft.trim();
@@ -569,15 +639,17 @@ function EditableDate({
 }) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(value);
+  const [prevValue, setPrevValue] = useState(value);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  if (prevValue !== value) {
+    setPrevValue(value);
+    setDraft(value);
+  }
 
   useEffect(() => {
     if (editing) inputRef.current?.focus();
   }, [editing]);
-
-  useEffect(() => {
-    setDraft(value);
-  }, [value]);
 
   const commit = () => {
     if (draft && draft !== value) {

@@ -12,6 +12,7 @@ export interface TransactionFilters {
   dateTo?: string;
   merchant?: string;
   currency?: string;
+  category?: string;
 }
 
 export const transactionKeys = {
@@ -54,6 +55,7 @@ export function useTransactions(filters: TransactionFilters = {}) {
             date_to: filters.dateTo || undefined,
             merchant: filters.merchant || undefined,
             currency: filters.currency || undefined,
+            category: filters.category || undefined,
           },
         },
       });
@@ -102,9 +104,19 @@ export function useUpdateTransaction(id: string) {
       );
 
       if (previous) {
+        const optimistic: TransactionDetail = {
+          ...previous,
+          ...(body.merchant != null && { merchant: body.merchant }),
+          ...(body.transaction_date != null && {
+            transaction_date: body.transaction_date,
+          }),
+          ...(body.store_category_id !== undefined && {
+            store_category_id: body.store_category_id,
+          }),
+        };
         queryClient.setQueryData<TransactionDetail>(
           transactionKeys.detail(id),
-          { ...previous, ...body } as TransactionDetail,
+          optimistic,
         );
       }
 

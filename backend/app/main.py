@@ -5,6 +5,7 @@ from app.api.consent import router as consent_router
 from app.api.health import router as health_router
 from app.api.metrics import router as metrics_router
 from app.api.privacy import router as privacy_router
+from app.api.reference import router as reference_router
 from app.api.scan_stream import router as scan_stream_router
 from app.api.scan_stream import ws_router as scan_ws_router
 from app.api.scans import router as scans_router
@@ -40,4 +41,5 @@ app.include_router(privacy_router, prefix="/api/v1")
 app.include_router(scans_router, prefix="/api/v1")
 app.include_router(scan_stream_router, prefix="/api/v1")
 app.include_router(scan_ws_router)
+app.include_router(reference_router, prefix="/api/v1")
 app.include_router(metrics_router, prefix="/api/v1")
