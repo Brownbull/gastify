@@ -1,5 +1,16 @@
 # Session Ledger
 
+## 2026-05-13 21:17 — PUSH main -> main
+PR: — (direct push)
+CI: all passed (8/8, ~45s)
+PROMOTION: N/A
+DEPLOYMENTS: P18 (added row to .kdbp/DEPLOYMENTS.md)
+
+## 2026-05-13 — [af138fc] fix(web): apply Phase 2 review fixes — SSE vocabulary, error codes, scan result handling
+FINDINGS: 0 (0 critical, 0 high, 0 medium, 0 low)
+ACTIONS: none
+DEFERRED: 0
+
 ## 2026-05-13 — PHASE 2 REVIEW: Scan flow + streaming progress UI
 VERDICT: WARNING
 FINDINGS: 7 total (0 critical, 4 high, 3 medium, 0 low) — all 7 fixed
