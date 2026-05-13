@@ -1,5 +1,15 @@
 # Session Ledger
 
+## 2026-05-14 — PHASE EXEC COMPLETE: Phase 3 — Transaction ledger + detail + edit
+TIER: ent
+TASKS: 3 tasks, 3 commits
+DEVIATIONS: 0 structural, 0 minor
+
+## 2026-05-14 — [2af8e3d] feat(web): add inline field editing with optimistic updates and user_edited_at markers
+FINDINGS: 1 (0 critical, 0 high, 0 medium, 1 low)
+ACTIONS: 1:update-docs (G6 well doc Key Decisions — optimistic update pattern)
+DEFERRED: 0
+
 ## 2026-05-14 — [a0f8b84] feat(web): add transaction detail view with line items, images, and processing metadata
 FINDINGS: 1 (0 critical, 0 high, 0 medium, 1 low)
 ACTIONS: 1:update-docs (G6 well doc Purpose + Key Decisions populated)
