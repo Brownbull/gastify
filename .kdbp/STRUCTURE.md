@@ -49,19 +49,33 @@
 | `backend/tests/*.py` | Pytest test files | MVP |
 | `backend/tests/**/*.py` | Nested test modules | MVP |
 
-### Frontend Web (React + Vite + Zustand + TanStack Query)
+### Frontend Web (React + Vite + Zustand + TanStack Router + TanStack Query)
 
-<!-- Template patterns — activate when web/ directory is created. -->
+<!-- Actual layout after Phase 1 scaffold (P3). TanStack Router uses routes/ not pages/. -->
 
 | Pattern | Description | Tier |
 |---------|-------------|------|
-| `web/src/pages/*.tsx` | Route-level components | MVP |
-| `web/src/components/**/*.tsx` | Shared UI components | MVP |
-| `web/src/lib/*.ts` | Client utilities (api, fetcher) | MVP |
-| `web/src/hooks/*.ts` | React hooks | MVP |
-| `web/src/stores/*.ts` | State management | E |
-| `web/public/**` | Static assets | MVP |
 | `web/package.json` | Frontend deps | MVP |
+| `web/package-lock.json` | npm lockfile (committed for reproducible installs) | MVP |
+| `web/index.html` | Vite entry HTML | MVP |
+| `web/vite.config.ts` | Vite config | MVP |
+| `web/tsconfig*.json` | TypeScript configs | MVP |
+| `web/eslint.config.js` | ESLint config | MVP |
+| `web/.gitignore` | Web-specific git ignore | MVP |
+| `web/.env.example` | Env var template (no secrets) | MVP |
+| `web/README.md` | Web app readme | MVP |
+| `web/.tanstack/**` | TanStack Router generated config | MVP |
+| `web/src/main.tsx` | React entry | MVP |
+| `web/src/routeTree.gen.ts` | TanStack Router generated route tree | MVP |
+| `web/src/routes/**/*.tsx` | File-based route components (TanStack Router) | MVP |
+| `web/src/components/**/*.tsx` | Shared UI components | MVP |
+| `web/src/lib/*.{ts,d.ts}` | Client utilities (api client, firebase, query config) | MVP |
+| `web/src/lib/*.json` | Generated specs (openapi-spec.json) | MVP |
+| `web/src/hooks/*.{ts,tsx}` | React hooks (tsx for hooks with JSX context) | MVP |
+| `web/src/stores/*.ts` | Zustand state stores (scoped slices) | MVP |
+| `web/src/styles/*.css` | Global styles + design tokens | MVP |
+| `web/src/assets/**` | Static assets (images, icons) | MVP |
+| `web/public/**` | Public static assets | MVP |
 
 ### Infrastructure
 
