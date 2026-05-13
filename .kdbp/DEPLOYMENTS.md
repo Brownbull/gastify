@@ -37,6 +37,8 @@
 
 | P19 | 2026-05-13 22:52 | main → main (direct) | — | ✅ 8/8 (~45s) | P3 Phase 3 push — 7 commits (af138fc → 36f4d71): category editing (EditableCategory + store-categories endpoint), transaction list category filter, vitest test harness (4 optimistic mutation tests), lint-safe prop sync, type-safe optimistic updates, review fixes (all 6 findings resolved). auto-fix applied: lint; CI re-run after fix | — |
 
+| P20 | 2026-05-13 19:47 | main → main (direct) | — | ✅ 8/8 (~45s) | P3 Phase 4 push — 5 commits (36f4d71 → 8c95c0c): sign-out isolation + i18n chrome feature, review fixes (rebroadcast loop fix via selective key removal, locale state lifted to Zustand, 5 AuthProvider tests, theme token fix, Node.js 22+ localStorage polyfill, defensive i18n try/catch). P22 resolved. 16 web tests pass. | — |
+
 <!-- Example rows:
 | P1 | 2026-04-17 14:22 | feature/add-auth → main | #42 | ✅ 3/3 (47s) | promoted main → (none) | — |
 | P2 | 2026-04-17 15:08 | fix/ci-typo → main | #43 | ❌ 1/3 (12s) — failed: lint | auto-fix applied: lint; CI re-run after fix | — |

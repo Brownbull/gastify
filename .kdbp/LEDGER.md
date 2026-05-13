@@ -1081,3 +1081,14 @@ TRIAGE: option [2] Fix all MVP + Enterprise items — all 4 findings fixed
 KEY FIXES: selective localStorage key removal breaks rebroadcast loop (#1), locale state lifted from per-component useState to Zustand store (#2), 5 AuthProvider tests + signOut error handling (#3), theme-aware hover token (#4). Bonus: Node.js 25 localStorage polyfill in test setup + defensive try/catch in i18n localStorage access.
 SOURCES: codex/gpt-5 (inbox, 3 findings) + claude/opus-4-6 (blind, 4 findings) — 3 strict matches, 1 Claude-only
 ARCHIVED: .kdbp/reviews-archive/REVIEW_2026-05-13-220000_resolved.md
+
+## 2026-05-13 19:45 — [8c95c0c] fix(web): resolve Phase 4 review findings — session isolation and i18n hardening
+FINDINGS: 0 (0 critical, 0 high, 0 medium, 0 low)
+ACTIONS: none
+DEFERRED: none
+
+## 2026-05-13 19:47 — PUSH main -> main
+PR: — (direct push)
+CI: all passed (8/8, ~45s)
+PROMOTION: N/A
+DEPLOYMENTS: P20 (added row to .kdbp/DEPLOYMENTS.md)
