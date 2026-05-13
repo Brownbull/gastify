@@ -1,5 +1,20 @@
 # Session Ledger
 
+## 2026-05-13 22:52 — PUSH main -> main
+PR: — (direct push)
+CI: ✅ 8/8 (~45s) — auto-fix lint (ruff TC003 in reference.py), CI re-run after fix
+PROMOTION: N/A
+DEPLOYMENTS: P19 (added row to .kdbp/DEPLOYMENTS.md)
+
+## 2026-05-13 22:49 — [36f4d71] fix(backend): move UUID import to TYPE_CHECKING block (ruff TC003)
+FINDINGS: 0
+ACTIONS: CI auto-fix
+
+## 2026-05-13 18:42 — [5c7ba61] feat(web): add category editing, filtering, and test harness (review fixes)
+FINDINGS: 3 (0 critical, 0 high, 2 medium, 1 low)
+ACTIONS: 1:defer 2:accept 3:update-structure
+DEFERRED: +P23 (doc drift — new route in reference.py)
+
 ## 2026-05-15 — PHASE 3 REVIEW: Transaction ledger + detail + edit
 VERDICT: APPROVE
 FINDINGS: 6 total (0 critical, 4 high, 1 medium, 1 low) — all 6 fixed

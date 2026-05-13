@@ -35,6 +35,8 @@
 | P17 | 2026-05-13 16:24 | main → main (direct) | — | ✅ 8/8 (65s) | P3 Phase 1 push — 5 commits (16788f8 → f49917c): web scaffold (Vite + React 19 + TanStack Router + Firebase Auth + openapi-fetch), review fixes (auth error handling, env-based API URL, theme token, README), P3 tier decisions D33-D37, archived P2 plan. | — |
 | P18 | 2026-05-13 21:17 | main → main (direct) | — | ✅ 8/8 (~45s) | P3 Phase 2 push — 4 commits (f49917c → af138fc): scan flow with file upload + SSE streaming + staged progress UI, review fixes (SSE event vocabulary aligned to backend, error codes matched to ScanErrorCode enum, ScanResult handles minimal terminal data, formatAmount heuristic removed), DEVIATIONS entry for PDF cut. | — |
 
+| P19 | 2026-05-13 22:52 | main → main (direct) | — | ✅ 8/8 (~45s) | P3 Phase 3 push — 7 commits (af138fc → 36f4d71): category editing (EditableCategory + store-categories endpoint), transaction list category filter, vitest test harness (4 optimistic mutation tests), lint-safe prop sync, type-safe optimistic updates, review fixes (all 6 findings resolved). auto-fix applied: lint; CI re-run after fix | — |
+
 <!-- Example rows:
 | P1 | 2026-04-17 14:22 | feature/add-auth → main | #42 | ✅ 3/3 (47s) | promoted main → (none) | — |
 | P2 | 2026-04-17 15:08 | fix/ci-typo → main | #43 | ❌ 1/3 (12s) — failed: lint | auto-fix applied: lint; CI re-run after fix | — |
