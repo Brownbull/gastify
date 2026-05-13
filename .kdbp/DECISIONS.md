@@ -30,6 +30,11 @@
 | D30 | 2026-05-07 | P2-Ph3 Categorization + math gate = ent; structured output red-line + typed math-gate errors | AI/Agent.Structured-output fires again (V4 binding → math gate → persistence); typed errors for reconciliation vs category miss | MVP blocked by structured output red-line; Scale auto-eval CI premature | active | V4 taxonomy > 100 categories OR math-gate tolerance changes |
 | D31 | 2026-05-07 | P2-Ph4 Scan streaming = ent; reconnection red-line + dual transport SSE+WS | Real-time.Reconnection user-facing stream dead-UI on disconnect; Fallback-transport SSE+WS = ent cell | MVP blocked by reconnection red-line; Scale jitter+long-poll for ~7 events overkill | active | Stream events > 50/scan OR WebSocket proxy issues |
 | D32 | 2026-05-07 | P2-Ph5 Exit-signal tests = mvp; test-only phase, no red-lines | Test code not production; production is ent. No domain triggers | Enterprise typed errors in test code unnecessary | active | Exit-signal definition changes |
+| D33 | 2026-05-13 | P3-Ph1 Web scaffold + auth = ent; Firebase Auth SDK + TanStack Query inherently ent-level | Auto token refresh + tag/key cache invalidation + scoped stores = Enterprise native behavior from the chosen tools | MVP manual refetch + component state + manual relogin (fighting the tools) | active | Cookie-based session added OR web app auth model changes |
+| D34 | 2026-05-13 | P3-Ph2 Scan flow + streaming = ent; Reconnection red-line on user-facing SSE stream | Real-time.Reconnection user-facing stream dead-UI on disconnect; auto-reconnect exp backoff mandatory | MVP manual reload on disconnect (fails exit signal UX); Scale jitter+budget overkill for ~7 events | active | Stream events > 50/scan OR SSE auth model changes |
+| D35 | 2026-05-13 | P3-Ph3 Transaction ledger + edit = ent; optimistic updates + semantic HTML + inline error recovery | TanStack Query mutations + optimistic edit rollback natural for tool stack; semantic HTML a11y Enterprise floor | MVP no optimistic updates + raw alerts + div soup (broken primary surface); Scale ARIA+keyboard+SWR premature | active | A11y audit reveals Scale-tier gaps OR data view complexity spikes |
+| D36 | 2026-05-13 | P3-Ph4 Sign-out isolation = ent; REQ-14 demands logout broadcast + multi-tab sync | Session.Invalidate logout broadcast + Client State cross-tab storage event = REQ-14 + SC-08 load-bearing | MVP per-tab logout only (fails SC-08 multi-tab); Scale BroadcastChannel+shared worker overkill for web-only | active | Household multi-user OR 3+ client surfaces |
+| D37 | 2026-05-13 | P3-Ph5 E2E tests = ent; closes PENDING P6/P8/P9 + proves multi-tab SC-08 edge | 8 edge tests verify error UX, unknown merchant, low confidence, network failure, multi-tab eviction, token refresh, idempotency, input validation | MVP golden journey only (PENDING P6/P8/P9 unverified, multi-tab SC-08 untested) | active | Exit-signal definition changes OR new PENDING items surface |
 
 <!-- Status: active / superseded / revisit -->
 <!-- BEHAVIOR.md constraints reference decision IDs: "All integrations mocked (ref D1)" -->
@@ -810,3 +815,191 @@ Load-bearing items deferred:
 
 ### Status
 - active
+
+---
+
+## D33 — P3-Phase 1 tier: ent (2026-05-13)
+
+**Phase:** Web scaffold + OpenAPI client + auth
+**Types:** `auth, spa`
+**Tier chosen:** ent
+**Prototype:** no
+**Reason:** Firebase Auth SDK + TanStack Query + Zustand inherently operate at Enterprise level. Auto token refresh (Firebase native), tag/key cache invalidation (TanStack Query default), scoped stores (Zustand design) = Enterprise behavior with zero extra effort vs MVP. MVP would mean fighting the tools — manual refetch, component-scoped state, manual relogin.
+
+### Sections rendered
+- Core (always, all 4 dims)
+- Auth/Session: 4 dims kept, 1 suppressed
+- Client State: 3 dims kept, 4 suppressed
+
+### Dimensions suppressed (Layer 2 filter)
+- Auth/Session.Multi-tab sync — scaffold phase, multi-tab behavior deferred to Phase 4
+- Client State.Optimistic updates — no mutations in scaffold phase
+- Client State.Mutation propagation — no mutations in scaffold phase
+- Client State.Cross-tab sync — deferred to Phase 4
+- Client State.Offline support — SCOPE: online-required, not a variable
+
+### Δ deferred by tier choice
+- M × 2 (Auth.Token-refresh ΔE→S rotation+revoke, Auth.Session-invalidate ΔE→S device mgmt)
+- S × 2 (Auth.CSRF ΔE→S SameSite+origin, Core.Error ΔE→S circuit breaker)
+- M × 1 (Client State.Cache-invalidation ΔE→S selective+SWR)
+
+Load-bearing items deferred:
+- Auth.CSRF stays `none` — bearer-token-only API, no cookies (D3 precedent). CSRF XL delta neutralized.
+
+### Review trigger
+- Cookie-based session introduced (escalate CSRF)
+- Web app auth model changes from Firebase
+
+### Status
+- accepted
+
+---
+
+## D34 — P3-Phase 2 tier: ent (2026-05-13)
+
+**Phase:** Scan flow + streaming progress UI
+**Types:** `upload, realtime, streaming`
+**Tier chosen:** ent
+**Prototype:** no
+**Reason:** Real-time.Reconnection red-line fires — user-facing scan progress stream. MVP `manual` = user stares at dead scan UI on disconnect, reloads page, loses progress context. Auto-reconnect with exponential backoff is mandatory for the scan UX centerpiece.
+
+### Sections rendered
+- Core (always, all 4 dims)
+- Real-time: 2 dims kept, 3 suppressed
+- File/Media: 1 dim kept, 4 suppressed
+
+### Dimensions suppressed (Layer 2 filter)
+- Real-time.Backpressure — scan emits ~7 events total, not high-volume
+- Real-time.Presence — single-user scan stream, no multi-user awareness
+- Real-time.Fallback transport — web uses SSE only; WebSocket is mobile (P4)
+- File/Media.Virus scan — backend concern, already decided in P2
+- File/Media.CDN — backend serves images
+- File/Media.Image pipeline — backend does compression (P2)
+- File/Media.Retention — backend concern
+
+### Δ deferred by tier choice
+- M × 1 (Real-time.Reconnection ΔE→S jitter + reconnect budget)
+- L × 1 (Real-time.Message-order ΔE→S gap detect + fill)
+- M × 1 (File/Media.Upload ΔE→S multipart resume)
+
+Load-bearing items deferred:
+- File/Media.Upload stays MVP (direct-to-app POST) — backend handles storage
+
+### Review trigger
+- Stream event count > 50/scan
+- SSE auth model changes
+- PENDING P18 BaseHTTPMiddleware conflict
+
+### Status
+- accepted
+
+---
+
+## D35 — P3-Phase 3 tier: ent (2026-05-13)
+
+**Phase:** Transaction ledger + detail + edit
+**Types:** `client-state, user-facing`
+**Tier chosen:** ent
+**Prototype:** no
+**Reason:** TanStack Query mutation/cache patterns + semantic HTML + optimistic edits are Enterprise-native. Primary data view — edit UX requires optimistic updates, mutation propagation, inline error recovery. Semantic HTML is the Enterprise a11y floor.
+
+### Sections rendered
+- Core (always, all 4 dims)
+- Client State: 4 dims kept, 3 suppressed
+- UI/UX: 3 dims kept, 1 suppressed
+
+### Dimensions suppressed (Layer 2 filter)
+- Client State.Cross-tab sync — deferred to Phase 4
+- Client State.Offline support — SCOPE: online-required
+- Client State.Store coupling — established in Phase 1
+- UI/UX.Streaming — handled in Phase 2
+
+### Δ deferred by tier choice
+- M × 2 (Client State optimistic+mutation ΔE→S)
+- L × 1 (UI/UX.A11y ΔE→S ARIA + keyboard)
+- S × 1 (UI/UX.Loading-states ΔE→S optimistic render)
+
+Load-bearing items deferred:
+- UI/UX.A11y Scale (ARIA + keyboard) deferred to post-MVP accessibility pass
+
+### Review trigger
+- A11y audit reveals Scale-tier gaps
+- Data view complexity spikes
+
+### Status
+- accepted
+
+---
+
+## D36 — P3-Phase 4 tier: ent (2026-05-13)
+
+**Phase:** Sign-out isolation + responsive polish
+**Types:** `auth, session, client-state`
+**Tier chosen:** ent
+**Prototype:** no
+**Reason:** REQ-14 demands logout broadcast + multi-tab sync. SC-08 is load-bearing exit signal. MVP per-tab logout fails SC-08 — other tabs retain cached data. Enterprise `storage` event is the minimum viable cross-tab mechanism.
+
+### Sections rendered
+- Core (always, all 4 dims)
+- Auth/Session: 3 dims kept, 2 suppressed
+- Client State: 3 dims kept, 4 suppressed
+
+### Dimensions suppressed (Layer 2 filter)
+- Auth/Session.Token refresh — established in Phase 1
+- Auth/Session.Refresh token — established in Phase 1
+- Client State.Optimistic updates — established in Phase 3
+- Client State.Stale data — established in Phase 1
+- Client State.Mutation propagation — established in Phase 3
+- Client State.Store coupling — established in Phase 1
+
+### Δ deferred by tier choice
+- M × 1 (Auth.Session-invalidate ΔE→S device management)
+- S × 2 (Auth.CSRF ΔE→S, Client State.Cross-tab ΔE→S shared worker)
+
+Load-bearing items deferred:
+- Offline support stays MVP (SCOPE: online-required)
+- CSRF stays `none` (D3 precedent)
+
+### Review trigger
+- Household multi-user activates
+- 3+ client surfaces sharing session
+
+### Status
+- accepted
+
+---
+
+## D37 — P3-Phase 5 tier: ent (2026-05-13)
+
+**Phase:** E2E journey + edge case tests
+**Types:** `core-only`
+**Tier chosen:** ent
+**Prototype:** no
+**Reason:** Escalated from default MVP. 8 edge tests close PENDING P6/P8/P9 and prove multi-tab SC-08 eviction. Page Object Model pays forward into P4 Mobile E2E.
+
+### Sections rendered
+- Core (always, all 4 dims)
+
+### Dimensions suppressed
+- None
+
+### Edge cases covered
+1. Scan failure → error-code-specific UX (closes PENDING P6)
+2. Unknown merchant → first-scan affordance (closes PENDING P8)
+3. Low confidence → confidence badge + review prompt (closes PENDING P9)
+4. Edit with network failure → optimistic rollback + retry
+5. Multi-tab sign-out → storage event broadcast (SC-08 edge)
+6. Token refresh mid-scan → SSE reconnects
+7. Double-submit scan → idempotent
+8. Invalid file type → client-side rejection
+
+### Δ deferred by tier choice
+- M × 1 (Core.Testing ΔE→S fuzz + load eval)
+- S × 1 (Core.Error ΔE→S circuit breaker)
+
+### Review trigger
+- Exit-signal definition changes
+- New PENDING items surface
+
+### Status
+- accepted

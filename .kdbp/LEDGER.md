@@ -1,11 +1,25 @@
 # Session Ledger
 
-## 2026-05-14 — PHASE EXEC COMPLETE: Phase 1 — Web scaffold + OpenAPI client + auth
+## 2026-05-15 — PHASE 1 REVIEW: Web scaffold + OpenAPI client + auth
+VERDICT: WARNING
+FINDINGS: 6 total (0 critical, 2 high, 2 medium, 2 low) — 5 fixed, 1 deferred
+COVERAGE: LOW — no test harness in web/; verdict capped at WARNING
+CONFIDENCE: 85/100 (was 52 pre-triage; +33 from fixing all 5 MVP-gate findings via option [1])
+DEFERRED: P22 (no test harness, Enterprise gate)
+ALIGNMENT: ALIGNED — 34/34 on-scope, 0 off-scope
+TIER: ent | DRIFT: none
+TICK: ✅ Phase 1 Review column ticked
+TRIAGE: option [1] Fix MVP items only — 5 findings fixed, 1 deferred
+KEY FIXES: VITE_API_BASE_URL env var (#1), auth token try/catch on getIdToken + refresh (#2), KDBP date correction 05-14/05-15→05-13 (#4), real README replacing Vite template (#5), dark mode hover:bg-(--primary-light) replacing hardcoded gray-100 (#6)
+SOURCES: codex/gpt-5 (inbox, 5 findings) + claude/opus-4-6 (blind, 6 findings) — 4 strict matches, 1 fuzzy (confirmed merge), union consolidation
+ARCHIVED: .kdbp/reviews-archive/REVIEW_2026-05-15_resolved.md
+
+## 2026-05-13 — PHASE EXEC COMPLETE: Phase 1 — Web scaffold + OpenAPI client + auth
 TIER: ent
 TASKS: 7 tasks, 1 commit
 DEVIATIONS: 0 structural, 1 minor (React 19 instead of 18 — see DEVIATIONS.md)
 
-## 2026-05-14 — [cd6c123] feat(web): scaffold Vite + React 19 + TanStack Router + Firebase Auth web portal
+## 2026-05-13 — [cd6c123] feat(web): scaffold Vite + React 19 + TanStack Router + Firebase Auth web portal
 FINDINGS: 4 (0 critical, 0 high, 2 medium, 2 low)
 ACTIONS: 3:update-structure 4:update-structure 1:accept 2:accept
 DEFERRED: none

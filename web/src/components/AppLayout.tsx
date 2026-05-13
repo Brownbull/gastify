@@ -60,7 +60,7 @@ function Sidebar() {
         )}
         <button
           onClick={() => void signOut()}
-          className="w-full rounded-lg px-3 py-2 text-left text-sm transition-colors hover:bg-gray-100"
+          className="w-full rounded-lg px-3 py-2 text-left text-sm transition-colors hover:bg-(--primary-light)"
           style={{ color: "var(--text-secondary)" }}
         >
           Sign out

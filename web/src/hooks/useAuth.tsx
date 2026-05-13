@@ -37,8 +37,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        const token = await user.getIdToken();
-        setAuthToken(token);
+        try {
+          const token = await user.getIdToken();
+          setAuthToken(token);
+        } catch (err: unknown) {
+          setAuthToken(null);
+          const message =
+            err instanceof Error ? err.message : "Failed to get auth token";
+          setState({ user: null, loading: false, error: message });
+          return;
+        }
       } else {
         setAuthToken(null);
       }
@@ -52,8 +60,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!state.user) return;
 
     const interval = setInterval(async () => {
-      const token = await state.user!.getIdToken(true);
-      setAuthToken(token);
+      try {
+        const token = await state.user!.getIdToken(true);
+        setAuthToken(token);
+      } catch {
+        setAuthToken(null);
+        setState({ user: null, loading: false, error: "Session expired" });
+      }
     }, 10 * 60 * 1000);
 
     return () => clearInterval(interval);

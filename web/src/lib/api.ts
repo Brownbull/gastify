@@ -4,7 +4,7 @@ import type { paths } from "./api-types";
 let currentToken: string | null = null;
 
 export const apiClient = createClient<paths>({
-  baseUrl: "/",
+  baseUrl: import.meta.env.VITE_API_BASE_URL ?? "/",
 });
 
 apiClient.use({

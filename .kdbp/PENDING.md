@@ -34,4 +34,6 @@
 
 <!-- P16-P20 from /gabe-review Phase 1 backend (2026-05-06) — deferred as option [1] MVP-only fix. P16-P17 Enterprise gate, P18+P20 Scale gate, P19 Enterprise gate. -->
 <!-- P21 from /gabe-review Phase 2 backend (2026-05-06) — JSONB→JSON revert; cosmetic autogenerate noise, not runtime defect. -->
+| P22 | 2026-05-15 | gabe-review P3-Ph1 | No test harness in web/ — auth boundary, protected route redirect, token propagation, sign-in error all untested | `web/package.json:6` | ent | medium | high | 1 | open |
+
 <!-- Backend P1 pending items are tracked inside .kdbp/archive/queued_backend-p1.md and activate with that plan. -->
