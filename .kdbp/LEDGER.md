@@ -1,5 +1,11 @@
 # Session Ledger
 
+## 2026-05-14 10:09 — PUSH main -> main
+PR: — (direct push)
+CI: ✅ 8/8 (72s)
+PROMOTION: N/A
+DEPLOYMENTS: P22 (added row to .kdbp/DEPLOYMENTS.md)
+
 ## 2026-05-14 09:40 — PLAN COMPLETED: P3 Web Portal MVP
 ARCHIVE: .kdbp/archive/completed_PLAN_2026-05-14_p3-web-portal-mvp.md
 PHASES COMPLETED: 5 of 5
