@@ -1,5 +1,11 @@
 # Session Ledger
 
+## 2026-05-14 09:35 — PUSH main -> main
+PR: — (direct push)
+CI: ✅ 8/8 (69s)
+PROMOTION: N/A
+DEPLOYMENTS: P21 (added row to .kdbp/DEPLOYMENTS.md)
+
 ## 2026-05-14 — [2abcab8] test(web): add Phase 5 E2E journey + edge-case Vitest coverage
 FINDINGS: 0 (0 critical, 0 high, 0 medium, 0 low)
 ACTIONS: none
