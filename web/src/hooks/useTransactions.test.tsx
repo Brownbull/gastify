@@ -113,6 +113,52 @@ describe("useUpdateTransaction", () => {
     expect(cached).toMatchObject({ merchant: "Cafe Central" });
   });
 
+  it("can retry after a failed edit and keep the successful optimistic value", async () => {
+    const { queryClient, Wrapper } = createWrapper();
+    queryClient.setQueryData(transactionKeys.detail("txn-1"), baseTxn);
+
+    mockPatch
+      .mockResolvedValueOnce({
+        data: undefined,
+        error: { detail: "Server error" },
+        response: new Response(null, { status: 500 }),
+      })
+      .mockResolvedValueOnce({
+        data: { ...baseTxn, merchant: "Cafe Retry" },
+        error: undefined,
+        response: new Response(),
+      });
+
+    const { result } = renderHook(() => useUpdateTransaction("txn-1"), {
+      wrapper: Wrapper,
+    });
+
+    act(() => {
+      result.current.mutate({ merchant: "Bad Update" });
+    });
+
+    await waitFor(() => {
+      expect(result.current.isError).toBe(true);
+    });
+
+    expect(queryClient.getQueryData(transactionKeys.detail("txn-1"))).toMatchObject(
+      { merchant: "Cafe Central" },
+    );
+
+    act(() => {
+      result.current.mutate({ merchant: "Cafe Retry" });
+    });
+
+    await waitFor(() => {
+      expect(result.current.isSuccess).toBe(true);
+    });
+
+    expect(mockPatch).toHaveBeenCalledTimes(2);
+    expect(queryClient.getQueryData(transactionKeys.detail("txn-1"))).toMatchObject(
+      { merchant: "Cafe Retry" },
+    );
+  });
+
   it("invalidates list and detail queries on settle", async () => {
     const { queryClient, Wrapper } = createWrapper();
     queryClient.setQueryData(transactionKeys.detail("txn-1"), baseTxn);

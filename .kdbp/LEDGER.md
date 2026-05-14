@@ -1,5 +1,26 @@
 # Session Ledger
 
+## 2026-05-14 — PHASE 5 REVIEW: E2E journey + edge case tests
+VERDICT: APPROVE
+FINDINGS: 4 total (0 critical, 2 high, 1 medium, 1 low) — all 4 fixed
+COVERAGE: MEDIUM — Vitest/jsdom mocked integration tests; contract-aligned after fix (SSE terminal payload matches backend). No browser E2E.
+CONFIDENCE: 90/100 (was 59 pre-triage; +31 from fixing all 4 findings via fix-all)
+DEFERRED: none new; P8/P9 re-opened (component-tested but SSE integration path incomplete)
+ALIGNMENT: DRIFTED → ALIGNED (post-fix — plan description amended for Vitest strategy)
+TIER: ent | DRIFT: none
+TICK: ✅ Phase 5 Review column ticked
+TRIAGE: fix all — #1 SSE contract aligned to backend, #2 PLAN.md amended for Vitest, #3 testTimeout 15s, #4 MockEventSource shared
+SOURCES: codex/gpt-5 (inbox, 3 findings) + claude/claude-opus-4-6 (blind, 4 findings) — 2 strict matches, 1 fuzzy confirmed (merged as MEDIUM), 1 Claude-only
+ARCHIVED: .kdbp/reviews-archive/REVIEW_2026-05-14-091600_resolved.md
+
+## 2026-05-13 20:01 — PHASE EXEC COMPLETE: Phase 5 — E2E journey + edge case tests
+TIER: ent
+TASKS: 1 task, 0 commits yet (review/commit pending)
+DEVIATIONS: 0 structural, 1 minor (see DEVIATIONS.md)
+SCOPE: Added web Vitest route/hook/component coverage for sign-in → scan upload → SSE stream → transaction list/detail → merchant edit → sign-out eviction, plus scan error UX, unknown merchant, low confidence, edit retry, SSE token refresh/reconnect, double-submit abort, and invalid-file rejection.
+PENDING CLOSED: P6, P8, P9
+VERIFICATION: `npm test` — 8 files / 23 tests pass; `npm run lint` — 0 errors, 27 existing Fast Refresh warnings; `npm run build` — pass.
+
 ## 2026-05-13 19:14 — PHASE EXEC COMPLETE: Phase 4 — Sign-out isolation + responsive polish
 TIER: ent
 TASKS: 1 task, 1 feature commit (+1 KDBP bookkeeping commit)

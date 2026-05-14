@@ -1,4 +1,5 @@
 import "@testing-library/jest-dom/vitest";
+import { vi } from "vitest";
 
 // Node.js 22+ provides a built-in localStorage via --localstorage-file that can
 // shadow JSDOM's Storage implementation with a broken stub (missing .clear, etc.).
@@ -38,3 +39,9 @@ if (
     configurable: true,
   });
 }
+
+Object.defineProperty(window, "scrollTo", {
+  value: vi.fn(),
+  writable: true,
+  configurable: true,
+});

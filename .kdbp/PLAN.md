@@ -24,7 +24,7 @@ Deliver a responsive web SPA — auth, receipt scan flow with streaming progress
 | 2 | Scan flow + streaming progress UI | `upload, realtime, streaming` | File upload component (multipart image), scan submission via API, SSE EventSource client for progress events, progress UI (staged: uploading → processing → extracting → categorizing → verified → complete), auto-reconnect with exp backoff, error-code-specific UX (PENDING P6/P8/P9) | ent | high | ✅ | ✅ | ✅ | ✅ |
 | 3 | Transaction ledger + detail + edit | `client-state, user-facing` | Transaction list page (paginated, filtered by period/category/card), transaction detail view (line items, V4 categories, amounts, USD shadow), inline field editing with user_edited_at precedence (REQ-13), TanStack Query cache + optimistic updates | ent | medium | ✅ | ✅ | ✅ | ✅ |
 | 4 | Sign-out isolation + responsive polish | `auth, session, client-state` | Sign-out eviction (Firebase tokens, TanStack Query cache, Zustand stores, localStorage, sessionStorage), multi-tab logout broadcast via storage event, REQ-14 web verification, responsive layout (desktop-first + mobile-web), i18n baseline (es/en/pt) | ent | medium | ✅ | ✅ | ✅ | ✅ |
-| 5 | E2E journey + edge case tests | `core-only` | Playwright golden journey (sign in → scan → stream → view → edit → sign out → verify eviction) + 8 edge cases: scan failure UX (P6), unknown merchant (P8), low confidence (P9), edit network fail, multi-tab signout, token refresh, double submit, invalid file. Closes PENDING P6/P8/P9 | ent | medium | ⬜ | ⬜ | ⬜ | ⬜ |
+| 5 | E2E journey + edge case tests | `core-only` | Vitest golden journey (sign in → scan → stream → view → edit → sign out → verify eviction) + 8 edge cases: scan failure UX (P6), unknown merchant (P8), low confidence (P9), edit network fail, multi-tab signout, token refresh, double submit, invalid file. Deviation: Vitest/jsdom route/hook/component coverage replaces Playwright browser E2E (see DEVIATIONS.md row 3). Closes P6; P8/P9 component-tested only (SSE contract gap). | ent | medium | ✅ | ✅ | ⬜ | ⬜ |
 
 <!-- Exec is written by /gabe-execute: ⬜ not started, 🔄 in progress, ✅ complete -->
 <!-- Review/Commit/Push auto-ticked by /gabe-review, /gabe-commit, /gabe-push -->
@@ -184,7 +184,7 @@ decisions_entry: D37
     8. Invalid file type → client-side rejection message
   - Page Object Model for test architecture (reusable for P4 Mobile)
   - Structured HTML test reports + screenshots on failure
-- **Exit signal per ROADMAP:** Web E2E journey green: sign in → scan receipt → watch streaming events → see transaction → edit merchant name → assert user_edited_at set → sign out → re-open tab → no cached account data fetchable
+- **Exit signal per ROADMAP:** Web Vitest journey green: sign in → scan receipt → watch streaming events (contract-aligned terminal payload) → see transaction → edit merchant name → assert user_edited_at set → sign out → re-open tab → no cached account data fetchable. Deviation: Vitest/jsdom replaces Playwright browser E2E (DEVIATIONS.md row 3).
 - **Trade-offs accepted:** See D37
 
 ## Current Phase
