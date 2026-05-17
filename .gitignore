@@ -61,12 +61,16 @@ apps/web/storybook-static/
 # Codex CLI
 .codex
 
+# Local secrets. These files are for local staging/dev only and must never be committed.
+.secrets/
+
 # KDBP review archive — resolved /gabe-review live documents
 .kdbp/reviews-archive/
 
 # Logs
 logs/
 *.log
+firepit-log.txt
 
 # Railway
 .railway/
@@ -74,6 +78,9 @@ logs/
 # Local Docker
 postgres_data/
 railway_volume_local/
+
+# Deprecated local Android SDK shim from retired WSL emulator path
+.android-sdk-shim/
 
 # Alembic (keep migrations, ignore transient)
 alembic/versions/__pycache__/
@@ -94,6 +101,10 @@ docs/mockups/legacy-reference/
 # constants.ts, api-types.ts) ARE committed intentionally. CI runs codegen and
 # diff-checks against committed versions to catch drift. See PLAN.md B3 + LESSONS R6.
 tests/mockups/validate/.cache/
+
+# Mobile E2E artifacts. Keep docs/scripts in git, not generated screenshots.
+tests/mobile/artifacts/latest/**
+tests/mobile/artifacts/archive/**
 
 # Firestore data exports — contain real user PII (emails, UIDs)
 docs/rebuild/firestore-data-export.json

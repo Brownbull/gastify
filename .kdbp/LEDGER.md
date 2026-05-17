@@ -1,5 +1,139 @@
 # Session Ledger
 
+## 2026-05-17 17:33 — PHASE 1 REVIEW: Mobile scaffold + typed API + auth
+VERDICT: APPROVE
+FINDINGS: 3 total (0 critical, 2 high, 0 medium, 1 low) — all 3 fixed
+COVERAGE: MEDIUM — mobile Jest/RNTL now covers SecureStore cleanup failure and stale auth-event guard behavior; native S23/Maestro evidence remains happy-path smoke only.
+CONFIDENCE: 95/100
+DEFERRED: none
+ALIGNMENT: ALIGNED
+TIER: ent | DRIFT: none
+TICK: ✅
+KEY FIXES: cleanup no longer short-circuits query/store reset when SecureStore deletion fails; auth observer work is serialized and guarded against stale token commits; mobile docs now match React Native 0.83.
+
+## 2026-05-15 18:45 — SESSION HANDOFF: Phase 1 — Mobile hardware lane ready for next session
+TIER: ent
+TASKS: 1 handoff update, 0 commits yet (review/commit pending)
+DEVIATIONS: 0
+SCOPE: Updated `MOBILE.md` with a next-session resume checklist, S23 WSL attach commands, Expo dev-client startup, proven active Maestro smoke command, driver-stall recovery, and shutdown cleanup. Updated `mobile/ANDROID_E2E_SETUP.md` to clarify the admin `detach`/`unbind` requirement for restoring normal Windows USB behavior.
+PENDING CLOSED: none
+VERIFICATION: Phone stay-awake disabled with native Linux ADB; `com.gastify.mobile` force-stopped; Metro/ngrok/Maestro processes stopped; native WSL ADB no longer lists the S23 after USB/IP detach attempt; `usbipd list` shows the S23 as `Shared (forced)`, so final `unbind --busid 2-2` must be run from Administrator PowerShell before Windows ADB will use the phone normally; `git diff --check` passed before the final doc tweak and should be rerun next session if more edits continue.
+FOLLOW-UP: Before shutdown or after reboot, run Administrator PowerShell: `& 'C:\Program Files\usbipd-win\usbipd.exe' unbind --busid 2-2`. Next work item remains Phase 1 review, then commit/push, then Phase 2 camera scan + WebSocket progress.
+
+## 2026-05-15 18:36 — PHASE EXEC SUPPLEMENT: Phase 1 — WSL-native S23 Maestro smoke green
+TIER: ent
+TASKS: 1 setup-hardening supplement, 0 commits yet (review/commit pending)
+DEVIATIONS: 0 structural, 1 tooling lane refinement (Maestro `openLink` and automatic Android driver reinstall are unreliable on this S23; the stable lane pre-opens Expo dev client through ADB and runs with preinstalled Maestro driver APKs)
+SCOPE: Completed the `usbipd-win` WSL-native path for Samsung S23 `RFCW90N4BYP`, verified native Linux ADB after the Samsung udev rule, added a cwd-safe Maestro runner, added `p4-phase1-smoke-active.yaml` for already-open Expo dev-client assertions, added helper scripts/npm commands for opening the dev client, installing/resetting Maestro's Android driver packages, and documented the stable next-phase command sequence in `mobile/ANDROID_E2E_SETUP.md`.
+PENDING CLOSED: none
+VERIFICATION: `ADB_BIN=$HOME/.local/share/gastify/android-platform-tools/platform-tools/adb adb devices -l` — `RFCW90N4BYP device`; `npm run doctor:e2e` (mobile, native ADB) — diagnostic pass with expected JDK 17 and Xcode WARN only; `maestro --verbose hierarchy --compact --no-ansi` — returned React Native ids including `sign-in-screen`, `google-sign-in-button`, and `e2e-sign-in-button`; `npm run maestro:install-driver` (mobile) — installed `dev.mobile.maestro` and `dev.mobile.maestro.test`; `MAESTRO_VERBOSE=true MAESTRO_REINSTALL_DRIVER=false npm run maestro:smoke:active -- --archive` (mobile) — `[Passed] p4-phase1-smoke-active (10s)`, artifacts in `tests/mobile/artifacts/latest/p4-phase1-smoke-active/` with `report.html`, command JSON, and screenshots `01-sign-in.png`, `02-home.png`, `03-signed-out.png`; `bash -n tests/mobile/scripts/run-maestro.sh tests/mobile/scripts/open-dev-client.sh tests/mobile/scripts/install-maestro-driver.sh tests/mobile/scripts/reset-maestro-driver.sh tests/mobile/scripts/android-tooling.sh` — pass; `node` package.json parse — pass; `git diff --check` — pass.
+FOLLOW-UP: Keep using WSL `usbipd-win` + native Linux ADB for Android hardware automation in Phase 2. Start Metro tunnel, export `EXPO_DEV_CLIENT_URL`, run `npm run maestro:open-dev-client`, `npm run maestro:install-driver`, then `MAESTRO_REINSTALL_DRIVER=false npm run maestro:smoke:active`. Revisit all-in-one `openLink` only if a later Expo/Maestro update makes it reliable.
+
+## 2026-05-15 17:52 — PHASE EXEC SUPPLEMENT: Phase 1 — WSL usbipd native ADB probe partially ready
+TIER: ent
+TASKS: 1 setup-hardening supplement, 0 commits yet (review/commit pending)
+DEVIATIONS: 0 structural, 1 tooling setup blocker (native WSL ADB sees the S23 only after USB/IP attach, but WSL udev permissions still need a sudo-installed Samsung rule)
+SCOPE: Installed `usbipd-win` 5.3.0 on Windows through winget, installed native Linux Android platform-tools under `~/.local/share/gastify/android-platform-tools/platform-tools`, identified the Samsung S23 as usbipd bus `2-2` (`04e8:6860`, `RFCW90N4BYP`), confirmed normal bind is blocked by Windows using the composite Samsung interface, confirmed `bind --force` lets WSL receive the device through USB/IP, and restored the S23 to normal Windows ADB visibility after the sudo step was not completed.
+PENDING CLOSED: none
+VERIFICATION: `usbipd list` — S23 bus `2-2`; `usbipd bind --force --busid 2-2` — S23 became `Shared (forced)` after UAC approval; `usbipd attach --wsl --busid 2-2` — S23 became `Attached`; WSL `dmesg` — Samsung USB `04e8:6860` attached with serial `RFCW90N4BYP`; native Linux `adb devices -l` — saw `RFCW90N4BYP no permissions`; `sudo` udev-rule install was prompted but not completed; `usbipd unbind --busid 2-2` — restored S23 to `Not shared`; `tests/mobile/bin/adb devices` — Windows ADB again sees `RFCW90N4BYP device`.
+FOLLOW-UP: Install the WSL udev rule for Samsung (`04e8`) with sudo, re-run `usbipd bind --force --busid 2-2` + `usbipd attach --wsl --busid 2-2`, verify native Linux `adb devices -l` shows `device`, then run Maestro with `ADB_BIN=$HOME/.local/share/gastify/android-platform-tools/platform-tools/adb`.
+
+## 2026-05-15 17:22 — PHASE EXEC SUPPLEMENT: Phase 1 — EAS APK installed and manual S23 smoke green
+TIER: ent
+TASKS: 1 supplement, 0 commits yet (review/commit pending)
+DEVIATIONS: 0 structural, 1 tooling lane clarification (WSL Metro LAN/ADB reverse is unreliable through Windows ADB; Expo tunnel works for manual dev-client smoke)
+SCOPE: Created/linked the EAS project `@brownbull/gastify-mobile` (`eecbbed5-3325-4687-9756-c3b1135e3de5`), pinned the project id in `mobile/app.config.ts`, uploaded ignored Firebase native config files as secret EAS file env vars, removed the unnecessary e2e update channel prompt, aligned `expo-dev-client` with Expo Doctor, built Android e2e APK `bf9b3488-0dba-4aad-9b49-238b4cabf93d`, downloaded it to `tests/mobile/artifacts/latest/eas/gastify-e2e.apk`, installed it on S23 `RFCW90N4BYP`, enabled USB-only stay-awake for physical-device work, and completed the manual sign-in → test auth → sign-out smoke through an Expo tunnel.
+PENDING CLOSED: none
+VERIFICATION: `npx eas-cli@latest project:info` (mobile) — linked to `@brownbull/gastify-mobile`; `npx eas-cli@latest env:list --environment development` (mobile) — secret file env vars present for Android/iOS Firebase config; `npx expo install --check` (mobile) — pass; `npm run check:expo-config` (mobile) — pass; `npm run typecheck` (mobile) — pass; `npm test` (mobile) — 6 suites / 14 tests pass; EAS build `bf9b3488-0dba-4aad-9b49-238b4cabf93d` — FINISHED, artifact downloaded; `tests/mobile/bin/adb devices` — `RFCW90N4BYP device`; `tests/mobile/bin/adb install -r tests/mobile/artifacts/latest/eas/gastify-e2e.apk` — Success; `tests/mobile/bin/adb shell svc power stayon usb` — set `stay_on_while_plugged_in=2`; `npm run doctor:e2e` (mobile) — diagnostic pass with expected WARN for Windows/WSL ADB bridge, optional JDK 17, and missing Xcode; `npm run start:dev-client -- --host tunnel` (mobile) — Metro tunnel bundled `index.js` for Android; curated manual smoke screenshots captured in `tests/mobile/artifacts/latest/manual-smoke/06-sign-in-visible.png`, `07-after-test-auth.png`, and `08-signed-out.png`; troubleshooting captures archived under `tests/mobile/artifacts/latest/manual-smoke/debug/`.
+FOLLOW-UP: Phase 1 is ready for `gabe-review`; automated Maestro remains deferred until ADB and Maestro run from the same host side (Windows-side Maestro or WSL `usbipd-win` native ADB).
+
+## 2026-05-15 16:42 — PHASE EXEC SUPPLEMENT: Phase 1 — Physical S23 detected, EAS login still blocking APK build
+TIER: ent
+TASKS: 1 supplement, 0 commits yet (review/commit pending)
+DEVIATIONS: 0 structural, 1 tooling clarification (doctor now distinguishes Windows ADB visibility from WSL Maestro readiness)
+SCOPE: Resumed the interrupted physical-device lane after restart; confirmed the connected Samsung S23 is authorized through Windows ADB (`RFCW90N4BYP device`), confirmed EAS is still not logged in, made the Android setup doc explicit that EAS requires a personal Expo account/login for the cloud APK build, and fixed `doctor:e2e` to strip Windows ADB CRLF output plus warn when WSL is seeing the phone only through the Windows/WSL ADB bridge.
+PENDING CLOSED: none
+VERIFICATION: `bash -n tests/mobile/scripts/doctor-mobile.sh tests/mobile/scripts/run-maestro.sh tests/mobile/scripts/android-tooling.sh tests/mobile/bin/adb` — pass; `npm run check:expo-config` (mobile) — pass; `npm run doctor:e2e` (mobile) — diagnostic pass, S23 authorized through Windows ADB, expected WARN for Windows/WSL bridge, JDK 17 optional missing, Xcode missing; `npm run eas:whoami` (mobile) — blocked, "Not logged in"; `tests/mobile/scripts/run-maestro.sh` — exits early as designed because WSL Maestro cannot use the Windows/WSL ADB wrapper; `npm run typecheck` (mobile) — pass; `npm test` (mobile) — 6 suites / 14 tests pass; `npm run verify:staging-auth` (mobile) — pass for `gastify-mobile-e2e@gastify-staging.test`.
+FOLLOW-UP: Create or sign into a personal Expo account, run `npx eas-cli@latest login` from `mobile/`, verify `npm run eas:whoami`, then run `npm run eas:build:android:e2e`. After the APK exists, install/manual-smoke through Windows ADB is viable; automated Maestro still requires Windows-side Maestro or attaching the S23 into WSL with `usbipd-win`.
+
+## 2026-05-15 15:43 — PHASE EXEC SUPPLEMENT: Phase 1 — Android emulator path retired, Samsung S23 lane selected
+TIER: ent
+TASKS: 1 supplement, 0 commits yet (review/commit pending)
+DEVIATIONS: 1 intentional execution-lane change (local WSL emulator/bridge path deprecated in favor of physical Samsung S23)
+SCOPE: Removed the `android:dev` script and retired WSL ADB bridge/local installer scripts; rewrote Android E2E/testing docs around a USB Samsung S23 + EAS APK lane; added decision D43 and updated `.kdbp/PLAN.md`; changed ignored `mobile/.env` away from the Android emulator `10.0.2.2` API URL to `127.0.0.1` for the `adb reverse` path; deleted generated local resource state (`mobile/android/`, `.android-sdk-shim/`, failed-run `tests/mobile/artifacts/latest/`, `mobile/.expo/`, local JDK/platform-tools under `~/.local/share/gastify`).
+PENDING CLOSED: none
+VERIFICATION: `bash -n tests/mobile/scripts/android-tooling.sh tests/mobile/scripts/doctor-mobile.sh tests/mobile/scripts/run-maestro.sh tests/mobile/bin/adb tests/mobile/scripts/check-expo-config.sh tests/mobile/scripts/verify-staging-auth.sh` — pass; `npm run typecheck` (mobile) — pass; `npm test` (mobile) — 6 suites / 14 tests pass; `npm run check:expo-config` (mobile) — pass, API base now `http://127.0.0.1:8000`; `npm run doctor:e2e` (mobile) — diagnostic pass with expected WARN for no authorized S23 connected, optional JDK 17 missing, and no Xcode; `git diff --check` — pass.
+FOLLOW-UP: Connect Samsung S23 over USB, enable USB debugging, approve device prompt, then choose either Windows-side ADB+Maestro or WSL `usbipd-win` attachment so ADB and Maestro see the same phone before running `tests/mobile/scripts/run-maestro.sh`.
+
+## 2026-05-14 22:28 — PHASE EXEC SUPPLEMENT: Phase 1 — Android dev-build and Maestro setup
+TIER: ent
+TASKS: 1 supplement, 0 commits yet (review/commit pending)
+DEVIATIONS: 0
+SCOPE: Added `expo-dev-client`, EAS development/E2E build profiles, Android E2E setup documentation, generated-native-folder ignores, package scripts for dev-client/EAS builds, and Maestro fallback detection in doctor/runner scripts. Installed Maestro locally at `~/.maestro/bin/maestro`.
+PENDING CLOSED: none
+VERIFICATION: `~/.maestro/bin/maestro --version` — 2.5.1; `npm run doctor:e2e` (mobile) — staging config OK, Maestro OK, EAS via npx OK, ADB/xcrun WARN; `npm run check:expo-config` (mobile) — pass with password redacted; `npm run typecheck` (mobile) — pass; `npm test` (mobile) — 6 suites / 14 tests pass; `npm run verify:staging-auth` (mobile) — pass; `npm run generate:api` (mobile) — pass; `npm audit --audit-level=high` (mobile) — no high vulnerabilities, 5 moderate Expo/PostCSS-chain findings remain; `npx eas-cli@latest config --platform android --profile e2e --non-interactive --json` — blocked because Expo account is not logged in; `git diff --check` — pass.
+
+## 2026-05-14 22:14 — PHASE EXEC SUPPLEMENT: Phase 1 — Mobile testing ladder + repeatable staging auth gate
+TIER: ent
+TASKS: 1 supplement, 0 commits yet (review/commit pending)
+DEVIATIONS: 0
+SCOPE: Documented the mobile testing ladder in `mobile/TESTING.md`, `MOBILE.md`, and `.kdbp/PLAN.md`; added `npm run verify:staging-auth` for repeatable Firebase staging email/password verification; added `npm run check:expo-config` to avoid logging the E2E password from raw Expo public config output.
+PENDING CLOSED: none
+VERIFICATION: `npm run verify:staging-auth` (mobile) — pass for `gastify-mobile-e2e@gastify-staging.test`; `npm run doctor:e2e` (mobile) — staging files/env/Admin SDK all OK, native tooling WARN remains; `npm run typecheck` (mobile) — pass; `npm test` (mobile) — 6 suites / 14 tests pass; `npm run generate:api` (mobile) — pass; `npm run check:expo-config` (mobile) — pass with `e2eAuthPassword` redacted; `npm audit --audit-level=high` (mobile) — no high vulnerabilities, 5 moderate Expo/PostCSS-chain findings remain; `git diff --check` — pass.
+
+## 2026-05-14 21:58 — PHASE EXEC SUPPLEMENT: Phase 1 — Staging E2E user ready
+TIER: ent
+TASKS: 1 supplement, 0 commits yet (review/commit pending)
+DEVIATIONS: 0
+SCOPE: Normalized the repo-local ignored Admin SDK key path, filled ignored `mobile/.env` with staging E2E user values and Android-emulator local API URL, created the disposable Firebase Auth staging user, and verified actual email/password sign-in against the staging Firebase API.
+PENDING CLOSED: none
+VERIFICATION: Admin SDK key present at ignored `.secrets/gastify-staging-admin.json`; `tests/mobile/scripts/setup-staging-auth-user.py --execute --reset-password` — created user `gastify-mobile-e2e@gastify-staging.test`; `npm run doctor:e2e` (mobile) — all staging files/env/backend token checks OK, native tooling still WARN; Firebase Identity Toolkit email/password sign-in — OK for uid `EDTdOPF7oUWTCBLGq8foAp3tmjL2`.
+
+## 2026-05-14 21:41 — PHASE EXEC SUPPLEMENT: Phase 1 — Firebase staging app registration
+TIER: ent
+TASKS: 1 supplement, 0 commits yet (review/commit pending)
+DEVIATIONS: 0
+SCOPE: Used authenticated Firebase CLI for `gastify-staging`, created Android and iOS app registrations for `com.gastify.mobile`, downloaded ignored native Firebase config files into `mobile/google-services.json` and `mobile/GoogleService-Info.plist`, recorded app ids in `mobile/STAGING_SETUP.md`, and prefilled the safe project id in ignored `mobile/.env`.
+PENDING CLOSED: none
+VERIFICATION: `firebase apps:list --project gastify-staging` — 2 apps registered; `git check-ignore -v mobile/.env mobile/google-services.json mobile/GoogleService-Info.plist` — all ignored; `npm run doctor:e2e` (mobile) — passes with expected WARN lines for API URL, E2E credentials, Admin SDK JSON, and local native tooling still missing.
+
+## 2026-05-14 21:29 — PHASE EXEC SUPPLEMENT: Phase 1 — Local staging secret fill-in file
+TIER: ent
+TASKS: 1 supplement, 0 commits yet (review/commit pending)
+DEVIATIONS: 0
+SCOPE: Added ignored local `mobile/.env` placeholder for staging/mobile E2E inputs, created `/home/khujta/.secrets/gastify` for the staging Admin SDK JSON, and added `mobile/STAGING_SETUP.md` with step-by-step setup instructions.
+PENDING CLOSED: none
+VERIFICATION: `git check-ignore -v mobile/.env mobile/google-services.json mobile/GoogleService-Info.plist` — all ignored by `mobile/.gitignore`; `git status --short mobile/.env mobile/STAGING_SETUP.md mobile/google-services.json mobile/GoogleService-Info.plist` — only tracked doc appears; `npm run doctor:e2e` (mobile) — pass with expected WARN lines for missing staging values/files/tooling.
+
+## 2026-05-14 21:21 — PHASE EXEC SUPPLEMENT: Phase 1 — Staging-first mobile E2E lane
+TIER: ent
+TASKS: 1 supplement, 0 commits yet (review/commit pending)
+DEVIATIONS: 0 structural, 1 implementation note (Firebase Auth Emulator remains available only as an opt-in fallback)
+SCOPE: Switched mobile E2E config/docs from emulator-first to staging-first, added explicit `EXPO_PUBLIC_E2E_AUTH_MODE`, added a local mobile E2E doctor that writes to `tests/mobile/artifacts/latest/environment/`, and added a staging-only Firebase Auth test-user setup script.
+PENDING CLOSED: none
+VERIFICATION: `npm run typecheck` (mobile) — pass; `npm test` (mobile) — 6 suites / 14 tests pass; `npm run doctor:e2e` (mobile) — pass with expected WARN lines for missing local staging secrets/native tooling; `uv run python -m py_compile ../tests/mobile/scripts/setup-staging-auth-user.py` (backend) — pass; staging setup script dry-run with `GASTIFY_FIREBASE_PROJECT_ID=gastify-staging` — pass; `npx expo config --type public` (mobile) — pass and shows `e2eAuthMode: 'staging'`; `npm run generate:api` (mobile) — pass; `npm audit --audit-level=high` (mobile) — no high vulnerabilities, 5 moderate Expo/PostCSS-chain findings remain; `git diff --check` — pass.
+
+## 2026-05-14 10:51 — PHASE EXEC SUPPLEMENT: Phase 1 — Mobile testing strategy
+TIER: ent
+TASKS: 1 supplement, 0 commits yet (review/commit pending)
+DEVIATIONS: 0 structural, 1 implementation note (`jest-expo` was replaced by `@react-native/jest-preset` because React Native 0.85 moved its Jest preset)
+SCOPE: Added mobile Jest/RNTL config and tests, stable React Native `testID` values, staging-first Firebase Auth E2E sign-in seam, Maestro Phase 1 smoke flow, mobile testing docs, KDBP STRUCTURE test patterns, and GitHub Actions mobile gates for typecheck, tests, API drift, and audit.
+PENDING CLOSED: none
+VERIFICATION: `npm test` (mobile) — 6 suites / 14 tests pass; `npm run typecheck` (mobile) — pass; `npm run generate:api` (mobile) — pass; `npx expo config --type public` (mobile) — pass; `npm audit --audit-level=high` (mobile) — no high vulnerabilities, 5 moderate Expo/PostCSS-chain findings remain; `uv run ruff check . && uv run ruff format --check .` (backend) — pass; `uv run pytest` (backend) — 362 passed, 2 skipped; `git diff --check` — pass.
+
+## 2026-05-14 10:32 — PHASE EXEC COMPLETE: Phase 1 — Mobile scaffold + typed API + auth
+TIER: ent
+TASKS: 4 tasks, 0 commits yet (review/commit pending)
+DEVIATIONS: 0 structural, 1 minor (backend reference OpenAPI UUID import fixed to unblock generated clients)
+SCOPE: Added `mobile/` Expo React Native app with native Firebase Auth + Google Sign-In, SecureStore API-token mirror, React Navigation auth shell, TanStack Query, Zustand session store, generated OpenAPI client, mobile env/readme/config, and KDBP STRUCTURE mobile/test patterns.
+PENDING CLOSED: none
+VERIFICATION: `npm run generate:api` (mobile) — pass; `npm run typecheck` (mobile) — pass; `npx expo config --type public` (mobile) — pass; `uv run ruff check .` (backend) — pass; `uv run ruff format --check .` (backend) — pass; backend OpenAPI probe — pass; `uv run pytest` (backend) — 362 passed, 2 skipped; `npm audit --audit-level=high` (mobile) — no high vulnerabilities, 5 moderate Expo/PostCSS-chain findings remain.
+
+## 2026-05-14 10:18 — PLAN CREATED: P4 Mobile App MVP
+PHASES: 5 | COMPLEXITY: high | MATURITY: mvp
+TIERS: mvp × 0, ent × 5, scale × 0 | PROTOTYPES: 0
+DECISIONS: D38 → D42 (5 phase tier decisions logged)
+
 ## 2026-05-14 10:09 — PUSH main -> main
 PR: — (direct push)
 CI: ✅ 8/8 (72s)
@@ -1134,3 +1268,10 @@ PR: — (direct push)
 CI: all passed (8/8, ~45s)
 PROMOTION: N/A
 DEPLOYMENTS: P20 (added row to .kdbp/DEPLOYMENTS.md)
+
+## 2026-05-15 00:45 — P4 Mobile Android local setup probe
+RESULT: PARTIAL READY
+READY: WSL fast checks green; staging Firebase auth verified; Android Studio Windows emulator visible through `adb.exe`; Expo dev build compiled, installed, and launched on emulator.
+BLOCKER: Full Maestro Android E2E from WSL is not stable against the Windows-hosted emulator. Maestro/DADB either sees no device through WSL's local ADB server or hits EOF on the Windows ADB stream.
+EVIDENCE: `tests/mobile/artifacts/latest/p4-phase1-smoke/` contains failed-run screenshot/debug output showing the app rendered the sign-in screen behind Expo dev-client onboarding.
+FOLLOW-UP: Run full Maestro Android on a native Android/CI emulator path or promote Android E2E to Firebase Test Lab/EAS device lane; keep WSL path for build/manual visual smoke until ADB boundary is solved.

@@ -18,6 +18,7 @@
 |---------|-------------|------|
 | `.kdbp/**` | KDBP state (PLAN, KNOWLEDGE, PENDING, LEDGER, DECISIONS, etc.) | MVP |
 | `README.md` | Project readme | MVP |
+| `MOBILE.md` | Root mobile runbook | MVP |
 | `CLAUDE.md` | Claude Code session-start instructions (managed by /gabe-init) | MVP |
 | `LICENSE*` | License file | MVP |
 | `.gitignore` | Git ignore | MVP |
@@ -77,6 +78,43 @@
 | `web/src/styles/*.css` | Global styles + design tokens | MVP |
 | `web/src/assets/**` | Static assets (images, icons) | MVP |
 | `web/public/**` | Public static assets | MVP |
+
+### Mobile App (Expo + React Native + Firebase Auth)
+
+<!-- Actual layout after Phase 1 scaffold (P4). Native mobile is its own app surface and shares backend contracts, not web UI components. -->
+
+| Pattern | Description | Tier |
+|---------|-------------|------|
+| `mobile/package.json` | Mobile deps + scripts | MVP |
+| `mobile/package-lock.json` | npm lockfile (committed for reproducible installs) | MVP |
+| `mobile/app.config.ts` | Expo managed app config | MVP |
+| `mobile/eas.json` | EAS build profiles for development/E2E artifacts | MVP |
+| `mobile/babel.config.js` | Expo Babel config | MVP |
+| `mobile/jest.config.js` | Mobile Jest/RNTL config | MVP |
+| `mobile/tsconfig.json` | Mobile TypeScript config | MVP |
+| `mobile/index.js` | Expo root registration entry | MVP |
+| `mobile/.gitignore` | Mobile-local ignores for native service files and Expo artifacts | MVP |
+| `mobile/.env.example` | Mobile env var template (no secrets) | MVP |
+| `mobile/*.md` | Mobile package docs | MVP |
+| `mobile/src/App.tsx` | Mobile app root | MVP |
+| `mobile/src/components/**/*.tsx` | Shared native UI components | MVP |
+| `mobile/src/navigation/**/*.tsx` | Native navigation shell | MVP |
+| `mobile/src/providers/**/*.tsx` | React providers for auth/query/session | MVP |
+| `mobile/src/screens/**/*.tsx` | Native screen components | MVP |
+| `mobile/src/**/*.test.{ts,tsx}` | Mobile Jest/RNTL tests | MVP |
+| `mobile/src/test/**` | Mobile Jest setup and test utilities | MVP |
+| `mobile/src/hooks/*.{ts,tsx}` | Mobile React hooks | MVP |
+| `mobile/src/lib/*.{ts,d.ts}` | Mobile client utilities (API client, auth storage, query config, generated types) | MVP |
+| `mobile/src/lib/*.json` | Generated specs (openapi-spec.json) | MVP |
+| `mobile/src/stores/*.ts` | Zustand state stores | MVP |
+| `mobile/src/types/*.ts` | Mobile-only TypeScript types | MVP |
+| `mobile/assets/**` | Mobile static assets | MVP |
+| `tests/mobile/**/*.{ts,tsx,js,jsx}` | Mobile E2E/unit test harness files | MVP |
+| `tests/mobile/**/*.py` | Mobile staging/test setup utilities | MVP |
+| `tests/mobile/bin/*` | Mobile local tool shims for WSL/native E2E | MVP |
+| `tests/mobile/**/*.sh` | Mobile test runner scripts | MVP |
+| `tests/mobile/**/*.yaml` | Mobile Maestro E2E flows | MVP |
+| `tests/mobile/**/*.md` | Mobile E2E docs | MVP |
 
 ### Infrastructure
 

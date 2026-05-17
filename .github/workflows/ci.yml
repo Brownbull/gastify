@@ -75,6 +75,70 @@ jobs:
       - run: npm ci
       - run: npm run build
 
+  mobile-typecheck:
+    name: Mobile Typecheck
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mobile
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: mobile/package-lock.json
+      - run: npm ci
+      - run: npm run typecheck
+
+  mobile-test:
+    name: Mobile Test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mobile
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: mobile/package-lock.json
+      - run: npm ci
+      - run: npm test
+
+  mobile-api-drift:
+    name: Mobile API Drift
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: mobile/package-lock.json
+      - run: cd backend && uv sync --frozen
+      - run: cd mobile && npm ci
+      - run: cd mobile && npm run generate:api
+      - run: git diff --exit-code -- mobile/src/lib/openapi-spec.json mobile/src/lib/api-types.d.ts
+
+  mobile-audit:
+    name: Mobile Audit
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mobile
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: mobile/package-lock.json
+      - run: npm ci
+      - run: npm audit --audit-level=high
+
   backend-test:
     name: Backend Test
     runs-on: ubuntu-latest

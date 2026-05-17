@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [[ -n "${ADB_BIN:-}" && -x "${ADB_BIN}" ]]; then
+  exec "${ADB_BIN}" "$@"
+fi
+
+for candidate in \
+  "/mnt/c/Users/Gabe/AppData/Local/Android/Sdk/platform-tools/adb.exe" \
+  "/mnt/c/Users/${USER}/AppData/Local/Android/Sdk/platform-tools/adb.exe"; do
+  if [[ -x "${candidate}" ]]; then
+    exec "${candidate}" "$@"
+  fi
+done
+
+if command -v adb.exe >/dev/null 2>&1; then
+  exec adb.exe "$@"
+fi
+
+echo "Unable to locate adb. Connect the Samsung S23 and check mobile/ANDROID_E2E_SETUP.md." >&2
+exit 127

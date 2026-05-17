@@ -1,0 +1,28 @@
+appId: com.gastify.mobile
+---
+- waitForAnimationToEnd:
+    timeout: 10000
+- extendedWaitUntil:
+    visible:
+      id: sign-in-screen
+    timeout: 60000
+- assertVisible:
+    id: sign-in-screen
+- takeScreenshot:
+    path: 01-sign-in
+- assertVisible:
+    id: google-sign-in-button
+- tapOn:
+    id: e2e-sign-in-button
+- assertVisible:
+    id: home-screen
+- takeScreenshot:
+    path: 02-home
+- assertVisible:
+    id: signed-in-user-panel
+- tapOn:
+    id: sign-out-button
+- assertVisible:
+    id: sign-in-screen
+- takeScreenshot:
+    path: 03-signed-out

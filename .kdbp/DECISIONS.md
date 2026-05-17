@@ -35,6 +35,12 @@
 | D35 | 2026-05-13 | P3-Ph3 Transaction ledger + edit = ent; optimistic updates + semantic HTML + inline error recovery | TanStack Query mutations + optimistic edit rollback natural for tool stack; semantic HTML a11y Enterprise floor | MVP no optimistic updates + raw alerts + div soup (broken primary surface); Scale ARIA+keyboard+SWR premature | active | A11y audit reveals Scale-tier gaps OR data view complexity spikes |
 | D36 | 2026-05-13 | P3-Ph4 Sign-out isolation = ent; REQ-14 demands logout broadcast + multi-tab sync | Session.Invalidate logout broadcast + Client State cross-tab storage event = REQ-14 + SC-08 load-bearing | MVP per-tab logout only (fails SC-08 multi-tab); Scale BroadcastChannel+shared worker overkill for web-only | active | Household multi-user OR 3+ client surfaces |
 | D37 | 2026-05-13 | P3-Ph5 E2E tests = ent; closes PENDING P6/P8/P9 + proves multi-tab SC-08 edge | 8 edge tests verify error UX, unknown merchant, low confidence, network failure, multi-tab eviction, token refresh, idempotency, input validation | MVP golden journey only (PENDING P6/P8/P9 unverified, multi-tab SC-08 untested) | active | Exit-signal definition changes OR new PENDING items surface |
+| D38 | 2026-05-14 | P4-Ph1 Mobile scaffold + auth = ent; native keystore + typed API + Firebase Auth load-bearing | Native auth tokens must live in platform keystore/keychain; Expo + Firebase + typed API client make Ent baseline cheaper than unsafe MVP | MVP AsyncStorage token storage/manual auth; Scale device fleet/MDM management premature | active | Auth provider changes OR Expo managed workflow no longer fits |
+| D39 | 2026-05-14 | P4-Ph2 Camera scan + WebSocket progress = ent; native capture + reconnecting stream are exit-signal behavior | Native camera/file picker and WebSocket reconnection are required for mobile scan journey; manual reload after disconnect fails the core loop | MVP static upload/no reconnect; Scale jitter/budget/backpressure overkill for current scan event volume | active | Stream events > 50/scan OR WebSocket proxy/auth model changes |
+| D40 | 2026-05-14 | P4-Ph3 Mobile ledger + edit = ent; optimistic rollback + user_edited_at precedence are primary data-safety behavior | Mobile transaction edits must preserve REQ-13 and recover cleanly from network failure; query invalidation is baseline for shared scan/edit state | MVP no optimistic rollback and ad hoc state; Scale offline-first sync premature | active | Offline editing added OR transaction data view complexity spikes |
+| D41 | 2026-05-14 | P4-Ph4 Sign-out isolation + push registration = ent; native cache eviction and device token lifecycle are REQ-14/REQ-25 load-bearing | Platform keystore/query/cache/image purge and push permission/device-token handling must be explicit before mobile can ship | MVP signOut only with residual local data; Scale remote device management/quiet-hour policy premature | active | Household devices OR push delivery rules expand |
+| D42 | 2026-05-14 | P4-Ph5 Mobile E2E = ent; Android+iOS journey proves keystore/cache eviction and native streaming | ROADMAP exit signal requires device-level E2E across mobile platforms; storage eviction cannot be trusted without native runtime probes | MVP unit-only golden path; Scale physical device farm/load suite premature | active | Exit-signal definition changes OR CI/device availability changes |
+| D43 | 2026-05-15 | P4 Android E2E execution pivots from local WSL emulator to Samsung S23 physical-device lane | WSL2 + Windows emulator consumed local generated SDK/native-build state and still failed Maestro/DADB reliability; a USB S23 proves camera, keystore, and real Android storage without emulator CPU/RAM pressure | Continue WSL emulator bridge; keep local Gradle/prebuild loop as primary; start with Firebase Test Lab before the local APK story is stable | active | S23 USB lane fails OR CI mobile hardware lane becomes available |
 
 <!-- Status: active / superseded / revisit -->
 <!-- BEHAVIOR.md constraints reference decision IDs: "All integrations mocked (ref D1)" -->
@@ -1000,6 +1006,242 @@ Load-bearing items deferred:
 ### Review trigger
 - Exit-signal definition changes
 - New PENDING items surface
+
+### Status
+- accepted
+
+---
+
+## D38 — P4-Phase 1 tier: ent (2026-05-14)
+
+**Phase:** Mobile scaffold + typed API + auth
+**Types:** `auth, native-mobile, client-state`
+**Tier chosen:** ent
+**Prototype:** no
+**Reason:** Native auth tokens must live in platform keystore/keychain and the app needs real Firebase token refresh plus a generated typed API client before any receipt or ledger flow lands. MVP-style manual token storage would create the exact sign-out and cache-leak risk P4 is meant to eliminate.
+
+### Sections rendered
+- Core (always, all 4 dims)
+- Auth/Session: 4 dims kept, 1 suppressed
+- Client State: 3 dims kept, 4 suppressed
+- Native Mobile: 3 dims kept, 1 suppressed
+
+### Dimensions suppressed (Layer 2 filter)
+- Auth/Session.Multi-tab sync — web-only concern, replaced by native session eviction
+- Client State.Optimistic updates — later Phase 3
+- Client State.Mutation propagation — later Phase 3
+- Client State.Cross-tab sync — not applicable to native mobile
+- Client State.Offline support — SCOPE says online-required
+- Native Mobile.App-store release — not part of MVP scaffold
+
+### Δ deferred by tier choice
+- M × 1 (Auth.Session-invalidate ΔE→S device management)
+- S × 2 (Client State.Offline ΔE→S, Native Mobile.Release ΔE→S)
+
+Load-bearing items deferred:
+- Device fleet management stays out of scope until household/shared device requirements land
+- App-store release hardening waits for launch packaging, not P4 scaffold
+
+### Review trigger
+- Auth provider changes
+- Expo managed workflow no longer fits
+
+### Status
+- accepted
+
+---
+
+## D39 — P4-Phase 2 tier: ent (2026-05-14)
+
+**Phase:** Camera scan + WebSocket progress
+**Types:** `upload, realtime, streaming, native-mobile, file-media`
+**Tier chosen:** ent
+**Prototype:** no
+**Reason:** Native camera capture and reconnecting WebSocket scan progress are core to the mobile receipt loop. A dead stream that requires manual reload fails the P4 exit signal, and file/camera permission states must be handled on both platforms.
+
+### Sections rendered
+- Core (always, all 4 dims)
+- Real-time: 3 dims kept, 2 suppressed
+- File/Media: 3 dims kept, 3 suppressed
+- Native Mobile: 3 dims kept, 2 suppressed
+
+### Dimensions suppressed (Layer 2 filter)
+- Real-time.Presence — no collaborative presence model
+- Real-time.Backpressure — scan event volume is low
+- File/Media.CDN — receipt images are upload inputs, not public assets
+- File/Media.Retention — backend retention policy owns lifecycle
+- File/Media.Virus scan — not in current MVP mobile scope
+- Native Mobile.Background upload — foreground scan flow only
+- Native Mobile.App-store release — later packaging concern
+
+### Δ deferred by tier choice
+- M × 2 (Real-time.Backpressure ΔE→S, File/Media.Retention ΔE→S)
+- S × 2 (Real-time.Jitter-budget ΔE→S, Native Mobile.Background upload ΔE→S)
+
+Load-bearing items deferred:
+- Scale-grade streaming budgets are deferred until scan event count or proxy behavior changes
+- Background uploads are deferred because P4 proves a foreground scan journey
+
+### Review trigger
+- Stream events exceed roughly 50 per scan
+- WebSocket proxy or auth model changes
+
+### Status
+- accepted
+
+---
+
+## D40 — P4-Phase 3 tier: ent (2026-05-14)
+
+**Phase:** Mobile ledger + detail + edit
+**Types:** `client-state, user-facing, native-mobile`
+**Tier chosen:** ent
+**Prototype:** no
+**Reason:** Mobile edits are part of the primary product surface and must preserve REQ-13 `user_edited_at` precedence. Optimistic rollback and query invalidation are the minimum safe behavior when scan completion and manual edits share cached state.
+
+### Sections rendered
+- Core (always, all 4 dims)
+- Client State: 4 dims kept, 3 suppressed
+- UI/UX: 3 dims kept, 1 suppressed
+- Native Mobile: 2 dims kept, 1 suppressed
+
+### Dimensions suppressed (Layer 2 filter)
+- Client State.Cross-tab sync — not applicable to native mobile
+- Client State.Offline support — SCOPE says online-required
+- Client State.Store coupling — Phase 1 establishes scoped stores
+- UI/UX.Advanced accessibility — defer full audit after mobile MVP path exists
+- Native Mobile.Background sync — offline/background sync out of scope
+
+### Δ deferred by tier choice
+- M × 1 (Client State.Offline ΔE→S)
+- L × 1 (UI/UX.A11y ΔE→S)
+- S × 1 (Native Mobile.Background sync ΔE→S)
+
+Load-bearing items deferred:
+- Offline edits stay deferred until product explicitly supports offline mode
+- Full mobile accessibility audit follows after the first working screen set exists
+
+### Review trigger
+- Offline editing added
+- Transaction data view complexity spikes
+
+### Status
+- accepted
+
+---
+
+## D41 — P4-Phase 4 tier: ent (2026-05-14)
+
+**Phase:** Sign-out isolation + push registration + platform polish
+**Types:** `auth, session, client-state, native-mobile, notifications`
+**Tier chosen:** ent
+**Prototype:** no
+**Reason:** REQ-14 and REQ-25 are native lifecycle requirements, not polish. Sign-out must clear platform keystore/keychain, app stores, query caches, and cached receipt data; push registration must account for permission denial and unregister-on-sign-out.
+
+### Sections rendered
+- Core (always, all 4 dims)
+- Auth/Session: 3 dims kept, 2 suppressed
+- Client State: 3 dims kept, 2 suppressed
+- Native Mobile: 3 dims kept, 1 suppressed
+- Notifications: 3 dims kept, 2 suppressed
+
+### Dimensions suppressed (Layer 2 filter)
+- Auth/Session.CSRF — bearer-token native API, no cookies
+- Auth/Session.Custom refresh endpoint — Firebase owns refresh
+- Client State.Optimistic updates — Phase 3 owns edit mutations
+- Client State.Mutation propagation — Phase 3 owns edit mutations
+- Native Mobile.App-store release — not a launch packaging phase
+- Notifications.Campaigning — product notifications only
+- Notifications.Quiet hours — Scale notification policy deferred
+
+### Δ deferred by tier choice
+- M × 1 (Auth.Session-invalidate ΔE→S device management)
+- S × 2 (Notifications.Policy ΔE→S, Native Mobile.Release ΔE→S)
+
+Load-bearing items deferred:
+- Remote device management waits for household/shared-device scope
+- Notification preference policy waits until concrete alert types exist
+
+### Review trigger
+- Household devices become part of MVP
+- Push delivery rules or notification categories expand
+
+### Status
+- accepted
+
+---
+
+## D42 — P4-Phase 5 tier: ent (2026-05-14)
+
+**Phase:** Mobile E2E journey + edge tests
+**Types:** `core-only, native-mobile, test`
+**Tier chosen:** ent
+**Prototype:** no
+**Reason:** The ROADMAP exit signal explicitly requires the mobile journey on native Android and iOS runtimes, including keystore/cache eviction. Unit-only coverage cannot prove native camera permissions, WebSocket lifecycle, or platform storage cleanup. Maestro is the selected P4 E2E runner; Detox remains a fallback only if Maestro blocks the phase. D43 amends the local Android lane from simulated builds to physical Samsung S23 hardware.
+
+### Sections rendered
+- Core (always, all 4 dims)
+- Native Mobile: 2 dims kept, 2 suppressed
+
+### Dimensions suppressed (Layer 2 filter)
+- Native Mobile.App-store release — not a distribution phase
+- Native Mobile.Deep linking — not needed for the core scan journey
+
+### Edge cases covered
+1. Camera permission denied
+2. File/image validation failure
+3. WebSocket disconnect and reconnect
+4. Scan failure event
+5. Unknown merchant / low confidence review state
+6. Edit network failure with optimistic rollback
+7. Token refresh mid-stream
+8. Push permission denied
+9. Sign-out after scan/edit clears native token + query/cache state
+
+### Δ deferred by tier choice
+- M × 1 (Core.Testing ΔE→S fuzz + load eval)
+- S × 1 (Native Mobile.Device farm ΔE→S)
+
+Load-bearing items deferred:
+- Physical device farm and load testing are deferred until pre-launch packaging
+
+### Review trigger
+- Exit-signal definition changes
+- CI/device availability changes
+
+### Status
+- accepted
+
+---
+
+## D43 — P4 Android E2E execution lane pivot (2026-05-15)
+
+**Phase:** Mobile E2E setup and Phase 5 runway
+**Types:** `native-mobile, test`
+**Tier chosen:** ent
+**Prototype:** no
+**Reason:** The local Android emulator path is a poor fit for this workstation. It created multi-GB generated state (`mobile/android/`, `.android-sdk-shim/`, local JDK/platform-tools) and still left Maestro unstable across the WSL-to-Windows ADB boundary. A physical Samsung S23 over USB gives a better Android proof surface for the actual native risks: camera permission, SecureStore/keystore behavior, app cache eviction, push permission, and real device networking.
+
+### Execution posture
+- Keep WSL for fast JS/config checks.
+- Build Android APKs through EAS first to avoid local Gradle/prebuild resource churn.
+- Install and smoke on the Samsung S23.
+- Run Maestro only when ADB and Maestro see the same authorized device from the same host side.
+
+### Deprecated
+- Local WSL Android emulator as the default P4 lane.
+- WSL ADB bridge experiments.
+- Repo-local Android SDK shim generation.
+- Local non-admin JDK/platform-tools installers for emulator retries.
+
+### Alternatives considered
+- Continue the WSL emulator bridge: rejected because it already failed through DADB/ADB stream instability.
+- Keep local Gradle/prebuild as the primary lane: rejected because it regenerates large disposable native folders and competes with the workstation's RAM/CPU.
+- Start with Firebase Test Lab: deferred until the APK and data-reset story are stable; useful for compatibility evidence, not the first deterministic proof.
+
+### Review trigger
+- S23 USB lane fails.
+- CI/mobile hardware lane becomes available.
 
 ### Status
 - accepted

@@ -2,12 +2,10 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Annotated
+import uuid  # noqa: TC003 - Pydantic needs runtime access for OpenAPI generation.
+from typing import Annotated
 
 from fastapi import APIRouter, Depends
-
-if TYPE_CHECKING:
-    from uuid import UUID
 from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -21,7 +19,7 @@ DB = Annotated[AsyncSession, Depends(get_db)]
 
 
 class StoreCategoryItem(BaseModel):
-    id: UUID
+    id: uuid.UUID
     key: str
     display_labels: dict
     is_sensitive: bool
