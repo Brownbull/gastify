@@ -1,5 +1,11 @@
 # Session Ledger
 
+## 2026-05-17 18:15 — PUSH main -> main
+PR: —
+CI: ✅ 12/12 (65s)
+PROMOTION: N/A
+DEPLOYMENTS: P23 (added row to .kdbp/DEPLOYMENTS.md)
+
 ## 2026-05-17 — [7bb1b3f] feat(mobile): add Expo auth scaffold
 FINDINGS: 0 (0 critical, 0 high, 0 medium, 0 low)
 ACTIONS: none
