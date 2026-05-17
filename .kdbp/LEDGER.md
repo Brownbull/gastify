@@ -1,5 +1,10 @@
 # Session Ledger
 
+## 2026-05-17 — [7bb1b3f] feat(mobile): add Expo auth scaffold
+FINDINGS: 0 (0 critical, 0 high, 0 medium, 0 low)
+ACTIONS: none
+DEFERRED: none
+
 ## 2026-05-17 17:33 — PHASE 1 REVIEW: Mobile scaffold + typed API + auth
 VERDICT: APPROVE
 FINDINGS: 3 total (0 critical, 2 high, 0 medium, 1 low) — all 3 fixed
