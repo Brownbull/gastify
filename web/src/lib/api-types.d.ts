@@ -279,6 +279,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/push-tokens": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Register Push Token */
+        post: operations["register_push_token_api_v1_push_tokens_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/push-tokens/unregister": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Unregister Push Token */
+        post: operations["unregister_push_token_api_v1_push_tokens_unregister_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/scans": {
         parameters: {
             query?: never;
@@ -654,6 +688,83 @@ export interface components {
             jurisdictions: string;
             /** Is Active */
             is_active: boolean;
+        };
+        /** PushTokenRegistration */
+        PushTokenRegistration: {
+            /** Token */
+            token: string;
+            /**
+             * Platform
+             * @enum {string}
+             */
+            platform: "android" | "ios";
+            /**
+             * Provider
+             * @default expo
+             * @enum {string}
+             */
+            provider: "expo" | "fcm" | "apns";
+            /**
+             * Permission Status
+             * @default granted
+             * @enum {string}
+             */
+            permission_status: "granted" | "denied" | "undetermined";
+            /** Device Id */
+            device_id?: string | null;
+            /**
+             * App Environment
+             * @default local
+             */
+            app_environment: string;
+            /** App Version */
+            app_version?: string | null;
+        };
+        /** PushTokenResponse */
+        PushTokenResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Token */
+            token: string;
+            /** Platform */
+            platform: string;
+            /** Provider */
+            provider: string;
+            /** Permission Status */
+            permission_status: string;
+            /** Device Id */
+            device_id?: string | null;
+            /** App Environment */
+            app_environment: string;
+            /** App Version */
+            app_version?: string | null;
+            /** Enabled */
+            enabled: boolean;
+            /**
+             * Registered At
+             * Format: date-time
+             */
+            registered_at: string;
+            /**
+             * Last Seen At
+             * Format: date-time
+             */
+            last_seen_at: string;
+            /** Revoked At */
+            revoked_at?: string | null;
+        };
+        /** PushTokenUnregister */
+        PushTokenUnregister: {
+            /** Token */
+            token?: string | null;
+        };
+        /** PushTokenUnregisterResponse */
+        PushTokenUnregisterResponse: {
+            /** Revoked Count */
+            revoked_count: number;
         };
         /** RectificationRequest */
         RectificationRequest: {
@@ -1703,6 +1814,72 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PortabilityResponse"];
+                };
+            };
+        };
+    };
+    register_push_token_api_v1_push_tokens_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PushTokenRegistration"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PushTokenResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    unregister_push_token_api_v1_push_tokens_unregister_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PushTokenUnregister"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PushTokenUnregisterResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

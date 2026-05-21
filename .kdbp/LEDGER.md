@@ -1,5 +1,43 @@
 # Session Ledger
 
+## 2026-05-21 19:12 -04 — POLICY RESET: Durable staging proof gate
+ROUTE: Implemented the review-after-staging operating model for Gastify runtime-gated phases.
+STATE: Phase 4 reset from Exec ✅ / Review ✅ / Commit ⬜ / Push ⬜ to Exec 🔄 / Review ⬜ / Commit ⬜ / Push ⬜ so deployed Railway staging proof can happen before the next `/gabe-review`.
+POLICY: Runtime-gated phase types now require branch-backed Railway staging evidence before Review. Local, unit, static, and `127.0.0.1` S23 artifacts can support development but cannot close Exec/Review.
+FOLLOW-UP: P29 remains open until S23 `p4-phase4-signout-push-active.yaml` passes against `https://gastify-api-staging-e2e-staging.up.railway.app` with migration 014 current.
+NEXT: Route to `/gabe-next`; expected command is `/gabe-execute` to create the staging candidate and deployed S23 proof.
+
+## 2026-05-21 19:20 -04 — STAGING LANE CREATED: origin/staging
+ROUTE: Created the durable GitHub integration branch for Gastify runtime-gated phases.
+BRANCH: `git push origin HEAD:staging` created `origin/staging` from committed HEAD `ce40204dade5a77c95876cadc20e329f90b335f1`.
+CI CONFIG: `.github/workflows/ci.yml` now includes `staging` in push and pull-request branch triggers. This local policy/config change must be committed before the staging branch itself has the updated workflow trigger.
+RAILWAY: `railway --version` returned `railway 4.59.0`; `docs/runbooks/RAILWAY-STAGING-SETUP.md` documents Railway Service Settings for GitHub autodeploy + Wait for CI and the explicit `railway up ./backend --path-as-root --environment staging --service ... --detach --ci` fallback.
+CHECKS: `git diff --check`; scoped `git diff --check` for KDBP/docs/CI policy files; `bash -n scripts/staging/check-backend-ready.sh`; `git -C /home/khujta/projects/gabe_lens diff --check -- commands/gabe-execute.md commands/gabe-review.md commands/gabe-next.md commands/gabe-push.md skills/gabe-review/SKILL.md`.
+NEXT: Commit the policy/runtime candidate in an isolated changeset, push it to `origin/staging`, wait for CI/Railway readiness, then run the Phase 4 S23 proof against `https://gastify-api-staging-e2e-staging.up.railway.app`.
+
+## 2026-05-21 18:58 -04 — REVIEW COMPLETE: Phase 4 — Sign-out isolation + push registration + platform polish
+VERDICT: WARNING
+CONFIDENCE: 86/100
+FINDINGS: 2 (0 critical, 2 high, 0 medium, 0 low)
+ACTIONS: #1 fixed in review by revoking enabled rows for the same physical push token when another user registers it; #2 deferred to P29 as a required deployed-staging push gate because pre-commit evidence can only use the local push-token stub.
+CHECKS: `cd backend && uv run pytest tests/test_push_tokens.py` (6 passed); `cd backend && uv run pytest tests/test_push_tokens.py tests/test_auth.py` (20 passed); `cd backend && uv run ruff check app/api/push_tokens.py tests/test_push_tokens.py`; `cd mobile && npm test -- --runInBand src/hooks/__tests__/usePushRegistration.test.ts src/lib/__tests__/pushNotifications.test.ts src/lib/__tests__/authSession.test.ts src/screens/__tests__/HomeScreen.test.tsx` (4 suites / 25 tests); `cd mobile && npm run typecheck`; `git diff --check`.
+ARTIFACTS: Review archived at `.kdbp/reviews-archive/REVIEW_2026-05-21-185800_resolved.md`; P29 tracks the post-deploy S23 rerun against Railway staging API/migration 014.
+TICK: ✅ Phase 4 Review
+NEXT: Route to `/gabe-next`; expected next command is `/gabe-commit` for Phase 4.
+
+## 2026-05-21 18:06 -04 — PHASE EXEC COMPLETE: Phase 4 — Sign-out isolation + push registration + platform polish
+TIER: ent
+TASKS: 1 implementation batch, 0 commits yet (review/commit pending)
+DEVIATIONS: 0 structural, 1 minor (see DEVIATIONS.md: S23 push proof used a local push-token stub because the new endpoint is not deployed yet)
+SCOPE: Added mobile sign-out isolation, query/store reset hardening, stale scan completion guards, push registration/unregister state, Expo notification configuration, backend push-token API/schema/model/migration/tests, generated API clients, and platform/safe-area polish.
+BUILD: EAS Android `e2e-staging` APK build `dd0229be-fcee-4abc-844b-0cdfc07c0b45`, artifact installed on Samsung S23 `RFCW90N4BYP` / `SM_S911B`; app bundle loaded through Expo tunnel `ji-xkqs-brownbull-8081.exp.direct`; ADB reverse `tcp:8000` and `tcp:8081` active during proof.
+VERIFICATION: `git diff --check`; `cd mobile && npm run typecheck`; `cd mobile && npm test -- --runInBand` (18 suites / 90 tests); `cd mobile && npm run check:expo-config`; `cd mobile && npm audit --audit-level=high` (0 high; 10 moderate Expo-chain advisories); `cd backend && uv run pytest tests/test_push_tokens.py tests/test_transactions.py tests/test_auth.py` (50 passed); `cd backend && uv run pytest` (519 passed, 2 skipped); `cd backend && uv run ruff check .`; `cd web && npm run build`; `cd mobile && npm run doctor:e2e` (S23 visible, JDK 17/xcrun warnings only).
+RUNTIME: `GASTIFY_RESULT_ENV=local GASTIFY_MOBILE_RUN_ID=20260521Tphase4-signout-push-s23-r5 EXPO_PUBLIC_APP_ENV=staging-e2e EXPO_PUBLIC_API_BASE_URL=http://127.0.0.1:8000 GASTIFY_ENVIRONMENT=local GASTIFY_MOBILE_BUILD_ID=eas-dd0229be-phase4-notifications MAESTRO_DEVICE_ID=RFCW90N4BYP MAESTRO_VERBOSE=true MAESTRO_REINSTALL_DRIVER=false bash tests/mobile/scripts/run-maestro.sh tests/mobile/maestro/p4-phase4-signout-push-active.yaml` — passed in 48s. Flow covered dev-client startup, test auth sign-in, push panel visibility, `Device registered`, `Device unregistered`, scroll-to-sign-out, and return to `sign-in-screen`.
+ARTIFACTS: Passing run folder `tests/mobile/results/runs/local/20260521Tphase4-signout-push-s23-r5/`; flow manifest `p4-phase4-signout-push-active/manifest.json` has `result_status=passed`, `device_id=RFCW90N4BYP`, `app_env=staging-e2e`, `api_base_url=http://127.0.0.1:8000`, and build id `eas-dd0229be-phase4-notifications`; screenshots `01-phase4-home-push-panel.png` through `04-phase4-signed-out.png`; local stub log `environment/push-token-stub.log` records health check, `POST /api/v1/push-tokens` 201, and `POST /api/v1/push-tokens/unregister` 200.
+ARCHIVE: Failed/debug iterations `20260521Tphase4-signout-push-s23-r1` through `r4` were moved to `tests/mobile/results/archive/20260521-phase4-signout-push-debug/local/`; active `runs/local` keeps the passing `r5` packet.
+TICK: ✅ Phase 4 Exec
+NEXT: Route to `/gabe-review` for Phase 4 review before commit/push. Review should decide whether the local-stub runtime proof is sufficient for Exec or whether a deployed staging rerun is required after commit/push.
+
 ## 2026-05-21 17:25 -04 — PUSH main -> main
 PR: —
 CI: ✅ 12/12 (68s) — GitHub Actions run 26253946312

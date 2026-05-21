@@ -8,9 +8,11 @@ import {
   useScanStore,
   type ReceiptScanAsset,
 } from "../stores/scanStore";
+import { isActiveMobileSession, useSessionStore } from "../stores/sessionStore";
 
 export function useScanUpload() {
   const phase = useScanStore((state) => state.phase);
+  const sessionVersion = useSessionStore((state) => state.sessionVersion);
   const startUpload = useScanStore((state) => state.startUpload);
   const uploadComplete = useScanStore((state) => state.uploadComplete);
   const failScan = useScanStore((state) => state.failScan);
@@ -21,6 +23,7 @@ export function useScanUpload() {
       abortRef.current?.abort();
       const controller = new AbortController();
       abortRef.current = controller;
+      const activeSessionVersion = sessionVersion;
 
       startUpload(asset);
 
@@ -28,9 +31,12 @@ export function useScanUpload() {
         const submission = await submitReceiptScan(asset, {
           signal: controller.signal,
         });
-        uploadComplete(submission);
+        if (isActiveMobileSession(activeSessionVersion)) {
+          uploadComplete(submission);
+        }
       } catch (err: unknown) {
         if (isAbortError(err)) return;
+        if (!isActiveMobileSession(activeSessionVersion)) return;
 
         if (err instanceof ScanUploadError) {
           failScan(err.code, err.message);
@@ -43,7 +49,7 @@ export function useScanUpload() {
         );
       }
     },
-    [failScan, startUpload, uploadComplete],
+    [failScan, sessionVersion, startUpload, uploadComplete],
   );
 
   const runTestCase = useCallback(
@@ -51,6 +57,7 @@ export function useScanUpload() {
       abortRef.current?.abort();
       const controller = new AbortController();
       abortRef.current = controller;
+      const activeSessionVersion = sessionVersion;
 
       startUpload({
         uri: `test-case://${caseId}`,
@@ -63,9 +70,12 @@ export function useScanUpload() {
         const submission = await submitScanTestCase(caseId, {
           signal: controller.signal,
         });
-        uploadComplete(submission);
+        if (isActiveMobileSession(activeSessionVersion)) {
+          uploadComplete(submission);
+        }
       } catch (err: unknown) {
         if (isAbortError(err)) return;
+        if (!isActiveMobileSession(activeSessionVersion)) return;
 
         if (err instanceof ScanUploadError) {
           failScan(err.code, err.message);
@@ -78,7 +88,7 @@ export function useScanUpload() {
         );
       }
     },
-    [failScan, startUpload, uploadComplete],
+    [failScan, sessionVersion, startUpload, uploadComplete],
   );
 
   const cancelUpload = useCallback(() => {

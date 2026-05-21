@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { ActivityIndicator, Button, Image, StyleSheet, Text, View } from "react-native";
 import { ScreenShell } from "../components/ScreenShell";
 import { useReceiptCapture } from "../hooks/useReceiptCapture";
+import { usePushRegistration } from "../hooks/usePushRegistration";
 import { useScanProgressSocket } from "../hooks/useScanProgressSocket";
 import { useInvalidateTransactionsAfterScan } from "../hooks/useTransactions";
 import { mobileConfig } from "../lib/mobileConfig";
@@ -105,6 +106,7 @@ export function HomeScreen({ navigation }: HomeScreenProps = {}) {
   const { signOut } = useAuth();
   const invalidateTransactionsAfterScan = useInvalidateTransactionsAfterScan();
   const signedInUser = useSessionStore((state) => state.signedInUser);
+  const pushRegistration = usePushRegistration();
   const phase = useScanStore((state) => state.phase);
   const selectedAsset = useScanStore((state) => state.selectedAsset);
   const connectionStatus = useScanStore((state) => state.connectionStatus);
@@ -161,6 +163,37 @@ export function HomeScreen({ navigation }: HomeScreenProps = {}) {
             testID="open-ledger-button"
             onPress={() => navigation?.navigate("Transactions")}
           />
+        </View>
+      </View>
+
+      <View style={styles.panel} testID="push-registration-panel">
+        <Text style={styles.label}>Notifications</Text>
+        <Text style={styles.panelTitle}>
+          {pushRegistrationTitle(pushRegistration.status)}
+        </Text>
+        <Text style={styles.panelBody}>
+          {pushRegistrationBody(
+            pushRegistration.status,
+            pushRegistration.permissionStatus,
+            pushRegistration.errorMessage,
+          )}
+        </Text>
+        <View style={styles.panelAction}>
+          {pushRegistration.status === "registered" ? (
+            <Button
+              title="Disable notifications"
+              testID="push-unregister-button"
+              onPress={() => void pushRegistration.unregister()}
+              disabled={pushRegistration.isRegistering}
+            />
+          ) : (
+            <Button
+              title="Enable notifications"
+              testID="push-register-button"
+              onPress={() => void pushRegistration.register()}
+              disabled={pushRegistration.isRegistering}
+            />
+          )}
         </View>
       </View>
 
@@ -272,6 +305,38 @@ function ImagePreview() {
       </View>
     </View>
   );
+}
+
+function pushRegistrationTitle(status: string): string {
+  if (status === "registered") return "Device registered";
+  if (status === "denied") return "Permission denied";
+  if (status === "failed") return "Registration failed";
+  if (status === "requesting") return "Registering device";
+  if (status === "unregistered") return "Device unregistered";
+  return "Device push setup";
+}
+
+function pushRegistrationBody(
+  status: string,
+  permissionStatus: string,
+  errorMessage: string | null,
+): string {
+  if (status === "registered") {
+    return "Push token is registered for this account.";
+  }
+  if (status === "denied") {
+    return `Permission status: ${permissionStatus}.`;
+  }
+  if (status === "failed") {
+    return errorMessage ?? "Push registration failed.";
+  }
+  if (status === "requesting") {
+    return "Requesting notification permission.";
+  }
+  if (status === "unregistered") {
+    return "Push token was unregistered.";
+  }
+  return "Register this device to receive scan and account updates.";
 }
 
 function ScanProgress({
@@ -617,6 +682,12 @@ const styles = StyleSheet.create({
   },
   panelAction: {
     marginTop: 14,
+  },
+  panelBody: {
+    color: "#475569",
+    fontSize: 14,
+    lineHeight: 20,
+    marginTop: 6,
   },
   panelHeader: {
     alignItems: "center",

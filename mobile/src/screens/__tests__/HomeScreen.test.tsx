@@ -1,6 +1,7 @@
 import { fireEvent, render } from "@testing-library/react-native";
 import { HomeScreen } from "../HomeScreen";
 import { useReceiptCapture } from "../../hooks/useReceiptCapture";
+import { usePushRegistration } from "../../hooks/usePushRegistration";
 import { useScanProgressSocket } from "../../hooks/useScanProgressSocket";
 import { useInvalidateTransactionsAfterScan } from "../../hooks/useTransactions";
 import { mobileConfig } from "../../lib/mobileConfig";
@@ -14,6 +15,10 @@ jest.mock("../../providers/AuthProvider", () => ({
 
 jest.mock("../../hooks/useReceiptCapture", () => ({
   useReceiptCapture: jest.fn(),
+}));
+
+jest.mock("../../hooks/usePushRegistration", () => ({
+  usePushRegistration: jest.fn(),
 }));
 
 jest.mock("../../hooks/useScanProgressSocket", () => ({
@@ -37,6 +42,8 @@ describe("HomeScreen", () => {
   const captureFromCamera = jest.fn();
   const chooseFromLibrary = jest.fn();
   const runTestCase = jest.fn();
+  const registerPush = jest.fn();
+  const unregisterPush = jest.fn();
   const invalidateTransactionsAfterScan = jest.fn();
   const asset: ReceiptScanAsset = {
     uri: "file:///tmp/receipt.jpg",
@@ -65,6 +72,16 @@ describe("HomeScreen", () => {
       chooseFromLibrary,
       isUploading: false,
       runTestCase,
+    });
+    jest.mocked(usePushRegistration).mockReturnValue({
+      errorMessage: null,
+      isRegistering: false,
+      permissionStatus: "undetermined",
+      register: registerPush,
+      registeredAt: null,
+      status: "idle",
+      token: null,
+      unregister: unregisterPush,
     });
     jest
       .mocked(useInvalidateTransactionsAfterScan)
@@ -111,6 +128,51 @@ describe("HomeScreen", () => {
     fireEvent.press(screen.getByTestId("open-ledger-button"));
 
     expect(navigate).toHaveBeenCalledWith("Transactions");
+  });
+
+  it("requests push registration from the notification panel", () => {
+    const screen = render(<HomeScreen />);
+
+    fireEvent.press(screen.getByTestId("push-register-button"));
+
+    expect(screen.getByTestId("push-registration-panel")).toBeTruthy();
+    expect(registerPush).toHaveBeenCalled();
+  });
+
+  it("unregisters push notifications when the device is registered", () => {
+    jest.mocked(usePushRegistration).mockReturnValue({
+      errorMessage: null,
+      isRegistering: false,
+      permissionStatus: "granted",
+      register: registerPush,
+      registeredAt: "2026-05-21T12:00:00Z",
+      status: "registered",
+      token: "ExponentPushToken[test]",
+      unregister: unregisterPush,
+    });
+    const screen = render(<HomeScreen />);
+
+    fireEvent.press(screen.getByTestId("push-unregister-button"));
+
+    expect(unregisterPush).toHaveBeenCalled();
+  });
+
+  it("renders denied push permission state", () => {
+    jest.mocked(usePushRegistration).mockReturnValue({
+      errorMessage: null,
+      isRegistering: false,
+      permissionStatus: "denied",
+      register: registerPush,
+      registeredAt: null,
+      status: "denied",
+      token: null,
+      unregister: unregisterPush,
+    });
+
+    const screen = render(<HomeScreen />);
+
+    expect(screen.getByText("Permission denied")).toBeTruthy();
+    expect(screen.getByText("Permission status: denied.")).toBeTruthy();
   });
 
   it("hides scan test controls unless enabled", () => {

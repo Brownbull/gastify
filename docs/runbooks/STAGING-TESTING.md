@@ -3,6 +3,12 @@
 Staging is the proof gate for runtime behavior. Local evidence is not
 enough for changed user journeys.
 
+Runtime-gated Gabe phases are reviewed only after staging proof exists. If a
+phase touches auth, session, DB, upload, realtime, native mobile,
+notifications, file/media, web, or user-facing deployed behavior, `/gabe-execute`
+must commit a candidate, land it on `origin/staging` or deploy it with the
+Railway CLI fallback, and record deployed artifacts before `/gabe-review`.
+
 ## Env Files
 
 Use environment-specific files for mobile and backend commands:
@@ -62,6 +68,26 @@ Required results:
 - `tests/mobile/results/latest/staging-e2e/p4-phase2-scan-upload-review-active/`
 - `tests/mobile/results/latest/staging-e2e/p4-phase2-scan-upload-failure-active/`
 - `tests/mobile/results/latest/staging-e2e/p4-phase2-camera-permission-denied-active/`
+
+## Phase-Specific S23 Gate
+
+When a phase adds a specific Maestro flow, run that flow against the deployed
+staging-e2e API, not a local stub. For the Phase 4 push-registration gate:
+
+```bash
+export EXPO_PUBLIC_APP_ENV=staging-e2e
+export EXPO_PUBLIC_API_BASE_URL=https://gastify-api-staging-e2e-staging.up.railway.app
+export GASTIFY_RESULT_ENV=staging-e2e
+export GASTIFY_ENVIRONMENT=staging-e2e
+export GASTIFY_SCAN_PROVIDER=fixture
+export MAESTRO_DEVICE_ID=RFCW90N4BYP
+export GASTIFY_MOBILE_RUN_ID="$(date -u '+%Y%m%dT%H%M%SZ')-phase4-signout-push-staging-s23-r1"
+bash tests/mobile/scripts/run-maestro.sh tests/mobile/maestro/p4-phase4-signout-push-active.yaml
+```
+
+Accept the run only if the manifest shows `result_status=passed`, the Railway
+staging-e2e API URL, `backend_environment=staging-e2e`, the S23 device id, and
+screenshots for register, unregister, and signed-out state.
 
 ## Live Gemini Smoke
 

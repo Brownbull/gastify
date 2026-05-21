@@ -20,6 +20,7 @@ import {
 import { configureE2EFirebaseAuth } from "../lib/e2eFirebaseAuth";
 import { configureGoogleSignIn } from "../lib/googleSignIn";
 import { mobileConfig } from "../lib/mobileConfig";
+import { unregisterCurrentPushToken } from "../lib/pushNotifications";
 
 interface AuthState {
   user: FirebaseAuthTypes.User | null;
@@ -170,6 +171,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
       },
       signOut: async () => {
+        try {
+          await unregisterCurrentPushToken();
+        } catch {
+          // Local cleanup below is still mandatory.
+        }
+
         try {
           await GoogleSignin.signOut();
         } catch {

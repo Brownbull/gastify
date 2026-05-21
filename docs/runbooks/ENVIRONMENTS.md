@@ -26,6 +26,23 @@ Start every feature locally where possible, then promote evidence upward:
 Unit tests, lint, typechecks, and local mocks remain necessary but are not
 sufficient for changed runtime journeys.
 
+## Gabe Gate Order
+
+For runtime-gated phase types (`auth`, `session`, `DB`, `upload`, `realtime`,
+`streaming`, `native-mobile`, `notifications`, `file-media`, `web`, and
+user-facing deployed paths), Gabe uses **Review after staging**:
+
+1. `/gabe-execute` implements locally, commits a candidate, pushes it to
+   `origin/staging` or deploys it with the Railway CLI fallback, and records
+   deployed staging proof.
+2. `/gabe-review` runs only after that proof exists.
+3. `/gabe-push staging` is an integration push, not final production delivery.
+4. Final `Push ✅` is reserved for production promotion.
+
+Local, `127.0.0.1`, SQLite, fixture-only, lint, typecheck, and unit evidence
+can support the implementation loop, but they cannot close Exec/Review for
+runtime-gated phases.
+
 ## Operational Tracks
 
 - Local quickstart: [`LOCAL.md`](LOCAL.md)

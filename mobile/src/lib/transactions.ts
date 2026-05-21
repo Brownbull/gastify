@@ -1,4 +1,5 @@
 import { apiClient } from "./api";
+import { readApiError } from "./apiError";
 import type { components } from "./api-types";
 
 export type TransactionListItem =
@@ -84,13 +85,4 @@ export async function updateTransaction(
   }
 
   return data;
-}
-
-function readApiError(error: unknown, fallback: string): string {
-  if (error && typeof error === "object" && "detail" in error) {
-    const detail = (error as { detail?: unknown }).detail;
-    if (typeof detail === "string") return detail;
-  }
-
-  return fallback;
 }

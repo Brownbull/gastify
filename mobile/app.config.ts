@@ -68,6 +68,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     adaptiveIcon: {
       backgroundColor: "#0f172a",
     },
+    permissions: ["POST_NOTIFICATIONS"],
     ...(androidGoogleServicesFile
       ? { googleServicesFile: androidGoogleServicesFile }
       : {}),
@@ -76,6 +77,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     "@react-native-firebase/app",
     "@react-native-firebase/auth",
     "@react-native-google-signin/google-signin",
+    "expo-notifications",
     "expo-secure-store",
     [
       "expo-image-picker",

@@ -1,4 +1,5 @@
 import { apiClient } from "./api";
+import { readApiError } from "./apiError";
 import type { components } from "./api-types";
 
 export type StoreCategoryItem = components["schemas"]["StoreCategoryItem"];
@@ -53,13 +54,4 @@ export function categoryPath(
   }
 
   return path.length > 0 ? path.join(" / ") : "Uncategorized";
-}
-
-function readApiError(error: unknown, fallback: string): string {
-  if (error && typeof error === "object" && "detail" in error) {
-    const detail = (error as { detail?: unknown }).detail;
-    if (typeof detail === "string") return detail;
-  }
-
-  return fallback;
 }

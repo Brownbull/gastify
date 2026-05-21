@@ -13,9 +13,10 @@ jest.mock("../api", () => ({
 }));
 
 jest.mock("../queryClient", () => ({
-  queryClient: {
-    clear: jest.fn(),
-  },
+    queryClient: {
+      cancelQueries: jest.fn(),
+      clear: jest.fn(),
+    },
 }));
 
 jest.mock("../secureAuthToken", () => ({
@@ -106,6 +107,7 @@ describe("authSession", () => {
 
     expect(setAuthToken).toHaveBeenCalledWith(null);
     expect(clearSecureAuthToken).toHaveBeenCalled();
+    expect(queryClient.cancelQueries).toHaveBeenCalled();
     expect(queryClient.clear).toHaveBeenCalled();
     expect(useScanStore.getState().phase).toBe("idle");
     expect(useSessionStore.getState().signedInUser).toBeNull();
@@ -126,6 +128,7 @@ describe("authSession", () => {
     });
 
     expect(setAuthToken).toHaveBeenCalledWith(null);
+    expect(queryClient.cancelQueries).toHaveBeenCalled();
     expect(queryClient.clear).toHaveBeenCalled();
     expect(useSessionStore.getState().signedInUser).toBeNull();
   });

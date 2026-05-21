@@ -45,6 +45,35 @@ Railway readiness must use:
 Ready means database connected and Alembic migration head current for deployed
 lanes.
 
+## Branch-Backed Deploys
+
+`origin/staging` is the durable integration branch. Configure
+`gastify-api-staging` and `gastify-api-staging-e2e` in Railway Service Settings:
+
+- Source: GitHub repository `Brownbull/gastify`
+- Branch: `staging`
+- Root directory: `/backend`
+- Config file path: `/backend/railway.toml`
+- Autodeploy: enabled
+- Wait for CI: enabled
+
+Railway should deploy these services only after the GitHub Actions workflow for
+the staging push passes. If GitHub autodeploy is unavailable, use the CLI
+fallback from the repo root:
+
+```bash
+railway up ./backend --path-as-root --environment staging --service gastify-api-staging --detach --ci
+railway up ./backend --path-as-root --environment staging --service gastify-api-staging-e2e --detach --ci
+```
+
+Do not use `railway environment config --json` as a discovery shortcut in logs
+or review artifacts; it can include service variables. Until the Railway CLI
+source-config dot paths are validated in a non-secret-safe way, set Source,
+Branch, Root directory, Autodeploy, and Wait for CI through Railway Service
+Settings and use the CLI only for the fallback deploy commands above.
+
+Record whether the proof used autodeploy or fallback CLI in `.kdbp/LEDGER.md`.
+
 ## Staging API Environment
 
 ```text
@@ -119,9 +148,9 @@ npx -y @railway/cli@latest down --service gastify-web-staging --yes
 Before testing, redeploy the stopped services:
 
 ```bash
-npx -y @railway/cli@latest up ./backend --path-as-root --service gastify-api-staging --detach --ci
-npx -y @railway/cli@latest up ./backend --path-as-root --service gastify-api-staging-e2e --detach --ci
-npx -y @railway/cli@latest up ./web --path-as-root --service gastify-web-staging --detach --ci
+railway up ./backend --path-as-root --environment staging --service gastify-api-staging --detach --ci
+railway up ./backend --path-as-root --environment staging --service gastify-api-staging-e2e --detach --ci
+railway up ./web --path-as-root --environment staging --service gastify-web-staging --detach --ci
 ```
 
 Then run the readiness checks above. A stopped stateless service can show a

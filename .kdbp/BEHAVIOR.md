@@ -31,3 +31,15 @@ created: 2026-04-22
 **Caveman/terse modes compress output prose only. Reasoning depth is invariant.**
 
 **Why this rule exists:** Past incident (2026-04-24, gastify mockup workflow Q) where shallow first-pass restated work the user had already done in `.kdbp/PLAN.md` + `AUDIT.md` + `STRESS-TEST-SPEC.md`. User flagged as workflow-sustainability concern.
+
+## B2 — Runtime staging proof before review
+
+**Trigger phase types:** `auth`, `session`, `DB`, `upload`, `realtime`, `streaming`, `native-mobile`, `notifications`, `file-media`, `web`, `user-facing`, or any deployed API/client contract change.
+
+**Mandatory gate:** For these phases, `/gabe-execute` is not complete until it produces branch-backed Railway staging proof. The candidate code must be committed, pushed to `origin/staging` or explicitly deployed to the Railway staging services, and verified against the deployed staging URL before `/gabe-review` runs.
+
+**Accepted evidence:** `.kdbp/LEDGER.md` must record the branch/commit, GitHub CI result or explicit Railway fallback deploy command, Railway service/API URL, readiness output with current Alembic head, target device/browser, mobile build id when applicable, provider mode, and artifact paths.
+
+**Rejected as closure evidence:** local-only runs, unit/type/lint evidence, and mobile manifests whose API URL is `127.0.0.1`, `localhost`, SQLite, or mock-only. These can support implementation but cannot close Exec/Review for runtime-gated phases.
+
+**Current policy decision:** Phase 4 was reset on 2026-05-21 so the push-registration S23 proof must run against deployed `staging-e2e` before the review can close.

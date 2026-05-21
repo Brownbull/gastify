@@ -769,6 +769,88 @@
         }
       }
     },
+    "/api/v1/push-tokens": {
+      "post": {
+        "tags": [
+          "push tokens"
+        ],
+        "summary": "Register Push Token",
+        "operationId": "register_push_token_api_v1_push_tokens_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PushTokenRegistration"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PushTokenResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/push-tokens/unregister": {
+      "post": {
+        "tags": [
+          "push tokens"
+        ],
+        "summary": "Unregister Push Token",
+        "operationId": "unregister_push_token_api_v1_push_tokens_unregister_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PushTokenUnregister"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PushTokenUnregisterResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/scans": {
       "post": {
         "tags": [
@@ -1655,6 +1737,202 @@
           "is_active"
         ],
         "title": "ProcessingRegisterResponse"
+      },
+      "PushTokenRegistration": {
+        "properties": {
+          "token": {
+            "type": "string",
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Token"
+          },
+          "platform": {
+            "type": "string",
+            "enum": [
+              "android",
+              "ios"
+            ],
+            "title": "Platform"
+          },
+          "provider": {
+            "type": "string",
+            "enum": [
+              "expo",
+              "fcm",
+              "apns"
+            ],
+            "title": "Provider",
+            "default": "expo"
+          },
+          "permission_status": {
+            "type": "string",
+            "enum": [
+              "granted",
+              "denied",
+              "undetermined"
+            ],
+            "title": "Permission Status",
+            "default": "granted"
+          },
+          "device_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 256
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Device Id"
+          },
+          "app_environment": {
+            "type": "string",
+            "maxLength": 32,
+            "title": "App Environment",
+            "default": "local"
+          },
+          "app_version": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 64
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "App Version"
+          }
+        },
+        "type": "object",
+        "required": [
+          "token",
+          "platform"
+        ],
+        "title": "PushTokenRegistration"
+      },
+      "PushTokenResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "token": {
+            "type": "string",
+            "title": "Token"
+          },
+          "platform": {
+            "type": "string",
+            "title": "Platform"
+          },
+          "provider": {
+            "type": "string",
+            "title": "Provider"
+          },
+          "permission_status": {
+            "type": "string",
+            "title": "Permission Status"
+          },
+          "device_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Device Id"
+          },
+          "app_environment": {
+            "type": "string",
+            "title": "App Environment"
+          },
+          "app_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "App Version"
+          },
+          "enabled": {
+            "type": "boolean",
+            "title": "Enabled"
+          },
+          "registered_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Registered At"
+          },
+          "last_seen_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Last Seen At"
+          },
+          "revoked_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Revoked At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "token",
+          "platform",
+          "provider",
+          "permission_status",
+          "app_environment",
+          "enabled",
+          "registered_at",
+          "last_seen_at"
+        ],
+        "title": "PushTokenResponse"
+      },
+      "PushTokenUnregister": {
+        "properties": {
+          "token": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 512,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Token"
+          }
+        },
+        "type": "object",
+        "title": "PushTokenUnregister"
+      },
+      "PushTokenUnregisterResponse": {
+        "properties": {
+          "revoked_count": {
+            "type": "integer",
+            "title": "Revoked Count"
+          }
+        },
+        "type": "object",
+        "required": [
+          "revoked_count"
+        ],
+        "title": "PushTokenUnregisterResponse"
       },
       "RectificationRequest": {
         "properties": {

@@ -35,7 +35,7 @@ Edit values directly or rerun `/gabe-push --reconfigure` to redo the interview.
 
 | Setting | Value |
 |---------|-------|
-| known_branches | main, rebuild/fe-dashboard-batch-01, rebuild/be-phase-01 |
+| known_branches | main, staging, rebuild/fe-dashboard-batch-01, rebuild/be-phase-01 |
 | on_extra | prompt |
 
 ## Decisions log
@@ -47,6 +47,10 @@ Edit values directly or rerun `/gabe-push --reconfigure` to redo the interview.
 <!--
 Migrated 2026-04-23 from v1 trunk-based shape (single env, promotion chain
 "feature -> main") to env-block shape. Two envs: staging + production.
+Updated 2026-05-21: staging is the durable integration branch/environment
+for runtime-gated phases. For auth/session/DB/upload/realtime/native-mobile/
+notifications/file-media/user-facing changes, /gabe-execute must produce
+branch-backed Railway staging evidence before /gabe-review runs.
 
   /gabe-push staging   → push local HEAD to origin/staging
   /gabe-push           → targets production
@@ -55,10 +59,12 @@ Migrated 2026-04-23 from v1 trunk-based shape (single env, promotion chain
                            [push-local] (current HEAD -> main, bypass staging)
                          - else pushes HEAD directly to main
 
-origin/staging does not exist yet. Will auto-create on first
-/gabe-push staging. After that it joins known_branches via env resolution
-and Step 2.7 drift check stays quiet.
+origin/staging is a first-class known branch. Railway staging services should
+autodeploy from that branch after GitHub CI passes. If Railway autodeploy is
+unavailable, use the documented fallback:
+  railway up ./backend --path-as-root --environment staging --service gastify-api-staging --detach --ci
+  railway up ./backend --path-as-root --environment staging --service gastify-api-staging-e2e --detach --ci
 
 CI: github-actions — flipped from none on 2026-05-06 after .github/workflows/ci.yml
-landed during backend P1-P3. 9 jobs: 4 frontend + 1 backend + 2 security + 1 custom gates.
+landed during backend P1-P3. CI runs for main and staging pushes.
 -->

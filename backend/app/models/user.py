@@ -70,3 +70,37 @@ class OwnershipScopeMember(Base):
 
     scope: Mapped[OwnershipScope] = relationship(back_populates="members")
     user: Mapped[User] = relationship()
+
+
+class MobilePushToken(Base):
+    __tablename__ = "mobile_push_tokens"
+    __table_args__ = (UniqueConstraint("user_id", "token", name="uq_mobile_push_user_token"),)
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        Uuid, primary_key=True, default=uuid.uuid4, server_default=func.gen_random_uuid()
+    )
+    ownership_scope_id: Mapped[uuid.UUID] = mapped_column(
+        Uuid, ForeignKey("ownership_scopes.id"), nullable=False
+    )
+    user_id: Mapped[uuid.UUID] = mapped_column(Uuid, ForeignKey("users.id"), nullable=False)
+    token: Mapped[str] = mapped_column(Text, nullable=False)
+    provider: Mapped[str] = mapped_column(String, nullable=False, server_default="expo")
+    platform: Mapped[str] = mapped_column(String, nullable=False)
+    device_id: Mapped[str | None] = mapped_column(Text, nullable=True)
+    app_environment: Mapped[str] = mapped_column(String, nullable=False, server_default="local")
+    app_version: Mapped[str | None] = mapped_column(String, nullable=True)
+    permission_status: Mapped[str] = mapped_column(String, nullable=False, server_default="granted")
+    enabled: Mapped[bool] = mapped_column(nullable=False, server_default="true")
+    registered_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=func.now()
+    )
+    last_seen_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=func.now()
+    )
+    revoked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=func.now()
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=func.now(), onupdate=func.now()
+    )

@@ -7,6 +7,7 @@ import {
 } from "./secureAuthToken";
 import { useScanStore } from "../stores/scanStore";
 import { useSessionStore } from "../stores/sessionStore";
+import { usePushRegistrationStore } from "../stores/pushRegistrationStore";
 
 export interface ClearMobileSessionResult {
   secureTokenCleared: boolean;
@@ -55,7 +56,9 @@ export async function clearMobileSession(): Promise<ClearMobileSessionResult> {
     secureTokenError = err;
   }
 
+  await queryClient.cancelQueries();
   queryClient.clear();
+  usePushRegistrationStore.getState().reset();
   useScanStore.getState().reset();
   useSessionStore.getState().reset();
 
