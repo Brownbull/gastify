@@ -41,6 +41,7 @@
 | P21 | 2026-05-14 09:35 | main → main (direct) | — | ✅ 8/8 (69s) | P3 Phase 5 push — 3 commits (8c95c0c → 3b8e19b): carried P20 bookkeeping, Phase 5 Vitest golden journey + edge-case coverage, and KDBP commit bookkeeping. CI run 25862966401 green. | — |
 | P22 | 2026-05-14 10:09 | main → main (direct) | — | ✅ 8/8 (72s) | P3 plan-completion bookkeeping push — 2 commits (3b8e19b → 2c4000f): recorded P21 push bookkeeping, archived completed P3 Web Portal MVP plan, and reset active PLAN status to none. CI run 25864705330 green. | — |
 | P23 | 2026-05-17 18:15 | main → main (direct) | — | ✅ 12/12 (65s) | P4 Phase 1 mobile scaffold push — 3 commits (2c4000f → 0272720): carried P22 bookkeeping, Expo auth scaffold + mobile CI/test harness, and Phase 1 commit bookkeeping. CI run 26004227645 green. | Mobile CI gates added: typecheck, Jest, API drift, high-severity audit |
+| P24 | 2026-05-20 21:09 | main → main (direct) | — | ✅ 12/12 (66s) | P4 Phase 2 mobile scan push — 4 commits (0272720 → 45517cc): carried P23 bookkeeping, Phase 2 scan upload/runtime proof, Phase 2 commit bookkeeping, and CI fix for generated API drift plus backend SCA audit. CI run 26199292463 green after failed run 26199123171. CI re-run after fix | — |
 
 <!-- Example rows:
 | P1 | 2026-04-17 14:22 | feature/add-auth → main | #42 | ✅ 3/3 (47s) | promoted main → (none) | — |

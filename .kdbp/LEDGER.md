@@ -1,5 +1,12 @@
 # Session Ledger
 
+## 2026-05-20 21:09 -04 — PUSH main -> main
+PR: —
+CI: ✅ 12/12 (66s)
+PROMOTION: N/A
+DEPLOYMENTS: P24 (added row to .kdbp/DEPLOYMENTS.md)
+FOLLOW-UP: First CI run `26199123171` failed `Mobile API Drift` and `SCA Audit`; fix commit `45517cc` regenerated mobile/web API artifacts, updated `idna` to 3.15, and added a targeted `PYSEC-2025-183` audit ignore for current latest PyJWT 2.12.1. Rerun `26199292463` passed all jobs.
+
 ## 2026-05-20 20:56 -04 — [4f757e7] feat(scan): close Phase 2 mobile upload proof
 FINDINGS: 1 (0 critical, 1 high, 0 medium, 0 low)
 ACTIONS: P24:skip — backend review-signal contract committed; mobile/web warning presentation remains intentionally open in P24
