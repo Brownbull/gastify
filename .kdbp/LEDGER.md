@@ -1,5 +1,20 @@
 # Session Ledger
 
+## 2026-05-21 19:47 -04 — PHASE EXEC COMPLETE: Phase 4 deployed staging proof
+ROUTE: Re-ran Phase 4 under the new review-after-staging gate using the current staging candidate.
+BRANCH: Local `staging/phase4-workflow-proof-20260521`; `origin/staging` app candidate `2b36ac31e672fdba03b3c712a115c3cb82e736af`.
+COMMITS: `2a0b60e` Phase 4 runtime/policy candidate; `5b696ef` cost-usage tooling kept as a separate commit in the staging lane; `2b36ac3` CI gate fixes (`ruff format` migration 014 and `pydantic-ai` audit floor).
+LOCAL CHECKS: `git diff --check`; backend ruff/tests including `uv run pytest --cov=app --cov-fail-under=80` (526 passed, 2 skipped, 91.27%); mobile typecheck/Jest/Expo config; web build.
+CI: First staging push run `26259257629` failed on `ruff format --check` and `pydantic-ai` CVE-2026-46678. Follow-up staging push run `26259390776` completed `success` for commit `2b36ac31e672fdba03b3c712a115c3cb82e736af`.
+RAILWAY: `railway service list --environment staging --json` still reports `source: null` for `gastify-api-staging` and `gastify-api-staging-e2e`, so GitHub autodeploy/Wait-for-CI is not attached yet. Used documented fallback CLI deploy path.
+DEPLOYS: `gastify-api-staging` deployment `b714a73f-f9e4-4252-b57a-98fbde35c6e9` `SUCCESS`, image `sha256:44970e708134569eacdc97e4bde715c068ddd14a111a4c6786652d69086b1668`; `gastify-api-staging-e2e` deployment `759f855f-a188-46c1-94d1-bd8894e66e6b` `SUCCESS`, image `sha256:62ec123df548a765353318fd05709f0cdfa7711fbf2985f892e2420ff04a465f`.
+READINESS: `bash scripts/staging/check-backend-ready.sh https://gastify-api-staging-staging.up.railway.app` and `bash scripts/staging/check-backend-ready.sh https://gastify-api-staging-e2e-staging.up.railway.app` passed with `status=ok`, DB connected, and Alembic current/head `014`.
+RUNTIME: S23 `RFCW90N4BYP`; `GASTIFY_RESULT_ENV=staging-e2e GASTIFY_MOBILE_RUN_ID=20260521Tphase4-signout-push-staging-s23-r2 EXPO_PUBLIC_APP_ENV=staging-e2e EXPO_PUBLIC_API_BASE_URL=https://gastify-api-staging-e2e-staging.up.railway.app EXPO_PUBLIC_SCAN_TEST_CONTROLS_ENABLED=true GASTIFY_ENVIRONMENT=staging-e2e GASTIFY_SCAN_PROVIDER=fixture GASTIFY_MOBILE_BUILD_ID=eas-dd0229be-phase4-notifications MAESTRO_DEVICE_ID=RFCW90N4BYP MAESTRO_VERBOSE=true MAESTRO_REINSTALL_DRIVER=false bash tests/mobile/scripts/run-maestro.sh tests/mobile/maestro/p4-phase4-signout-push-active.yaml` — passed in 41s after enabling Android `POST_NOTIFICATIONS` permission on the device.
+ARTIFACTS: `tests/mobile/results/runs/staging-e2e/20260521Tphase4-signout-push-staging-s23-r2/p4-phase4-signout-push-active/manifest.json` has `result_status=passed`, `device_id=RFCW90N4BYP`, `api_base_url=https://gastify-api-staging-e2e-staging.up.railway.app`, `backend_environment=staging-e2e`, and `git_rev=2b36ac3`; screenshots `01-phase4-home-push-panel.png`, `02-phase4-push-registered.png`, `03-phase4-push-unregistered.png`, and `04-phase4-signed-out.png`.
+SERVER PROOF: Railway staging-e2e logs showed Alembic `013 -> 014`, `POST /api/v1/push-tokens` `201`, and `POST /api/v1/push-tokens/unregister` `200` during the passing S23 run.
+TICK: ✅ Phase 4 Exec
+NEXT: Route to `/gabe-review` for Phase 4. P29 is now review-ready but remains open until `/gabe-review` validates this deployed S23 evidence and resolves it.
+
 ## 2026-05-21 19:12 -04 — POLICY RESET: Durable staging proof gate
 ROUTE: Implemented the review-after-staging operating model for Gastify runtime-gated phases.
 STATE: Phase 4 reset from Exec ✅ / Review ✅ / Commit ⬜ / Push ⬜ to Exec 🔄 / Review ⬜ / Commit ⬜ / Push ⬜ so deployed Railway staging proof can happen before the next `/gabe-review`.
