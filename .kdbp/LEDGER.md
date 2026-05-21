@@ -1,5 +1,14 @@
 # Session Ledger
 
+## 2026-05-21 17:25 -04 — PUSH main -> main
+PR: —
+CI: ✅ 12/12 (68s) — GitHub Actions run 26253946312
+PROMOTION: N/A (origin/staging absent; pushed current HEAD directly to production target)
+DEPLOYMENTS: P25  (added row to .kdbp/DEPLOYMENTS.md)
+CLASSIFIER: P26 resurfaced and deferred by default; PyJWT audit-ignore revisit remains open.
+TICK: ✅ Phase 3 Push
+NEXT: Route to `/gabe-next`; expected next action is to advance to Phase 4.
+
 ## 2026-05-21 17:21 -04 — [edf8d2b] feat(mobile): add transaction ledger and edit flow
 FINDINGS: 1 (0 critical, 1 high, 0 medium, 0 low)
 ACTIONS: 1:skip — P24 remains open as the accepted scan-warning/order-preserving result UI follow-up and did not block this Phase 3 commit.
