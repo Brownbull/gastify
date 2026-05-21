@@ -656,7 +656,7 @@ def test_cost_summary_uses_flash_lite_standard_pricing():
 
     assert summary["pricing"]["input_per_1m_usd"] == "0.1"
     assert summary["pricing"]["output_per_1m_usd"] == "0.4"
-    assert summary["pricing"]["verified_on"] == "2026-05-20"
+    assert summary["pricing"]["verified_on"] == "2026-05-21"
     assert summary["stages"]["extraction"]["cost_usd"] == "0.5"
     assert summary["stages"]["categorization"]["cost_usd"] == "0.15"
     assert summary["totals"]["cost_usd"] == "0.65"

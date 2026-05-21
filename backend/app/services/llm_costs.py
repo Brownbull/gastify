@@ -5,8 +5,8 @@ from __future__ import annotations
 from decimal import ROUND_HALF_UP, Decimal
 from typing import Any
 
-PRICING_SOURCE_URL = "https://ai.google.dev/pricing"
-PRICING_VERIFIED_ON = "2026-05-20"
+PRICING_SOURCE_URL = "https://ai.google.dev/gemini-api/docs/pricing"
+PRICING_VERIFIED_ON = "2026-05-21"
 LEGACY_ESTIMATED_COST_PER_SCAN_USD = Decimal("0.01")
 
 MODEL_PRICING_USD_PER_1M: dict[str, dict[str, Decimal | str]] = {
