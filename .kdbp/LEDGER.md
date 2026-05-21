@@ -1,5 +1,13 @@
 # Session Ledger
 
+## 2026-05-21 17:21 -04 — [edf8d2b] feat(mobile): add transaction ledger and edit flow
+FINDINGS: 1 (0 critical, 1 high, 0 medium, 0 low)
+ACTIONS: 1:skip — P24 remains open as the accepted scan-warning/order-preserving result UI follow-up and did not block this Phase 3 commit.
+DEFERRED: 0 new
+CHECKS: `git diff --cached --check`; `cd mobile && npm run typecheck`; `cd mobile && npm test -- --runInBand` (16 suites / 80 tests); `cd backend && uv run pytest tests/test_transactions.py` (31 passed); `cd backend && uv run ruff check app tests`; `cd web && npm run build`.
+TICK: ✅ Phase 3 Commit
+NEXT: Route to `/gabe-next`; expected next command is `/gabe-push` for Phase 3.
+
 ## 2026-05-21 15:05 -04 — PHASE EXEC COMPLETE: Phase 3 — Mobile ledger + detail + edit
 TIER: ent
 TASKS: 1 implementation batch, 0 commits yet (review/commit pending)
