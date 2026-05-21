@@ -1,5 +1,13 @@
 # Session Ledger
 
+## 2026-05-20 20:56 -04 — [4f757e7] feat(scan): close Phase 2 mobile upload proof
+FINDINGS: 1 (0 critical, 1 high, 0 medium, 0 low)
+ACTIONS: P24:skip — backend review-signal contract committed; mobile/web warning presentation remains intentionally open in P24
+DEFERRED: none added
+CHECKS: `git diff --check`; `cd backend && uv run ruff format --check`; `cd backend && uv run ruff check`; `cd backend && uv run pytest` (513 passed, 2 skipped); `cd backend && uv run python -m app.prompt_lab validate`; `cd mobile && npm run typecheck`; `cd mobile && npm test -- --runInBand` (36 passed); `cd mobile && npm run check:expo-config`; `cd web && npm run build`; `cd web && npm test -- --run` (23 passed); shell syntax check for dev/staging/mobile scripts.
+STRUCTURE: Added MVP patterns for env-template variants, backend fixture/reference JSON payloads, and mobile E2E receipt fixtures.
+TICK: ✅ Phase 2 Commit
+
 ## 2026-05-20 20:44 -04 — PHASE 2 REVIEW SUPPLEMENT: staging-e2e fixture evidence repeated
 VERDICT: APPROVE
 FINDINGS: 1 total (0 critical, 1 high, 0 medium, 0 low) — fixed by rerunning runtime evidence
