@@ -18,11 +18,11 @@ Responsive web portal for the Gastify expense tracker. Connects to the FastAPI b
 # Install dependencies
 npm install
 
-# Copy environment variables
-cp .env.example .env
+# Copy environment variables. Prefer the environment-specific template.
+cp .env.local.example .env.local
 ```
 
-Fill in `.env` with your Firebase project credentials:
+Fill in the copied `.env.local` with your Firebase project credentials:
 
 ```
 VITE_FIREBASE_API_KEY=...
@@ -33,6 +33,12 @@ VITE_FIREBASE_MESSAGING_SENDER_ID=...
 VITE_FIREBASE_APP_ID=...
 VITE_API_BASE_URL=              # optional — defaults to "/" (uses Vite proxy in dev)
 ```
+
+Other templates:
+
+- `.env.staging.example` for the Railway staging SPA.
+- `.env.staging-e2e.example` for local/debug web runs against the deterministic fixture API.
+- `.env.production.example` for future production provisioning.
 
 ## Development
 

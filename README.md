@@ -1,12 +1,14 @@
 # Gastify
 
-Chilean smart expense tracker — AI receipt scanning, multi-currency analytics, PWA. Rebuild of [BoletApp](https://github.com/Brownbull/gmni_boletapp) on FastAPI + PostgreSQL + React.
+Chilean smart expense tracker — AI receipt scanning, multi-currency analytics, SPA. Rebuild of [BoletApp](https://github.com/Brownbull/gmni_boletapp) on FastAPI + PostgreSQL + React.
 
 ## Status
 
-**Pre-scaffold.** Planning complete, scaffolding pending.
+Active rebuild. Current KDBP work is P4 Mobile App MVP, Phase 2 environment
+proof gate: the mobile scan implementation exists, but Phase 2 remains open
+until Railway staging evidence and S23 upload artifacts are logged.
 
-See [`docs/rebuild/PLAN.md`](docs/rebuild/PLAN.md) for the phased implementation plan and [`docs/rebuild/LESSONS.md`](docs/rebuild/LESSONS.md) for rebuild rules derived from the prototype.
+See [`docs/rebuild/PLAN.md`](docs/rebuild/PLAN.md) for the phased implementation plan, [`docs/rebuild/LESSONS.md`](docs/rebuild/LESSONS.md) for rebuild rules derived from the prototype, and [`docs/runbooks/ENVIRONMENTS.md`](docs/runbooks/ENVIRONMENTS.md) for the environment-gated development model.
 
 ## Stack
 
@@ -21,7 +23,7 @@ See [`docs/rebuild/PLAN.md`](docs/rebuild/PLAN.md) for the phased implementation
 | Frontend | React 18 + TypeScript + Vite + Zustand + TanStack Query |
 | Component showcase | ladle |
 | API types | openapi-typescript + openapi-fetch |
-| Hosting | Railway (API + worker + Postgres + Volume) + Vercel (frontend) |
+| Hosting | Railway (API + Postgres + Volume + static SPA) |
 | Python deps | uv |
 | Testing | pytest + Vitest + Playwright |
 
@@ -31,11 +33,14 @@ The backend reads settings from environment variables (prefix `GASTIFY_`):
 
 | Variable | Purpose | Default |
 |---|---|---|
-| `GASTIFY_DATABASE_URL` | PostgreSQL connection string | (required) |
+| `GASTIFY_DATABASE_URL` | Database connection string | `sqlite+aiosqlite:///../.tmp/local/gastify.db` |
 | `GASTIFY_FIREBASE_PROJECT_ID` | Firebase project for auth | (required) |
-| `GOOGLE_API_KEY` | Google AI API key for receipt extraction (read by PydanticAI) | (required) |
-| `GASTIFY_GEMINI_MODEL` | Gemini model name | `gemini-2.5-flash` |
+| `GOOGLE_API_KEY` | Google AI API key for receipt extraction when `GASTIFY_SCAN_PROVIDER=gemini` | (required for Gemini) |
+| `GASTIFY_GEMINI_MODEL` | Gemini model name | `gemini-2.5-flash-lite` |
 | `GASTIFY_GEMINI_MAX_RETRIES` | Max retries on transient AI errors | `3` |
+| `GASTIFY_ENVIRONMENT` | Runtime lane (`local`, `staging`, `staging-e2e`, `production`) | `local` |
+| `GASTIFY_SCAN_PROVIDER` | Scan provider (`mock`, `fixture`, `gemini`) | `mock` |
+| `GASTIFY_SCAN_TEST_CONTROLS_ENABLED` | Enables guarded direct scan test-case endpoints outside production | `false` |
 | `GASTIFY_SCAN_EVENT_BUFFER_SIZE` | Backpressure buffer per SSE/WS subscriber (drop-oldest) | `32` |
 | `GASTIFY_SCAN_EVENT_HEARTBEAT_INTERVAL_S` | Heartbeat keepalive interval for streaming connections | `15` |
 
@@ -50,7 +55,28 @@ The backend reads settings from environment variables (prefix `GASTIFY_`):
 
 ## Next Step
 
-Execute PLAN.md **B0** (monorepo scaffold + tooling + CI). See [`docs/rebuild/PLAN.md`](docs/rebuild/PLAN.md#b0-monorepo-scaffold--tooling--ci-blocks-everything).
+Provision Railway `staging-e2e` and `staging`, then run the S23 fixture
+gate and live Gemini smoke documented in
+[`docs/runbooks/STAGING-TESTING.md`](docs/runbooks/STAGING-TESTING.md).
+
+## Local Backend
+
+For fast local UI/API iteration without Docker or Gemini credentials:
+
+```bash
+bash scripts/dev/start-local.sh
+```
+
+This uses SQLite plus the mock scan provider. The backend refuses `local`
+with Gemini or Postgres. It is not valid evidence for Postgres migrations, RLS,
+concurrency, or runtime Exec/Review closure.
+
+## Runtime Runbooks
+
+- [`docs/runbooks/LOCAL.md`](docs/runbooks/LOCAL.md)
+- [`docs/runbooks/RAILWAY-STAGING-SETUP.md`](docs/runbooks/RAILWAY-STAGING-SETUP.md)
+- [`docs/runbooks/STAGING-TESTING.md`](docs/runbooks/STAGING-TESTING.md)
+- [`docs/runbooks/PRODUCTION-CHECKLIST.md`](docs/runbooks/PRODUCTION-CHECKLIST.md)
 
 ## License
 

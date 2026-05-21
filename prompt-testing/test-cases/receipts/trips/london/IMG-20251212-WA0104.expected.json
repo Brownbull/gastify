@@ -1,0 +1,61 @@
+{
+  "metadata": {
+    "testId": "IMG-20251212-WA0104",
+    "storeType": "pharmacy",
+    "difficulty": "medium",
+    "region": "UK",
+    "source": "manual-codex-visual-truth",
+    "truthVersion": "2026-05-20.manual-v1",
+    "notes": "First baseline for this case; no previous expected JSON existed to archive."
+  },
+  "input": {
+    "receiptType": "auto"
+  },
+  "aiExtraction": {
+    "merchant": "Superdrug",
+    "date": "2025-05-26",
+    "time": "15:26:20",
+    "total": 2324,
+    "currency": "GBP",
+    "category": "Pharmacy",
+    "country": "United Kingdom",
+    "city": "London",
+    "items": [
+      {
+        "name": "MIL. BKJ BLSH 12",
+        "unitPrice": 1175,
+        "totalPrice": 1175,
+        "quantity": 1,
+        "category": "PersonalCare",
+        "subcategory": "Cosmetics"
+      },
+      {
+        "name": "BM CLK ES STGR",
+        "unitPrice": 349,
+        "totalPrice": 349,
+        "quantity": 1,
+        "category": "PersonalCare",
+        "subcategory": "Cosmetics"
+      },
+      {
+        "name": "S/D24 SELECTED E",
+        "unitPrice": 800,
+        "totalPrice": 800,
+        "quantity": 1,
+        "category": "PersonalCare",
+        "subcategory": "Selected promotion"
+      }
+    ],
+    "aiMetadata": {
+      "receiptType": "RetailReceipt",
+      "confidence": 1,
+      "source": "manual visual inspection"
+    },
+    "model": "manual",
+    "modelVersion": "codex-visual",
+    "promptId": "manual-truth-v1",
+    "promptVersion": "2026-05-20",
+    "extractedAt": "2026-05-20T03:30:00Z"
+  },
+  "corrections": {}
+}

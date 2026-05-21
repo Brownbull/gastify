@@ -7,10 +7,11 @@ Referenced by A.17 §4. Origin allow-list and cross-origin request handling.
 | Environment | Origin |
 |-------------|--------|
 | Production | `https://app.gastify.cl` |
-| Staging | `https://staging.gastify.cl` |
+| Integration | Railway static SPA domain and `https://staging.gastify.cl` if mapped |
 | Development | `http://localhost:5174` |
 
-Configured via `GASTIFY_CORS_ORIGINS` env var (comma-separated list).
+Configured via `GASTIFY_CORS_ORIGINS` env var as a JSON list, for example
+`["https://<railway-web-domain>","http://localhost:5173","http://localhost:5174"]`.
 
 ## Auth Posture
 

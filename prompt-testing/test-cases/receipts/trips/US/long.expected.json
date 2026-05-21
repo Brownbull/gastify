@@ -1,0 +1,241 @@
+{
+  "metadata": {
+    "testId": "long",
+    "storeType": "supermarket",
+    "difficulty": "hard",
+    "region": "US",
+    "source": "manual-codex-visual-truth",
+    "truthVersion": "2026-05-20.manual-v1",
+    "archivedPreviousAt": "prompt-testing/test-cases/receipts/_archive/20260520T033000Z-manual-truth-refresh/trips/US/long.expected.json",
+    "notes": "The receipt prints item count 29. Temporary markdown total is informational for this baseline because visible item prices already sum to the final total."
+  },
+  "input": {
+    "receiptType": "auto"
+  },
+  "aiExtraction": {
+    "merchant": "LOTTEmarket",
+    "date": "2026-01-12",
+    "time": "16:33:50",
+    "total": 12440,
+    "currency": "USD",
+    "category": "Supermarket",
+    "country": "USA",
+    "city": "Orlando",
+    "items": [
+      {
+        "name": "ACORN STRACH NOODLE 12OZ",
+        "unitPrice": 429,
+        "totalPrice": 429,
+        "quantity": 1,
+        "category": "Pantry"
+      },
+      {
+        "name": "TRIANGLE K KIMBOLL EA",
+        "unitPrice": 399,
+        "totalPrice": 399,
+        "quantity": 1,
+        "category": "PreparedFood"
+      },
+      {
+        "name": "HALAL CHICKEN DRUMSTICK CUT",
+        "unitPrice": 496,
+        "totalPrice": 496,
+        "quantity": 1,
+        "category": "MeatSeafood"
+      },
+      {
+        "name": "HALAL CHICKEN DRUMSTICK CUT",
+        "unitPrice": 516,
+        "totalPrice": 516,
+        "quantity": 1,
+        "category": "MeatSeafood"
+      },
+      {
+        "name": "MILKFISH",
+        "unitPrice": 2713,
+        "totalPrice": 2713,
+        "quantity": 1,
+        "category": "MeatSeafood"
+      },
+      {
+        "name": "CARROT 5LB BAG",
+        "unitPrice": 549,
+        "totalPrice": 549,
+        "quantity": 1,
+        "category": "Produce"
+      },
+      {
+        "name": "CHINA SHITAKE MUSHROOM 1LB",
+        "unitPrice": 690,
+        "totalPrice": 690,
+        "quantity": 1,
+        "category": "Produce"
+      },
+      {
+        "name": "DAIKON RADISH (JAPANESE) 1LB",
+        "unitPrice": 213,
+        "totalPrice": 213,
+        "quantity": 1,
+        "category": "Produce"
+      },
+      {
+        "name": "SEEDLESS CUCUMBER 1EA",
+        "unitPrice": 99,
+        "totalPrice": 99,
+        "quantity": 1,
+        "category": "Produce"
+      },
+      {
+        "name": "BEEF NECK BONE 1LB",
+        "unitPrice": 1175,
+        "totalPrice": 1175,
+        "quantity": 1,
+        "category": "MeatSeafood"
+      },
+      {
+        "name": "CUBANELLE PEPPER 1LB",
+        "unitPrice": 41,
+        "totalPrice": 41,
+        "quantity": 1,
+        "category": "Produce"
+      },
+      {
+        "name": "RED BELL PEPPER 1LB",
+        "unitPrice": 57,
+        "totalPrice": 57,
+        "quantity": 1,
+        "category": "Produce"
+      },
+      {
+        "name": "SUN GOLD KIWI 1LB 1EA",
+        "unitPrice": 499,
+        "totalPrice": 499,
+        "quantity": 1,
+        "category": "Produce"
+      },
+      {
+        "name": "EXCELLENT PANCIT CANTON 8OZ",
+        "unitPrice": 299,
+        "totalPrice": 299,
+        "quantity": 1,
+        "category": "Pantry"
+      },
+      {
+        "name": "EXCELLENT PANCIT CANTON 8OZ",
+        "unitPrice": 299,
+        "totalPrice": 299,
+        "quantity": 1,
+        "category": "Pantry"
+      },
+      {
+        "name": "BOY BAWANG CORNIK GARLIC 3",
+        "unitPrice": 179,
+        "totalPrice": 179,
+        "quantity": 1,
+        "category": "Snacks"
+      },
+      {
+        "name": "DING DONG SNACK MIX HOTS",
+        "unitPrice": 149,
+        "totalPrice": 149,
+        "quantity": 1,
+        "category": "Snacks"
+      },
+      {
+        "name": "MARGARINE 250G",
+        "unitPrice": 349,
+        "totalPrice": 349,
+        "quantity": 1,
+        "category": "DairyEggs"
+      },
+      {
+        "name": "COCONUT MILK 13.5OZ",
+        "unitPrice": 249,
+        "totalPrice": 249,
+        "quantity": 1,
+        "category": "Pantry"
+      },
+      {
+        "name": "TUNA SPREAD 470ML",
+        "unitPrice": 849,
+        "totalPrice": 849,
+        "quantity": 1,
+        "category": "Pantry"
+      },
+      {
+        "name": "COCONUT MILK 13.5OZ",
+        "unitPrice": 249,
+        "totalPrice": 249,
+        "quantity": 1,
+        "category": "Pantry"
+      },
+      {
+        "name": "MAYONNAISE 12OZ",
+        "unitPrice": 649,
+        "totalPrice": 649,
+        "quantity": 1,
+        "category": "Pantry"
+      },
+      {
+        "name": "TAMARIND SOUP BASE MIX 1.4OZ",
+        "unitPrice": 149,
+        "totalPrice": 149,
+        "quantity": 1,
+        "category": "Pantry"
+      },
+      {
+        "name": "TAMARIND SOUP BASE MIX 1.4OZ",
+        "unitPrice": 149,
+        "totalPrice": 149,
+        "quantity": 1,
+        "category": "Pantry"
+      },
+      {
+        "name": "JACK & JILL PIATTOS CHEE",
+        "unitPrice": 199,
+        "totalPrice": 199,
+        "quantity": 1,
+        "category": "Snacks"
+      },
+      {
+        "name": "PRAWN CRACKER REGULAR 3.52OZ",
+        "unitPrice": 249,
+        "totalPrice": 249,
+        "quantity": 1,
+        "category": "Snacks"
+      },
+      {
+        "name": "PRAWN CRACKER SPICY 2.12OZ",
+        "unitPrice": 149,
+        "totalPrice": 149,
+        "quantity": 1,
+        "category": "Snacks"
+      },
+      {
+        "name": "PRAWN CRACKER REGULAR 2.12OZ",
+        "unitPrice": 149,
+        "totalPrice": 149,
+        "quantity": 1,
+        "category": "Snacks"
+      },
+      {
+        "name": "TARO SESAME MOCHI 7.4OZ",
+        "unitPrice": 249,
+        "totalPrice": 249,
+        "quantity": 1,
+        "category": "Snacks"
+      }
+    ],
+    "aiMetadata": {
+      "receiptType": "SupermarketReceipt",
+      "confidence": 1,
+      "source": "manual visual inspection"
+    },
+    "model": "manual",
+    "modelVersion": "codex-visual",
+    "promptId": "manual-truth-v1",
+    "promptVersion": "2026-05-20",
+    "extractedAt": "2026-05-20T03:30:00Z"
+  },
+  "corrections": {}
+}

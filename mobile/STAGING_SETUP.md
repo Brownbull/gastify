@@ -155,7 +155,7 @@ npm run doctor:e2e
 The report is saved to:
 
 ```text
-tests/mobile/artifacts/latest/environment/mobile-doctor.txt
+tests/mobile/results/latest/<env>/environment/mobile-doctor.txt
 ```
 
 ## Step 7: What To Tell Codex

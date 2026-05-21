@@ -2,14 +2,18 @@ import { useScanStore } from "@/stores/scanStore";
 
 const LOW_CONFIDENCE_THRESHOLD = 0.6;
 
-function formatAmount(amount: number, currency: string): string {
+function formatMinorAmount(amount: number, currency: string): string {
+  const exponent = currency === "CLP" || currency === "JPY" ? 0 : 2;
+  const majorAmount = amount / 10 ** exponent;
   try {
     return new Intl.NumberFormat(undefined, {
       style: "currency",
       currency,
-    }).format(amount);
+      minimumFractionDigits: exponent,
+      maximumFractionDigits: exponent,
+    }).format(majorAmount);
   } catch {
-    return `${currency} ${amount.toFixed(2)}`;
+    return `${currency} ${majorAmount.toFixed(exponent)}`;
   }
 }
 
@@ -24,6 +28,8 @@ export function ScanResult() {
   const isLowConfidence =
     result?.confidence_score != null &&
     result.confidence_score < LOW_CONFIDENCE_THRESHOLD;
+  const hasMajorReconciliationWarning =
+    result?.reconciliation_severity === "major_warning";
   const isNewMerchant = result?.is_new_merchant === true;
 
   if (!hasDetailedResult) {
@@ -108,6 +114,24 @@ export function ScanResult() {
         </div>
       )}
 
+      {hasMajorReconciliationWarning && (
+        <div
+          className="rounded-lg border p-3"
+          style={{
+            backgroundColor: "color-mix(in srgb, var(--warning, #f59e0b) 10%, transparent)",
+            borderColor: "var(--warning, #f59e0b)",
+          }}
+          role="alert"
+        >
+          <p
+            className="text-sm font-medium"
+            style={{ color: "var(--warning, #f59e0b)" }}
+          >
+            Receipt math needs review
+          </p>
+        </div>
+      )}
+
       {isNewMerchant && (
         <div
           className="rounded-lg border p-3"
@@ -138,9 +162,29 @@ export function ScanResult() {
         {result!.total_amount != null && result!.currency_code && (
           <ResultField
             label="Total"
-            value={formatAmount(result!.total_amount, result!.currency_code)}
+            value={formatMinorAmount(result!.total_amount, result!.currency_code)}
           />
         )}
+        {result!.gross_total_amount != null && result!.currency_code && (
+          <ResultField
+            label="Before discount"
+            value={formatMinorAmount(result!.gross_total_amount, result!.currency_code)}
+          />
+        )}
+        {result!.discount_amount != null && result!.currency_code && (
+          <ResultField
+            label="Discount"
+            value={`-${formatMinorAmount(result!.discount_amount, result!.currency_code)}`}
+          />
+        )}
+        {result!.reconstructed_total != null &&
+          result!.status === "needs_review" &&
+          result!.currency_code && (
+            <ResultField
+              label="Reconstructed"
+              value={formatMinorAmount(result!.reconstructed_total, result!.currency_code)}
+            />
+          )}
         {result!.currency_code && (
           <ResultField label="Currency" value={result!.currency_code} />
         )}
@@ -158,20 +202,19 @@ export function ScanResult() {
             {result!.line_items.map((item, idx) => (
               <div
                 key={idx}
-                className="flex justify-between rounded-lg px-3 py-2 text-sm"
+                className="flex justify-between gap-4 rounded-lg px-3 py-2 text-sm"
                 style={{ backgroundColor: "var(--background, #f9fafb)" }}
               >
-                <span style={{ color: "var(--text)" }}>
-                  {item.qty != null && item.qty > 1 ? `${item.qty}× ` : ""}
-                  {item.name}
-                </span>
-                <span
-                  className="font-medium"
-                  style={{ color: "var(--text)" }}
-                >
+                <div>
+                  <span style={{ color: "var(--text)" }}>
+                    {item.qty != null && item.qty > 1 ? `${item.qty}× ` : ""}
+                    {item.name}
+                  </span>
+                </div>
+                <span className="font-medium" style={{ color: "var(--text)" }}>
                   {result!.currency_code
-                    ? formatAmount(item.total_price, result!.currency_code)
-                    : item.total_price.toFixed(2)}
+                    ? formatMinorAmount(item.total_price, result!.currency_code)
+                    : item.total_price.toFixed(0)}
                 </span>
               </div>
             ))}

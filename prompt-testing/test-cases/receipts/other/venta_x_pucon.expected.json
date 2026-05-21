@@ -1,0 +1,46 @@
+{
+  "metadata": {
+    "testId": "venta_x_pucon",
+    "storeType": "other",
+    "difficulty": "hard",
+    "region": "CL",
+    "source": "manual-inspection",
+    "addedAt": "2026-05-20T16:30:00.000Z"
+  },
+  "input": {
+    "currency": "CLP",
+    "receiptType": "auto"
+  },
+  "aiExtraction": {
+    "merchant": "SANTA VICTORIA",
+    "date": "2025-09-15",
+    "time": "13:20:14",
+    "total": 94791,
+    "currency": "CLP",
+    "category": "Other",
+    "country": "Chile",
+    "city": "Pucon",
+    "items": [
+      {
+        "name": "Venta credito Santa Victoria",
+        "unitPrice": 94791,
+        "totalPrice": 94791,
+        "quantity": 1,
+        "category": "Other",
+        "subcategory": null
+      }
+    ],
+    "aiMetadata": {
+      "receiptType": "card_slip",
+      "confidence": 0.8
+    },
+    "model": "manual-inspection",
+    "modelVersion": "2026-05-20",
+    "promptId": "manual-truth",
+    "promptVersion": "1.0.0",
+    "extractedAt": "2026-05-20T16:30:00.000Z"
+  },
+  "corrections": {
+    "reviewNotes": "Manual truth from visible card voucher: sale credit at Santa Victoria in Pucon, amount and total CLP 94.791, card ending 8955."
+  }
+}

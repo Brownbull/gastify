@@ -1,0 +1,17 @@
+{
+  "fixtureSchemaVersion": 1,
+  "rawGeminiResponse": "```json\n{\n  merchant: \"Lider Express\",\n  date: \"2026-04-02\",\n  total: 15990,\n  currency: \"CLP\",\n  category: \"Groceries\",\n  items: [\n    {name: \"Leche Entera 1L\", totalPrice: 1290, quantity: 2, category: \"Dairy\",},\n    {name: \"Pan Molde Integral\", totalPrice: 990, quantity: 1, category: \"Bakery\",},\n  ], // items extracted from receipt\n  metadata: {\n    receiptType: \"receipt\",\n    confidence: 0.88,\n  }\n}\n```",
+  "sourceImage": "adversarial/malformed-json.jpg",
+  "createdFrom": "manual-adversarial",
+  "bugReference": "TD-18-17: Gemini returns unquoted keys + trailing commas + inline comments",
+  "expectedAfterCoercion": {
+    "merchant": "Lider Express",
+    "date": "2026-04-02",
+    "total": 15990,
+    "category": "Groceries",
+    "items": [
+      { "name": "Leche Entera 1L", "totalPrice": 1290, "quantity": 2, "category": "Dairy" },
+      { "name": "Pan Molde Integral", "totalPrice": 990, "quantity": 1, "category": "Bakery" }
+    ]
+  }
+}

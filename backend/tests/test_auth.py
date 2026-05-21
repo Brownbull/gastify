@@ -1,5 +1,6 @@
 """Tests for auth JIT user provisioning and Firebase auth."""
 
+import uuid
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
@@ -7,6 +8,33 @@ from fastapi import HTTPException
 from httpx import AsyncClient
 
 from app.auth.firebase import FirebaseUser, _extract_token, _get_firebase_app, get_current_user
+
+
+class TestPostgresOwnershipScope:
+    async def test_uses_set_config_for_asyncpg_compatible_rls_scope(self) -> None:
+        from app.auth.deps import _set_postgres_ownership_scope
+
+        db = MagicMock()
+        db.bind.dialect.name = "postgresql"
+        db.execute = AsyncMock()
+        scope_id = uuid.uuid4()
+
+        await _set_postgres_ownership_scope(db, scope_id)
+
+        statement, params = db.execute.await_args.args
+        assert str(statement) == "SELECT set_config('app.ownership_scope_id', :sid, true)"
+        assert params == {"sid": str(scope_id)}
+
+    async def test_skips_scope_for_non_postgres_database(self) -> None:
+        from app.auth.deps import _set_postgres_ownership_scope
+
+        db = MagicMock()
+        db.bind.dialect.name = "sqlite"
+        db.execute = AsyncMock()
+
+        await _set_postgres_ownership_scope(db, uuid.uuid4())
+
+        db.execute.assert_not_awaited()
 
 
 class TestGetFirebaseApp:
@@ -24,6 +52,7 @@ class TestGetFirebaseApp:
                 patch("app.auth.firebase.settings") as mock_settings,
             ):
                 mock_settings.firebase_credentials_path = None
+                mock_settings.firebase_credentials_json = None
                 mock_settings.firebase_project_id = "test-project"
                 result = _get_firebase_app()
                 mock_cred.assert_called_once()
@@ -56,9 +85,32 @@ class TestGetFirebaseApp:
                 patch("app.auth.firebase.settings") as mock_settings,
             ):
                 mock_settings.firebase_credentials_path = "/path/to/creds.json"
+                mock_settings.firebase_credentials_json = None
                 mock_settings.firebase_project_id = "test-project"
                 _get_firebase_app()
                 mock_cert.assert_called_once_with("/path/to/creds.json")
+        finally:
+            fb_mod._app = original
+
+    def test_certificate_json(self) -> None:
+        import app.auth.firebase as fb_mod
+
+        original = fb_mod._app
+        fb_mod._app = None
+        payload = '{"project_id":"test-project","client_email":"test@example.com"}'
+        try:
+            with (
+                patch("app.auth.firebase.credentials.Certificate") as mock_cert,
+                patch("app.auth.firebase.firebase_admin.initialize_app", return_value=MagicMock()),
+                patch("app.auth.firebase.settings") as mock_settings,
+            ):
+                mock_settings.firebase_credentials_path = None
+                mock_settings.firebase_credentials_json = payload
+                mock_settings.firebase_project_id = "test-project"
+                _get_firebase_app()
+                mock_cert.assert_called_once_with(
+                    {"project_id": "test-project", "client_email": "test@example.com"}
+                )
         finally:
             fb_mod._app = original
 

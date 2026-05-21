@@ -3,10 +3,13 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
 MOBILE_DIR="${ROOT_DIR}/mobile"
-ENV_FILE="${MOBILE_DIR}/.env"
+ENV_FILE="${GASTIFY_MOBILE_ENV_FILE:-${MOBILE_DIR}/.env.staging}"
+if [[ ! -f "${ENV_FILE}" && -f "${MOBILE_DIR}/.env" ]]; then
+  ENV_FILE="${MOBILE_DIR}/.env"
+fi
 
 if [[ ! -f "${ENV_FILE}" ]]; then
-  echo "Missing ${ENV_FILE}. Fill mobile/.env before verifying staging auth." >&2
+  echo "Missing ${ENV_FILE}. Fill mobile/.env.staging before verifying staging auth." >&2
   exit 2
 fi
 

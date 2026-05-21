@@ -10,6 +10,9 @@ env/
 ENV/
 .env
 .env.local
+.env.staging
+.env.staging-e2e
+.env.production
 .env.*.local
 *.egg-info/
 .eggs/
@@ -71,6 +74,17 @@ apps/web/storybook-static/
 logs/
 *.log
 firepit-log.txt
+.tmp/
+
+# Local database files
+*.db
+*.db-*
+*.sqlite
+*.sqlite3
+*.sqlite-shm
+*.sqlite-wal
+*.sqlite3-shm
+*.sqlite3-wal
 
 # Railway
 .railway/
@@ -78,6 +92,18 @@ firepit-log.txt
 # Local Docker
 postgres_data/
 railway_volume_local/
+
+# Native/mobile build and signing artifacts
+*.apk
+*.aab
+*.ipa
+*.keystore
+*.jks
+*.p12
+*.mobileprovision
+*.p8
+google-services.json
+GoogleService-Info.plist
 
 # Deprecated local Android SDK shim from retired WSL emulator path
 .android-sdk-shim/
@@ -94,6 +120,16 @@ test-results/
 # Gemini fixtures cache (keep checked-in golden cache; ignore user scratch)
 tests/fixtures/gemini/.scratch/
 
+# Receipt prompt lab generated model outputs. Test cases and docs are committed.
+prompt-testing/cache/**
+prompt-testing/results/**
+prompt-testing/import-manifest*.json
+!prompt-testing/cache/.gitkeep
+!prompt-testing/results/latest/
+!prompt-testing/results/latest/.gitkeep
+!prompt-testing/results/archive/
+!prompt-testing/results/archive/.gitkeep
+
 # Mockup reference dump — unversioned scratch vault for legacy imports (Claude Design, BoletApp, etc.)
 docs/mockups/legacy-reference/
 
@@ -102,9 +138,14 @@ docs/mockups/legacy-reference/
 # diff-checks against committed versions to catch drift. See PLAN.md B3 + LESSONS R6.
 tests/mockups/validate/.cache/
 
-# Mobile E2E artifacts. Keep docs/scripts in git, not generated screenshots.
+# Mobile E2E results. Keep docs/scripts in git, not generated screenshots.
+tests/mobile/results/latest/**
+tests/mobile/results/archive/**
+tests/mobile/results/runs/**
+# Legacy mobile E2E artifact path; kept ignored for old local shells.
 tests/mobile/artifacts/latest/**
 tests/mobile/artifacts/archive/**
+tests/mobile/artifacts/runs/**
 
 # Firestore data exports — contain real user PII (emails, UIDs)
 docs/rebuild/firestore-data-export.json

@@ -1,0 +1,19 @@
+{
+  "policy": {
+    "policy_id": "receipt-validation-policy",
+    "policy_version": "2026-05-20.v1",
+    "math_exact_tolerance_minor_units": 1,
+    "major_reconstruction_discrepancy_ratio": 0.25,
+    "significant_item_count_delta_ratio": 0.25,
+    "significant_item_total_mismatch_ratio": 0.25,
+    "significant_quantity_mismatch_ratio": 0.25,
+    "significant_unit_price_mismatch_ratio": 0.25,
+    "significant_discount_delta_ratio": 0.25,
+    "discount_delta_denominator": "expected_final_total_minor"
+  },
+  "notes": [
+    "Thresholds are severity-only; they do not convert strict prompt-lab failures into strict passes.",
+    "Final transaction total mismatch beyond the exact tolerance remains a strict transaction failure.",
+    "Discount significance uses expected final transaction total as denominator."
+  ]
+}

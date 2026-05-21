@@ -1,0 +1,142 @@
+{
+  "metadata": {
+    "testId": "wtf",
+    "storeType": "supermarket",
+    "difficulty": "hard",
+    "region": "CL",
+    "source": "manual-codex-visual-truth",
+    "truthVersion": "2026-05-20.manual-v1",
+    "notes": "Dense supermarket receipt with several weighted lines and no payable discount."
+  },
+  "input": {
+    "receiptType": "auto"
+  },
+  "aiExtraction": {
+    "merchant": "COMERCIAL MASSALUD SPA",
+    "date": "2026-03-15",
+    "time": "15:44:02",
+    "total": 42643,
+    "currency": "CLP",
+    "category": "Supermarket",
+    "country": "Chile",
+    "city": "Villarrica",
+    "items": [
+      {
+        "name": "PICHANGA KILO",
+        "unitPrice": 3000,
+        "totalPrice": 1428,
+        "quantity": 0.476,
+        "category": "MeatSeafood"
+      },
+      {
+        "name": "PECHUGA DESHUESADA MEDIA POLLO REF. 1 KILO",
+        "unitPrice": 5299,
+        "totalPrice": 17052,
+        "quantity": 3.218,
+        "category": "MeatSeafood"
+      },
+      {
+        "name": "PAN HALLULLA INTEGRAL 1 KG",
+        "unitPrice": 2890,
+        "totalPrice": 486,
+        "quantity": 0.168,
+        "category": "BreadPastry"
+      },
+      {
+        "name": "MANZANA VERDE 1 KG",
+        "unitPrice": 1590,
+        "totalPrice": 1294,
+        "quantity": 0.814,
+        "category": "Produce"
+      },
+      {
+        "name": "MORRON ROJO",
+        "unitPrice": 1399,
+        "totalPrice": 2798,
+        "quantity": 2,
+        "category": "Produce"
+      },
+      {
+        "name": "SALCHICHA ARTESANAL SCHW",
+        "unitPrice": 2699,
+        "totalPrice": 2699,
+        "quantity": 1,
+        "category": "MeatSeafood"
+      },
+      {
+        "name": "MALLA AJO CUSCO 5 UN",
+        "unitPrice": 990,
+        "totalPrice": 990,
+        "quantity": 1,
+        "category": "Produce"
+      },
+      {
+        "name": "LIMPIADOR CONCENTRAD LYSI",
+        "unitPrice": 2299,
+        "totalPrice": 2299,
+        "quantity": 1,
+        "category": "CleaningSupplies"
+      },
+      {
+        "name": "REMOVEDOR SAPOLIO LIMPIA",
+        "unitPrice": 1799,
+        "totalPrice": 1799,
+        "quantity": 1,
+        "category": "CleaningSupplies"
+      },
+      {
+        "name": "LIMPIADOR WC SAPOLIO POW",
+        "unitPrice": 1799,
+        "totalPrice": 1799,
+        "quantity": 1,
+        "category": "CleaningSupplies"
+      },
+      {
+        "name": "PANO ESPONJA VIRUTEX 3 UNI",
+        "unitPrice": 3199,
+        "totalPrice": 3199,
+        "quantity": 1,
+        "category": "CleaningSupplies"
+      },
+      {
+        "name": "PAN MARRAQUETA 1 KG",
+        "unitPrice": 2599,
+        "totalPrice": 2043,
+        "quantity": 0.786,
+        "category": "BreadPastry"
+      },
+      {
+        "name": "MINI CRACKERS SAL MAR PERI",
+        "unitPrice": 2499,
+        "totalPrice": 2499,
+        "quantity": 1,
+        "category": "Snacks"
+      },
+      {
+        "name": "CEREAL NATUR DE MAIZ 100 C",
+        "unitPrice": 1439,
+        "totalPrice": 1439,
+        "quantity": 1,
+        "category": "PackagedFood"
+      },
+      {
+        "name": "CHOCOLATE SUPER 8 MANI 42",
+        "unitPrice": 819,
+        "totalPrice": 819,
+        "quantity": 1,
+        "category": "Snacks"
+      }
+    ],
+    "aiMetadata": {
+      "receiptType": "SupermarketReceipt",
+      "confidence": 1,
+      "source": "manual visual inspection"
+    },
+    "model": "manual",
+    "modelVersion": "codex-visual",
+    "promptId": "manual-truth-v1",
+    "promptVersion": "2026-05-20",
+    "extractedAt": "2026-05-20T00:00:00Z"
+  },
+  "corrections": {}
+}

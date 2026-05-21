@@ -1,9 +1,9 @@
 ---
 name: gastify
-version: 1
+version: 1.1
 created_at: 2026-04-22
-last_changed_at: 2026-04-22
-status: finalized
+last_changed_at: 2026-05-19
+status: finalized v1.1
 derived_from: SCOPE.md v1
 granularity: fine
 phase_count: 9
@@ -12,7 +12,7 @@ phase_count: 9
 # ROADMAP — Gastify
 
 > **Derived from `.kdbp/SCOPE.md`.** Medium-inertia. Updates on any `/gabe-scope-change` (addition, pivot, addition-of-phase, removal-of-phase) or on phase completion.
-> Status: **finalized v1** (2026-04-22).
+> Status: **finalized v1.1** (2026-05-19).
 
 ## §1 How to read this file
 
@@ -21,17 +21,18 @@ phase_count: 9
 - **Order is dependency-driven, not priority-driven.** What must exist before the next thing can run.
 - **Parallel-able.** Multiple phases can run concurrently where shown in §4. The dependency graph is the ground truth, the phase table below is a reading order.
 - **Tool wording follows SCOPE §9.0.** Category constraints are hard; specific tool names are suggestions-as-of-2026-04-22 owned by ADRs. When a phase goal or exit signal names a technology class (e.g., "vision LLM", "managed identity provider"), the current suggested implementation is in SCOPE §9.1.
+- **Taxonomy prompt boundary.** The four-level taxonomy is L1 `Industry` (es: `Rubro`), L2 `Business Type` (es: `Giro`), L3 `Family` (es: `Familia`), L4 `Category` (es: `Categoría`). AI prompts may assign only L2 transaction/store categories and L4 item categories. L1 and L3 are deterministic parent groups used later for statistics, filters, drill-downs, and UI grouping. All canonical keys and level names are English; Spanish labels/translations are required from day zero.
 
 ## §2 Phase Table (at-a-glance)
 
 | # | Phase | Goal | Depends on | Parallel with | REQs | Status |
 |---|---|---|---|---|---|---|
 | P1 | **Foundation** | Backend scaffold + identity + ownership-scope + money/FX + consent/processing register + observability — the stage on which everything else stands. | — | — | REQ-15, REQ-16, REQ-17, REQ-18, REQ-19, REQ-20, REQ-21, REQ-22 | pending |
-| P2 | **Receipt Scan Pipeline** | Photo → two-stage vision-LLM extraction → math-gate → V4 categorization → persisted transaction with USD shadow. Dual-transport scan-progress streaming. | P1 | — | REQ-01, REQ-02, REQ-03, REQ-04, REQ-12 | pending |
+| P2 | **Receipt Scan Pipeline** | Photo → two-stage vision-LLM extraction → math-gate → L4 item categorization + L2 transaction categorization → persisted transaction with USD shadow. Dual-transport scan-progress streaming. | P1 | — | REQ-01, REQ-02, REQ-03, REQ-04, REQ-12 | pending |
 | P3 | **Web Portal MVP** | Responsive static SPA — auth, receipt scan flow, transaction ledger, manual edits with `user_edited_at`, sign-out isolation. | P1, P2 | P4 | REQ-05 (web slice), REQ-13, REQ-14 (web), REQ-23 | pending |
 | P4 | **Mobile App MVP** | Single cross-platform codebase → Android + iOS via managed build + OTA pipeline. Native camera, bidirectional streaming, native keystore, sign-out isolation. | P1, P2 | P3 | REQ-05 (mobile slice), REQ-13, REQ-14 (mobile), REQ-24, REQ-25 | pending |
 | P5 | **Statement Reconciliation + Cards** | PDF statement upload → extraction → match against existing receipts → 3-bucket view + coverage metric. Card alias CRUD (no PCI). | P2 | P6 | REQ-07, REQ-08, REQ-09 | pending |
-| P6 | **Insights + Item Flags** | Monthly view (top-N by L2), gravity-center detection, item urgency/special-case flag with personal-only scope enforcement. | P2 | P5 | REQ-06, REQ-10, REQ-11 | pending |
+| P6 | **Insights + Item Flags** | Monthly view with deterministic taxonomy rollups (L2 transaction categories and L4 item categories grouped through L1/L3), gravity-center detection, item urgency/special-case flag with personal-only scope enforcement. | P2 | P5 | REQ-06, REQ-10, REQ-11 | pending |
 | P7 | **Compliance + Launch Hardening** | Four-jurisdiction regulatory readiness validated (Law 21.719, GDPR, PIPEDA, CCPA/CPRA) + launch infra + cutover drill. Paid-tier LLM pre-commit in place. Monetization plumbing live. | P1, P2, P3, P4, P5, P6 | — | Consolidates + audits REQ-20, REQ-21 | pending |
 | P8 | **Structured-Boleta Shortcut** | Chilean electronic-boleta QR/CAF parser bypasses the vision LLM for structured receipts — cuts per-scan cost on SII-Resolution-52/2026 electronic boletas. Nice-to-have, post-MVP. | P2, P7 | P9 | REQ-26 | pending |
 | P9 | **Cohort Benchmarking (DP-engineered)** | Consent-gated cohort aggregation with k ≥ 20 floor, ε ≤ 1 DP noise, sensitive-category suppression, revocation-aware recompute. Unlocks SC-11 / JTBD-05. Post-MVP. | P1, P6, P7 | P8 | REQ-27 | pending |
@@ -55,13 +56,13 @@ phase_count: 9
 
 ### Phase 2 — Receipt Scan Pipeline {#phase-2}
 
-**Goal.** A user uploads a receipt photo. Within 30 seconds at P95, it is a persisted transaction with line-items mapped to V4 categories, math-reconciliation-gated, USD-shadowed, ownership-scope-keyed, and observable end-to-end.
+**Goal.** A user uploads a receipt photo. Within 30 seconds at P95, it is a persisted transaction with a validated L2 transaction/store category and line-items mapped to validated L4 item categories, math-reconciliation-gated, USD-shadowed, ownership-scope-keyed, and observable end-to-end.
 
 **Why now.** SC-01 is Gastify's core differentiator — nothing works without this. The two-stage extraction (vision → text-only categorize) is the defense against prompt injection (research §2.1); the math-reconciliation gate (REQ-12) catches hallucinations before they corrupt the ledger.
 
-**Covers REQs.** REQ-01 (submission), REQ-02 (two-stage worker), REQ-03 (V4 taxonomy), REQ-04 (dual streaming), REQ-12 (math gate).
+**Covers REQs.** REQ-01 (submission), REQ-02 (two-stage worker), REQ-03 (four-level taxonomy with prompt assignment limited to L2/L4 and deterministic L1/L3 rollups), REQ-04 (dual streaming), REQ-12 (math gate).
 
-**Exit signal.** 10 test receipts (mixed CLP/USD, Spanish + English, 5–40 items, 2 adversarial with embedded prompt-injection attempts, 1 math-inconsistent) processed end-to-end. All 8 benign receipts land as correct transactions; both adversarial receipts produce safe output; the math-inconsistent receipt routes to review instead of landing. Streaming events delivered in order on both transport types.
+**Exit signal.** 10 test receipts (mixed CLP/USD, Spanish + English, 5–40 items, 2 adversarial with embedded prompt-injection attempts, 1 math-inconsistent) processed end-to-end. All 8 benign receipts land as correct transactions with L2/L4 categories; both adversarial receipts produce safe output; the math-inconsistent receipt routes to review instead of landing. L1/L3 groups are derived deterministically from the reference taxonomy, not generated by prompts. Prompt-lab runs provide AI-quality/prompt-promotion evidence only. Streaming events delivered in order on both transport types. Local mocks are not sufficient: runtime closure requires Railway/Postgres staging evidence, deterministic fixture proof where applicable, and live Gemini smoke for the provider path.
 
 **Depends on.** P1.
 **Parallel with.** —
@@ -76,7 +77,7 @@ phase_count: 9
 
 **Covers REQs.** REQ-05 (ledger API, web slice), REQ-13 (user-edit precedence), REQ-14 (web sign-out eviction), REQ-23 (responsive web portal).
 
-**Exit signal.** Web E2E journey green (framework per §9.1): sign in → scan receipt → watch streaming events → see transaction → edit merchant name → assert `user_edited_at` set → sign out → re-open tab → no cached account data fetchable.
+**Exit signal.** Web E2E journey green (framework per §9.1): sign in → scan receipt → watch streaming events → see transaction → edit merchant name → assert `user_edited_at` set → sign out → re-open tab → no cached account data fetchable. Runtime closure requires browser-level evidence against the Railway staging SPA/API; local or static checks alone are not sufficient.
 
 **Depends on.** P1, P2.
 **Parallel with.** P4.
@@ -91,7 +92,7 @@ phase_count: 9
 
 **Covers REQs.** REQ-05 (ledger API, mobile slice), REQ-13 (user-edit precedence, shared with P3), REQ-14 (mobile sign-out eviction for both iOS + Android), REQ-24 (cross-platform mobile app), REQ-25 (push notifications registration).
 
-**Exit signal.** Mobile E2E journey green (framework per §9.1) on both iOS + Android simulated builds: sign in → camera scan → streaming events → transaction view → edit → sign out → assert platform-keystore cleared + no cached API data.
+**Exit signal.** Mobile E2E journey green (framework per §9.1) on Android physical hardware and the best available iOS simulator/device lane: sign in → camera scan → streaming events → transaction view → edit → sign out → assert platform-keystore cleared + no cached API data. Runtime closure requires artifact-backed staging evidence; local mocks and unit tests alone are not sufficient.
 
 **Depends on.** P1, P2.
 **Parallel with.** P3.
@@ -106,7 +107,7 @@ phase_count: 9
 
 **Covers REQs.** REQ-07 (statement upload + extraction), REQ-08 (reconciliation engine + coverage), REQ-09 (card alias CRUD).
 
-**Exit signal.** A user with 20 days of receipt scans uploads their monthly statement. Reconciliation runs, coverage metric reads (for example) "72% of statement spend has a matched receipt," and the user can drill into the 28% bucket to find one forgotten subscription and one charge-they-don't-remember.
+**Exit signal.** A user with 20 days of receipt scans uploads their monthly statement. Reconciliation runs, coverage metric reads (for example) "72% of statement spend has a matched receipt," and the user can drill into the 28% bucket to find one forgotten subscription and one charge-they-don't-remember. Runtime closure requires Railway staging evidence for Postgres, file/media handling, worker behavior, and user-visible reconciliation results.
 
 **Depends on.** P2.
 **Parallel with.** P6.
@@ -115,13 +116,13 @@ phase_count: 9
 
 ### Phase 6 — Insights + Item Flags {#phase-6}
 
-**Goal.** A user opens the app on any client, sees their top-5 L2 categories for the current month in ≤ 20 seconds app-open-to-visible, reads the gravity-center ranking showing which categories are growing or shrinking vs. their baseline, and flags one item as "special-case" — which disappears from all aggregate views while staying in their transaction record.
+**Goal.** A user opens the app on any client, sees their top categories for the current month in ≤ 20 seconds app-open-to-visible, drills between L1/L2 transaction-category rollups and L3/L4 item-category rollups derived deterministically from canonical taxonomy parents, reads the gravity-center ranking showing which categories are growing or shrinking vs. their baseline, and flags one item as "special-case" — which disappears from all aggregate views while staying in their transaction record.
 
 **Why now.** Insight is where the scanned data turns into behavior change. Uses P2's data stream + depends on having a few weeks of transactions accumulated (i.e., runs alongside P5 rather than after).
 
 **Covers REQs.** REQ-06 (monthly analytics view), REQ-10 (gravity-center detection), REQ-11 (item flag + personal-only scope enforcement).
 
-**Exit signal.** Test user with 3 months of seeded transactions opens the monthly view. Top-5 renders within 20 seconds. Gravity-center list shows at least one growth category. User flags one line item; re-renders analytics, the item is excluded from aggregates but still visible on the transaction detail.
+**Exit signal.** Test user with 3 months of seeded transactions opens the monthly view. Top-5 renders within 20 seconds using deterministic L1/L2 and L3/L4 rollups from canonical parent relationships. Gravity-center list shows at least one growth category. User flags one line item; re-renders analytics, the item is excluded from aggregates but still visible on the transaction detail. Runtime closure requires staging evidence for seeded multiuser data, cache behavior, and deployed client rendering.
 
 **Depends on.** P2.
 **Parallel with.** P5.
@@ -136,7 +137,7 @@ phase_count: 9
 
 **Covers REQs.** Consolidates and audits REQ-20 (consent + processing register) + REQ-21 (observability) across all prior phases. No new REQs — this is a validation + hardening phase.
 
-**Exit signal.** (a) A data-subject-rights request (access/rectification/erasure/portability) can be serviced end-to-end on a test user. (b) Consent revocation triggers downstream cohort-unflag. (c) A load test drives the extraction-LLM service to quota throttle — all scans gracefully enter `queued` state, no 5xx. (d) Retention policy deletes test data older than declared TTL. (e) Go/no-go readiness checklist signed.
+**Exit signal.** (a) A data-subject-rights request (access/rectification/erasure/portability) can be serviced end-to-end on a test user. (b) Consent revocation triggers downstream cohort-unflag. (c) A load test drives the extraction-LLM service to quota throttle — all scans gracefully enter `queued` state, no 5xx. (d) Retention policy deletes test data older than declared TTL. (e) Go/no-go readiness checklist signed. Launch hardening must use staging evidence first; production journey smoke needs a separate cutover/test-data approval.
 
 **Depends on.** P1, P2, P3, P4, P5, P6.
 **Parallel with.** —
@@ -250,4 +251,5 @@ graph LR
 
 | Date | Version | Change |
 |---|---|---|
+| 2026-05-19 | v1.1 | clarified four-level taxonomy usage: prompts assign only L2/L4; L1/L3 are deterministic reporting groups with English canonical keys and Spanish labels from day zero. |
 | 2026-04-22 | v1 | init — derived from SCOPE.md v1. 9 phases (granularity = fine). 27 REQs mapped; no orphans. Critical path P1 → P2 → (P3∥P4∥P5∥P6) → P7 → launch. Post-launch: P8 ∥ P9. |

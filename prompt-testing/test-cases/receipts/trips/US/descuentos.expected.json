@@ -1,0 +1,143 @@
+{
+  "metadata": {
+    "testId": "descuentos",
+    "storeType": "supermarket",
+    "difficulty": "hard",
+    "region": "US",
+    "source": "manual-codex-visual-truth",
+    "truthVersion": "2026-05-20.manual-v1",
+    "archivedPreviousAt": "prompt-testing/test-cases/receipts/_archive/20260520T033000Z-manual-truth-refresh/trips/US/descuentos.expected.json",
+    "notes": "Positive rows are gross product rows. Negative rows encode visible receipt-level promotion/savings evidence and are adapted into one expected receipt discount."
+  },
+  "input": {
+    "receiptType": "auto"
+  },
+  "aiExtraction": {
+    "merchant": "Publix",
+    "date": "2026-01-13",
+    "time": "17:06",
+    "total": 2866,
+    "currency": "USD",
+    "category": "Supermarket",
+    "country": "USA",
+    "city": "Orlando",
+    "items": [
+      {
+        "name": "CUCUMBER HOT HOUSE",
+        "unitPrice": 309,
+        "totalPrice": 309,
+        "quantity": 1,
+        "category": "Produce"
+      },
+      {
+        "name": "You Saved",
+        "unitPrice": -59,
+        "totalPrice": -59,
+        "quantity": 1,
+        "category": "Discount"
+      },
+      {
+        "name": "51/60 P&D SHRIMP",
+        "unitPrice": 1799,
+        "totalPrice": 1799,
+        "quantity": 1,
+        "category": "MeatSeafood"
+      },
+      {
+        "name": "51/60 P&D SHRIMP",
+        "unitPrice": 1799,
+        "totalPrice": 1799,
+        "quantity": 1,
+        "category": "MeatSeafood"
+      },
+      {
+        "name": "Promotion",
+        "unitPrice": -1799,
+        "totalPrice": -1799,
+        "quantity": 1,
+        "category": "Discount"
+      },
+      {
+        "name": "GIMME SEAWEED",
+        "unitPrice": 239,
+        "totalPrice": 239,
+        "quantity": 1,
+        "category": "Pantry"
+      },
+      {
+        "name": "GIMME SEAWEED",
+        "unitPrice": 239,
+        "totalPrice": 239,
+        "quantity": 1,
+        "category": "Pantry"
+      },
+      {
+        "name": "Promotion",
+        "unitPrice": -239,
+        "totalPrice": -239,
+        "quantity": 1,
+        "category": "Discount"
+      },
+      {
+        "name": "GIMME SEAWEED",
+        "unitPrice": 239,
+        "totalPrice": 239,
+        "quantity": 1,
+        "category": "Pantry"
+      },
+      {
+        "name": "GIMME SEAWEED",
+        "unitPrice": 239,
+        "totalPrice": 239,
+        "quantity": 1,
+        "category": "Pantry"
+      },
+      {
+        "name": "Promotion",
+        "unitPrice": -239,
+        "totalPrice": -239,
+        "quantity": 1,
+        "category": "Discount"
+      },
+      {
+        "name": "SPECIAL OLYMPICS",
+        "unitPrice": 100,
+        "totalPrice": 100,
+        "quantity": 1,
+        "category": "Donation"
+      },
+      {
+        "name": "GIMME SEAWEED",
+        "unitPrice": 239,
+        "totalPrice": 239,
+        "quantity": 1,
+        "category": "Pantry"
+      },
+      {
+        "name": "GIMME SEAWEED",
+        "unitPrice": 239,
+        "totalPrice": 239,
+        "quantity": 1,
+        "category": "Pantry"
+      },
+      {
+        "name": "Promotion",
+        "unitPrice": -239,
+        "totalPrice": -239,
+        "quantity": 1,
+        "category": "Discount"
+      }
+    ],
+    "aiMetadata": {
+      "receiptType": "SupermarketReceipt",
+      "confidence": 0.9,
+      "source": "manual visual inspection"
+    },
+    "model": "manual",
+    "modelVersion": "codex-visual",
+    "promptId": "manual-truth-v1",
+    "promptVersion": "2026-05-20",
+    "extractedAt": "2026-05-20T03:30:00Z"
+  },
+  "corrections": {}
+}

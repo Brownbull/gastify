@@ -41,6 +41,9 @@
 | D41 | 2026-05-14 | P4-Ph4 Sign-out isolation + push registration = ent; native cache eviction and device token lifecycle are REQ-14/REQ-25 load-bearing | Platform keystore/query/cache/image purge and push permission/device-token handling must be explicit before mobile can ship | MVP signOut only with residual local data; Scale remote device management/quiet-hour policy premature | active | Household devices OR push delivery rules expand |
 | D42 | 2026-05-14 | P4-Ph5 Mobile E2E = ent; Android+iOS journey proves keystore/cache eviction and native streaming | ROADMAP exit signal requires device-level E2E across mobile platforms; storage eviction cannot be trusted without native runtime probes | MVP unit-only golden path; Scale physical device farm/load suite premature | active | Exit-signal definition changes OR CI/device availability changes |
 | D43 | 2026-05-15 | P4 Android E2E execution pivots from local WSL emulator to Samsung S23 physical-device lane | WSL2 + Windows emulator consumed local generated SDK/native-build state and still failed Maestro/DADB reliability; a USB S23 proves camera, keystore, and real Android storage without emulator CPU/RAM pressure | Continue WSL emulator bridge; keep local Gradle/prebuild loop as primary; start with Firebase Test Lab before the local APK story is stable | active | S23 USB lane fails OR CI mobile hardware lane becomes available |
+| D44 | 2026-05-20 | Accept receipt prompt v2-dev.9 as the current prompt-lab candidate state with review-warning risks, not as silent-perfect extraction | v2-dev.9 has correct payable totals across the 7 strict failures and zero significant failures; remaining failures are acceptable if the app surfaces review warnings for math/item-count/discount discrepancies and preserves original item order for image comparison | Keep iterating prompt before runtime proof; require perfect item names/quantities before candidate acceptance; hide minor discrepancies from users | active | Any future candidate introduces final-total failures OR runtime lacks review-warning/order-preserving UI before promotion |
+| D45 | 2026-05-20 | Runtime scan review signals stay inside the G4 gravity well | Accepted v2-dev.9 minor-review risks are produced by extraction, deterministic postprocessing, and math reconciliation, so warning-signal computation belongs in the scan pipeline rather than a new architecture well | New review-signal gravity well; split coalesce rules immediately; shared runtime/prompt-lab engine now | active | Review signals depend on UI concerns or prompt-lab baselines OR coalesce complexity outgrows the helper |
+| D46 | 2026-05-20 | Keep Railway as the current deployment platform; defer Render fallback planning as a post-launch architecture item | Railway remains aligned with the current MVP/staging implementation, but the May 2026 Railway outage exposed provider-concentration risk. Render is the selected future managed fallback target, to be planned after the first production launch rather than blocking current deployment proof. | Immediate migration to Render; Coolify/Hetzner self-hosting; Fly.io; Cloud Run; Koyeb/Kuberns | active | Post-launch infra hardening begins OR Railway blocks production cutover/runtime proof again |
 
 <!-- Status: active / superseded / revisit -->
 <!-- BEHAVIOR.md constraints reference decision IDs: "All integrations mocked (ref D1)" -->
@@ -1242,6 +1245,154 @@ Load-bearing items deferred:
 ### Review trigger
 - S23 USB lane fails.
 - CI/mobile hardware lane becomes available.
+
+### Status
+- accepted
+
+---
+
+## D44 — Receipt prompt v2-dev.9 accepted prompt-lab state with review-warning risks (2026-05-20)
+
+**Phase:** P4 Phase 2D receipt prompt evaluation contract
+**Types:** `ai-prompt, scan-pipeline, user-facing, risk-acceptance`
+**Tier chosen:** ent
+**Prototype:** no
+**Reason:** The v2-dev.9 14-case no-cache prompt-lab batch has correct final payable transaction totals for every remaining threshold failure, zero provider/cache evidence blockers, and zero `significant_failure` cases. Remaining strict failures are acceptable as reviewable scan quality issues rather than blockers, provided the runtime/app surface does not silently treat them as perfect extractions.
+
+### Accepted state
+- `receipt-extraction-v2-evidence@2026-05-20.v2-dev.9` is the accepted prompt-lab candidate state for now.
+- Production prompt promotion still requires staging-e2e S23 fixture proof and staging live Gemini proof.
+- Minor item-name mismatches, generic service-line labels, synthesized service rows, weighted quantity/unit detail gaps, and small item amount discrepancies are accepted as user-review/edit concerns.
+- P1 remaining risk is not "fix every minor detail before proceeding"; it is "surface a review signal when reconstruction evidence indicates something may be wrong."
+
+### Runtime/UI requirement carried forward
+- Preserve the extracted item order as the canonical receipt-order view so a user can compare the item list side by side with the receipt image.
+- Category grouping must be a secondary view over the same items, not a replacement for receipt order.
+- Any scan with math failure, item-count mismatch, receipt-discount mismatch, or meaningful item amount discrepancy should be eligible for a visible review warning.
+- Item names are expected to remain user-correctable.
+
+### Accepted risks
+- Users may see imperfect item names or categories on otherwise financially correct scans.
+- Users may need to review discount-heavy or promotional receipts, especially when extra rows or small discount deltas appear.
+- Small amount discrepancies can produce review warnings even when final payable total is correct.
+- Analytics based on quantity/unit price may be less reliable until weighted-item detail work is improved.
+
+### Alternatives considered
+- Continue prompt iteration until zero strict threshold failures: rejected for now because the remaining failures are minor-review and final totals are correct.
+- Promote silently with no warning concept: rejected because discount/math/item-count mismatches should be visible to users.
+- Treat category grouping as the only item view: rejected because receipt-order comparison against the image is a core correction workflow.
+
+### Review trigger
+- A future no-cache baseline introduces final-total failures or `significant_failure` cases.
+- Runtime scan completion cannot expose enough diagnostics to drive review warnings.
+- Mobile/web implementation drops original receipt order or only exposes category-grouped items.
+
+### Status
+- accepted
+
+---
+
+## D45 — Runtime scan review signals stay inside the G4 gravity well (2026-05-20)
+
+**Phase:** P4 Phase 2D backend runtime-proof follow-up
+**Types:** `scan-pipeline, data-model, api-contract, architecture`
+**Tier chosen:** ent
+**Prototype:** no
+**Reason:** The accepted v2-dev.9 minor-review risks need a durable backend
+signal before mobile/web can show warnings. The risk belongs primarily to the
+scan pipeline: it is produced by extraction, deterministic postprocessing, and
+math reconciliation, not by the UI.
+
+### Decision
+- Keep review-signal computation in G4 Scan Pipeline.
+- Add one pure helper for signal construction instead of splitting the scan
+  pipeline into many small rule modules.
+- Cross into G2 Data Model only to persist `scan_review_level` and
+  `scan_review_signals` on transactions.
+- Cross into G1 API Core only to expose `review_level`, `review_signals`, and
+  transaction read fields.
+- Do not let manual transaction create/update set scan-owned review fields in
+  this pass.
+
+### Accepted risks
+- Runtime warnings are diagnostic hints, not proof of a bad item.
+- Live scans do not have prompt-lab baselines, so warning signals use only raw
+  extraction, processed extraction, and math verdict evidence.
+- Mobile/web warning presentation remains a follow-up; backend contract is the
+  current scope.
+
+### Alternatives considered
+- Create a new review-signal gravity well: rejected because the behavior is
+  still scan-pipeline-owned.
+- Split `coalesce.py` into rule modules now: rejected because this pass can add
+  the warning contract without increasing rule-module surface area.
+- Build a shared runtime/prompt-lab engine now: deferred until the runtime
+  signal contract proves stable.
+
+### Review trigger
+- Review-signal rules start depending on UI concerns or prompt-lab expected
+  baselines.
+- `coalesce.py` grows further and the helper no longer absorbs enough
+  complexity.
+- Mobile/web warning UI needs stronger typed details than the current signal
+  contract provides.
+
+### Status
+- accepted
+
+---
+
+## D46 — Railway remains primary; Render fallback is deferred post-launch (2026-05-20)
+
+**Phase:** Environment/deployment architecture decision
+**Types:** `deployment-release, infrastructure, provider-risk, architecture-debt`
+**Tier chosen:** ent
+**Prototype:** no
+**Reason:** The May 2026 Railway outage exposed real provider-concentration risk,
+but Gastify's current MVP proof path is already built around Railway staging,
+Railway Postgres, Railway-hosted API/web services, and S23 environment gates.
+Migrating now would create more delivery risk than it removes. The correct
+decision is to keep Railway as the current primary platform and record a
+future Render fallback plan after the first production launch.
+
+### Decision
+- Railway remains the primary deployment platform for current staging,
+  production cutover, and MVP launch work.
+- Render is the selected future managed fallback platform to evaluate after
+  production launch.
+- The Render fallback is architecture debt, not an active migration.
+- Current Railway runtime gates remain valid: `staging-e2e` fixture proof and
+  `staging` live Gemini proof still close against Railway unless Railway itself
+  remains unable to deploy or serve the required lanes.
+
+### Future Render fallback scope
+- Prove FastAPI backend deployment, WebSocket/SSE behavior, and health checks.
+- Prove static SPA hosting or decide whether web stays on a separate CDN.
+- Decide whether Render Postgres is acceptable or whether an external Postgres
+  provider is needed.
+- Replace or prove the scheduler posture if Render Postgres cannot support the
+  current `pg_cron` assumption.
+- Make receipt/document storage portable before depending on a second provider.
+- Run a database backup/restore drill and a staging smoke before considering
+  Render a real fallback.
+
+### Alternatives considered
+- Immediate migration to Render: rejected because it would interrupt the
+  current Railway/S23 proof path and add platform churn before launch.
+- Coolify/Hetzner: deferred because it reduces platform cost but turns backups,
+  patching, monitoring, and restore drills into our operational burden.
+- Cloud Run plus Cloud SQL: deferred because it raises cost/complexity and
+  keeps the system concentrated on Google infrastructure.
+- Fly.io, Koyeb, and Kuberns: deferred because they add either cost,
+  operational uncertainty, or additional database-provider coupling before MVP.
+
+### Review trigger
+- Post-launch infrastructure hardening begins.
+- Railway has another incident that blocks production cutover, runtime proof, or
+  a critical production deploy.
+- Receipt/document storage is moved away from Railway volumes.
+- The scheduler/database posture changes away from `pg_cron` plus in-process
+  fallback.
 
 ### Status
 - accepted

@@ -1,0 +1,148 @@
+{
+  "metadata": {
+    "testId": "super_lily",
+    "storeType": "supermarket",
+    "difficulty": "hard",
+    "region": "CL",
+    "source": "manual-codex-visual-truth",
+    "truthVersion": "2026-05-20.manual-v1",
+    "archivedPreviousAt": "prompt-testing/test-cases/receipts/_archive/20260520T033000Z-manual-truth-refresh/supermarket/super_lily.expected.json",
+    "notes": "Product totals are gross visible line totals. OFERTA LILY rows are represented as receipt-level discount evidence through the negative Discount row."
+  },
+  "input": {
+    "receiptType": "auto"
+  },
+  "aiExtraction": {
+    "merchant": "COMERCIAL LILY LTDA.",
+    "date": "2025-09-11",
+    "time": "19:18:32",
+    "total": 39971,
+    "currency": "CLP",
+    "category": "Supermarket",
+    "country": "Chile",
+    "city": "Temuco",
+    "items": [
+      {
+        "name": "PLATANOS KILO",
+        "unitPrice": 1490,
+        "totalPrice": 4121,
+        "quantity": 2.766,
+        "category": "Produce"
+      },
+      {
+        "name": "BERLINES FRITOS CREMA",
+        "unitPrice": 990,
+        "totalPrice": 1980,
+        "quantity": 2,
+        "category": "Bakery"
+      },
+      {
+        "name": "BERLINES FRITOS CREMA",
+        "unitPrice": 990,
+        "totalPrice": 1980,
+        "quantity": 2,
+        "category": "Bakery"
+      },
+      {
+        "name": "BOLSA EUROPLAS GRIPPER ZIPPER MINI CAJA 50 L",
+        "unitPrice": 2290,
+        "totalPrice": 4580,
+        "quantity": 2,
+        "category": "Household"
+      },
+      {
+        "name": "PALTA MALLA 700 GRS APROX.",
+        "unitPrice": 2990,
+        "totalPrice": 2990,
+        "quantity": 1,
+        "category": "Produce"
+      },
+      {
+        "name": "GALLETA RIGOCHOC CLASICO 113 GRS",
+        "unitPrice": 1690,
+        "totalPrice": 5070,
+        "quantity": 3,
+        "category": "Snacks",
+        "subcategory": "OFERTA LILY"
+      },
+      {
+        "name": "GALLETAS DONUTS ORANGE BITTER COSTA 100 G",
+        "unitPrice": 1090,
+        "totalPrice": 6540,
+        "quantity": 6,
+        "category": "Snacks",
+        "subcategory": "OFERTA LILY"
+      },
+      {
+        "name": "GALLETAS GRANCEREAL CLASICA COSTA 135 GRS",
+        "unitPrice": 890,
+        "totalPrice": 1780,
+        "quantity": 2,
+        "category": "Snacks"
+      },
+      {
+        "name": "ESPONJA ACANALADA COBRE X",
+        "unitPrice": 1790,
+        "totalPrice": 1790,
+        "quantity": 1,
+        "category": "CleaningSupplies"
+      },
+      {
+        "name": "PANO SCOTT ANTIB. DURAMAX",
+        "unitPrice": 2190,
+        "totalPrice": 2190,
+        "quantity": 1,
+        "category": "CleaningSupplies",
+        "subcategory": "OFERTA LILY"
+      },
+      {
+        "name": "GALLETAS DULCES AIRES DE L",
+        "unitPrice": 1290,
+        "totalPrice": 1290,
+        "quantity": 1,
+        "category": "Snacks",
+        "subcategory": "OFERTA LILY"
+      },
+      {
+        "name": "TE DILMAH PREMIUM 100 BOL",
+        "unitPrice": 6290,
+        "totalPrice": 6290,
+        "quantity": 1,
+        "category": "Beverages"
+      },
+      {
+        "name": "BOLSA RECICLADA BLANCA 50X70 10 UNID",
+        "unitPrice": 1090,
+        "totalPrice": 2180,
+        "quantity": 2,
+        "category": "Household"
+      },
+      {
+        "name": "SOPA MAGGI POLLO FIDEOS 70 GRS",
+        "unitPrice": 690,
+        "totalPrice": 1380,
+        "quantity": 2,
+        "category": "Pantry",
+        "subcategory": "OFERTA LILY"
+      },
+      {
+        "name": "Discount",
+        "unitPrice": -4190,
+        "totalPrice": -4190,
+        "quantity": 1,
+        "category": "Discount"
+      }
+    ],
+    "aiMetadata": {
+      "receiptType": "SupermarketReceipt",
+      "confidence": 1,
+      "source": "manual visual inspection"
+    },
+    "model": "manual",
+    "modelVersion": "codex-visual",
+    "promptId": "manual-truth-v1",
+    "promptVersion": "2026-05-20",
+    "extractedAt": "2026-05-20T03:30:00Z"
+  },
+  "corrections": {}
+}

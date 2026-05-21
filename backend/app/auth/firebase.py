@@ -1,4 +1,5 @@
 import asyncio
+import json
 from typing import Annotated
 
 import firebase_admin
@@ -18,6 +19,12 @@ def _get_firebase_app() -> firebase_admin.App:
 
     if settings.firebase_credentials_path:
         cred = credentials.Certificate(settings.firebase_credentials_path)
+    elif settings.firebase_credentials_json:
+        try:
+            parsed = json.loads(settings.firebase_credentials_json)
+        except json.JSONDecodeError as exc:
+            raise ValueError("FIREBASE_CREDENTIALS_JSON contains malformed JSON") from exc
+        cred = credentials.Certificate(parsed)
     else:
         cred = credentials.ApplicationDefault()
 

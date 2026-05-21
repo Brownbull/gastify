@@ -1,0 +1,43 @@
+{
+  "metadata": {
+    "testId": "estacionamiento",
+    "storeType": "other",
+    "difficulty": "medium",
+    "region": "CL",
+    "source": "manual-collection",
+    "addedAt": "2025-12-12T19:46:34.765Z"
+  },
+  "input": {
+    "currency": "CLP",
+    "receiptType": "auto"
+  },
+  "aiExtraction": {
+    "merchant": "Mufin",
+    "date": "2025-12-04",
+    "time": "14:19",
+    "total": 860,
+    "currency": "CLP",
+    "category": "Transport",
+    "country": "Chile",
+    "city": "Villarrica",
+    "items": [
+      {
+        "name": "Estacionamiento",
+        "totalPrice": 860,
+        "quantity": 1,
+        "category": "Service",
+        "subcategory": "Parking"
+      }
+    ],
+    "aiMetadata": {
+      "receiptType": "Parking",
+      "confidence": 0.9
+    },
+    "model": "gemini-2.0-flash",
+    "modelVersion": "latest",
+    "promptId": "v2-multi-currency-types",
+    "promptVersion": "2.6.0",
+    "extractedAt": "2025-12-12T19:46:34.765Z"
+  },
+  "corrections": {}
+}

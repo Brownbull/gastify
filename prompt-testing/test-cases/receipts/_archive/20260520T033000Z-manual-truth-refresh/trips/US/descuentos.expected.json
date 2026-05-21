@@ -1,0 +1,133 @@
+{
+  "metadata": {
+    "testId": "descuentos",
+    "storeType": "other",
+    "difficulty": "medium",
+    "region": "CL",
+    "source": "manual-collection",
+    "addedAt": "2026-03-14T22:22:12.674Z"
+  },
+  "input": {
+    "receiptType": "auto"
+  },
+  "aiExtraction": {
+    "merchant": "Publix",
+    "date": "2026-01-13",
+    "time": "17:06",
+    "total": 2866,
+    "currency": "USD",
+    "category": "Supermarket",
+    "country": "USA",
+    "city": "Orlando",
+    "items": [
+      {
+        "name": "CUCUMBER HOT HOUSE",
+        "unitPrice": 250,
+        "totalPrice": 500,
+        "quantity": 2,
+        "category": "Produce"
+      },
+      {
+        "name": "51/60 P&D SHRIMP",
+        "unitPrice": 1799,
+        "totalPrice": 1799,
+        "quantity": 1,
+        "category": "MeatSeafood"
+      },
+      {
+        "name": "51/60 P&D SHRIMP",
+        "unitPrice": 1799,
+        "totalPrice": 1799,
+        "quantity": 1,
+        "category": "MeatSeafood"
+      },
+      {
+        "name": "Promotion",
+        "unitPrice": -1799,
+        "totalPrice": -1799,
+        "quantity": 1,
+        "category": "ServiceCharge"
+      },
+      {
+        "name": "GIMME SEAWEED",
+        "unitPrice": 239,
+        "totalPrice": 239,
+        "quantity": 1,
+        "category": "Pantry"
+      },
+      {
+        "name": "Promotion",
+        "unitPrice": -239,
+        "totalPrice": -239,
+        "quantity": 1,
+        "category": "ServiceCharge"
+      },
+      {
+        "name": "GIMME SEAWEED",
+        "unitPrice": 239,
+        "totalPrice": 239,
+        "quantity": 1,
+        "category": "Pantry"
+      },
+      {
+        "name": "Promotion",
+        "unitPrice": -239,
+        "totalPrice": -239,
+        "quantity": 1,
+        "category": "ServiceCharge"
+      },
+      {
+        "name": "GIMME SEAWEED",
+        "unitPrice": 239,
+        "totalPrice": 239,
+        "quantity": 1,
+        "category": "Pantry"
+      },
+      {
+        "name": "Promotion",
+        "unitPrice": -239,
+        "totalPrice": -239,
+        "quantity": 1,
+        "category": "ServiceCharge"
+      },
+      {
+        "name": "SPECIAL OLYMPICS",
+        "unitPrice": 100,
+        "totalPrice": 100,
+        "quantity": 1,
+        "category": "OtherItem"
+      },
+      {
+        "name": "GIMME SEAWEED",
+        "unitPrice": 239,
+        "totalPrice": 239,
+        "quantity": 1,
+        "category": "Pantry"
+      },
+      {
+        "name": "GIMME SEAWEED",
+        "unitPrice": 239,
+        "totalPrice": 239,
+        "quantity": 1,
+        "category": "Pantry"
+      },
+      {
+        "name": "Promotion",
+        "unitPrice": -239,
+        "totalPrice": -239,
+        "quantity": 1,
+        "category": "ServiceCharge"
+      }
+    ],
+    "aiMetadata": {
+      "receiptType": "Supermarket Receipt",
+      "confidence": 0.95
+    },
+    "model": "gemini-2.5-flash",
+    "modelVersion": "latest",
+    "promptId": "v4-spanish-taxonomy",
+    "promptVersion": "4.1.0",
+    "extractedAt": "2026-03-14T22:22:12.674Z"
+  },
+  "corrections": {}
+}

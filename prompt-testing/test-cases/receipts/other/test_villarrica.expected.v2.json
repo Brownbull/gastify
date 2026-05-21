@@ -1,0 +1,59 @@
+{
+  "metadata": {
+    "testId": "test_villarrica",
+    "storeType": "other",
+    "difficulty": "medium",
+    "region": "CL",
+    "source": "manual-collection",
+    "addedAt": "2025-12-13T04:52:34.881Z"
+  },
+  "input": {
+    "currency": "CLP",
+    "receiptType": "auto"
+  },
+  "aiExtraction": {
+    "merchant": "COMERCIAL TECNOBARRA LIMITADA",
+    "date": "2025-11-11",
+    "time": "04:04",
+    "total": 24480,
+    "currency": "CLP",
+    "category": "Electronics",
+    "country": "Chile",
+    "city": "VILLARRICA",
+    "items": [
+      {
+        "name": "LAMINA HIDROGEL",
+        "totalPrice": 5990,
+        "quantity": 1,
+        "category": "Electronics",
+        "subcategory": null
+      },
+      {
+        "name": "Lamina Hidrogel Anti Espia",
+        "totalPrice": 7990,
+        "quantity": 1,
+        "category": "Electronics",
+        "subcategory": null
+      },
+      {
+        "name": "CABLE EXTENSION USB 1.8 M",
+        "totalPrice": 10500,
+        "quantity": 3,
+        "category": "Electronics",
+        "subcategory": null
+      }
+    ],
+    "aiMetadata": {
+      "receiptType": "Electronics",
+      "confidence": 0.9
+    },
+    "model": "gemini-2.0-flash",
+    "modelVersion": "latest",
+    "promptId": "v2-multi-currency-types",
+    "promptVersion": "2.6.0",
+    "extractedAt": "2025-12-13T04:52:34.881Z"
+  },
+  "corrections": {
+    "reviewNotes": "Manual receipt review on 2026-05-20 corrected Anti Espia spelling and cable row total: 3 units at CLP 3.500 reconcile to CLP 10.500 and final total CLP 24.480."
+  }
+}

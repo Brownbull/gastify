@@ -6,6 +6,7 @@ go to dead-letter (bad input, safety blocks, 4xx).
 """
 
 import enum
+import json
 
 
 class ScanErrorCode(enum.StrEnum):
@@ -73,7 +74,7 @@ class PermanentScanError(ScanError):
 def classify_error(error: Exception) -> ScanError:
     """Classify an exception as transient or permanent for retry decisions."""
     code = _extract_error_code(error)
-    message = str(error)[:500]
+    message = _message_with_provider_body(error)[:500]
 
     if code in _TRANSIENT_CODES:
         return TransientScanError(code, message)
@@ -82,7 +83,7 @@ def classify_error(error: Exception) -> ScanError:
 
 def _extract_error_code(error: Exception) -> ScanErrorCode:
     """Map exception types and messages to ScanErrorCode values."""
-    msg = str(error).lower()
+    msg = _message_with_provider_body(error).lower()
 
     if _is_timeout(msg):
         return ScanErrorCode.TIMEOUT_ERROR
@@ -165,3 +166,14 @@ def _is_invalid_input(msg: str) -> bool:
 def _is_categorization_parse_error(error: Exception) -> bool:
     type_name = type(error).__name__.lower()
     return "validation" in type_name or "output" in type_name
+
+
+def _message_with_provider_body(error: Exception) -> str:
+    message = str(error)
+    body = getattr(error, "body", None)
+    if body:
+        try:
+            message = f"{message} {json.dumps(body, sort_keys=True)}"
+        except TypeError:
+            message = f"{message} {body}"
+    return message

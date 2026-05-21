@@ -1,0 +1,38 @@
+appId: com.gastify.mobile
+---
+- waitForAnimationToEnd:
+    timeout: 10000
+- runFlow:
+    when:
+      visible:
+        id: sign-in-screen
+    commands:
+      - tapOn:
+          id: e2e-sign-in-button
+- extendedWaitUntil:
+    visible:
+      id: home-screen
+    timeout: 60000
+- tapOn:
+    id: scan-camera-button
+- tapOn:
+    text: "Don.t allow"
+    optional: true
+- tapOn:
+    text: "Deny"
+    optional: true
+- extendedWaitUntil:
+    visible:
+      id: scan-error-panel
+    timeout: 20000
+- assertVisible: "Camera permission denied"
+- takeScreenshot:
+    path: 01-camera-permission-denied
+- tapOn:
+    id: scan-error-reset-button
+- tapOn:
+    id: sign-out-button
+- extendedWaitUntil:
+    visible:
+      id: sign-in-screen
+    timeout: 20000

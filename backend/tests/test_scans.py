@@ -17,6 +17,7 @@ from app.services.image import (
     THUMB_WIDTH,
     compress_receipt_image,
 )
+from app.services.scan_e2e_fixtures import UPLOAD_HASH_MARKER_FILENAME, upload_sha256
 
 
 def _make_test_jpeg(width: int = 800, height: int = 600, color: str = "red") -> bytes:
@@ -165,6 +166,25 @@ class TestScanEndpoint:
         scan_dir = scan_dirs[0]
         assert (scan_dir / "receipt.jpg").exists()
         assert (scan_dir / "thumb.jpg").exists()
+
+    @pytest.mark.asyncio
+    async def test_e2e_fixture_mode_writes_raw_upload_hash_marker(self, client, tmp_path):
+        raw = _make_test_jpeg(800, 600)
+        with (
+            patch("app.api.scans.settings") as mock_settings,
+            patch("app.services.scan_e2e_fixtures.settings") as fixture_settings,
+        ):
+            mock_settings.scan_storage_dir = str(tmp_path)
+            fixture_settings.e2e_scan_fixtures_enabled = True
+            response = await client.post(
+                "/api/v1/scans",
+                files={"file": ("receipt.jpg", raw, "image/jpeg")},
+            )
+
+        assert response.status_code == 201
+        scan_dir = next(tmp_path.rglob(response.json()["id"]))
+        marker = scan_dir / UPLOAD_HASH_MARKER_FILENAME
+        assert marker.read_text(encoding="utf-8").strip() == upload_sha256(raw)
 
     @pytest.mark.asyncio
     async def test_scan_id_is_valid_uuid(self, client, tmp_path):

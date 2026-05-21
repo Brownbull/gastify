@@ -316,6 +316,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/scan-test-cases": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Test Cases */
+        get: operations["get_test_cases_api_v1_scan_test_cases_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/scan-test-cases/{case_id}/runs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Run Test Case */
+        post: operations["run_test_case_api_v1_scan_test_cases__case_id__runs_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/scans/{scan_id}/events": {
         parameters: {
             query?: never;
@@ -342,6 +376,23 @@ export interface paths {
         };
         /** List Store Categories */
         get: operations["list_store_categories_api_v1_reference_store_categories_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/reference/item-categories": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Item Categories */
+        get: operations["list_item_categories_api_v1_reference_item_categories_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -518,6 +569,28 @@ export interface components {
             /** Detail */
             detail?: components["schemas"]["ValidationError"][];
         };
+        /** ItemCategoryItem */
+        ItemCategoryItem: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Key */
+            key: string;
+            /** Level */
+            level: number;
+            /** Parent Id */
+            parent_id?: string | null;
+            /** Display Labels */
+            display_labels: {
+                [key: string]: unknown;
+            };
+            /** Is Sensitive */
+            is_sensitive: boolean;
+            /** Sort Order */
+            sort_order: number;
+        };
         /** PaginatedResponse[TransactionListItem] */
         PaginatedResponse_TransactionListItem_: {
             /** Data */
@@ -688,6 +761,68 @@ export interface components {
              */
             submitted_at: string;
         };
+        /** ScanTestCaseList */
+        ScanTestCaseList: {
+            /** Environment */
+            environment: string;
+            /** Provider */
+            provider: string;
+            /** Cases */
+            cases: components["schemas"]["ScanTestCaseSummary"][];
+        };
+        /** ScanTestCaseSummary */
+        ScanTestCaseSummary: {
+            /** Id */
+            id: string;
+            /** Label */
+            label: string;
+            /** Description */
+            description: string;
+            /** Source */
+            source: string;
+            /** Provider Modes */
+            provider_modes: ("mock" | "fixture" | "gemini")[];
+            /** Convenience Only */
+            convenience_only: boolean;
+            /** Has Image */
+            has_image: boolean;
+        };
+        /** ScanTestRunSubmission */
+        ScanTestRunSubmission: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Ownership Scope Id
+             * Format: uuid
+             */
+            ownership_scope_id: string;
+            /** Status */
+            status: string;
+            /** Original Filename */
+            original_filename: string;
+            /** Content Type */
+            content_type: string;
+            /** File Size Bytes */
+            file_size_bytes: number;
+            /** Image Path */
+            image_path: string;
+            /** Thumbnail Path */
+            thumbnail_path?: string | null;
+            /**
+             * Submitted At
+             * Format: date-time
+             */
+            submitted_at: string;
+            /** Test Case Id */
+            test_case_id: string;
+            /** Provider */
+            provider: string;
+            /** Convenience Only */
+            convenience_only: boolean;
+        };
         /** StoreCategoryItem */
         StoreCategoryItem: {
             /**
@@ -697,6 +832,10 @@ export interface components {
             id: string;
             /** Key */
             key: string;
+            /** Level */
+            level: number;
+            /** Parent Id */
+            parent_id?: string | null;
             /** Display Labels */
             display_labels: {
                 [key: string]: unknown;
@@ -719,8 +858,20 @@ export interface components {
             merchant: string;
             /** Store Category Id */
             store_category_id?: string | null;
+            /** Store Category Source */
+            store_category_source?: ("mapping" | "ai" | "user" | "unknown") | null;
+            /** Store Category Confidence */
+            store_category_confidence?: number | string | null;
+            /** Store Category Mapping Id */
+            store_category_mapping_id?: string | null;
             /** Total Minor */
             total_minor: number;
+            /** Discount Total Minor */
+            discount_total_minor?: number | null;
+            /** Gross Total Minor */
+            gross_total_minor?: number | null;
+            /** Reconstructed Total Minor */
+            reconstructed_total_minor?: number | null;
             /** Currency */
             currency: string;
             /** Receipt Type */
@@ -780,10 +931,22 @@ export interface components {
             alias?: string | null;
             /** Store Category Id */
             store_category_id?: string | null;
+            /** Store Category Source */
+            store_category_source?: string | null;
+            /** Store Category Confidence */
+            store_category_confidence?: string | null;
+            /** Store Category Mapping Id */
+            store_category_mapping_id?: string | null;
             /** Store Category User Edited At */
             store_category_user_edited_at?: string | null;
             /** Total Minor */
             total_minor: number;
+            /** Discount Total Minor */
+            discount_total_minor?: number | null;
+            /** Gross Total Minor */
+            gross_total_minor?: number | null;
+            /** Reconstructed Total Minor */
+            reconstructed_total_minor?: number | null;
             /** Currency */
             currency: string;
             /** Amount Usd Minor */
@@ -861,6 +1024,16 @@ export interface components {
             unit_price_minor?: number | null;
             /** Total Price Minor */
             total_price_minor: number;
+            /**
+             * Discount Minor
+             * @deprecated
+             */
+            discount_minor?: number | null;
+            /**
+             * Discount Label
+             * @deprecated
+             */
+            discount_label?: string | null;
             /** Item Category Id */
             item_category_id?: string | null;
             /** Subcategory */
@@ -895,6 +1068,16 @@ export interface components {
             unit_price_minor?: number | null;
             /** Total Price Minor */
             total_price_minor: number;
+            /**
+             * Discount Minor
+             * @deprecated
+             */
+            discount_minor?: number | null;
+            /**
+             * Discount Label
+             * @deprecated
+             */
+            discount_label?: string | null;
             /** Item Category Id */
             item_category_id?: string | null;
             /** Item Category User Edited At */
@@ -923,6 +1106,16 @@ export interface components {
             unit_price_minor?: number | null;
             /** Total Price Minor */
             total_price_minor?: number | null;
+            /**
+             * Discount Minor
+             * @deprecated
+             */
+            discount_minor?: number | null;
+            /**
+             * Discount Label
+             * @deprecated
+             */
+            discount_label?: string | null;
             /** Item Category Id */
             item_category_id?: string | null;
             /** Subcategory */
@@ -954,10 +1147,22 @@ export interface components {
             alias?: string | null;
             /** Store Category Id */
             store_category_id?: string | null;
+            /** Store Category Source */
+            store_category_source?: string | null;
+            /** Store Category Confidence */
+            store_category_confidence?: string | null;
+            /** Store Category Mapping Id */
+            store_category_mapping_id?: string | null;
             /** Store Category User Edited At */
             store_category_user_edited_at?: string | null;
             /** Total Minor */
             total_minor: number;
+            /** Discount Total Minor */
+            discount_total_minor?: number | null;
+            /** Gross Total Minor */
+            gross_total_minor?: number | null;
+            /** Reconstructed Total Minor */
+            reconstructed_total_minor?: number | null;
             /** Currency */
             currency: string;
             /** Amount Usd Minor */
@@ -1002,6 +1207,12 @@ export interface components {
             store_category_id?: string | null;
             /** Total Minor */
             total_minor?: number | null;
+            /** Discount Total Minor */
+            discount_total_minor?: number | null;
+            /** Gross Total Minor */
+            gross_total_minor?: number | null;
+            /** Reconstructed Total Minor */
+            reconstructed_total_minor?: number | null;
             /** Currency */
             currency?: string | null;
             /** Receipt Type */
@@ -1096,7 +1307,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        [key: string]: string;
+                        [key: string]: string | null;
                     };
                 };
             };
@@ -1629,6 +1840,57 @@ export interface operations {
             };
         };
     };
+    get_test_cases_api_v1_scan_test_cases_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ScanTestCaseList"];
+                };
+            };
+        };
+    };
+    run_test_case_api_v1_scan_test_cases__case_id__runs_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                case_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ScanTestRunSubmission"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     scan_events_sse_api_v1_scans__scan_id__events_get: {
         parameters: {
             query: {
@@ -1679,6 +1941,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["StoreCategoryItem"][];
+                };
+            };
+        };
+    };
+    list_item_categories_api_v1_reference_item_categories_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ItemCategoryItem"][];
                 };
             };
         };

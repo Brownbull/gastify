@@ -3,10 +3,10 @@
 ## Layers
 
 1. **Static gates:** `npm run generate:api`, `npm run typecheck`, `npm run check:expo-config`, `npm audit --audit-level=high`.
-2. **Jest/RNTL:** component, provider, session, SecureStore, and API-client behavior that can run without a simulator. The project uses the React Native 0.83 Jest preset because RN moved the preset out of `react-native/jest-preset`; Expo-native modules are mocked explicitly where needed.
+2. **Jest/RNTL:** component, provider, session, SecureStore, API-client, scan upload, scan store, and scan WebSocket behavior that can run without a simulator. The project uses the React Native 0.83 Jest preset because RN moved the preset out of `react-native/jest-preset`; Expo-native modules are mocked explicitly where needed.
 3. **Maestro:** native development-build E2E for Android and iOS behavior that Jest cannot prove. Android runs should target the physical Samsung S23 lane, not the local emulator path on this WSL2 machine.
 
-## Local Fast Path
+## Local Path
 
 ```bash
 cd mobile
@@ -21,11 +21,12 @@ npm audit --audit-level=high
 
 ## Testing Ladder
 
-1. **Now: fast checks + staging auth.** Run Jest/RNTL, typecheck, API drift, Expo config, audit, `doctor:e2e`, and `verify:staging-auth`. This proves JS behavior, config readiness, and the staging Firebase email/password path. It does not prove native screenshots, camera, SecureStore eviction, or platform permissions.
-2. **Next: Samsung S23 physical smoke.** Build an EAS Android APK, install it on the USB-connected S23, point it at staging or a LAN-reachable backend, and capture the first real screenshots under `../tests/mobile/artifacts/latest/p4-phase1-smoke/`.
-3. **Automation: Maestro on the same host side as ADB.** Run `../tests/mobile/scripts/run-maestro.sh` only when ADB and Maestro both see the authorized S23. In WSL2, that means either attaching USB into WSL or running ADB + Maestro together on Windows.
-4. **Later: Firebase Test Lab Android smoke.** Use the built Android APK for limited Android device coverage. The Spark/no-cost quota is useful for small smoke runs, and Test Lab gives logs, screenshots, and videos, but Robo tests are less deterministic than Maestro. Treat Test Lab as a device-coverage supplement, not the main journey assertion.
-5. **Phase 5 final gate.** Maestro remains the deterministic journey gate for Android hardware and the best available iOS simulator/device lane. Firebase Test Lab becomes an Android compatibility lane once the APK and data reset story are stable.
+1. **Fast checks + staging auth.** Run Jest/RNTL, typecheck, API drift, Expo config, audit, `doctor:e2e`, and `verify:staging-auth`. This proves JS behavior, config readiness, scan upload/socket contracts, and the staging Firebase email/password path. It does not prove native screenshots, camera, SecureStore eviction, or platform permissions.
+2. **Samsung S23 physical entry smoke.** Build an EAS Android APK, install it on the USB-connected S23, open the dev client, and capture scan-entry screenshots under `../tests/mobile/results/runs/<env>/<run-id>/p4-phase2-scan-entry-active/`.
+3. **Samsung S23 scan-upload fixture gate.** Use the Railway `staging-e2e` API with isolated Postgres and `GASTIFY_SCAN_PROVIDER=fixture`, seed a receipt into the Android gallery, and run the happy/review/failure/camera-permission Maestro flows. This is the hard proof for Phase 2 upload + WebSocket progress.
+4. **Live Gemini smoke.** With fixture/mock mode off on the Railway `staging` API, run one real receipt through the same S23 gallery path against live Gemini credentials. Treat provider failures as smoke evidence, not as the deterministic gate.
+5. **Later: Firebase Test Lab Android smoke.** Use the built Android APK for limited Android device coverage. The Spark/no-cost quota is useful for small smoke runs, and Test Lab gives logs, screenshots, and videos, but Robo tests are less deterministic than Maestro. Treat Test Lab as a device-coverage supplement, not the main journey assertion.
+6. **Phase 5 final gate.** Maestro remains the deterministic journey gate for Android hardware and the best available iOS simulator/device lane. Firebase Test Lab becomes an Android compatibility lane once the APK and data reset story are stable.
 
 ## E2E Auth
 
@@ -38,10 +39,12 @@ EXPO_PUBLIC_E2E_AUTH_EMAIL=<staging-e2e-user-email>
 EXPO_PUBLIC_E2E_AUTH_PASSWORD=<staging-e2e-user-password>
 ```
 
-If the mobile app calls a local backend, run that backend against the same staging Firebase project:
+If the mobile app calls a local backend, run that backend against the same staging Firebase project. Local can use SQLite and the mock scan provider, but it cannot close runtime proof gates:
 
 ```bash
-GASTIFY_ENVIRONMENT=staging
+GASTIFY_ENVIRONMENT=local
+GASTIFY_SCAN_PROVIDER=mock
+GASTIFY_DATABASE_URL=sqlite+aiosqlite:///../.tmp/local/gastify.db
 GASTIFY_FIREBASE_PROJECT_ID=<staging-firebase-project-id>
 GASTIFY_FIREBASE_CREDENTIALS_PATH=/secure/path/staging-admin.json
 ```
@@ -68,7 +71,7 @@ npm run doctor:e2e
 npm run verify:staging-auth
 ```
 
-The report is saved at `../tests/mobile/artifacts/latest/environment/mobile-doctor.txt`.
+The report is saved at `../tests/mobile/results/latest/<env>/environment/mobile-doctor.txt`.
 
 ## Maestro
 
@@ -78,11 +81,62 @@ Android setup details live in `ANDROID_E2E_SETUP.md`.
 
 ```bash
 ../tests/mobile/scripts/run-maestro.sh
+npm run maestro:scan-entry:active
 ```
 
-The runner writes screenshots, reports, logs, and command traces to `../tests/mobile/artifacts/latest/<flow-name>/`. Pass `--archive` to move the existing latest run into `../tests/mobile/artifacts/archive/` before rewriting it.
+The runner writes durable proof to `../tests/mobile/results/runs/<env>/<run-id>/<flow-name>/` and mirrors the latest packet to `../tests/mobile/results/latest/<env>/<flow-name>/`. Use `GASTIFY_MOBILE_RUN_ID=<id>` to group several flows into one environment run. The staging fixture wrapper sets a shared run id automatically.
 
 The current local environment is WSL2. Maestro is installed under `~/.maestro/bin`, and EAS CLI is available through `npx eas-cli@latest`. Android automation should use the physical Samsung S23 path in `ANDROID_E2E_SETUP.md`; iOS automation requires macOS simulator infrastructure or EAS/device infrastructure.
+
+### Phase 2 Scan Upload Fixture Gate
+
+The required Phase 2 upload proof runs on the physical S23 with a fixture-backed
+backend. The fixture mode is backend-only: the app still uses the native gallery
+picker, real multipart upload, authenticated WebSocket stream, and normal result
+UI. Fixture lookup uses a SHA-256 marker of the raw uploaded image and is refused
+when `GASTIFY_ENVIRONMENT=production`.
+
+Preferred enterprise lane: point the mobile app at the Railway
+`staging-e2e` API and run the wrapper from the repo root:
+
+```bash
+export GASTIFY_STAGING_E2E_API_BASE_URL=https://<gastify-api-staging-e2e-domain>
+export MAESTRO_DEVICE_ID="RFCW90N4BYP"
+bash scripts/staging/run-s23-fixture-gate.sh
+```
+
+Local fallback only, not completion evidence:
+
+Start the backend in one terminal:
+
+```bash
+GASTIFY_DATABASE_URL=<local-or-staging-e2e-postgres-url> \
+GASTIFY_ENVIRONMENT=staging-e2e \
+GASTIFY_SCAN_PROVIDER=fixture \
+GASTIFY_FIREBASE_PROJECT_ID=<staging-firebase-project-id> \
+GASTIFY_FIREBASE_CREDENTIALS_PATH=/secure/path/staging-admin.json \
+../tests/mobile/scripts/start-scan-fixture-backend.sh
+```
+
+Run the physical S23 flows from `mobile/`:
+
+```bash
+export ADB_BIN="$HOME/.local/share/gastify/android-platform-tools/platform-tools/adb"
+export MAESTRO_DEVICE_ID="RFCW90N4BYP"
+export MAESTRO_VERBOSE=true
+export MAESTRO_REINSTALL_DRIVER=false
+
+npm run maestro:scan-upload:happy:active
+npm run maestro:scan-upload:review:active
+npm run maestro:scan-upload:failure:active
+npm run maestro:camera-permission-denied:active
+```
+
+Required evidence: `run-manifest.json` plus each flow's `manifest.json`,
+`report.html`, screenshots, Maestro log, and command trace in
+`../tests/mobile/results/runs/staging-e2e/<run-id>/<flow-name>/`. The same
+latest packets are mirrored under `../tests/mobile/results/latest/staging-e2e/`
+for quick inspection only.
 
 ## Firebase Auth Emulator Fallback
 

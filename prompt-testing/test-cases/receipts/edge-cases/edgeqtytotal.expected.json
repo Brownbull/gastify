@@ -1,0 +1,46 @@
+{
+  "metadata": {
+    "testId": "edgeqtytotal",
+    "storeType": "veterinary",
+    "difficulty": "medium",
+    "region": "CL",
+    "source": "manual-codex-visual-truth",
+    "truthVersion": "2026-05-20.manual-v1",
+    "archivedPreviousAt": "prompt-testing/test-cases/receipts/_archive/20260520Tvalidation-policy-v1/edge-cases/edgeqtytotal.expected.json",
+    "notes": "Rotated receipt with one explicit quantity row: 8 units x 1.550 = 12.400."
+  },
+  "input": {
+    "receiptType": "auto"
+  },
+  "aiExtraction": {
+    "merchant": "VETERINARIA ARAUCANIA LIMITADA",
+    "date": "2026-03-16",
+    "time": "18:25:15",
+    "total": 12400,
+    "currency": "CLP",
+    "category": "Veterinary",
+    "country": "Chile",
+    "city": "Villarrica",
+    "items": [
+      {
+        "name": "CLINDABONE 165 MG X COMP",
+        "unitPrice": 1550,
+        "totalPrice": 12400,
+        "quantity": 8,
+        "category": "Medications",
+        "subcategory": null
+      }
+    ],
+    "aiMetadata": {
+      "receiptType": "ElectronicReceipt",
+      "confidence": 1,
+      "source": "manual visual inspection"
+    },
+    "model": "manual",
+    "modelVersion": "codex-visual",
+    "promptId": "manual-truth-v1",
+    "promptVersion": "2026-05-20",
+    "extractedAt": "2026-05-20T00:00:00Z"
+  },
+  "corrections": {}
+}

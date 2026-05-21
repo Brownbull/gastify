@@ -19,8 +19,12 @@ export function setAuthToken(token: string | null) {
   currentToken = token;
 }
 
+export async function getCurrentAuthToken(): Promise<string | null> {
+  return currentToken ?? (await getSecureAuthToken());
+}
+
 export async function attachAuthHeader(request: Request): Promise<Request> {
-  const token = currentToken ?? (await getSecureAuthToken());
+  const token = await getCurrentAuthToken();
   if (token) {
     request.headers.set("Authorization", `Bearer ${token}`);
   }

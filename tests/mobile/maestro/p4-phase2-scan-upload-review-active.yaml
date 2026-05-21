@@ -1,0 +1,58 @@
+appId: com.gastify.mobile
+---
+- waitForAnimationToEnd:
+    timeout: 10000
+- runFlow:
+    when:
+      visible:
+        id: sign-in-screen
+    commands:
+      - tapOn:
+          id: e2e-sign-in-button
+- extendedWaitUntil:
+    visible:
+      id: home-screen
+    timeout: 60000
+- tapOn:
+    id: scan-library-button
+- tapOn:
+    text: "Allow all photos"
+    optional: true
+- tapOn:
+    text: "Allow"
+    optional: true
+- tapOn:
+    text: "Dismiss"
+    optional: true
+- tapOn:
+    point: "16%,50%"
+- tapOn:
+    text: "Done"
+    optional: true
+- extendedWaitUntil:
+    visible:
+      id: scan-progress-panel
+    timeout: 20000
+- takeScreenshot:
+    path: 01-progress
+- extendedWaitUntil:
+    visible:
+      id: scan-result-panel
+    timeout: 60000
+- assertVisible: "Scan complete"
+- assertVisible:
+    id: low-confidence-alert
+- assertVisible:
+    id: merchant-review-alert
+- takeScreenshot:
+    path: 02-review-affordance
+- swipe:
+    direction: UP
+- tapOn:
+    id: scan-reset-button
+- tapOn:
+    id: sign-out-button
+- extendedWaitUntil:
+    visible:
+      id: sign-in-screen
+    timeout: 20000

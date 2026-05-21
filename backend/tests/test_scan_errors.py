@@ -84,3 +84,29 @@ class TestClassifyError:
         err = classify_error(Exception("resource exhausted: quota exceeded"))
         assert isinstance(err, PermanentScanError)
         assert err.code == ScanErrorCode.QUOTA_EXCEEDED
+
+    def test_provider_body_unavailable_is_transient(self):
+        exc = Exception("provider failed")
+        exc.status_code = 503  # type: ignore[attr-defined]
+        exc.body = {"error": {"status": "UNAVAILABLE", "message": "high demand"}}  # type: ignore[attr-defined]
+
+        err = classify_error(exc)
+
+        assert isinstance(err, TransientScanError)
+        assert err.code == ScanErrorCode.SERVER_ERROR
+        assert "UNAVAILABLE" in err.message
+
+    def test_provider_body_resource_exhausted_is_quota_exceeded(self):
+        exc = Exception("provider failed")
+        exc.status_code = 429  # type: ignore[attr-defined]
+        exc.body = {  # type: ignore[attr-defined]
+            "error": {
+                "status": "RESOURCE_EXHAUSTED",
+                "message": "quota exceeded",
+            }
+        }
+
+        err = classify_error(exc)
+
+        assert isinstance(err, PermanentScanError)
+        assert err.code == ScanErrorCode.QUOTA_EXCEEDED

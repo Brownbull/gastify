@@ -13,7 +13,7 @@ class OwnershipScope(Base):
     __tablename__ = "ownership_scopes"
 
     id: Mapped[uuid.UUID] = mapped_column(
-        Uuid, primary_key=True, server_default=func.gen_random_uuid()
+        Uuid, primary_key=True, default=uuid.uuid4, server_default=func.gen_random_uuid()
     )
     scope_type: Mapped[str] = mapped_column(String, nullable=False, server_default="individual")
     created_at: Mapped[datetime] = mapped_column(
@@ -30,7 +30,7 @@ class User(Base):
     __tablename__ = "users"
 
     id: Mapped[uuid.UUID] = mapped_column(
-        Uuid, primary_key=True, server_default=func.gen_random_uuid()
+        Uuid, primary_key=True, default=uuid.uuid4, server_default=func.gen_random_uuid()
     )
     firebase_uid: Mapped[str] = mapped_column(Text, nullable=False, unique=True)
     email: Mapped[str | None] = mapped_column(Text, nullable=True)
@@ -57,7 +57,7 @@ class OwnershipScopeMember(Base):
     __table_args__ = (UniqueConstraint("ownership_scope_id", "user_id"),)
 
     id: Mapped[uuid.UUID] = mapped_column(
-        Uuid, primary_key=True, server_default=func.gen_random_uuid()
+        Uuid, primary_key=True, default=uuid.uuid4, server_default=func.gen_random_uuid()
     )
     ownership_scope_id: Mapped[uuid.UUID] = mapped_column(
         Uuid, ForeignKey("ownership_scopes.id"), nullable=False

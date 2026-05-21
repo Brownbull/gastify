@@ -1,0 +1,45 @@
+{
+  "metadata": {
+    "testId": "estacionamiento",
+    "storeType": "other",
+    "difficulty": "medium",
+    "region": "CL",
+    "source": "manual-collection",
+    "addedAt": "2026-01-06T23:59:36.031Z"
+  },
+  "input": {
+    "receiptType": "auto"
+  },
+  "aiExtraction": {
+    "merchant": "MUFIN SPA",
+    "date": "2025-12-04",
+    "time": "14:19",
+    "total": 860,
+    "currency": "CLP",
+    "category": "Parking",
+    "country": null,
+    "city": "VILLARRICA",
+    "items": [
+      {
+        "name": "ESTACIONAMIENTOS",
+        "totalPrice": 860,
+        "quantity": 1,
+        "category": "Service",
+        "subcategory": null
+      }
+    ],
+    "aiMetadata": {
+      "receiptType": "Parking Receipt",
+      "confidence": 0.95
+    },
+    "model": "gemini-2.0-flash",
+    "modelVersion": "latest",
+    "promptId": "v3-category-standardization",
+    "promptVersion": "3.1.0",
+    "extractedAt": "2026-01-06T23:59:36.031Z"
+  },
+  "corrections": {
+    "category": "Transport",
+    "reviewNotes": "Parking falls under Transport in canonical STORE_CATEGORIES taxonomy"
+  }
+}

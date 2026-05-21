@@ -21,45 +21,17 @@ import structlog
 from pydantic_ai import Agent
 from pydantic_ai.messages import BinaryContent
 
+from app.agents.usage import result_usage
 from app.config import settings
-from app.schemas.scan import GeminiExtractionResult
+from app.prompts import get_prompt
+from app.prompts.receipt_structure import RECEIPT_EXTRACTION_CURRENT
+from app.schemas.scan import GeminiExtractionResult, RawGeminiExtractionResult
 from app.services.coalesce import coalesce_extraction
+from app.services.provider_retry import retry_provider_call
 
 logger = structlog.get_logger()
 
-EXTRACTION_SYSTEM_PROMPT = """\
-You are a receipt data extraction system. \
-Analyze the receipt image and extract structured data.
-
-CURRENCY DETECTION:
-- Detect the currency from the receipt (symbols like $, €, £, ¥, or text like "USD", "EUR", "GBP")
-- Look at country/location clues if currency symbol is ambiguous ($ could be USD, CLP, MXN, etc.)
-- Return the ISO 4217 currency code (e.g., "USD", "EUR", "GBP", "CLP", "JPY")
-- Default to "CLP" if you cannot confidently determine the currency
-
-AMOUNT FORMAT:
-- Return all monetary amounts as decimal numbers matching the receipt display
-- For CLP/JPY/KRW (no-decimal currencies): return integer values (e.g., 15990)
-- For USD/EUR/GBP (decimal currencies): return with cents (e.g., 48.50)
-- Do NOT multiply by 100 or convert to minor units
-
-DATE FORMAT:
-- Return dates in YYYY-MM-DD format
-- If the receipt has no date, use today's date
-- If year is ambiguous, assume the current year
-
-EXTRACTION RULES:
-1. Extract ALL visible line items (max 100)
-2. For each item: name (max 50 chars), quantity (default 1), unit_price, total_price
-3. total_amount = the transaction grand total on the receipt
-4. tax_amount = tax/IVA if separately listed, null otherwise
-5. discount_amount = discount if separately listed, null otherwise
-6. confidence_score = your confidence in the overall extraction (0.0 to 1.0)
-7. If qty > 1, unit_price = total_price / qty
-8. If only one price is visible per line, set both unit_price and total_price to that value
-9. MUST have at least one item: if no line items visible, create one using a keyword \
-from the receipt
-10. Validation: total should roughly equal sum of items' total_price + tax - discount"""
+EXTRACTION_SYSTEM_PROMPT = RECEIPT_EXTRACTION_CURRENT
 
 
 @dataclass(frozen=True)
@@ -73,14 +45,27 @@ class ExtractionUsage:
 class ExtractionResult:
     extraction: GeminiExtractionResult
     usage: ExtractionUsage
+    raw_extraction: RawGeminiExtractionResult | GeminiExtractionResult | None = None
+    prompt_id: str = "receipt-extraction-current"
+    prompt_version: str = "2026-05-18.1"
+    model_name: str = ""
 
 
-def _build_agent(model: str | None = None) -> Agent[None, GeminiExtractionResult]:
+def _configured_prompt_id() -> str:
+    configured = getattr(settings, "receipt_extraction_prompt_id", "receipt-extraction-current")
+    return configured if isinstance(configured, str) else "receipt-extraction-current"
+
+
+def _build_agent(
+    model: str | None = None,
+    prompt_id: str | None = None,
+) -> Agent[None, RawGeminiExtractionResult]:
+    prompt = get_prompt(prompt_id or _configured_prompt_id(), kind="receipt-extraction")
     model_name = model or f"google-gla:{settings.gemini_model}"
     return Agent(
         model_name,
-        output_type=GeminiExtractionResult,
-        system_prompt=EXTRACTION_SYSTEM_PROMPT,
+        output_type=RawGeminiExtractionResult,
+        system_prompt=prompt.system_prompt,
         retries=2,
     )
 
@@ -90,29 +75,41 @@ async def extract_receipt(
     content_type: str,
     scan_date: date | None = None,
     model: str | None = None,
+    prompt_id: str | None = None,
 ) -> ExtractionResult:
     """Run vision extraction on a receipt image.
 
     Returns the coalesced extraction result and usage metrics.
     """
-    agent = _build_agent(model)
-    log = logger.bind(content_type=content_type, image_size=len(image_bytes))
+    prompt = get_prompt(prompt_id or _configured_prompt_id(), kind="receipt-extraction")
+    model_name = model or f"google-gla:{settings.gemini_model}"
+    agent = _build_agent(model, prompt_id=prompt.id)
+    log = logger.bind(
+        content_type=content_type,
+        image_size=len(image_bytes),
+        prompt_id=prompt.id,
+        prompt_version=prompt.version,
+        model_name=model_name,
+    )
 
     start = time.monotonic()
-    result = await agent.run(
-        [
-            BinaryContent(data=image_bytes, media_type=content_type),
-            "Extract all data from this receipt image.",
-        ],
+    user_prompt = [
+        BinaryContent(data=image_bytes, media_type=content_type),
+        prompt.user_prompt or "Extract all data from this receipt image.",
+    ]
+    result = await retry_provider_call(
+        lambda: agent.run(user_prompt),
+        operation_name="receipt_extraction",
     )
     elapsed_ms = (time.monotonic() - start) * 1000
 
-    raw_extraction = result.output
+    raw_extraction = _as_raw_extraction(result.output)
     coalesced = coalesce_extraction(raw_extraction, scan_date=scan_date)
 
+    run_usage = result_usage(result)
     usage = ExtractionUsage(
-        input_tokens=result.usage.input_tokens,
-        output_tokens=result.usage.output_tokens,
+        input_tokens=run_usage.input_tokens,
+        output_tokens=run_usage.output_tokens,
         latency_ms=round(elapsed_ms, 1),
     )
 
@@ -126,6 +123,24 @@ async def extract_receipt(
         input_tokens=usage.input_tokens,
         output_tokens=usage.output_tokens,
         latency_ms=usage.latency_ms,
+        prompt_id=prompt.id,
+        prompt_version=prompt.version,
+        model_name=model_name,
     )
 
-    return ExtractionResult(extraction=coalesced, usage=usage)
+    return ExtractionResult(
+        extraction=coalesced,
+        usage=usage,
+        raw_extraction=raw_extraction,
+        prompt_id=prompt.id,
+        prompt_version=prompt.version,
+        model_name=model_name,
+    )
+
+
+def _as_raw_extraction(
+    output: RawGeminiExtractionResult | GeminiExtractionResult,
+) -> RawGeminiExtractionResult:
+    if isinstance(output, RawGeminiExtractionResult):
+        return output
+    return RawGeminiExtractionResult.model_validate(output.model_dump())

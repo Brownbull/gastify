@@ -15,61 +15,16 @@ from dataclasses import dataclass
 import structlog
 from pydantic_ai import Agent
 
+from app.agents.usage import result_usage
 from app.config import settings
+from app.prompts import get_prompt
+from app.prompts.item_categorization import ITEM_CATEGORIZATION_CURRENT
 from app.schemas.scan import CategorizationResult, LineItemExtraction
+from app.services.provider_retry import retry_provider_call
 
 logger = structlog.get_logger()
 
-V4_TAXONOMY_PROMPT = """\
-CATEGORY TAXONOMY (V4 — 86 categories, PascalCase keys):
-
-L1 Alimentacion:
-  L2: Supermercado, Restaurante, CafeteriaSnack, Delivery, Panaderia, \
-Carniceria, Verduleria, Licoreria, BebidasAlcoholicas
-L1 Transporte:
-  L2: Combustible, TransportePublico, TaxiApp, Estacionamiento, Peaje, \
-MantenimientoVehiculo, SeguroVehiculo
-L1 Hogar:
-  L2: Arriendo, ServiciosBasicos, Internet, Telefono, Limpieza, Muebles, \
-ReparacionesHogar, Jardineria
-  L3 under ServiciosBasicos: Electricidad, Agua, GasHogar
-L1 Salud:
-  L2: Farmacia, ConsultaMedica, Dentista, Optica, SeguroSalud, Laboratorio, \
-Gimnasio
-L1 Educacion:
-  L2: Colegiatura, Utiles, Libros, Cursos
-L1 Entretenimiento:
-  L2: Cine, Musica, Deportes, Viajes, Suscripciones, JuegosHobbies, \
-EventosSociales, ArtesCultura
-  L3 under Viajes: Alojamiento, Pasajes
-L1 Vestimenta:
-  L2: Ropa, Calzado, AccesoriosModa, Tintoreria
-L1 Servicios:
-  L2: Peluqueria, Lavanderia, ServiciosProfesionales, Correo, Notaria
-L1 Finanzas:
-  L2: Seguros, ComisionesBancarias, Impuestos, Inversiones, Prestamos, Multas
-L1 Tecnologia:
-  L2: Electronica, Software, AccesoriosTech, ReparacionesTech
-L1 Mascotas:
-  L2: AlimentoMascota, Veterinario, AccesoriosMascota
-L1 Otro:
-  L2: Regalos, Donaciones, CuidadoPersonal, Miscelaneo"""
-
-CATEGORIZATION_SYSTEM_PROMPT = f"""\
-You are an item categorization system for a personal expense tracker.
-You receive a list of line items extracted from a receipt and must assign \
-each item to the most specific matching category from the V4 taxonomy.
-
-{V4_TAXONOMY_PROMPT}
-
-RULES:
-1. Assign the MOST SPECIFIC category available (prefer L3/L2 over L1)
-2. Use EXACT PascalCase category keys from the taxonomy above
-3. If no specific category fits, use the parent L1 category
-4. If truly uncategorizable, use "Miscelaneo"
-5. confidence = your confidence in the assignment (0.0 to 1.0)
-6. Each item MUST get exactly one category assignment
-7. line_item_index is 0-based, matching the order of items provided"""
+CATEGORIZATION_SYSTEM_PROMPT = ITEM_CATEGORIZATION_CURRENT
 
 
 @dataclass(frozen=True)
@@ -83,14 +38,26 @@ class CategorizationUsage:
 class CategorizationOutput:
     result: CategorizationResult
     usage: CategorizationUsage
+    prompt_id: str = "item-categorization-current"
+    prompt_version: str = "2026-05-18.1"
+    model_name: str = ""
 
 
-def _build_agent(model: str | None = None) -> Agent[None, CategorizationResult]:
+def _configured_prompt_id() -> str:
+    configured = getattr(settings, "item_categorization_prompt_id", "item-categorization-current")
+    return configured if isinstance(configured, str) else "item-categorization-current"
+
+
+def _build_agent(
+    model: str | None = None,
+    prompt_id: str | None = None,
+) -> Agent[None, CategorizationResult]:
+    prompt = get_prompt(prompt_id or _configured_prompt_id(), kind="item-categorization")
     model_name = model or f"google-gla:{settings.gemini_model}"
     return Agent(
         model_name,
         output_type=CategorizationResult,
-        system_prompt=CATEGORIZATION_SYSTEM_PROMPT,
+        system_prompt=prompt.system_prompt,
         retries=2,
     )
 
@@ -108,13 +75,22 @@ async def categorize_items(
     merchant_name: str,
     currency_code: str,
     model: str | None = None,
+    prompt_id: str | None = None,
 ) -> CategorizationOutput:
     """Run text-only categorization on extracted line items.
 
     Takes text data only — never raw image bytes (two-stage defense).
     """
-    agent = _build_agent(model)
-    log = logger.bind(merchant=merchant_name, item_count=len(items))
+    prompt_definition = get_prompt(prompt_id or _configured_prompt_id(), kind="item-categorization")
+    model_name = model or f"google-gla:{settings.gemini_model}"
+    agent = _build_agent(model, prompt_id=prompt_definition.id)
+    log = logger.bind(
+        merchant=merchant_name,
+        item_count=len(items),
+        prompt_id=prompt_definition.id,
+        prompt_version=prompt_definition.version,
+        model_name=model_name,
+    )
 
     prompt = (
         f"Merchant: {merchant_name}\n"
@@ -124,12 +100,16 @@ async def categorize_items(
     )
 
     start = time.monotonic()
-    result = await agent.run(prompt)
+    result = await retry_provider_call(
+        lambda: agent.run(prompt),
+        operation_name="item_categorization",
+    )
     elapsed_ms = (time.monotonic() - start) * 1000
 
+    run_usage = result_usage(result)
     usage = CategorizationUsage(
-        input_tokens=result.usage.input_tokens,
-        output_tokens=result.usage.output_tokens,
+        input_tokens=run_usage.input_tokens,
+        output_tokens=run_usage.output_tokens,
         latency_ms=round(elapsed_ms, 1),
     )
 
@@ -139,6 +119,15 @@ async def categorize_items(
         input_tokens=usage.input_tokens,
         output_tokens=usage.output_tokens,
         latency_ms=usage.latency_ms,
+        prompt_id=prompt_definition.id,
+        prompt_version=prompt_definition.version,
+        model_name=model_name,
     )
 
-    return CategorizationOutput(result=result.output, usage=usage)
+    return CategorizationOutput(
+        result=result.output,
+        usage=usage,
+        prompt_id=prompt_definition.id,
+        prompt_version=prompt_definition.version,
+        model_name=model_name,
+    )

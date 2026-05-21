@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { StyleSheet, View } from "react-native";
+import { ScrollView, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 interface ScreenShellProps {
@@ -9,7 +9,12 @@ interface ScreenShellProps {
 export function ScreenShell({ children }: ScreenShellProps) {
   return (
     <SafeAreaView style={styles.safeArea}>
-      <View style={styles.content}>{children}</View>
+      <ScrollView
+        contentContainerStyle={styles.content}
+        keyboardShouldPersistTaps="handled"
+      >
+        {children}
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -20,7 +25,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#f8fafc",
   },
   content: {
-    flex: 1,
+    flexGrow: 1,
     padding: 24,
   },
 });

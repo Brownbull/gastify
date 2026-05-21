@@ -4,6 +4,7 @@ from decimal import Decimal
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
+from pydantic_ai.exceptions import ModelHTTPError
 
 from app.agents.extraction import (
     ExtractionResult,
@@ -42,7 +43,7 @@ def _mock_usage() -> MagicMock:
 class TestBuildAgent:
     def test_uses_default_model(self):
         with patch("app.agents.extraction.settings") as mock_settings:
-            mock_settings.gemini_model = "gemini-2.5-flash"
+            mock_settings.gemini_model = "gemini-2.5-flash-lite"
             with patch.dict("os.environ", {"GOOGLE_API_KEY": "test-key"}):
                 agent = _build_agent()
                 assert agent is not None
@@ -77,6 +78,7 @@ class TestExtractReceipt:
             assert result.extraction.currency_code == "CLP"
             assert result.extraction.total_amount == Decimal("15990")
             assert len(result.extraction.line_items) == 2
+            assert result.raw_extraction is not None
 
     @pytest.mark.asyncio
     async def test_usage_metrics_populated(self, mock_agent_run):
@@ -94,6 +96,23 @@ class TestExtractReceipt:
             assert result.usage.input_tokens == 1500
             assert result.usage.output_tokens == 250
             assert result.usage.latency_ms >= 0
+
+    @pytest.mark.asyncio
+    async def test_usage_metrics_support_pydantic_ai_usage_method(self, mock_agent_run):
+        mock_agent_run.usage = _mock_usage
+
+        with patch("app.agents.extraction._build_agent") as mock_build:
+            mock_agent = AsyncMock()
+            mock_agent.run = AsyncMock(return_value=mock_agent_run)
+            mock_build.return_value = mock_agent
+
+            result = await extract_receipt(
+                image_bytes=b"fake-jpeg-data",
+                content_type="image/jpeg",
+            )
+
+            assert result.usage.input_tokens == 1500
+            assert result.usage.output_tokens == 250
 
     @pytest.mark.asyncio
     async def test_coalescing_applied(self, mock_agent_run):
@@ -173,3 +192,32 @@ class TestExtractReceipt:
             )
 
             assert result.extraction.transaction_date == "2026-05-12"
+
+    @pytest.mark.asyncio
+    async def test_retries_transient_provider_error_then_returns_result(
+        self,
+        mock_agent_run,
+        monkeypatch,
+    ):
+        provider_error = ModelHTTPError(
+            status_code=503,
+            model_name="gemini-2.5-flash-lite",
+            body={"error": {"status": "UNAVAILABLE", "message": "high demand"}},
+        )
+        monkeypatch.setattr(
+            "app.services.provider_retry.settings.gemini_retry_delay_seconds",
+            0,
+        )
+
+        with patch("app.agents.extraction._build_agent") as mock_build:
+            mock_agent = AsyncMock()
+            mock_agent.run = AsyncMock(side_effect=[provider_error, mock_agent_run])
+            mock_build.return_value = mock_agent
+
+            result = await extract_receipt(
+                image_bytes=b"fake-jpeg-data",
+                content_type="image/jpeg",
+            )
+
+            assert result.extraction.merchant_name == "Supermercado Jumbo"
+            assert mock_agent.run.call_count == 2

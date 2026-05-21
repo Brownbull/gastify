@@ -5,6 +5,7 @@ from datetime import date, datetime, time
 from decimal import Decimal
 
 from sqlalchemy import (
+    JSON,
     BigInteger,
     Boolean,
     CheckConstraint,
@@ -35,10 +36,14 @@ class Transaction(Base):
         CheckConstraint("llm_latency_ms >= 0", name="ck_transactions_llm_latency_ms_gte0"),
         CheckConstraint("queue_wait_ms >= 0", name="ck_transactions_queue_wait_ms_gte0"),
         CheckConstraint("thumbnail_gen_ms >= 0", name="ck_transactions_thumbnail_gen_ms_gte0"),
+        CheckConstraint(
+            "scan_review_level IN ('none', 'warning', 'needs_review')",
+            name="ck_transactions_scan_review_level",
+        ),
     )
 
     id: Mapped[uuid.UUID] = mapped_column(
-        Uuid, primary_key=True, server_default=func.gen_random_uuid()
+        Uuid, primary_key=True, default=uuid.uuid4, server_default=func.gen_random_uuid()
     )
     ownership_scope_id: Mapped[uuid.UUID] = mapped_column(
         Uuid, ForeignKey("ownership_scopes.id"), nullable=False, index=True
@@ -53,10 +58,18 @@ class Transaction(Base):
     store_category_id: Mapped[uuid.UUID | None] = mapped_column(
         Uuid, ForeignKey("store_categories.id"), nullable=True
     )
+    store_category_source: Mapped[str | None] = mapped_column(String, nullable=True)
+    store_category_confidence: Mapped[Decimal | None] = mapped_column(Numeric(3, 2), nullable=True)
+    store_category_mapping_id: Mapped[uuid.UUID | None] = mapped_column(
+        Uuid, ForeignKey("merchant_mappings.id"), nullable=True
+    )
     store_category_user_edited_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True), nullable=True
     )
     total_minor: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    discount_total_minor: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
+    gross_total_minor: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
+    reconstructed_total_minor: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
     currency: Mapped[str] = mapped_column(String(3), ForeignKey("currencies.code"), nullable=False)
     amount_usd_minor: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
     fx_rate_to_usd: Mapped[Decimal | None] = mapped_column(Numeric(18, 8), nullable=True)
@@ -68,6 +81,10 @@ class Transaction(Base):
     city: Mapped[str | None] = mapped_column(Text, nullable=True)
     prompt_version: Mapped[str | None] = mapped_column(Text, nullable=True)
     merchant_source: Mapped[str | None] = mapped_column(String, nullable=True)
+    scan_review_level: Mapped[str] = mapped_column(String, nullable=False, server_default="none")
+    scan_review_signals: Mapped[list[dict]] = mapped_column(
+        JSON, nullable=False, server_default="[]"
+    )
 
     llm_tokens_in: Mapped[int | None] = mapped_column(Integer, nullable=True)
     llm_tokens_out: Mapped[int | None] = mapped_column(Integer, nullable=True)
@@ -100,7 +117,7 @@ class TransactionItem(Base):
     __tablename__ = "transaction_items"
 
     id: Mapped[uuid.UUID] = mapped_column(
-        Uuid, primary_key=True, server_default=func.gen_random_uuid()
+        Uuid, primary_key=True, default=uuid.uuid4, server_default=func.gen_random_uuid()
     )
     transaction_id: Mapped[uuid.UUID] = mapped_column(
         Uuid, ForeignKey("transactions.id", ondelete="CASCADE"), nullable=False
@@ -112,6 +129,8 @@ class TransactionItem(Base):
     qty: Mapped[float | None] = mapped_column(Numeric(10, 3), nullable=True)
     unit_price_minor: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
     total_price_minor: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    discount_minor: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
+    discount_label: Mapped[str | None] = mapped_column(Text, nullable=True)
     item_category_id: Mapped[uuid.UUID | None] = mapped_column(
         Uuid, ForeignKey("item_categories.id"), nullable=True
     )
@@ -136,7 +155,7 @@ class TransactionImage(Base):
     __tablename__ = "transaction_images"
 
     id: Mapped[uuid.UUID] = mapped_column(
-        Uuid, primary_key=True, server_default=func.gen_random_uuid()
+        Uuid, primary_key=True, default=uuid.uuid4, server_default=func.gen_random_uuid()
     )
     transaction_id: Mapped[uuid.UUID] = mapped_column(
         Uuid, ForeignKey("transactions.id", ondelete="CASCADE"), nullable=False

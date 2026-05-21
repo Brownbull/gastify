@@ -6,6 +6,7 @@ Create Date: 2026-05-07
 """
 
 import sqlalchemy as sa
+from sqlalchemy.dialects import postgresql
 
 from alembic import op
 
@@ -26,7 +27,7 @@ _STATUS_VALUES = (
 
 
 def upgrade() -> None:
-    scan_status = sa.Enum(*_STATUS_VALUES, name="scan_status")
+    scan_status = postgresql.ENUM(*_STATUS_VALUES, name="scan_status", create_type=False)
     scan_status.create(op.get_bind(), checkfirst=True)
 
     op.create_table(

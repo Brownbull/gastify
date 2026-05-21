@@ -1,0 +1,231 @@
+{
+  "metadata": {
+    "testId": "long",
+    "storeType": "other",
+    "difficulty": "medium",
+    "region": "CL",
+    "source": "manual-collection",
+    "addedAt": "2026-01-13T20:26:53.709Z"
+  },
+  "input": {
+    "receiptType": "auto"
+  },
+  "aiExtraction": {
+    "merchant": "LOTTEmarket",
+    "date": "2026-01-12",
+    "time": "16:33",
+    "total": 12440,
+    "currency": "USD",
+    "category": "Supermarket",
+    "country": null,
+    "city": "Orlando",
+    "items": [
+      {
+        "name": "ACORN STRACH NOODLE 12OZ",
+        "totalPrice": 429,
+        "quantity": 1,
+        "category": "Pantry",
+        "subcategory": null
+      },
+      {
+        "name": "HALAL CHICKEN DRUMSTICK CUT",
+        "totalPrice": 399,
+        "quantity": 1,
+        "category": "Meat & Seafood",
+        "subcategory": null
+      },
+      {
+        "name": "HALAL CHICKEN DRUMSTICK CUT",
+        "totalPrice": 516,
+        "quantity": 1,
+        "category": "Meat & Seafood",
+        "subcategory": null
+      },
+      {
+        "name": "MILKFISH",
+        "totalPrice": 2713,
+        "quantity": 1,
+        "category": "Meat & Seafood",
+        "subcategory": null
+      },
+      {
+        "name": "CARROTS LBS BAG",
+        "totalPrice": 549,
+        "quantity": 1,
+        "category": "Produce",
+        "subcategory": null
+      },
+      {
+        "name": "CHINA SHITAKE MUSHROOM LBS",
+        "totalPrice": 690,
+        "quantity": 1,
+        "category": "Produce",
+        "subcategory": null
+      },
+      {
+        "name": "DAIKON RADISH (JAPANESES) LBS",
+        "totalPrice": 213,
+        "quantity": 1,
+        "category": "Produce",
+        "subcategory": null
+      },
+      {
+        "name": "SEEDLESS CUCUMBER 1EA",
+        "totalPrice": 99,
+        "quantity": 1,
+        "category": "Produce",
+        "subcategory": null
+      },
+      {
+        "name": "BEEF NECK BONE 1LB",
+        "totalPrice": 1175,
+        "quantity": 1,
+        "category": "Meat & Seafood",
+        "subcategory": null
+      },
+      {
+        "name": "CUBANELLE PEPPER 1LB",
+        "totalPrice": 41,
+        "quantity": 1,
+        "category": "Produce",
+        "subcategory": null
+      },
+      {
+        "name": "RED BELL PEPPER 1LB",
+        "totalPrice": 67,
+        "quantity": 1,
+        "category": "Produce",
+        "subcategory": null
+      },
+      {
+        "name": "SUN GOLD KIWIETLSI 1EA",
+        "totalPrice": 499,
+        "quantity": 1,
+        "category": "Produce",
+        "subcategory": null
+      },
+      {
+        "name": "EXCELLENT PANCIT CANTON 8OZ",
+        "totalPrice": 299,
+        "quantity": 1,
+        "category": "Pantry",
+        "subcategory": null
+      },
+      {
+        "name": "EXCELLENT PANCIT CANTON 8OZ",
+        "totalPrice": 299,
+        "quantity": 1,
+        "category": "Pantry",
+        "subcategory": null
+      },
+      {
+        "name": "BOY BAWANG CORNINK GARLIC 3.",
+        "totalPrice": 179,
+        "quantity": 1,
+        "category": "Snacks",
+        "subcategory": null
+      },
+      {
+        "name": "DING DONG SNACK MIX HOTS",
+        "totalPrice": 149,
+        "quantity": 1,
+        "category": "Snacks",
+        "subcategory": null
+      },
+      {
+        "name": "MARGARINE 250G",
+        "totalPrice": 349,
+        "quantity": 1,
+        "category": "Dairy & Eggs",
+        "subcategory": null
+      },
+      {
+        "name": "COCONUT MILK 13.5OZ",
+        "totalPrice": 249,
+        "quantity": 1,
+        "category": "Pantry",
+        "subcategory": null
+      },
+      {
+        "name": "TUNA SPREAD 470ML",
+        "totalPrice": 649,
+        "quantity": 1,
+        "category": "Pantry",
+        "subcategory": null
+      },
+      {
+        "name": "COCONUT MILK 13.6OZ",
+        "totalPrice": 249,
+        "quantity": 1,
+        "category": "Pantry",
+        "subcategory": null
+      },
+      {
+        "name": "MAYONNAISE 12OZ",
+        "totalPrice": 649,
+        "quantity": 1,
+        "category": "Pantry",
+        "subcategory": null
+      },
+      {
+        "name": "TAMARIND SOUP BASE MIX 1.4OZ",
+        "totalPrice": 149,
+        "quantity": 1,
+        "category": "Pantry",
+        "subcategory": null
+      },
+      {
+        "name": "TAMARIND SOUP BASE MIX 1.4OZ",
+        "totalPrice": 149,
+        "quantity": 1,
+        "category": "Pantry",
+        "subcategory": null
+      },
+      {
+        "name": "JACK & JILL PIATTOS CHEE",
+        "totalPrice": 199,
+        "quantity": 1,
+        "category": "Snacks",
+        "subcategory": null
+      },
+      {
+        "name": "PRAWN CRACKER 3.562OZ",
+        "totalPrice": 249,
+        "quantity": 1,
+        "category": "Snacks",
+        "subcategory": null
+      },
+      {
+        "name": "AUN CRACKER SPICY 2.12OZ",
+        "totalPrice": 149,
+        "quantity": 1,
+        "category": "Snacks",
+        "subcategory": null
+      },
+      {
+        "name": "PRAWN CRACKER REGULAR 2.12OZ",
+        "totalPrice": 149,
+        "quantity": 1,
+        "category": "Snacks",
+        "subcategory": null
+      },
+      {
+        "name": "TARO SESAME MOCHI 7.4OZ",
+        "totalPrice": 249,
+        "quantity": 1,
+        "category": "Snacks",
+        "subcategory": null
+      }
+    ],
+    "aiMetadata": {
+      "receiptType": "receipt",
+      "confidence": 0.95
+    },
+    "model": "gemini-2.0-flash",
+    "modelVersion": "latest",
+    "promptId": "v3-category-standardization",
+    "promptVersion": "3.2.0",
+    "extractedAt": "2026-01-13T20:26:53.709Z"
+  },
+  "corrections": {}
+}

@@ -26,6 +26,7 @@ from app.schemas.transaction import (
     TransactionUpdate,
 )
 from app.services.fx import FxServiceError, compute_usd_shadow, get_fx_rate
+from app.services.mappings import remember_item_mapping, remember_merchant_mapping
 
 logger = logging.getLogger(__name__)
 
@@ -101,8 +102,15 @@ async def list_transactions(
                 merchant_user_edited_at=txn.merchant_user_edited_at,
                 alias=txn.alias,
                 store_category_id=txn.store_category_id,
+                store_category_source=txn.store_category_source,
+                store_category_confidence=txn.store_category_confidence,
+                store_category_mapping_id=txn.store_category_mapping_id,
                 store_category_user_edited_at=txn.store_category_user_edited_at,
                 total_minor=txn.total_minor,
+                discount_total_minor=txn.discount_total_minor,
+                gross_total_minor=txn.gross_total_minor,
+                reconstructed_total_minor=txn.reconstructed_total_minor,
+                scan_review_level=txn.scan_review_level,
                 currency=txn.currency,
                 amount_usd_minor=txn.amount_usd_minor,
                 fx_rate_to_usd=txn.fx_rate_to_usd,
@@ -186,7 +194,13 @@ async def create_transaction(
         transaction_time=body.transaction_time,
         merchant=body.merchant,
         store_category_id=body.store_category_id,
+        store_category_source=body.store_category_source,
+        store_category_confidence=body.store_category_confidence,
+        store_category_mapping_id=body.store_category_mapping_id,
         total_minor=body.total_minor,
+        discount_total_minor=body.discount_total_minor,
+        gross_total_minor=body.gross_total_minor,
+        reconstructed_total_minor=body.reconstructed_total_minor,
         currency=body.currency,
         amount_usd_minor=amount_usd_minor,
         fx_rate_to_usd=fx_rate_to_usd,
@@ -214,6 +228,8 @@ async def create_transaction(
             qty=item_data.qty,
             unit_price_minor=item_data.unit_price_minor,
             total_price_minor=item_data.total_price_minor,
+            discount_minor=item_data.discount_minor,
+            discount_label=item_data.discount_label,
             item_category_id=item_data.item_category_id,
             subcategory=item_data.subcategory,
             category_source=item_data.category_source,
@@ -263,12 +279,16 @@ async def update_transaction(
 
     now = datetime.now(UTC)
     update_data = body.model_dump(exclude_unset=True, exclude={"items"})
+    original_merchant = txn.merchant
 
     if "merchant" in update_data:
         txn.merchant = update_data["merchant"]
         txn.merchant_user_edited_at = now
     if "store_category_id" in update_data:
         txn.store_category_id = update_data["store_category_id"]
+        txn.store_category_source = "user"
+        txn.store_category_confidence = None
+        txn.store_category_mapping_id = None
         txn.store_category_user_edited_at = now
     if "transaction_date" in update_data:
         txn.transaction_date = update_data["transaction_date"]
@@ -276,6 +296,12 @@ async def update_transaction(
         txn.transaction_time = update_data["transaction_time"]
     if "total_minor" in update_data:
         txn.total_minor = update_data["total_minor"]
+    if "discount_total_minor" in update_data:
+        txn.discount_total_minor = update_data["discount_total_minor"]
+    if "gross_total_minor" in update_data:
+        txn.gross_total_minor = update_data["gross_total_minor"]
+    if "reconstructed_total_minor" in update_data:
+        txn.reconstructed_total_minor = update_data["reconstructed_total_minor"]
     if "currency" in update_data:
         txn.currency = update_data["currency"]
     if "receipt_type" in update_data:
@@ -292,6 +318,7 @@ async def update_transaction(
             existing = next((i for i in txn.items if i.id == item_update.id), None)
             if existing is None:
                 continue
+            original_item_name = existing.name
             item_fields = item_update.model_dump(exclude_unset=True, exclude={"id"})
             if "name" in item_fields:
                 existing.name = item_fields["name"]
@@ -300,6 +327,8 @@ async def update_transaction(
                 "qty",
                 "unit_price_minor",
                 "total_price_minor",
+                "discount_minor",
+                "discount_label",
                 "subcategory",
                 "category_source",
                 "is_flagged",
@@ -312,6 +341,24 @@ async def update_transaction(
                     existing.item_category_user_edited_at = now
                 elif field in item_settable:
                     setattr(existing, field, value)
+            if {"name", "item_category_id"}.intersection(item_fields):
+                await remember_item_mapping(
+                    db,
+                    ownership_scope_id=auth.ownership_scope_id,
+                    original_item=original_item_name,
+                    target_item=existing.name,
+                    target_category_id=existing.item_category_id,
+                    merchant_name=txn.merchant,
+                )
+
+    if {"merchant", "store_category_id"}.intersection(update_data):
+        await remember_merchant_mapping(
+            db,
+            ownership_scope_id=auth.ownership_scope_id,
+            original_merchant=original_merchant,
+            target_merchant=txn.merchant,
+            store_category_id=txn.store_category_id,
+        )
 
     money_fields = ("transaction_date", "total_minor", "currency")
     money_fields_changed = any(f in update_data for f in money_fields)
@@ -382,6 +429,9 @@ async def batch_update_transactions(
 
     if "store_category_id" in update_fields:
         set_values["store_category_id"] = update_fields["store_category_id"]
+        set_values["store_category_source"] = "user"
+        set_values["store_category_confidence"] = None
+        set_values["store_category_mapping_id"] = None
         set_values["store_category_user_edited_at"] = now
     if "merchant" in update_fields:
         set_values["merchant"] = update_fields["merchant"]

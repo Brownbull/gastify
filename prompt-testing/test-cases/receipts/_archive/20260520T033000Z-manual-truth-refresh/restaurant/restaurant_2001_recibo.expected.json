@@ -1,0 +1,43 @@
+{
+  "metadata": {
+    "testId": "restaurant_2001_recibo",
+    "storeType": "restaurant",
+    "difficulty": "medium",
+    "region": "CL",
+    "source": "manual-collection",
+    "addedAt": "2026-03-19T00:01:27.999Z"
+  },
+  "input": {
+    "receiptType": "auto"
+  },
+  "aiExtraction": {
+    "merchant": "CAFE 2001 DELIVERY",
+    "date": "2025-11-03",
+    "time": "12:51",
+    "total": 23700,
+    "currency": "CLP",
+    "category": "Restaurant",
+    "country": "Chile",
+    "city": "Villarrica",
+    "items": [
+      {
+        "name": "Delivery Order",
+        "unitPrice": 23700,
+        "totalPrice": 23700,
+        "quantity": 1,
+        "category": "PreparedFood",
+        "subcategory": null
+      }
+    ],
+    "aiMetadata": {
+      "receiptType": "receipt",
+      "confidence": 0.95
+    },
+    "model": "gemini-2.5-flash",
+    "modelVersion": "latest",
+    "promptId": "v4-spanish-taxonomy",
+    "promptVersion": "4.1.0",
+    "extractedAt": "2026-03-19T00:01:27.999Z"
+  },
+  "corrections": {}
+}

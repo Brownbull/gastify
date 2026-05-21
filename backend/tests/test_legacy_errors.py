@@ -62,10 +62,10 @@ def _session_factory(scan):
 
 
 class TestNetworkError:
-    """NETWORK_ERROR — transient, retried up to max_retries, then fails."""
+    """NETWORK_ERROR — final worker failure after agent-level retries exhaust."""
 
     @pytest.mark.asyncio
-    async def test_network_error_retried_then_fails(self):
+    async def test_network_error_fails_without_worker_retry(self):
         scan = _mock_scan()
         err = TransientScanError(ScanErrorCode.NETWORK_ERROR, "ECONNRESET")
         mock_extract = AsyncMock(side_effect=err)
@@ -80,7 +80,7 @@ class TestNetworkError:
             result = await process_scan(scan.id)
 
         assert result is False
-        assert mock_extract.call_count == 3
+        assert mock_extract.call_count == 1
 
     def test_classify_econnreset(self):
         err = classify_error(Exception("ECONNRESET: connection reset by peer"))
@@ -94,10 +94,10 @@ class TestNetworkError:
 
 
 class TestTimeoutError:
-    """TIMEOUT_ERROR — transient, retried, then fails."""
+    """TIMEOUT_ERROR — final worker failure after agent-level retries exhaust."""
 
     @pytest.mark.asyncio
-    async def test_timeout_retried_then_fails(self):
+    async def test_timeout_fails_without_worker_retry(self):
         scan = _mock_scan()
         err = TransientScanError(ScanErrorCode.TIMEOUT_ERROR, "Timed out")
         mock_extract = AsyncMock(side_effect=err)
@@ -112,7 +112,7 @@ class TestTimeoutError:
             result = await process_scan(scan.id)
 
         assert result is False
-        assert mock_extract.call_count == 3
+        assert mock_extract.call_count == 1
 
     def test_classify_deadline_exceeded(self):
         err = classify_error(Exception("deadline exceeded for Gemini API call"))

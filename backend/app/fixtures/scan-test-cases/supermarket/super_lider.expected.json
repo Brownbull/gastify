@@ -1,0 +1,252 @@
+{
+  "metadata": {
+    "testId": "super_lider",
+    "storeType": "supermarket",
+    "difficulty": "medium",
+    "region": "CL",
+    "source": "manual-collection",
+    "addedAt": "2026-03-19T00:00:58.948Z"
+  },
+  "input": {
+    "receiptType": "auto"
+  },
+  "aiExtraction": {
+    "merchant": "SATURNINO EPULEF",
+    "date": "2025-09-06",
+    "time": "12:57",
+    "total": 102052,
+    "currency": "CLP",
+    "category": "Supermarket",
+    "country": "Chile",
+    "city": "Villarrica",
+    "items": [
+      {
+        "name": "SUPER8 HALLO",
+        "unitPrice": 1890,
+        "totalPrice": 1890,
+        "quantity": 1,
+        "category": "Snacks"
+      },
+      {
+        "name": "PAN CIA RUST",
+        "unitPrice": 2990,
+        "totalPrice": 3125,
+        "quantity": 1.045,
+        "category": "BreadPastry"
+      },
+      {
+        "name": "GALL. DONUTS ORANGE",
+        "unitPrice": 990,
+        "totalPrice": 1980,
+        "quantity": 2,
+        "category": "Snacks"
+      },
+      {
+        "name": "GALL. DONUTS COCO",
+        "unitPrice": 990,
+        "totalPrice": 2970,
+        "quantity": 3,
+        "category": "Snacks"
+      },
+      {
+        "name": "PACK SALSA T",
+        "unitPrice": 3890,
+        "totalPrice": 3890,
+        "quantity": 1,
+        "category": "Pantry"
+      },
+      {
+        "name": "Discount",
+        "unitPrice": -600,
+        "totalPrice": -600,
+        "quantity": 1,
+        "category": "ServiceCharge"
+      },
+      {
+        "name": "PAN DULCE",
+        "unitPrice": 2390,
+        "totalPrice": 2390,
+        "quantity": 1,
+        "category": "BreadPastry"
+      },
+      {
+        "name": "PIZZA JAMON",
+        "unitPrice": 7250,
+        "totalPrice": 7250,
+        "quantity": 1,
+        "category": "PreparedFood"
+      },
+      {
+        "name": "Discount",
+        "unitPrice": -1460,
+        "totalPrice": -1460,
+        "quantity": 1,
+        "category": "ServiceCharge"
+      },
+      {
+        "name": "R CEBOLLIN GRANEL",
+        "unitPrice": 890,
+        "totalPrice": 1780,
+        "quantity": 2,
+        "category": "Produce"
+      },
+      {
+        "name": "JAMON ACARA",
+        "unitPrice": 10201,
+        "totalPrice": 2693,
+        "quantity": 0.264,
+        "category": "MeatSeafood"
+      },
+      {
+        "name": "V POSTA NEGRA ESCA",
+        "unitPrice": 6390,
+        "totalPrice": 12780,
+        "quantity": 2,
+        "category": "MeatSeafood"
+      },
+      {
+        "name": "Discount (LLeve N x $)",
+        "unitPrice": -2780,
+        "totalPrice": -2780,
+        "quantity": 1,
+        "category": "ServiceCharge"
+      },
+      {
+        "name": "NATUR MAIZ N",
+        "unitPrice": 430,
+        "totalPrice": 430,
+        "quantity": 1,
+        "category": "Produce"
+      },
+      {
+        "name": "NIK BLCK",
+        "unitPrice": 1490,
+        "totalPrice": 1490,
+        "quantity": 1,
+        "category": "Snacks"
+      },
+      {
+        "name": "PLATANO",
+        "unitPrice": 1490,
+        "totalPrice": 3844,
+        "quantity": 2.58,
+        "category": "Produce"
+      },
+      {
+        "name": "QUESO RALLADO SOBRS",
+        "unitPrice": 1790,
+        "totalPrice": 7160,
+        "quantity": 4,
+        "category": "DairyEggs"
+      },
+      {
+        "name": "PIMIENTO VERDE 2UNS",
+        "unitPrice": 1190,
+        "totalPrice": 2380,
+        "quantity": 2,
+        "category": "Produce"
+      },
+      {
+        "name": "PATO DISCO F",
+        "unitPrice": 4190,
+        "totalPrice": 4190,
+        "quantity": 1,
+        "category": "MeatSeafood"
+      },
+      {
+        "name": "ROLLITOS ACE",
+        "unitPrice": 1790,
+        "totalPrice": 1790,
+        "quantity": 1,
+        "category": "PreparedFood"
+      },
+      {
+        "name": "MANZ VERDE",
+        "unitPrice": 1890,
+        "totalPrice": 1890,
+        "quantity": 1,
+        "category": "Produce"
+      },
+      {
+        "name": "LYSO 2X495",
+        "unitPrice": 7490,
+        "totalPrice": 7490,
+        "quantity": 1,
+        "category": "CleaningSupplies"
+      },
+      {
+        "name": "Discount",
+        "unitPrice": -1200,
+        "totalPrice": -1200,
+        "quantity": 1,
+        "category": "ServiceCharge"
+      },
+      {
+        "name": "CEPILLO WC",
+        "unitPrice": 2550,
+        "totalPrice": 5100,
+        "quantity": 2,
+        "category": "HomeEssentials"
+      },
+      {
+        "name": "SDY EXTRA FRESH 90S",
+        "unitPrice": 5290,
+        "totalPrice": 10580,
+        "quantity": 2,
+        "category": "CleaningSupplies"
+      },
+      {
+        "name": "Discount",
+        "unitPrice": -3080,
+        "totalPrice": -3080,
+        "quantity": 1,
+        "category": "ServiceCharge"
+      },
+      {
+        "name": "ESPONJA ACAN",
+        "unitPrice": 2150,
+        "totalPrice": 2150,
+        "quantity": 1,
+        "category": "HomeEssentials"
+      },
+      {
+        "name": "PAPEL HIG",
+        "unitPrice": 12690,
+        "totalPrice": 12690,
+        "quantity": 1,
+        "category": "HomeEssentials"
+      },
+      {
+        "name": "Discount",
+        "unitPrice": -3700,
+        "totalPrice": -3700,
+        "quantity": 1,
+        "category": "ServiceCharge"
+      },
+      {
+        "name": "CONFORT X12",
+        "unitPrice": 10750,
+        "totalPrice": 10750,
+        "quantity": 1,
+        "category": "HomeEssentials"
+      },
+      {
+        "name": "KINDER BUENO",
+        "unitPrice": 2190,
+        "totalPrice": 2190,
+        "quantity": 1,
+        "category": "Snacks"
+      }
+    ],
+    "aiMetadata": {
+      "receiptType": "Supermarket",
+      "confidence": 0.95
+    },
+    "model": "gemini-2.5-flash",
+    "modelVersion": "latest",
+    "promptId": "v4-spanish-taxonomy",
+    "promptVersion": "4.1.0",
+    "extractedAt": "2026-03-19T00:00:58.948Z"
+  },
+  "corrections": {}
+}

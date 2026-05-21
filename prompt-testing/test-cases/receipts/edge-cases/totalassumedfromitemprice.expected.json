@@ -1,0 +1,46 @@
+{
+  "metadata": {
+    "testId": "totalassumedfromitemprice",
+    "storeType": "butcher",
+    "difficulty": "medium",
+    "region": "CL",
+    "source": "manual-codex-visual-truth",
+    "truthVersion": "2026-05-20.manual-v1",
+    "archivedPreviousAt": "prompt-testing/test-cases/receipts/_archive/20260520Tvalidation-policy-v1/edge-cases/totalassumedfromitemprice.expected.json",
+    "notes": "Single item receipt where the line carries quantity and unit price: 4 UN x 2.000 = 8.000."
+  },
+  "input": {
+    "receiptType": "auto"
+  },
+  "aiExtraction": {
+    "merchant": "FABRICA DE CECINAS Y CHARCUTERIA FRANCISCO PENA LIMITADA",
+    "date": "2026-03-12",
+    "time": "16:13:17",
+    "total": 8000,
+    "currency": "CLP",
+    "category": "Butcher",
+    "country": "Chile",
+    "city": "Villarrica",
+    "items": [
+      {
+        "name": "MANTECA",
+        "unitPrice": 2000,
+        "totalPrice": 8000,
+        "quantity": 4,
+        "category": "Pantry",
+        "subcategory": null
+      }
+    ],
+    "aiMetadata": {
+      "receiptType": "ElectronicReceipt",
+      "confidence": 1,
+      "source": "manual visual inspection"
+    },
+    "model": "manual",
+    "modelVersion": "codex-visual",
+    "promptId": "manual-truth-v1",
+    "promptVersion": "2026-05-20",
+    "extractedAt": "2026-05-20T00:00:00Z"
+  },
+  "corrections": {}
+}

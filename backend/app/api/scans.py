@@ -18,6 +18,7 @@ from app.db import get_db
 from app.models.scan import Scan, ScanStatus
 from app.schemas.scan import ScanResult, ScanSubmission
 from app.services.image import compress_receipt_image
+from app.services.scan_e2e_fixtures import write_upload_hash_marker
 from app.services.scan_worker import process_scan
 
 logger = structlog.get_logger()
@@ -72,6 +73,7 @@ async def submit_scan(
 
     main_path = scan_dir / "receipt.jpg"
     thumb_path = scan_dir / "thumb.jpg"
+    write_upload_hash_marker(scan_dir, raw_bytes)
     main_path.write_bytes(result.main.data)
     thumb_path.write_bytes(result.thumbnail.data)
 

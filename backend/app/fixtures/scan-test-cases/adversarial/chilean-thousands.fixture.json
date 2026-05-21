@@ -1,0 +1,17 @@
+{
+  "fixtureSchemaVersion": 1,
+  "rawGeminiResponse": "```json\n{\n  \"merchant\": \"Falabella Villarrica\",\n  \"date\": \"2026-03-01\",\n  \"total\": \"1.523.990\",\n  \"currency\": \"CLP\",\n  \"category\": \"Electronics\",\n  \"items\": [\n    {\n      \"name\": \"TV Samsung 55\\\" Crystal UHD\",\n      \"totalPrice\": \"1.499.990\",\n      \"quantity\": 1,\n      \"category\": \"Electronics\"\n    },\n    {\n      \"name\": \"Cable HDMI 2.1 Premium 2m\",\n      \"totalPrice\": \"24.000\",\n      \"quantity\": 1,\n      \"category\": \"Accessories\"\n    }\n  ],\n  \"metadata\": {\n    \"receiptType\": \"receipt\",\n    \"confidence\": 0.92\n  }\n}\n```",
+  "sourceImage": "adversarial/chilean-thousands.jpg",
+  "createdFrom": "manual-adversarial",
+  "bugReference": "parseGeminiNumber: Chilean thousands separators (dots) in large numbers",
+  "expectedAfterCoercion": {
+    "merchant": "Falabella Villarrica",
+    "date": "2026-03-01",
+    "total": 1523990,
+    "category": "Electronics",
+    "items": [
+      { "name": "TV Samsung 55\" Crystal UHD", "totalPrice": 1499990, "quantity": 1, "category": "Electronics" },
+      { "name": "Cable HDMI 2.1 Premium 2m", "totalPrice": 24000, "quantity": 1, "category": "Accessories" }
+    ]
+  }
+}

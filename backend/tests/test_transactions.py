@@ -1,9 +1,15 @@
 """Tests for /api/v1/transactions endpoints."""
 
 import uuid
+from datetime import date
 
 import pytest
 from httpx import AsyncClient
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
+
+from app.models.transaction import Transaction
+
+TEST_SCOPE_ID = uuid.UUID("00000000-0000-0000-0000-000000000001")
 
 
 @pytest.fixture
@@ -94,6 +100,8 @@ class TestGetTransaction:
         assert data["merchant"] == "Supermercado Líder"
         assert data["total_minor"] == 15990
         assert data["currency"] == "CLP"
+        assert data["scan_review_level"] == "none"
+        assert data["scan_review_signals"] == []
         assert len(data["items"]) == 1
         assert data["items"][0]["name"] == "Leche Colun 1L"
         assert len(data["images"]) == 1
@@ -103,6 +111,47 @@ class TestGetTransaction:
         fake_id = str(uuid.uuid4())
         resp = await client.get(f"/api/v1/transactions/{fake_id}")
         assert resp.status_code == 404
+
+    async def test_get_exposes_persisted_scan_review_signals(
+        self,
+        client: AsyncClient,
+        engine,
+    ) -> None:
+        signal = {
+            "code": "item_structure_changed",
+            "severity": "warning",
+            "source_stage": "postprocess",
+            "message": "Post-processing changed the receipt item structure.",
+            "details": {"raw_item_count": 1, "processed_item_count": 2},
+        }
+        session_factory = async_sessionmaker(
+            engine,
+            class_=AsyncSession,
+            expire_on_commit=False,
+        )
+        async with session_factory() as session:
+            txn = Transaction(
+                ownership_scope_id=TEST_SCOPE_ID,
+                transaction_date=date(2026, 5, 20),
+                merchant="Scan Store",
+                total_minor=5000,
+                currency="CLP",
+                receipt_type="scan",
+                scan_review_level="warning",
+                scan_review_signals=[signal],
+            )
+            session.add(txn)
+            await session.commit()
+            txn_id = str(txn.id)
+
+        detail = await client.get(f"/api/v1/transactions/{txn_id}")
+        assert detail.status_code == 200
+        assert detail.json()["scan_review_level"] == "warning"
+        assert detail.json()["scan_review_signals"] == [signal]
+
+        listing = await client.get("/api/v1/transactions")
+        assert listing.status_code == 200
+        assert listing.json()["data"][0]["scan_review_level"] == "warning"
 
 
 class TestCreateTransactionUSD:
@@ -153,6 +202,7 @@ class TestListTransactions:
         assert len(data["data"]) == 1
         assert data["data"][0]["id"] == seed_transaction
         assert data["data"][0]["item_count"] == 1
+        assert data["data"][0]["scan_review_level"] == "none"
 
     async def test_list_pagination(self, client: AsyncClient) -> None:
         for i in range(3):

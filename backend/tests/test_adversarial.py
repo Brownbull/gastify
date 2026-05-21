@@ -42,7 +42,7 @@ from tests.fixtures.receipts import (
 
 _W = "app.services.scan_worker"
 
-SAFE_CATEGORIES = ["Supermercado", "CuidadoPersonal", "Miscelaneo"]
+SAFE_CATEGORIES = ["Pantry", "PersonalCare", "OtherItem"]
 
 
 def _make_extraction(receipt: GeminiExtractionResult) -> ExtractionResult:
@@ -57,7 +57,7 @@ def _make_safe_categorization(receipt: GeminiExtractionResult) -> Categorization
     assignments = [
         CategoryAssignment(
             line_item_index=i,
-            category_key="Supermercado" if i % 2 == 0 else "CuidadoPersonal",
+            category_key="Pantry" if i % 2 == 0 else "PersonalCare",
             confidence=0.90,
         )
         for i in range(len(receipt.line_items))
@@ -73,7 +73,7 @@ def _make_steered_categorization(receipt: GeminiExtractionResult) -> Categorizat
     assignments = [
         CategoryAssignment(
             line_item_index=i,
-            category_key="Inversiones",
+            category_key="LoanPayment",
             confidence=1.0,
         )
         for i in range(len(receipt.line_items))
@@ -90,7 +90,7 @@ async def adv_db(engine):
 
     async with factory() as db:
         for key in [*SAFE_CATEGORIES, *FINANCE_CATEGORY_KEYS]:
-            cat = ItemCategory(key=key, level=2, display_labels={"es": key})
+            cat = ItemCategory(key=key, level=4, display_labels={"es": key})
             db.add(cat)
         await db.commit()
 
@@ -248,7 +248,7 @@ class TestDefenseBoundary:
     the categorizer never sees the raw image — only extracted text.
 
     These tests prove the pipeline has no post-hoc filter: if the categorizer
-    returns "Inversiones", it persists. This documents where the real defense
+    returns "LoanPayment", it persists. This documents where the real defense
     lives (TestTwoStageDefense) and prevents false confidence from mock-only
     assertions in TestNoCategorySteering.
     """
@@ -278,7 +278,7 @@ class TestDefenseBoundary:
                     cat = cat_row.scalar_one()
                     steered_keys.add(cat.key)
 
-            assert "Inversiones" in steered_keys, (
+            assert "LoanPayment" in steered_keys, (
                 "Pipeline should store whatever the categorizer returns — "
                 "defense is architectural (text-only), not filtering"
             )

@@ -13,7 +13,7 @@ class CreditBalance(Base):
     __tablename__ = "credit_balances"
 
     id: Mapped[uuid.UUID] = mapped_column(
-        Uuid, primary_key=True, server_default=func.gen_random_uuid()
+        Uuid, primary_key=True, default=uuid.uuid4, server_default=func.gen_random_uuid()
     )
     ownership_scope_id: Mapped[uuid.UUID] = mapped_column(
         Uuid, ForeignKey("ownership_scopes.id"), nullable=False, unique=True

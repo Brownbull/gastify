@@ -1,0 +1,29 @@
+appId: com.gastify.mobile
+---
+- clearState
+- openLink:
+    link: ${EXPO_DEV_CLIENT_URL}
+- waitForAnimationToEnd:
+    timeout: 10000
+- extendedWaitUntil:
+    visible:
+      id: sign-in-screen
+    timeout: 60000
+- assertVisible:
+    id: sign-in-screen
+- tapOn:
+    id: e2e-sign-in-button
+- assertVisible:
+    id: home-screen
+- assertVisible:
+    id: scan-capture-panel
+- assertVisible:
+    id: scan-camera-button
+- assertVisible:
+    id: scan-library-button
+- takeScreenshot:
+    path: 01-scan-entry
+- tapOn:
+    id: sign-out-button
+- assertVisible:
+    id: sign-in-screen

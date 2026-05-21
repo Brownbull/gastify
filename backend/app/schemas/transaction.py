@@ -7,6 +7,8 @@ from uuid import UUID
 
 from pydantic import BaseModel, Field
 
+from app.schemas.scan import ScanReviewLevel, ScanReviewSignal
+
 # --- Item schemas ---
 
 
@@ -15,6 +17,8 @@ class TransactionItemCreate(BaseModel):
     qty: float | None = None
     unit_price_minor: int | None = None
     total_price_minor: int
+    discount_minor: int | None = Field(default=None, deprecated=True)
+    discount_label: str | None = Field(default=None, deprecated=True)
     item_category_id: UUID | None = None
     subcategory: str | None = None
     category_source: str | None = None
@@ -28,6 +32,8 @@ class TransactionItemUpdate(BaseModel):
     qty: float | None = None
     unit_price_minor: int | None = None
     total_price_minor: int | None = None
+    discount_minor: int | None = Field(default=None, deprecated=True)
+    discount_label: str | None = Field(default=None, deprecated=True)
     item_category_id: UUID | None = None
     subcategory: str | None = None
     category_source: str | None = None
@@ -43,6 +49,8 @@ class TransactionItemResponse(BaseModel):
     qty: float | None = None
     unit_price_minor: int | None = None
     total_price_minor: int
+    discount_minor: int | None = Field(default=None, deprecated=True)
+    discount_label: str | None = Field(default=None, deprecated=True)
     item_category_id: UUID | None = None
     item_category_user_edited_at: datetime | None = None
     subcategory: str | None = None
@@ -71,7 +79,13 @@ class TransactionCreate(BaseModel):
     transaction_time: time | None = None
     merchant: str
     store_category_id: UUID | None = None
+    store_category_source: Literal["mapping", "ai", "user", "unknown"] | None = None
+    store_category_confidence: Decimal | None = Field(default=None, ge=0, le=1)
+    store_category_mapping_id: UUID | None = None
     total_minor: int
+    discount_total_minor: int | None = None
+    gross_total_minor: int | None = None
+    reconstructed_total_minor: int | None = None
     currency: str = Field(max_length=3)
     receipt_type: Literal["scan", "manual", "statement", "import"] | None = None
     country: str | None = None
@@ -95,6 +109,9 @@ class TransactionUpdate(BaseModel):
     merchant: str | None = None
     store_category_id: UUID | None = None
     total_minor: int | None = None
+    discount_total_minor: int | None = None
+    gross_total_minor: int | None = None
+    reconstructed_total_minor: int | None = None
     currency: str | None = Field(default=None, max_length=3)
     receipt_type: str | None = None
     country: str | None = None
@@ -113,8 +130,15 @@ class TransactionListItem(BaseModel):
     merchant_user_edited_at: datetime | None = None
     alias: str | None = None
     store_category_id: UUID | None = None
+    store_category_source: str | None = None
+    store_category_confidence: Decimal | None = None
+    store_category_mapping_id: UUID | None = None
     store_category_user_edited_at: datetime | None = None
     total_minor: int
+    discount_total_minor: int | None = None
+    gross_total_minor: int | None = None
+    reconstructed_total_minor: int | None = None
+    scan_review_level: ScanReviewLevel = "none"
     currency: str
     amount_usd_minor: int | None = None
     fx_rate_to_usd: Decimal | None = None
@@ -138,8 +162,16 @@ class TransactionDetail(BaseModel):
     merchant_user_edited_at: datetime | None = None
     alias: str | None = None
     store_category_id: UUID | None = None
+    store_category_source: str | None = None
+    store_category_confidence: Decimal | None = None
+    store_category_mapping_id: UUID | None = None
     store_category_user_edited_at: datetime | None = None
     total_minor: int
+    discount_total_minor: int | None = None
+    gross_total_minor: int | None = None
+    reconstructed_total_minor: int | None = None
+    scan_review_level: ScanReviewLevel = "none"
+    scan_review_signals: list[ScanReviewSignal] = Field(default_factory=list)
     currency: str
     amount_usd_minor: int | None = None
     fx_rate_to_usd: Decimal | None = None

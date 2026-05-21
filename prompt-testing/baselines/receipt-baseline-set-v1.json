@@ -1,0 +1,149 @@
+{
+  "baseline_set_id": "receipt-baseline-set-v1",
+  "baseline_set_version": "2026-05-20.manual-v1",
+  "document_type": "receipt",
+  "truth_source": "manual-inspection-2026-05-20",
+  "validation_policy": {
+    "policy_id": "receipt-validation-policy",
+    "policy_version": "2026-05-20.v1",
+    "source_path": "backend/app/reference/receipt_validation_policy_v1.json"
+  },
+  "prompt": {
+    "extraction_prompt_id": "receipt-extraction-v2-evidence",
+    "extraction_prompt_version": "2026-05-20.v2-dev.8",
+    "model": "google-gla:gemini-2.5-flash-lite",
+    "promotion_status": "dev-only"
+  },
+  "archive_pointers": [
+    "prompt-testing/test-cases/receipts/_archive/20260520T033000Z-manual-truth-refresh",
+    "prompt-testing/test-cases/receipts/_archive/20260520Tvalidation-policy-v1"
+  ],
+  "cases": [
+    "gas-station/copec",
+    "other/estacionamiento",
+    "restaurant/restaurant_2001_recibo",
+    "supermarket/super_lider",
+    "supermarket/super_lily",
+    "trips/US/descuentos",
+    "trips/US/long",
+    "trips/london/IMG-20251212-WA0104",
+    "trips/london/british_museum_1",
+    "trips/paris/galeries_lafayette_1",
+    "edge-cases/edgeqtytotal",
+    "edge-cases/totalassumedfromitemprice",
+    "edge-cases/wtf",
+    "supermarket/super_lider_arrugado"
+  ],
+  "excluded_from_this_paid_run": [
+    {
+      "glob": "prompt-testing/test-cases/receipts/adversarial/*.jpg",
+      "reason": "Placeholder 1x1 or 2x2 images are not useful live Gemini evidence."
+    }
+  ],
+  "strict_vs_severity": {
+    "strict_status": "Exact gate status from prompt-lab transaction and reconstruction gates.",
+    "severity_status": "Threshold interpretation for whether a strict failure is minor_review or significant_failure."
+  },
+  "promotion_threshold": {
+    "threshold_id": "receipt-extraction-promotion-v1",
+    "required_case_count": 14,
+    "requires_no_cache_evidence": true,
+    "max_provider_errors": 0,
+    "max_significant_failures": 0,
+    "requires_classified_threshold_failures": true,
+    "minor_review_policy": "minor_review cases may remain dev-review items, but they do not by themselves authorize production promotion.",
+    "runtime_evidence_required": [
+      "staging-e2e S23 fixture gate",
+      "staging S23 live Gemini smoke"
+    ]
+  },
+  "coverage_tag_schema_version": "receipt-baseline-coverage.v1",
+  "coverage_tags": {
+    "gas-station/copec": [
+      "zero-decimal-clp",
+      "fuel",
+      "receipt-discount-none",
+      "tax-included"
+    ],
+    "other/estacionamiento": [
+      "zero-decimal-clp",
+      "service-no-item",
+      "visible-total-correction"
+    ],
+    "restaurant/restaurant_2001_recibo": [
+      "zero-decimal-clp",
+      "restaurant",
+      "merchant-legal-name",
+      "service-items"
+    ],
+    "supermarket/super_lider": [
+      "zero-decimal-clp",
+      "discount-heavy",
+      "weighted-items",
+      "long-receipt",
+      "tax-included"
+    ],
+    "supermarket/super_lily": [
+      "zero-decimal-clp",
+      "discount-heavy",
+      "weighted-items",
+      "multi-buy",
+      "hard-supermarket"
+    ],
+    "trips/US/descuentos": [
+      "cent-currency",
+      "discount-heavy",
+      "multi-buy",
+      "donation-line",
+      "hard-supermarket"
+    ],
+    "trips/US/long": [
+      "cent-currency",
+      "long-receipt",
+      "item-table-density",
+      "markdown-no-discount"
+    ],
+    "trips/london/IMG-20251212-WA0104": [
+      "cent-currency",
+      "foreign-receipt",
+      "unusual-image-name",
+      "superdrug"
+    ],
+    "trips/london/british_museum_1": [
+      "cent-currency",
+      "tender-noise",
+      "tax-reporting",
+      "foreign-receipt"
+    ],
+    "trips/paris/galeries_lafayette_1": [
+      "cent-currency",
+      "foreign-receipt",
+      "luxury-retail",
+      "quantity-one"
+    ],
+    "edge-cases/edgeqtytotal": [
+      "zero-decimal-clp",
+      "edge-arithmetic",
+      "quantity-unit-total",
+      "rotated-image"
+    ],
+    "edge-cases/totalassumedfromitemprice": [
+      "zero-decimal-clp",
+      "edge-arithmetic",
+      "total-vs-item-price",
+      "low-context"
+    ],
+    "edge-cases/wtf": [
+      "zero-decimal-clp",
+      "damaged-image",
+      "edge-arithmetic",
+      "low-context"
+    ],
+    "supermarket/super_lider_arrugado": [
+      "zero-decimal-clp",
+      "damaged-wrinkled-image",
+      "discount-heavy",
+      "weighted-items"
+    ]
+  }
+}

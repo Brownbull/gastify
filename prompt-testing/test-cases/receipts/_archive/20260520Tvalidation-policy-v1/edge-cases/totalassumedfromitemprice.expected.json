@@ -1,0 +1,42 @@
+{
+  "metadata": {
+    "testId": "totalassumedfromitemprice",
+    "storeType": "other",
+    "difficulty": "medium",
+    "region": "CL",
+    "source": "manual-collection",
+    "addedAt": "2026-03-14T22:13:50.692Z"
+  },
+  "input": {
+    "receiptType": "auto"
+  },
+  "aiExtraction": {
+    "merchant": "FABRICA DE CECINAS Y CHARCUTERIA FRANCISCO PEÑA LIMITADA",
+    "date": "2026-03-12",
+    "time": "16:13",
+    "total": 8000,
+    "currency": "CLP",
+    "category": "Butcher",
+    "country": "Chile",
+    "city": "Villarrica",
+    "items": [
+      {
+        "name": "MANTECA",
+        "unitPrice": 2000,
+        "totalPrice": 8000,
+        "quantity": 4,
+        "category": "Pantry"
+      }
+    ],
+    "aiMetadata": {
+      "receiptType": "Electronic Receipt",
+      "confidence": 0.95
+    },
+    "model": "gemini-2.0-flash",
+    "modelVersion": "latest",
+    "promptId": "v4-spanish-taxonomy",
+    "promptVersion": "4.1.0",
+    "extractedAt": "2026-03-14T22:13:50.692Z"
+  },
+  "corrections": {}
+}

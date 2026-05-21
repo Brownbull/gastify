@@ -1,0 +1,14 @@
+{
+  "fixtureSchemaVersion": 1,
+  "rawGeminiResponse": "```json\n{\n  \"merchant\": null,\n  \"date\": null,\n  \"total\": \"5.000\",\n  \"currency\": \"CLP\",\n  \"category\": null,\n  \"items\": [\n    {\n      \"name\": \"Producto Test\",\n      \"totalPrice\": \"5.000\",\n      \"quantity\": 1\n    }\n  ],\n  \"metadata\": {\n    \"receiptType\": \"receipt\",\n    \"confidence\": 0.6\n  }\n}\n```",
+  "sourceImage": "adversarial/null-fields.jpg",
+  "createdFrom": "manual-adversarial",
+  "bugReference": "TD-18-4: null fields from Gemini",
+  "expectedAfterCoercion": {
+    "merchant": "Unknown",
+    "date": "<today>",
+    "total": 5000,
+    "category": "Other",
+    "items": [{ "name": "Producto Test", "totalPrice": 5000, "quantity": 1 }]
+  }
+}

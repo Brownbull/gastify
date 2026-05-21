@@ -1,6 +1,16 @@
 #!/usr/bin/env bash
 
 resolve_android_sdk_root() {
+  local native_candidate
+  for native_candidate in \
+    "${GASTIFY_ANDROID_SDK_ROOT:-}" \
+    "${HOME}/.local/share/gastify/android-platform-tools"; do
+    if [[ -n "${native_candidate}" && -x "${native_candidate}/platform-tools/adb" ]]; then
+      printf "%s" "${native_candidate}"
+      return 0
+    fi
+  done
+
   if [[ -n "${ANDROID_SDK_ROOT:-}" && -d "${ANDROID_SDK_ROOT}" ]]; then
     printf "%s" "${ANDROID_SDK_ROOT}"
     return 0

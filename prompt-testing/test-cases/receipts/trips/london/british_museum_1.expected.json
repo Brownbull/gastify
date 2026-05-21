@@ -1,0 +1,72 @@
+{
+  "metadata": {
+    "testId": "british_museum_1",
+    "storeType": "other",
+    "difficulty": "medium",
+    "region": "UK",
+    "source": "manual-codex-visual-truth",
+    "truthVersion": "2026-05-20.manual-v1",
+    "archivedPreviousAt": "prompt-testing/test-cases/receipts/_archive/20260520T033000Z-manual-truth-refresh/trips/london/british_museum_1.expected.json"
+  },
+  "input": {
+    "receiptType": "auto"
+  },
+  "aiExtraction": {
+    "merchant": "The British Museum",
+    "date": "2025-05-23",
+    "time": "15:01",
+    "total": 2997,
+    "currency": "GBP",
+    "category": "BooksMedia",
+    "country": "United Kingdom",
+    "city": "London",
+    "items": [
+      {
+        "name": "MASTERPIECES OF THE eac",
+        "unitPrice": 1899,
+        "totalPrice": 1899,
+        "quantity": 1,
+        "category": "Books & Media",
+        "subcategory": null
+      },
+      {
+        "name": "The Cat in Ancient E eac",
+        "unitPrice": 500,
+        "totalPrice": 500,
+        "quantity": 1,
+        "category": "Books & Media",
+        "subcategory": null
+      },
+      {
+        "name": "T/CARD HOLDER: ROSETT eac",
+        "unitPrice": 299,
+        "totalPrice": 299,
+        "quantity": 1,
+        "category": "Other",
+        "subcategory": null
+      },
+      {
+        "name": "K/RING:ROSETTA STONE eac",
+        "unitPrice": 299,
+        "totalPrice": 299,
+        "quantity": 1,
+        "category": "Jewelry",
+        "subcategory": null
+      }
+    ],
+    "aiMetadata": {
+      "receiptType": "receipt",
+      "confidence": 1,
+      "source": "manual visual inspection"
+    },
+    "model": "manual",
+    "modelVersion": "codex-visual",
+    "promptId": "manual-truth-v1",
+    "promptVersion": "2026-05-20",
+    "extractedAt": "2026-05-20T03:30:00Z"
+  },
+  "corrections": {
+    "category": "BookStore",
+    "reviewNotes": "BooksMedia is an item category; store category should be BookStore per canonical taxonomy"
+  }
+}

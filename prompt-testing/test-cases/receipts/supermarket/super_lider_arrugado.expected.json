@@ -1,0 +1,170 @@
+{
+  "metadata": {
+    "testId": "super_lider_arrugado",
+    "storeType": "supermarket",
+    "difficulty": "hard",
+    "region": "CL",
+    "source": "manual-codex-visual-truth",
+    "truthVersion": "2026-05-20.manual-v1",
+    "notes": "Wrinkled Lider receipt. Product rows are gross visible rows; negative RF rows become receipt-level discount evidence. MP CENTELLA is interpreted as 4.550 because it reconciles the visible final total and discounts."
+  },
+  "input": {
+    "receiptType": "auto"
+  },
+  "aiExtraction": {
+    "merchant": "SATURNINO EPULEF",
+    "date": "2025-09-15",
+    "time": "13:52:11",
+    "total": 62530,
+    "currency": "CLP",
+    "category": "Supermarket",
+    "country": "Chile",
+    "city": "Villarrica",
+    "items": [
+      {
+        "name": "AMB. LINE / SKY",
+        "unitPrice": 5090,
+        "totalPrice": 15270,
+        "quantity": 3,
+        "category": "Household"
+      },
+      {
+        "name": "REPLID CRE.",
+        "unitPrice": 1590,
+        "totalPrice": 1590,
+        "quantity": 1,
+        "category": "PackagedFood"
+      },
+      {
+        "name": "HELADO CREMA SANDW",
+        "unitPrice": 7790,
+        "totalPrice": 15580,
+        "quantity": 2,
+        "category": "FrozenFoods"
+      },
+      {
+        "name": "MP CENTELLA",
+        "unitPrice": 4550,
+        "totalPrice": 4550,
+        "quantity": 1,
+        "category": "FrozenFoods"
+      },
+      {
+        "name": "CEBOLLIN",
+        "unitPrice": 850,
+        "totalPrice": 850,
+        "quantity": 1,
+        "category": "Produce"
+      },
+      {
+        "name": "VINOCH13 5G",
+        "unitPrice": 4190,
+        "totalPrice": 8380,
+        "quantity": 2,
+        "category": "Alcohol"
+      },
+      {
+        "name": "Discount",
+        "unitPrice": -1720,
+        "totalPrice": -1720,
+        "quantity": 1,
+        "category": "Discount"
+      },
+      {
+        "name": "VINO C13 5G750CC",
+        "unitPrice": 4190,
+        "totalPrice": 4190,
+        "quantity": 1,
+        "category": "Alcohol"
+      },
+      {
+        "name": "Discount",
+        "unitPrice": -860,
+        "totalPrice": -860,
+        "quantity": 1,
+        "category": "Discount"
+      },
+      {
+        "name": "SAL PARRILLE",
+        "unitPrice": 1350,
+        "totalPrice": 1350,
+        "quantity": 1,
+        "category": "Pantry"
+      },
+      {
+        "name": "BERRO 200GR",
+        "unitPrice": 1690,
+        "totalPrice": 1690,
+        "quantity": 1,
+        "category": "Produce"
+      },
+      {
+        "name": "CRACKER 270G",
+        "unitPrice": 1490,
+        "totalPrice": 1490,
+        "quantity": 1,
+        "category": "Snacks"
+      },
+      {
+        "name": "Discount",
+        "unitPrice": -240,
+        "totalPrice": -240,
+        "quantity": 1,
+        "category": "Discount"
+      },
+      {
+        "name": "AJO POLVO 100",
+        "unitPrice": 1550,
+        "totalPrice": 3100,
+        "quantity": 2,
+        "category": "Pantry"
+      },
+      {
+        "name": "QUESO CAMEMB",
+        "unitPrice": 2750,
+        "totalPrice": 2750,
+        "quantity": 1,
+        "category": "DairyEggs"
+      },
+      {
+        "name": "ZBA. JENGIBRE",
+        "unitPrice": 1490,
+        "totalPrice": 1490,
+        "quantity": 1,
+        "category": "Beverages"
+      },
+      {
+        "name": "DIENTE DE D",
+        "unitPrice": 990,
+        "totalPrice": 990,
+        "quantity": 1,
+        "category": "Produce"
+      },
+      {
+        "name": "BROTE ALFAL",
+        "unitPrice": 1390,
+        "totalPrice": 1390,
+        "quantity": 1,
+        "category": "Produce"
+      },
+      {
+        "name": "MANTECOL 41",
+        "unitPrice": 990,
+        "totalPrice": 990,
+        "quantity": 1,
+        "category": "Snacks"
+      }
+    ],
+    "aiMetadata": {
+      "receiptType": "SupermarketReceipt",
+      "confidence": 0.95,
+      "source": "manual visual inspection"
+    },
+    "model": "manual",
+    "modelVersion": "codex-visual",
+    "promptId": "manual-truth-v1",
+    "promptVersion": "2026-05-20",
+    "extractedAt": "2026-05-20T00:00:00Z"
+  },
+  "corrections": {}
+}

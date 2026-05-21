@@ -103,6 +103,8 @@ Set `EXPO_PUBLIC_API_BASE_URL` in `mobile/.env` to the backend URL reachable by 
 
 | Target | API URL example |
 |---|---|
+| Railway staging API | `https://<gastify-api-staging-domain>` |
+| Railway staging-e2e API | `https://<gastify-api-staging-e2e-domain>` |
 | Samsung S23 on same Wi-Fi | `http://<your-lan-ip>:8000` |
 | Samsung S23 with `adb reverse tcp:8000 tcp:8000` | `http://127.0.0.1:8000` |
 | iOS simulator on macOS | `http://127.0.0.1:8000` |
@@ -197,7 +199,7 @@ Use `npm run check:expo-config` for Expo config checks. Raw `npx expo config --t
 
 1. **Current gate:** JS checks, API drift, staging config doctor, staging Firebase sign-in verification, and Samsung S23 Phase 1 Maestro smoke.
 2. **Android hardware gate:** WSL-native ADB through `usbipd-win`, Expo tunnel dev client, and `p4-phase1-smoke-active.yaml` with `MAESTRO_REINSTALL_DRIVER=false`.
-3. **Next gate:** Phase 2 camera scan + WebSocket progress on the same S23 lane, extending the active Maestro flow only after the feature is implemented.
+3. **Next gate:** Phase 2 camera scan + WebSocket progress on the same S23 lane against the Railway `staging-e2e` API, with local backends used only as fallback.
 4. **Build runway:** EAS Build for Android APK and iOS simulator app artifacts; avoid local emulator/Gradle loops unless intentionally debugging native build output.
 5. **Final P4 gate:** Maestro scripted golden journey on Android hardware plus the best available iOS simulator/device lane. Firebase Test Lab remains Android compatibility coverage, not the main deterministic assertion.
 

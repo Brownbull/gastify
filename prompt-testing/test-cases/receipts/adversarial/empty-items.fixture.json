@@ -1,0 +1,14 @@
+{
+  "fixtureSchemaVersion": 1,
+  "rawGeminiResponse": "```json\n{\n  \"merchant\": \"Tienda Sin Items\",\n  \"date\": \"2026-01-20\",\n  \"total\": \"8.500\",\n  \"currency\": \"CLP\",\n  \"category\": \"Other\",\n  \"items\": [],\n  \"metadata\": {\n    \"receiptType\": \"receipt\",\n    \"confidence\": 0.5\n  }\n}\n```",
+  "sourceImage": "adversarial/empty-items.jpg",
+  "createdFrom": "manual-adversarial",
+  "bugReference": "efe50ef1: Gemini returns empty items array",
+  "expectedAfterCoercion": {
+    "merchant": "Tienda Sin Items",
+    "date": "2026-01-20",
+    "total": 8500,
+    "category": "Other",
+    "items": []
+  }
+}

@@ -5,6 +5,7 @@ import {
   clearSecureAuthToken,
   saveSecureAuthToken,
 } from "../secureAuthToken";
+import { useScanStore } from "../../stores/scanStore";
 import { useSessionStore } from "../../stores/sessionStore";
 
 jest.mock("../api", () => ({
@@ -25,6 +26,7 @@ jest.mock("../secureAuthToken", () => ({
 describe("authSession", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    useScanStore.getState().reset();
     useSessionStore.getState().reset();
   });
 
@@ -93,12 +95,19 @@ describe("authSession", () => {
       email: "test@example.com",
       uid: "firebase-uid",
     });
+    useScanStore.getState().startUpload({
+      uri: "file:///tmp/receipt.jpg",
+      fileName: "receipt.jpg",
+      mimeType: "image/jpeg",
+      source: "camera",
+    });
 
     await clearMobileSession();
 
     expect(setAuthToken).toHaveBeenCalledWith(null);
     expect(clearSecureAuthToken).toHaveBeenCalled();
     expect(queryClient.clear).toHaveBeenCalled();
+    expect(useScanStore.getState().phase).toBe("idle");
     expect(useSessionStore.getState().signedInUser).toBeNull();
   });
 

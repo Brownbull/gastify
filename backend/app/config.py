@@ -1,30 +1,137 @@
+from pydantic import Field, model_validator
 from pydantic_settings import BaseSettings
+
+from app.prompts import get_prompt, is_prompt_id_allowed
+
+ALLOWED_ENVIRONMENTS = {
+    "local",
+    "staging",
+    "staging-e2e",
+    "production",
+}
+ALLOWED_SCAN_PROVIDERS = {"gemini", "fixture", "mock"}
+LOCAL_ENVIRONMENTS = {"local"}
+DEPLOYED_ENVIRONMENTS = {"staging", "staging-e2e", "production"}
+STAGING_ENVIRONMENTS = {"staging", "staging-e2e"}
 
 
 class Settings(BaseSettings):
     model_config = {"env_prefix": "GASTIFY_"}
 
-    database_url: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/gastify"
+    database_url: str = "sqlite+aiosqlite:///../.tmp/local/gastify.db"
     database_echo: bool = False
 
     firebase_project_id: str = "boletapp-d609f"
     firebase_credentials_path: str | None = None
+    firebase_credentials_json: str | None = None
 
     fx_api_url: str = "https://api.frankfurter.dev"
 
     scan_storage_dir: str = "data/scans"
 
-    gemini_model: str = "gemini-2.5-flash"
+    gemini_model: str = "gemini-2.5-flash-lite"
     gemini_max_retries: int = 3
     gemini_retry_delay_seconds: float = 2.0
+    receipt_extraction_prompt_id: str = "receipt-extraction-current"
+    item_categorization_prompt_id: str = "item-categorization-current"
+    store_categorization_prompt_id: str = "store-categorization-current"
 
     scan_event_buffer_size: int = 32
     scan_event_heartbeat_interval_s: int = 15
 
+    scan_provider: str = "mock"
+    e2e_scan_fixtures_enabled: bool = False
+    e2e_scan_event_delay_ms: int = Field(default=0, ge=0, le=5_000)
+    e2e_auth_enabled: bool = False
+    scan_test_controls_enabled: bool = False
+    scan_test_allowed_emails: list[str] = Field(default_factory=list)
+
     cors_origins: list[str] = ["http://localhost:5173", "http://localhost:5174"]
 
-    environment: str = "development"
+    environment: str = "local"
     debug: bool = False
+
+    @model_validator(mode="after")
+    def _normalize_and_guard_runtime_modes(self) -> "Settings":
+        environment = self.environment.strip().lower()
+        if environment not in ALLOWED_ENVIRONMENTS:
+            raise ValueError(
+                f"GASTIFY_ENVIRONMENT must be one of {', '.join(sorted(ALLOWED_ENVIRONMENTS))}"
+            )
+        self.environment = environment
+
+        extraction_prompt_id = self.receipt_extraction_prompt_id.strip()
+        categorization_prompt_id = self.item_categorization_prompt_id.strip()
+        store_prompt_id = self.store_categorization_prompt_id.strip()
+        try:
+            get_prompt(extraction_prompt_id, kind="receipt-extraction")
+            get_prompt(categorization_prompt_id, kind="item-categorization")
+            get_prompt(store_prompt_id, kind="store-categorization")
+        except KeyError as exc:
+            raise ValueError(str(exc)) from exc
+        if not is_prompt_id_allowed(
+            extraction_prompt_id,
+            environment=environment,
+            kind="receipt-extraction",
+        ):
+            raise ValueError("Dev-only receipt extraction prompts cannot be enabled in production")
+        if not is_prompt_id_allowed(
+            categorization_prompt_id,
+            environment=environment,
+            kind="item-categorization",
+        ):
+            raise ValueError("Dev-only item categorization prompts cannot be enabled in production")
+        if not is_prompt_id_allowed(
+            store_prompt_id,
+            environment=environment,
+            kind="store-categorization",
+        ):
+            raise ValueError(
+                "Dev-only store categorization prompts cannot be enabled in production"
+            )
+        self.receipt_extraction_prompt_id = extraction_prompt_id
+        self.item_categorization_prompt_id = categorization_prompt_id
+        self.store_categorization_prompt_id = store_prompt_id
+
+        if self.database_url.startswith("postgresql://"):
+            self.database_url = self.database_url.replace(
+                "postgresql://",
+                "postgresql+asyncpg://",
+                1,
+            )
+
+        scan_provider = self.scan_provider.strip().lower()
+        if scan_provider not in ALLOWED_SCAN_PROVIDERS:
+            raise ValueError(
+                f"GASTIFY_SCAN_PROVIDER must be one of {', '.join(sorted(ALLOWED_SCAN_PROVIDERS))}"
+            )
+        if self.e2e_scan_fixtures_enabled and (
+            environment == "staging-e2e" or scan_provider == "gemini"
+        ):
+            scan_provider = "fixture"
+        self.scan_provider = scan_provider
+
+        if environment == "local" and scan_provider != "mock":
+            raise ValueError("local runtime requires GASTIFY_SCAN_PROVIDER=mock")
+        if environment == "local" and not self.database_url.startswith("sqlite"):
+            raise ValueError("local runtime requires SQLite")
+        if self.e2e_scan_fixtures_enabled and environment == "production":
+            raise ValueError("E2E scan fixtures cannot be enabled in production")
+        if environment == "production" and scan_provider in {"fixture", "mock"}:
+            raise ValueError("Mock or fixture scan providers cannot be enabled in production")
+        if environment == "production" and self.e2e_auth_enabled:
+            raise ValueError("E2E auth cannot be enabled in production")
+        if environment == "production" and self.scan_test_controls_enabled:
+            raise ValueError("Scan test controls cannot be enabled in production")
+        if (
+            environment in STAGING_ENVIRONMENTS
+            and self.scan_test_controls_enabled
+            and not self.scan_test_allowed_emails
+        ):
+            raise ValueError("Staging scan test controls require allowed test-user emails")
+        if environment in DEPLOYED_ENVIRONMENTS and self.database_url.startswith("sqlite"):
+            raise ValueError("SQLite is only allowed for local runtime")
+        return self
 
 
 settings = Settings()

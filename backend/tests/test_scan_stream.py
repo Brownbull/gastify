@@ -190,8 +190,8 @@ class TestPipelineEventIntegration:
         scan_id = uuid.uuid4()
         sub = dispatcher.subscribe(scan_id)
 
-        _emit(scan_id, "scan_started", "acquire", 0)
-        _emit(scan_id, "extraction_complete", "stage1", 40, data={"items": 3})
+        await _emit(scan_id, "scan_started", "acquire", 0)
+        await _emit(scan_id, "extraction_complete", "stage1", 40, data={"items": 3})
 
         assert sub.queue.qsize() == 2
         e1 = sub.queue.get_nowait()
@@ -211,7 +211,7 @@ class TestPipelineEventIntegration:
         scan_id = uuid.uuid4()
         sub = dispatcher.subscribe(scan_id)
 
-        _emit(
+        await _emit(
             scan_id,
             "scan_failed",
             "stage1",
@@ -299,12 +299,18 @@ def _mock_categorization():
 
     result = CategorizationResult(
         assignments=[
-            CategoryAssignment(line_item_index=0, category_key="Supermercado", confidence=0.95),
-            CategoryAssignment(line_item_index=1, category_key="Supermercado", confidence=0.90),
+            CategoryAssignment(line_item_index=0, category_key="Pantry", confidence=0.95),
+            CategoryAssignment(line_item_index=1, category_key="Pantry", confidence=0.90),
         ]
     )
     usage = CategorizationUsage(input_tokens=400, output_tokens=80, latency_ms=350.0)
     return CategorizationOutput(result=result, usage=usage)
+
+
+def _mock_transaction():
+    tx = MagicMock()
+    tx.id = uuid.UUID("00000000-0000-0000-0000-000000000099")
+    return tx
 
 
 def _session_factory(scan):
@@ -353,7 +359,7 @@ class TestPipelineEventOrder:
             patch(
                 f"{_W}.persist_scan_result",
                 new_callable=AsyncMock,
-                return_value=MagicMock(),
+                return_value=_mock_transaction(),
             ),
             patch.object(Path, "exists", return_value=True),
             patch.object(Path, "read_bytes", return_value=b"fake-jpeg"),
@@ -375,6 +381,39 @@ class TestPipelineEventOrder:
             f"Progress not monotonically increasing: {progress_values}"
         )
         assert progress_values[-1] == 100
+
+        complete_event = events[-1]
+        assert complete_event.data == {
+            "status": "completed",
+            "transaction_id": "00000000-0000-0000-0000-000000000099",
+            "merchant_name": "TestStore",
+            "transaction_date": "2026-05-12",
+            "currency_code": "CLP",
+            "total_amount": 5000.0,
+            "discount_amount": None,
+            "gross_total_amount": None,
+            "reconstructed_total": 5000,
+            "reconciliation_severity": "none",
+            "line_items_count": 2,
+            "line_items": [
+                {
+                    "name": "Item A",
+                    "qty": None,
+                    "unit_price": None,
+                    "total_price": 3000.0,
+                },
+                {
+                    "name": "Item B",
+                    "qty": None,
+                    "unit_price": None,
+                    "total_price": 2000.0,
+                },
+            ],
+            "confidence_score": 0.92,
+            "is_unknown_merchant": False,
+            "review_level": "none",
+            "review_signals": [],
+        }
 
     @pytest.mark.asyncio
     async def test_failed_scan_event_order(self) -> None:
@@ -451,7 +490,7 @@ class TestPipelineEventOrder:
             patch(
                 f"{_W}.persist_scan_result",
                 new_callable=AsyncMock,
-                return_value=MagicMock(),
+                return_value=_mock_transaction(),
             ),
             patch.object(Path, "exists", return_value=True),
             patch.object(Path, "read_bytes", return_value=b"fake-jpeg"),
@@ -469,6 +508,10 @@ class TestPipelineEventOrder:
         complete_event = events[-1]
         assert complete_event.data["status"] == "needs_review"
         assert complete_event.data["discrepancy"] > 0
+        assert complete_event.data["transaction_id"] == "00000000-0000-0000-0000-000000000099"
+        assert complete_event.data["confidence_score"] == 0.80
+        assert complete_event.data["review_level"] == "needs_review"
+        assert complete_event.data["review_signals"][0]["code"] == "math_reconciliation_delta"
 
 
 def _drain_events(sub) -> list[ScanEvent]:

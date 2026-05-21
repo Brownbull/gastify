@@ -34,17 +34,25 @@
 |---------|-------------|------|
 | `backend/pyproject.toml` | Python deps + tool config | MVP |
 | `backend/uv.lock` | uv lockfile (committed for reproducible installs) | MVP |
+| `backend/railway.toml` | Railway backend deploy config | MVP |
+| `backend/.env.example` | Backend env var template (no secrets) | MVP |
+| `backend/.env.*.example` | Backend environment-specific env templates (no secrets) | MVP |
 | `backend/app/main.py` | FastAPI entry | MVP |
 | `backend/app/config.py` | Settings (pydantic-settings) | MVP |
 | `backend/app/*.py` | Top-level app modules (logging, observability, middleware, i18n) | MVP |
 | `backend/app/api/*.py` | HTTP route handlers | MVP |
 | `backend/app/auth/*.py` | Firebase auth middleware + dependency injection | MVP |
 | `backend/app/models/*.py` | SQLAlchemy ORM models | MVP |
+| `backend/app/reference/*.py` | Shared canonical reference-data definitions | MVP |
+| `backend/app/reference/*.json` | Shared reference-data policy/config payloads | MVP |
 | `backend/app/schemas/*.py` | Pydantic request/response schemas | MVP |
 | `backend/app/services/*.py` | Business logic (no FastAPI imports) | MVP |
 | `backend/app/agents/*.py` | PydanticAI agent definitions | MVP |
+| `backend/app/prompts/*.py` | Versioned production prompt registry | MVP |
+| `backend/app/prompt_lab/*.py` | Backend-native receipt prompt lab CLI, adapters, cache, scoring, and runner | MVP |
+| `backend/app/fixtures/**` | Backend-owned deterministic fixtures served by test-only APIs | MVP |
 | `backend/app/guardrails/*.py` | Prompt-injection, validation, moderation | MVP |
-| `backend/app/integrations/*.py` | External service adapters | E |
+| `backend/app/stagings/*.py` | External service adapters | E |
 | `backend/alembic/*.py` | Alembic env + config | MVP |
 | `backend/alembic/versions/*.py` | Database migrations | MVP |
 | `backend/tests/*.py` | Pytest test files | MVP |
@@ -64,7 +72,10 @@
 | `web/eslint.config.js` | ESLint config | MVP |
 | `web/.gitignore` | Web-specific git ignore | MVP |
 | `web/.env.example` | Env var template (no secrets) | MVP |
+| `web/.env.*.example` | Environment-specific env templates (no secrets) | MVP |
 | `web/README.md` | Web app readme | MVP |
+| `web/Caddyfile` | Railway static SPA server config | MVP |
+| `web/nixpacks.toml` | Railway/Nixpacks static SPA build config | MVP |
 | `web/.tanstack/**` | TanStack Router generated config | MVP |
 | `web/src/main.tsx` | React entry | MVP |
 | `web/src/routeTree.gen.ts` | TanStack Router generated route tree | MVP |
@@ -95,6 +106,7 @@
 | `mobile/index.js` | Expo root registration entry | MVP |
 | `mobile/.gitignore` | Mobile-local ignores for native service files and Expo artifacts | MVP |
 | `mobile/.env.example` | Mobile env var template (no secrets) | MVP |
+| `mobile/.env.*.example` | Mobile environment-specific env templates (no secrets) | MVP |
 | `mobile/*.md` | Mobile package docs | MVP |
 | `mobile/src/App.tsx` | Mobile app root | MVP |
 | `mobile/src/components/**/*.tsx` | Shared native UI components | MVP |
@@ -115,6 +127,7 @@
 | `tests/mobile/**/*.sh` | Mobile test runner scripts | MVP |
 | `tests/mobile/**/*.yaml` | Mobile Maestro E2E flows | MVP |
 | `tests/mobile/**/*.md` | Mobile E2E docs | MVP |
+| `tests/mobile/fixtures/**/*.{jpg,jpeg,png,webp}` | Mobile E2E receipt/media fixtures | MVP |
 
 ### Infrastructure
 
@@ -123,6 +136,21 @@
 | `docker/**` | Dockerfiles + compose | MVP |
 | `docker-compose.yml` | Local dev stack | MVP |
 | `infra/**` | Deployment configs | E |
+| `infra/railway/**` | Railway staging/prod environment docs and service notes | MVP |
+
+### Receipt Prompt Lab
+
+| Pattern | Description | Tier |
+|---------|-------------|------|
+| `prompt-testing/README.md` | Prompt lab runbook and evidence boundary | MVP |
+| `prompt-testing/RECEIPT-PIPELINE.md` | Durable receipt scan and prompt-lab pipeline map | MVP |
+| `prompt-testing/import-manifest.json` | Whitelist import manifest for legacy receipt corpus | MVP |
+| `prompt-testing/PATTERN-CATALOG.md` | Manual receipt pattern catalog for prompt-lab coverage | MVP |
+| `prompt-testing/baselines/*.json` | Versioned receipt baseline sets, coverage tags, and promotion thresholds | MVP |
+| `prompt-testing/cache/.gitkeep` | Placeholder for ignored Gemini response cache | MVP |
+| `prompt-testing/results/**/.gitkeep` | Placeholders for ignored prompt-lab result packets | MVP |
+| `prompt-testing/test-cases/receipts/**/*.json` | Imported receipt baselines and fixtures | MVP |
+| `prompt-testing/test-cases/receipts/**/*.{jpg,jpeg,png,webp}` | Imported receipt image corpus | MVP |
 
 ### UX Mockups (design-system + HTML prototypes)
 

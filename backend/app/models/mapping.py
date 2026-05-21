@@ -13,7 +13,7 @@ class MerchantMapping(Base):
     __tablename__ = "merchant_mappings"
 
     id: Mapped[uuid.UUID] = mapped_column(
-        Uuid, primary_key=True, server_default=func.gen_random_uuid()
+        Uuid, primary_key=True, default=uuid.uuid4, server_default=func.gen_random_uuid()
     )
     ownership_scope_id: Mapped[uuid.UUID] = mapped_column(
         Uuid, ForeignKey("ownership_scopes.id"), nullable=False, index=True
@@ -38,14 +38,15 @@ class CategoryMapping(Base):
     __tablename__ = "category_mappings"
 
     id: Mapped[uuid.UUID] = mapped_column(
-        Uuid, primary_key=True, server_default=func.gen_random_uuid()
+        Uuid, primary_key=True, default=uuid.uuid4, server_default=func.gen_random_uuid()
     )
     ownership_scope_id: Mapped[uuid.UUID] = mapped_column(
         Uuid, ForeignKey("ownership_scopes.id"), nullable=False, index=True
     )
     original_item: Mapped[str] = mapped_column(Text, nullable=False)
+    target_item: Mapped[str | None] = mapped_column(Text, nullable=True)
     target_category_id: Mapped[uuid.UUID] = mapped_column(
-        Uuid, ForeignKey("store_categories.id"), nullable=False
+        Uuid, ForeignKey("item_categories.id"), nullable=False
     )
     merchant_pattern: Mapped[str | None] = mapped_column(Text, nullable=True)
     confidence: Mapped[float] = mapped_column(Numeric(3, 2), nullable=False, server_default="1.00")

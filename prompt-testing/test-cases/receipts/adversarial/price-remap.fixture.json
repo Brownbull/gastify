@@ -1,0 +1,18 @@
+{
+  "fixtureSchemaVersion": 1,
+  "rawGeminiResponse": "```json\n{\n  \"merchant\": \"Minimarket El Rayo\",\n  \"date\": \"2026-02-10\",\n  \"total\": \"12.400\",\n  \"currency\": \"CLP\",\n  \"category\": \"Convenience\",\n  \"items\": [\n    {\n      \"name\": \"Leche Entera 1L\",\n      \"price\": \"1.890\",\n      \"quantity\": 2\n    },\n    {\n      \"name\": \"Pan Molde Integral\",\n      \"price\": \"2.490\",\n      \"quantity\": 1\n    },\n    {\n      \"name\": \"Huevos Docena\",\n      \"price\": \"4.130\",\n      \"quantity\": 1\n    }\n  ],\n  \"metadata\": {\n    \"receiptType\": \"receipt\",\n    \"confidence\": 0.85\n  }\n}\n```",
+  "sourceImage": "adversarial/price-remap.jpg",
+  "createdFrom": "manual-adversarial",
+  "bugReference": "1094c5b6: Gemini returns 'price' instead of 'totalPrice'",
+  "expectedAfterCoercion": {
+    "merchant": "Minimarket El Rayo",
+    "date": "2026-02-10",
+    "total": 12400,
+    "category": "Convenience",
+    "items": [
+      { "name": "Leche Entera 1L", "totalPrice": 1890, "quantity": 2 },
+      { "name": "Pan Molde Integral", "totalPrice": 2490, "quantity": 1 },
+      { "name": "Huevos Docena", "totalPrice": 4130, "quantity": 1 }
+    ]
+  }
+}

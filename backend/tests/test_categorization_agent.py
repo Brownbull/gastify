@@ -4,6 +4,7 @@ from decimal import Decimal
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
+from pydantic_ai.exceptions import ModelHTTPError
 
 from app.agents.categorization import (
     _format_items_for_prompt,
@@ -59,17 +60,17 @@ class TestCategorizeItems:
             [
                 CategoryAssignment(
                     line_item_index=0,
-                    category_key="Supermercado",
+                    category_key="DairyEggs",
                     confidence=0.95,
                 ),
                 CategoryAssignment(
                     line_item_index=1,
-                    category_key="Panaderia",
+                    category_key="BreadPastry",
                     confidence=0.88,
                 ),
                 CategoryAssignment(
                     line_item_index=2,
-                    category_key="CafeteriaSnack",
+                    category_key="Beverages",
                     confidence=0.82,
                 ),
             ]
@@ -87,8 +88,35 @@ class TestCategorizeItems:
             )
 
         assert len(output.result.assignments) == 3
-        assert output.result.assignments[0].category_key == "Supermercado"
+        assert output.result.assignments[0].category_key == "DairyEggs"
         assert output.usage.input_tokens == 800
+
+    @pytest.mark.asyncio
+    async def test_usage_metrics_support_pydantic_ai_usage_method(self):
+        agent_result = _mock_agent_result(
+            [
+                CategoryAssignment(
+                    line_item_index=0,
+                    category_key="DairyEggs",
+                    confidence=0.95,
+                )
+            ]
+        )
+        agent_result.usage = lambda: MagicMock(input_tokens=900, output_tokens=140)
+
+        with patch("app.agents.categorization._build_agent") as mock_build:
+            mock_agent = MagicMock()
+            mock_agent.run = AsyncMock(return_value=agent_result)
+            mock_build.return_value = mock_agent
+
+            output = await categorize_items(
+                items=_items()[:1],
+                merchant_name="Jumbo",
+                currency_code="CLP",
+            )
+
+        assert output.usage.input_tokens == 900
+        assert output.usage.output_tokens == 140
 
     @pytest.mark.asyncio
     async def test_prompt_includes_merchant_and_currency(self):
@@ -108,3 +136,38 @@ class TestCategorizeItems:
             prompt = mock_agent.run.call_args[0][0]
             assert "Walmart" in prompt
             assert "USD" in prompt
+
+    @pytest.mark.asyncio
+    async def test_retries_transient_provider_error_then_returns_assignments(self, monkeypatch):
+        provider_error = ModelHTTPError(
+            status_code=503,
+            model_name="gemini-2.5-flash-lite",
+            body={"error": {"status": "UNAVAILABLE", "message": "high demand"}},
+        )
+        agent_result = _mock_agent_result(
+            [
+                CategoryAssignment(
+                    line_item_index=0,
+                    category_key="DairyEggs",
+                    confidence=0.95,
+                )
+            ]
+        )
+        monkeypatch.setattr(
+            "app.services.provider_retry.settings.gemini_retry_delay_seconds",
+            0,
+        )
+
+        with patch("app.agents.categorization._build_agent") as mock_build:
+            mock_agent = MagicMock()
+            mock_agent.run = AsyncMock(side_effect=[provider_error, agent_result])
+            mock_build.return_value = mock_agent
+
+            output = await categorize_items(
+                items=_items()[:1],
+                merchant_name="Jumbo",
+                currency_code="CLP",
+            )
+
+        assert len(output.result.assignments) == 1
+        assert mock_agent.run.call_count == 2

@@ -107,7 +107,7 @@ Run Maestro with native WSL ADB after the dev client is already open:
 ```bash
 ADB_BIN="$HOME/.local/share/gastify/android-platform-tools/platform-tools/adb" \
 MAESTRO_REINSTALL_DRIVER=false \
-  tests/mobile/scripts/run-maestro.sh tests/mobile/maestro/p4-phase1-smoke-active.yaml --archive
+  tests/mobile/scripts/run-maestro.sh tests/mobile/maestro/p4-phase1-smoke-active.yaml
 ```
 
 Restore normal Windows ADB behavior:
@@ -207,14 +207,12 @@ If Expo shows its first-run developer menu, tap **Continue** and close the menu 
 The active runner writes report HTML, logs, command traces, and screenshots to:
 
 ```text
-tests/mobile/artifacts/latest/p4-phase1-smoke-active/
+tests/mobile/results/runs/<env>/<run-id>/p4-phase1-smoke-active/
 ```
 
-To preserve the prior latest run:
-
-```bash
-MAESTRO_VERBOSE=true MAESTRO_REINSTALL_DRIVER=false npm run maestro:smoke:active -- --archive
-```
+The latest packet is also mirrored to `tests/mobile/results/latest/<env>/`.
+The old `--archive` flag is no longer needed because each run gets a durable
+run folder.
 
 The older `p4-phase1-smoke.yaml` flow still documents the all-in-one `openLink` idea, but on this S23 it can leave the phone at the Android home screen. Prefer `p4-phase1-smoke-active.yaml` until a later phase proves a better Expo dev-client launch hook.
 

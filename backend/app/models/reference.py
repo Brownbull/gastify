@@ -24,9 +24,13 @@ class StoreCategory(Base):
     __tablename__ = "store_categories"
 
     id: Mapped[uuid.UUID] = mapped_column(
-        Uuid, primary_key=True, server_default=func.gen_random_uuid()
+        Uuid, primary_key=True, default=uuid.uuid4, server_default=func.gen_random_uuid()
     )
     key: Mapped[str] = mapped_column(Text, nullable=False, unique=True)
+    level: Mapped[int] = mapped_column(SmallInteger, nullable=False, server_default="2")
+    parent_id: Mapped[uuid.UUID | None] = mapped_column(
+        Uuid, ForeignKey("store_categories.id"), nullable=True
+    )
     display_labels: Mapped[dict] = mapped_column(JSON, nullable=False, server_default="{}")
     is_sensitive: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default="false")
     sort_order: Mapped[int] = mapped_column(SmallInteger, nullable=False, server_default="0")
@@ -39,10 +43,10 @@ class ItemCategory(Base):
     __tablename__ = "item_categories"
 
     id: Mapped[uuid.UUID] = mapped_column(
-        Uuid, primary_key=True, server_default=func.gen_random_uuid()
+        Uuid, primary_key=True, default=uuid.uuid4, server_default=func.gen_random_uuid()
     )
     key: Mapped[str] = mapped_column(Text, nullable=False, unique=True)
-    level: Mapped[int] = mapped_column(SmallInteger, nullable=False, server_default="1")
+    level: Mapped[int] = mapped_column(SmallInteger, nullable=False, server_default="4")
     parent_id: Mapped[uuid.UUID | None] = mapped_column(
         Uuid, ForeignKey("item_categories.id"), nullable=True
     )

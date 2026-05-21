@@ -1,0 +1,45 @@
+{
+  "metadata": {
+    "testId": "estacionamiento",
+    "storeType": "parking",
+    "difficulty": "medium",
+    "region": "CL",
+    "source": "manual-codex-visual-truth",
+    "truthVersion": "2026-05-20.manual-v1",
+    "archivedPreviousAt": "prompt-testing/test-cases/receipts/_archive/20260520T033000Z-manual-truth-refresh/other/estacionamiento.expected.json"
+  },
+  "input": {
+    "receiptType": "auto"
+  },
+  "aiExtraction": {
+    "merchant": "MUFIN SPA",
+    "date": "2025-12-04",
+    "time": "14:19",
+    "total": 860,
+    "currency": "CLP",
+    "category": "Parking",
+    "country": "Chile",
+    "city": "Yumbel",
+    "items": [
+      {
+        "name": "Concesion de estacionamientos",
+        "unitPrice": 860,
+        "totalPrice": 860,
+        "quantity": 1,
+        "category": "Parking",
+        "subcategory": null
+      }
+    ],
+    "aiMetadata": {
+      "receiptType": "ParkingReceipt",
+      "confidence": 1,
+      "source": "manual visual inspection"
+    },
+    "model": "manual",
+    "modelVersion": "codex-visual",
+    "promptId": "manual-truth-v1",
+    "promptVersion": "2026-05-20",
+    "extractedAt": "2026-05-20T03:30:00Z"
+  },
+  "corrections": {}
+}

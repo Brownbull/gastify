@@ -11,6 +11,7 @@ import structlog
 
 from app.schemas.scan import GeminiExtractionResult, MathReconciliationVerdict
 from app.services.coalesce import to_minor_units
+from app.services.receipt_validation_policy import get_receipt_validation_policy
 
 logger = structlog.get_logger()
 
@@ -29,19 +30,25 @@ def reconcile(extraction: GeminiExtractionResult) -> MathReconciliationVerdict:
         to_minor_units(extraction.discount_amount, currency) if extraction.discount_amount else 0
     )
     stated_total = to_minor_units(extraction.total_amount, currency)
+    policy = get_receipt_validation_policy()
 
     expected = items_sum + tax - discount
     discrepancy = abs(expected - stated_total)
-    passed = discrepancy <= 1
-
-    adjusted_total: int | None = None
-    if not passed:
-        adjusted_total = expected
+    passed = discrepancy <= policy.math_exact_tolerance_minor_units
+    discrepancy_ratio = discrepancy / abs(stated_total) if stated_total else 0
+    severity = _severity(
+        passed=passed,
+        discrepancy_ratio=discrepancy_ratio,
+        major_warning_ratio=policy.major_reconstruction_discrepancy_ratio,
+    )
 
     verdict = MathReconciliationVerdict(
         passed=passed,
         discrepancy_minor_units=discrepancy,
-        adjusted_total=adjusted_total,
+        reconstructed_total=expected,
+        discrepancy_ratio=round(discrepancy_ratio, 6),
+        severity=severity,
+        adjusted_total=None,
     )
 
     logger.info(
@@ -53,7 +60,24 @@ def reconcile(extraction: GeminiExtractionResult) -> MathReconciliationVerdict:
         stated_total=stated_total,
         expected=expected,
         discrepancy=discrepancy,
+        discrepancy_ratio=round(discrepancy_ratio, 6),
+        severity=severity,
+        policy_id=policy.policy_id,
+        policy_version=policy.policy_version,
         currency=currency,
     )
 
     return verdict
+
+
+def _severity(
+    *,
+    passed: bool,
+    discrepancy_ratio: float,
+    major_warning_ratio: float,
+) -> str:
+    if passed:
+        return "none"
+    if discrepancy_ratio > major_warning_ratio:
+        return "major_warning"
+    return "minor"

@@ -39,25 +39,26 @@ from tests.fixtures.receipts import (
 _W = "app.services.scan_worker"
 
 CATEGORY_KEYS = [
-    "Supermercado",
-    "CafeteriaSnack",
-    "Farmacia",
-    "Restaurante",
-    "Combustible",
-    "Miscelaneo",
-    "CuidadoPersonal",
-    "Panaderia",
+    "Pantry",
+    "Beverages",
+    "Medications",
+    "PreparedFood",
+    "ServiceCharge",
+    "OtherItem",
+    "PersonalCare",
+    "BreadPastry",
+    "Tools",
 ]
 
 MERCHANT_CATEGORY_MAP: dict[str, str] = {
-    "Supermercado Jumbo": "Supermercado",
-    "Starbucks Coffee": "CafeteriaSnack",
-    "Farmacias Cruz Verde": "Farmacia",
-    "The Italian Kitchen": "Restaurante",
-    "Sodimac Homecenter": "Miscelaneo",
-    "Almacén Don Hugo": "Supermercado",
-    "Walmart Supercenter": "Supermercado",
-    "Copec Estación Las Condes": "Combustible",
+    "Supermercado Jumbo": "Pantry",
+    "Starbucks Coffee": "Beverages",
+    "Farmacias Cruz Verde": "Medications",
+    "The Italian Kitchen": "PreparedFood",
+    "Sodimac Homecenter": "Tools",
+    "Almacén Don Hugo": "Pantry",
+    "Walmart Supercenter": "Pantry",
+    "Copec Estación Las Condes": "ServiceCharge",
 }
 
 
@@ -69,7 +70,7 @@ def _make_extraction_result(receipt: GeminiExtractionResult) -> ExtractionResult
 
 
 def _make_categorization(receipt: GeminiExtractionResult) -> CategorizationOutput:
-    category = MERCHANT_CATEGORY_MAP.get(receipt.merchant_name, "Miscelaneo")
+    category = MERCHANT_CATEGORY_MAP.get(receipt.merchant_name, "OtherItem")
     assignments = [
         CategoryAssignment(
             line_item_index=i,
@@ -91,7 +92,7 @@ async def scan_db(engine):
 
     async with factory() as db:
         for key in CATEGORY_KEYS:
-            cat = ItemCategory(key=key, level=2, display_labels={"es": key})
+            cat = ItemCategory(key=key, level=4, display_labels={"es": key})
             db.add(cat)
         await db.commit()
 
@@ -280,11 +281,11 @@ class TestP2ExitSignalV4Taxonomy:
     @pytest.mark.parametrize(
         "receipt_name,receipt,expected_key",
         [
-            ("R01_JUMBO_CLP", BENIGN_RECEIPTS[0][1], "Supermercado"),
-            ("R02_STARBUCKS_USD", BENIGN_RECEIPTS[1][1], "CafeteriaSnack"),
-            ("R03_FARMACIA_CLP", BENIGN_RECEIPTS[2][1], "Farmacia"),
-            ("R04_RESTAURANT_USD", BENIGN_RECEIPTS[3][1], "Restaurante"),
-            ("R08_COPEC_CLP", BENIGN_RECEIPTS[7][1], "Combustible"),
+            ("R01_JUMBO_CLP", BENIGN_RECEIPTS[0][1], "Pantry"),
+            ("R02_STARBUCKS_USD", BENIGN_RECEIPTS[1][1], "Beverages"),
+            ("R03_FARMACIA_CLP", BENIGN_RECEIPTS[2][1], "Medications"),
+            ("R04_RESTAURANT_USD", BENIGN_RECEIPTS[3][1], "PreparedFood"),
+            ("R08_COPEC_CLP", BENIGN_RECEIPTS[7][1], "ServiceCharge"),
         ],
         ids=["jumbo", "starbucks", "farmacia", "restaurant", "copec"],
     )

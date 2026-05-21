@@ -1,0 +1,68 @@
+{
+  "metadata": {
+    "testId": "dobler",
+    "storeType": "convenience",
+    "difficulty": "medium",
+    "region": "CL",
+    "source": "manual-collection",
+    "addedAt": "2026-01-06T19:52:32.447Z"
+  },
+  "input": {
+    "currency": "CLP",
+    "receiptType": "auto"
+  },
+  "aiExtraction": {
+    "merchant": "DOBLE R",
+    "date": "2025-11-17",
+    "time": "04:04",
+    "total": 23660,
+    "currency": "CLP",
+    "category": "HomeGoods",
+    "country": "Chile",
+    "city": "Villarrica",
+    "items": [
+      {
+        "name": "ESPATULA ALBAÑIL 15 M/PLAST-SMART WOKIN",
+        "totalPrice": 1890,
+        "quantity": 1,
+        "category": "Hardware",
+        "subcategory": null
+      },
+      {
+        "name": "ESPATULA ALBAÑIL 3 MUPLAST SMART WOKIN",
+        "totalPrice": 2290,
+        "quantity": 1,
+        "category": "Hardware",
+        "subcategory": null
+      },
+      {
+        "name": "MACHETE 10 FULG TRAMONTINA",
+        "totalPrice": 6490,
+        "quantity": 1,
+        "category": "Hardware",
+        "subcategory": null
+      },
+      {
+        "name": "FMIX HECHONA P/PASTO/TRIGO MANGO MAD TRAMON",
+        "totalPrice": 12990,
+        "quantity": 1,
+        "category": "Garden",
+        "subcategory": null
+      }
+    ],
+    "aiMetadata": {
+      "receiptType": "Other",
+      "confidence": 0.9
+    },
+    "model": "gemini-2.0-flash",
+    "modelVersion": "latest",
+    "promptId": "v3-category-standardization",
+    "promptVersion": "3.0.0",
+    "extractedAt": "2026-01-06T19:52:32.447Z"
+  },
+  "corrections": {
+    "category": "Hardware",
+    "merchant": "Dobler R Construccion & Hogar",
+    "reviewNotes": "HomeGoods→Hardware: sells construction tools (spatulas, machete). Merchant name corrected from truncated 'DOBLE R'"
+  }
+}

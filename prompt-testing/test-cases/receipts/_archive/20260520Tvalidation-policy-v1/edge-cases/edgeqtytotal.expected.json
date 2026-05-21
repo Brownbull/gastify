@@ -1,0 +1,43 @@
+{
+  "metadata": {
+    "testId": "edgeqtytotal",
+    "storeType": "other",
+    "difficulty": "medium",
+    "region": "CL",
+    "source": "manual-collection",
+    "addedAt": "2026-03-17T03:07:32.632Z"
+  },
+  "input": {
+    "receiptType": "auto"
+  },
+  "aiExtraction": {
+    "merchant": "VETERINARIA ARAUCANIA LIMITADA",
+    "date": "2026-03-16",
+    "time": "18:25",
+    "total": 12400,
+    "currency": "CLP",
+    "category": "Veterinary",
+    "country": "Chile",
+    "city": "Villarrica",
+    "items": [
+      {
+        "name": "CLINDABONE 165 MG X COMP",
+        "unitPrice": 1550,
+        "totalPrice": 12400,
+        "quantity": 8,
+        "category": "Medications",
+        "subcategory": null
+      }
+    ],
+    "aiMetadata": {
+      "receiptType": "receipt",
+      "confidence": 0.9
+    },
+    "model": "gemini-2.5-flash",
+    "modelVersion": "latest",
+    "promptId": "v4-spanish-taxonomy",
+    "promptVersion": "4.1.0",
+    "extractedAt": "2026-03-17T03:07:32.632Z"
+  },
+  "corrections": {}
+}

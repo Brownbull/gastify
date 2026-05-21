@@ -3,15 +3,49 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
 MOBILE_DIR="${ROOT_DIR}/mobile"
-ENV_FILE="${MOBILE_DIR}/.env"
-OUT_DIR="${ROOT_DIR}/tests/mobile/artifacts/latest/environment"
+RESULT_ENV="${GASTIFY_RESULT_ENV:-${GASTIFY_ARTIFACT_ENV:-${EXPO_PUBLIC_APP_ENV:-local}}}"
+RESULT_ROOT="${GASTIFY_MOBILE_RESULTS_ROOT:-${GASTIFY_MOBILE_ARTIFACT_ROOT:-${ROOT_DIR}/tests/mobile/results}}"
+RUN_ID="${GASTIFY_MOBILE_RUN_ID:-$(date -u '+%Y%m%dT%H%M%SZ')-${RESULT_ENV}-environment-doctor}"
+RUN_DIR="${RESULT_ROOT}/runs/${RESULT_ENV}/${RUN_ID}"
+OUT_DIR="${RUN_DIR}/environment"
 OUT_FILE="${OUT_DIR}/mobile-doctor.txt"
+LATEST_ENV_DIR="${RESULT_ROOT}/latest/${RESULT_ENV}"
+LATEST_DIR="${LATEST_ENV_DIR}/environment"
+LATEST_FILE="${LATEST_DIR}/mobile-doctor.txt"
+
+resolve_mobile_env_file() {
+  if [[ -n "${GASTIFY_MOBILE_ENV_FILE:-}" ]]; then
+    printf "%s" "${GASTIFY_MOBILE_ENV_FILE}"
+    return 0
+  fi
+
+  local candidate
+  case "${RESULT_ENV}" in
+    staging|staging-e2e)
+      candidate="${MOBILE_DIR}/.env.staging"
+      ;;
+    production)
+      candidate="${MOBILE_DIR}/.env.production"
+      ;;
+    *)
+      candidate="${MOBILE_DIR}/.env.local"
+      ;;
+  esac
+
+  if [[ -f "${candidate}" ]]; then
+    printf "%s" "${candidate}"
+  else
+    printf "%s" "${MOBILE_DIR}/.env"
+  fi
+}
+
+ENV_FILE="$(resolve_mobile_env_file)"
 
 # shellcheck source=tests/mobile/scripts/android-tooling.sh
 source "${ROOT_DIR}/tests/mobile/scripts/android-tooling.sh"
 export_android_tooling
 
-mkdir -p "${OUT_DIR}"
+mkdir -p "${OUT_DIR}" "${LATEST_DIR}"
 
 env_key_is_set() {
   local key="$1"
@@ -153,7 +187,7 @@ check_java_17() {
   printf "Generated: %s\n\n" "$(date -Iseconds)"
 
   printf "## Files\n"
-  check_file "mobile/.env" "${ENV_FILE}"
+  check_file "mobile env file" "${ENV_FILE}"
   check_file "Android staging Firebase file" "${MOBILE_DIR}/google-services.json"
   check_file "iOS staging Firebase file" "${MOBILE_DIR}/GoogleService-Info.plist"
   printf "\n"
@@ -195,4 +229,21 @@ check_java_17() {
   printf "This report is diagnostic. WARN lines identify setup gaps before running Maestro.\n"
 } | tee "${OUT_FILE}"
 
+cat >"${RUN_DIR}/run-manifest.json" <<JSON
+{
+  "schema": "mobile-e2e-run-manifest.v2",
+  "result_layout": "mobile-run-folder-v1",
+  "run_id": "${RUN_ID}",
+  "result_environment": "${RESULT_ENV}",
+  "run_dir": "${RUN_DIR}",
+  "updated_at": "$(date -Iseconds)",
+  "environment_report": "environment/mobile-doctor.txt"
+}
+JSON
+
+cp "${OUT_FILE}" "${LATEST_FILE}"
+cp "${RUN_DIR}/run-manifest.json" "${LATEST_ENV_DIR}/run-manifest.json"
+printf "%s\n" "${RUN_ID}" >"${LATEST_ENV_DIR}/CURRENT_RUN.txt"
+
 printf "\nSaved report to %s\n" "${OUT_FILE}"
+printf "Latest mirror updated at %s\n" "${LATEST_FILE}"

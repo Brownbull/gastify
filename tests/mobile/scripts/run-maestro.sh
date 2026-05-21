@@ -48,18 +48,101 @@ if ! "${ADB_BIN_RESOLVED}" devices | awk 'NR > 1 && $2 == "device" { found = 1 }
 fi
 
 FLOW_NAME="$(basename "${FLOW}" .yaml)"
-LATEST_DIR="tests/mobile/artifacts/latest/${FLOW_NAME}"
-ARCHIVE_ROOT="tests/mobile/artifacts/archive"
+RESULT_ENV="${GASTIFY_RESULT_ENV:-${GASTIFY_ARTIFACT_ENV:-${EXPO_PUBLIC_APP_ENV:-local}}}"
+RESULT_ROOT="${GASTIFY_MOBILE_RESULTS_ROOT:-${GASTIFY_MOBILE_ARTIFACT_ROOT:-tests/mobile/results}}"
+RUN_ID="${GASTIFY_MOBILE_RUN_ID:-$(date -u '+%Y%m%dT%H%M%SZ')-${RESULT_ENV}-${FLOW_NAME}}"
+RUN_DIR="${RESULT_ROOT}/runs/${RESULT_ENV}/${RUN_ID}"
+RESULT_DIR="${RUN_DIR}/${FLOW_NAME}"
+LATEST_ENV_DIR="${RESULT_ROOT}/latest/${RESULT_ENV}"
+LATEST_DIR="${LATEST_ENV_DIR}/${FLOW_NAME}"
+GIT_REV="$(git rev-parse --short HEAD 2>/dev/null || true)"
+GIT_DIRTY_COUNT="$(git status --short 2>/dev/null | wc -l | tr -d ' ')"
 
-if [[ "${ARCHIVE_PREVIOUS}" == "true" && -d "${LATEST_DIR}" ]]; then
-  mkdir -p "${ARCHIVE_ROOT}"
-  ARCHIVE_DIR="${ARCHIVE_ROOT}/$(date '+%Y-%m-%d_%H%M%S')-${FLOW_NAME}"
-  mv "${LATEST_DIR}" "${ARCHIVE_DIR}"
-  echo "Archived previous run to ${ARCHIVE_DIR}"
+if [[ "${ARCHIVE_PREVIOUS}" == "true" ]]; then
+  echo "--archive is no longer required; durable results are written to ${RUN_DIR}."
 fi
 
-rm -rf "${LATEST_DIR}"
-mkdir -p "${LATEST_DIR}"
+rm -rf "${RESULT_DIR}"
+mkdir -p "${RESULT_DIR}" "${LATEST_ENV_DIR}"
+
+json_escape() {
+  printf "%s" "$1" | sed 's/\\/\\\\/g; s/"/\\"/g'
+}
+
+write_run_manifest() {
+  local flow_count
+  flow_count="$(find "${RUN_DIR}" -mindepth 2 -maxdepth 2 -name manifest.json 2>/dev/null | wc -l | tr -d ' ')"
+  cat >"${RUN_DIR}/run-manifest.json" <<JSON
+{
+  "schema": "mobile-e2e-run-manifest.v2",
+  "result_layout": "mobile-run-folder-v1",
+  "run_id": "$(json_escape "${RUN_ID}")",
+  "result_environment": "$(json_escape "${RESULT_ENV}")",
+  "run_dir": "$(json_escape "${RUN_DIR}")",
+  "updated_at": "$(date -Iseconds)",
+  "device_id": "$(json_escape "${MAESTRO_DEVICE_ID:-${MAESTRO_UDID:-}}")",
+  "app_env": "$(json_escape "${EXPO_PUBLIC_APP_ENV:-}")",
+  "api_base_url": "$(json_escape "${EXPO_PUBLIC_API_BASE_URL:-}")",
+  "backend_environment": "$(json_escape "${GASTIFY_ENVIRONMENT:-}")",
+  "scan_provider": "$(json_escape "${GASTIFY_SCAN_PROVIDER:-}")",
+  "build_id": "$(json_escape "${GASTIFY_MOBILE_BUILD_ID:-}")",
+  "git_rev": "$(json_escape "${GIT_REV}")",
+  "git_dirty_file_count": ${GIT_DIRTY_COUNT:-0},
+  "flow_manifest_glob": "*/manifest.json",
+  "flow_manifest_count": ${flow_count:-0}
+}
+JSON
+}
+
+sync_latest() {
+  rm -rf "${LATEST_DIR}"
+  mkdir -p "${LATEST_ENV_DIR}"
+  cp -a "${RESULT_DIR}" "${LATEST_DIR}"
+  cp "${RUN_DIR}/run-manifest.json" "${LATEST_ENV_DIR}/run-manifest.json"
+  printf "%s\n" "${RUN_ID}" >"${LATEST_ENV_DIR}/CURRENT_RUN.txt"
+}
+
+write_manifest() {
+  local result_status="$1"
+  local exit_code="$2"
+  cat >"${RESULT_DIR}/manifest.json" <<JSON
+{
+  "schema": "mobile-e2e-flow-manifest.v3",
+  "result_layout": "mobile-run-folder-v1",
+  "run_id": "$(json_escape "${RUN_ID}")",
+  "result_environment": "${RESULT_ENV}",
+  "flow": "${FLOW}",
+  "flow_name": "${FLOW_NAME}",
+  "generated_at": "$(date -Iseconds)",
+  "run_dir": "$(json_escape "${RUN_DIR}")",
+  "result_dir": "$(json_escape "${RESULT_DIR}")",
+  "latest_dir": "$(json_escape "${LATEST_DIR}")",
+  "device_id": "${MAESTRO_DEVICE_ID:-${MAESTRO_UDID:-}}",
+  "app_env": "${EXPO_PUBLIC_APP_ENV:-}",
+  "api_base_url": "${EXPO_PUBLIC_API_BASE_URL:-}",
+  "backend_environment": "${GASTIFY_ENVIRONMENT:-}",
+  "scan_provider": "${GASTIFY_SCAN_PROVIDER:-}",
+  "build_id": "${GASTIFY_MOBILE_BUILD_ID:-}",
+  "test_case_id": "${GASTIFY_SCAN_TEST_CASE_ID:-}",
+  "git_rev": "$(json_escape "${GIT_REV}")",
+  "git_dirty_file_count": ${GIT_DIRTY_COUNT:-0},
+  "result_status": "${result_status}",
+  "exit_code": ${exit_code}
+}
+JSON
+  write_run_manifest
+  sync_latest
+}
+
+write_failure_manifest() {
+  local exit_code="$?"
+  if [[ "${exit_code}" -ne 0 && ! -f "${RESULT_DIR}/manifest.json" ]]; then
+    write_manifest "failed" "${exit_code}"
+  fi
+}
+trap write_failure_manifest EXIT
+
+write_run_manifest
 
 MAESTRO_GLOBAL_ARGS=()
 case "${MAESTRO_VERBOSE:-false}" in
@@ -67,14 +150,17 @@ case "${MAESTRO_VERBOSE:-false}" in
     MAESTRO_GLOBAL_ARGS+=(--verbose)
     ;;
 esac
+if [[ -n "${MAESTRO_DEVICE_ID:-${MAESTRO_UDID:-}}" ]]; then
+  MAESTRO_GLOBAL_ARGS+=(--device "${MAESTRO_DEVICE_ID:-${MAESTRO_UDID:-}}")
+fi
 
 MAESTRO_TEST_ARGS=(
   test
   --platform android
-  --test-output-dir="${LATEST_DIR}"
-  --debug-output="${LATEST_DIR}"
+  --test-output-dir="${RESULT_DIR}"
+  --debug-output="${RESULT_DIR}"
   --format html
-  --output="${LATEST_DIR}/report.html"
+  --output="${RESULT_DIR}/report.html"
 )
 
 case "${MAESTRO_REINSTALL_DRIVER:-true}" in
@@ -88,4 +174,7 @@ MAESTRO_CLI_ANALYSIS_NOTIFICATION_DISABLED=true \
 "${MAESTRO_BIN}" "${MAESTRO_GLOBAL_ARGS[@]}" "${MAESTRO_TEST_ARGS[@]}" \
   "${FLOW}"
 
-echo "Mobile E2E artifacts written to ${LATEST_DIR}"
+write_manifest "passed" 0
+
+echo "Mobile E2E results written to ${RESULT_DIR}"
+echo "Latest mirror updated at ${LATEST_DIR}"

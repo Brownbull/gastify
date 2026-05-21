@@ -1,0 +1,46 @@
+{
+  "metadata": {
+    "testId": "peaje",
+    "storeType": "other",
+    "difficulty": "medium",
+    "region": "CL",
+    "source": "manual-inspection",
+    "addedAt": "2026-05-20T16:30:00.000Z"
+  },
+  "input": {
+    "currency": "CLP",
+    "receiptType": "auto"
+  },
+  "aiExtraction": {
+    "merchant": "RUTA DE LA ARAUCANIA S.A.",
+    "date": "2025-11-29",
+    "time": "13:15:58",
+    "total": 3400,
+    "currency": "CLP",
+    "category": "Transportation",
+    "country": "Chile",
+    "city": "Quepe",
+    "items": [
+      {
+        "name": "Tarifa peaje clase 2 Quepe",
+        "unitPrice": 3400,
+        "totalPrice": 3400,
+        "quantity": 1,
+        "category": "Transportation",
+        "subcategory": null
+      }
+    ],
+    "aiMetadata": {
+      "receiptType": "toll",
+      "confidence": 0.95
+    },
+    "model": "manual-inspection",
+    "modelVersion": "2026-05-20",
+    "promptId": "manual-truth",
+    "promptVersion": "1.0.0",
+    "extractedAt": "2026-05-20T16:30:00.000Z"
+  },
+  "corrections": {
+    "reviewNotes": "Manual truth from visible toll receipt: merchant, date, time, plaza Quepe, class 2 tariff, cash payment, total CLP 3.400."
+  }
+}

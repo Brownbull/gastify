@@ -1,0 +1,46 @@
+{
+  "metadata": {
+    "testId": "restaurant_2001_recibo",
+    "storeType": "restaurant",
+    "difficulty": "medium",
+    "region": "CL",
+    "source": "manual-codex-visual-truth",
+    "truthVersion": "2026-05-20.manual-v1",
+    "archivedPreviousAt": "prompt-testing/test-cases/receipts/_archive/20260520T033000Z-manual-truth-refresh/restaurant/restaurant_2001_recibo.expected.json",
+    "notes": "The receipt shows both legal entity and trade name. The canonical baseline merchant uses the legal entity; user mapping memory can later normalize aliases."
+  },
+  "input": {
+    "receiptType": "auto"
+  },
+  "aiExtraction": {
+    "merchant": "SOCIEDAD CAFE 2001 LIMITADA",
+    "date": "2025-11-03",
+    "time": "12:51:07",
+    "total": 23700,
+    "currency": "CLP",
+    "category": "Restaurant",
+    "country": "Chile",
+    "city": "Villarrica",
+    "items": [
+      {
+        "name": "Cafe 2001 Delivery purchase",
+        "unitPrice": 23700,
+        "totalPrice": 23700,
+        "quantity": 1,
+        "category": "PreparedFood",
+        "subcategory": null
+      }
+    ],
+    "aiMetadata": {
+      "receiptType": "CardVoucherReceipt",
+      "confidence": 1,
+      "source": "manual visual inspection"
+    },
+    "model": "manual",
+    "modelVersion": "codex-visual",
+    "promptId": "manual-truth-v1",
+    "promptVersion": "2026-05-20",
+    "extractedAt": "2026-05-20T03:30:00Z"
+  },
+  "corrections": {}
+}

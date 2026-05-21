@@ -1,0 +1,74 @@
+{
+  "metadata": {
+    "testId": "galeries_lafayette_1",
+    "storeType": "other",
+    "difficulty": "medium",
+    "region": "CL",
+    "source": "manual-collection",
+    "addedAt": "2025-12-12T19:46:13.683Z"
+  },
+  "input": {
+    "currency": "CLP",
+    "receiptType": "auto"
+  },
+  "aiExtraction": {
+    "merchant": "Galeries Lafayette",
+    "date": "2025-05-31",
+    "time": "15:53",
+    "total": 7449,
+    "currency": "EUR",
+    "category": "Other",
+    "country": null,
+    "city": null,
+    "items": [
+      {
+        "name": "45G CHIPS TRUFFE ETE",
+        "totalPrice": 1170,
+        "quantity": 3,
+        "category": "Snacks",
+        "subcategory": "Chips"
+      },
+      {
+        "name": "90G TABLETTE RAFFAELLO",
+        "totalPrice": 759,
+        "quantity": 3,
+        "category": "Snacks",
+        "subcategory": "Chocolate"
+      },
+      {
+        "name": "BTE OVALE VIOLETTE",
+        "totalPrice": 360,
+        "quantity": 1,
+        "category": "Other",
+        "subcategory": null
+      },
+      {
+        "name": "75G NAPOS 5 GOUTS",
+        "totalPrice": 1380,
+        "quantity": 2,
+        "category": "Snacks",
+        "subcategory": null
+      },
+      {
+        "name": "7X70G BAGUETTE MAGIQ 7 TERRIN",
+        "totalPrice": 3780,
+        "quantity": 2,
+        "category": "Bakery",
+        "subcategory": "Baguette"
+      }
+    ],
+    "aiMetadata": {
+      "receiptType": "Other",
+      "confidence": 0.9
+    },
+    "model": "gemini-2.0-flash",
+    "modelVersion": "latest",
+    "promptId": "v2-multi-currency-types",
+    "promptVersion": "2.6.0",
+    "extractedAt": "2025-12-12T19:46:13.683Z"
+  },
+  "corrections": {
+    "category": "Supermarket",
+    "reviewNotes": "Other→Supermarket: receipt is from the food/gourmet section (chips, chocolate, baguettes)"
+  }
+}

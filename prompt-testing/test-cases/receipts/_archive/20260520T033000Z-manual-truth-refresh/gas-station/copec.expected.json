@@ -1,0 +1,43 @@
+{
+  "metadata": {
+    "testId": "copec",
+    "storeType": "gas_station",
+    "difficulty": "medium",
+    "region": "CL",
+    "source": "manual-collection",
+    "addedAt": "2026-03-19T00:01:17.496Z"
+  },
+  "input": {
+    "receiptType": "auto"
+  },
+  "aiExtraction": {
+    "merchant": "COPEC",
+    "date": "2025-11-15",
+    "time": "04:33",
+    "total": 38014,
+    "currency": "CLP",
+    "category": "GasStation",
+    "country": "Chile",
+    "city": "Villarrica",
+    "items": [
+      {
+        "name": "Gasolina 95",
+        "unitPrice": 1282,
+        "totalPrice": 38014,
+        "quantity": 29.652,
+        "category": "CarAccessories",
+        "subcategory": "Fuel"
+      }
+    ],
+    "aiMetadata": {
+      "receiptType": "GasStationReceipt",
+      "confidence": 0.95
+    },
+    "model": "gemini-2.5-flash",
+    "modelVersion": "latest",
+    "promptId": "v4-spanish-taxonomy",
+    "promptVersion": "4.1.0",
+    "extractedAt": "2026-03-19T00:01:17.496Z"
+  },
+  "corrections": {}
+}

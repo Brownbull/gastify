@@ -9,8 +9,8 @@ These flows target installable Expo development builds, not Expo Go. They use st
 - Build the app with staging Firebase service files.
 - Configure `EXPO_PUBLIC_E2E_AUTH_ENABLED=true` and `EXPO_PUBLIC_E2E_AUTH_MODE=staging`.
 - Provide staging E2E email/password through local env or CI secrets.
-- Point `EXPO_PUBLIC_API_BASE_URL` at staging, or start a local backend with staging Firebase Admin credentials.
-- Run `cd mobile && npm run doctor:e2e` and inspect `tests/mobile/artifacts/latest/environment/mobile-doctor.txt`.
+- Point `EXPO_PUBLIC_API_BASE_URL` at the Railway `staging-e2e` API for deterministic Phase 2 proof, or at the Railway `staging` API for live Gemini smoke. A local backend is fallback-only evidence.
+- Run `cd mobile && npm run doctor:e2e` and inspect `tests/mobile/results/latest/<env>/environment/mobile-doctor.txt`.
 
 ## Run
 
@@ -24,9 +24,10 @@ export EXPO_DEV_CLIENT_URL='exp+gastify-mobile://expo-development-client/?url=<e
 npm run maestro:open-dev-client
 npm run maestro:install-driver
 MAESTRO_VERBOSE=true MAESTRO_REINSTALL_DRIVER=false npm run maestro:smoke:active
+MAESTRO_VERBOSE=true MAESTRO_REINSTALL_DRIVER=false npm run maestro:scan-entry:active
 ```
 
-The active flow assumes the Expo dev-client URL has already opened the app. It avoids the `openLink` flake seen on the S23 and skips Maestro's automatic driver reinstall after the bundled driver APKs are installed.
+The active flows assume the Expo dev-client URL has already opened the app. They avoid the `openLink` flake seen on the S23 and can skip Maestro's automatic driver reinstall after the bundled driver APKs are installed.
 
 The older all-in-one flow remains available:
 
@@ -34,18 +35,63 @@ The older all-in-one flow remains available:
 tests/mobile/scripts/run-maestro.sh
 ```
 
-The runner writes screenshots, `report.html`, `maestro.log`, and command traces to:
+The runner writes screenshots, `report.html`, `maestro.log`, command traces,
+and manifests to a durable run folder:
 
 ```text
-tests/mobile/artifacts/latest/<flow-name>/
+tests/mobile/results/runs/<env>/<run-id>/<flow-name>/
 ```
 
-To keep the previous run before rewriting `latest/`:
+It also mirrors the latest packet to `tests/mobile/results/latest/<env>/<flow-name>/`
+for quick inspection. Use `GASTIFY_MOBILE_RUN_ID=<id>` to group several flows
+under one environment proof run.
+
+## Phase 2 Scan Upload Fixture Gate
+
+The Phase 2 upload/progress gate uses the real native gallery picker, multipart
+upload, and WebSocket client on the physical S23. The backend runs in explicit
+fixture mode so Gemini is bypassed but the production scan endpoints, scan row,
+event stream, persistence, and terminal UI routing remain exercised.
+
+Preferred: use the Railway `staging-e2e` API and run the root wrapper:
 
 ```bash
-tests/mobile/scripts/run-maestro.sh tests/mobile/maestro/p4-phase1-smoke-active.yaml --archive
+export GASTIFY_STAGING_E2E_API_BASE_URL=https://<gastify-api-staging-e2e-domain>
+export MAESTRO_DEVICE_ID="RFCW90N4BYP"
+bash scripts/staging/run-s23-fixture-gate.sh
 ```
 
-Later P4 phases should extend this directory with camera, WebSocket stream, transaction edit, sign-out eviction, and push-permission flows.
+Local fallback: start the deterministic fixture backend in one terminal:
+
+```bash
+GASTIFY_DATABASE_URL=<local-or-staging-e2e-postgres-url> \
+GASTIFY_ENVIRONMENT=staging-e2e \
+GASTIFY_SCAN_PROVIDER=fixture \
+GASTIFY_FIREBASE_PROJECT_ID=<staging-firebase-project-id> \
+GASTIFY_FIREBASE_CREDENTIALS_PATH=/secure/path/staging-admin.json \
+tests/mobile/scripts/start-scan-fixture-backend.sh
+```
+
+Keep Metro/dev-client open as usual, then run the S23 flows from `mobile/`:
+
+```bash
+export ADB_BIN="$HOME/.local/share/gastify/android-platform-tools/platform-tools/adb"
+export MAESTRO_DEVICE_ID="RFCW90N4BYP"
+export MAESTRO_VERBOSE=true
+export MAESTRO_REINSTALL_DRIVER=false
+
+npm run maestro:scan-upload:happy:active
+npm run maestro:scan-upload:review:active
+npm run maestro:scan-upload:failure:active
+npm run maestro:camera-permission-denied:active
+```
+
+Each upload script seeds exactly one receipt image into
+`/sdcard/Pictures/GastifyE2E/`, refreshes Android media indexing, applies the
+required `adb reverse` ports, and writes evidence under the matching durable
+run folder. The root staging fixture wrapper sets a shared run id so all four
+flows land under one `tests/mobile/results/runs/staging-e2e/<run-id>/` packet.
+
+The Phase 2 scan-entry flow verifies the authenticated screen exposes camera/library scan controls. The scan-upload fixture flows are now the required proof for gallery upload, backend WebSocket progress, completion/review/error routing, and camera-permission denial on the S23.
 
 The Firebase Auth Emulator remains a fallback by setting `EXPO_PUBLIC_E2E_AUTH_MODE=emulator`, but staging is the default lane for P4 mobile E2E.

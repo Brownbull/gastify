@@ -23,6 +23,15 @@ class AuthContext:
         self.user_id = user.id
 
 
+async def _set_postgres_ownership_scope(db: AsyncSession, scope_id: uuid.UUID) -> None:
+    """Set the transaction-local RLS scope for PostgreSQL-backed requests."""
+    if db.bind and db.bind.dialect.name == "postgresql":
+        await db.execute(
+            text("SELECT set_config('app.ownership_scope_id', :sid, true)"),
+            {"sid": str(scope_id)},
+        )
+
+
 async def get_auth_context(
     firebase_user: CurrentUser,
     db: Annotated[AsyncSession, Depends(get_db)],
@@ -36,11 +45,7 @@ async def get_auth_context(
             db.add(scope)
             await db.flush()
 
-            if db.bind and db.bind.dialect.name == "postgresql":
-                await db.execute(
-                    text("SET LOCAL app.ownership_scope_id = :sid"),
-                    {"sid": str(scope.id)},
-                )
+            await _set_postgres_ownership_scope(db, scope.id)
 
             user = User(
                 firebase_uid=firebase_user.uid,
@@ -69,8 +74,7 @@ async def get_auth_context(
 
     scope_id = user.ownership_scope_id
 
-    if db.bind and db.bind.dialect.name == "postgresql":
-        await db.execute(text("SET LOCAL app.ownership_scope_id = :sid"), {"sid": str(scope_id)})
+    await _set_postgres_ownership_scope(db, scope_id)
 
     return AuthContext(user=user, ownership_scope_id=scope_id)
 

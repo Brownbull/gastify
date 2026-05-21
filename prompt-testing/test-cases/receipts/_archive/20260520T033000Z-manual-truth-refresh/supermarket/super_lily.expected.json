@@ -1,0 +1,130 @@
+{
+  "metadata": {
+    "testId": "super_lily",
+    "storeType": "supermarket",
+    "difficulty": "medium",
+    "region": "CL",
+    "source": "manual-collection",
+    "addedAt": "2026-01-07T19:26:28.641Z"
+  },
+  "input": {
+    "receiptType": "auto"
+  },
+  "aiExtraction": {
+    "merchant": "COMERCIAL LILY LTDA.",
+    "date": "2025-09-11",
+    "time": "19:08",
+    "total": 39971,
+    "currency": "CLP",
+    "category": "Supermarket",
+    "country": null,
+    "city": "TEMUCO",
+    "items": [
+      {
+        "name": "PLATANOS KILO",
+        "totalPrice": 4121,
+        "quantity": 2.766,
+        "category": "Produce"
+      },
+      {
+        "name": "BERLINES FRITOS CREMA",
+        "totalPrice": 1980,
+        "quantity": 2,
+        "category": "Bakery"
+      },
+      {
+        "name": "BERLINES FRITOS CREMA",
+        "totalPrice": 1980,
+        "quantity": 2,
+        "category": "Bakery"
+      },
+      {
+        "name": "BOLSA EUROPLAS GRIPPER ZIPPER MINI CAJA",
+        "totalPrice": 4580,
+        "quantity": 2,
+        "category": "Other"
+      },
+      {
+        "name": "PALTA MALLA 700 GRS APROX.",
+        "totalPrice": 2990,
+        "quantity": 2,
+        "category": "Produce"
+      },
+      {
+        "name": "GALLETA RIGOCHOC CLASICO 113 GRS",
+        "totalPrice": 5070,
+        "quantity": 3,
+        "category": "Snacks",
+        "subcategory": "OFERTA LILY"
+      },
+      {
+        "name": "GALLETAS DONUTS ORANGE BITTER COSTA 100 G",
+        "totalPrice": 6540,
+        "quantity": 6,
+        "category": "Snacks",
+        "subcategory": "OFERTA LILY"
+      },
+      {
+        "name": "GALLETAS GRANCEREAL CLASICA COSTA 135",
+        "totalPrice": 1780,
+        "quantity": 2,
+        "category": "Snacks"
+      },
+      {
+        "name": "ESPONJA ACANALADA COBRE X",
+        "totalPrice": 1790,
+        "quantity": 1,
+        "category": "Cleaning Supplies"
+      },
+      {
+        "name": "PANO SCOTT ANTIB. DURAMAX",
+        "totalPrice": 2190,
+        "quantity": 1,
+        "category": "Cleaning Supplies",
+        "subcategory": "OFERTA LILY"
+      },
+      {
+        "name": "GALLETAS DULCES AIRES DE L",
+        "totalPrice": 1290,
+        "quantity": 1,
+        "category": "Snacks",
+        "subcategory": "OFERTA LILY"
+      },
+      {
+        "name": "TE DILMAH PREMIUM 100 BOL",
+        "totalPrice": 6290,
+        "quantity": 1,
+        "category": "Beverages"
+      },
+      {
+        "name": "BOLSA RECICLADA BI ANCA 50X70 10 UNID",
+        "totalPrice": 2180,
+        "quantity": 2,
+        "category": "Other"
+      },
+      {
+        "name": "SOPA MAGGI POLLO FIDEOS 70 GRS",
+        "totalPrice": 1380,
+        "quantity": 2,
+        "category": "Pantry",
+        "subcategory": "OFERTA LILY"
+      },
+      {
+        "name": "Discount",
+        "totalPrice": -4190,
+        "quantity": 1,
+        "category": "Other"
+      }
+    ],
+    "aiMetadata": {
+      "receiptType": "receipt",
+      "confidence": 0.95
+    },
+    "model": "gemini-2.0-flash",
+    "modelVersion": "latest",
+    "promptId": "v3-category-standardization",
+    "promptVersion": "3.2.0",
+    "extractedAt": "2026-01-07T19:26:28.641Z"
+  },
+  "corrections": {}
+}

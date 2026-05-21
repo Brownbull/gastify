@@ -39,10 +39,15 @@ export interface ScanSubmissionResult {
 }
 
 export interface ScanResultData {
+  status?: string;
   merchant_name?: string;
   transaction_date?: string;
   currency_code?: string;
   total_amount?: number;
+  discount_amount?: number | null;
+  gross_total_amount?: number | null;
+  reconstructed_total?: number | null;
+  reconciliation_severity?: string | null;
   confidence_score?: number;
   line_items?: ReadonlyArray<{
     name: string;
@@ -51,6 +56,8 @@ export interface ScanResultData {
     total_price: number;
   }>;
   is_new_merchant?: boolean;
+  is_unknown_merchant?: boolean;
+  discrepancy?: number;
 }
 
 interface ScanState {

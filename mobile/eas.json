@@ -18,6 +18,7 @@
       "developmentClient": true,
       "distribution": "internal",
       "env": {
+        "EXPO_PUBLIC_APP_ENV": "staging-e2e",
         "EXPO_PUBLIC_E2E_AUTH_ENABLED": "true",
         "EXPO_PUBLIC_E2E_AUTH_MODE": "staging"
       },
@@ -30,10 +31,47 @@
     },
     "preview": {
       "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_APP_ENV": "staging"
+      },
       "android": {
         "buildType": "apk"
       }
     },
-    "production": {}
+    "staging": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_APP_ENV": "staging",
+        "EXPO_PUBLIC_E2E_AUTH_ENABLED": "false"
+      },
+      "android": {
+        "buildType": "apk"
+      },
+      "ios": {
+        "simulator": true
+      }
+    },
+    "e2e-staging": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_APP_ENV": "staging-e2e",
+        "EXPO_PUBLIC_E2E_AUTH_ENABLED": "true",
+        "EXPO_PUBLIC_E2E_AUTH_MODE": "staging"
+      },
+      "android": {
+        "buildType": "apk"
+      },
+      "ios": {
+        "simulator": true
+      }
+    },
+    "production": {
+      "env": {
+        "EXPO_PUBLIC_APP_ENV": "production",
+        "EXPO_PUBLIC_E2E_AUTH_ENABLED": "false"
+      }
+    }
   }
 }
