@@ -316,40 +316,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/scan-test-cases": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get Test Cases */
-        get: operations["get_test_cases_api_v1_scan_test_cases_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/scan-test-cases/{case_id}/runs": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Run Test Case */
-        post: operations["run_test_case_api_v1_scan_test_cases__case_id__runs_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/v1/scans/{scan_id}/events": {
         parameters: {
             query?: never;
@@ -731,6 +697,26 @@ export interface components {
             /** Error Message */
             error_message?: string | null;
         };
+        /** @enum {string} */
+        ScanReviewLevel: "none" | "warning" | "needs_review";
+        /** ScanReviewSignal */
+        ScanReviewSignal: {
+            code: components["schemas"]["ScanReviewSignalCode"];
+            severity: components["schemas"]["ScanReviewSignalSeverity"];
+            source_stage: components["schemas"]["ScanReviewSignalSourceStage"];
+            /** Message */
+            message: string;
+            /** Details */
+            details?: {
+                [key: string]: unknown;
+            };
+        };
+        /** @enum {string} */
+        ScanReviewSignalCode: "math_reconciliation_delta" | "item_structure_changed" | "discount_evidence_unresolved" | "visible_total_conflict" | "synthesized_service_item";
+        /** @enum {string} */
+        ScanReviewSignalSeverity: "warning" | "needs_review";
+        /** @enum {string} */
+        ScanReviewSignalSourceStage: "extraction" | "postprocess" | "math_gate";
         /** ScanSubmission */
         ScanSubmission: {
             /**
@@ -760,68 +746,6 @@ export interface components {
              * Format: date-time
              */
             submitted_at: string;
-        };
-        /** ScanTestCaseList */
-        ScanTestCaseList: {
-            /** Environment */
-            environment: string;
-            /** Provider */
-            provider: string;
-            /** Cases */
-            cases: components["schemas"]["ScanTestCaseSummary"][];
-        };
-        /** ScanTestCaseSummary */
-        ScanTestCaseSummary: {
-            /** Id */
-            id: string;
-            /** Label */
-            label: string;
-            /** Description */
-            description: string;
-            /** Source */
-            source: string;
-            /** Provider Modes */
-            provider_modes: ("mock" | "fixture" | "gemini")[];
-            /** Convenience Only */
-            convenience_only: boolean;
-            /** Has Image */
-            has_image: boolean;
-        };
-        /** ScanTestRunSubmission */
-        ScanTestRunSubmission: {
-            /**
-             * Id
-             * Format: uuid
-             */
-            id: string;
-            /**
-             * Ownership Scope Id
-             * Format: uuid
-             */
-            ownership_scope_id: string;
-            /** Status */
-            status: string;
-            /** Original Filename */
-            original_filename: string;
-            /** Content Type */
-            content_type: string;
-            /** File Size Bytes */
-            file_size_bytes: number;
-            /** Image Path */
-            image_path: string;
-            /** Thumbnail Path */
-            thumbnail_path?: string | null;
-            /**
-             * Submitted At
-             * Format: date-time
-             */
-            submitted_at: string;
-            /** Test Case Id */
-            test_case_id: string;
-            /** Provider */
-            provider: string;
-            /** Convenience Only */
-            convenience_only: boolean;
         };
         /** StoreCategoryItem */
         StoreCategoryItem: {
@@ -947,6 +871,10 @@ export interface components {
             gross_total_minor?: number | null;
             /** Reconstructed Total Minor */
             reconstructed_total_minor?: number | null;
+            /** @default none */
+            scan_review_level: components["schemas"]["ScanReviewLevel"];
+            /** Scan Review Signals */
+            scan_review_signals?: components["schemas"]["ScanReviewSignal"][];
             /** Currency */
             currency: string;
             /** Amount Usd Minor */
@@ -1163,6 +1091,8 @@ export interface components {
             gross_total_minor?: number | null;
             /** Reconstructed Total Minor */
             reconstructed_total_minor?: number | null;
+            /** @default none */
+            scan_review_level: components["schemas"]["ScanReviewLevel"];
             /** Currency */
             currency: string;
             /** Amount Usd Minor */
@@ -1827,57 +1757,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ScanResult"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    get_test_cases_api_v1_scan_test_cases_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ScanTestCaseList"];
-                };
-            };
-        };
-    };
-    run_test_case_api_v1_scan_test_cases__case_id__runs_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                case_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ScanTestRunSubmission"];
                 };
             };
             /** @description Validation Error */
