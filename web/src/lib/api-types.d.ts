@@ -1253,6 +1253,7 @@ export interface operations {
                 category?: string | null;
                 merchant?: string | null;
                 currency?: string | null;
+                card_alias?: string | null;
             };
             header?: never;
             path?: never;

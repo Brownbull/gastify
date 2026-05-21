@@ -1,0 +1,127 @@
+appId: com.gastify.mobile
+---
+- waitForAnimationToEnd:
+    timeout: 10000
+- tapOn:
+    text: "Continue"
+    optional: true
+- tapOn:
+    text: "Got it"
+    optional: true
+- runFlow:
+    when:
+      visible: "Reload"
+    commands:
+      - tapOn:
+          point: "90%,45%"
+      - waitForAnimationToEnd:
+          timeout: 5000
+- runFlow:
+    when:
+      visible:
+        id: e2e-sign-in-button
+    commands:
+      - tapOn:
+          id: e2e-sign-in-button
+- waitForAnimationToEnd:
+    timeout: 10000
+- tapOn:
+    text: "Continue"
+    optional: true
+- tapOn:
+    text: "Got it"
+    optional: true
+- runFlow:
+    when:
+      visible:
+        id: e2e-sign-in-button
+    commands:
+      - tapOn:
+          id: e2e-sign-in-button
+- extendedWaitUntil:
+    visible:
+      id: home-screen
+    timeout: 60000
+- tapOn:
+    id: open-ledger-button
+- extendedWaitUntil:
+    visible:
+      id: transactions-screen
+    timeout: 20000
+- extendedWaitUntil:
+    visible:
+      id: transactions-list
+    timeout: 30000
+- takeScreenshot:
+    path: 01-phase3-ledger-list
+- swipe:
+    direction: UP
+- extendedWaitUntil:
+    visible: "Supermercado Jumbo"
+    timeout: 10000
+- tapOn:
+    text: "Supermercado Jumbo"
+- extendedWaitUntil:
+    visible:
+      id: transaction-detail-screen
+    timeout: 30000
+- takeScreenshot:
+    path: 02-phase3-detail-before-edit
+- tapOn:
+    id: transaction-edit-merchant
+- eraseText
+- inputText: "S23 Ledger Edit R12"
+- hideKeyboard
+- tapOn:
+    id: transaction-save-merchant-button
+- extendedWaitUntil:
+    visible: "S23 Ledger Edit R12"
+    timeout: 20000
+- takeScreenshot:
+    path: 03-phase3-merchant-edited
+- tapOn:
+    id: transaction-edit-date
+- eraseText
+- inputText: "not-a-date"
+- hideKeyboard
+- swipe:
+    direction: UP
+- extendedWaitUntil:
+    visible:
+      id: transaction-save-date-button
+    timeout: 10000
+- tapOn:
+    id: transaction-save-date-button
+- swipe:
+    direction: DOWN
+- extendedWaitUntil:
+    visible: "Edit was rolled back"
+    timeout: 20000
+- takeScreenshot:
+    path: 04-phase3-rollback-error
+- tapOn: "Dismiss"
+- swipe:
+    direction: UP
+- extendedWaitUntil:
+    visible:
+      id: transaction-item-0-amount
+    timeout: 10000
+- tapOn:
+    id: transaction-item-0-amount
+- eraseText
+- inputText: "1234"
+- hideKeyboard
+- tapOn:
+    id: transaction-item-0-save-button
+- takeScreenshot:
+    path: 05-phase3-line-item-edit-submitted
+- tapOn: "Back"
+- extendedWaitUntil:
+    visible:
+      id: transactions-list
+    timeout: 20000
+- takeScreenshot:
+    path: 06-phase3-ledger-list-updated
+- extendedWaitUntil:
+    visible: ".*S23 Ledger Edit R12.*"
+    timeout: 20000

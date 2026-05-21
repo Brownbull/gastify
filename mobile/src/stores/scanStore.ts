@@ -57,6 +57,7 @@ export interface ScanEvent {
 
 export interface ScanResultData {
   status?: string;
+  transaction_id?: string;
   merchant_name?: string;
   transaction_date?: string;
   currency_code?: string;
@@ -216,6 +217,7 @@ function parseScanResult(data: Record<string, unknown> | null | undefined): Scan
   const d: Record<string, unknown> = data ?? {};
   return {
     status: typeof d.status === "string" ? d.status : "completed",
+    transaction_id: typeof d.transaction_id === "string" ? d.transaction_id : undefined,
     merchant_name: typeof d.merchant_name === "string" ? d.merchant_name : undefined,
     transaction_date: typeof d.transaction_date === "string" ? d.transaction_date : undefined,
     currency_code: typeof d.currency_code === "string" ? d.currency_code : undefined,

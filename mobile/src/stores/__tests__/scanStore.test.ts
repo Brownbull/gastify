@@ -62,6 +62,7 @@ describe("scanStore", () => {
       progress_pct: 100,
       data: {
         status: "needs_review",
+        transaction_id: "txn-123",
         confidence_score: 0.51,
         is_new_merchant: true,
       },
@@ -73,6 +74,7 @@ describe("scanStore", () => {
       connectionStatus: "closed",
       result: {
         status: "needs_review",
+        transaction_id: "txn-123",
         confidence_score: 0.51,
         is_new_merchant: true,
       },

@@ -181,6 +181,22 @@
               ],
               "title": "Currency"
             }
+          },
+          {
+            "name": "card_alias",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Card Alias"
+            }
           }
         ],
         "responses": {

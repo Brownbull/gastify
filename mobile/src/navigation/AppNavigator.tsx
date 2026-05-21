@@ -4,6 +4,8 @@ import { ActivityIndicator, StyleSheet, View } from "react-native";
 import { useAuth } from "../providers/AuthProvider";
 import { HomeScreen } from "../screens/HomeScreen";
 import { SignInScreen } from "../screens/SignInScreen";
+import { TransactionDetailScreen } from "../screens/TransactionDetailScreen";
+import { TransactionsScreen } from "../screens/TransactionsScreen";
 import type { RootStackParamList } from "../types/navigation";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -23,11 +25,23 @@ export function AppNavigator() {
     <NavigationContainer>
       <Stack.Navigator>
         {user ? (
-          <Stack.Screen
-            name="Home"
-            component={HomeScreen}
-            options={{ title: "Gastify" }}
-          />
+          <>
+            <Stack.Screen
+              name="Home"
+              component={HomeScreen}
+              options={{ title: "Gastify" }}
+            />
+            <Stack.Screen
+              name="Transactions"
+              component={TransactionsScreen}
+              options={{ title: "Transactions" }}
+            />
+            <Stack.Screen
+              name="TransactionDetail"
+              component={TransactionDetailScreen}
+              options={{ title: "Transaction detail" }}
+            />
+          </>
         ) : (
           <Stack.Screen
             name="SignIn"

@@ -14,6 +14,20 @@ jest.mock("../../screens/HomeScreen", () => ({
   },
 }));
 
+jest.mock("../../screens/TransactionsScreen", () => ({
+  TransactionsScreen: () => {
+    const { Text } = require("react-native");
+    return <Text testID="transactions-screen">Transactions</Text>;
+  },
+}));
+
+jest.mock("../../screens/TransactionDetailScreen", () => ({
+  TransactionDetailScreen: () => {
+    const { Text } = require("react-native");
+    return <Text testID="transaction-detail-screen">Detail</Text>;
+  },
+}));
+
 jest.mock("../../screens/SignInScreen", () => ({
   SignInScreen: () => {
     const { Text } = require("react-native");

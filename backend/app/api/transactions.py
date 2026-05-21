@@ -46,6 +46,7 @@ async def list_transactions(
     category: UUID | None = Query(default=None),
     merchant: str | None = Query(default=None),
     currency: str | None = Query(default=None),
+    card_alias: str | None = Query(default=None),
 ) -> PaginatedResponse[TransactionListItem]:
     query = (
         select(Transaction)
@@ -63,6 +64,8 @@ async def list_transactions(
         query = query.where(Transaction.merchant.ilike(f"%{merchant}%"))
     if currency:
         query = query.where(Transaction.currency == currency)
+    if card_alias:
+        query = query.where(Transaction.alias.ilike(f"%{card_alias}%"))
     if cursor:
         parts = cursor.split("|", 1)
         if len(parts) == 2:

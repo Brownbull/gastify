@@ -342,6 +342,41 @@ class TestListTransactions:
         assert len(data["data"]) == 1
         assert data["data"][0]["merchant"] == "Store USD"
 
+    async def test_list_filter_card_alias(self, client: AsyncClient, engine) -> None:
+        session_factory = async_sessionmaker(
+            engine,
+            class_=AsyncSession,
+            expire_on_commit=False,
+        )
+        async with session_factory() as session:
+            session.add_all(
+                [
+                    Transaction(
+                        ownership_scope_id=TEST_SCOPE_ID,
+                        transaction_date=date(2026, 5, 4),
+                        merchant="Card Store",
+                        total_minor=1000,
+                        currency="CLP",
+                        alias="Santander Visa",
+                    ),
+                    Transaction(
+                        ownership_scope_id=TEST_SCOPE_ID,
+                        transaction_date=date(2026, 5, 4),
+                        merchant="Cash Store",
+                        total_minor=2000,
+                        currency="CLP",
+                        alias="Banco Estado Debit",
+                    ),
+                ]
+            )
+            await session.commit()
+
+        resp = await client.get("/api/v1/transactions?card_alias=visa")
+        assert resp.status_code == 200
+        data = resp.json()
+        assert len(data["data"]) == 1
+        assert data["data"][0]["merchant"] == "Card Store"
+
 
 class TestUpdateTransaction:
     async def test_update_merchant(self, client: AsyncClient, seed_transaction: str) -> None:

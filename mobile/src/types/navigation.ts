@@ -1,8 +1,8 @@
-import type { NavigatorScreenParams } from "@react-navigation/native";
-
 export type RootStackParamList = {
   SignIn: undefined;
-  Home: NavigatorScreenParams<Record<string, never>> | undefined;
+  Home: undefined;
+  Transactions: undefined;
+  TransactionDetail: { transactionId: string };
 };
 
 declare global {

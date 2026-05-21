@@ -2,6 +2,7 @@ import { fireEvent, render } from "@testing-library/react-native";
 import { HomeScreen } from "../HomeScreen";
 import { useReceiptCapture } from "../../hooks/useReceiptCapture";
 import { useScanProgressSocket } from "../../hooks/useScanProgressSocket";
+import { useInvalidateTransactionsAfterScan } from "../../hooks/useTransactions";
 import { mobileConfig } from "../../lib/mobileConfig";
 import { useAuth } from "../../providers/AuthProvider";
 import { useScanStore, type ReceiptScanAsset } from "../../stores/scanStore";
@@ -19,6 +20,10 @@ jest.mock("../../hooks/useScanProgressSocket", () => ({
   useScanProgressSocket: jest.fn(),
 }));
 
+jest.mock("../../hooks/useTransactions", () => ({
+  useInvalidateTransactionsAfterScan: jest.fn(),
+}));
+
 jest.mock("../../lib/mobileConfig", () => ({
   mobileConfig: {
     apiBaseUrl: "http://localhost:8000",
@@ -32,6 +37,7 @@ describe("HomeScreen", () => {
   const captureFromCamera = jest.fn();
   const chooseFromLibrary = jest.fn();
   const runTestCase = jest.fn();
+  const invalidateTransactionsAfterScan = jest.fn();
   const asset: ReceiptScanAsset = {
     uri: "file:///tmp/receipt.jpg",
     fileName: "receipt.jpg",
@@ -60,6 +66,9 @@ describe("HomeScreen", () => {
       isUploading: false,
       runTestCase,
     });
+    jest
+      .mocked(useInvalidateTransactionsAfterScan)
+      .mockReturnValue(invalidateTransactionsAfterScan);
     mobileConfig.appEnvironment = "local";
     mobileConfig.scanTestControlsEnabled = false;
   });
@@ -91,6 +100,17 @@ describe("HomeScreen", () => {
 
     expect(captureFromCamera).toHaveBeenCalled();
     expect(chooseFromLibrary).toHaveBeenCalled();
+  });
+
+  it("opens the transaction ledger from the home screen", () => {
+    const navigate = jest.fn();
+    const screen = render(
+      <HomeScreen navigation={{ navigate } as never} />,
+    );
+
+    fireEvent.press(screen.getByTestId("open-ledger-button"));
+
+    expect(navigate).toHaveBeenCalledWith("Transactions");
   });
 
   it("hides scan test controls unless enabled", () => {
@@ -174,6 +194,7 @@ describe("HomeScreen", () => {
       progress_pct: 100,
       data: {
         status: "needs_review",
+        transaction_id: "txn-123",
         confidence_score: 0.42,
         is_unknown_merchant: true,
       },
@@ -184,5 +205,40 @@ describe("HomeScreen", () => {
     expect(screen.getByTestId("scan-result-panel")).toBeTruthy();
     expect(screen.getByTestId("low-confidence-alert")).toBeTruthy();
     expect(screen.getByTestId("merchant-review-alert")).toBeTruthy();
+    expect(screen.getByTestId("scan-view-transaction-button")).toBeTruthy();
+    expect(invalidateTransactionsAfterScan).toHaveBeenCalledWith("txn-123");
+  });
+
+  it("opens the completed scan transaction when the backend returns an id", () => {
+    const navigate = jest.fn();
+    useScanStore.getState().uploadComplete({
+      id: "scan-123",
+      ownership_scope_id: "scope-1",
+      status: "queued",
+      original_filename: "receipt.jpg",
+      content_type: "image/jpeg",
+      file_size_bytes: 1234,
+      image_path: "scans/scan-123/original.jpg",
+      submitted_at: "2026-05-17T12:00:00Z",
+    });
+    useScanStore.getState().receiveEvent({
+      event_type: "scan_complete",
+      scan_id: "scan-123",
+      step: "done",
+      progress_pct: 100,
+      data: {
+        transaction_id: "txn-123",
+      },
+    });
+
+    const screen = render(
+      <HomeScreen navigation={{ navigate } as never} />,
+    );
+
+    fireEvent.press(screen.getByTestId("scan-view-transaction-button"));
+
+    expect(navigate).toHaveBeenCalledWith("TransactionDetail", {
+      transactionId: "txn-123",
+    });
   });
 });

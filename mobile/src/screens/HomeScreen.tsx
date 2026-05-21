@@ -1,7 +1,10 @@
+import type { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { useEffect } from "react";
 import { ActivityIndicator, Button, Image, StyleSheet, Text, View } from "react-native";
 import { ScreenShell } from "../components/ScreenShell";
 import { useReceiptCapture } from "../hooks/useReceiptCapture";
 import { useScanProgressSocket } from "../hooks/useScanProgressSocket";
+import { useInvalidateTransactionsAfterScan } from "../hooks/useTransactions";
 import { mobileConfig } from "../lib/mobileConfig";
 import { useAuth } from "../providers/AuthProvider";
 import {
@@ -10,6 +13,7 @@ import {
   type ScanPhase,
 } from "../stores/scanStore";
 import { useSessionStore } from "../stores/sessionStore";
+import type { RootStackParamList } from "../types/navigation";
 
 const STAGES: readonly { phase: ScanPhase; label: string; description: string }[] = [
   { phase: "submitted", label: "Submitted", description: "Receipt received" },
@@ -93,10 +97,13 @@ const ERROR_COPY: Record<string, { title: string; body: string }> = {
   },
 };
 
-export function HomeScreen() {
+type HomeScreenProps = Partial<NativeStackScreenProps<RootStackParamList, "Home">>;
+
+export function HomeScreen({ navigation }: HomeScreenProps = {}) {
   useScanProgressSocket();
 
   const { signOut } = useAuth();
+  const invalidateTransactionsAfterScan = useInvalidateTransactionsAfterScan();
   const signedInUser = useSessionStore((state) => state.signedInUser);
   const phase = useScanStore((state) => state.phase);
   const selectedAsset = useScanStore((state) => state.selectedAsset);
@@ -113,6 +120,14 @@ export function HomeScreen() {
 
   const scanLocked = phase !== "idle" && phase !== "failed" && phase !== "complete";
   const scanTestCases = getVisibleScanTestCases();
+  const resultTransactionId =
+    typeof result?.transaction_id === "string" ? result.transaction_id : null;
+
+  useEffect(() => {
+    if (phase === "complete") {
+      invalidateTransactionsAfterScan(resultTransactionId);
+    }
+  }, [invalidateTransactionsAfterScan, phase, resultTransactionId]);
 
   return (
     <ScreenShell>
@@ -135,6 +150,18 @@ export function HomeScreen() {
       <View style={styles.panel} testID="api-base-url-panel">
         <Text style={styles.label}>API base URL</Text>
         <Text style={styles.value}>{mobileConfig.apiBaseUrl}</Text>
+      </View>
+
+      <View style={styles.panel} testID="ledger-entry-panel">
+        <Text style={styles.label}>Ledger</Text>
+        <Text style={styles.panelTitle}>Transactions and edits</Text>
+        <View style={styles.panelAction}>
+          <Button
+            title="Open ledger"
+            testID="open-ledger-button"
+            onPress={() => navigation?.navigate("Transactions")}
+          />
+        </View>
       </View>
 
       <View style={styles.panel} testID="scan-capture-panel">
@@ -191,7 +218,14 @@ export function HomeScreen() {
           progressPct={progressPct}
           reconnectAttempt={reconnectAttempt}
         />
-        <ScanResult result={result} phase={phase} onReset={resetScan} />
+        <ScanResult
+          result={result}
+          phase={phase}
+          onOpenTransaction={(transactionId) =>
+            navigation?.navigate("TransactionDetail", { transactionId })
+          }
+          onReset={resetScan}
+        />
         <ScanError
           errorCode={errorCode}
           errorMessage={errorMessage}
@@ -320,10 +354,12 @@ function StageRow({
 }
 
 function ScanResult({
+  onOpenTransaction,
   onReset,
   phase,
   result,
 }: {
+  onOpenTransaction?: (transactionId: string) => void;
   onReset: () => void;
   phase: ScanPhase;
   result: ScanResultData | null;
@@ -338,6 +374,8 @@ function ScanResult({
   const needsMerchantReview =
     result?.is_new_merchant === true || result?.is_unknown_merchant === true;
   const currency = result?.currency_code;
+  const transactionId =
+    typeof result?.transaction_id === "string" ? result.transaction_id : null;
 
   return (
     <View style={styles.resultPanel} testID="scan-result-panel">
@@ -413,6 +451,15 @@ function ScanResult({
               </Text>
             </View>
           ))}
+        </View>
+      ) : null}
+      {transactionId ? (
+        <View style={styles.resultAction}>
+          <Button
+            title="View transaction"
+            testID="scan-view-transaction-button"
+            onPress={() => onOpenTransaction?.(transactionId)}
+          />
         </View>
       ) : null}
       <Button title="Scan another" testID="scan-reset-button" onPress={onReset} />
@@ -568,6 +615,9 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     padding: 16,
   },
+  panelAction: {
+    marginTop: 14,
+  },
   panelHeader: {
     alignItems: "center",
     flexDirection: "row",
@@ -674,6 +724,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     marginTop: 16,
     padding: 16,
+  },
+  resultAction: {
+    marginBottom: 10,
   },
   resultSummary: {
     flexDirection: "row",

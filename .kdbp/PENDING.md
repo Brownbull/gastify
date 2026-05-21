@@ -45,4 +45,8 @@
 <!-- P24 from 2026-05-20 v2-dev.9 accepted-risk decision D44 — do not silently promote accepted minor-review risks without warning/order-preserving UX. Backend contract implemented 2026-05-20; row remains open for mobile/web warning UI. -->
 <!-- P25 from 2026-05-20 Railway outage research and D46 — Render fallback is intentionally deferred until after production launch unless Railway blocks launch-critical proof again. -->
 <!-- P26 from /gabe-push operational classifier (2026-05-20) — default-deferred PyJWT audit exception after CI config changed during P4 Phase 2 push. -->
+| P27 | 2026-05-21 | gabe-review P4-Ph3 | `readApiError` helper duplicated identically in `transactions.ts:89` and `categories.ts:58` — two copies to maintain | `mobile/src/lib/categories.ts:58`, `mobile/src/lib/transactions.ts:89` | scale | low | negligible | 0 | open |
+| P28 | 2026-05-21 | gabe-review P4-Ph3 | `formatReviewLevel` uses `.replace("_", " ")` which only replaces first underscore — current values safe but fragile for future multi-underscore review levels | `mobile/src/screens/TransactionDetailScreen.tsx:569` | scale | low | negligible | 0 | open |
+
+<!-- P27-P28 from /gabe-review Phase 3 (2026-05-21) — Scale-gate items deferred per triage option [1]. -->
 <!-- Backend P1 pending items are tracked inside .kdbp/archive/queued_backend-p1.md and activate with that plan. -->
