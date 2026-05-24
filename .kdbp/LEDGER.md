@@ -1,5 +1,11 @@
 # Session Ledger
 
+## 2026-05-24 10:58 -04 — [462ca6c] fix(mobile): revoke push registrations on sign-out
+FINDINGS: 1 low accepted (mobile well docs drift deferred by existing KDBP evidence)
+ACTIONS: accepted low docs-drift signal for `docs/wells/7-mobile-app.md`; no new PENDING item
+CHECKS: `git diff --staged --check` (pass); `cd mobile && npm run typecheck` (pass); `cd mobile && npm test -- --runInBand` (18 suites / 92 tests passed); `cd backend && uv run pytest tests/test_push_tokens.py` (6 passed)
+TICK: ✅ Phase 4 Commit
+
 ## 2026-05-24 10:45 -04 — PHASE 4 REVIEW: Sign-out isolation + push registration + platform polish
 VERDICT: APPROVE
 FINDINGS: 2 total (0 critical, 1 high, 0 medium, 1 low) — 1 fixed, 1 deferred
