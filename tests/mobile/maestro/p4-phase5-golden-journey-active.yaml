@@ -23,6 +23,19 @@ appId: com.gastify.mobile
     commands:
       - tapOn:
           id: e2e-sign-in-button
+- runFlow:
+    when:
+      visible:
+        id: sign-out-button
+    commands:
+      - tapOn:
+          id: sign-out-button
+      - extendedWaitUntil:
+          visible:
+            id: sign-in-screen
+          timeout: 20000
+      - tapOn:
+          id: e2e-sign-in-button
 - waitForAnimationToEnd:
     timeout: 10000
 - tapOn:
