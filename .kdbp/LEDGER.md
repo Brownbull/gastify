@@ -1,5 +1,10 @@
 # Session Ledger
 
+## 2026-05-24 13:02 -04 — PLAN COMPLETED: P4 Mobile App MVP
+ARCHIVE: .kdbp/archive/completed_PLAN_2026-05-24_p4-mobile-app-mvp.md
+PHASES COMPLETED: 5 of 5
+REASON: Goal achieved — Android/S23 mobile MVP journey closed with Phase 5 push green; iOS runtime testing remains deferred post-roadmap by D47/P31.
+
 ## 2026-05-24 13:00 -04 — PUSH main -> main
 PR: —
 CI: ✅ 12/12 (70s) — GitHub Actions run 26367289042
