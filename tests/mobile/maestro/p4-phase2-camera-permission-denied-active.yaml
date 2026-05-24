@@ -48,6 +48,12 @@ appId: com.gastify.mobile
 - assertVisible: "Camera permission denied"
 - takeScreenshot:
     path: 01-camera-permission-denied
+- swipe:
+    direction: UP
+- extendedWaitUntil:
+    visible:
+      id: scan-error-reset-button
+    timeout: 10000
 - tapOn:
     id: scan-error-reset-button
 - tapOn:
