@@ -2,9 +2,11 @@ import * as Notifications from "expo-notifications";
 import {
   registerDevicePushToken,
   registerPushToken,
+  unregisterCurrentPushToken,
   unregisterPushToken,
 } from "../pushNotifications";
 import { apiClient } from "../api";
+import { usePushRegistrationStore } from "../../stores/pushRegistrationStore";
 
 jest.mock("expo-notifications", () => ({
   AndroidImportance: { DEFAULT: 3 },
@@ -113,6 +115,40 @@ describe("pushNotifications", () => {
     });
     expect(mockPost).toHaveBeenCalledWith("/api/v1/push-tokens/unregister", {
       body: { token: "ExponentPushToken[phase4]" },
+    });
+  });
+
+  it("unregisterCurrentPushToken revokes all when store has no token", async () => {
+    usePushRegistrationStore.getState().reset();
+    mockPost.mockResolvedValue({
+      data: { revoked_count: 2 },
+      error: undefined,
+      response: new Response(),
+    } as never);
+
+    await expect(unregisterCurrentPushToken()).resolves.toEqual({
+      revoked_count: 2,
+    });
+    expect(mockPost).toHaveBeenCalledWith("/api/v1/push-tokens/unregister", {
+      body: {},
+    });
+  });
+
+  it("unregisterCurrentPushToken sends stored token when available", async () => {
+    usePushRegistrationStore
+      .getState()
+      .setRegistered("ExponentPushToken[stored]", "2026-05-21T12:00:00Z");
+    mockPost.mockResolvedValue({
+      data: { revoked_count: 1 },
+      error: undefined,
+      response: new Response(),
+    } as never);
+
+    await expect(unregisterCurrentPushToken()).resolves.toEqual({
+      revoked_count: 1,
+    });
+    expect(mockPost).toHaveBeenCalledWith("/api/v1/push-tokens/unregister", {
+      body: { token: "ExponentPushToken[stored]" },
     });
   });
 });

@@ -47,8 +47,11 @@
 <!-- P26 from /gabe-push operational classifier (2026-05-20) — default-deferred PyJWT audit exception after CI config changed during P4 Phase 2 push. -->
 | P27 | 2026-05-21 | gabe-review P4-Ph3 | `readApiError` helper duplicated identically in `transactions.ts:89` and `categories.ts:58` — two copies to maintain | `mobile/src/lib/categories.ts:58`, `mobile/src/lib/transactions.ts:89` | scale | low | negligible | 0 | open |
 | P28 | 2026-05-21 | gabe-review P4-Ph3 | `formatReviewLevel` uses `.replace("_", " ")` which only replaces first underscore — current values safe but fragile for future multi-underscore review levels | `mobile/src/screens/TransactionDetailScreen.tsx:569` | scale | low | negligible | 0 | open |
-| P29 | 2026-05-21 | gabe-review P4-Ph4 | After Phase 4 commit/deploy, rerun the S23 push-registration Maestro flow against the deployed Railway staging API with migration 014 applied; local-stub proof is enough for pre-commit review but does not prove deployed route/migration/auth wiring. | `tests/mobile/maestro/p4-phase4-signout-push-active.yaml`, `backend/alembic/versions/014_mobile_push_tokens.py` | ent | high | high | 0 | open |
+| P29 | 2026-05-21 | gabe-review P4-Ph4 | After Phase 4 commit/deploy, rerun the S23 push-registration Maestro flow against the deployed Railway staging API with migration 014 applied; local-stub proof is enough for pre-commit review but does not prove deployed route/migration/auth wiring. | `tests/mobile/maestro/p4-phase4-signout-push-active.yaml`, `backend/alembic/versions/014_mobile_push_tokens.py` | ent | high | high | 0 | resolved | 2026-05-24 |
+
+| P30 | 2026-05-24 | gabe-review P4-Ph4 | `scripts/ops/cost_snapshot.py` is 865 lines — exceeds 800-line file org guideline. Standalone ops utility; could be split into modules for maintainability. | `scripts/ops/cost_snapshot.py` | scale | low | negligible | 0 | open |
 
 <!-- P27-P28 from /gabe-review Phase 3 (2026-05-21) — Scale-gate items deferred per triage option [1]. -->
 <!-- P29 from /gabe-review Phase 4 (2026-05-21) — close during /gabe-push after deployed staging evidence is captured. -->
+<!-- P30 from /gabe-review Phase 4 cross-agent consolidation (2026-05-24) — Scale-gate file-length item deferred per triage option [2]. -->
 <!-- Backend P1 pending items are tracked inside .kdbp/archive/queued_backend-p1.md and activate with that plan. -->

@@ -49,9 +49,8 @@ export async function registerDevicePushToken(): Promise<PushRegistrationResult>
   };
 }
 
-export async function unregisterCurrentPushToken(): Promise<PushTokenUnregisterResponse | null> {
+export async function unregisterCurrentPushToken(): Promise<PushTokenUnregisterResponse> {
   const token = usePushRegistrationStore.getState().token;
-  if (!token) return null;
   return unregisterPushToken(token);
 }
 

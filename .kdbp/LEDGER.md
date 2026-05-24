@@ -1,5 +1,21 @@
 # Session Ledger
 
+## 2026-05-24 10:45 -04 — PHASE 4 REVIEW: Sign-out isolation + push registration + platform polish
+VERDICT: APPROVE
+FINDINGS: 2 total (0 critical, 1 high, 0 medium, 1 low) — 1 fixed, 1 deferred
+COVERAGE: HIGH — 6 backend push-token tests, 4 mobile suites (27 tests), S23 staging-e2e Maestro green
+CONFIDENCE: 98/100 (post-triage)
+DEFERRED: P30 (ops script file length — Scale gate)
+ALIGNMENT: ALIGNED
+TIER: ent | DRIFT: none
+TICK: ✅
+SOURCES: codex (gpt-5, 1 finding) + claude (claude-opus-4-6, 2 findings). Consolidated via union. 1 strict overlap.
+KEY FIX: `unregisterCurrentPushToken` now calls backend revoke-all when no local token is known (after app restart/reload), preventing stale push-delivery eligibility for signed-out devices. Two new tests added.
+RESOLVED: P29 (deployed S23 push-registration staging proof confirmed from LEDGER 2026-05-21 entry).
+RUNTIME RECHECK: Added and ran `tests/mobile/maestro/p4-phase4-signout-push-auto-unregister-active.yaml`, which registers notifications and signs out without pressing `push-unregister-button`.
+RUNTIME ARTIFACT: `tests/mobile/results/runs/staging-e2e/20260524Tphase4-signout-push-auto-unregister-staging-s23-r1/p4-phase4-signout-push-auto-unregister-active/manifest.json` has `result_status=passed`, `device_id=RFCW90N4BYP`, `api_base_url=https://gastify-api-staging-e2e-staging.up.railway.app`, `backend_environment=staging-e2e`, `git_rev=3b436c8`, and `git_dirty_file_count=6`; screenshots cover home push panel, registered state, and signed-out state.
+SERVER PROOF: Railway `gastify-api-staging-e2e` logs during the run show `POST /api/v1/push-tokens` `201` at `2026-05-24T14:48:32Z` and `POST /api/v1/push-tokens/unregister` `200` at `2026-05-24T14:48:42Z`.
+
 ## 2026-05-21 19:47 -04 — PHASE EXEC COMPLETE: Phase 4 deployed staging proof
 ROUTE: Re-ran Phase 4 under the new review-after-staging gate using the current staging candidate.
 BRANCH: Local `staging/phase4-workflow-proof-20260521`; `origin/staging` app candidate `2b36ac31e672fdba03b3c712a115c3cb82e736af`.
