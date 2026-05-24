@@ -1,5 +1,19 @@
 # Session Ledger
 
+## 2026-05-24 11:53 -04 — DECISION: iOS runtime lane deferred post-roadmap
+SCOPE: User clarified that the remaining platform gap is iOS testing and chose to officially defer it. P4/Phase 5 is now Android/S23-only for the current roadmap cycle; iOS simulator/device proof moves to the end of the roadmap as P31/D47.
+BOOKKEEPING: Updated `.kdbp/ROADMAP.md` to v1.2 with a deferred iOS runtime lane, amended `.kdbp/PLAN.md` Phase 5 exit signal/dependencies/risks, added D47 to `.kdbp/DECISIONS.md`, added P31 to `.kdbp/PENDING.md`, and updated mobile testing docs.
+NEXT: Close Phase 5 through the Android path only: checkpoint/commit the harness changes, rerun the S23 Phase 5 gate cleanly against Railway `staging-e2e`, then proceed to Review/Commit/Push. iOS no longer blocks Phase 5.
+
+## 2026-05-24 11:40 -04 — PHASE 5 EXEC CHECKPOINT: Mobile E2E journey + edge tests
+ROUTE: `/gabe-next` advanced Current Phase from Phase 4 to Phase 5, then dispatched `/gabe-execute`. Phase 5 Exec was ticked from `⬜` to `🔄`.
+SCOPE: Added Phase 5 local harness coverage for receipt permissions, stale scan uploads after sign-out, scan reconnect token refresh, scan failure copy/reset, and transaction edit rollback UI. Added `p4-phase5-golden-journey-active.yaml`, `scripts/staging/run-s23-phase5-gate.sh`, mobile package script `maestro:phase5:golden:active`, and Phase 5 runbook docs. Hardened reused Phase 2 active Maestro flows for dev-menu dismissal, below-fold scan controls, and review-title assertions.
+LOCAL VERIFICATION: `git diff --check` (pass); `bash -n scripts/staging/run-s23-phase5-gate.sh` (pass); `node -e "JSON.parse(require('fs').readFileSync('mobile/package.json','utf8'))"` (pass); `maestro check-syntax` for Phase 5 golden plus happy/review/failure/camera active flows (pass); `cd mobile && npm run typecheck` (pass); `cd mobile && npm test -- --runInBand` (20 suites / 102 tests passed).
+RUNTIME PREFLIGHT: `bash scripts/staging/check-backend-ready.sh https://gastify-api-staging-e2e-staging.up.railway.app` returned `status=ok`, DB connected, migration current/head `014`; `GASTIFY_RESULT_ENV=staging-e2e GASTIFY_MOBILE_RUN_ID=20260524Tphase5-runtime-preflight npm run doctor:e2e` found S23 `RFCW90N4BYP` visible to native Linux ADB, Maestro available, staging Firebase/native files present, and expected WSL warnings for missing JDK 17 and missing `xcrun`.
+RUNTIME PARTIAL: S23 golden journey passed against Railway `staging-e2e` with Metro localhost dev client and build id `dev-client-localhost-20260524-phase5`: `tests/mobile/results/runs/staging-e2e/20260524Tphase5-s23-golden-gate-r3/p4-phase5-golden-journey-active/manifest.json` has `result_status=passed`, `device_id=RFCW90N4BYP`, `api_base_url=https://gastify-api-staging-e2e-staging.up.railway.app`, `backend_environment=staging-e2e`, `scan_provider=fixture`, `test_case_id=happy`, `git_rev=c19e1fd`, and `git_dirty_file_count=11`. The flow covered sign in, native gallery scan, WebSocket progress, transaction detail, merchant edit, sign out, reauth, and clean home without stale scan result.
+BLOCKERS: Phase 5 Exec cannot close yet. The golden runtime proof is useful but not branch-backed/clean (`git_dirty_file_count>0`), and the reused review/failure/camera edge flows still need one clean rerun after the harness fixes. iOS runtime testing was later deferred post-roadmap by D47/P31 and no longer blocks Phase 5. Exec remains `🔄`; Review/Commit/Push remain `⬜`.
+NEXT: Commit or otherwise checkpoint the Phase 5 harness changes through `/gabe-commit`, push/deploy as required by the runtime gate, then rerun `bash scripts/staging/run-s23-phase5-gate.sh` cleanly against Railway `staging-e2e`.
+
 ## 2026-05-24 11:07 -04 — PUSH main -> main
 PR: —
 CI: ✅ 12/12 (68s) — GitHub Actions run 26364742516

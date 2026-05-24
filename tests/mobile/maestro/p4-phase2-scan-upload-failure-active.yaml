@@ -2,6 +2,20 @@ appId: com.gastify.mobile
 ---
 - waitForAnimationToEnd:
     timeout: 10000
+- tapOn:
+    text: "Continue"
+    optional: true
+- tapOn:
+    text: "Got it"
+    optional: true
+- runFlow:
+    when:
+      visible: "Reload"
+    commands:
+      - tapOn:
+          point: "90%,45%"
+      - waitForAnimationToEnd:
+          timeout: 5000
 - runFlow:
     when:
       visible:
@@ -13,6 +27,12 @@ appId: com.gastify.mobile
     visible:
       id: home-screen
     timeout: 60000
+- swipe:
+    direction: UP
+- extendedWaitUntil:
+    visible:
+      id: scan-library-button
+    timeout: 20000
 - tapOn:
     id: scan-library-button
 - tapOn:
@@ -39,6 +59,8 @@ appId: com.gastify.mobile
     visible:
       id: scan-error-panel
     timeout: 60000
+- swipe:
+    direction: UP
 - assertVisible: "Invalid image"
 - takeScreenshot:
     path: 02-scan-failure

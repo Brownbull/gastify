@@ -95,3 +95,30 @@ flows land under one `tests/mobile/results/runs/staging-e2e/<run-id>/` packet.
 The Phase 2 scan-entry flow verifies the authenticated screen exposes camera/library scan controls. The scan-upload fixture flows are now the required proof for gallery upload, backend WebSocket progress, completion/review/error routing, and camera-permission denial on the S23.
 
 The Firebase Auth Emulator remains a fallback by setting `EXPO_PUBLIC_E2E_AUTH_MODE=emulator`, but staging is the default lane for P4 mobile E2E.
+
+## Phase 5 Golden Journey Gate
+
+The Phase 5 S23 gate groups the full Android mobile exit-signal journey and the
+native edge flows under one `staging-e2e` run folder:
+
+```bash
+export GASTIFY_STAGING_E2E_API_BASE_URL=https://<gastify-api-staging-e2e-domain>
+export MAESTRO_DEVICE_ID="RFCW90N4BYP"
+bash scripts/staging/run-s23-phase5-gate.sh
+```
+
+The wrapper writes all flow manifests under:
+
+```text
+tests/mobile/results/runs/staging-e2e/<run-id>/
+```
+
+It runs `p4-phase5-golden-journey-active.yaml` first, then the review,
+scan-failure, and camera-permission-denied flows. The golden flow covers sign
+in, native gallery scan, WebSocket progress, transaction detail navigation,
+merchant edit, sign out, and reauth into a clean home screen with no stale scan
+result. File-validation, reconnect token refresh, optimistic rollback, push
+permission denied, and SecureStore/query/cache eviction are covered by Jest/RNTL
+and must be green before this runtime packet can close Phase 5 Exec.
+
+iOS runtime testing is deferred post-roadmap and is not a Phase 5 blocker.

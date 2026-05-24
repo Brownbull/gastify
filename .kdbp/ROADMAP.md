@@ -1,9 +1,9 @@
 ---
 name: gastify
-version: 1.1
+version: 1.2
 created_at: 2026-04-22
-last_changed_at: 2026-05-19
-status: finalized v1.1
+last_changed_at: 2026-05-24
+status: finalized v1.2
 derived_from: SCOPE.md v1
 granularity: fine
 phase_count: 9
@@ -12,7 +12,7 @@ phase_count: 9
 # ROADMAP — Gastify
 
 > **Derived from `.kdbp/SCOPE.md`.** Medium-inertia. Updates on any `/gabe-scope-change` (addition, pivot, addition-of-phase, removal-of-phase) or on phase completion.
-> Status: **finalized v1.1** (2026-05-19).
+> Status: **finalized v1.2** (2026-05-24).
 
 ## §1 How to read this file
 
@@ -30,7 +30,7 @@ phase_count: 9
 | P1 | **Foundation** | Backend scaffold + identity + ownership-scope + money/FX + consent/processing register + observability — the stage on which everything else stands. | — | — | REQ-15, REQ-16, REQ-17, REQ-18, REQ-19, REQ-20, REQ-21, REQ-22 | pending |
 | P2 | **Receipt Scan Pipeline** | Photo → two-stage vision-LLM extraction → math-gate → L4 item categorization + L2 transaction categorization → persisted transaction with USD shadow. Dual-transport scan-progress streaming. | P1 | — | REQ-01, REQ-02, REQ-03, REQ-04, REQ-12 | pending |
 | P3 | **Web Portal MVP** | Responsive static SPA — auth, receipt scan flow, transaction ledger, manual edits with `user_edited_at`, sign-out isolation. | P1, P2 | P4 | REQ-05 (web slice), REQ-13, REQ-14 (web), REQ-23 | pending |
-| P4 | **Mobile App MVP** | Single cross-platform codebase → Android + iOS via managed build + OTA pipeline. Native camera, bidirectional streaming, native keystore, sign-out isolation. | P1, P2 | P3 | REQ-05 (mobile slice), REQ-13, REQ-14 (mobile), REQ-24, REQ-25 | pending |
+| P4 | **Mobile App MVP** | Single cross-platform codebase with Android-first runtime proof for the current desktop/dev roadmap cycle. Native camera, bidirectional streaming, native keystore, sign-out isolation. iOS runtime lane deferred post-roadmap. | P1, P2 | P3 | REQ-05 (mobile slice), REQ-13, REQ-14 (mobile), REQ-24, REQ-25 | pending |
 | P5 | **Statement Reconciliation + Cards** | PDF statement upload → extraction → match against existing receipts → 3-bucket view + coverage metric. Card alias CRUD (no PCI). | P2 | P6 | REQ-07, REQ-08, REQ-09 | pending |
 | P6 | **Insights + Item Flags** | Monthly view with deterministic taxonomy rollups (L2 transaction categories and L4 item categories grouped through L1/L3), gravity-center detection, item urgency/special-case flag with personal-only scope enforcement. | P2 | P5 | REQ-06, REQ-10, REQ-11 | pending |
 | P7 | **Compliance + Launch Hardening** | Four-jurisdiction regulatory readiness validated (Law 21.719, GDPR, PIPEDA, CCPA/CPRA) + launch infra + cutover drill. Paid-tier LLM pre-commit in place. Monetization plumbing live. | P1, P2, P3, P4, P5, P6 | — | Consolidates + audits REQ-20, REQ-21 | pending |
@@ -86,13 +86,13 @@ phase_count: 9
 
 ### Phase 4 — Mobile App MVP {#phase-4}
 
-**Goal.** A first-time user installs the app from the iOS beta channel or internal Play Store channel, signs in with their managed-auth account, scans a receipt with the device camera, sees the scan progress stream over the mobile transport, opens their transaction, edits one field, signs out, and has no authenticated data reachable via the device keystore or app storage afterward.
+**Goal.** A first-time user installs the Android development/internal app, signs in with their managed-auth account, scans a receipt with the device camera, sees the scan progress stream over the mobile transport, opens their transaction, edits one field, signs out, and has no authenticated data reachable via the device keystore or app storage afterward. iOS runtime testing is officially deferred until after the roadmap is implemented.
 
 **Why now.** The native mobile surface is where the majority of scan-capture happens in the wild (phone camera > laptop upload). Establishes the managed mobile build + OTA pipeline + native capability parity with web. Closes the loop on all 3 client surfaces for SC-08.
 
-**Covers REQs.** REQ-05 (ledger API, mobile slice), REQ-13 (user-edit precedence, shared with P3), REQ-14 (mobile sign-out eviction for both iOS + Android), REQ-24 (cross-platform mobile app), REQ-25 (push notifications registration).
+**Covers REQs.** REQ-05 (ledger API, mobile slice), REQ-13 (user-edit precedence, shared with P3), REQ-14 (mobile sign-out eviction on the Android proof lane; iOS runtime proof deferred), REQ-24 (cross-platform mobile app), REQ-25 (push notifications registration).
 
-**Exit signal.** Mobile E2E journey green (framework per §9.1) on Android physical hardware and the best available iOS simulator/device lane: sign in → camera scan → streaming events → transaction view → edit → sign out → assert platform-keystore cleared + no cached API data. Runtime closure requires artifact-backed staging evidence; local mocks and unit tests alone are not sufficient.
+**Exit signal.** Mobile E2E journey green (framework per §9.1) on Android physical hardware: sign in → camera scan → streaming events → transaction view → edit → sign out → assert platform-keystore cleared + no cached API data. Runtime closure requires artifact-backed staging evidence; local mocks and unit tests alone are not sufficient. iOS simulator/device proof is not a P4 blocker and is tracked as the deferred iOS runtime lane.
 
 **Depends on.** P1, P2.
 **Parallel with.** P3.
@@ -174,6 +174,20 @@ phase_count: 9
 
 ---
 
+### Deferred — iOS Runtime Lane {#deferred-ios-runtime}
+
+**Status.** Officially deferred until after the P1-P9 roadmap is implemented.
+
+**Goal.** Bring the existing Expo/React Native mobile app through iOS simulator or device runtime proof after the Android-first roadmap is complete.
+
+**Scope.** iOS EAS/dev-client build, TestFlight/internal distribution if needed, native keychain/cache eviction proof, and the same sign in → scan → stream → transaction → edit → sign out journey used by the Android Phase 5 gate.
+
+**Exit signal.** Artifact-backed iOS runtime packet proves the current mobile journey on an attached simulator/device, including native camera or gallery media selection, WebSocket progress, transaction edit, sign-out isolation, and no stale authenticated data after reauth.
+
+**Depends on.** P1-P9 and Android Phase 5 closure.
+
+---
+
 ## §4 Dependency Graph
 
 ```mermaid
@@ -187,6 +201,7 @@ graph LR
   P7[P7 Compliance + Launch]
   P8[P8 QR/CAF Shortcut]
   P9[P9 Cohort Benchmarking]
+  IOS[Deferred iOS Runtime Lane]
 
   P1 --> P2
   P2 --> P3
@@ -203,13 +218,16 @@ graph LR
   P7 --> P9
   P1 --> P9
   P6 --> P9
+  P8 --> IOS
+  P9 --> IOS
 
   P3 -.parallel.- P4
   P5 -.parallel.- P6
   P8 -.parallel.- P9
+  P4 -.deferred.- IOS
 ```
 
-**Critical path:** P1 → P2 → (P3 ∥ P4 ∥ P5 ∥ P6) → P7 → launch. Post-launch: P8 ∥ P9.
+**Critical path:** P1 → P2 → (P3 ∥ P4 ∥ P5 ∥ P6) → P7 → launch. Post-launch: P8 ∥ P9. Post-roadmap: deferred iOS runtime lane.
 
 ## §5 Coverage Matrix (REQ × Phase)
 
@@ -251,5 +269,6 @@ graph LR
 
 | Date | Version | Change |
 |---|---|---|
+| 2026-05-24 | v1.2 | deferred iOS runtime testing until after P1-P9; P4/Phase 5 closes on Android physical hardware for the current roadmap cycle. |
 | 2026-05-19 | v1.1 | clarified four-level taxonomy usage: prompts assign only L2/L4; L1/L3 are deterministic reporting groups with English canonical keys and Spanish labels from day zero. |
 | 2026-04-22 | v1 | init — derived from SCOPE.md v1. 9 phases (granularity = fine). 27 REQs mapped; no orphans. Critical path P1 → P2 → (P3∥P4∥P5∥P6) → P7 → launch. Post-launch: P8 ∥ P9. |

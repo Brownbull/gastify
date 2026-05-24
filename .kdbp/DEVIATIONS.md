@@ -7,3 +7,4 @@
 | 2026-05-13 | 5 | T1 | test-strategy | Phase row named Playwright, but root Playwright remains the legacy mockup harness. Shipped Vitest route/hook integration coverage for the web journey instead of adding production-only auth/backend test seams. |
 | 2026-05-20 | 3 | T1 | scope-adaptation | Added a narrow backend `card_alias` list filter and regenerated API clients because Phase 3 requires mobile card filtering but the existing transaction list API exposed only date/category/merchant/currency filters. |
 | 2026-05-21 | 4 | Runtime evidence | environment-variance | S23 push registration proof used a local push-token stub plus full backend tests because the new `/api/v1/push-tokens` endpoint is not deployed until Phase 4 is committed/pushed. |
+| 2026-05-24 | 5 | T3 | scope-adaptation | Hardened existing Phase 2 active upload/camera Maestro flows because the Phase 5 gate reuses them and exposed below-fold scan controls, dev-menu, and review-title harness drift. |

@@ -161,4 +161,42 @@ describe("scanProgressSocket", () => {
       "Lost connection to scan progress. Check your connection and try again.",
     );
   });
+
+  it("refreshes the Firebase token before reconnecting the scan stream", async () => {
+    jest.useFakeTimers();
+    const sockets: FakeSocket[] = [];
+    const tokenProvider = jest
+      .fn()
+      .mockResolvedValueOnce("token-1")
+      .mockResolvedValueOnce("token-2");
+    const socketFactory = jest.fn(() => {
+      const socket = new FakeSocket();
+      sockets.push(socket);
+      return socket;
+    });
+    const controller = new ScanProgressSocket({
+      scanId: "scan-123",
+      tokenProvider,
+      onEvent: jest.fn(),
+      onFatalError: jest.fn(),
+      onStatusChange: jest.fn(),
+      socketFactory,
+    });
+
+    controller.start();
+    await waitForSocketConnect();
+
+    expect(socketFactory).toHaveBeenLastCalledWith(
+      "ws://localhost:8000/ws/scans/scan-123?token=token-1",
+    );
+
+    sockets[0]?.emitError();
+    jest.runOnlyPendingTimers();
+    await waitForSocketConnect();
+
+    expect(tokenProvider).toHaveBeenCalledTimes(2);
+    expect(socketFactory).toHaveBeenLastCalledWith(
+      "ws://localhost:8000/ws/scans/scan-123?token=token-2",
+    );
+  });
 });

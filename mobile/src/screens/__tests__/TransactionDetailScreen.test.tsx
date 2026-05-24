@@ -179,4 +179,27 @@ describe("TransactionDetailScreen", () => {
       items: [{ id: "item-1", total_price_minor: 6500 }],
     });
   });
+
+  it("surfaces edit rollback failures with a retryable dismissal", () => {
+    jest.mocked(useUpdateTransaction).mockReturnValue({
+      error: new Error("Network unavailable"),
+      isPending: false,
+      mutate,
+      reset,
+    } as never);
+
+    const screen = render(
+      <TransactionDetailScreen
+        route={{ params: { transactionId: "txn-1" } } as never}
+      />,
+    );
+
+    expect(screen.getByTestId("transaction-mutation-error")).toBeTruthy();
+    expect(screen.getByText("Edit was rolled back")).toBeTruthy();
+    expect(screen.getByText("Network unavailable")).toBeTruthy();
+
+    fireEvent.press(screen.getByText("Dismiss"));
+
+    expect(reset).toHaveBeenCalled();
+  });
 });

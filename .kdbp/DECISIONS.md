@@ -39,11 +39,12 @@
 | D39 | 2026-05-14 | P4-Ph2 Camera scan + WebSocket progress = ent; native capture + reconnecting stream are exit-signal behavior | Native camera/file picker and WebSocket reconnection are required for mobile scan journey; manual reload after disconnect fails the core loop | MVP static upload/no reconnect; Scale jitter/budget/backpressure overkill for current scan event volume | active | Stream events > 50/scan OR WebSocket proxy/auth model changes |
 | D40 | 2026-05-14 | P4-Ph3 Mobile ledger + edit = ent; optimistic rollback + user_edited_at precedence are primary data-safety behavior | Mobile transaction edits must preserve REQ-13 and recover cleanly from network failure; query invalidation is baseline for shared scan/edit state | MVP no optimistic rollback and ad hoc state; Scale offline-first sync premature | active | Offline editing added OR transaction data view complexity spikes |
 | D41 | 2026-05-14 | P4-Ph4 Sign-out isolation + push registration = ent; native cache eviction and device token lifecycle are REQ-14/REQ-25 load-bearing | Platform keystore/query/cache/image purge and push permission/device-token handling must be explicit before mobile can ship | MVP signOut only with residual local data; Scale remote device management/quiet-hour policy premature | active | Household devices OR push delivery rules expand |
-| D42 | 2026-05-14 | P4-Ph5 Mobile E2E = ent; Android+iOS journey proves keystore/cache eviction and native streaming | ROADMAP exit signal requires device-level E2E across mobile platforms; storage eviction cannot be trusted without native runtime probes | MVP unit-only golden path; Scale physical device farm/load suite premature | active | Exit-signal definition changes OR CI/device availability changes |
+| D42 | 2026-05-14 | P4-Ph5 Mobile E2E = ent; native runtime proof required, amended by D47 for Android/S23-only closure | Device-level E2E is required for keystore/cache eviction and native streaming; D47 defers iOS runtime proof post-roadmap | MVP unit-only golden path; Scale physical device farm/load suite premature | active | Exit-signal definition changes OR CI/device availability changes |
 | D43 | 2026-05-15 | P4 Android E2E execution pivots from local WSL emulator to Samsung S23 physical-device lane | WSL2 + Windows emulator consumed local generated SDK/native-build state and still failed Maestro/DADB reliability; a USB S23 proves camera, keystore, and real Android storage without emulator CPU/RAM pressure | Continue WSL emulator bridge; keep local Gradle/prebuild loop as primary; start with Firebase Test Lab before the local APK story is stable | active | S23 USB lane fails OR CI mobile hardware lane becomes available |
 | D44 | 2026-05-20 | Accept receipt prompt v2-dev.9 as the current prompt-lab candidate state with review-warning risks, not as silent-perfect extraction | v2-dev.9 has correct payable totals across the 7 strict failures and zero significant failures; remaining failures are acceptable if the app surfaces review warnings for math/item-count/discount discrepancies and preserves original item order for image comparison | Keep iterating prompt before runtime proof; require perfect item names/quantities before candidate acceptance; hide minor discrepancies from users | active | Any future candidate introduces final-total failures OR runtime lacks review-warning/order-preserving UI before promotion |
 | D45 | 2026-05-20 | Runtime scan review signals stay inside the G4 gravity well | Accepted v2-dev.9 minor-review risks are produced by extraction, deterministic postprocessing, and math reconciliation, so warning-signal computation belongs in the scan pipeline rather than a new architecture well | New review-signal gravity well; split coalesce rules immediately; shared runtime/prompt-lab engine now | active | Review signals depend on UI concerns or prompt-lab baselines OR coalesce complexity outgrows the helper |
 | D46 | 2026-05-20 | Keep Railway as the current deployment platform; defer Render fallback planning as a post-launch architecture item | Railway remains aligned with the current MVP/staging implementation, but the May 2026 Railway outage exposed provider-concentration risk. Render is the selected future managed fallback target, to be planned after the first production launch rather than blocking current deployment proof. | Immediate migration to Render; Coolify/Hetzner self-hosting; Fly.io; Cloud Run; Koyeb/Kuberns | active | Post-launch infra hardening begins OR Railway blocks production cutover/runtime proof again |
+| D47 | 2026-05-24 | Defer iOS runtime testing until after the P1-P9 roadmap; Phase 5 closes on Android/S23 only | Current work is Android-on-desktop/WSL first, and the user chose to revisit iOS after the roadmap instead of treating missing local iOS infrastructure as a blocker | Keep iOS as a Phase 5 blocker; require macOS/TestFlight lane before P4 closure; remove iOS from the product target entirely | active | Roadmap P1-P9 completes OR iOS beta/TestFlight work begins |
 
 <!-- Status: active / superseded / revisit -->
 <!-- BEHAVIOR.md constraints reference decision IDs: "All integrations mocked (ref D1)" -->
@@ -1180,7 +1181,7 @@ Load-bearing items deferred:
 **Types:** `core-only, native-mobile, test`
 **Tier chosen:** ent
 **Prototype:** no
-**Reason:** The ROADMAP exit signal explicitly requires the mobile journey on native Android and iOS runtimes, including keystore/cache eviction. Unit-only coverage cannot prove native camera permissions, WebSocket lifecycle, or platform storage cleanup. Maestro is the selected P4 E2E runner; Detox remains a fallback only if Maestro blocks the phase. D43 amends the local Android lane from simulated builds to physical Samsung S23 hardware.
+**Reason:** The ROADMAP exit signal originally required device-level proof across both mobile runtimes, including keystore/cache eviction. Unit-only coverage cannot prove native camera permissions, WebSocket lifecycle, or platform storage cleanup. Maestro is the selected P4 E2E runner; Detox remains a fallback only if Maestro blocks the phase. D43 amends the local Android lane from simulated builds to physical Samsung S23 hardware. D47 amends closure again: iOS runtime testing is deferred post-roadmap, and current Phase 5 closes on Android/S23 runtime proof.
 
 ### Sections rendered
 - Core (always, all 4 dims)
@@ -1393,6 +1394,45 @@ future Render fallback plan after the first production launch.
 - Receipt/document storage is moved away from Railway volumes.
 - The scheduler/database posture changes away from `pg_cron` plus in-process
   fallback.
+
+### Status
+- accepted
+
+---
+
+## D47 — iOS runtime lane deferred post-roadmap (2026-05-24)
+
+**Phase:** Mobile E2E journey + deferred platform proof
+**Types:** `native-mobile, test, roadmap-scope`
+**Tier chosen:** ent
+**Prototype:** no
+**Reason:** The current execution lane is Android on desktop/WSL with physical
+Samsung S23 runtime evidence. Missing macOS/iOS simulator infrastructure should
+not block the Android-first roadmap. The user explicitly chose to revisit iOS
+after the full P1-P9 roadmap is implemented.
+
+### Decision
+- P4/Phase 5 runtime closure is Android/S23-only for the current roadmap cycle.
+- iOS runtime testing is an explicit deferred lane, tracked in P31 and the
+  ROADMAP deferred section.
+- Existing cross-platform Expo/React Native code and iOS configuration may
+  remain, but iOS simulator/device proof is not required before Phase 5 Review,
+  Commit, or Push.
+- The deferred iOS lane must come back with artifact-backed simulator/device
+  evidence before iOS beta/TestFlight distribution is treated as launch-ready.
+
+### Alternatives considered
+- Keep iOS as a Phase 5 blocker: rejected because the current work scope is
+  Android on desktop/WSL and the user chose to finish the roadmap first.
+- Require macOS/TestFlight infrastructure now: rejected because it would switch
+  the active proof lane away from the working S23 gate.
+- Remove iOS from the product target entirely: rejected because the codebase
+  remains cross-platform; only runtime proof is deferred.
+
+### Review trigger
+- P1-P9 roadmap implementation completes.
+- iOS beta/TestFlight or App Store work begins.
+- A team/device lane becomes available and the user explicitly pulls iOS forward.
 
 ### Status
 - accepted

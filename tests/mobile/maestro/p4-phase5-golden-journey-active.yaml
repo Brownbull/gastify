@@ -1,0 +1,140 @@
+appId: com.gastify.mobile
+---
+- waitForAnimationToEnd:
+    timeout: 10000
+- tapOn:
+    text: "Continue"
+    optional: true
+- tapOn:
+    text: "Got it"
+    optional: true
+- runFlow:
+    when:
+      visible: "Reload"
+    commands:
+      - tapOn:
+          point: "90%,45%"
+      - waitForAnimationToEnd:
+          timeout: 5000
+- runFlow:
+    when:
+      visible:
+        id: e2e-sign-in-button
+    commands:
+      - tapOn:
+          id: e2e-sign-in-button
+- waitForAnimationToEnd:
+    timeout: 10000
+- tapOn:
+    text: "Continue"
+    optional: true
+- tapOn:
+    text: "Got it"
+    optional: true
+- runFlow:
+    when:
+      visible:
+        id: e2e-sign-in-button
+    commands:
+      - tapOn:
+          id: e2e-sign-in-button
+- extendedWaitUntil:
+    visible:
+      id: home-screen
+    timeout: 60000
+- takeScreenshot:
+    path: 01-phase5-signed-in-home
+- swipe:
+    direction: UP
+- extendedWaitUntil:
+    visible:
+      id: scan-library-button
+    timeout: 20000
+- tapOn:
+    id: scan-library-button
+- tapOn:
+    text: "Allow all photos"
+    optional: true
+- tapOn:
+    text: "Allow"
+    optional: true
+- tapOn:
+    text: "Dismiss"
+    optional: true
+- tapOn:
+    point: "16%,50%"
+- tapOn:
+    text: "Done"
+    optional: true
+- extendedWaitUntil:
+    visible:
+      id: scan-image-preview
+    timeout: 20000
+- takeScreenshot:
+    path: 02-phase5-scan-image-selected
+- extendedWaitUntil:
+    visible:
+      id: scan-progress-panel
+    timeout: 20000
+- takeScreenshot:
+    path: 03-phase5-scan-progress
+- extendedWaitUntil:
+    visible:
+      id: scan-result-panel
+    timeout: 90000
+- swipe:
+    direction: UP
+- assertVisible: "Scan complete"
+- extendedWaitUntil:
+    visible:
+      id: scan-view-transaction-button
+    timeout: 20000
+- tapOn:
+    id: scan-view-transaction-button
+- extendedWaitUntil:
+    visible:
+      id: transaction-detail-screen
+    timeout: 30000
+- takeScreenshot:
+    path: 04-phase5-transaction-detail-from-scan
+- extendedWaitUntil:
+    visible:
+      id: transaction-edit-merchant
+    timeout: 10000
+- tapOn:
+    id: transaction-edit-merchant
+- eraseText
+- inputText: "Phase5 S23 Journey"
+- hideKeyboard
+- tapOn:
+    id: transaction-save-merchant-button
+- extendedWaitUntil:
+    visible: "Phase5 S23 Journey"
+    timeout: 20000
+- takeScreenshot:
+    path: 05-phase5-merchant-edited
+- tapOn: "Back"
+- extendedWaitUntil:
+    visible:
+      id: sign-out-button
+    timeout: 30000
+- tapOn:
+    id: sign-out-button
+- extendedWaitUntil:
+    visible:
+      id: sign-in-screen
+    timeout: 30000
+- takeScreenshot:
+    path: 06-phase5-signed-out
+- tapOn:
+    id: e2e-sign-in-button
+- extendedWaitUntil:
+    visible:
+      id: home-screen
+    timeout: 60000
+- assertVisible:
+    id: scan-capture-panel
+- assertNotVisible:
+    id: scan-result-panel
+- takeScreenshot:
+    path: 07-phase5-reauthenticated-clean-home

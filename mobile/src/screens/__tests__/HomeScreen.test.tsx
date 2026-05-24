@@ -303,4 +303,19 @@ describe("HomeScreen", () => {
       transactionId: "txn-123",
     });
   });
+
+  it("renders error-code-specific scan failure copy and can reset the scan", () => {
+    useScanStore.getState().failScan("rate_limit", "Backend asked the client to wait");
+
+    const screen = render(<HomeScreen />);
+
+    expect(screen.getByTestId("scan-error-panel")).toBeTruthy();
+    expect(screen.getByText("Too many scans")).toBeTruthy();
+    expect(screen.getByText("Wait a moment before submitting another receipt.")).toBeTruthy();
+    expect(screen.getByText("Backend asked the client to wait")).toBeTruthy();
+
+    fireEvent.press(screen.getByTestId("scan-error-reset-button"));
+
+    expect(useScanStore.getState().phase).toBe("idle");
+  });
 });

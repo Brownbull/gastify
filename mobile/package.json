@@ -32,6 +32,7 @@
     "maestro:scan-upload:review:active": "bash ../tests/mobile/scripts/run-scan-upload-maestro.sh review",
     "maestro:scan-upload:failure:active": "bash ../tests/mobile/scripts/run-scan-upload-maestro.sh failure",
     "maestro:camera-permission-denied:active": "bash ../tests/mobile/scripts/run-scan-upload-maestro.sh camera-denied",
+    "maestro:phase5:golden:active": "bash ../tests/mobile/scripts/run-maestro.sh tests/mobile/maestro/p4-phase5-golden-journey-active.yaml",
     "generate:api": "cd ../backend && uv run python -c \"from app.main import app; import json; f=open('../mobile/src/lib/openapi-spec.json','w'); json.dump(app.openapi(),f,indent=2)\" && cd ../mobile && npx openapi-typescript src/lib/openapi-spec.json -o src/lib/api-types.d.ts"
   },
   "dependencies": {

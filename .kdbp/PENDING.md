@@ -50,8 +50,10 @@
 | P29 | 2026-05-21 | gabe-review P4-Ph4 | After Phase 4 commit/deploy, rerun the S23 push-registration Maestro flow against the deployed Railway staging API with migration 014 applied; local-stub proof is enough for pre-commit review but does not prove deployed route/migration/auth wiring. | `tests/mobile/maestro/p4-phase4-signout-push-active.yaml`, `backend/alembic/versions/014_mobile_push_tokens.py` | ent | high | high | 0 | resolved | 2026-05-24 |
 
 | P30 | 2026-05-24 | gabe-review P4-Ph4 | `scripts/ops/cost_snapshot.py` is 865 lines — exceeds 800-line file org guideline. Standalone ops utility; could be split into modules for maintainability. | `scripts/ops/cost_snapshot.py` | scale | low | negligible | 0 | open |
+| P31 | 2026-05-24 | user decision D47 | iOS runtime testing is officially deferred until after the full roadmap is implemented. Current P4/Phase 5 runtime gates are Android/S23-only; revisit iOS simulator/device proof post-roadmap. | `.kdbp/ROADMAP.md`, `.kdbp/PLAN.md`, `mobile/TESTING.md` | ent | low | moderate | 0 | open |
 
 <!-- P27-P28 from /gabe-review Phase 3 (2026-05-21) — Scale-gate items deferred per triage option [1]. -->
 <!-- P29 from /gabe-review Phase 4 (2026-05-21) — close during /gabe-push after deployed staging evidence is captured. -->
 <!-- P30 from /gabe-review Phase 4 cross-agent consolidation (2026-05-24) — Scale-gate file-length item deferred per triage option [2]. -->
+<!-- P31 from user decision D47 (2026-05-24) — iOS runtime lane deferred post-roadmap; Android/S23 remains the current mobile proof lane. -->
 <!-- Backend P1 pending items are tracked inside .kdbp/archive/queued_backend-p1.md and activate with that plan. -->
