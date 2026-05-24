@@ -1,5 +1,17 @@
 # Session Ledger
 
+## 2026-05-24 12:33 -04 — PHASE 5 REVIEW: Mobile E2E journey + edge tests
+VERDICT: APPROVE
+FINDINGS: 0 total (0 critical, 0 high, 0 medium, 0 low)
+COVERAGE: HIGH — committed Phase 5 harness/docs reviewed against clean S23/Railway evidence, local typecheck/Jest, shell syntax, Maestro syntax, manifest metadata, and screenshot packet.
+CONFIDENCE: 100/100
+DEFERRED: none new; P31 iOS runtime lane remains intentionally deferred by D47.
+ALIGNMENT: SKIP — review target was the committed Phase 5 range from KDBP/LEDGER, with no live pre-review worktree diff.
+TIER: ent | DRIFT: none
+TICK: ✅ Phase 5 Review
+NOTES: Runtime evidence remains the clean Android/S23 packet at `tests/mobile/results/runs/staging-e2e/20260524Tphase5-s23-clean-gate-r4/`: `run-manifest.json` records `git_rev=7f0fddf`, `git_dirty_file_count=0`, device `RFCW90N4BYP`, Railway `staging-e2e`, fixture provider, build id `dev-client-localhost-20260524-phase5-7f0fddf`, and four passed flow manifests. The closure bookkeeping commit `77803ff` only records the completed gate.
+NEXT: Route to `/gabe-next`; expected command is `/gabe-commit` for Phase 5 review/bookkeeping changes.
+
 ## 2026-05-24 12:28 -04 — PHASE 5 EXEC COMPLETE: Android/S23 clean gate captured
 ROUTE: Resumed Phase 5 `/gabe-execute` after D47/P31 clarified that iOS runtime testing is officially deferred post-roadmap. Current Phase 5 now closes on Android physical hardware only.
 SCOPE: Checkpointed the Phase 5 harness and KDBP changes in `34c28a5`, then fixed three clean-gate harness issues exposed by the S23 reruns: review copy alignment in `6eee876`, golden start-state normalization in `ba83948`, and camera-denied reset viewport handling in `7f0fddf`.
