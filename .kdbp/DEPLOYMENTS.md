@@ -43,6 +43,7 @@
 | P23 | 2026-05-17 18:15 | main → main (direct) | — | ✅ 12/12 (65s) | P4 Phase 1 mobile scaffold push — 3 commits (2c4000f → 0272720): carried P22 bookkeeping, Expo auth scaffold + mobile CI/test harness, and Phase 1 commit bookkeeping. CI run 26004227645 green. | Mobile CI gates added: typecheck, Jest, API drift, high-severity audit |
 | P24 | 2026-05-20 21:09 | main → main (direct) | — | ✅ 12/12 (66s) | P4 Phase 2 mobile scan push — 4 commits (0272720 → 45517cc): carried P23 bookkeeping, Phase 2 scan upload/runtime proof, Phase 2 commit bookkeeping, and CI fix for generated API drift plus backend SCA audit. CI run 26199292463 green after failed run 26199123171. CI re-run after fix | — |
 | P25 | 2026-05-21 17:25 | main → main (direct) | — | ✅ 12/12 (68s) | P4 Phase 3 mobile ledger push — 3 commits (45517cc → 35af60e): carried P24 bookkeeping, Phase 3 ledger/detail/edit flow, and Phase 3 commit bookkeeping. CI run 26253946312 green. | — |
+| P26 | 2026-05-24 11:07 | main → main (direct) | — | ✅ 12/12 (68s) | P4 Phase 4 mobile sign-out/push push — 8 commits (ce40204 → ea1a6c9): carried P25 bookkeeping, push registration staging gate, cost snapshot ops command, Phase 4 staging proof, sign-out auto-unregister fix, Phase 4 commit bookkeeping, and Starlette SCA fix. CI run 26364742516 green after failed run 26364670718. auto-fix applied: deps; CI re-run after fix | Staging branch CI trigger added for runtime-gated staging lane |
 
 <!-- Example rows:
 | P1 | 2026-04-17 14:22 | feature/add-auth → main | #42 | ✅ 3/3 (47s) | promoted main → (none) | — |

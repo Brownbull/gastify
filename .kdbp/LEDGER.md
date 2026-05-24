@@ -1,5 +1,15 @@
 # Session Ledger
 
+## 2026-05-24 11:07 -04 — PUSH main -> main
+PR: —
+CI: ✅ 12/12 (68s) — GitHub Actions run 26364742516
+PROMOTION: direct production push of reviewed local HEAD; `origin/staging` was older than local Phase 4 review/commit fixes, so local `main` was fast-forwarded before push.
+AUTO-FIX: first push run 26364670718 failed SCA on `starlette 1.0.0` (`PYSEC-2026-161`, fixed in 1.0.1). Added commit `ea1a6c9` locking `starlette 1.1.0`; local `cd backend && uv run pip-audit --ignore-vuln PYSEC-2025-183` returned no known vulnerabilities.
+DEPLOYMENTS: P26  (added row to .kdbp/DEPLOYMENTS.md)
+CLASSIFIER: P26 resurfaced and deferred by default; PyJWT audit-ignore revisit remains open with times_deferred=2.
+TICK: ✅ Phase 4 Push
+NEXT: Route to `/gabe-next`; expected next action is to advance to Phase 5.
+
 ## 2026-05-24 10:58 -04 — [462ca6c] fix(mobile): revoke push registrations on sign-out
 FINDINGS: 1 low accepted (mobile well docs drift deferred by existing KDBP evidence)
 ACTIONS: accepted low docs-drift signal for `docs/wells/7-mobile-app.md`; no new PENDING item
