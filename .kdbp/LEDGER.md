@@ -1,5 +1,14 @@
 # Session Ledger
 
+## 2026-05-24 13:00 -04 — PUSH main -> main
+PR: —
+CI: ✅ 12/12 (70s) — GitHub Actions run 26367289042
+PROMOTION: N/A — `origin/staging` was not ahead of `origin/main`; pushed local `main` directly to production target.
+DEPLOYMENTS: P27  (added row to .kdbp/DEPLOYMENTS.md)
+CLASSIFIER: P26 resurfaced and deferred by default; PyJWT audit-ignore revisit remains open with times_deferred=3. No new operational candidate was triggered by this push.
+TICK: ✅ Phase 5 Push
+NEXT: Phase 5 is complete. Route to `/gabe-plan complete` or `/gabe-plan update` for the post-P4 roadmap transition.
+
 ## 2026-05-24 12:53 -04 — ARTIFACT LAYOUT: Phase 5 S23 stage folders
 SCOPE: Collapsed local ignored Phase 5 retry result folders from one top-level folder per `rN` into one folder per stage with `attempts/<attempt-id>/` children.
 ACTIONS: Updated the Maestro result runner to support `GASTIFY_MOBILE_STAGE_ID` + `GASTIFY_MOBILE_ATTEMPT_ID`; updated the Phase 5 S23 wrapper to derive stage/attempt from old `GASTIFY_MOBILE_RUN_ID=...-rN` values while writing stage-root manifests; refreshed mobile testing/result docs.
