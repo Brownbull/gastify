@@ -84,7 +84,7 @@ Android setup details live in `ANDROID_E2E_SETUP.md`.
 npm run maestro:scan-entry:active
 ```
 
-The runner writes durable proof to `../tests/mobile/results/runs/<env>/<run-id>/<flow-name>/` and mirrors the latest packet to `../tests/mobile/results/latest/<env>/<flow-name>/`. Use `GASTIFY_MOBILE_RUN_ID=<id>` to group several flows into one environment run. The staging fixture wrapper sets a shared run id automatically.
+The runner writes durable proof to `../tests/mobile/results/runs/<env>/<run-id>/<flow-name>/` and mirrors the latest packet to `../tests/mobile/results/latest/<env>/<flow-name>/`. Use `GASTIFY_MOBILE_RUN_ID=<id>` to group several flows into one environment run. For repeated attempts at the same stage, prefer `GASTIFY_MOBILE_STAGE_ID=<stage>` plus `GASTIFY_MOBILE_ATTEMPT_ID=<attempt>`; this writes `runs/<env>/<stage>/attempts/<attempt>/<flow-name>/` so `r1`, `r2`, `r3`, and `r4` stay under one stage folder. The staging fixture wrapper sets a shared run id automatically.
 
 The current local environment is WSL2. Maestro is installed under `~/.maestro/bin`, and EAS CLI is available through `npx eas-cli@latest`. Android automation should use the physical Samsung S23 path in `ANDROID_E2E_SETUP.md`; iOS automation requires macOS simulator infrastructure or EAS/device infrastructure.
 
@@ -134,18 +134,33 @@ npm run maestro:camera-permission-denied:active
 
 Required evidence: `run-manifest.json` plus each flow's `manifest.json`,
 `report.html`, screenshots, Maestro log, and command trace in
-`../tests/mobile/results/runs/staging-e2e/<run-id>/<flow-name>/`. The same
-latest packets are mirrored under `../tests/mobile/results/latest/staging-e2e/`
-for quick inspection only.
+`../tests/mobile/results/runs/staging-e2e/<run-id>/<flow-name>/`. Stage-grouped
+reruns use `../tests/mobile/results/runs/staging-e2e/<stage-id>/attempts/<attempt-id>/<flow-name>/`.
+The same latest packets are mirrored under
+`../tests/mobile/results/latest/staging-e2e/` for quick inspection only.
 
 ### Phase 5 Mobile Journey Gate
 
 The Phase 5 Android gate uses the same S23 / Railway `staging-e2e` lane, but it
-groups the end-to-end journey and key runtime edges under one run id:
+groups the end-to-end journey and key runtime edges under one stage folder:
 
 ```bash
 export GASTIFY_STAGING_E2E_API_BASE_URL=https://<gastify-api-staging-e2e-domain>
 export MAESTRO_DEVICE_ID="RFCW90N4BYP"
+bash scripts/staging/run-s23-phase5-gate.sh
+```
+
+By default, repeated attempts on the same UTC day write under:
+
+```text
+tests/mobile/results/runs/staging-e2e/<YYYYMMDD>-phase5-s23-clean-gate/attempts/<HHMMSSZ>/
+```
+
+For named retries, set both values explicitly:
+
+```bash
+export GASTIFY_MOBILE_STAGE_ID=20260524-phase5-s23-clean-gate
+export GASTIFY_MOBILE_ATTEMPT_ID=r4
 bash scripts/staging/run-s23-phase5-gate.sh
 ```
 

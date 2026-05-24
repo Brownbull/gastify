@@ -44,7 +44,10 @@ tests/mobile/results/runs/<env>/<run-id>/<flow-name>/
 
 It also mirrors the latest packet to `tests/mobile/results/latest/<env>/<flow-name>/`
 for quick inspection. Use `GASTIFY_MOBILE_RUN_ID=<id>` to group several flows
-under one environment proof run.
+under one environment proof run. For retry-heavy stages, set
+`GASTIFY_MOBILE_STAGE_ID=<stage>` and `GASTIFY_MOBILE_ATTEMPT_ID=<attempt>` to
+write `tests/mobile/results/runs/<env>/<stage>/attempts/<attempt>/<flow-name>/`
+instead of creating one top-level folder per retry.
 
 ## Phase 2 Scan Upload Fixture Gate
 
@@ -107,11 +110,15 @@ export MAESTRO_DEVICE_ID="RFCW90N4BYP"
 bash scripts/staging/run-s23-phase5-gate.sh
 ```
 
-The wrapper writes all flow manifests under:
+The wrapper writes all flow manifests under one stage folder:
 
 ```text
-tests/mobile/results/runs/staging-e2e/<run-id>/
+tests/mobile/results/runs/staging-e2e/<stage-id>/attempts/<attempt-id>/
 ```
+
+Set `GASTIFY_MOBILE_ATTEMPT_ID=r4` for a named retry. If you pass the old
+`GASTIFY_MOBILE_RUN_ID=...-r4` shape, the wrapper derives `<stage-id>` from the
+prefix and `r4` as the attempt id.
 
 It runs `p4-phase5-golden-journey-active.yaml` first, then the review,
 scan-failure, and camera-permission-denied flows. The golden flow covers sign

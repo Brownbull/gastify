@@ -63,4 +63,20 @@ npm run maestro:scan-upload:failure:active
 npm run maestro:camera-permission-denied:active
 ```
 
-Use one shared `GASTIFY_MOBILE_RUN_ID` for a multi-flow environment gate. The staging fixture wrapper does this automatically. The old `--archive` flag is accepted for compatibility, but it is no longer needed because each run already gets its own durable folder.
+Use one shared `GASTIFY_MOBILE_RUN_ID` for a multi-flow environment gate. The staging fixture wrapper does this automatically.
+
+For repeated attempts at the same stage, use:
+
+```bash
+export GASTIFY_MOBILE_STAGE_ID=20260524-phase5-s23-clean-gate
+export GASTIFY_MOBILE_ATTEMPT_ID=r4
+```
+
+That layout writes:
+
+```text
+tests/mobile/results/runs/<env>/<stage-id>/run-manifest.json
+tests/mobile/results/runs/<env>/<stage-id>/attempts/<attempt-id>/<flow-name>/
+```
+
+The old `--archive` flag is accepted for compatibility, but it is no longer needed because each run already gets its own durable folder.

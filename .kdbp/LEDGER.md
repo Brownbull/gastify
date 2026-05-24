@@ -1,5 +1,12 @@
 # Session Ledger
 
+## 2026-05-24 12:53 -04 — ARTIFACT LAYOUT: Phase 5 S23 stage folders
+SCOPE: Collapsed local ignored Phase 5 retry result folders from one top-level folder per `rN` into one folder per stage with `attempts/<attempt-id>/` children.
+ACTIONS: Updated the Maestro result runner to support `GASTIFY_MOBILE_STAGE_ID` + `GASTIFY_MOBILE_ATTEMPT_ID`; updated the Phase 5 S23 wrapper to derive stage/attempt from old `GASTIFY_MOBILE_RUN_ID=...-rN` values while writing stage-root manifests; refreshed mobile testing/result docs.
+ARTIFACTS: Final clean proof is now grouped at `tests/mobile/results/runs/staging-e2e/20260524Tphase5-s23-clean-gate/run-manifest.json` with attempt evidence under `tests/mobile/results/runs/staging-e2e/20260524Tphase5-s23-clean-gate/attempts/r4/`. The stage manifest records `result_layout=mobile-stage-run-folder-v1`, `latest_attempt_id=r4`, `flow_manifest_count=4`, `attempt_count=4`, `git_rev=7f0fddf`, and `git_dirty_file_count=0`.
+CHECKS: `bash -n tests/mobile/scripts/run-maestro.sh scripts/staging/run-s23-phase5-gate.sh` (pass); fake ADB/Maestro stage-layout smoke (pass); grouped artifact manifest inspection with `jq` (pass).
+NEXT: Checkpoint this artifact-layout fix before Phase 5 push; after that `/gabe-next` remains `/gabe-push`.
+
 ## 2026-05-24 12:42 -04 — [ce4ee32] chore(kdbp): record Phase 5 review
 FINDINGS: 1 low accepted (P31 iOS runtime deferral touches `.kdbp/PLAN.md` but remains intentional by D47)
 ACTIONS: accepted P31 as existing deferred lane; no new deferred items
@@ -16,7 +23,7 @@ DEFERRED: none new; P31 iOS runtime lane remains intentionally deferred by D47.
 ALIGNMENT: SKIP — review target was the committed Phase 5 range from KDBP/LEDGER, with no live pre-review worktree diff.
 TIER: ent | DRIFT: none
 TICK: ✅ Phase 5 Review
-NOTES: Runtime evidence remains the clean Android/S23 packet at `tests/mobile/results/runs/staging-e2e/20260524Tphase5-s23-clean-gate-r4/`: `run-manifest.json` records `git_rev=7f0fddf`, `git_dirty_file_count=0`, device `RFCW90N4BYP`, Railway `staging-e2e`, fixture provider, build id `dev-client-localhost-20260524-phase5-7f0fddf`, and four passed flow manifests. The closure bookkeeping commit `77803ff` only records the completed gate.
+NOTES: Runtime evidence remains the clean Android/S23 packet at `tests/mobile/results/runs/staging-e2e/20260524Tphase5-s23-clean-gate/attempts/r4/`: the stage `run-manifest.json` records `git_rev=7f0fddf`, `git_dirty_file_count=0`, device `RFCW90N4BYP`, Railway `staging-e2e`, fixture provider, build id `dev-client-localhost-20260524-phase5-7f0fddf`, and four passed flow manifests. The closure bookkeeping commit `77803ff` only records the completed gate.
 NEXT: Route to `/gabe-next`; expected command is `/gabe-commit` for Phase 5 review/bookkeeping changes.
 
 ## 2026-05-24 12:28 -04 — PHASE 5 EXEC COMPLETE: Android/S23 clean gate captured
@@ -25,7 +32,7 @@ SCOPE: Checkpointed the Phase 5 harness and KDBP changes in `34c28a5`, then fixe
 LOCAL VERIFICATION: `git diff --check` (pass before checkpoint); `bash -n scripts/staging/run-s23-phase5-gate.sh` (pass); `node -e "JSON.parse(require('fs').readFileSync('mobile/package.json','utf8'))"` (pass); Maestro `check-syntax` for the Phase 5 golden plus happy/review/failure/camera active flows (pass); `cd mobile && npm run typecheck` (pass); `cd mobile && npm test -- --runInBand` (20 suites / 102 tests passed).
 RUNTIME PREFLIGHT: `bash scripts/staging/check-backend-ready.sh https://gastify-api-staging-e2e-staging.up.railway.app` returned `status=ok`, DB connected, migration current/head `014`; `cd mobile && GASTIFY_RESULT_ENV=staging-e2e GASTIFY_MOBILE_RUN_ID=20260524Tphase5-preclean-doctor npm run doctor:e2e` found S23 `RFCW90N4BYP` visible to native WSL ADB, with expected WSL warnings for missing JDK 17 and missing `xcrun`.
 CLEAN RUNTIME GATE: `GASTIFY_MOBILE_RUN_ID=20260524Tphase5-s23-clean-gate-r4 GASTIFY_MOBILE_BUILD_ID=dev-client-localhost-20260524-phase5-7f0fddf GASTIFY_RESULT_ENV=staging-e2e GASTIFY_ENVIRONMENT=staging-e2e GASTIFY_SCAN_PROVIDER=fixture EXPO_PUBLIC_APP_ENV=staging-e2e EXPO_PUBLIC_API_BASE_URL=https://gastify-api-staging-e2e-staging.up.railway.app MAESTRO_DEVICE_ID=RFCW90N4BYP MAESTRO_REINSTALL_DRIVER=false bash scripts/staging/run-s23-phase5-gate.sh` passed all four flows.
-ARTIFACTS: `tests/mobile/results/runs/staging-e2e/20260524Tphase5-s23-clean-gate-r4/run-manifest.json` records `git_rev=7f0fddf`, `git_dirty_file_count=0`, `device_id=RFCW90N4BYP`, `api_base_url=https://gastify-api-staging-e2e-staging.up.railway.app`, `backend_environment=staging-e2e`, `scan_provider=fixture`, `build_id=dev-client-localhost-20260524-phase5-7f0fddf`, and `flow_manifest_count=4`. The four flow manifests record `result_status=passed` for `p4-phase5-golden-journey-active`, `p4-phase2-scan-upload-review-active`, `p4-phase2-scan-upload-failure-active`, and `p4-phase2-camera-permission-denied-active`.
+ARTIFACTS: `tests/mobile/results/runs/staging-e2e/20260524Tphase5-s23-clean-gate/run-manifest.json` records `git_rev=7f0fddf`, `git_dirty_file_count=0`, `device_id=RFCW90N4BYP`, `api_base_url=https://gastify-api-staging-e2e-staging.up.railway.app`, `backend_environment=staging-e2e`, `scan_provider=fixture`, `build_id=dev-client-localhost-20260524-phase5-7f0fddf`, `latest_attempt_id=r4`, `attempt_count=4`, and `flow_manifest_count=4`. The four flow manifests under `tests/mobile/results/runs/staging-e2e/20260524Tphase5-s23-clean-gate/attempts/r4/` record `result_status=passed` for `p4-phase5-golden-journey-active`, `p4-phase2-scan-upload-review-active`, `p4-phase2-scan-upload-failure-active`, and `p4-phase2-camera-permission-denied-active`.
 NOTES: Earlier clean-gate attempts R1/R2/R3 failed on harness/copy/state/viewport assumptions, not product regressions; each exposed issue was fixed before the final clean R4 pass. iOS runtime testing remains deferred by D47/P31 and does not block Phase 5 closure.
 TICK: ✅ Phase 5 Exec
 NEXT: Route to `/gabe-review` for Phase 5. Review should validate the clean Android/S23 evidence packet and keep iOS as a deferred post-roadmap lane.

@@ -50,9 +50,24 @@ fi
 FLOW_NAME="$(basename "${FLOW}" .yaml)"
 RESULT_ENV="${GASTIFY_RESULT_ENV:-${GASTIFY_ARTIFACT_ENV:-${EXPO_PUBLIC_APP_ENV:-local}}}"
 RESULT_ROOT="${GASTIFY_MOBILE_RESULTS_ROOT:-${GASTIFY_MOBILE_ARTIFACT_ROOT:-tests/mobile/results}}"
-RUN_ID="${GASTIFY_MOBILE_RUN_ID:-$(date -u '+%Y%m%dT%H%M%SZ')-${RESULT_ENV}-${FLOW_NAME}}"
-RUN_DIR="${RESULT_ROOT}/runs/${RESULT_ENV}/${RUN_ID}"
-RESULT_DIR="${RUN_DIR}/${FLOW_NAME}"
+STAGE_ID="${GASTIFY_MOBILE_STAGE_ID:-${GASTIFY_MOBILE_RUN_STAGE_ID:-}}"
+ATTEMPT_ID="${GASTIFY_MOBILE_ATTEMPT_ID:-${GASTIFY_MOBILE_RUN_ATTEMPT_ID:-}}"
+if [[ -n "${STAGE_ID}" ]]; then
+  RUN_ID="${STAGE_ID}"
+  ATTEMPT_ID="${ATTEMPT_ID:-$(date -u '+%Y%m%dT%H%M%SZ')}"
+  RUN_DIR="${RESULT_ROOT}/runs/${RESULT_ENV}/${STAGE_ID}"
+  ATTEMPT_DIR="${RUN_DIR}/attempts/${ATTEMPT_ID}"
+  RESULT_DIR="${ATTEMPT_DIR}/${FLOW_NAME}"
+  RESULT_LAYOUT="mobile-stage-run-folder-v1"
+  FLOW_MANIFEST_GLOB="attempts/${ATTEMPT_ID}/*/manifest.json"
+else
+  RUN_ID="${GASTIFY_MOBILE_RUN_ID:-$(date -u '+%Y%m%dT%H%M%SZ')-${RESULT_ENV}-${FLOW_NAME}}"
+  ATTEMPT_DIR=""
+  RESULT_DIR="${RESULT_ROOT}/runs/${RESULT_ENV}/${RUN_ID}/${FLOW_NAME}"
+  RUN_DIR="${RESULT_ROOT}/runs/${RESULT_ENV}/${RUN_ID}"
+  RESULT_LAYOUT="mobile-run-folder-v1"
+  FLOW_MANIFEST_GLOB="*/manifest.json"
+fi
 LATEST_ENV_DIR="${RESULT_ROOT}/latest/${RESULT_ENV}"
 LATEST_DIR="${LATEST_ENV_DIR}/${FLOW_NAME}"
 GIT_REV="$(git rev-parse --short HEAD 2>/dev/null || true)"
@@ -70,15 +85,25 @@ json_escape() {
 }
 
 write_run_manifest() {
+  local attempt_count
   local flow_count
-  flow_count="$(find "${RUN_DIR}" -mindepth 2 -maxdepth 2 -name manifest.json 2>/dev/null | wc -l | tr -d ' ')"
+  if [[ -n "${STAGE_ID}" ]]; then
+    flow_count="$(find "${ATTEMPT_DIR}" -mindepth 2 -maxdepth 2 -name manifest.json 2>/dev/null | wc -l | tr -d ' ')"
+    attempt_count="$(find "${RUN_DIR}/attempts" -mindepth 1 -maxdepth 1 -type d 2>/dev/null | wc -l | tr -d ' ')"
+  else
+    flow_count="$(find "${RUN_DIR}" -mindepth 2 -maxdepth 2 -name manifest.json 2>/dev/null | wc -l | tr -d ' ')"
+    attempt_count="0"
+  fi
   cat >"${RUN_DIR}/run-manifest.json" <<JSON
 {
   "schema": "mobile-e2e-run-manifest.v2",
-  "result_layout": "mobile-run-folder-v1",
+  "result_layout": "$(json_escape "${RESULT_LAYOUT}")",
   "run_id": "$(json_escape "${RUN_ID}")",
+  "stage_id": "$(json_escape "${STAGE_ID}")",
+  "latest_attempt_id": "$(json_escape "${ATTEMPT_ID}")",
   "result_environment": "$(json_escape "${RESULT_ENV}")",
   "run_dir": "$(json_escape "${RUN_DIR}")",
+  "current_attempt_dir": "$(json_escape "${ATTEMPT_DIR}")",
   "updated_at": "$(date -Iseconds)",
   "device_id": "$(json_escape "${MAESTRO_DEVICE_ID:-${MAESTRO_UDID:-}}")",
   "app_env": "$(json_escape "${EXPO_PUBLIC_APP_ENV:-}")",
@@ -88,8 +113,9 @@ write_run_manifest() {
   "build_id": "$(json_escape "${GASTIFY_MOBILE_BUILD_ID:-}")",
   "git_rev": "$(json_escape "${GIT_REV}")",
   "git_dirty_file_count": ${GIT_DIRTY_COUNT:-0},
-  "flow_manifest_glob": "*/manifest.json",
-  "flow_manifest_count": ${flow_count:-0}
+  "flow_manifest_glob": "$(json_escape "${FLOW_MANIFEST_GLOB}")",
+  "flow_manifest_count": ${flow_count:-0},
+  "attempt_count": ${attempt_count:-0}
 }
 JSON
 }
@@ -100,6 +126,10 @@ sync_latest() {
   cp -a "${RESULT_DIR}" "${LATEST_DIR}"
   cp "${RUN_DIR}/run-manifest.json" "${LATEST_ENV_DIR}/run-manifest.json"
   printf "%s\n" "${RUN_ID}" >"${LATEST_ENV_DIR}/CURRENT_RUN.txt"
+  if [[ -n "${STAGE_ID}" ]]; then
+    printf "%s\n" "${STAGE_ID}" >"${LATEST_ENV_DIR}/CURRENT_STAGE.txt"
+    printf "%s\n" "${ATTEMPT_ID}" >"${LATEST_ENV_DIR}/CURRENT_ATTEMPT.txt"
+  fi
 }
 
 write_manifest() {
@@ -108,13 +138,16 @@ write_manifest() {
   cat >"${RESULT_DIR}/manifest.json" <<JSON
 {
   "schema": "mobile-e2e-flow-manifest.v3",
-  "result_layout": "mobile-run-folder-v1",
+  "result_layout": "$(json_escape "${RESULT_LAYOUT}")",
   "run_id": "$(json_escape "${RUN_ID}")",
+  "stage_id": "$(json_escape "${STAGE_ID}")",
+  "attempt_id": "$(json_escape "${ATTEMPT_ID}")",
   "result_environment": "${RESULT_ENV}",
   "flow": "${FLOW}",
   "flow_name": "${FLOW_NAME}",
   "generated_at": "$(date -Iseconds)",
   "run_dir": "$(json_escape "${RUN_DIR}")",
+  "attempt_dir": "$(json_escape "${ATTEMPT_DIR}")",
   "result_dir": "$(json_escape "${RESULT_DIR}")",
   "latest_dir": "$(json_escape "${LATEST_DIR}")",
   "device_id": "${MAESTRO_DEVICE_ID:-${MAESTRO_UDID:-}}",
