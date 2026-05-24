@@ -61,7 +61,7 @@ appId: com.gastify.mobile
     timeout: 60000
 - swipe:
     direction: UP
-- assertVisible: "Scan needs review"
+- assertVisible: "Low confidence scan"
 - assertVisible:
     id: low-confidence-alert
 - assertVisible:
