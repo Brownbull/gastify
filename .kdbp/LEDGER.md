@@ -1,5 +1,12 @@
 # Session Ledger
 
+## 2026-05-24 12:42 -04 — [ce4ee32] chore(kdbp): record Phase 5 review
+FINDINGS: 1 low accepted (P31 iOS runtime deferral touches `.kdbp/PLAN.md` but remains intentional by D47)
+ACTIONS: accepted P31 as existing deferred lane; no new deferred items
+CHECKS: `git diff --cached --check` (pass); staged diff limited to `.kdbp/PLAN.md` and `.kdbp/LEDGER.md`
+TICK: ✅ Phase 5 Commit
+NEXT: Route to `/gabe-next`; expected command is `/gabe-push` for Phase 5.
+
 ## 2026-05-24 12:33 -04 — PHASE 5 REVIEW: Mobile E2E journey + edge tests
 VERDICT: APPROVE
 FINDINGS: 0 total (0 critical, 0 high, 0 medium, 0 low)
