@@ -1,5 +1,13 @@
 # Session Ledger
 
+## 2026-05-25 17:16 -04 — [25effae] fix(statements): resolve phase 2 review findings
+FINDINGS: 3 review findings triaged and fixed (0 critical, 2 high, 0 medium, 1 low)
+ACTIONS: committed the Phase 2 review-resolution set: codex-text no-normalization now fails explicitly, statement SSE has endpoint integration tests, and the staging fixture manifest records `auth_verified` instead of Firebase identifiers.
+DEFERRED: none
+CHECKS: `git diff --cached --check` (pass); `cd backend && uv run ruff check .` (pass); `cd backend && uv run ruff format --check app/services/statement_extraction.py tests/test_statement_worker.py tests/test_statement_stream.py` (pass); targeted statement `mypy` (pass); `cd backend && uv run pytest tests/test_statement_worker.py tests/test_statement_stream.py tests/test_statements.py -q` (18 passed); `cd backend && uv run pytest tests/ -x --tb=line -q` (558 passed, 2 skipped, 1 warning).
+TICK: ✅ Phase 2 Commit
+NEXT: Route to `/gabe-next`; expected command is `/gabe-push` for Phase 2.
+
 ## 2026-05-25 17:15 -04 — PHASE 2 REVIEW: Statement PDF upload + extraction worker
 VERDICT: APPROVE
 FINDINGS: 3 total (0 critical, 2 high, 0 medium, 1 low)
