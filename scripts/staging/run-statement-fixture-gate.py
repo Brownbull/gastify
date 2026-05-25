@@ -344,6 +344,9 @@ def main() -> int:
             statement = upload["statement"]
             statement_id = statement["id"]
 
+            success_statuses = (
+                {"completed"} if args.require_three_buckets else {"extracted", "completed"}
+            )
             deadline = time.monotonic() + args.timeout_s
             final_statement: dict[str, Any] = statement
             while time.monotonic() < deadline:
@@ -356,9 +359,7 @@ def main() -> int:
                 if not isinstance(current, dict):
                     raise RuntimeError(f"Unexpected statement response: {current}")
                 final_statement = current
-                if current.get("status") in {
-                    "extracted",
-                    "completed",
+                if current.get("status") in success_statuses | {
                     "password_required",
                     "password_invalid",
                     "failed",
@@ -367,7 +368,7 @@ def main() -> int:
                 time.sleep(args.poll_interval_s)
 
             json_write(result_dir / "final-statement.json", final_statement)
-            if final_statement.get("status") not in {"extracted", "completed"}:
+            if final_statement.get("status") not in success_statuses:
                 raise RuntimeError(f"Statement did not extract/reconcile: {final_statement}")
 
             lines = request_json(
