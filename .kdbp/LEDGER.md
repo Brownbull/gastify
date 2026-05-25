@@ -1,5 +1,12 @@
 # Session Ledger
 
+## 2026-05-25 10:28 -04 — [e760260] feat(prompt-lab): add statement corpus preflight
+SCOPE: Committed P5 Phase 0 statement corpus preflight: ignored private PDF fixture lane, sanitized manifest, statement extraction contract, prompt kind, CLI, Codex-only text packet wrapper, statement scoring, docs, and KDBP plan/decision/review evidence.
+CHECKS: `git diff --cached --check` (pass); `cd backend && uv run ruff check app/ tests/test_statement_prompt_lab.py` (pass); `cd backend && uv run ruff format --check app/prompt_lab/statement_cases.py app/prompt_lab/statement_scoring.py app/schemas/statement.py app/prompts/statement_extraction.py tests/test_statement_prompt_lab.py` (pass); targeted statement `mypy` (pass); `cd backend && uv run pytest tests/ -x --tb=line -q` (532 passed, 2 skipped, 1 warning). Full `mypy app/` still reports pre-existing unrelated baseline type debt outside Phase 0; changed statement modules pass targeted mypy.
+COMMIT_GATE: Structure patterns updated for statement prompt-lab artifacts; README updated for P5 status and prompt id configuration; staged privacy scan found no non-test dummy passwords or raw statement text in committed artifacts.
+TICK: ✅ Phase 0 Commit
+NEXT: Route to `/gabe-next`; expected command is `/gabe-push` for Phase 0.
+
 ## 2026-05-25 10:03 -04 — PHASE 0 REVIEW: Statement corpus + extraction contract preflight
 VERDICT: APPROVE after triage.
 FINDINGS: 3 high findings fixed: raw statement text removed from the normalized statement contract and kept in a prompt-lab-only packet; password-required/password-invalid extraction packets now expose typed status; statement scoring now requires description/merchant matches.
