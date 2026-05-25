@@ -2202,3 +2202,11 @@ SOURCES: codex (gpt-5) + claude (claude-opus-4-6) — blind-first cross-agent tr
 TRIAGE: option [2] fix MVP+Enterprise — fixed 4 (#1 composite FK scope, #2 web contract regen, #4 JSON/JSONB with_variant, #5 remove index=True drift), deferred 2 (#3 RLS execution → P32, #6 subquery RLS → P33)
 FIXES: migration 016 (same-scope composite FK constraints), statement.py model cleanup (with_variant + index removal), web contract regeneration
 ARCHIVED: `.kdbp/reviews-archive/REVIEW_2026-05-25-144500_resolved.md`
+
+## 2026-05-25 14:58 -04 — [8743f5a] fix(statements): enforce same-scope schema constraints
+FINDINGS: 6 review findings triaged (4 fixed, 2 deferred)
+ACTIONS: committed Phase 1 review-resolution set only; left unrelated `docs/wells/**` and `.kdbp/KNOWLEDGE.md` edits unstaged.
+DEFERRED: P32 (PostgreSQL-backed statement RLS execution test), P33 (scale-tier RLS subquery performance follow-up)
+CHECKS: `git diff --cached --check` (pass); `cd backend && uv run ruff check .` (pass); `cd backend && uv run ruff format --check .` (pass); `cd backend && uv run mypy app/models/statement.py` (pass); `cd web && npx tsc --noEmit` (pass); `bash scripts/ci/check-ng06-pci-exclusion.sh` (pass); `bash scripts/ci/check-rls-table-coverage.sh` (pass); `cd backend && uv run pytest tests/test_card_aliases.py tests/test_statement_models.py tests/test_transactions.py tests/test_rls.py -q` (48 passed); `cd backend && uv run pytest tests/ -x --tb=line -q` (540 passed, 2 skipped, 1 warning).
+
+Gabe-Lens brief: The fix adds database rails around the new statement shelves: a statement can only point at an alias in its own scope, and reconciliation runs can only attach to statements from the same scope, while the web client receives the same generated API contract as mobile.
