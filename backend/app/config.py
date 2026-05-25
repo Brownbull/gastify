@@ -10,6 +10,7 @@ ALLOWED_ENVIRONMENTS = {
     "production",
 }
 ALLOWED_SCAN_PROVIDERS = {"gemini", "fixture", "mock"}
+ALLOWED_STATEMENT_PROVIDERS = {"codex-pdf-text", "fixture"}
 LOCAL_ENVIRONMENTS = {"local"}
 DEPLOYED_ENVIRONMENTS = {"staging", "staging-e2e", "production"}
 STAGING_ENVIRONMENTS = {"staging", "staging-e2e"}
@@ -28,6 +29,7 @@ class Settings(BaseSettings):
     fx_api_url: str = "https://api.frankfurter.dev"
 
     scan_storage_dir: str = "data/scans"
+    statement_storage_dir: str = "data/statements"
 
     gemini_model: str = "gemini-2.5-flash-lite"
     gemini_max_retries: int = 3
@@ -41,6 +43,7 @@ class Settings(BaseSettings):
     scan_event_heartbeat_interval_s: int = 15
 
     scan_provider: str = "mock"
+    statement_provider: str = "codex-pdf-text"
     e2e_scan_fixtures_enabled: bool = False
     e2e_scan_event_delay_ms: int = Field(default=0, ge=0, le=5_000)
     e2e_auth_enabled: bool = False
@@ -123,6 +126,16 @@ class Settings(BaseSettings):
             scan_provider = "fixture"
         self.scan_provider = scan_provider
 
+        statement_provider = self.statement_provider.strip().lower()
+        if statement_provider not in ALLOWED_STATEMENT_PROVIDERS:
+            raise ValueError(
+                "GASTIFY_STATEMENT_PROVIDER must be one of "
+                f"{', '.join(sorted(ALLOWED_STATEMENT_PROVIDERS))}"
+            )
+        if self.e2e_scan_fixtures_enabled and environment == "staging-e2e":
+            statement_provider = "fixture"
+        self.statement_provider = statement_provider
+
         if environment == "local" and scan_provider != "mock":
             raise ValueError("local runtime requires GASTIFY_SCAN_PROVIDER=mock")
         if environment == "local" and not self.database_url.startswith("sqlite"):
@@ -131,6 +144,8 @@ class Settings(BaseSettings):
             raise ValueError("E2E scan fixtures cannot be enabled in production")
         if environment == "production" and scan_provider in {"fixture", "mock"}:
             raise ValueError("Mock or fixture scan providers cannot be enabled in production")
+        if environment == "production" and statement_provider == "fixture":
+            raise ValueError("Fixture statement provider cannot be enabled in production")
         if environment == "production" and self.e2e_auth_enabled:
             raise ValueError("E2E auth cannot be enabled in production")
         if environment == "production" and self.scan_test_controls_enabled:

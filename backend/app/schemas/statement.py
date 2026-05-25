@@ -140,6 +140,8 @@ class StatementRecordResponse(BaseModel):
     status: StatementLifecycleStatus
     original_filename: str
     file_sha256: str
+    content_type: str
+    file_size_bytes: int
     issuer: str | None = None
     period_start: date_type | None = None
     period_end: date_type | None = None
@@ -160,6 +162,26 @@ class StatementRecordResponse(BaseModel):
     reconciled_at: datetime | None = None
     created_at: datetime
     updated_at: datetime
+
+
+class StatementUploadResponse(BaseModel):
+    statement: StatementRecordResponse
+    duplicate: bool = False
+    queued: bool = False
+    password_required: bool = False
+
+
+class StatementProcessRequest(BaseModel):
+    password: str | None = Field(default=None, repr=False)
+
+
+class StatementEvent(BaseModel):
+    event_type: str
+    statement_id: UUID
+    step: str
+    progress_pct: int = Field(ge=0, le=100)
+    data: dict[str, object] | None = None
+    error: dict[str, object] | None = None
 
 
 class StatementLineRecordResponse(BaseModel):

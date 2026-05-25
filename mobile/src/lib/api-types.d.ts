@@ -404,6 +404,92 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/statements": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Statements */
+        get: operations["list_statements_api_v1_statements_get"];
+        put?: never;
+        /** Upload Statement */
+        post: operations["upload_statement_api_v1_statements_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/statements/{statement_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Statement */
+        get: operations["get_statement_api_v1_statements__statement_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/statements/{statement_id}/lines": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Statement Lines */
+        get: operations["get_statement_lines_api_v1_statements__statement_id__lines_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/statements/{statement_id}/process": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Trigger Process Statement */
+        post: operations["trigger_process_statement_api_v1_statements__statement_id__process_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/statements/{statement_id}/events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Statement Events Sse */
+        get: operations["statement_events_sse_api_v1_statements__statement_id__events_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/reference/store-categories": {
         parameters: {
             query?: never;
@@ -514,6 +600,15 @@ export interface components {
         Body_submit_scan_api_v1_scans_post: {
             /** File */
             file: string;
+        };
+        /** Body_upload_statement_api_v1_statements_post */
+        Body_upload_statement_api_v1_statements_post: {
+            /** File */
+            file: string;
+            /** Card Alias Id */
+            card_alias_id?: string | null;
+            /** Password */
+            password?: string | null;
         };
         /** CardAliasCreate */
         CardAliasCreate: {
@@ -921,6 +1016,143 @@ export interface components {
              * Format: date-time
              */
             submitted_at: string;
+        };
+        /** StatementLineRecordResponse */
+        StatementLineRecordResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Statement Id
+             * Format: uuid
+             */
+            statement_id: string;
+            /** Source Order */
+            source_order: number;
+            /** Line Date */
+            line_date?: string | null;
+            /** Description */
+            description: string;
+            /** Amount Minor */
+            amount_minor: number;
+            /** Currency */
+            currency: string;
+            /**
+             * Line Type
+             * @enum {string}
+             */
+            line_type: "charge" | "payment" | "interest" | "fee" | "insurance" | "tax" | "adjustment" | "other";
+            /** Installment */
+            installment?: string | null;
+            /** Original Currency */
+            original_currency?: string | null;
+            /** Original Amount Minor */
+            original_amount_minor?: number | null;
+            /** Card Alias Candidate */
+            card_alias_candidate?: string | null;
+            /** Category Key */
+            category_key?: string | null;
+        };
+        /** StatementProcessRequest */
+        StatementProcessRequest: {
+            /** Password */
+            password?: string | null;
+        };
+        /** StatementRecordResponse */
+        StatementRecordResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Card Alias Id */
+            card_alias_id?: string | null;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "uploaded" | "password_required" | "password_invalid" | "queued" | "extracting" | "extracted" | "reconciling" | "completed" | "failed";
+            /** Original Filename */
+            original_filename: string;
+            /** File Sha256 */
+            file_sha256: string;
+            /** Content Type */
+            content_type: string;
+            /** File Size Bytes */
+            file_size_bytes: number;
+            /** Issuer */
+            issuer?: string | null;
+            /** Period Start */
+            period_start?: string | null;
+            /** Period End */
+            period_end?: string | null;
+            /** Closing Date */
+            closing_date?: string | null;
+            /** Due Date */
+            due_date?: string | null;
+            /** Currency */
+            currency: string;
+            /** Total Debit Minor */
+            total_debit_minor?: number | null;
+            /** Total Credit Minor */
+            total_credit_minor?: number | null;
+            /** Payment Due Minor */
+            payment_due_minor?: number | null;
+            /**
+             * Pdf Status
+             * @enum {string}
+             */
+            pdf_status: "readable" | "password_required" | "password_invalid" | "extraction_failed";
+            /** Is Encrypted */
+            is_encrypted: boolean;
+            /** Page Count */
+            page_count?: number | null;
+            /** Confidence */
+            confidence?: number | null;
+            /** Warnings */
+            warnings?: string[];
+            /** Error Code */
+            error_code?: string | null;
+            /**
+             * Uploaded At
+             * Format: date-time
+             */
+            uploaded_at: string;
+            /** Extracted At */
+            extracted_at?: string | null;
+            /** Reconciled At */
+            reconciled_at?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /** StatementUploadResponse */
+        StatementUploadResponse: {
+            statement: components["schemas"]["StatementRecordResponse"];
+            /**
+             * Duplicate
+             * @default false
+             */
+            duplicate: boolean;
+            /**
+             * Queued
+             * @default false
+             */
+            queued: boolean;
+            /**
+             * Password Required
+             * @default false
+             */
+            password_required: boolean;
         };
         /** StoreCategoryItem */
         StoreCategoryItem: {
@@ -2180,6 +2412,190 @@ export interface operations {
             header?: never;
             path: {
                 scan_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_statements_api_v1_statements_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StatementRecordResponse"][];
+                };
+            };
+        };
+    };
+    upload_statement_api_v1_statements_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_upload_statement_api_v1_statements_post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StatementUploadResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_statement_api_v1_statements__statement_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                statement_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StatementRecordResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_statement_lines_api_v1_statements__statement_id__lines_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                statement_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StatementLineRecordResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    trigger_process_statement_api_v1_statements__statement_id__process_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                statement_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StatementProcessRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StatementRecordResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    statement_events_sse_api_v1_statements__statement_id__events_get: {
+        parameters: {
+            query: {
+                /** @description Firebase JWT for authentication */
+                token: string;
+            };
+            header?: never;
+            path: {
+                statement_id: string;
             };
             cookie?: never;
         };

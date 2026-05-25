@@ -1,0 +1,214 @@
+"""Statement PDF inspection and extraction providers."""
+
+from __future__ import annotations
+
+import hashlib
+from dataclasses import dataclass
+from datetime import date
+from typing import TYPE_CHECKING
+
+from pypdf import PdfReader
+from pypdf.errors import FileNotDecryptedError, PdfReadError
+
+from app.config import settings
+from app.schemas.statement import (
+    StatementExtractionOutput,
+    StatementInfo,
+    StatementLine,
+    StatementPdfStatus,
+    StatementProcessingMetadata,
+)
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+
+@dataclass(frozen=True)
+class StatementPdfInspection:
+    status: StatementPdfStatus
+    is_encrypted: bool
+    page_count: int | None
+    warnings: tuple[str, ...] = ()
+
+
+def inspect_statement_pdf(path: Path, *, password: str | None = None) -> StatementPdfInspection:
+    try:
+        reader = PdfReader(str(path))
+    except (PdfReadError, OSError, ValueError):
+        return StatementPdfInspection(
+            status="extraction_failed",
+            is_encrypted=False,
+            page_count=None,
+            warnings=("invalid_pdf",),
+        )
+
+    is_encrypted = bool(reader.is_encrypted)
+    if is_encrypted:
+        if not password:
+            return StatementPdfInspection(
+                status="password_required",
+                is_encrypted=True,
+                page_count=None,
+                warnings=("password_required",),
+            )
+        try:
+            decrypt_ok = bool(reader.decrypt(password))
+        except Exception:
+            decrypt_ok = False
+        if not decrypt_ok:
+            return StatementPdfInspection(
+                status="password_invalid",
+                is_encrypted=True,
+                page_count=None,
+                warnings=("password_invalid",),
+            )
+
+    try:
+        page_count = len(reader.pages)
+    except (FileNotDecryptedError, PdfReadError, OSError, ValueError):
+        return StatementPdfInspection(
+            status="extraction_failed",
+            is_encrypted=is_encrypted,
+            page_count=None,
+            warnings=("pdf_page_read_failed",),
+        )
+
+    return StatementPdfInspection(
+        status="readable",
+        is_encrypted=is_encrypted,
+        page_count=page_count,
+    )
+
+
+def extract_statement_pdf(
+    path: Path,
+    *,
+    provider: str | None = None,
+    password: str | None = None,
+    issuer_hint: str | None = None,
+) -> StatementExtractionOutput:
+    provider_name = provider or settings.statement_provider
+    inspection = inspect_statement_pdf(path, password=password)
+    if inspection.status != "readable":
+        return StatementExtractionOutput(
+            pdf_status=inspection.status,
+            statement=StatementInfo(issuer=issuer_hint),
+            lines=[],
+            processing=StatementProcessingMetadata(
+                provider="fixture" if provider_name == "fixture" else "codex-pdf-text",
+                prompt_id=settings.statement_extraction_prompt_id,
+                model_name=None,
+                page_count=inspection.page_count,
+                warnings=list(inspection.warnings),
+            ),
+        )
+
+    reader = PdfReader(str(path))
+    if reader.is_encrypted and password:
+        reader.decrypt(password)
+    pages = [page.extract_text() or "" for page in reader.pages]
+    raw_text = "\n".join(pages)
+    text_lines = [line.strip() for line in raw_text.splitlines() if line.strip()]
+    raw_text_hash = hashlib.sha256(raw_text.encode("utf-8")).hexdigest()
+
+    if provider_name == "fixture":
+        return _fixture_output(
+            page_count=len(reader.pages),
+            raw_text=raw_text,
+            raw_text_hash=raw_text_hash,
+            text_line_count=len(text_lines),
+            issuer_hint=issuer_hint,
+        )
+
+    if not text_lines:
+        return StatementExtractionOutput(
+            pdf_status="extraction_failed",
+            statement=StatementInfo(issuer=issuer_hint),
+            lines=[],
+            processing=StatementProcessingMetadata(
+                provider="codex-pdf-text",
+                prompt_id=settings.statement_extraction_prompt_id,
+                model_name=None,
+                confidence=0.0,
+                page_count=len(reader.pages),
+                raw_text_sha256=raw_text_hash,
+                text_char_count=len(raw_text),
+                text_line_count=0,
+                warnings=["empty_pdf_text"],
+            ),
+        )
+
+    return StatementExtractionOutput(
+        pdf_status="readable",
+        statement=StatementInfo(issuer=issuer_hint),
+        lines=[],
+        processing=StatementProcessingMetadata(
+            provider="codex-pdf-text",
+            prompt_id=settings.statement_extraction_prompt_id,
+            model_name=None,
+            confidence=0.5 if text_lines else 0.0,
+            page_count=len(reader.pages),
+            raw_text_sha256=raw_text_hash,
+            text_char_count=len(raw_text),
+            text_line_count=len(text_lines),
+            warnings=["codex_text_only_no_line_normalization"],
+        ),
+    )
+
+
+def _fixture_output(
+    *,
+    page_count: int,
+    raw_text: str,
+    raw_text_hash: str,
+    text_line_count: int,
+    issuer_hint: str | None,
+) -> StatementExtractionOutput:
+    issuer = issuer_hint or "fixture-bank"
+    return StatementExtractionOutput(
+        pdf_status="readable",
+        statement=StatementInfo(
+            issuer=issuer,
+            period_start=date(2026, 5, 1),
+            period_end=date(2026, 5, 31),
+            closing_date=date(2026, 5, 31),
+            due_date=date(2026, 6, 15),
+            currency="CLP",
+            total_debit_minor=29_990,
+            total_credit_minor=10_000,
+            payment_due_minor=19_990,
+            card_alias_candidate="Fixture card",
+        ),
+        lines=[
+            StatementLine(
+                source_order=1,
+                date=date(2026, 5, 3),
+                description="SUPERMERCADO FIXTURE",
+                amount_minor=19_990,
+                currency="CLP",
+                line_type="charge",
+                card_alias_candidate="Fixture card",
+                category_key="supermarket",
+            ),
+            StatementLine(
+                source_order=2,
+                date=date(2026, 5, 15),
+                description="PAGO RECIBIDO",
+                amount_minor=-10_000,
+                currency="CLP",
+                line_type="payment",
+                card_alias_candidate="Fixture card",
+            ),
+        ],
+        processing=StatementProcessingMetadata(
+            provider="fixture",
+            prompt_id=settings.statement_extraction_prompt_id,
+            model_name=None,
+            confidence=1.0,
+            page_count=page_count,
+            raw_text_sha256=raw_text_hash,
+            text_char_count=len(raw_text),
+            text_line_count=text_line_count,
+            warnings=["fixture_statement_extraction"],
+        ),
+    )

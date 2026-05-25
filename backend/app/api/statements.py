@@ -1,0 +1,287 @@
+"""Statement upload and processing endpoints."""
+
+from __future__ import annotations
+
+import hashlib
+import shutil
+import uuid
+from pathlib import Path
+from typing import Annotated
+
+import structlog
+from fastapi import (
+    APIRouter,
+    BackgroundTasks,
+    Depends,
+    Form,
+    HTTPException,
+    Response,
+    UploadFile,
+    status,
+)
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.auth.deps import Auth  # noqa: TC001 - FastAPI needs Annotated dependency at runtime.
+from app.config import settings
+from app.db import get_db
+from app.models.statement import CardAlias, Statement, StatementLine, StatementStatus
+from app.schemas.statement import (
+    StatementLineRecordResponse,
+    StatementProcessRequest,
+    StatementRecordResponse,
+    StatementUploadResponse,
+)
+from app.services.statement_extraction import inspect_statement_pdf
+from app.services.statement_worker import process_statement
+
+logger = structlog.get_logger()
+
+router = APIRouter(prefix="/statements", tags=["statements"])
+
+DB = Annotated[AsyncSession, Depends(get_db)]
+ALLOWED_CONTENT_TYPES = {"application/pdf", "application/x-pdf"}
+MAX_FILE_SIZE = 25 * 1024 * 1024
+
+
+@router.post("", status_code=status.HTTP_201_CREATED, response_model=StatementUploadResponse)
+async def upload_statement(
+    file: UploadFile,
+    auth: Auth,
+    db: DB,
+    background_tasks: BackgroundTasks,
+    response: Response,
+    card_alias_id: Annotated[uuid.UUID | None, Form()] = None,
+    password: Annotated[str | None, Form()] = None,
+) -> StatementUploadResponse:
+    if file.content_type not in ALLOWED_CONTENT_TYPES:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Unsupported statement type: application/pdf required",
+        )
+    raw_bytes = await file.read()
+    if not raw_bytes:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Empty file")
+    if len(raw_bytes) > MAX_FILE_SIZE:
+        raise HTTPException(
+            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+            detail=f"File exceeds maximum size of {MAX_FILE_SIZE // (1024 * 1024)} MB",
+        )
+
+    if card_alias_id is not None:
+        await _assert_card_alias(db, auth=auth, card_alias_id=card_alias_id)
+
+    sha256 = hashlib.sha256(raw_bytes).hexdigest()
+    duplicate = await _find_statement_by_sha(db, auth.ownership_scope_id, sha256)
+    if duplicate is not None:
+        queued = False
+        if password and duplicate.status in {
+            StatementStatus.PASSWORD_REQUIRED,
+            StatementStatus.PASSWORD_INVALID,
+            StatementStatus.FAILED,
+        }:
+            duplicate.status = StatementStatus.QUEUED
+            duplicate.error_code = None
+            duplicate.error_message = None
+            await db.commit()
+            await db.refresh(duplicate)
+            background_tasks.add_task(process_statement, duplicate.id, password=password)
+            queued = True
+        response.status_code = status.HTTP_200_OK
+        return StatementUploadResponse(
+            statement=StatementRecordResponse.model_validate(duplicate),
+            duplicate=True,
+            queued=queued,
+            password_required=not queued and duplicate.status == StatementStatus.PASSWORD_REQUIRED,
+        )
+
+    statement_id = uuid.uuid4()
+    statement_dir = (
+        Path(settings.statement_storage_dir) / str(auth.ownership_scope_id) / str(statement_id)
+    )
+    statement_dir.mkdir(parents=True, exist_ok=True)
+    pdf_path = statement_dir / "statement.pdf"
+    pdf_path.write_bytes(raw_bytes)
+
+    inspection = inspect_statement_pdf(pdf_path, password=password)
+    if inspection.status == "extraction_failed" and "invalid_pdf" in inspection.warnings:
+        shutil.rmtree(statement_dir, ignore_errors=True)
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="File could not be processed as a PDF",
+        )
+
+    statement_status = _initial_status_for_pdf(inspection.status)
+    statement = Statement(
+        id=statement_id,
+        ownership_scope_id=auth.ownership_scope_id,
+        card_alias_id=card_alias_id,
+        status=statement_status,
+        original_filename=Path(file.filename or "statement.pdf").name,
+        file_path=str(pdf_path),
+        file_sha256=sha256,
+        content_type="application/pdf",
+        file_size_bytes=len(raw_bytes),
+        currency="CLP",
+        pdf_status=inspection.status,
+        is_encrypted=inspection.is_encrypted,
+        page_count=inspection.page_count,
+        warnings=list(inspection.warnings),
+        error_code=_initial_error_code(inspection.status),
+        error_message=_initial_error_message(inspection.status),
+    )
+    db.add(statement)
+    try:
+        await db.commit()
+    except Exception:
+        shutil.rmtree(statement_dir, ignore_errors=True)
+        raise
+    await db.refresh(statement)
+
+    queued = statement.status == StatementStatus.QUEUED
+    if queued:
+        background_tasks.add_task(process_statement, statement.id, password=password)
+
+    logger.info(
+        "statement_uploaded",
+        statement_id=str(statement.id),
+        size_bytes=len(raw_bytes),
+        status=statement.status.value,
+        encrypted=statement.is_encrypted,
+    )
+
+    return StatementUploadResponse(
+        statement=StatementRecordResponse.model_validate(statement),
+        duplicate=False,
+        queued=queued,
+        password_required=statement.status == StatementStatus.PASSWORD_REQUIRED,
+    )
+
+
+@router.get("", response_model=list[StatementRecordResponse])
+async def list_statements(auth: Auth, db: DB) -> list[StatementRecordResponse]:
+    rows = await db.execute(
+        select(Statement)
+        .where(Statement.ownership_scope_id == auth.ownership_scope_id)
+        .order_by(Statement.uploaded_at.desc())
+    )
+    return [StatementRecordResponse.model_validate(statement) for statement in rows.scalars()]
+
+
+@router.get("/{statement_id}", response_model=StatementRecordResponse)
+async def get_statement(statement_id: uuid.UUID, auth: Auth, db: DB) -> StatementRecordResponse:
+    statement = await _get_statement(db, auth, statement_id)
+    return StatementRecordResponse.model_validate(statement)
+
+
+@router.get("/{statement_id}/lines", response_model=list[StatementLineRecordResponse])
+async def get_statement_lines(
+    statement_id: uuid.UUID, auth: Auth, db: DB
+) -> list[StatementLineRecordResponse]:
+    await _get_statement(db, auth, statement_id)
+    rows = await db.execute(
+        select(StatementLine)
+        .where(StatementLine.statement_id == statement_id)
+        .order_by(StatementLine.source_order)
+    )
+    return [StatementLineRecordResponse.model_validate(line) for line in rows.scalars()]
+
+
+@router.post(
+    "/{statement_id}/process",
+    status_code=status.HTTP_202_ACCEPTED,
+    response_model=StatementRecordResponse,
+)
+async def trigger_process_statement(
+    statement_id: uuid.UUID,
+    body: StatementProcessRequest,
+    auth: Auth,
+    db: DB,
+    background_tasks: BackgroundTasks,
+) -> StatementRecordResponse:
+    statement = await _get_statement(db, auth, statement_id)
+    if statement.status not in {
+        StatementStatus.UPLOADED,
+        StatementStatus.QUEUED,
+        StatementStatus.PASSWORD_REQUIRED,
+        StatementStatus.PASSWORD_INVALID,
+        StatementStatus.FAILED,
+    }:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=f"Statement is {statement.status.value}, cannot reprocess",
+        )
+    statement.status = StatementStatus.QUEUED
+    statement.error_code = None
+    statement.error_message = None
+    await db.commit()
+    await db.refresh(statement)
+    background_tasks.add_task(process_statement, statement.id, password=body.password)
+    return StatementRecordResponse.model_validate(statement)
+
+
+async def _assert_card_alias(db: AsyncSession, *, auth: Auth, card_alias_id: uuid.UUID) -> None:
+    row = await db.execute(
+        select(CardAlias.id).where(
+            CardAlias.id == card_alias_id,
+            CardAlias.ownership_scope_id == auth.ownership_scope_id,
+            CardAlias.archived_at.is_(None),
+        )
+    )
+    if row.scalar_one_or_none() is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Card alias not found")
+
+
+async def _find_statement_by_sha(
+    db: AsyncSession, scope_id: uuid.UUID, sha256: str
+) -> Statement | None:
+    row = await db.execute(
+        select(Statement).where(
+            Statement.ownership_scope_id == scope_id,
+            Statement.file_sha256 == sha256,
+        )
+    )
+    return row.scalar_one_or_none()
+
+
+async def _get_statement(db: AsyncSession, auth: Auth, statement_id: uuid.UUID) -> Statement:
+    row = await db.execute(
+        select(Statement).where(
+            Statement.id == statement_id,
+            Statement.ownership_scope_id == auth.ownership_scope_id,
+        )
+    )
+    statement = row.scalar_one_or_none()
+    if statement is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Statement not found")
+    return statement
+
+
+def _initial_status_for_pdf(pdf_status: str) -> StatementStatus:
+    if pdf_status == "readable":
+        return StatementStatus.QUEUED
+    if pdf_status == "password_required":
+        return StatementStatus.PASSWORD_REQUIRED
+    if pdf_status == "password_invalid":
+        return StatementStatus.PASSWORD_INVALID
+    return StatementStatus.FAILED
+
+
+def _initial_error_code(pdf_status: str) -> str | None:
+    if pdf_status == "password_required":
+        return "PASSWORD_REQUIRED"
+    if pdf_status == "password_invalid":
+        return "PASSWORD_INVALID"
+    if pdf_status == "extraction_failed":
+        return "EXTRACTION_FAILED"
+    return None
+
+
+def _initial_error_message(pdf_status: str) -> str | None:
+    if pdf_status == "password_required":
+        return "Statement PDF requires a password"
+    if pdf_status == "password_invalid":
+        return "Statement PDF password is invalid"
+    if pdf_status == "extraction_failed":
+        return "Statement PDF could not be extracted"
+    return None
