@@ -105,6 +105,7 @@ async def test_fixture_worker_persists_statement_metadata_lines_and_events(
     assert statement is not None
     assert statement.status == StatementStatus.COMPLETED
     assert statement.issuer == "fixture-bank"
+    assert statement.currency == "USD"
     assert statement.period_start is not None
     assert statement.payment_due_minor == 19_990
     assert statement.extraction_provider == "fixture"
@@ -113,6 +114,7 @@ async def test_fixture_worker_persists_statement_metadata_lines_and_events(
     assert [line.source_order for line in lines] == [1, 2]
     assert lines[0].description == "SUPERMERCADO FIXTURE"
     assert lines[0].amount_minor == 19_990
+    assert {line.currency for line in lines} == {"USD"}
     assert run is not None
     assert run.total_statement_lines == 2
     assert run.matched_count == 0

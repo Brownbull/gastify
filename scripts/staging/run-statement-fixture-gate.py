@@ -19,6 +19,7 @@ from pypdf import PdfWriter
 
 ROOT_DIR = Path(__file__).resolve().parents[2]
 MOBILE_DIR = ROOT_DIR / "mobile"
+FIXTURE_CURRENCY = "USD"
 
 
 def parse_args() -> argparse.Namespace:
@@ -222,7 +223,7 @@ def seed_fixture_transactions(
                 isinstance(transaction, dict)
                 and transaction.get("merchant", "").casefold() == "supermercado fixture"
                 and transaction.get("total_minor") == 19_990
-                and transaction.get("currency") == "CLP"
+                and transaction.get("currency") == FIXTURE_CURRENCY
             ):
                 transaction_id = str(transaction["id"])
                 request_no_content(
@@ -242,7 +243,7 @@ def seed_fixture_transactions(
             "transaction_date": "2026-05-03",
             "merchant": "Supermercado Fixture",
             "total_minor": 19_990,
-            "currency": "CLP",
+            "currency": FIXTURE_CURRENCY,
             "receipt_type": "scan",
         },
     )
@@ -255,7 +256,7 @@ def seed_fixture_transactions(
             "transaction_date": "2026-05-06",
             "merchant": f"Receipt Only Fixture {stage_id}",
             "total_minor": 7_777,
-            "currency": "CLP",
+            "currency": FIXTURE_CURRENCY,
             "receipt_type": "scan",
         },
     )

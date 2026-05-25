@@ -1,5 +1,12 @@
 # Session Ledger
 
+## 2026-05-25 18:04 -04 — GATE FIX: statement fixture seed avoids live FX dependency
+RUNTIME ATTEMPT: `scripts/staging/run-statement-fixture-gate.py --seed-fixture-transactions --require-three-buckets` reached deployed `staging-e2e` readiness but failed while seeding the first receipt transaction because `/api/v1/transactions` returned `503 Exchange rate unavailable` for the CLP fixture seed.
+CAUSE: The three-bucket gate was depending on live FX just to create deterministic receipt seed data, before the statement upload/reconciliation portion could run.
+FIX: Changed the deterministic statement fixture provider and staging fixture seed script to use USD for the generated fixture rows/transactions, preserving currency-equality reconciliation coverage while removing the live-FX dependency from the gate.
+CHECKS: `cd backend && uv run ruff check app/services/statement_extraction.py tests/test_statement_worker.py ../scripts/staging/run-statement-fixture-gate.py` (pass); `cd backend && uv run ruff format --check app/services/statement_extraction.py tests/test_statement_worker.py ../scripts/staging/run-statement-fixture-gate.py` (pass); targeted statement `mypy` (pass); targeted statement pytest (31 passed); `python3 -m py_compile scripts/staging/run-statement-fixture-gate.py` (pass); `git diff --check` (pass).
+NEXT: Commit and push the gate fix, redeploy `staging-e2e`, then rerun the seeded three-bucket statement fixture gate before ticking Phase 3 Exec complete.
+
 ## 2026-05-25 17:58 -04 — CI FIX: Phase 3 mobile API contract drift
 CI: `origin/staging` run 26421348282 failed `Mobile API Drift` because the new statement reconciliation endpoints changed OpenAPI without regenerated mobile API artifacts.
 FIX: Ran `cd mobile && npm run generate:api`, updating `mobile/src/lib/openapi-spec.json` and `mobile/src/lib/api-types.d.ts`.

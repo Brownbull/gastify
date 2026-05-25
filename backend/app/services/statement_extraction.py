@@ -165,6 +165,7 @@ def _fixture_output(
     issuer_hint: str | None,
 ) -> StatementExtractionOutput:
     issuer = issuer_hint or "fixture-bank"
+    currency = "USD"
     return StatementExtractionOutput(
         pdf_status="readable",
         statement=StatementInfo(
@@ -173,7 +174,7 @@ def _fixture_output(
             period_end=date(2026, 5, 31),
             closing_date=date(2026, 5, 31),
             due_date=date(2026, 6, 15),
-            currency="CLP",
+            currency=currency,
             total_debit_minor=29_990,
             total_credit_minor=10_000,
             payment_due_minor=19_990,
@@ -185,7 +186,7 @@ def _fixture_output(
                 date=date(2026, 5, 3),
                 description="SUPERMERCADO FIXTURE",
                 amount_minor=19_990,
-                currency="CLP",
+                currency=currency,
                 line_type="charge",
                 card_alias_candidate="Fixture card",
                 category_key="supermarket",
@@ -195,7 +196,7 @@ def _fixture_output(
                 date=date(2026, 5, 15),
                 description="PAGO RECIBIDO",
                 amount_minor=-10_000,
-                currency="CLP",
+                currency=currency,
                 line_type="payment",
                 card_alias_candidate="Fixture card",
             ),
