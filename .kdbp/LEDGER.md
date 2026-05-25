@@ -1,5 +1,17 @@
 # Session Ledger
 
+## 2026-05-25 18:10 -04 — PHASE 3 EXEC COMPLETE: deployed statement reconciliation three-bucket gate
+ROUTE: `/gabe-next` resumed Phase 3 `/gabe-execute`; Phase 3 Exec is now closed by deployed `staging-e2e` proof.
+COMMITS: `bd4a621` reconciliation engine; `70602ca` mobile API drift fix; `e38e82b` fixture gate FX independence; `9b6409c` fixture gate completion wait.
+CI: `origin/staging` run 26421680669 for `9b6409c` passed 12/12. Earlier run 26421416829 for `70602ca` also passed after the mobile API drift fix.
+RAILWAY: `gastify-api-staging-e2e` deployment `dd03ec7a-ebe9-4c12-bc7b-5083dcb7289c` and `gastify-api-staging` deployment `3b936f9e-9932-42e9-a568-c49c58368005` reached `SUCCESS/RUNNING`. Readiness for both returned `status=ok`, DB connected, migration current/head `016`.
+RUNTIME PROOF: Ran `GASTIFY_STAGING_E2E_API_BASE_URL=https://gastify-api-staging-e2e-staging.up.railway.app GASTIFY_RESULT_ENV=staging-e2e GASTIFY_STATEMENT_STAGE_ID=20260525T-p5-phase3-reconciliation-gate-clean scripts/staging/run-statement-fixture-gate.py --seed-fixture-transactions --require-three-buckets`.
+RESULT: Passed. Manifest records `result_status=passed`, statement status `completed`, line count `2`, reconciliation status `completed`, `matched_count=1`, `statement_only_count=1`, `receipt_only_count=26`, `ambiguous_count=0`, and `coverage_ratio=0.5`. The receipt-only bucket is inflated by pre-existing staging-e2e receipt data in the statement period, but the seeded proof still shows all required buckets through the deployed API.
+ARTIFACTS: `tests/mobile/results/runs/staging-e2e/20260525T-p5-phase3-reconciliation-gate-clean/p5-statement-fixture-backend/manifest.json`; `readiness.json`; `upload-response.json`; `final-statement.json`; `lines.json`; `seeded-transactions.json`; `reconciliation.json`; run manifest `tests/mobile/results/runs/staging-e2e/20260525T-p5-phase3-reconciliation-gate-clean/run-manifest.json`.
+NOTE: Manifest `git_dirty_file_count=1` is the pre-existing untracked `backend/.gitignore`; tracked files were clean at proof time.
+TICK: ✅ Phase 3 Exec
+NEXT: Route to `/gabe-review` for Phase 3. Review should inspect the reconciliation service/API, fixture-gate evidence, and the accepted staging-data pollution caveat before Phase 4 web work begins.
+
 ## 2026-05-25 18:04 -04 — GATE FIX: statement fixture seed avoids live FX dependency
 RUNTIME ATTEMPT: `scripts/staging/run-statement-fixture-gate.py --seed-fixture-transactions --require-three-buckets` reached deployed `staging-e2e` readiness but failed while seeding the first receipt transaction because `/api/v1/transactions` returned `503 Exchange rate unavailable` for the CLP fixture seed.
 CAUSE: The three-bucket gate was depending on live FX just to create deterministic receipt seed data, before the statement upload/reconciliation portion could run.
