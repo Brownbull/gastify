@@ -1,5 +1,12 @@
 # Session Ledger
 
+## 2026-05-25 17:54 -04 — [bd4a621] feat(statements): add reconciliation engine
+FINDINGS: 1 (0 critical, 1 high, 0 medium, 0 low)
+ACTIONS: accepted broad `mypy app/` backlog as pre-existing for this checkpoint; targeted Phase 3 app mypy passed and full backend pytest passed.
+DEFERRED: none
+TICK: ✅ Phase 3 Commit
+NEXT: Push/deploy the Phase 3 candidate to Railway `staging-e2e`, then run `scripts/staging/run-statement-fixture-gate.py --seed-fixture-transactions --require-three-buckets` before marking Exec complete.
+
 ## 2026-05-25 17:52 -04 — PHASE 3 LOCAL IMPLEMENTATION CHECKPOINT: statement reconciliation
 SCOPE: Created ignored/private representative statement expected baselines for `cmr/cmr202503`, `edwards/edw202506`, and `scotiabank/sco202206`; added deterministic statement-to-receipt reconciliation service, API buckets, worker reconciliation kickoff, and staged fixture-gate reconciliation artifact support.
 LOCAL VERIFICATION: `cd backend && uv run ruff check . ../scripts/staging/run-statement-fixture-gate.py` (pass); `cd backend && uv run ruff format --check . ../scripts/staging/run-statement-fixture-gate.py` (pass); targeted statement `mypy` (pass); `cd backend && uv run pytest tests/test_statement_reconciliation.py tests/test_statement_worker.py tests/test_statements.py tests/test_statement_prompt_lab.py tests/test_statement_stream.py -q` (31 passed); `cd backend && uv run pytest tests/ -q` (565 passed, 2 skipped, 1 warning); `python3 -m py_compile scripts/staging/run-statement-fixture-gate.py` (pass); `scripts/staging/run-statement-fixture-gate.py --help` (pass).

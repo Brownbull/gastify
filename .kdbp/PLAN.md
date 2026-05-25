@@ -36,7 +36,7 @@ Runtime-gated P5 phases must close against branch-backed Railway staging evidenc
 | 0 | Statement corpus + extraction contract preflight | ent | ✅ | ✅ | ✅ | ✅ |
 | 1 | Card alias + statement schema foundation | ent | ✅ | ✅ | ✅ | ✅ |
 | 2 | Statement PDF upload + extraction worker | ent | ✅ | ✅ | ✅ | ✅ |
-| 3 | Reconciliation engine + coverage metric | ent | 🔄 | ⬜ | ⬜ | ⬜ |
+| 3 | Reconciliation engine + coverage metric | ent | 🔄 | ⬜ | ✅ | ⬜ |
 | 4 | Web statement reconciliation flow | ent | ⬜ | ⬜ | ⬜ | ⬜ |
 | 5 | Android mobile statement reconciliation flow | ent | ⬜ | ⬜ | ⬜ | ⬜ |
 | 6 | P5 exit gate + edge tests | ent | ⬜ | ⬜ | ⬜ | ⬜ |
