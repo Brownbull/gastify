@@ -2210,3 +2210,12 @@ DEFERRED: P32 (PostgreSQL-backed statement RLS execution test), P33 (scale-tier 
 CHECKS: `git diff --cached --check` (pass); `cd backend && uv run ruff check .` (pass); `cd backend && uv run ruff format --check .` (pass); `cd backend && uv run mypy app/models/statement.py` (pass); `cd web && npx tsc --noEmit` (pass); `bash scripts/ci/check-ng06-pci-exclusion.sh` (pass); `bash scripts/ci/check-rls-table-coverage.sh` (pass); `cd backend && uv run pytest tests/test_card_aliases.py tests/test_statement_models.py tests/test_transactions.py tests/test_rls.py -q` (48 passed); `cd backend && uv run pytest tests/ -x --tb=line -q` (540 passed, 2 skipped, 1 warning).
 
 Gabe-Lens brief: The fix adds database rails around the new statement shelves: a statement can only point at an alias in its own scope, and reconciliation runs can only attach to statements from the same scope, while the web client receives the same generated API contract as mobile.
+
+## 2026-05-25 15:51 -04 — PUSH staging -> main
+PR: —
+CI: all passed (`staging` run 26417108834, `main` run 26417227311)
+PROMOTION: promoted `origin/staging` -> `main` at `8f4e77b`
+DEPLOYMENTS: P29
+STAGING: `origin/staging` updated from `b84923f` to `8f4e77b`; GitHub Actions CI run 26417108834 passed 12/12. Railway fallback deploys used for `gastify-api-staging` deployment `55ef7412-314b-4763-adb3-ff0cfaf9400c` and `gastify-api-staging-e2e` deployment `235be0ab-25b4-4af9-b71b-193a3ba825aa`; both readiness probes returned `status=ok`, `database=connected`, `migration_status=current`, `migration_current=016`, `migration_head=016`.
+PRODUCTION PUSH: promoted tested `origin/staging` to `origin/main`; GitHub Actions CI run 26417227311 passed 12/12 for `8f4e77b`.
+PLAN: Phase 1 Push marked ✅.
