@@ -2165,3 +2165,11 @@ ARTIFACTS: Passing run folder `tests/mobile/results/runs/staging-e2e/20260521Tph
 CLEANUP: Failed setup/debug iterations `20260521Tphase3-scan-to-transaction-s23-r1`, `r2`, and `r3` were moved out of the active run folder into `tests/mobile/results/archive/20260521-phase3-scan-to-transaction-debug/staging-e2e/` so the active `runs/staging-e2e` lane keeps only the passing Phase 3 handoff packet.
 ARCHIVED: `.kdbp/reviews-archive/REVIEW_2026-05-21-154000_resolved.md`
 TESTS: S23 Maestro flow passed in 58s; `cd mobile && npm run typecheck` passed; `cd mobile && npm test -- --runInBand` passed (16 suites / 80 tests); `cd backend && uv run pytest tests/test_transactions.py` passed (31 tests); `git diff --check` passed. Archived review has `Verdict: APPROVE`; `.kdbp/PLAN.md` marks Phase 3 Review ✅.
+
+## 2026-05-25 13:17 -04 — [105f697] feat(statements): add card alias schema foundation
+FINDINGS: 3 (0 critical, 0 high, 1 medium, 2 low)
+ACTIONS: accepted documentation drift for this implementation commit; `docs/wells/**` and `.kdbp/KNOWLEDGE.md` already have separate unstaged edits and were intentionally not mixed into Phase 1 backend schema scope.
+DEFERRED: none
+CHECKS: `cd backend && uv run ruff check .` (pass); `cd backend && uv run ruff format --check .` (pass); `cd backend && uv run mypy app/models/statement.py app/api/card_aliases.py app/api/transactions.py app/schemas/card_alias.py app/schemas/statement.py` (pass); `cd backend && uv run pytest tests/test_card_aliases.py tests/test_statement_models.py tests/test_transactions.py tests/test_rls.py -q` (48 passed); `cd backend && uv run pytest tests/ -x --tb=line -q` (540 passed, 2 skipped, 1 warning); `bash scripts/ci/check-ng06-pci-exclusion.sh` (pass); `bash scripts/ci/check-rls-table-coverage.sh` (pass); `git diff --cached --check` (pass).
+
+Gabe-Lens brief: Phase 1 adds the first durable shelf for statements: aliases remain labels only, statement evidence gets its own tables, and transaction edits keep authority unless reconciliation later proves a match around them.
