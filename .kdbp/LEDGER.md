@@ -1,5 +1,11 @@
 # Session Ledger
 
+## 2026-05-25 17:58 -04 — CI FIX: Phase 3 mobile API contract drift
+CI: `origin/staging` run 26421348282 failed `Mobile API Drift` because the new statement reconciliation endpoints changed OpenAPI without regenerated mobile API artifacts.
+FIX: Ran `cd mobile && npm run generate:api`, updating `mobile/src/lib/openapi-spec.json` and `mobile/src/lib/api-types.d.ts`.
+CHECKS: `cd mobile && npm run typecheck` (pass); `git diff --check -- mobile/src/lib/openapi-spec.json mobile/src/lib/api-types.d.ts` (pass).
+NEXT: Commit and push the generated API artifacts, wait for the staging CI retry, redeploy if needed, then run the seeded three-bucket statement fixture gate.
+
 ## 2026-05-25 17:54 -04 — [bd4a621] feat(statements): add reconciliation engine
 FINDINGS: 1 (0 critical, 1 high, 0 medium, 0 low)
 ACTIONS: accepted broad `mypy app/` backlog as pre-existing for this checkpoint; targeted Phase 3 app mypy passed and full backend pytest passed.

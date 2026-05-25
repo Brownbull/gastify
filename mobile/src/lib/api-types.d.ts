@@ -456,6 +456,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/statements/{statement_id}/reconcile": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Reconcile Statement */
+        post: operations["reconcile_statement_api_v1_statements__statement_id__reconcile_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/statements/{statement_id}/reconciliation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Statement Reconciliation */
+        get: operations["get_statement_reconciliation_api_v1_statements__statement_id__reconciliation_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/statements/{statement_id}/process": {
         parameters: {
             query?: never;
@@ -1059,6 +1093,162 @@ export interface components {
         StatementProcessRequest: {
             /** Password */
             password?: string | null;
+        };
+        /** StatementReconciliationBucketItem */
+        StatementReconciliationBucketItem: {
+            verdict: components["schemas"]["StatementReconciliationVerdictResponse"];
+            statement_line?: components["schemas"]["StatementReconciliationLineSummary"] | null;
+            receipt_transaction?: components["schemas"]["StatementReconciliationReceiptSummary"] | null;
+        };
+        /** StatementReconciliationLineSummary */
+        StatementReconciliationLineSummary: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Statement Id
+             * Format: uuid
+             */
+            statement_id: string;
+            /** Source Order */
+            source_order: number;
+            /** Line Date */
+            line_date?: string | null;
+            /** Description */
+            description: string;
+            /** Amount Minor */
+            amount_minor: number;
+            /** Currency */
+            currency: string;
+            /**
+             * Line Type
+             * @enum {string}
+             */
+            line_type: "charge" | "payment" | "interest" | "fee" | "insurance" | "tax" | "adjustment" | "other";
+            /** Installment */
+            installment?: string | null;
+            /** Card Alias Candidate */
+            card_alias_candidate?: string | null;
+        };
+        /** StatementReconciliationReceiptSummary */
+        StatementReconciliationReceiptSummary: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Transaction Date
+             * Format: date
+             */
+            transaction_date: string;
+            /** Merchant */
+            merchant: string;
+            /** Merchant User Edited At */
+            merchant_user_edited_at?: string | null;
+            /** Total Minor */
+            total_minor: number;
+            /** Currency */
+            currency: string;
+            /** Card Alias Id */
+            card_alias_id?: string | null;
+            /** Receipt Type */
+            receipt_type?: string | null;
+        };
+        /** StatementReconciliationResponse */
+        StatementReconciliationResponse: {
+            run: components["schemas"]["StatementReconciliationRunResponse"];
+            /** Matched */
+            matched?: components["schemas"]["StatementReconciliationBucketItem"][];
+            /** Statement Only */
+            statement_only?: components["schemas"]["StatementReconciliationBucketItem"][];
+            /** Receipt Only */
+            receipt_only?: components["schemas"]["StatementReconciliationBucketItem"][];
+            /** Ambiguous */
+            ambiguous?: components["schemas"]["StatementReconciliationBucketItem"][];
+            /** Failed */
+            failed?: components["schemas"]["StatementReconciliationBucketItem"][];
+        };
+        /** StatementReconciliationRunResponse */
+        StatementReconciliationRunResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Statement Id
+             * Format: uuid
+             */
+            statement_id: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "pending" | "running" | "completed" | "failed";
+            /** Total Statement Lines */
+            total_statement_lines: number;
+            /** Matched Count */
+            matched_count: number;
+            /** Statement Only Count */
+            statement_only_count: number;
+            /** Receipt Only Count */
+            receipt_only_count: number;
+            /** Ambiguous Count */
+            ambiguous_count: number;
+            /** Coverage Ratio */
+            coverage_ratio?: number | null;
+            /** Error Code */
+            error_code?: string | null;
+            /** Error Message */
+            error_message?: string | null;
+            /** Started At */
+            started_at?: string | null;
+            /** Completed At */
+            completed_at?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /** StatementReconciliationVerdictResponse */
+        StatementReconciliationVerdictResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Run Id
+             * Format: uuid
+             */
+            run_id: string;
+            /** Statement Line Id */
+            statement_line_id?: string | null;
+            /** Receipt Transaction Id */
+            receipt_transaction_id?: string | null;
+            /**
+             * Verdict
+             * @enum {string}
+             */
+            verdict: "matched" | "statement_only" | "receipt_only" | "ambiguous" | "failed";
+            /** Score */
+            score?: number | null;
+            /** Reasons */
+            reasons?: string[];
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
         };
         /** StatementRecordResponse */
         StatementRecordResponse: {
@@ -2539,6 +2729,68 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["StatementLineRecordResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    reconcile_statement_api_v1_statements__statement_id__reconcile_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                statement_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StatementReconciliationResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_statement_reconciliation_api_v1_statements__statement_id__reconciliation_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                statement_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StatementReconciliationResponse"];
                 };
             };
             /** @description Validation Error */
