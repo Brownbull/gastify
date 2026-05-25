@@ -1,5 +1,14 @@
 # Session Ledger
 
+## 2026-05-25 17:33 -04 — PUSH main -> main
+PR: —
+CI: ✅ 12/12 (78s) — GitHub Actions run 26420576369 for `004972fc698839b45766cf4a2d2ae344973c9bbd`
+PROMOTION: push-local — `origin/staging` was ahead of `origin/main` but only carried the Phase 2 exec commits; pushed local `main` so review fixes and the statement-baseline-before-Gemini plan guard shipped with Phase 2.
+DEPLOYMENTS: P30  (added row to .kdbp/DEPLOYMENTS.md)
+CLASSIFIER: P26 resurfaced and deferred by default; PyJWT audit-ignore revisit remains open with times_deferred=4.
+TICK: ✅ Phase 2 Push
+NEXT: Phase 2 is complete. Route to `/gabe-next`; expected command is to advance to Phase 3.
+
 ## 2026-05-25 17:32 -04 — PLAN CLARIFICATION: statement baselines before Gemini
 SCOPE: Tightened P5 Phase 3 so private `.expected.json` statement baselines from Codex/manual review must exist before any Gemini statement prompt iteration or live-provider statement extraction scoring is used as quality evidence.
 BASELINE GATE: Minimum first pass is one CMR, one Edwards, and one Scotiabank statement, expanding toward the full 24-PDF corpus before promotion.
