@@ -12,7 +12,12 @@ from pypdf import PdfWriter
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from app.config import settings
-from app.models.statement import Statement, StatementLine, StatementStatus
+from app.models.statement import (
+    Statement,
+    StatementLine,
+    StatementReconciliationRun,
+    StatementStatus,
+)
 from app.services import statement_worker
 from app.services.statement_worker import process_statement
 from tests.conftest import TEST_SCOPE_ID
@@ -91,9 +96,14 @@ async def test_fixture_worker_persists_statement_metadata_lines_and_events(
             sa.select(StatementLine).where(StatementLine.statement_id == statement_id)
         )
         lines = rows.scalars().all()
+        run = await session.scalar(
+            sa.select(StatementReconciliationRun).where(
+                StatementReconciliationRun.statement_id == statement_id
+            )
+        )
 
     assert statement is not None
-    assert statement.status == StatementStatus.EXTRACTED
+    assert statement.status == StatementStatus.COMPLETED
     assert statement.issuer == "fixture-bank"
     assert statement.period_start is not None
     assert statement.payment_due_minor == 19_990
@@ -103,6 +113,10 @@ async def test_fixture_worker_persists_statement_metadata_lines_and_events(
     assert [line.source_order for line in lines] == [1, 2]
     assert lines[0].description == "SUPERMERCADO FIXTURE"
     assert lines[0].amount_minor == 19_990
+    assert run is not None
+    assert run.total_statement_lines == 2
+    assert run.matched_count == 0
+    assert run.statement_only_count == 2
     assert events == [
         "statement_picked_up",
         "statement_llm_start",

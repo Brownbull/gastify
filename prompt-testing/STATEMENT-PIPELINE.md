@@ -13,6 +13,8 @@ runtime database or UI work.
   page count, encryption status, and whether a password source existed during import.
 - Codex text-extraction packets are written under ignored prompt-lab results and may contain
   private statement text.
+- Private expected files are named `<case>.expected.json` beside the ignored PDF. They contain
+  normalized statement metadata/lines only and remain untracked.
 - Normalized statement extraction output does not carry raw PDF text; raw text is limited to
   the prompt-lab-only packet wrapper.
 
@@ -64,6 +66,15 @@ The first import produced:
 - 3 Scotiabank PDFs, encrypted with local password source.
 
 The committed manifest is `prompt-testing/test-cases/statements/manifest.json`.
+
+The first private representative expected-baseline pass is local-only:
+
+- `cmr/cmr202503`
+- `edwards/edw202506`
+- `scotiabank/sco202206`
+
+Use `statement-list --json` to confirm these cases report `baseline_status=baselined` before
+running any Gemini statement prompt scoring.
 
 ## Statement Contract
 

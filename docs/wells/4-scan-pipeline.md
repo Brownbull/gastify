@@ -57,6 +57,10 @@ UI.
 |------|------|
 | `services/scan_test_cases.py` | `list_scan_test_cases()`, `get_scan_test_case()` — curated non-production test case catalog from `fixtures/scan-test-cases/`. |
 | `services/scan_e2e_fixtures.py` | `E2EScanFixtureCase` dataclass + `write_upload_hash_marker()` — deterministic fixtures for physical-device E2E testing. |
+| `services/statement_extraction.py` | Statement PDF inspection/extraction provider boundary for codex-text and deterministic fixture modes. |
+| `services/statement_worker.py` | Statement extraction worker: PDF status handling, normalized line persistence, progress events, and reconciliation kickoff. |
+| `services/statement_reconciliation.py` | Deterministic statement-to-receipt matcher: date/amount/merchant/card-alias tolerance, idempotent persisted verdicts, buckets, and coverage metric. |
+| `services/statement_events.py` | In-memory statement progress dispatcher for SSE subscribers. |
 
 ### Prompt System (`backend/app/prompts/`)
 

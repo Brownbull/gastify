@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run a deployed staging-e2e statement PDF upload/extraction fixture gate."""
+"""Run a deployed staging-e2e statement PDF upload/reconciliation fixture gate."""
 
 from __future__ import annotations
 
@@ -25,7 +25,7 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description=(
             "Upload a generated statement PDF to deployed staging-e2e and verify "
-            "fixture extraction."
+            "fixture extraction and reconciliation."
         )
     )
     parser.add_argument(
@@ -66,6 +66,16 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--timeout-s", type=int, default=90)
     parser.add_argument("--poll-interval-s", type=float, default=1.0)
+    parser.add_argument(
+        "--seed-fixture-transactions",
+        action="store_true",
+        help="Seed one matching receipt transaction plus one receipt-only transaction via the API.",
+    )
+    parser.add_argument(
+        "--require-three-buckets",
+        action="store_true",
+        help="Fail unless matched, statement-only, and receipt-only buckets are all present.",
+    )
     return parser.parse_args()
 
 
@@ -172,6 +182,90 @@ def request_json(
     raise RuntimeError(f"Unexpected JSON response: {body}")
 
 
+def request_no_content(
+    client: httpx.Client,
+    method: str,
+    url: str,
+    *,
+    token: str,
+    **kwargs: Any,
+) -> None:
+    response = client.request(
+        method,
+        url,
+        headers={"Authorization": f"Bearer {token}"},
+        **kwargs,
+    )
+    response.raise_for_status()
+
+
+def seed_fixture_transactions(
+    client: httpx.Client,
+    *,
+    api_base_url: str,
+    token: str,
+    stage_id: str,
+) -> dict[str, Any]:
+    existing = request_json(
+        client,
+        "GET",
+        (
+            f"{api_base_url}/api/v1/transactions"
+            "?date_from=2026-05-03&date_to=2026-05-03&merchant=Supermercado%20Fixture"
+        ),
+        token=token,
+    )
+    deleted: list[str] = []
+    if isinstance(existing, dict):
+        for transaction in existing.get("data", []):
+            if (
+                isinstance(transaction, dict)
+                and transaction.get("merchant", "").casefold() == "supermercado fixture"
+                and transaction.get("total_minor") == 19_990
+                and transaction.get("currency") == "CLP"
+            ):
+                transaction_id = str(transaction["id"])
+                request_no_content(
+                    client,
+                    "DELETE",
+                    f"{api_base_url}/api/v1/transactions/{transaction_id}",
+                    token=token,
+                )
+                deleted.append(transaction_id)
+
+    matching = request_json(
+        client,
+        "POST",
+        f"{api_base_url}/api/v1/transactions",
+        token=token,
+        json={
+            "transaction_date": "2026-05-03",
+            "merchant": "Supermercado Fixture",
+            "total_minor": 19_990,
+            "currency": "CLP",
+            "receipt_type": "scan",
+        },
+    )
+    receipt_only = request_json(
+        client,
+        "POST",
+        f"{api_base_url}/api/v1/transactions",
+        token=token,
+        json={
+            "transaction_date": "2026-05-06",
+            "merchant": f"Receipt Only Fixture {stage_id}",
+            "total_minor": 7_777,
+            "currency": "CLP",
+            "receipt_type": "scan",
+        },
+    )
+    return {
+        "deleted_existing_match_ids": deleted,
+        "matching_transaction": matching,
+        "receipt_only_transaction": receipt_only,
+    }
+
+
 def main() -> int:
     args = parse_args()
     api_base_url = require(args.api_base_url, "API base URL").rstrip("/")
@@ -223,6 +317,18 @@ def main() -> int:
             if not isinstance(readiness, dict) or readiness.get("status") != "ok":
                 raise RuntimeError(f"Readiness failed: {readiness}")
 
+            if args.seed_fixture_transactions:
+                seeded = seed_fixture_transactions(
+                    client,
+                    api_base_url=api_base_url,
+                    token=token,
+                    stage_id=stage_id,
+                )
+                json_write(result_dir / "seeded-transactions.json", seeded)
+                manifest["seeded_fixture_transactions"] = True
+            else:
+                manifest["seeded_fixture_transactions"] = False
+
             pdf_bytes = generated_pdf_bytes(stage_id)
             upload = request_json(
                 client,
@@ -251,6 +357,7 @@ def main() -> int:
                 final_statement = current
                 if current.get("status") in {
                     "extracted",
+                    "completed",
                     "password_required",
                     "password_invalid",
                     "failed",
@@ -259,8 +366,8 @@ def main() -> int:
                 time.sleep(args.poll_interval_s)
 
             json_write(result_dir / "final-statement.json", final_statement)
-            if final_statement.get("status") != "extracted":
-                raise RuntimeError(f"Statement did not extract: {final_statement}")
+            if final_statement.get("status") not in {"extracted", "completed"}:
+                raise RuntimeError(f"Statement did not extract/reconcile: {final_statement}")
 
             lines = request_json(
                 client,
@@ -276,12 +383,37 @@ def main() -> int:
             if {"SUPERMERCADO FIXTURE", "PAGO RECIBIDO"} - descriptions:
                 raise RuntimeError(f"Unexpected fixture line descriptions: {descriptions}")
 
+            reconciliation = request_json(
+                client,
+                "GET",
+                f"{api_base_url}/api/v1/statements/{statement_id}/reconciliation",
+                token=token,
+            )
+            json_write(result_dir / "reconciliation.json", reconciliation)
+            if not isinstance(reconciliation, dict):
+                raise RuntimeError(f"Unexpected reconciliation response: {reconciliation}")
+            run = reconciliation.get("run")
+            if not isinstance(run, dict) or run.get("total_statement_lines") != 2:
+                raise RuntimeError(f"Unexpected reconciliation run: {reconciliation}")
+            if args.require_three_buckets and not (
+                run.get("matched_count", 0) >= 1
+                and run.get("statement_only_count", 0) >= 1
+                and run.get("receipt_only_count", 0) >= 1
+            ):
+                raise RuntimeError(f"Expected three reconciliation buckets: {run}")
+
             manifest.update(
                 {
                     "result_status": "passed",
                     "statement_id": statement_id,
                     "statement_status": final_statement.get("status"),
                     "line_count": len(lines),
+                    "reconciliation_status": run.get("status"),
+                    "matched_count": run.get("matched_count"),
+                    "statement_only_count": run.get("statement_only_count"),
+                    "receipt_only_count": run.get("receipt_only_count"),
+                    "ambiguous_count": run.get("ambiguous_count"),
+                    "coverage_ratio": run.get("coverage_ratio"),
                     "readiness_status": readiness.get("status"),
                     "migration_status": readiness.get("migration_status"),
                     "migration_current": readiness.get("migration_current"),

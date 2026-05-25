@@ -29,10 +29,16 @@ from app.models.statement import CardAlias, Statement, StatementLine, StatementS
 from app.schemas.statement import (
     StatementLineRecordResponse,
     StatementProcessRequest,
+    StatementReconciliationResponse,
     StatementRecordResponse,
     StatementUploadResponse,
 )
 from app.services.statement_extraction import inspect_statement_pdf
+from app.services.statement_reconciliation import (
+    StatementNotReadyForReconciliationError,
+    get_statement_reconciliation_response,
+    run_statement_reconciliation,
+)
 from app.services.statement_worker import process_statement
 
 logger = structlog.get_logger()
@@ -185,6 +191,57 @@ async def get_statement_lines(
         .order_by(StatementLine.source_order)
     )
     return [StatementLineRecordResponse.model_validate(line) for line in rows.scalars()]
+
+
+@router.post("/{statement_id}/reconcile", response_model=StatementReconciliationResponse)
+async def reconcile_statement(
+    statement_id: uuid.UUID,
+    auth: Auth,
+    db: DB,
+) -> StatementReconciliationResponse:
+    await _get_statement(db, auth, statement_id)
+    try:
+        await run_statement_reconciliation(
+            db,
+            statement_id=statement_id,
+            ownership_scope_id=auth.ownership_scope_id,
+        )
+    except StatementNotReadyForReconciliationError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=f"Statement is {exc.status.value}, cannot reconcile",
+        ) from exc
+    response = await get_statement_reconciliation_response(
+        db,
+        statement_id=statement_id,
+        ownership_scope_id=auth.ownership_scope_id,
+    )
+    if response is None:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Statement reconciliation did not produce a run",
+        )
+    return response
+
+
+@router.get("/{statement_id}/reconciliation", response_model=StatementReconciliationResponse)
+async def get_statement_reconciliation(
+    statement_id: uuid.UUID,
+    auth: Auth,
+    db: DB,
+) -> StatementReconciliationResponse:
+    await _get_statement(db, auth, statement_id)
+    response = await get_statement_reconciliation_response(
+        db,
+        statement_id=statement_id,
+        ownership_scope_id=auth.ownership_scope_id,
+    )
+    if response is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Statement reconciliation not found",
+        )
+    return response
 
 
 @router.post(

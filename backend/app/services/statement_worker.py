@@ -13,10 +13,17 @@ from sqlalchemy import delete, select, update
 
 from app.config import settings
 from app.db import async_session
-from app.models.statement import Statement, StatementLine, StatementLineType, StatementStatus
+from app.models.statement import (
+    Statement,
+    StatementLine,
+    StatementLineType,
+    StatementReconciliationRun,
+    StatementStatus,
+)
 from app.schemas.statement import StatementEvent, StatementExtractionOutput
 from app.services.statement_events import statement_dispatcher
 from app.services.statement_extraction import extract_statement_pdf
+from app.services.statement_reconciliation import run_statement_reconciliation
 
 if TYPE_CHECKING:
     import uuid
@@ -93,14 +100,27 @@ async def process_statement(statement_id: uuid.UUID, *, password: str | None = N
         "statement_reconciling",
         "reconciling",
         85,
-        data={"deferred_to_phase": 3, "line_count": len(extraction.lines)},
+        data={"line_count": len(extraction.lines)},
     )
+    reconciliation = await _reconcile_statement(statement_id)
     await _emit(
         statement_id,
         "statement_completed",
         "completed",
         100,
-        data={"status": StatementStatus.EXTRACTED.value, "line_count": len(extraction.lines)},
+        data={
+            "status": StatementStatus.COMPLETED.value,
+            "line_count": len(extraction.lines),
+            "matched_count": reconciliation.matched_count,
+            "statement_only_count": reconciliation.statement_only_count,
+            "receipt_only_count": reconciliation.receipt_only_count,
+            "ambiguous_count": reconciliation.ambiguous_count,
+            "coverage_ratio": (
+                float(reconciliation.coverage_ratio)
+                if reconciliation.coverage_ratio is not None
+                else None
+            ),
+        },
     )
     statement_dispatcher.close_statement(statement_id)
     log.info(
@@ -250,3 +270,8 @@ async def _persist_extraction(
                 )
             )
         await db.commit()
+
+
+async def _reconcile_statement(statement_id: uuid.UUID) -> StatementReconciliationRun:
+    async with async_session() as db:
+        return await run_statement_reconciliation(db, statement_id=statement_id)

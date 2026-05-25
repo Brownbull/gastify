@@ -38,6 +38,9 @@ domain logic to the wells that own it.
 | `backend/app/api/scans.py` | `POST /scans` — receipt image upload, triggers [G4 Scan Pipeline](4-scan-pipeline.md) `scan_worker.process_scan()` as a background task. |
 | `backend/app/api/scan_stream.py` | `GET /scans/{id}/events` (SSE) + `WS /ws/scans/{id}` — real-time scan progress with Firebase JWT auth. |
 | `backend/app/api/scan_test_cases.py` | Non-production endpoints for listing/running curated scan test cases. Guarded by environment check. |
+| `backend/app/api/statements.py` | Statement PDF upload/list/detail/lines/process plus `POST /statements/{id}/reconcile` and `GET /statements/{id}/reconciliation`. |
+| `backend/app/api/statement_stream.py` | `GET /statements/{id}/events` — statement extraction/reconciliation SSE progress with Firebase JWT auth. |
+| `backend/app/api/card_aliases.py` | Alias-only card CRUD. Rejects PCI-shaped fields and scopes aliases by ownership scope. |
 | `backend/app/api/transactions.py` | Full CRUD for transactions: list (paginated), get, create, update, delete, batch update/delete. FX conversion on write. |
 | `backend/app/api/reference.py` | Read-only endpoints for store and item category taxonomies. |
 | `backend/app/api/consent.py` | Consent grant/revoke + audit event listing per G3 Identity requirements. |

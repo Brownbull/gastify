@@ -1,5 +1,16 @@
 # Session Ledger
 
+## 2026-05-25 17:52 -04 — PHASE 3 LOCAL IMPLEMENTATION CHECKPOINT: statement reconciliation
+SCOPE: Created ignored/private representative statement expected baselines for `cmr/cmr202503`, `edwards/edw202506`, and `scotiabank/sco202206`; added deterministic statement-to-receipt reconciliation service, API buckets, worker reconciliation kickoff, and staged fixture-gate reconciliation artifact support.
+LOCAL VERIFICATION: `cd backend && uv run ruff check . ../scripts/staging/run-statement-fixture-gate.py` (pass); `cd backend && uv run ruff format --check . ../scripts/staging/run-statement-fixture-gate.py` (pass); targeted statement `mypy` (pass); `cd backend && uv run pytest tests/test_statement_reconciliation.py tests/test_statement_worker.py tests/test_statements.py tests/test_statement_prompt_lab.py tests/test_statement_stream.py -q` (31 passed); `cd backend && uv run pytest tests/ -q` (565 passed, 2 skipped, 1 warning); `python3 -m py_compile scripts/staging/run-statement-fixture-gate.py` (pass); `scripts/staging/run-statement-fixture-gate.py --help` (pass).
+TYPECHECK NOTE: Full `cd backend && uv run mypy app tests/test_statement_reconciliation.py tests/test_statement_worker.py` still hits the repo's existing broad mypy backlog in unrelated modules/tests; the Phase 3 touched app files pass targeted mypy.
+NEXT: Commit/checkpoint this local candidate through `/gabe-commit`, push/deploy to `staging-e2e`, then run the seeded statement fixture gate with `--seed-fixture-transactions --require-three-buckets` before Phase 3 Exec can close.
+
+## 2026-05-25 17:38 -04 — PHASE EXEC START: Phase 3 — Reconciliation engine + coverage metric
+ROUTE: `/gabe-next` advanced the active P5 plan from completed Phase 2 to Phase 3 and dispatched `/gabe-execute`.
+TASKS: private representative statement `.expected.json` baselines first, deterministic reconciliation engine, persisted verdict buckets, API contract, and deployed staging-e2e proof.
+STATE: Phase 3 Exec set to 🔄. Raw PDFs, credentials, and expected statement targets remain local/private and must not be committed.
+
 ## 2026-05-25 17:33 -04 — PUSH main -> main
 PR: —
 CI: ✅ 12/12 (78s) — GitHub Actions run 26420576369 for `004972fc698839b45766cf4a2d2ae344973c9bbd`

@@ -27,6 +27,7 @@ statements into the receipt corpus.
 - The statement pipeline and commands are documented in `prompt-testing/STATEMENT-PIPELINE.md`.
 - Statement schemas live in `backend/app/schemas/statement.py`.
 - Statement prompt definitions use prompt kind `statement-extraction`.
+- Private `.expected.json` files are created beside the ignored PDFs before Gemini scoring.
 
 Import the local legacy statement corpus:
 
@@ -44,6 +45,13 @@ cd backend
 uv run python -m app.prompt_lab statement-extract \
   --case cmr/cmr202503 \
   --run-id 20260525Tstatement-codex-samples
+```
+
+Check representative expected-baseline coverage before Gemini iteration:
+
+```bash
+cd backend
+uv run python -m app.prompt_lab statement-list --json
 ```
 
 ## Evidence Boundary

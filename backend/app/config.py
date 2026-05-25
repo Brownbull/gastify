@@ -44,6 +44,13 @@ class Settings(BaseSettings):
 
     scan_provider: str = "mock"
     statement_provider: str = "codex-pdf-text"
+    statement_reconciliation_date_tolerance_days: int = Field(default=3, ge=0, le=30)
+    statement_reconciliation_amount_tolerance_ratio: float = Field(default=0.01, ge=0, le=1)
+    statement_reconciliation_merchant_similarity_threshold: float = Field(
+        default=0.72,
+        ge=0,
+        le=1,
+    )
     e2e_scan_fixtures_enabled: bool = False
     e2e_scan_event_delay_ms: int = Field(default=0, ge=0, le=5_000)
     e2e_auth_enabled: bool = False

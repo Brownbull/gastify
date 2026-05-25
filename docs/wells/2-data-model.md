@@ -43,7 +43,7 @@ Security (RLS) is enforced via `ownership_scope_id` on every tenant table.
 | `schemas/consent.py` | `ConsentGrant`, `ConsentResponse`, `DataAccessResponse`, `ErasureResponse`, `PortabilityResponse`, `RectificationRequest`. Jurisdictions: CL, EU, CA, US-CA. |
 | `schemas/push_tokens.py` | `PushTokenRegistration`, `PushTokenUnregister`, `PushTokenResponse`. Platform and provider type literals. |
 | `schemas/scan_test_cases.py` | `ScanTestCaseSummary`, `ScanTestCaseList`, `ScanTestRunSubmission`. Provider mode: mock / fixture / gemini. |
-| `schemas/statement.py` | `StatementInfo`, `StatementLine`, `StatementExtractionOutput` — credit card statement extraction contracts (P5 feature). |
+| `schemas/statement.py` | Credit-card statement extraction contracts plus reconciliation run, verdict, bucket, and coverage response shapes (P5 feature). |
 
 ### Reference Data (`backend/app/reference/`)
 
@@ -70,6 +70,8 @@ Security (RLS) is enforced via `ownership_scope_id` on every tenant table.
 | `012_transaction_reconciliation_totals` | Reconciliation total columns for math gate. |
 | `013_scan_review_signals` | `scan_review_level` + `scan_review_signals` on transactions. |
 | `014_mobile_push_tokens` | Mobile push token table. |
+| `015_statement_reconciliation_foundation` | Card aliases, statement records/lines, reconciliation runs/verdicts, and RLS. |
+| `016_statement_same_scope_fk_constraints` | Same-scope FK constraints for statement/card-alias ownership boundaries. |
 
 ## Key Decisions
 

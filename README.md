@@ -44,6 +44,10 @@ The backend reads settings from environment variables (prefix `GASTIFY_`):
 | `GASTIFY_STORE_CATEGORIZATION_PROMPT_ID` | Active store categorization prompt registry id | `store-categorization-current` |
 | `GASTIFY_ENVIRONMENT` | Runtime lane (`local`, `staging`, `staging-e2e`, `production`) | `local` |
 | `GASTIFY_SCAN_PROVIDER` | Scan provider (`mock`, `fixture`, `gemini`) | `mock` |
+| `GASTIFY_STATEMENT_PROVIDER` | Statement provider (`codex-pdf-text`, `fixture`) | `codex-pdf-text` |
+| `GASTIFY_STATEMENT_RECONCILIATION_DATE_TOLERANCE_DAYS` | Statement-to-receipt date tolerance | `3` |
+| `GASTIFY_STATEMENT_RECONCILIATION_AMOUNT_TOLERANCE_RATIO` | Statement-to-receipt amount tolerance ratio | `0.01` |
+| `GASTIFY_STATEMENT_RECONCILIATION_MERCHANT_SIMILARITY_THRESHOLD` | Fuzzy merchant matching threshold | `0.72` |
 | `GASTIFY_SCAN_TEST_CONTROLS_ENABLED` | Enables guarded direct scan test-case endpoints outside production | `false` |
 | `GASTIFY_SCAN_EVENT_BUFFER_SIZE` | Backpressure buffer per SSE/WS subscriber (drop-oldest) | `32` |
 | `GASTIFY_SCAN_EVENT_HEARTBEAT_INTERVAL_S` | Heartbeat keepalive interval for streaming connections | `15` |

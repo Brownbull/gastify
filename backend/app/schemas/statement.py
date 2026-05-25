@@ -233,3 +233,42 @@ class StatementReconciliationVerdictResponse(BaseModel):
     score: float | None = Field(default=None, ge=0, le=1)
     reasons: list[str] = Field(default_factory=list)
     created_at: datetime
+
+
+class StatementReconciliationLineSummary(BaseModel):
+    id: UUID
+    statement_id: UUID
+    source_order: int
+    line_date: date_type | None = None
+    description: str
+    amount_minor: int
+    currency: str
+    line_type: StatementLineType
+    installment: str | None = None
+    card_alias_candidate: str | None = None
+
+
+class StatementReconciliationReceiptSummary(BaseModel):
+    id: UUID
+    transaction_date: date_type
+    merchant: str
+    merchant_user_edited_at: datetime | None = None
+    total_minor: int
+    currency: str
+    card_alias_id: UUID | None = None
+    receipt_type: str | None = None
+
+
+class StatementReconciliationBucketItem(BaseModel):
+    verdict: StatementReconciliationVerdictResponse
+    statement_line: StatementReconciliationLineSummary | None = None
+    receipt_transaction: StatementReconciliationReceiptSummary | None = None
+
+
+class StatementReconciliationResponse(BaseModel):
+    run: StatementReconciliationRunResponse
+    matched: list[StatementReconciliationBucketItem] = Field(default_factory=list)
+    statement_only: list[StatementReconciliationBucketItem] = Field(default_factory=list)
+    receipt_only: list[StatementReconciliationBucketItem] = Field(default_factory=list)
+    ambiguous: list[StatementReconciliationBucketItem] = Field(default_factory=list)
+    failed: list[StatementReconciliationBucketItem] = Field(default_factory=list)
