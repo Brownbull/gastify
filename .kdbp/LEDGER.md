@@ -1,5 +1,15 @@
 # Session Ledger
 
+## 2026-05-25 10:50 -04 — PUSH main -> main
+PR: —
+CI: ✅ 12/12 (64s) — GitHub Actions run 26406355703 for `f4f5edd169e58f2351abeaf6dafbefe490162d4e`
+PROMOTION: N/A — `origin/staging` was not ahead of `origin/main`; pushed local `main` directly to production target.
+DEPLOYMENTS: P28 (added row to .kdbp/DEPLOYMENTS.md)
+AUTO-FIX: Initial CI run 26406216066 failed SCA on `pypdf==5.9.0`; upgraded backend dependency to `pypdf>=6.10.2,<6.11.0` in `f4f5edd` and reran CI green.
+LOCAL CHECKS: `cd backend && uv run pip-audit --ignore-vuln PYSEC-2025-183` (pass); `cd backend && uv run pytest tests/ -x --tb=line -q` (532 passed, 2 skipped, 1 warning); `cd backend && uv run ruff check .` (pass); `cd backend && uv run ruff format --check .` (pass).
+TICK: ✅ Phase 0 Push
+NEXT: Phase 0 is complete. Route to `/gabe-next`; expected command is `/gabe-execute` for Phase 1.
+
 ## 2026-05-25 10:28 -04 — [e760260] feat(prompt-lab): add statement corpus preflight
 SCOPE: Committed P5 Phase 0 statement corpus preflight: ignored private PDF fixture lane, sanitized manifest, statement extraction contract, prompt kind, CLI, Codex-only text packet wrapper, statement scoring, docs, and KDBP plan/decision/review evidence.
 CHECKS: `git diff --cached --check` (pass); `cd backend && uv run ruff check app/ tests/test_statement_prompt_lab.py` (pass); `cd backend && uv run ruff format --check app/prompt_lab/statement_cases.py app/prompt_lab/statement_scoring.py app/schemas/statement.py app/prompts/statement_extraction.py tests/test_statement_prompt_lab.py` (pass); targeted statement `mypy` (pass); `cd backend && uv run pytest tests/ -x --tb=line -q` (532 passed, 2 skipped, 1 warning). Full `mypy app/` still reports pre-existing unrelated baseline type debt outside Phase 0; changed statement modules pass targeted mypy.

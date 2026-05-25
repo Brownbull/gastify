@@ -45,6 +45,7 @@
 | P25 | 2026-05-21 17:25 | main → main (direct) | — | ✅ 12/12 (68s) | P4 Phase 3 mobile ledger push — 3 commits (45517cc → 35af60e): carried P24 bookkeeping, Phase 3 ledger/detail/edit flow, and Phase 3 commit bookkeeping. CI run 26253946312 green. | — |
 | P26 | 2026-05-24 11:07 | main → main (direct) | — | ✅ 12/12 (68s) | P4 Phase 4 mobile sign-out/push push — 8 commits (ce40204 → ea1a6c9): carried P25 bookkeeping, push registration staging gate, cost snapshot ops command, Phase 4 staging proof, sign-out auto-unregister fix, Phase 4 commit bookkeeping, and Starlette SCA fix. CI run 26364742516 green after failed run 26364670718. auto-fix applied: deps; CI re-run after fix | Staging branch CI trigger added for runtime-gated staging lane |
 | P27 | 2026-05-24 13:00 | main → main (direct) | — | ✅ 12/12 (70s) | P4 Phase 5 mobile E2E push — 9 commits (c19e1fd → 2570de4): carried P26 bookkeeping, Phase 5 Android journey gate, S23 clean-gate fixes, Phase 5 review/commit bookkeeping, and grouped S23 stage/attempt artifacts. CI run 26367289042 green. | — |
+| P28 | 2026-05-25 10:50 | main → main (direct) | — | ✅ 12/12 (64s) | P5 Phase 0 statement preflight push — 5 commits (2570de4 → f4f5edd): carried P27/P4 completion bookkeeping, statement corpus preflight, Phase 0 commit bookkeeping, and pypdf SCA fix. CI run 26406355703 green after failed run 26406216066. auto-fix applied: deps; CI re-run after fix | — |
 
 <!-- Example rows:
 | P1 | 2026-04-17 14:22 | feature/add-auth → main | #42 | ✅ 3/3 (47s) | promoted main → (none) | — |

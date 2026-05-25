@@ -33,7 +33,7 @@ Runtime-gated P5 phases must close against branch-backed Railway staging evidenc
 
 | Phase | Name | Tier | Exec | Review | Commit | Push |
 |---|---|---|---:|---:|---:|---:|
-| 0 | Statement corpus + extraction contract preflight | ent | ✅ | ✅ | ✅ | ⬜ |
+| 0 | Statement corpus + extraction contract preflight | ent | ✅ | ✅ | ✅ | ✅ |
 | 1 | Card alias + statement schema foundation | ent | ⬜ | ⬜ | ⬜ | ⬜ |
 | 2 | Statement PDF upload + extraction worker | ent | ⬜ | ⬜ | ⬜ | ⬜ |
 | 3 | Reconciliation engine + coverage metric | ent | ⬜ | ⬜ | ⬜ | ⬜ |
