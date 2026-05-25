@@ -1,9 +1,8 @@
 """Statement extraction contracts for P5 prompt-lab and runtime design."""
 
-from __future__ import annotations
-
-from datetime import date
+from datetime import date, datetime
 from typing import Literal
+from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
@@ -14,6 +13,25 @@ StatementPdfStatus = Literal[
     "password_required",
     "password_invalid",
     "extraction_failed",
+]
+
+StatementLifecycleStatus = Literal[
+    "uploaded",
+    "password_required",
+    "password_invalid",
+    "queued",
+    "extracting",
+    "extracted",
+    "reconciling",
+    "completed",
+    "failed",
+]
+
+StatementReconciliationRunStatus = Literal[
+    "pending",
+    "running",
+    "completed",
+    "failed",
 ]
 
 StatementLineType = Literal[
@@ -112,3 +130,84 @@ class StatementReconciliationResult(BaseModel):
     verdict: StatementReconciliationVerdict
     score: float | None = Field(default=None, ge=0, le=1)
     reasons: list[str] = Field(default_factory=list)
+
+
+class StatementRecordResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
+    card_alias_id: UUID | None = None
+    status: StatementLifecycleStatus
+    original_filename: str
+    file_sha256: str
+    issuer: str | None = None
+    period_start: date_type | None = None
+    period_end: date_type | None = None
+    closing_date: date_type | None = None
+    due_date: date_type | None = None
+    currency: str
+    total_debit_minor: int | None = None
+    total_credit_minor: int | None = None
+    payment_due_minor: int | None = None
+    pdf_status: StatementPdfStatus
+    is_encrypted: bool
+    page_count: int | None = None
+    confidence: float | None = None
+    warnings: list[str] = Field(default_factory=list)
+    error_code: str | None = None
+    uploaded_at: datetime
+    extracted_at: datetime | None = None
+    reconciled_at: datetime | None = None
+    created_at: datetime
+    updated_at: datetime
+
+
+class StatementLineRecordResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
+    statement_id: UUID
+    source_order: int
+    line_date: date_type | None = None
+    description: str
+    amount_minor: int
+    currency: str
+    line_type: StatementLineType
+    installment: str | None = None
+    original_currency: str | None = None
+    original_amount_minor: int | None = None
+    card_alias_candidate: str | None = None
+    category_key: str | None = None
+
+
+class StatementReconciliationRunResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
+    statement_id: UUID
+    status: StatementReconciliationRunStatus
+    total_statement_lines: int
+    matched_count: int
+    statement_only_count: int
+    receipt_only_count: int
+    ambiguous_count: int
+    coverage_ratio: float | None = None
+    error_code: str | None = None
+    error_message: str | None = None
+    started_at: datetime | None = None
+    completed_at: datetime | None = None
+    created_at: datetime
+    updated_at: datetime
+
+
+class StatementReconciliationVerdictResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
+    run_id: UUID
+    statement_line_id: UUID | None = None
+    receipt_transaction_id: UUID | None = None
+    verdict: StatementReconciliationVerdict
+    score: float | None = Field(default=None, ge=0, le=1)
+    reasons: list[str] = Field(default_factory=list)
+    created_at: datetime

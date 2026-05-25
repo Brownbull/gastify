@@ -2,7 +2,7 @@
 
 import logging
 from datetime import UTC, date, datetime
-from typing import Annotated
+from typing import TYPE_CHECKING, Annotated, Any, cast
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
@@ -14,6 +14,7 @@ from sqlalchemy.orm import selectinload
 from app.auth.deps import Auth
 from app.db import get_db
 from app.models.reference import Currency
+from app.models.statement import CardAlias
 from app.models.transaction import Transaction, TransactionImage, TransactionItem
 from app.schemas.common import PaginatedResponse
 from app.schemas.transaction import (
@@ -27,6 +28,11 @@ from app.schemas.transaction import (
 )
 from app.services.fx import FxServiceError, compute_usd_shadow, get_fx_rate
 from app.services.mappings import remember_item_mapping, remember_merchant_mapping
+
+if TYPE_CHECKING:
+    from sqlalchemy.engine import CursorResult
+
+    from app.schemas.scan import ScanReviewLevel
 
 logger = logging.getLogger(__name__)
 
@@ -85,14 +91,14 @@ async def list_transactions(
         rows = rows[:limit]
 
     txn_ids = [txn.id for txn in rows]
-    item_counts: dict = {}
+    item_counts: dict[UUID, int] = {}
     if txn_ids:
         count_result = await db.execute(
             select(TransactionItem.transaction_id, func.count())
             .where(TransactionItem.transaction_id.in_(txn_ids))
             .group_by(TransactionItem.transaction_id)
         )
-        item_counts = dict(count_result.all())
+        item_counts = {transaction_id: int(count) for transaction_id, count in count_result.all()}
 
     items: list[TransactionListItem] = []
     for txn in rows:
@@ -113,7 +119,7 @@ async def list_transactions(
                 discount_total_minor=txn.discount_total_minor,
                 gross_total_minor=txn.gross_total_minor,
                 reconstructed_total_minor=txn.reconstructed_total_minor,
-                scan_review_level=txn.scan_review_level,
+                scan_review_level=cast("ScanReviewLevel", txn.scan_review_level),
                 currency=txn.currency,
                 amount_usd_minor=txn.amount_usd_minor,
                 fx_rate_to_usd=txn.fx_rate_to_usd,
@@ -160,6 +166,9 @@ async def create_transaction(
     auth: Auth,
     db: DB,
 ) -> dict[str, str]:
+    if body.card_alias_id is not None:
+        await _assert_active_card_alias(db, auth=auth, card_alias_id=body.card_alias_id)
+
     fx_rate_to_usd = None
     amount_usd_minor = None
     fx_captured_at = None
@@ -314,6 +323,12 @@ async def update_transaction(
     if "city" in update_data:
         txn.city = update_data["city"]
     if "card_alias_id" in update_data:
+        if update_data["card_alias_id"] is not None:
+            await _assert_active_card_alias(
+                db,
+                auth=auth,
+                card_alias_id=update_data["card_alias_id"],
+            )
         txn.card_alias_id = update_data["card_alias_id"]
 
     if body.items is not None:
@@ -427,7 +442,7 @@ async def batch_update_transactions(
         return BatchResult(count=0)
 
     now = datetime.now(UTC)
-    set_values: dict = {}
+    set_values: dict[str, object] = {}
     update_fields = body.updates.model_dump(exclude_unset=True)
 
     if "store_category_id" in update_fields:
@@ -453,7 +468,7 @@ async def batch_update_transactions(
         )
         .values(**set_values)
     )
-    result = await db.execute(stmt)
+    result = cast("CursorResult[Any]", await db.execute(stmt))
     await db.commit()
     return BatchResult(count=result.rowcount)
 
@@ -471,6 +486,26 @@ async def batch_delete_transactions(
         Transaction.id.in_(body.transaction_ids),
         Transaction.ownership_scope_id == auth.ownership_scope_id,
     )
-    result = await db.execute(stmt)
+    result = cast("CursorResult[Any]", await db.execute(stmt))
     await db.commit()
     return BatchResult(count=result.rowcount)
+
+
+async def _assert_active_card_alias(
+    db: AsyncSession,
+    *,
+    auth: Auth,
+    card_alias_id: UUID,
+) -> None:
+    result = await db.execute(
+        select(CardAlias.id).where(
+            CardAlias.id == card_alias_id,
+            CardAlias.ownership_scope_id == auth.ownership_scope_id,
+            CardAlias.archived_at.is_(None),
+        )
+    )
+    if result.scalar_one_or_none() is None:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Unknown active card alias",
+        )
