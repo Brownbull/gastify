@@ -129,6 +129,10 @@ requirements: [REQ-08]
 
 Build deterministic matching between statement lines and receipt-sourced transactions:
 
+- Before any Gemini statement prompt iteration or live-provider statement extraction scoring,
+  create private `.expected.json` baselines from Codex/manual review for the representative
+  statement corpus set. Minimum first pass: one CMR, one Edwards, and one Scotiabank
+  statement, expanding toward the full 24-PDF corpus before promotion.
 - Match by merchant, date, amount, currency, and card alias.
 - Respect tolerance rules: date ±3 days, amount within 1% or currency-minimum-unit, and configurable fuzzy merchant matching.
 - Produce matched, statement-only, and receipt-only buckets.
@@ -138,6 +142,8 @@ Build deterministic matching between statement lines and receipt-sourced transac
 
 Exit signal:
 
+- Statement expected baselines exist for the representative issuer set before any Gemini
+  statement prompt result is scored or used as reconciliation quality evidence.
 - Backend tests cover exact matches, fuzzy matches, no matches, ambiguous matches, archived alias behavior, and user-edited precedence.
 - Railway `staging-e2e` seeded receipt + statement run returns the three buckets and coverage metric through the deployed API.
 
