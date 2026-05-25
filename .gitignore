@@ -130,6 +130,10 @@ prompt-testing/import-manifest*.json
 !prompt-testing/results/archive/
 !prompt-testing/results/archive/.gitkeep
 
+# Statement prompt lab private corpus. Commit only sanitized manifests/docs/schemas.
+prompt-testing/test-cases/statements/private/**
+prompt-testing/test-cases/statements/**/credentials.json
+
 # Mockup reference dump — unversioned scratch vault for legacy imports (Claude Design, BoletApp, etc.)
 docs/mockups/legacy-reference/
 

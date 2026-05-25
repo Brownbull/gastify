@@ -144,6 +144,7 @@
 |---------|-------------|------|
 | `prompt-testing/README.md` | Prompt lab runbook and evidence boundary | MVP |
 | `prompt-testing/RECEIPT-PIPELINE.md` | Durable receipt scan and prompt-lab pipeline map | MVP |
+| `prompt-testing/STATEMENT-PIPELINE.md` | Durable statement prompt-lab pipeline map and privacy boundary | MVP |
 | `prompt-testing/import-manifest.json` | Whitelist import manifest for legacy receipt corpus | MVP |
 | `prompt-testing/PATTERN-CATALOG.md` | Manual receipt pattern catalog for prompt-lab coverage | MVP |
 | `prompt-testing/baselines/*.json` | Versioned receipt baseline sets, coverage tags, and promotion thresholds | MVP |
@@ -151,6 +152,7 @@
 | `prompt-testing/results/**/.gitkeep` | Placeholders for ignored prompt-lab result packets | MVP |
 | `prompt-testing/test-cases/receipts/**/*.json` | Imported receipt baselines and fixtures | MVP |
 | `prompt-testing/test-cases/receipts/**/*.{jpg,jpeg,png,webp}` | Imported receipt image corpus | MVP |
+| `prompt-testing/test-cases/statements/manifest.json` | Sanitized statement corpus manifest with no raw PDFs or credentials | MVP |
 
 ### UX Mockups (design-system + HTML prototypes)
 

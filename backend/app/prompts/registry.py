@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING
 
 from app.prompts.item_categorization import PROMPTS as ITEM_CATEGORIZATION_PROMPTS
 from app.prompts.receipt_structure import PROMPTS as RECEIPT_STRUCTURE_PROMPTS
+from app.prompts.statement_extraction import PROMPTS as STATEMENT_EXTRACTION_PROMPTS
 from app.prompts.store_categorization import PROMPTS as STORE_CATEGORIZATION_PROMPTS
 
 if TYPE_CHECKING:
@@ -14,6 +15,7 @@ if TYPE_CHECKING:
 
 PROMPTS: tuple[PromptDefinition, ...] = (
     *RECEIPT_STRUCTURE_PROMPTS,
+    *STATEMENT_EXTRACTION_PROMPTS,
     *ITEM_CATEGORIZATION_PROMPTS,
     *STORE_CATEGORIZATION_PROMPTS,
 )

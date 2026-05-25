@@ -45,6 +45,13 @@
 | D45 | 2026-05-20 | Runtime scan review signals stay inside the G4 gravity well | Accepted v2-dev.9 minor-review risks are produced by extraction, deterministic postprocessing, and math reconciliation, so warning-signal computation belongs in the scan pipeline rather than a new architecture well | New review-signal gravity well; split coalesce rules immediately; shared runtime/prompt-lab engine now | active | Review signals depend on UI concerns or prompt-lab baselines OR coalesce complexity outgrows the helper |
 | D46 | 2026-05-20 | Keep Railway as the current deployment platform; defer Render fallback planning as a post-launch architecture item | Railway remains aligned with the current MVP/staging implementation, but the May 2026 Railway outage exposed provider-concentration risk. Render is the selected future managed fallback target, to be planned after the first production launch rather than blocking current deployment proof. | Immediate migration to Render; Coolify/Hetzner self-hosting; Fly.io; Cloud Run; Koyeb/Kuberns | active | Post-launch infra hardening begins OR Railway blocks production cutover/runtime proof again |
 | D47 | 2026-05-24 | Defer iOS runtime testing until after the P1-P9 roadmap; Phase 5 closes on Android/S23 only | Current work is Android-on-desktop/WSL first, and the user chose to revisit iOS after the roadmap instead of treating missing local iOS infrastructure as a blocker | Keep iOS as a Phase 5 blocker; require macOS/TestFlight lane before P4 closure; remove iOS from the product target entirely | active | Roadmap P1-P9 completes OR iOS beta/TestFlight work begins |
+| D48 | 2026-05-24 | P5-Ph1 Card alias + statement schema foundation tier = ent | Statement/card schema touches financial data, ownership scope, RLS, migration ordering, and a PCI boundary; Ent is the minimum safe foundation | MVP ad hoc aliases and statement JSON blobs; Scale ledger/audit store before P5 behavior proves out | active | PCI-shaped fields appear OR ownership scope/card alias model changes |
+| D49 | 2026-05-24 | P5-Ph2 Statement PDF upload + extraction worker tier = ent | Upload, file/media persistence, async worker, AI structured output, failure states, and streaming progress are user-visible runtime behavior | MVP synchronous parse/no persistent file state; Scale multi-provider extraction cascade | active | Second provider is added OR statement volume exceeds current worker SLO |
+| D50 | 2026-05-24 | P5-Ph3 Reconciliation engine + coverage metric tier = ent | Matching financial lines against receipts requires deterministic verdicts, idempotent reruns, ambiguity handling, and user-edit precedence | MVP loose client-side matching; Scale ML matching/rule marketplace | active | Matching tolerance changes OR reconciliation becomes multi-user collaborative |
+| D51 | 2026-05-24 | P5-Ph4 Web statement reconciliation flow tier = ent | Web P5 is a primary user-facing upload/progress/bucket workflow with cache isolation and deployed browser proof requirements | MVP static result table; Scale collaborative review and advanced analytics | active | Web flow adds shared household review OR statement data becomes report-grade export |
+| D52 | 2026-05-24 | P5-Ph5 Android mobile statement reconciliation flow tier = ent | Native file picker, WebSocket progress, cache isolation, and S23 runtime proof are required for the Android roadmap lane; iOS remains deferred by D47 | MVP web-only fallback on mobile; Scale device farm/offline-first statements | active | iOS lane is pulled forward OR offline statement review becomes required |
+| D53 | 2026-05-24 | P5-Ph6 Exit gate + edge tests tier = ent | P5 closure must prove the full deployed journey and financial edge cases across Railway, web, and Android/S23 artifacts | MVP golden-path only; Scale load/performance suite beyond 200-line statement bound | active | Exit signal expands OR statement line count/SLO target changes |
+| D54 | 2026-05-25 | P5-Ph0 Statement corpus + extraction contract preflight tier = ent | Private statement PDFs, encrypted/password paths, AI prompt-lab scoring, and no-PCI output contracts must be designed before runtime schema/UI work | Jump directly to DB/runtime tables; mix PDFs into receipt prompt lab; commit raw PDF fixtures | active | Statement contract changes OR private corpus handling changes |
 
 <!-- Status: active / superseded / revisit -->
 <!-- BEHAVIOR.md constraints reference decision IDs: "All integrations mocked (ref D1)" -->
@@ -1433,6 +1440,271 @@ after the full P1-P9 roadmap is implemented.
 - P1-P9 roadmap implementation completes.
 - iOS beta/TestFlight or App Store work begins.
 - A team/device lane becomes available and the user explicitly pulls iOS forward.
+
+### Status
+- accepted
+
+---
+
+## D48 — P5 Phase 1 card alias + statement schema foundation tier: ent (2026-05-24)
+
+**Phase:** P5-Ph1 Card alias + statement schema foundation
+**Types:** `data-migration, persistence, auth, multi-tenant`
+**Tier chosen:** ent
+**Prototype:** no
+**Reason:** Statement reconciliation starts with financial persistence and a PCI boundary. Card aliases must stay alias-only, statement rows must be ownership-scoped, and migrations/RLS need to be correct before upload, worker, web, or mobile phases depend on them.
+
+### Sections rendered
+- Core (always, all 4 dims)
+- Data/Persistence: schema, migration, indexing, backup posture
+- Auth/Session: ownership scope and session-bound access
+- Multi-tenant: RLS and authorization checks
+
+### Dimensions suppressed
+- Native/mobile and web rendering dimensions — reason: this phase defines backend persistence only.
+- Scale noisy-neighbor controls — reason: scope-of-one MVP plus Railway staging proof is enough until volume changes.
+
+### Grade overrides
+- Data.Schema: default MVP → **Ent**. Reason: statement lines, verdicts, aliases, and ownership scope become long-lived financial records.
+- Multi-tenant.Row-isolation: Ent required. Reason: statement lines and aliases must follow existing ownership privacy guarantees.
+- Auth.Authorization: Ent required. Reason: card aliases and statements cannot be readable outside the signed-in ownership scope.
+
+### Δ deferred by tier choice
+- Scale audit immutability and separate ledger store are deferred until reconciliation output becomes external-reporting grade.
+- Advanced card metadata is rejected, not deferred, because it would enter PCI scope.
+
+### Review trigger
+- PCI-shaped fields appear in schema, API, UI, or fixtures.
+- Ownership scope/card alias sharing model changes.
+- Reconciliation output starts serving compliance or accounting export use cases.
+
+### Status
+- accepted
+
+---
+
+## D49 — P5 Phase 2 statement PDF upload + extraction worker tier: ent (2026-05-24)
+
+**Phase:** P5-Ph2 Statement PDF upload + extraction worker
+**Types:** `upload, file-media, ai-agent, async-worker, streaming`
+**Tier chosen:** ent
+**Prototype:** no
+**Reason:** PDF upload and statement extraction combine file persistence, AI structured output, worker state, and user-visible progress. P5 cannot safely close with a synchronous parse stub or local-only proof.
+
+### Sections rendered
+- Core (always, all 4 dims)
+- Upload/File-media: file validation, durable metadata, retention assumptions
+- AI/Agent: structured output, typed failures, fixture/live provider separation
+- Background jobs: retry/idempotency/dead-letter posture
+- Real-time/Streaming: progress events over existing web/mobile channels
+
+### Dimensions suppressed
+- Scale multi-provider cascade — reason: one statement extraction path plus fixture/live gates is enough for P5.
+- High-volume queue partitioning — reason: current SLO is statements <= 200 lines.
+
+### Grade overrides
+- AI.Structured-output: Ent required. Reason: downstream reconciliation treats extracted rows as code/data, not prose.
+- Background-jobs.Idempotency: Ent required. Reason: duplicate uploads or retries must not duplicate financial lines.
+- File-media.Persistence: Ent required. Reason: Railway-volume-backed proof is part of P5 closure.
+
+### Δ deferred by tier choice
+- Multi-provider extraction arbitration is deferred until extraction quality or availability requires it.
+- Resumable uploads are deferred unless statement PDF size or mobile upload failure rates justify them.
+
+### Review trigger
+- A second statement extraction provider is added.
+- Statement PDF volume or file size exceeds current worker/storage assumptions.
+- Railway volume behavior blocks staging or production proof.
+
+### Status
+- accepted
+
+---
+
+## D50 — P5 Phase 3 reconciliation engine + coverage metric tier: ent (2026-05-24)
+
+**Phase:** P5-Ph3 Reconciliation engine + coverage metric
+**Types:** `persistence, user-facing, client-state`
+**Tier chosen:** ent
+**Prototype:** no
+**Reason:** Matching statement lines to receipts is financial logic. The system needs persisted verdicts, deterministic tolerances, ambiguity handling, idempotent reruns, and user-edit precedence before clients can present coverage honestly.
+
+### Sections rendered
+- Core (always, all 4 dims)
+- Data/Persistence: verdict rows, match provenance, idempotent reruns
+- Client-state/User-facing contract: bucket and coverage semantics consumed by web/mobile
+
+### Dimensions suppressed
+- Scale ML matching and rule-marketplace behavior — reason: P5 only needs deterministic reconciliation.
+- Collaborative review workflows — reason: household/multi-user statement review is not in this phase.
+
+### Grade overrides
+- Core.Error-handling: Ent typed reconciliation errors. Reason: ambiguous, no-match, and extraction-failed states must not collapse into generic failure.
+- Data.Idempotency: Ent required. Reason: rerunning reconciliation cannot create duplicate verdicts or override user edits.
+- Client-state.Contract: Ent required. Reason: coverage and buckets are the user-facing exit signal.
+
+### Δ deferred by tier choice
+- ML-assisted matching and learned merchant normalization are deferred until deterministic matching shows real gaps.
+- Scale performance work beyond the <= 200-line SLO is deferred.
+
+### Review trigger
+- Match tolerances change.
+- User correction workflow starts editing statement verdicts directly.
+- Coverage metric becomes part of export/reporting commitments.
+
+### Status
+- accepted
+
+---
+
+## D51 — P5 Phase 4 web statement reconciliation flow tier: ent (2026-05-24)
+
+**Phase:** P5-Ph4 Web statement reconciliation flow
+**Types:** `web, user-facing, client-state, upload, realtime, file-media`
+**Tier chosen:** ent
+**Prototype:** no
+**Reason:** The web flow is a primary P5 surface: card alias CRUD, PDF upload, progress, buckets, coverage, drilldown, and sign-out isolation. Browser proof against deployed Railway services is required before review.
+
+### Sections rendered
+- Core (always, all 4 dims)
+- Web/UI: responsive stateful workflow, accessible controls, error recovery
+- Upload/File-media: user-visible PDF upload states
+- Real-time: SSE progress and reconnect behavior
+- Client-state: cache isolation and query invalidation
+
+### Dimensions suppressed
+- Scale collaborative review and reporting exports — reason: not required for P5 closure.
+- Offline web support — reason: statement uploads depend on online API/worker behavior.
+
+### Grade overrides
+- Real-time.Reconnection: Ent required. Reason: upload/extraction progress is user-visible and should recover without a manual reload.
+- Client-state.Cache-isolation: Ent required. Reason: statement and reconciliation data cannot survive sign-out or cross-user transitions.
+- Web.Accessibility/Semantics: Ent baseline. Reason: buckets, coverage, and actions are primary workflows, not mockups.
+
+### Δ deferred by tier choice
+- Advanced analytics/export views are deferred to later roadmap/reporting work.
+- Multi-user reconciliation comments/assignment are deferred.
+
+### Review trigger
+- Web statement flow becomes shared household review.
+- Bucket data is exported or used as a formal financial report.
+- SSE middleware limitations resurface under P18.
+
+### Status
+- accepted
+
+---
+
+## D52 — P5 Phase 5 Android mobile statement reconciliation flow tier: ent (2026-05-24)
+
+**Phase:** P5-Ph5 Android mobile statement reconciliation flow
+**Types:** `native-mobile, user-facing, client-state, upload, realtime, streaming, file-media`
+**Tier chosen:** ent
+**Prototype:** no
+**Reason:** Android is the active native runtime lane. File picking, upload progress, WebSocket updates, cache isolation, and the S23 gate are native behaviors that cannot be closed by web or unit tests alone. iOS proof remains deferred by D47/P31.
+
+### Sections rendered
+- Core (always, all 4 dims)
+- Native-mobile: document picker, navigation, platform storage/cache behavior
+- Upload/File-media: PDF upload from device
+- Real-time/Streaming: WebSocket progress and reconnect behavior
+- Client-state: TanStack/store cache cleanup and session transitions
+
+### Dimensions suppressed
+- iOS runtime proof — reason: explicitly deferred post-roadmap by D47/P31.
+- Scale device farm/offline-first statement sync — reason: S23 staging-e2e proof is the current runtime closure standard.
+
+### Grade overrides
+- Native runtime proof: Ent required. Reason: S23 evidence is the roadmap gate for Android-on-desktop work.
+- Real-time.Reconnection: Ent required. Reason: statement progress should recover from transient mobile network changes.
+- Client-state.Cache-isolation: Ent required. Reason: statement data must clear on sign-out.
+
+### Δ deferred by tier choice
+- iOS simulator/device proof is deferred to the post-roadmap iOS lane.
+- Offline-first statement uploads and background sync are deferred.
+- Device-farm compatibility is deferred until launch-hardening.
+
+### Review trigger
+- iOS beta/TestFlight work begins.
+- Offline statement review becomes a product requirement.
+- Android runtime artifacts stop being reproducible on the S23 lane.
+
+### Status
+- accepted
+
+---
+
+## D53 — P5 Phase 6 exit gate + edge tests tier: ent (2026-05-24)
+
+**Phase:** P5-Ph6 P5 exit gate + edge tests
+**Types:** `core-only, test, web, native-mobile`
+**Tier chosen:** ent
+**Prototype:** no
+**Reason:** P5 closure must prove the complete statement reconciliation journey, not only that code was written. The exit signal spans migrations, Railway services, worker behavior, web UI, Android/S23 runtime, and financial edge cases.
+
+### Sections rendered
+- Core (always, all 4 dims)
+- Test: integration, browser, mobile runtime, artifact integrity
+- Web: deployed user journey proof
+- Native-mobile: Android/S23 runtime proof
+
+### Dimensions suppressed
+- Load tests beyond the 200-line statement SLO — reason: current bound is explicit in SCOPE.
+- iOS runtime proof — reason: D47/P31 defers it beyond this roadmap cycle.
+
+### Grade overrides
+- Core.Testing: Ent required. Reason: encrypted PDFs, duplicates, ambiguous matches, sign-out mid-stream, and user-edit precedence are P5 financial safety cases.
+- Runtime evidence: Ent required. Reason: Railway and S23 artifact proof is the accepted gate before review.
+- Observability: Ent baseline. Reason: worker/event failures must be diagnosable during staging proof.
+
+### Δ deferred by tier choice
+- Scale load/performance suite beyond the current SLO is deferred.
+- Formal data export/report validation is deferred until reporting roadmap work.
+- iOS runtime closure remains deferred.
+
+### Review trigger
+- P5 exit signal changes.
+- Statement SLO changes beyond <= 200 lines / 2 minutes P95.
+- Runtime evidence cannot be captured cleanly on Railway or S23.
+
+### Status
+- accepted
+
+---
+
+## D54 — P5 Phase 0 statement corpus + extraction contract preflight tier: ent (2026-05-25)
+
+**Phase:** P5-Ph0 Statement corpus + extraction contract preflight
+**Types:** `ai-agent, test, file-media, data-contract`
+**Tier chosen:** ent
+**Prototype:** no
+**Reason:** The statement lane touches private banking PDFs, encrypted/password-protected documents, AI extraction contracts, prompt-lab scoring, and a no-PCI card boundary. The runtime schema and UX should not be built until the corpus and output contract are explicit.
+
+### Sections rendered
+- Core (always, all 4 dims)
+- AI/Agent: prompt identity, structured output, fixture/live separation
+- File-media: PDF import, encryption detection, password-state handling
+- Test/Data contract: manifest integrity, schema validation, scoring boundaries
+
+### Dimensions suppressed
+- Runtime web/native UI — reason: Phase 0 is pre-runtime and should not build user surfaces.
+- Database migration — reason: statement table design waits for the Phase 0 contract review.
+- Scale provider orchestration — reason: Gemini iteration begins after Codex/manual baselines exist.
+
+### Grade overrides
+- File-media.Privacy: Ent required. Reason: raw statements and credentials must stay uncommitted while committed manifests remain useful.
+- AI.Structured-output: Ent required. Reason: statement lines become reconciliation inputs and cannot be free-form prose.
+- Test.Contract: Ent required. Reason: receipt scoring must not be reused for statement PDFs.
+
+### Δ deferred by tier choice
+- Runtime statement upload, worker persistence, web, and Android flows remain deferred until Phase 0 review.
+- Full Gemini prompt optimization is deferred until Codex/manual expected files exist.
+- iOS runtime proof remains deferred by D47/P31.
+
+### Review trigger
+- Statement output contract changes.
+- Private corpus location or credential-handling policy changes.
+- Gemini statement prompt promotion begins.
 
 ### Status
 - accepted

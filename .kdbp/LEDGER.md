@@ -1,5 +1,37 @@
 # Session Ledger
 
+## 2026-05-25 10:03 -04 — PHASE 0 REVIEW: Statement corpus + extraction contract preflight
+VERDICT: APPROVE after triage.
+FINDINGS: 3 high findings fixed: raw statement text removed from the normalized statement contract and kept in a prompt-lab-only packet; password-required/password-invalid extraction packets now expose typed status; statement scoring now requires description/merchant matches.
+CHECKS: `git diff --check` (pass); targeted `ruff check` and `ruff format --check` (pass); targeted `mypy` for new statement modules (pass); `cd backend && uv run pytest tests/test_statement_prompt_lab.py tests/test_prompt_lab.py tests/test_prompt_registry.py tests/test_config.py` (58 passed); `cd backend && uv run pytest` (532 passed, 2 skipped, 1 warning).
+ARTIFACTS: Review archived at `.kdbp/reviews-archive/REVIEW_2026-05-25-100300_resolved.md`; ignored Codex sample extraction packets regenerated under `prompt-testing/results/latest/statements/20260525Tstatement-codex-samples/`.
+TICK: ✅ Phase 0 Review
+NEXT: Route to `/gabe-commit` for Phase 0 changes.
+
+## 2026-05-25 09:46 -04 — PHASE 0 EXEC COMPLETE: Statement corpus + extraction contract preflight
+SCOPE: Implemented the pre-runtime statement prompt-lab lane: ignored private PDF corpus import, sanitized corpus manifest, statement Pydantic contracts, statement prompt kind, Codex-only PDF/password extraction, statement-specific scoring, docs, and KDBP Phase 0 routing.
+CORPUS: Imported 24 PDFs into ignored local fixtures: CMR 12 unencrypted, Edwards 9 encrypted, Scotiabank 3 encrypted. Manifest records hashes/page counts/encryption/password-source flags without credentials or raw statement text.
+CODEX SAMPLES: Created ignored extraction packets for `cmr/cmr202503`, `edwards/edw202506`, and `scotiabank/sco202206` under `prompt-testing/results/latest/statements/20260525Tstatement-codex-samples/`.
+CHECKS: `git diff --check` (pass); targeted `ruff check` and `ruff format --check` (pass); `cd backend && uv run pytest tests/test_statement_prompt_lab.py tests/test_prompt_lab.py tests/test_prompt_registry.py` (44 passed); `cd backend && uv run pytest tests/test_config.py tests/test_env_files.py tests/test_statement_prompt_lab.py` (21 passed); targeted `mypy` for new statement modules (pass); `cd backend && uv run pytest` (531 passed, 2 skipped, 1 warning).
+TICK: ✅ Phase 0 Exec
+NEXT: Route to `/gabe-review` for Phase 0 before any runtime schema/UI implementation.
+
+## 2026-05-25 09:42 -04 — PLAN AMENDED + PHASE 0 EXEC STARTED: P5 statement corpus preflight
+SCOPE: Added P5 Phase 0 before runtime implementation so statement corpus intake, PDF password states, Codex-only extraction, statement Pydantic contracts, prompt kind, and statement-specific scoring are reviewed before schema/UI work.
+DECISION: D54 logged for Phase 0 tier = ent.
+ARTIFACTS: Sanitized statement corpus manifest at `prompt-testing/test-cases/statements/manifest.json`; private PDFs copied under ignored `prompt-testing/test-cases/statements/private/`; ignored Codex sample extraction packets created under `prompt-testing/results/latest/statements/20260525Tstatement-codex-samples/`.
+CHECKS: `cd backend && uv run pytest tests/test_statement_prompt_lab.py` (5 passed).
+TICK: 🔄 Phase 0 Exec
+NEXT: Finish Phase 0 docs/verification, then route to `/gabe-review` for Phase 0 before runtime Phase 1.
+
+## 2026-05-24 13:15 -04 — PLAN CREATED: P5 Statement Reconciliation + Cards
+PHASES: 6 | COMPLEXITY: high | MATURITY: mvp
+TIERS: mvp × 0, ent × 6, scale × 0 | PROTOTYPES: 0
+DECISIONS: D48 → D53 (6 phase tier decisions logged)
+SCOPE: PDF statement upload, statement extraction, reconciliation against receipt-sourced transactions, three-bucket view, coverage metric, and alias-only card CRUD with no PCI fields.
+NATIVE GATE: Android/S23 only for this roadmap cycle; iOS remains deferred by D47/P31.
+NEXT: Route to `/gabe-next`; expected command is `/gabe-execute` for Phase 1.
+
 ## 2026-05-24 13:02 -04 — PLAN COMPLETED: P4 Mobile App MVP
 ARCHIVE: .kdbp/archive/completed_PLAN_2026-05-24_p4-mobile-app-mvp.md
 PHASES COMPLETED: 5 of 5

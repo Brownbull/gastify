@@ -5,7 +5,12 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Literal
 
-PromptKind = Literal["receipt-extraction", "item-categorization", "store-categorization"]
+PromptKind = Literal[
+    "receipt-extraction",
+    "statement-extraction",
+    "item-categorization",
+    "store-categorization",
+]
 PromptStatus = Literal["production", "candidate", "dev-only"]
 
 

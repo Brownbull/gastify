@@ -20,6 +20,13 @@ from app.prompt_lab.cases import get_case, list_cases
 from app.prompt_lab.costs import estimate_cost_usd
 from app.prompt_lab.import_legacy import import_legacy_cases
 from app.prompt_lab.runner import run_case
+from app.prompt_lab.statement_cases import (
+    extract_statement_text,
+    get_statement_case,
+    import_statement_corpus,
+    list_statement_cases,
+    write_statement_extraction_packet,
+)
 from app.prompts import get_prompt, prompt_text_hash
 
 
@@ -44,6 +51,27 @@ def _parser() -> argparse.ArgumentParser:
     list_parser = subparsers.add_parser("list-cases")
     list_parser.add_argument("--json", action="store_true")
     list_parser.set_defaults(func=_list_cases)
+
+    statement_import_parser = subparsers.add_parser("statement-import")
+    statement_import_parser.add_argument("--source", required=True, type=Path)
+    statement_import_parser.add_argument("--force", action="store_true")
+    statement_import_parser.set_defaults(func=_statement_import)
+
+    statement_list_parser = subparsers.add_parser("statement-list")
+    statement_list_parser.add_argument("--json", action="store_true")
+    statement_list_parser.set_defaults(func=_statement_list)
+
+    statement_extract_parser = subparsers.add_parser("statement-extract")
+    statement_extract_parser.add_argument("--case", dest="case_id", required=True)
+    statement_extract_parser.add_argument("--password")
+    statement_extract_parser.add_argument("--credentials-root", type=Path)
+    statement_extract_parser.add_argument("--run-id", default="statement-codex-preflight")
+    statement_extract_parser.add_argument(
+        "--no-source-text",
+        action="store_true",
+        help="Write only metadata, warnings, and text hashes; omit raw statement text.",
+    )
+    statement_extract_parser.set_defaults(func=_statement_extract)
 
     validate_parser = subparsers.add_parser("validate")
     validate_parser.add_argument("--json", action="store_true")
@@ -124,6 +152,60 @@ def _list_cases(args: argparse.Namespace) -> int:
         for case in payload:
             print(f"{case['id']}\t{case['baseline_status']}\t{case['image']}")
     return 0
+
+
+def _statement_import(args: argparse.Namespace) -> int:
+    manifest = import_statement_corpus(args.source, force=args.force)
+    print(json.dumps(manifest["summary"], indent=2, sort_keys=True))
+    return 0
+
+
+def _statement_list(args: argparse.Namespace) -> int:
+    cases = list_statement_cases()
+    payload = [
+        {
+            "id": case.id,
+            "issuer": case.issuer,
+            "pdf": case.relative_path,
+            "baseline_status": case.baseline_status,
+            "baseline_path": str(case.expected_path) if case.expected_path else None,
+        }
+        for case in cases
+    ]
+    if args.json:
+        print(json.dumps(payload, indent=2, sort_keys=True))
+    else:
+        for case in payload:
+            print(f"{case['id']}\t{case['baseline_status']}\t{case['pdf']}")
+    return 0
+
+
+def _statement_extract(args: argparse.Namespace) -> int:
+    case = get_statement_case(args.case_id)
+    packet = extract_statement_text(
+        case,
+        password=args.password,
+        credentials_root=args.credentials_root,
+        include_source_text=not args.no_source_text,
+    )
+    manifest = write_statement_extraction_packet(
+        case,
+        packet,
+        run_id=args.run_id,
+    )
+    print(
+        json.dumps(
+            {
+                "case_id": manifest["case_id"],
+                "status": manifest["status"],
+                "processing": manifest["processing"],
+                "contains_raw_statement_text": manifest["contains_raw_statement_text"],
+            },
+            indent=2,
+            sort_keys=True,
+        )
+    )
+    return 1 if packet.extraction.pdf_status != "readable" else 0
 
 
 def _validate(args: argparse.Namespace) -> int:

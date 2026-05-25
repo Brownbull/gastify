@@ -33,6 +33,7 @@ class Settings(BaseSettings):
     gemini_max_retries: int = 3
     gemini_retry_delay_seconds: float = 2.0
     receipt_extraction_prompt_id: str = "receipt-extraction-current"
+    statement_extraction_prompt_id: str = "statement-extraction-current"
     item_categorization_prompt_id: str = "item-categorization-current"
     store_categorization_prompt_id: str = "store-categorization-current"
 
@@ -61,10 +62,12 @@ class Settings(BaseSettings):
         self.environment = environment
 
         extraction_prompt_id = self.receipt_extraction_prompt_id.strip()
+        statement_prompt_id = self.statement_extraction_prompt_id.strip()
         categorization_prompt_id = self.item_categorization_prompt_id.strip()
         store_prompt_id = self.store_categorization_prompt_id.strip()
         try:
             get_prompt(extraction_prompt_id, kind="receipt-extraction")
+            get_prompt(statement_prompt_id, kind="statement-extraction")
             get_prompt(categorization_prompt_id, kind="item-categorization")
             get_prompt(store_prompt_id, kind="store-categorization")
         except KeyError as exc:
@@ -75,6 +78,14 @@ class Settings(BaseSettings):
             kind="receipt-extraction",
         ):
             raise ValueError("Dev-only receipt extraction prompts cannot be enabled in production")
+        if not is_prompt_id_allowed(
+            statement_prompt_id,
+            environment=environment,
+            kind="statement-extraction",
+        ):
+            raise ValueError(
+                "Dev-only statement extraction prompts cannot be enabled in production"
+            )
         if not is_prompt_id_allowed(
             categorization_prompt_id,
             environment=environment,
@@ -90,6 +101,7 @@ class Settings(BaseSettings):
                 "Dev-only store categorization prompts cannot be enabled in production"
             )
         self.receipt_extraction_prompt_id = extraction_prompt_id
+        self.statement_extraction_prompt_id = statement_prompt_id
         self.item_categorization_prompt_id = categorization_prompt_id
         self.store_categorization_prompt_id = store_prompt_id
 

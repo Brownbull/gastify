@@ -17,6 +17,35 @@ Prompt files are split by responsibility:
 - `backend/app/reference/categories.py`: canonical English PascalCase category keys plus
   locale display labels. Spanish is translation metadata, not a category identifier.
 
+## Statement Prompt Lab
+
+P5 statement reconciliation uses a separate statement lane. Do not import credit-card
+statements into the receipt corpus.
+
+- Private PDFs live in `prompt-testing/test-cases/statements/private/` and are gitignored.
+- The committed statement manifest is `prompt-testing/test-cases/statements/manifest.json`.
+- The statement pipeline and commands are documented in `prompt-testing/STATEMENT-PIPELINE.md`.
+- Statement schemas live in `backend/app/schemas/statement.py`.
+- Statement prompt definitions use prompt kind `statement-extraction`.
+
+Import the local legacy statement corpus:
+
+```bash
+cd backend
+uv run python -m app.prompt_lab statement-import \
+  --source /home/khujta/projects/bmad/boletapp/prompt-testing/test-cases/CreditCard \
+  --force
+```
+
+Run a Codex-only sample extraction:
+
+```bash
+cd backend
+uv run python -m app.prompt_lab statement-extract \
+  --case cmr/cmr202503 \
+  --run-id 20260525Tstatement-codex-samples
+```
+
 ## Evidence Boundary
 
 Prompt-lab runs are AI-quality evidence only. They do not replace S23 gallery/camera proof in

@@ -4,9 +4,9 @@ Chilean smart expense tracker — AI receipt scanning, multi-currency analytics,
 
 ## Status
 
-Active rebuild. Current KDBP work is P4 Mobile App MVP, Phase 2 environment
-proof gate: the mobile scan implementation exists, but Phase 2 remains open
-until Railway staging evidence and S23 upload artifacts are logged.
+Active rebuild. Current KDBP work is P5 Statement Reconciliation + Cards.
+Phase 0 establishes the private statement-corpus prompt-lab lane and extraction
+contract before runtime schema, upload, web, or mobile work begins.
 
 See [`docs/rebuild/PLAN.md`](docs/rebuild/PLAN.md) for the phased implementation plan, [`docs/rebuild/LESSONS.md`](docs/rebuild/LESSONS.md) for rebuild rules derived from the prototype, and [`docs/runbooks/ENVIRONMENTS.md`](docs/runbooks/ENVIRONMENTS.md) for the environment-gated development model.
 
@@ -38,6 +38,10 @@ The backend reads settings from environment variables (prefix `GASTIFY_`):
 | `GOOGLE_API_KEY` | Google AI API key for receipt extraction when `GASTIFY_SCAN_PROVIDER=gemini` | (required for Gemini) |
 | `GASTIFY_GEMINI_MODEL` | Gemini model name | `gemini-2.5-flash-lite` |
 | `GASTIFY_GEMINI_MAX_RETRIES` | Max retries on transient AI errors | `3` |
+| `GASTIFY_RECEIPT_EXTRACTION_PROMPT_ID` | Active receipt extraction prompt registry id | `receipt-extraction-current` |
+| `GASTIFY_STATEMENT_EXTRACTION_PROMPT_ID` | Active statement extraction prompt registry id | `statement-extraction-current` |
+| `GASTIFY_ITEM_CATEGORIZATION_PROMPT_ID` | Active item categorization prompt registry id | `item-categorization-current` |
+| `GASTIFY_STORE_CATEGORIZATION_PROMPT_ID` | Active store categorization prompt registry id | `store-categorization-current` |
 | `GASTIFY_ENVIRONMENT` | Runtime lane (`local`, `staging`, `staging-e2e`, `production`) | `local` |
 | `GASTIFY_SCAN_PROVIDER` | Scan provider (`mock`, `fixture`, `gemini`) | `mock` |
 | `GASTIFY_SCAN_TEST_CONTROLS_ENABLED` | Enables guarded direct scan test-case endpoints outside production | `false` |
@@ -77,6 +81,11 @@ concurrency, or runtime Exec/Review closure.
 - [`docs/runbooks/RAILWAY-STAGING-SETUP.md`](docs/runbooks/RAILWAY-STAGING-SETUP.md)
 - [`docs/runbooks/STAGING-TESTING.md`](docs/runbooks/STAGING-TESTING.md)
 - [`docs/runbooks/PRODUCTION-CHECKLIST.md`](docs/runbooks/PRODUCTION-CHECKLIST.md)
+
+## Prompt Lab
+
+- Receipt prompt-lab workflow: [`prompt-testing/README.md`](prompt-testing/README.md)
+- Statement prompt-lab workflow: [`prompt-testing/STATEMENT-PIPELINE.md`](prompt-testing/STATEMENT-PIPELINE.md)
 
 ## License
 
