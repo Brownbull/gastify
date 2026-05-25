@@ -2173,3 +2173,18 @@ DEFERRED: none
 CHECKS: `cd backend && uv run ruff check .` (pass); `cd backend && uv run ruff format --check .` (pass); `cd backend && uv run mypy app/models/statement.py app/api/card_aliases.py app/api/transactions.py app/schemas/card_alias.py app/schemas/statement.py` (pass); `cd backend && uv run pytest tests/test_card_aliases.py tests/test_statement_models.py tests/test_transactions.py tests/test_rls.py -q` (48 passed); `cd backend && uv run pytest tests/ -x --tb=line -q` (540 passed, 2 skipped, 1 warning); `bash scripts/ci/check-ng06-pci-exclusion.sh` (pass); `bash scripts/ci/check-rls-table-coverage.sh` (pass); `git diff --cached --check` (pass).
 
 Gabe-Lens brief: Phase 1 adds the first durable shelf for statements: aliases remain labels only, statement evidence gets its own tables, and transaction edits keep authority unless reconciliation later proves a match around them.
+
+## 2026-05-25 13:24 -04 — PHASE EXEC COMPLETE: Phase 1 — Card alias + statement schema foundation
+TIER: ent
+TASKS: 5 tasks, 3 implementation/contract commits (`105f697`, `c424453`, `9cae77f`)
+COMMITS: `105f697` added the statement/card persistence foundation; `c424453` recorded the Gabe commit checkpoint and Commit ✅; `9cae77f` refreshed generated mobile OpenAPI contracts after CI caught API drift.
+BRANCH: `main` pushed to `origin/staging` at `9cae77f4a66ad1174383455d63aa38949f813293`.
+CI: GitHub Actions `CI` run `26412150430` passed for `9cae77f`; earlier run `26411997648` failed only `Mobile API Drift` for missing generated mobile API artifacts and was corrected by `9cae77f`.
+RAILWAY DEPLOY: Explicit fallback deploy used because push alone left APIs on Alembic `014`. Commands: `railway up ./backend --path-as-root --environment staging --service gastify-api-staging --detach --ci`; `railway up ./backend --path-as-root --environment staging --service gastify-api-staging-e2e --detach --ci`.
+RAILWAY SERVICES: `gastify-api-staging` deployment `05991f02-e8c2-48a6-af08-bc0c740858cd` status `SUCCESS/RUNNING`; `gastify-api-staging-e2e` deployment `14a37f1e-4a6a-40fd-8f5e-987348771ce2` status `SUCCESS/RUNNING`.
+STAGING READINESS: `bash scripts/staging/check-backend-ready.sh https://gastify-api-staging-staging.up.railway.app` returned `status=ok`, `database=connected`, `migration_status=current`, `migration_current=015`, `migration_head=015`.
+STAGING-E2E READINESS: `bash scripts/staging/check-backend-ready.sh https://gastify-api-staging-e2e-staging.up.railway.app` returned `status=ok`, `database=connected`, `migration_status=current`, `migration_current=015`, `migration_head=015`.
+LOCAL VERIFICATION: `cd backend && uv run ruff check .` (pass); `cd backend && uv run ruff format --check .` (pass); targeted mypy over changed backend modules (pass); focused backend tests (48 passed); full backend tests (540 passed, 2 skipped, 1 warning); PCI and RLS guard scripts (pass); `cd mobile && npm run generate:api` (pass); `cd mobile && npm run typecheck` (pass).
+RUNTIME SCOPE: Deployed API/DB proof only. No raw PDFs, credentials, statement extraction provider calls, browser journey, or Android/S23 statement journey are part of Phase 1; later P5 phases own upload/worker/web/mobile runtime artifacts.
+DEVIATIONS: 1 minor corrected CI contract drift; no structural deviations.
+RESULT: Phase 1 Exec marked ✅. Review remains ⬜; Push remains ⬜ pending the normal `/gabe-review` and `/gabe-push` route.
