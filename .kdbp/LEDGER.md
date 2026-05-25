@@ -1,5 +1,19 @@
 # Session Ledger
 
+## 2026-05-25 17:15 -04 — PHASE 2 REVIEW: Statement PDF upload + extraction worker
+VERDICT: APPROVE
+FINDINGS: 3 total (0 critical, 2 high, 0 medium, 1 low)
+COVERAGE: HIGH — SSE endpoint tested (4 integration tests), codex-text-no-normalization path tested, artifact privacy fixed
+CONFIDENCE: 95/100
+DEFERRED: none
+ALIGNMENT: DRIFTED (23/27 on-scope; 4 off-scope docs/wells files thematically related)
+TIER: ent | DRIFT: none
+TICK: ✅ Phase 2 Review
+SOURCES: codex (gpt-5) + claude (claude-opus-4-6) — blind-first cross-agent triangulation, union consolidation (3 strict overlapping findings, 0 unique)
+TRIAGE: option [2] fix all — fixed 3 (#1 extraction false-success → extraction_failed, #2 SSE integration tests added, #3 manifest auth_verified boolean)
+FIXES: statement_extraction.py codex-text returns extraction_failed; new test_statement_stream.py (4 tests); run-statement-fixture-gate.py redacted identifiers
+ARCHIVED: `.kdbp/reviews-archive/REVIEW_2026-05-25-171500_resolved.md`
+
 ## 2026-05-25 10:50 -04 — PUSH main -> main
 PR: —
 CI: ✅ 12/12 (64s) — GitHub Actions run 26406355703 for `f4f5edd169e58f2351abeaf6dafbefe490162d4e`

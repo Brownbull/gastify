@@ -215,8 +215,7 @@ def main() -> int:
         api_key = read_firebase_api_key(args.google_services)
         auth_result = sign_in(api_key, email=email, password=password)
         token = str(auth_result["idToken"])
-        manifest["firebase_uid"] = auth_result.get("localId")
-        manifest["firebase_email"] = email
+        manifest["auth_verified"] = True
 
         with httpx.Client(timeout=30) as client:
             readiness = request_json(client, "GET", f"{api_base_url}/api/v1/health/ready")

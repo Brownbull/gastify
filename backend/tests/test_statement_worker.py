@@ -165,3 +165,59 @@ async def test_codex_worker_empty_text_sets_extraction_failed(engine, tmp_path, 
     assert statement.pdf_status == "extraction_failed"
     assert statement.error_code == "EXTRACTION_FAILED"
     assert statement.warnings == ["empty_pdf_text"]
+
+
+@pytest.mark.asyncio
+async def test_codex_worker_text_bearing_pdf_without_normalization_sets_failed(
+    engine, tmp_path, monkeypatch
+):
+    monkeypatch.setattr(settings, "statement_provider", "codex-pdf-text")
+    statement_id = await _insert_statement(engine, tmp_path)
+    factory = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+    monkeypatch.setattr(statement_worker, "async_session", factory)
+
+    def _patched_extract(path, *, provider=None, password=None, issuer_hint=None):
+        from app.schemas.statement import (
+            StatementExtractionOutput,
+            StatementInfo,
+            StatementProcessingMetadata,
+        )
+
+        return StatementExtractionOutput(
+            pdf_status="extraction_failed",
+            statement=StatementInfo(issuer=issuer_hint),
+            lines=[],
+            processing=StatementProcessingMetadata(
+                provider="codex-pdf-text",
+                prompt_id="statement-extraction-current",
+                model_name=None,
+                confidence=0.0,
+                page_count=1,
+                raw_text_sha256="abc123",
+                text_char_count=50,
+                text_line_count=3,
+                warnings=["codex_text_only_no_line_normalization"],
+            ),
+        )
+
+    monkeypatch.setattr(statement_worker, "extract_statement_pdf", _patched_extract)
+
+    assert await process_statement(statement_id) is True
+
+    async with factory() as session:
+        statement = await session.get(Statement, statement_id)
+        lines = (
+            (
+                await session.execute(
+                    sa.select(StatementLine).where(StatementLine.statement_id == statement_id)
+                )
+            )
+            .scalars()
+            .all()
+        )
+    assert statement is not None
+    assert statement.status == StatementStatus.FAILED
+    assert statement.pdf_status == "extraction_failed"
+    assert statement.error_code == "EXTRACTION_FAILED"
+    assert "codex_text_only_no_line_normalization" in (statement.warnings or [])
+    assert len(lines) == 0

@@ -139,14 +139,14 @@ def extract_statement_pdf(
         )
 
     return StatementExtractionOutput(
-        pdf_status="readable",
+        pdf_status="extraction_failed",
         statement=StatementInfo(issuer=issuer_hint),
         lines=[],
         processing=StatementProcessingMetadata(
             provider="codex-pdf-text",
             prompt_id=settings.statement_extraction_prompt_id,
             model_name=None,
-            confidence=0.5 if text_lines else 0.0,
+            confidence=0.0,
             page_count=len(reader.pages),
             raw_text_sha256=raw_text_hash,
             text_char_count=len(raw_text),
