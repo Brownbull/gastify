@@ -56,4 +56,8 @@
 <!-- P29 from /gabe-review Phase 4 (2026-05-21) — close during /gabe-push after deployed staging evidence is captured. -->
 <!-- P30 from /gabe-review Phase 4 cross-agent consolidation (2026-05-24) — Scale-gate file-length item deferred per triage option [2]. -->
 <!-- P31 from user decision D47 (2026-05-24) — iOS runtime lane deferred post-roadmap; Android/S23 remains the current mobile proof lane. -->
+| P32 | 2026-05-25 | gabe-review P5-Ph1 | RLS tested statically only — migration content test checks strings; no test executes PostgreSQL RLS policy SQL for new statement tables. Requires PG-backed test harness or integration test env. | `backend/tests/test_statement_models.py:134` | ent | medium | moderate | 1 | open |
+| P33 | 2026-05-25 | gabe-review P5-Ph1 | Subquery-based RLS on `statement_lines` and `statement_reconciliation_verdicts` (no direct `ownership_scope_id`) — correct pattern at ent but degrades at scale with large datasets. Fix: denormalize `ownership_scope_id` onto child tables. | `backend/alembic/versions/015_statement_reconciliation_foundation.py:349` | scale | low | moderate | 1 | open |
+
+<!-- P32-P33 from /gabe-review P5 Phase 1 cross-agent consolidation (2026-05-25) — deferred per triage option [2] (fix MVP+Enterprise). P32 Enterprise gate, P33 Scale gate. -->
 <!-- Backend P1 pending items are tracked inside .kdbp/archive/queued_backend-p1.md and activate with that plan. -->

@@ -23,6 +23,7 @@ from sqlalchemy import (
     Uuid,
     func,
 )
+from sqlalchemy.dialects.postgresql import JSONB as PG_JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db import Base
@@ -78,7 +79,7 @@ class CardAlias(Base):
         Uuid, primary_key=True, default=uuid.uuid4, server_default=func.gen_random_uuid()
     )
     ownership_scope_id: Mapped[uuid.UUID] = mapped_column(
-        Uuid, ForeignKey("ownership_scopes.id"), nullable=False, index=True
+        Uuid, ForeignKey("ownership_scopes.id"), nullable=False
     )
     name: Mapped[str] = mapped_column(Text, nullable=False)
     archived_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
@@ -122,7 +123,7 @@ class Statement(Base):
         Uuid, primary_key=True, default=uuid.uuid4, server_default=func.gen_random_uuid()
     )
     ownership_scope_id: Mapped[uuid.UUID] = mapped_column(
-        Uuid, ForeignKey("ownership_scopes.id"), nullable=False, index=True
+        Uuid, ForeignKey("ownership_scopes.id"), nullable=False
     )
     card_alias_id: Mapped[uuid.UUID | None] = mapped_column(
         Uuid, ForeignKey("card_aliases.id", ondelete="SET NULL"), nullable=True
@@ -160,7 +161,10 @@ class Statement(Base):
     extraction_model_name: Mapped[str | None] = mapped_column(Text, nullable=True)
     confidence: Mapped[Decimal | None] = mapped_column(Numeric(4, 3), nullable=True)
     warnings: Mapped[list[str]] = mapped_column(
-        JSON, nullable=False, default=list, server_default="[]"
+        JSON().with_variant(PG_JSONB(), "postgresql"),
+        nullable=False,
+        default=list,
+        server_default="[]",
     )
     error_code: Mapped[str | None] = mapped_column(String(50), nullable=True)
     error_message: Mapped[str | None] = mapped_column(Text, nullable=True)
@@ -248,7 +252,7 @@ class StatementReconciliationRun(Base):
         Uuid, primary_key=True, default=uuid.uuid4, server_default=func.gen_random_uuid()
     )
     ownership_scope_id: Mapped[uuid.UUID] = mapped_column(
-        Uuid, ForeignKey("ownership_scopes.id"), nullable=False, index=True
+        Uuid, ForeignKey("ownership_scopes.id"), nullable=False
     )
     statement_id: Mapped[uuid.UUID] = mapped_column(
         Uuid, ForeignKey("statements.id", ondelete="CASCADE"), nullable=False
@@ -325,7 +329,10 @@ class StatementReconciliationVerdict(Base):
     )
     score: Mapped[Decimal | None] = mapped_column(Numeric(4, 3), nullable=True)
     reasons: Mapped[list[str]] = mapped_column(
-        JSON, nullable=False, default=list, server_default="[]"
+        JSON().with_variant(PG_JSONB(), "postgresql"),
+        nullable=False,
+        default=list,
+        server_default="[]",
     )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now()

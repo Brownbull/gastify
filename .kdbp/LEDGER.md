@@ -2188,3 +2188,17 @@ LOCAL VERIFICATION: `cd backend && uv run ruff check .` (pass); `cd backend && u
 RUNTIME SCOPE: Deployed API/DB proof only. No raw PDFs, credentials, statement extraction provider calls, browser journey, or Android/S23 statement journey are part of Phase 1; later P5 phases own upload/worker/web/mobile runtime artifacts.
 DEVIATIONS: 1 minor corrected CI contract drift; no structural deviations.
 RESULT: Phase 1 Exec marked ✅. Review remains ⬜; Push remains ⬜ pending the normal `/gabe-review` and `/gabe-push` route.
+
+## 2026-05-25 14:45 -04 — PHASE 1 REVIEW: Card alias + statement schema foundation
+VERDICT: APPROVE
+FINDINGS: 6 total (0 critical, 2 high, 3 medium, 1 low)
+COVERAGE: MEDIUM — RLS proof is static-only; web contract was stale (both fixed during triage)
+CONFIDENCE: 88/100
+DEFERRED: P32 (RLS execution test, ent gate), P33 (subquery RLS perf, scale gate)
+ALIGNMENT: ALIGNED
+TIER: ent | DRIFT: none
+TICK: ✅
+SOURCES: codex (gpt-5) + claude (claude-opus-4-6) — blind-first cross-agent triangulation, union consolidation (0 overlapping findings, 6 unique)
+TRIAGE: option [2] fix MVP+Enterprise — fixed 4 (#1 composite FK scope, #2 web contract regen, #4 JSON/JSONB with_variant, #5 remove index=True drift), deferred 2 (#3 RLS execution → P32, #6 subquery RLS → P33)
+FIXES: migration 016 (same-scope composite FK constraints), statement.py model cleanup (with_variant + index removal), web contract regeneration
+ARCHIVED: `.kdbp/reviews-archive/REVIEW_2026-05-25-144500_resolved.md`
