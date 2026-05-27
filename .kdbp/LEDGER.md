@@ -2475,3 +2475,13 @@ PROMOTION: N/A — staging push only
 DEPLOYMENTS: P32
 STAGING: `origin/staging` updated from `7ef9d1c` to `e6d04aa`; GitHub Actions CI run 26538457661 passed 13/13 for the Phase 5 web consent-reset fix and KDBP commit bookkeeping.
 PLAN: Phase 5 Push remains ⬜ because this was the non-default staging environment; production promotion is the next push gate.
+
+## 2026-05-27 17:07 -04 — PUSH staging -> main
+PR: —
+CI: all passed (`main` run 26538710272)
+PROMOTION: promoted `origin/staging` -> `origin/main` at `e6d04aa`
+DEPLOYMENTS: P33
+STAGING: `origin/staging` had already passed GitHub Actions run 26538457661 for the Phase 5 consent-reset fix.
+PRODUCTION PUSH: promoted tested `origin/staging` to `origin/main`; GitHub Actions CI run 26538710272 passed 13/13 for `e6d04aa`.
+PLAN: Phase 5 Push marked ✅.
+Gabe-Lens brief: The web statement lane has crossed the final gate for this phase. The consent-reset fix was tested on staging, promoted to main, and the phase is now ready to hand off to Android.

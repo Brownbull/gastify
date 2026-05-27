@@ -50,6 +50,7 @@
 | P30 | 2026-05-25 17:33 | main → main (direct) | — | ✅ 12/12 (78s) | P5 Phase 2 statement upload worker push — 5 commits (c0168f5 → 004972f): statement PDF upload worker, staging-e2e fixture gate, Phase 2 review fixes, KDBP review/commit bookkeeping, and statement-baseline-before-Gemini plan guard. Used push-local because origin/staging only carried the Phase 2 exec commits. CI run 26420576369 green. | — |
 | P31 | 2026-05-27 14:33 | staging → main (promotion) | — | ✅ 13/13 (81s) | P5 Phase 4 statement prompt-lab/backend hardening push — 13 commits (004972f → 4354ad0): carried Phase 3 reconciliation engine, Phase 4 Gemini fallback prompt-lab promotion, backend strict mypy CI gate, prompt-lab CI fix, and KDBP bookkeeping. Staging CI run 26530619227 green after failed run 26530292183; main CI run 26530813772 green. promoted staging → main | — |
 | P32 | 2026-05-27 17:02 | main → staging | — | ✅ 13/13 (92s) | P5 Phase 5 web consent-reset staging push — 2 commits (414b139 → e6d04aa): reset statement upload PDF/consent after success and record Phase 5 consent-reset commit bookkeeping. Staging CI run 26538457661 green. | — |
+| P33 | 2026-05-27 17:07 | staging → main (promotion) | — | ✅ 13/13 (97s) | P5 Phase 5 web statement reconciliation production promotion — promoted tested `origin/staging` at `e6d04aa` to `origin/main`. Main CI run 26538710272 green after staging CI run 26538457661 green. promoted staging → main | — |
 
 <!-- Example rows:
 | P1 | 2026-04-17 14:22 | feature/add-auth → main | #42 | ✅ 3/3 (47s) | promoted main → (none) | — |
