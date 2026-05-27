@@ -2421,3 +2421,12 @@ FINDINGS: GitHub Actions staging run `26530292183` failed `Backend Test` because
 ACTIONS: report generation now returns an empty unreadable DB snapshot with reason `transaction_database_unavailable` when the local transaction DB cannot be opened.
 CHECKS: `cd backend && uv run pytest tests/test_statement_prompt_lab.py::test_statement_fallback_calibration_from_manifest_writes_reports -q` (1 passed); `cd backend && uv run mypy app/ --no-error-summary` (pass); `cd backend && uv run ruff check app tests` (pass); `cd backend && uv run ruff format --check .` (pass); `cd backend && uv run pytest tests/ -x --tb=line -q` (645 passed, 2 skipped, 1 warning); `git diff --check` (pass).
 Gabe-Lens brief: The prompt-lab report now treats the local transaction DB like optional lab equipment. If it is not present on a clean runner, the report records that absence instead of stopping the whole CI line.
+
+## 2026-05-27 14:33 -04 — PUSH staging -> main
+PR: —
+CI: all passed (`staging` run 26530619227, `main` run 26530813772)
+PROMOTION: promoted `origin/staging` -> `main` at `4354ad0`
+DEPLOYMENTS: P31
+STAGING: `origin/staging` updated from `9873d4e` to `4354ad0`; GitHub Actions CI run 26530619227 passed after failed staging run 26530292183 exposed a fresh-runner local SQLite report assumption.
+PRODUCTION PUSH: promoted tested `origin/staging` to `origin/main`; GitHub Actions CI run 26530813772 passed 13/13 for `4354ad0`, including the new `Backend Typecheck` job.
+PLAN: Phase 4 Push marked ✅.
