@@ -2459,3 +2459,11 @@ CHECKS: `cd web && npm test -- src/routes/-statements.test.tsx` (2 passed); `cd 
 TICK: ✅ Phase 5 Review
 NEXT: Commit the Phase 5 consent-reset fix and KDBP review reconciliation, then push to `origin/staging`.
 Gabe-Lens brief: The statement desk now closes the consent latch after each upload. A second scan must start with a fresh PDF selection and a fresh consent click, while the existing reconciliation and add-transaction proof still holds.
+
+## 2026-05-27 16:57 -04 — [414b139] fix(web): reset statement consent after upload
+FINDINGS: 1 Phase 5 review finding fixed (0 critical, 1 high, 0 medium, 0 low)
+ACTIONS: committed the web consent reset and focused route regression; successful uploads now clear the PDF, password, and AI-processing consent while preserving the selected alias.
+DEFERRED: none
+CHECKS: `git diff --cached --check` (pass); `git diff --check` (pass); `cd web && npm run lint` (0 errors, 33 existing Fast Refresh warnings); `cd web && npx tsc -b` (pass); `cd web && npm test -- src/routes/-statements.test.tsx` (2 passed).
+PLAN: Phase 5 Commit marked ✅.
+Gabe-Lens brief: The statement upload form now behaves like a consent turnstile. Once a scan goes through, the file and consent reset, so the next scan has to pass through the same explicit gate again.
