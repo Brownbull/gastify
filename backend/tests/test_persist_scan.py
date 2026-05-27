@@ -10,6 +10,7 @@ import pytest
 from app.agents.categorization import CategorizationOutput, CategorizationUsage
 from app.agents.extraction import ExtractionResult, ExtractionUsage
 from app.agents.store_categorization import StoreCategorizationOutput, StoreCategorizationUsage
+from app.schemas.recurrence import RecurrenceHint
 from app.schemas.scan import (
     CategorizationResult,
     CategoryAssignment,
@@ -284,12 +285,71 @@ class TestPersistScanResult:
             )
 
         assert tx is not None
-        assert "receipt-extraction-current@2026-05-20.5" in tx.prompt_version
+        assert "receipt-extraction-current@2026-05-26.0" in tx.prompt_version
         assert "item-categorization-current@2026-05-18.1" in tx.prompt_version
         assert "store-categorization-current@2026-05-19.1" in tx.prompt_version
         assert tx.scan_review_level == "none"
         assert tx.scan_review_signals == []
         assert db.add.call_count == 5  # 1 tx + 2 items + 2 images (full + thumbnail)
+
+    @pytest.mark.asyncio
+    async def test_persists_receipt_recurrence_hint(self):
+        db = AsyncMock()
+
+        currency_row = MagicMock()
+        currency_row.scalar_one_or_none.return_value = MagicMock(exponent=0)
+
+        cat_rows = MagicMock()
+        cat_rows.scalars.return_value = []
+
+        db.execute = AsyncMock(side_effect=[currency_row, cat_rows])
+        db.add = MagicMock()
+        db.flush = AsyncMock()
+
+        extraction = _extraction()
+        extraction.extraction.recurrence_hint = RecurrenceHint(
+            kind="fixed_term",
+            interval="monthly",
+            term_current=3,
+            term_total=12,
+            label="03/12 cuotas",
+            confidence=0.88,
+        )
+
+        with (
+            patch(
+                "app.services.persist_scan.get_fx_rate",
+                new_callable=AsyncMock,
+                side_effect=__import__(
+                    "app.services.fx", fromlist=["FxServiceError"]
+                ).FxServiceError("skip"),
+            ),
+            patch(
+                "app.services.persist_scan.lookup_merchant_mapping",
+                new_callable=AsyncMock,
+                return_value=None,
+            ),
+            patch(
+                "app.services.persist_scan.batch_lookup_item_mappings",
+                new_callable=AsyncMock,
+                return_value={},
+            ),
+        ):
+            tx = await persist_scan_result(
+                db=db,
+                scan=_mock_scan(image_path=None, thumb_path=None),
+                extraction=extraction,
+                categorization=_categorization([]),
+                verdict=_verdict(),
+            )
+
+        assert tx.recurrence_kind == "fixed_term"
+        assert tx.recurrence_interval == "monthly"
+        assert tx.term_current == 3
+        assert tx.term_total == 12
+        assert tx.recurrence_label == "03/12 cuotas"
+        assert tx.recurrence_source == "receipt"
+        assert tx.recurrence_confidence == Decimal("0.88")
 
     @pytest.mark.asyncio
     async def test_persists_review_signals_and_preserves_item_sort_order(self):

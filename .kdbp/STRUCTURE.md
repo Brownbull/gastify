@@ -49,7 +49,9 @@
 | `backend/app/services/*.py` | Business logic (no FastAPI imports) | MVP |
 | `backend/app/agents/*.py` | PydanticAI agent definitions | MVP |
 | `backend/app/prompts/*.py` | Versioned production prompt registry | MVP |
-| `backend/app/prompt_lab/*.py` | Backend-native receipt prompt lab CLI, adapters, cache, scoring, and runner | MVP |
+| `backend/app/prompts/**/*.py` | Domain-specific production prompt packages | MVP |
+| `backend/app/prompt_lab/*.py` | Backend-native prompt lab CLI, shared helpers, cache, scoring, and runner | MVP |
+| `backend/app/prompt_lab/**/*.py` | Domain-specific receipt and statement prompt-lab packages | MVP |
 | `backend/app/fixtures/**` | Backend-owned deterministic fixtures served by test-only APIs | MVP |
 | `backend/app/guardrails/*.py` | Prompt-injection, validation, moderation | MVP |
 | `backend/app/stagings/*.py` | External service adapters | E |

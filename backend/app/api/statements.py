@@ -59,7 +59,13 @@ async def upload_statement(
     response: Response,
     card_alias_id: Annotated[uuid.UUID | None, Form()] = None,
     password: Annotated[str | None, Form()] = None,
+    ai_processing_consent: Annotated[bool, Form()] = False,
 ) -> StatementUploadResponse:
+    if not ai_processing_consent:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="AI processing consent required",
+        )
     if file.content_type not in ALLOWED_CONTENT_TYPES:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
@@ -81,6 +87,14 @@ async def upload_statement(
     duplicate = await _find_statement_by_sha(db, auth.ownership_scope_id, sha256)
     if duplicate is not None:
         queued = False
+        should_queue = False
+        metadata_changed = False
+        if not duplicate.ai_processing_consent:
+            duplicate.ai_processing_consent = True
+            metadata_changed = True
+        if card_alias_id is not None and duplicate.card_alias_id != card_alias_id:
+            duplicate.card_alias_id = card_alias_id
+            metadata_changed = True
         if password and duplicate.status in {
             StatementStatus.PASSWORD_REQUIRED,
             StatementStatus.PASSWORD_INVALID,
@@ -89,8 +103,12 @@ async def upload_statement(
             duplicate.status = StatementStatus.QUEUED
             duplicate.error_code = None
             duplicate.error_message = None
+            metadata_changed = True
+            should_queue = True
+        if metadata_changed:
             await db.commit()
             await db.refresh(duplicate)
+        if should_queue:
             background_tasks.add_task(process_statement, duplicate.id, password=password)
             queued = True
         response.status_code = status.HTTP_200_OK
@@ -128,6 +146,7 @@ async def upload_statement(
         file_sha256=sha256,
         content_type="application/pdf",
         file_size_bytes=len(raw_bytes),
+        ai_processing_consent=ai_processing_consent,
         currency="CLP",
         pdf_status=inspection.status,
         is_encrypted=inspection.is_encrypted,

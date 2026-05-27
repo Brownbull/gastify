@@ -24,7 +24,7 @@ Security (RLS) is enforced via `ownership_scope_id` on every tenant table.
 |------|------|
 | `models/__init__.py` | Re-exports all model classes so `Base.metadata` registers them at import time. |
 | `models/user.py` | `OwnershipScope`, `User`, `OwnershipScopeMember`, `MobilePushToken` — multi-tenant user hierarchy. Every tenant table FKs to `OwnershipScope`. |
-| `models/transaction.py` | `Transaction`, `TransactionItem`, `TransactionImage` — expense records with line items (sort_order, minor-unit amounts) and receipt images. |
+| `models/transaction.py` | `Transaction`, `TransactionItem`, `TransactionImage` — expense records with line items (sort_order, minor-unit amounts), receipt images, and optional recurrence/fixed-term annotations. |
 | `models/scan.py` | `Scan` + `ScanStatus` enum (`submitted` → `processing` → `extracted` → `categorized` → `completed` / `failed` / `needs_review`). |
 | `models/consent.py` | `ConsentRecord`, `ProcessingRegister`, `AuditEvent` — GDPR/privacy consent and audit trail. Used by [G3 Identity + Ownership](3-identity-ownership.md). |
 | `models/credit.py` | `CreditBalance` — per-scope scan credit tracking (BigInteger, default 50). Used by [G3](3-identity-ownership.md) JIT provisioning. |
@@ -39,11 +39,13 @@ Security (RLS) is enforced via `ownership_scope_id` on every tenant table.
 | `schemas/__init__.py` | Package marker. |
 | `schemas/common.py` | `CamelModel` (camelCase serialization base), `PaginatedResponse[T]`, `ErrorDetail` — shared across all routers. |
 | `schemas/transaction.py` | `TransactionCreate`, `TransactionUpdate`, `TransactionDetail`, `TransactionListItem`, `BatchUpdateRequest`, `BatchDeleteRequest`, `BatchResult`. |
+| `schemas/recurrence.py` | Shared recurrence literals and validation helpers for fixed-term and recurring transaction annotations. |
 | `schemas/scan.py` | `ScanSubmission`, `GeminiExtractionResult`, `RawGeminiExtractionResult`, `CategorizationResult`, `ScanEvent`, `ScanCompleteData`, `ScanReviewSignal`, `MathReconciliationVerdict` — the full scan pipeline contract. |
 | `schemas/consent.py` | `ConsentGrant`, `ConsentResponse`, `DataAccessResponse`, `ErasureResponse`, `PortabilityResponse`, `RectificationRequest`. Jurisdictions: CL, EU, CA, US-CA. |
 | `schemas/push_tokens.py` | `PushTokenRegistration`, `PushTokenUnregister`, `PushTokenResponse`. Platform and provider type literals. |
 | `schemas/scan_test_cases.py` | `ScanTestCaseSummary`, `ScanTestCaseList`, `ScanTestRunSubmission`. Provider mode: mock / fixture / gemini. |
-| `schemas/statement.py` | Credit-card statement extraction contracts plus reconciliation run, verdict, bucket, and coverage response shapes (P5 feature). |
+| `schemas/statement.py` | Credit-card statement extraction contracts plus reconciliation run, verdict, bucket, coverage, fallback-evidence, and usage response shapes (P5 feature). |
+| `schemas/statement_profile.py` | Internal fixed row contract and layout-profile structures for unknown statement fallback. |
 
 ### Reference Data (`backend/app/reference/`)
 
@@ -72,6 +74,10 @@ Security (RLS) is enforced via `ownership_scope_id` on every tenant table.
 | `014_mobile_push_tokens` | Mobile push token table. |
 | `015_statement_reconciliation_foundation` | Card aliases, statement records/lines, reconciliation runs/verdicts, and RLS. |
 | `016_statement_same_scope_fk_constraints` | Same-scope FK constraints for statement/card-alias ownership boundaries. |
+| `017_transaction_recurrence_fields` | Recurrence/fixed-term fields on transactions for receipt and statement-derived annotations. |
+| `018_statement_ai_processing_consent` | Statement upload-level AI processing consent audit field. |
+| `019_statement_line_fallback_evidence` | Statement-line fallback evidence fields: ledger readiness, source row/page, amount candidates, warnings, and provenance. |
+| `020_statement_extraction_usage_metadata` | Statement processing metadata for provider mode, token/cost summaries, fallback reason, cache status, and routing evidence. |
 
 ## Key Decisions
 
@@ -95,6 +101,14 @@ Categories use L1 Industry → L2 Business Type → L3 Family → L4 Category,
 defined in `reference/categories.py` and seeded by migrations 007-010. Both
 item and store categories share this structure. Prompt text for [G4](4-scan-pipeline.md) agents is
 rendered from this canonical source so taxonomy changes propagate everywhere.
+
+### 2026-05-27 — Statement fallback evidence is persisted with ledger safety
+
+Statement lines now carry enough normalized evidence to explain whether a row is
+safe for reconciliation or candidate creation: row/page index, ledger readiness,
+amount candidates, selected amount reason, warnings, and provenance. This keeps
+unknown-layout Gemini fallback output auditable without storing raw PDFs,
+passwords, or raw extracted statement text.
 
 ## Key Diagrams
 

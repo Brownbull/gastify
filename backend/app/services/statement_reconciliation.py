@@ -32,7 +32,10 @@ from app.schemas.statement import (
     StatementReconciliationResponse,
     StatementReconciliationRunResponse,
     StatementReconciliationVerdictResponse,
+    StatementTransactionCandidate,
+    StatementTransactionCandidateItem,
 )
+from app.services.recurrence import recurrence_fields_from_statement_installment
 
 if TYPE_CHECKING:
     import uuid
@@ -53,6 +56,18 @@ class _CandidateMatch:
     transaction: Transaction
     score: float
     reasons: list[str]
+
+
+_STATEMENT_CANDIDATE_ITEM_NAME = "Unidentified statement item"
+_STATEMENT_TRANSACTION_LINE_TYPES = {
+    "charge",
+    "fee",
+    "interest",
+    "insurance",
+    "tax",
+    "adjustment",
+    "other",
+}
 
 
 async def run_statement_reconciliation(
@@ -154,6 +169,7 @@ async def get_statement_reconciliation_response(
     if run is None:
         return None
 
+    statement = await _load_statement(db, statement_id, ownership_scope_id)
     verdict_rows = await db.execute(
         select(StatementReconciliationVerdict)
         .where(StatementReconciliationVerdict.run_id == run.id)
@@ -171,12 +187,17 @@ async def get_statement_reconciliation_response(
     }
     for verdict in verdicts:
         key = verdict.verdict.value
+        line = line_map.get(verdict.statement_line_id)
+        receipt_transaction = transaction_map.get(verdict.receipt_transaction_id)
         buckets[key].append(
             StatementReconciliationBucketItem(
                 verdict=StatementReconciliationVerdictResponse.model_validate(verdict),
-                statement_line=_line_summary(line_map.get(verdict.statement_line_id)),
-                receipt_transaction=_receipt_summary(
-                    transaction_map.get(verdict.receipt_transaction_id)
+                statement_line=_line_summary(line),
+                receipt_transaction=_receipt_summary(receipt_transaction),
+                candidate_transaction=(
+                    _transaction_candidate(statement, line)
+                    if verdict.verdict == ReconciliationVerdict.STATEMENT_ONLY
+                    else None
                 ),
             )
         )
@@ -237,6 +258,17 @@ def _build_verdicts(
     ambiguous_transaction_ids: set[uuid.UUID] = set()
 
     for line in statement.lines:
+        if not line.ledger_ready:
+            verdicts.append(
+                _verdict(
+                    run,
+                    verdict=ReconciliationVerdict.STATEMENT_ONLY,
+                    statement_line_id=line.id,
+                    score=None,
+                    reasons=["line_not_ledger_ready"],
+                )
+            )
+            continue
         matches = sorted(
             (
                 match
@@ -458,6 +490,7 @@ def _line_summary(line: StatementLine | None) -> StatementReconciliationLineSumm
         id=line.id,
         statement_id=line.statement_id,
         source_order=line.source_order,
+        row_type=line.row_type,
         line_date=line.line_date,
         description=line.description,
         amount_minor=line.amount_minor,
@@ -465,6 +498,8 @@ def _line_summary(line: StatementLine | None) -> StatementReconciliationLineSumm
         line_type=line.line_type.value,
         installment=line.installment,
         card_alias_candidate=line.card_alias_candidate,
+        ledger_ready=line.ledger_ready,
+        warnings=line.warnings,
     )
 
 
@@ -482,4 +517,43 @@ def _receipt_summary(
         currency=transaction.currency,
         card_alias_id=transaction.card_alias_id,
         receipt_type=transaction.receipt_type,
+    )
+
+
+def _transaction_candidate(
+    statement: Statement,
+    line: StatementLine | None,
+) -> StatementTransactionCandidate | None:
+    """Build a ledger-ready transaction payload for a statement-only spend line."""
+    if line is None or not line.ledger_ready or line.line_date is None or line.amount_minor <= 0:
+        return None
+    line_type = line.line_type.value
+    if line_type not in _STATEMENT_TRANSACTION_LINE_TYPES:
+        return None
+
+    merchant = line.description.strip() or "Unknown statement merchant"
+    recurrence_fields = recurrence_fields_from_statement_installment(line.installment)
+    return StatementTransactionCandidate(
+        transaction_date=line.line_date,
+        merchant=merchant,
+        store_category_source="unknown",
+        total_minor=line.amount_minor,
+        gross_total_minor=line.amount_minor,
+        reconstructed_total_minor=line.amount_minor,
+        currency=line.currency,
+        receipt_type="statement",
+        card_alias_id=statement.card_alias_id,
+        **recurrence_fields,
+        merchant_source="ai",
+        items=[
+            StatementTransactionCandidateItem(
+                name=_STATEMENT_CANDIDATE_ITEM_NAME,
+                qty=1.0,
+                unit_price_minor=line.amount_minor,
+                total_price_minor=line.amount_minor,
+                category_source="statement_unidentified",
+                is_flagged=True,
+                sort_order=0,
+            )
+        ],
     )

@@ -7,6 +7,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, Field
 
+from app.schemas.recurrence import RecurrenceInterval, RecurrenceKind, RecurrenceSource
 from app.schemas.scan import ScanReviewLevel, ScanReviewSignal
 
 # --- Item schemas ---
@@ -91,6 +92,13 @@ class TransactionCreate(BaseModel):
     country: str | None = None
     city: str | None = None
     card_alias_id: UUID | None = None
+    recurrence_kind: RecurrenceKind = "none"
+    recurrence_interval: RecurrenceInterval | None = None
+    term_current: int | None = Field(default=None, ge=1)
+    term_total: int | None = Field(default=None, ge=1)
+    recurrence_label: str | None = None
+    recurrence_source: RecurrenceSource = "none"
+    recurrence_confidence: Decimal | None = Field(default=None, ge=0, le=1)
     merchant_source: Literal["ocr", "user", "ai", "mapping"] | None = None
     llm_tokens_in: int | None = Field(default=None, ge=0)
     llm_tokens_out: int | None = Field(default=None, ge=0)
@@ -117,6 +125,13 @@ class TransactionUpdate(BaseModel):
     country: str | None = None
     city: str | None = None
     card_alias_id: UUID | None = None
+    recurrence_kind: RecurrenceKind | None = None
+    recurrence_interval: RecurrenceInterval | None = None
+    term_current: int | None = Field(default=None, ge=1)
+    term_total: int | None = Field(default=None, ge=1)
+    recurrence_label: str | None = None
+    recurrence_source: RecurrenceSource | None = None
+    recurrence_confidence: Decimal | None = Field(default=None, ge=0, le=1)
     items: list[TransactionItemUpdate] | None = None
 
 
@@ -147,6 +162,14 @@ class TransactionListItem(BaseModel):
     thumbnail_url: str | None = None
     country: str | None = None
     city: str | None = None
+    recurrence_kind: RecurrenceKind = "none"
+    recurrence_interval: RecurrenceInterval | None = None
+    term_current: int | None = None
+    term_total: int | None = None
+    recurrence_label: str | None = None
+    recurrence_source: RecurrenceSource = "none"
+    recurrence_confidence: Decimal | None = None
+    recurrence_user_edited_at: datetime | None = None
     item_count: int = 0
     created_at: datetime
     updated_at: datetime
@@ -181,6 +204,14 @@ class TransactionDetail(BaseModel):
     thumbnail_url: str | None = None
     country: str | None = None
     city: str | None = None
+    recurrence_kind: RecurrenceKind = "none"
+    recurrence_interval: RecurrenceInterval | None = None
+    term_current: int | None = None
+    term_total: int | None = None
+    recurrence_label: str | None = None
+    recurrence_source: RecurrenceSource = "none"
+    recurrence_confidence: Decimal | None = None
+    recurrence_user_edited_at: datetime | None = None
     llm_tokens_in: int | None = None
     llm_tokens_out: int | None = None
     llm_cost_usd: Decimal | None = None

@@ -24,7 +24,7 @@ from pydantic_ai.messages import BinaryContent
 from app.agents.usage import result_usage
 from app.config import settings
 from app.prompts import get_prompt
-from app.prompts.receipt_structure import RECEIPT_EXTRACTION_CURRENT
+from app.prompts.receipt.extraction import RECEIPT_EXTRACTION_CURRENT
 from app.schemas.scan import GeminiExtractionResult, RawGeminiExtractionResult
 from app.services.coalesce import coalesce_extraction
 from app.services.provider_retry import retry_provider_call

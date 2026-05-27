@@ -10,7 +10,7 @@ ALLOWED_ENVIRONMENTS = {
     "production",
 }
 ALLOWED_SCAN_PROVIDERS = {"gemini", "fixture", "mock"}
-ALLOWED_STATEMENT_PROVIDERS = {"codex-pdf-text", "fixture"}
+ALLOWED_STATEMENT_PROVIDERS = {"auto", "codex-pdf-text", "fixture", "gemini"}
 LOCAL_ENVIRONMENTS = {"local"}
 DEPLOYED_ENVIRONMENTS = {"staging", "staging-e2e", "production"}
 STAGING_ENVIRONMENTS = {"staging", "staging-e2e"}
@@ -36,6 +36,7 @@ class Settings(BaseSettings):
     gemini_retry_delay_seconds: float = 2.0
     receipt_extraction_prompt_id: str = "receipt-extraction-current"
     statement_extraction_prompt_id: str = "statement-extraction-current"
+    statement_layout_profile_prompt_id: str = "statement-layout-profile-current"
     item_categorization_prompt_id: str = "item-categorization-current"
     store_categorization_prompt_id: str = "store-categorization-current"
 
@@ -43,7 +44,7 @@ class Settings(BaseSettings):
     scan_event_heartbeat_interval_s: int = 15
 
     scan_provider: str = "mock"
-    statement_provider: str = "codex-pdf-text"
+    statement_provider: str = "auto"
     statement_reconciliation_date_tolerance_days: int = Field(default=3, ge=0, le=30)
     statement_reconciliation_amount_tolerance_ratio: float = Field(default=0.01, ge=0, le=1)
     statement_reconciliation_merchant_similarity_threshold: float = Field(
@@ -73,11 +74,13 @@ class Settings(BaseSettings):
 
         extraction_prompt_id = self.receipt_extraction_prompt_id.strip()
         statement_prompt_id = self.statement_extraction_prompt_id.strip()
+        statement_profile_prompt_id = self.statement_layout_profile_prompt_id.strip()
         categorization_prompt_id = self.item_categorization_prompt_id.strip()
         store_prompt_id = self.store_categorization_prompt_id.strip()
         try:
             get_prompt(extraction_prompt_id, kind="receipt-extraction")
             get_prompt(statement_prompt_id, kind="statement-extraction")
+            get_prompt(statement_profile_prompt_id, kind="statement-layout-profile")
             get_prompt(categorization_prompt_id, kind="item-categorization")
             get_prompt(store_prompt_id, kind="store-categorization")
         except KeyError as exc:
@@ -97,6 +100,14 @@ class Settings(BaseSettings):
                 "Dev-only statement extraction prompts cannot be enabled in production"
             )
         if not is_prompt_id_allowed(
+            statement_profile_prompt_id,
+            environment=environment,
+            kind="statement-layout-profile",
+        ):
+            raise ValueError(
+                "Dev-only statement layout profile prompts cannot be enabled in production"
+            )
+        if not is_prompt_id_allowed(
             categorization_prompt_id,
             environment=environment,
             kind="item-categorization",
@@ -112,6 +123,7 @@ class Settings(BaseSettings):
             )
         self.receipt_extraction_prompt_id = extraction_prompt_id
         self.statement_extraction_prompt_id = statement_prompt_id
+        self.statement_layout_profile_prompt_id = statement_profile_prompt_id
         self.item_categorization_prompt_id = categorization_prompt_id
         self.store_categorization_prompt_id = store_prompt_id
 

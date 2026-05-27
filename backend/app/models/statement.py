@@ -144,6 +144,7 @@ class Statement(Base):
         String(100), nullable=False, server_default="application/pdf"
     )
     file_size_bytes: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    ai_processing_consent: Mapped[bool] = mapped_column(nullable=False, server_default="false")
     issuer: Mapped[str | None] = mapped_column(Text, nullable=True)
     period_start: Mapped[date | None] = mapped_column(Date, nullable=True)
     period_end: Mapped[date | None] = mapped_column(Date, nullable=True)
@@ -159,6 +160,24 @@ class Statement(Base):
     extraction_provider: Mapped[str | None] = mapped_column(String(50), nullable=True)
     extraction_prompt_id: Mapped[str | None] = mapped_column(Text, nullable=True)
     extraction_model_name: Mapped[str | None] = mapped_column(Text, nullable=True)
+    extraction_input_mode: Mapped[str | None] = mapped_column(String(50), nullable=True)
+    extraction_llm_input_tokens: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    extraction_llm_output_tokens: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    extraction_llm_cost_usd: Mapped[Decimal | None] = mapped_column(
+        Numeric(12, 9), nullable=True
+    )
+    extraction_fallback_reason: Mapped[str | None] = mapped_column(Text, nullable=True)
+    extraction_cache_status: Mapped[str | None] = mapped_column(String(50), nullable=True)
+    extraction_routing_reasons: Mapped[list[str]] = mapped_column(
+        JSON().with_variant(PG_JSONB(), "postgresql"),
+        nullable=False,
+        default=list,
+        server_default="[]",
+    )
+    extraction_evidence_row_count: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    extraction_evidence_candidate_row_count: Mapped[int | None] = mapped_column(
+        Integer, nullable=True
+    )
     confidence: Mapped[Decimal | None] = mapped_column(Numeric(4, 3), nullable=True)
     warnings: Mapped[list[str]] = mapped_column(
         JSON().with_variant(PG_JSONB(), "postgresql"),
@@ -208,6 +227,7 @@ class StatementLine(Base):
         Uuid, ForeignKey("statements.id", ondelete="CASCADE"), nullable=False
     )
     source_order: Mapped[int] = mapped_column(SmallInteger, nullable=False)
+    row_type: Mapped[str] = mapped_column(Text, nullable=False, server_default="unknown")
     line_date: Mapped[date | None] = mapped_column(Date, nullable=True)
     description: Mapped[str] = mapped_column(Text, nullable=False)
     amount_minor: Mapped[int] = mapped_column(BigInteger, nullable=False)
@@ -226,6 +246,29 @@ class StatementLine(Base):
     original_amount_minor: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
     card_alias_candidate: Mapped[str | None] = mapped_column(Text, nullable=True)
     category_key: Mapped[str | None] = mapped_column(Text, nullable=True)
+    amount_selection_reason: Mapped[str | None] = mapped_column(Text, nullable=True)
+    amount_candidates: Mapped[list[dict[str, object]]] = mapped_column(
+        JSON().with_variant(PG_JSONB(), "postgresql"),
+        nullable=False,
+        default=list,
+        server_default="[]",
+    )
+    ledger_ready: Mapped[bool] = mapped_column(nullable=False, server_default="true")
+    confidence: Mapped[Decimal | None] = mapped_column(Numeric(4, 3), nullable=True)
+    warnings: Mapped[list[str]] = mapped_column(
+        JSON().with_variant(PG_JSONB(), "postgresql"),
+        nullable=False,
+        default=list,
+        server_default="[]",
+    )
+    source_row_index: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    source_page: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    field_provenance: Mapped[dict[str, object]] = mapped_column(
+        JSON().with_variant(PG_JSONB(), "postgresql"),
+        nullable=False,
+        default=dict,
+        server_default="{}",
+    )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now()
     )

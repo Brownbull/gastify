@@ -15,7 +15,7 @@ from app.services.receipt_validation_policy import (
 )
 
 if TYPE_CHECKING:
-    from app.prompt_lab.adapter import ExpectedReceipt
+    from app.prompt_lab.receipt.adapter import ExpectedReceipt
     from app.schemas.scan import (
         CategorizationResult,
         GeminiExtractionResult,

@@ -1,10 +1,13 @@
 """Statement extraction contracts for P5 prompt-lab and runtime design."""
 
 from datetime import date, datetime
+from decimal import Decimal
 from typing import Literal
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+
+from app.schemas.transaction import TransactionCreate, TransactionItemCreate
 
 date_type = date
 
@@ -43,6 +46,30 @@ StatementLineType = Literal[
     "tax",
     "adjustment",
     "other",
+]
+
+StatementRowType = Literal[
+    "charge",
+    "payment",
+    "interest",
+    "fee",
+    "insurance",
+    "tax",
+    "adjustment",
+    "summary",
+    "other",
+    "unknown",
+]
+
+StatementAmountRole = Literal[
+    "selected",
+    "current_statement_amount",
+    "current_installment",
+    "purchase_total",
+    "plan_total",
+    "pending_balance",
+    "foreign_original",
+    "unknown",
 ]
 
 StatementReconciliationVerdict = Literal[
@@ -85,8 +112,22 @@ class StatementInfo(BaseModel):
         return value.upper()
 
 
+class StatementAmountCandidate(BaseModel):
+    role: StatementAmountRole = "unknown"
+    amount_minor: int
+    currency: str = Field(default="CLP", min_length=3, max_length=3)
+    visible_text: str | None = None
+    column_label: str | None = None
+
+    @field_validator("currency")
+    @classmethod
+    def _uppercase_currency(cls, value: str) -> str:
+        return value.upper()
+
+
 class StatementLine(BaseModel):
     source_order: int = Field(ge=1)
+    row_type: StatementRowType = "unknown"
     date: date_type | None = None
     description: str
     amount_minor: int
@@ -97,6 +138,28 @@ class StatementLine(BaseModel):
     original_amount_minor: int | None = None
     card_alias_candidate: str | None = None
     category_key: str | None = None
+    amount_selection_reason: str | None
+    amount_candidates: list[StatementAmountCandidate]
+    ledger_ready: bool = True
+    confidence: float | None = Field(default=None, ge=0, le=1)
+    warnings: list[str] = Field(default_factory=list)
+    source_row_index: int | None = Field(default=None, ge=1)
+    source_page: int | None = Field(default=None, ge=1)
+    field_provenance: dict[str, object] = Field(default_factory=dict)
+
+    @model_validator(mode="before")
+    @classmethod
+    def _default_amount_evidence(cls, data: object) -> object:
+        if not isinstance(data, dict):
+            return data
+        values = dict(data)
+        values.setdefault("row_type", values.get("line_type", "unknown"))
+        values.setdefault("amount_selection_reason", None)
+        values.setdefault("amount_candidates", [])
+        values.setdefault("ledger_ready", True)
+        values.setdefault("warnings", [])
+        values.setdefault("field_provenance", {})
+        return values
 
     @field_validator("currency", "original_currency")
     @classmethod
@@ -113,6 +176,15 @@ class StatementProcessingMetadata(BaseModel):
     raw_text_sha256: str | None = None
     text_char_count: int = Field(default=0, ge=0)
     text_line_count: int = Field(default=0, ge=0)
+    input_mode: str | None = None
+    llm_input_tokens: int | None = Field(default=None, ge=0)
+    llm_output_tokens: int | None = Field(default=None, ge=0)
+    llm_cost_usd: Decimal | None = Field(default=None, ge=0)
+    fallback_reason: str | None = None
+    cache_status: str | None = None
+    deterministic_routing_reasons: list[str] = Field(default_factory=list)
+    evidence_row_count: int | None = Field(default=None, ge=0)
+    evidence_candidate_row_count: int | None = Field(default=None, ge=0)
     warnings: list[str] = Field(default_factory=list)
 
 
@@ -142,6 +214,7 @@ class StatementRecordResponse(BaseModel):
     file_sha256: str
     content_type: str
     file_size_bytes: int
+    ai_processing_consent: bool
     issuer: str | None = None
     period_start: date_type | None = None
     period_end: date_type | None = None
@@ -190,6 +263,7 @@ class StatementLineRecordResponse(BaseModel):
     id: UUID
     statement_id: UUID
     source_order: int
+    row_type: StatementRowType = "unknown"
     line_date: date_type | None = None
     description: str
     amount_minor: int
@@ -200,6 +274,14 @@ class StatementLineRecordResponse(BaseModel):
     original_amount_minor: int | None = None
     card_alias_candidate: str | None = None
     category_key: str | None = None
+    amount_selection_reason: str | None = None
+    amount_candidates: list[StatementAmountCandidate] = Field(default_factory=list)
+    ledger_ready: bool = True
+    confidence: float | None = None
+    warnings: list[str] = Field(default_factory=list)
+    source_row_index: int | None = None
+    source_page: int | None = None
+    field_provenance: dict[str, object] = Field(default_factory=dict)
 
 
 class StatementReconciliationRunResponse(BaseModel):
@@ -239,6 +321,7 @@ class StatementReconciliationLineSummary(BaseModel):
     id: UUID
     statement_id: UUID
     source_order: int
+    row_type: StatementRowType = "unknown"
     line_date: date_type | None = None
     description: str
     amount_minor: int
@@ -246,6 +329,8 @@ class StatementReconciliationLineSummary(BaseModel):
     line_type: StatementLineType
     installment: str | None = None
     card_alias_candidate: str | None = None
+    ledger_ready: bool = True
+    warnings: list[str] = Field(default_factory=list)
 
 
 class StatementReconciliationReceiptSummary(BaseModel):
@@ -259,10 +344,19 @@ class StatementReconciliationReceiptSummary(BaseModel):
     receipt_type: str | None = None
 
 
+class StatementTransactionCandidateItem(TransactionItemCreate):
+    """Transaction item payload for a statement-only line accepted into the ledger."""
+
+
+class StatementTransactionCandidate(TransactionCreate):
+    """Ready-to-submit transaction payload for a statement-only spend line."""
+
+
 class StatementReconciliationBucketItem(BaseModel):
     verdict: StatementReconciliationVerdictResponse
     statement_line: StatementReconciliationLineSummary | None = None
     receipt_transaction: StatementReconciliationReceiptSummary | None = None
+    candidate_transaction: StatementTransactionCandidate | None = None
 
 
 class StatementReconciliationResponse(BaseModel):

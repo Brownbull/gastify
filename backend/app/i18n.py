@@ -60,7 +60,7 @@ def t(key: str, locale: Locale | str = _DEFAULT_LOCALE) -> str:
     if entry is None:
         return key
     if locale in entry:
-        return entry[locale]  # type: ignore[return-value]
+        return entry[locale]
     return entry.get(_DEFAULT_LOCALE, key)
 
 

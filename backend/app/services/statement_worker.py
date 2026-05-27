@@ -70,13 +70,18 @@ async def process_statement(statement_id: uuid.UUID, *, password: str | None = N
         return False
 
     await _emit(statement_id, "statement_llm_start", "llm_start", 20)
-    extraction = await asyncio.to_thread(
-        extract_statement_pdf,
-        Path(statement.file_path),
-        provider=settings.statement_provider,
-        password=password,
-        issuer_hint=statement.issuer,
-    )
+    try:
+        extraction = await asyncio.to_thread(
+            extract_statement_pdf,
+            Path(statement.file_path),
+            provider=settings.statement_provider,
+            password=password,
+            issuer_hint=statement.issuer,
+        )
+    except Exception as exc:
+        log.exception("statement_extraction_provider_failed", error=str(exc))
+        await _finish_extraction_exception(statement_id)
+        return True
 
     if extraction.pdf_status != "readable":
         await _finish_pdf_status(statement_id, extraction)
@@ -218,6 +223,32 @@ async def _finish_pdf_status(
     statement_dispatcher.close_statement(statement_id)
 
 
+async def _finish_extraction_exception(statement_id: uuid.UUID) -> None:
+    message = "Statement PDF could not be extracted"
+    async with async_session() as db:
+        await db.execute(
+            update(Statement)
+            .where(Statement.id == statement_id)
+            .values(
+                status=StatementStatus.FAILED,
+                pdf_status="extraction_failed",
+                warnings=["provider_error"],
+                error_code="EXTRACTION_FAILED",
+                error_message=message,
+                updated_at=datetime.now(UTC),
+            )
+        )
+        await db.commit()
+    await _emit(
+        statement_id,
+        "statement_failed",
+        "failed",
+        100,
+        error={"code": "EXTRACTION_FAILED", "message": message},
+    )
+    statement_dispatcher.close_statement(statement_id)
+
+
 async def _persist_extraction(
     statement_id: uuid.UUID,
     extraction: StatementExtractionOutput,
@@ -243,6 +274,17 @@ async def _persist_extraction(
         statement.extraction_provider = processing.provider
         statement.extraction_prompt_id = processing.prompt_id
         statement.extraction_model_name = processing.model_name
+        statement.extraction_input_mode = processing.input_mode
+        statement.extraction_llm_input_tokens = processing.llm_input_tokens
+        statement.extraction_llm_output_tokens = processing.llm_output_tokens
+        statement.extraction_llm_cost_usd = processing.llm_cost_usd
+        statement.extraction_fallback_reason = processing.fallback_reason
+        statement.extraction_cache_status = processing.cache_status
+        statement.extraction_routing_reasons = processing.deterministic_routing_reasons
+        statement.extraction_evidence_row_count = processing.evidence_row_count
+        statement.extraction_evidence_candidate_row_count = (
+            processing.evidence_candidate_row_count
+        )
         statement.confidence = (
             Decimal(str(processing.confidence)) if processing.confidence is not None else None
         )
@@ -257,6 +299,7 @@ async def _persist_extraction(
                 StatementLine(
                     statement_id=statement_id,
                     source_order=line.source_order,
+                    row_type=line.row_type,
                     line_date=line.date,
                     description=line.description,
                     amount_minor=line.amount_minor,
@@ -267,6 +310,18 @@ async def _persist_extraction(
                     original_amount_minor=line.original_amount_minor,
                     card_alias_candidate=line.card_alias_candidate,
                     category_key=line.category_key,
+                    amount_selection_reason=line.amount_selection_reason,
+                    amount_candidates=[
+                        candidate.model_dump(mode="json") for candidate in line.amount_candidates
+                    ],
+                    ledger_ready=line.ledger_ready,
+                    confidence=(
+                        Decimal(str(line.confidence)) if line.confidence is not None else None
+                    ),
+                    warnings=line.warnings,
+                    source_row_index=line.source_row_index,
+                    source_page=line.source_page,
+                    field_provenance=line.field_provenance,
                 )
             )
         await db.commit()

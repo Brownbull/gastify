@@ -1860,6 +1860,11 @@
               }
             ],
             "title": "Password"
+          },
+          "ai_processing_consent": {
+            "type": "boolean",
+            "title": "Ai Processing Consent",
+            "default": false
           }
         },
         "type": "object",
@@ -2860,6 +2865,63 @@
         ],
         "title": "ScanSubmission"
       },
+      "StatementAmountCandidate": {
+        "properties": {
+          "role": {
+            "type": "string",
+            "enum": [
+              "selected",
+              "current_statement_amount",
+              "current_installment",
+              "purchase_total",
+              "plan_total",
+              "pending_balance",
+              "foreign_original",
+              "unknown"
+            ],
+            "title": "Role",
+            "default": "unknown"
+          },
+          "amount_minor": {
+            "type": "integer",
+            "title": "Amount Minor"
+          },
+          "currency": {
+            "type": "string",
+            "maxLength": 3,
+            "minLength": 3,
+            "title": "Currency",
+            "default": "CLP"
+          },
+          "visible_text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Visible Text"
+          },
+          "column_label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Column Label"
+          }
+        },
+        "type": "object",
+        "required": [
+          "amount_minor"
+        ],
+        "title": "StatementAmountCandidate"
+      },
       "StatementLineRecordResponse": {
         "properties": {
           "id": {
@@ -2875,6 +2937,23 @@
           "source_order": {
             "type": "integer",
             "title": "Source Order"
+          },
+          "row_type": {
+            "type": "string",
+            "enum": [
+              "charge",
+              "payment",
+              "interest",
+              "fee",
+              "insurance",
+              "tax",
+              "adjustment",
+              "summary",
+              "other",
+              "unknown"
+            ],
+            "title": "Row Type",
+            "default": "unknown"
           },
           "line_date": {
             "anyOf": [
@@ -2968,6 +3047,74 @@
               }
             ],
             "title": "Category Key"
+          },
+          "amount_selection_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Amount Selection Reason"
+          },
+          "amount_candidates": {
+            "items": {
+              "$ref": "#/components/schemas/StatementAmountCandidate"
+            },
+            "type": "array",
+            "title": "Amount Candidates"
+          },
+          "ledger_ready": {
+            "type": "boolean",
+            "title": "Ledger Ready",
+            "default": true
+          },
+          "confidence": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Confidence"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Warnings"
+          },
+          "source_row_index": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Row Index"
+          },
+          "source_page": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Page"
+          },
+          "field_provenance": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Field Provenance"
           }
         },
         "type": "object",
@@ -3023,6 +3170,16 @@
                 "type": "null"
               }
             ]
+          },
+          "candidate_transaction": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/StatementTransactionCandidate"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "type": "object",
@@ -3046,6 +3203,23 @@
           "source_order": {
             "type": "integer",
             "title": "Source Order"
+          },
+          "row_type": {
+            "type": "string",
+            "enum": [
+              "charge",
+              "payment",
+              "interest",
+              "fee",
+              "insurance",
+              "tax",
+              "adjustment",
+              "summary",
+              "other",
+              "unknown"
+            ],
+            "title": "Row Type",
+            "default": "unknown"
           },
           "line_date": {
             "anyOf": [
@@ -3106,6 +3280,18 @@
               }
             ],
             "title": "Card Alias Candidate"
+          },
+          "ledger_ready": {
+            "type": "boolean",
+            "title": "Ledger Ready",
+            "default": true
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Warnings"
           }
         },
         "type": "object",
@@ -3494,6 +3680,10 @@
             "type": "integer",
             "title": "File Size Bytes"
           },
+          "ai_processing_consent": {
+            "type": "boolean",
+            "title": "Ai Processing Consent"
+          },
           "issuer": {
             "anyOf": [
               {
@@ -3692,6 +3882,7 @@
           "file_sha256",
           "content_type",
           "file_size_bytes",
+          "ai_processing_consent",
           "currency",
           "pdf_status",
           "is_encrypted",
@@ -3700,6 +3891,392 @@
           "updated_at"
         ],
         "title": "StatementRecordResponse"
+      },
+      "StatementTransactionCandidate": {
+        "properties": {
+          "transaction_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Transaction Date"
+          },
+          "transaction_time": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Transaction Time"
+          },
+          "merchant": {
+            "type": "string",
+            "title": "Merchant"
+          },
+          "store_category_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Store Category Id"
+          },
+          "store_category_source": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "mapping",
+                  "ai",
+                  "user",
+                  "unknown"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Store Category Source"
+          },
+          "store_category_confidence": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Store Category Confidence"
+          },
+          "store_category_mapping_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Store Category Mapping Id"
+          },
+          "total_minor": {
+            "type": "integer",
+            "title": "Total Minor"
+          },
+          "discount_total_minor": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Discount Total Minor"
+          },
+          "gross_total_minor": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gross Total Minor"
+          },
+          "reconstructed_total_minor": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reconstructed Total Minor"
+          },
+          "currency": {
+            "type": "string",
+            "maxLength": 3,
+            "title": "Currency"
+          },
+          "receipt_type": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "scan",
+                  "manual",
+                  "statement",
+                  "import"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Receipt Type"
+          },
+          "country": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Country"
+          },
+          "city": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "City"
+          },
+          "card_alias_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Card Alias Id"
+          },
+          "recurrence_kind": {
+            "type": "string",
+            "enum": [
+              "none",
+              "fixed_term",
+              "recurring",
+              "unknown"
+            ],
+            "title": "Recurrence Kind",
+            "default": "none"
+          },
+          "recurrence_interval": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "monthly",
+                  "weekly",
+                  "biweekly",
+                  "annual",
+                  "custom",
+                  "unknown"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recurrence Interval"
+          },
+          "term_current": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Term Current"
+          },
+          "term_total": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Term Total"
+          },
+          "recurrence_label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recurrence Label"
+          },
+          "recurrence_source": {
+            "type": "string",
+            "enum": [
+              "statement",
+              "receipt",
+              "user",
+              "inferred",
+              "none"
+            ],
+            "title": "Recurrence Source",
+            "default": "none"
+          },
+          "recurrence_confidence": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recurrence Confidence"
+          },
+          "merchant_source": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "ocr",
+                  "user",
+                  "ai",
+                  "mapping"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Merchant Source"
+          },
+          "llm_tokens_in": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Llm Tokens In"
+          },
+          "llm_tokens_out": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Llm Tokens Out"
+          },
+          "llm_cost_usd": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Llm Cost Usd"
+          },
+          "scan_duration_ms": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Scan Duration Ms"
+          },
+          "llm_latency_ms": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Llm Latency Ms"
+          },
+          "queue_wait_ms": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Queue Wait Ms"
+          },
+          "thumbnail_gen_ms": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Thumbnail Gen Ms"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/TransactionItemCreate"
+            },
+            "type": "array",
+            "title": "Items",
+            "default": []
+          },
+          "image_urls": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Image Urls",
+            "default": []
+          }
+        },
+        "type": "object",
+        "required": [
+          "transaction_date",
+          "merchant",
+          "total_minor",
+          "currency"
+        ],
+        "title": "StatementTransactionCandidate",
+        "description": "Ready-to-submit transaction payload for a statement-only spend line."
       },
       "StatementUploadResponse": {
         "properties": {
@@ -3953,6 +4530,100 @@
               }
             ],
             "title": "Card Alias Id"
+          },
+          "recurrence_kind": {
+            "type": "string",
+            "enum": [
+              "none",
+              "fixed_term",
+              "recurring",
+              "unknown"
+            ],
+            "title": "Recurrence Kind",
+            "default": "none"
+          },
+          "recurrence_interval": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "monthly",
+                  "weekly",
+                  "biweekly",
+                  "annual",
+                  "custom",
+                  "unknown"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recurrence Interval"
+          },
+          "term_current": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Term Current"
+          },
+          "term_total": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Term Total"
+          },
+          "recurrence_label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recurrence Label"
+          },
+          "recurrence_source": {
+            "type": "string",
+            "enum": [
+              "statement",
+              "receipt",
+              "user",
+              "inferred",
+              "none"
+            ],
+            "title": "Recurrence Source",
+            "default": "none"
+          },
+          "recurrence_confidence": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recurrence Confidence"
           },
           "merchant_source": {
             "anyOf": [
@@ -4337,6 +5008,105 @@
               }
             ],
             "title": "City"
+          },
+          "recurrence_kind": {
+            "type": "string",
+            "enum": [
+              "none",
+              "fixed_term",
+              "recurring",
+              "unknown"
+            ],
+            "title": "Recurrence Kind",
+            "default": "none"
+          },
+          "recurrence_interval": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "monthly",
+                  "weekly",
+                  "biweekly",
+                  "annual",
+                  "custom",
+                  "unknown"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recurrence Interval"
+          },
+          "term_current": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Term Current"
+          },
+          "term_total": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Term Total"
+          },
+          "recurrence_label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recurrence Label"
+          },
+          "recurrence_source": {
+            "type": "string",
+            "enum": [
+              "statement",
+              "receipt",
+              "user",
+              "inferred",
+              "none"
+            ],
+            "title": "Recurrence Source",
+            "default": "none"
+          },
+          "recurrence_confidence": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recurrence Confidence"
+          },
+          "recurrence_user_edited_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recurrence User Edited At"
           },
           "llm_tokens_in": {
             "anyOf": [
@@ -5091,6 +5861,105 @@
             ],
             "title": "City"
           },
+          "recurrence_kind": {
+            "type": "string",
+            "enum": [
+              "none",
+              "fixed_term",
+              "recurring",
+              "unknown"
+            ],
+            "title": "Recurrence Kind",
+            "default": "none"
+          },
+          "recurrence_interval": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "monthly",
+                  "weekly",
+                  "biweekly",
+                  "annual",
+                  "custom",
+                  "unknown"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recurrence Interval"
+          },
+          "term_current": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Term Current"
+          },
+          "term_total": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Term Total"
+          },
+          "recurrence_label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recurrence Label"
+          },
+          "recurrence_source": {
+            "type": "string",
+            "enum": [
+              "statement",
+              "receipt",
+              "user",
+              "inferred",
+              "none"
+            ],
+            "title": "Recurrence Source",
+            "default": "none"
+          },
+          "recurrence_confidence": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recurrence Confidence"
+          },
+          "recurrence_user_edited_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recurrence User Edited At"
+          },
           "item_count": {
             "type": "integer",
             "title": "Item Count",
@@ -5268,6 +6137,112 @@
               }
             ],
             "title": "Card Alias Id"
+          },
+          "recurrence_kind": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "none",
+                  "fixed_term",
+                  "recurring",
+                  "unknown"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recurrence Kind"
+          },
+          "recurrence_interval": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "monthly",
+                  "weekly",
+                  "biweekly",
+                  "annual",
+                  "custom",
+                  "unknown"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recurrence Interval"
+          },
+          "term_current": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Term Current"
+          },
+          "term_total": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Term Total"
+          },
+          "recurrence_label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recurrence Label"
+          },
+          "recurrence_source": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "statement",
+                  "receipt",
+                  "user",
+                  "inferred",
+                  "none"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recurrence Source"
+          },
+          "recurrence_confidence": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recurrence Confidence"
           },
           "items": {
             "anyOf": [

@@ -8,6 +8,10 @@ math gate, and cost-pricing helper. Prompt-lab evidence is still AI-quality
 evidence only; it does not replace staging-e2e S23 fixture proof or staging live
 Gemini proof.
 
+This document is receipt-only. Credit-card statement PDF ingestion, statement
+line extraction, statement-to-receipt matching, and statement-only transaction
+candidates live in `prompt-testing/STATEMENT-PIPELINE.md`.
+
 ## Diagram Grammar
 
 The diagrams in this document use different shapes for different roles. This
@@ -37,19 +41,19 @@ flowchart LR
 | Area | File | Responsibility |
 | --- | --- | --- |
 | Prompt registry | `backend/app/prompts/registry.py` | Looks up prompt IDs and versions. |
-| Receipt extraction prompt | `backend/app/prompts/receipt_structure.py` | Defines production and dev-only receipt image prompts. |
-| Item categorization prompt | `backend/app/prompts/item_categorization.py` | Defines item text to L4 category prompt. |
+| Receipt extraction prompt | `backend/app/prompts/receipt/extraction.py` | Defines production and dev-only receipt image prompts. |
+| Item categorization prompt | `backend/app/prompts/receipt/item_categorization.py` | Defines item text to L4 category prompt. |
 | Prompt value lists | `backend/app/prompts/values.py` | Shared currency and taxonomy text used by prompts. |
-| Image preparation | `backend/app/prompt_lab/runner.py`, `backend/app/services/image.py` | Loads and compresses receipt images before extraction. |
+| Image preparation | `backend/app/prompt_lab/receipt/runner.py`, `backend/app/services/image.py` | Loads and compresses receipt images before extraction. |
 | Raw extraction agent | `backend/app/agents/extraction.py` | Calls Gemini vision extraction and returns raw plus processed extraction. |
 | Deterministic coalescing | `backend/app/services/coalesce.py` | Converts raw receipt evidence into canonical scan extraction fields. |
 | Categorization agent | `backend/app/agents/categorization.py` | Categorizes extracted items into canonical L4 category keys. |
 | Math gate | `backend/app/services/math_gate.py` | Reconstructs totals and emits reconciliation verdicts. |
 | Runtime persistence | `backend/app/services/persist_scan.py` | Creates transactions, items, images, costs, mapping provenance, and FX shadow. |
 | Runtime orchestration | `backend/app/services/scan_worker.py` | Drives scan status transitions and WebSocket/SSE progress events. |
-| Prompt-lab artifacts | `backend/app/prompt_lab/runner.py` | Writes case manifests and per-stage JSON artifacts. |
-| Prompt-lab scoring | `backend/app/prompt_lab/scoring.py` | Compares output to baselines and applies transaction/reconstruction gates. |
-| Batch reporting | `backend/app/prompt_lab/batch_report.py` | Writes batch summary, analysis, promotion threshold, and promotion decision. |
+| Prompt-lab artifacts | `backend/app/prompt_lab/receipt/runner.py` | Writes case manifests and per-stage JSON artifacts. |
+| Prompt-lab scoring | `backend/app/prompt_lab/receipt/scoring.py` | Compares output to baselines and applies transaction/reconstruction gates. |
+| Batch reporting | `backend/app/prompt_lab/receipt/batch_report.py` | Writes batch summary, analysis, promotion threshold, and promotion decision. |
 | Pricing | `backend/app/services/llm_costs.py` | Shared provider token pricing and estimated cost helper. |
 
 The code ownership diagram shows the main modules by responsibility rather than
@@ -189,7 +193,7 @@ transaction create/update does not accept these fields in this backend pass.
 
 ## Prompt-Lab Case Path
 
-The prompt-lab runner is `backend/app/prompt_lab/runner.py`. A normal live case
+The receipt prompt-lab runner is `backend/app/prompt_lab/receipt/runner.py`. A normal live case
 uses this shape:
 
 ```mermaid
@@ -231,7 +235,7 @@ flowchart TD
 
 | Stage | Code | Artifact or packet field |
 | --- | --- | --- |
-| Case discovery | `backend/app/prompt_lab/cases.py` | Case ID, image path, baseline path, baseline status. |
+| Case discovery | `backend/app/prompt_lab/receipt/cases.py` | Case ID, image path, baseline path, baseline status. |
 | Image prep | `prepare_image()` in `runner.py` | Raw and processed image hashes, content types, image sizes for dry-run packets. |
 | Raw cache key | `backend/app/prompt_lab/cache.py` | `raw_cache_key`, keyed by raw image hash, processed image hash, model, extraction prompt, and scan context. |
 | Processed cache key | `backend/app/prompt_lab/cache.py` | `processed_cache_key`, adding categorization prompt to the raw cache identity. |
@@ -252,6 +256,15 @@ A grouped run uses:
 ```text
 prompt-testing/results/latest/<environment>/<extraction-prompt>/<run-id>/<case-id>/
 ```
+
+When `--run-id` is omitted, the CLI generates a sortable run folder name:
+
+```text
+YYYYMMDDTHHMMSSZ-001-short-label
+```
+
+Use an explicit `--run-id` only when several commands need to append to the same
+known evidence folder.
 
 Each case folder is one scan packet. A completed prompt-lab scan writes these
 six files:
@@ -514,18 +527,18 @@ The latest Phase 2D pass kept the production prompt unchanged and updated only
 the dev-only candidate, deterministic postprocessing, prompt-lab scoring, and
 prompt-lab reporting:
 
-- `backend/app/prompt_lab/scoring.py` now keeps positional item match counts as
+- `backend/app/prompt_lab/receipt/scoring.py` now keeps positional item match counts as
   diagnostics and adds name-aware counts for item totals, quantities, unit
   prices, full item matches, and matched item names.
-- `backend/app/prompt_lab/scoring.py` uses name-aware reconstruction severity
+- `backend/app/prompt_lab/receipt/scoring.py` uses name-aware reconstruction severity
   for multi-item receipts, exact item count as a strict reconstruction gate, and
   a severity-only single-item positional fallback for generic one-line service
   receipts.
-- `backend/app/prompt_lab/batch_report.py` now writes schema
+- `backend/app/prompt_lab/receipt/batch_report.py` now writes schema
   `prompt-lab-batch-summary.v8`; the analysis tables show name-aware versus
   positional item matching, severity basis, raw-vs-processed arithmetic, item
   price deltas, and fix focus.
-- `backend/app/prompts/receipt_structure.py` bumped the dev-only
+- `backend/app/prompts/receipt/extraction.py` bumped the dev-only
   `receipt-extraction-v2-evidence` candidate to `2026-05-20.v2-dev.9`, with
   added guidance for nearby quantity lines, separate discount/savings evidence,
   and long receipt table continuity.

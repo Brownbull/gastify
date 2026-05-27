@@ -62,8 +62,8 @@ production profiles.
 | File | Role |
 |------|------|
 | `lib/api.ts` | openapi-fetch client instance — typed API calls, identical contract to web. |
-| `lib/api-types.d.ts` | Auto-generated TypeScript types from OpenAPI spec (shared with web, 61KB). |
-| `lib/openapi-spec.json` | OpenAPI specification (shared with web, 95KB). |
+| `lib/api-types.d.ts` | Auto-generated TypeScript types from OpenAPI spec, including statement fallback evidence and recurrence fields. |
+| `lib/openapi-spec.json` | OpenAPI specification shared with web. |
 | `lib/mobileConfig.ts` | Mobile-specific config — API base URL, environment detection, feature flags. |
 | `lib/secureAuthToken.ts` | Secure token storage via `expo-secure-store` — persists Firebase token across app restarts. |
 | `lib/authSession.ts` | Session management — token refresh, expiry handling, logout cleanup. |
@@ -122,6 +122,13 @@ Both `web/src/lib/api-types.d.ts` and `mobile/src/lib/api-types.d.ts` are
 generated from the same OpenAPI spec. This guarantees type parity between
 clients without a shared npm package. The spec lives in each client's `lib/`
 directory and is regenerated when the backend schema changes.
+
+### 2026-05-27 — Android will consume the same statement contracts
+
+The mobile generated API layer now has the P5 statement fallback evidence,
+usage metadata, and transaction recurrence fields needed for the Android
+statement reconciliation journey. iOS runtime proof remains deferred; Android
+and web are the active validation surfaces for the next phases.
 
 ## Key Diagrams
 

@@ -38,7 +38,7 @@ domain logic to the wells that own it.
 | `backend/app/api/scans.py` | `POST /scans` — receipt image upload, triggers [G4 Scan Pipeline](4-scan-pipeline.md) `scan_worker.process_scan()` as a background task. |
 | `backend/app/api/scan_stream.py` | `GET /scans/{id}/events` (SSE) + `WS /ws/scans/{id}` — real-time scan progress with Firebase JWT auth. |
 | `backend/app/api/scan_test_cases.py` | Non-production endpoints for listing/running curated scan test cases. Guarded by environment check. |
-| `backend/app/api/statements.py` | Statement PDF upload/list/detail/lines/process plus `POST /statements/{id}/reconcile` and `GET /statements/{id}/reconciliation`. |
+| `backend/app/api/statements.py` | Statement PDF upload/list/detail/lines/process plus `POST /statements/{id}/reconcile` and `GET /statements/{id}/reconciliation`. Upload requires per-scan AI processing consent before runtime fallback can call Gemini. |
 | `backend/app/api/statement_stream.py` | `GET /statements/{id}/events` — statement extraction/reconciliation SSE progress with Firebase JWT auth. |
 | `backend/app/api/card_aliases.py` | Alias-only card CRUD. Rejects PCI-shaped fields and scopes aliases by ownership scope. |
 | `backend/app/api/transactions.py` | Full CRUD for transactions: list (paginated), get, create, update, delete, batch update/delete. FX conversion on write. |
@@ -64,6 +64,13 @@ routers this is the right trade-off.
 (`/ws/scans/{id}`) for scan progress. Web uses SSE (simpler, auto-reconnect
 via EventSource). Mobile uses WebSocket (React Native lacks native EventSource,
 and the WebSocket path supports bidirectional control messages for cancel).
+
+### 2026-05-27 — Statement provider fallback is consent-gated at upload
+
+Statement uploads carry explicit AI processing consent at the beginning of each
+credit-card statement scan. The API stores that audit signal on the statement
+row and the worker uses it to authorize the transparent Gemini fallback when a
+known deterministic PDF parser cannot handle the uploaded layout.
 
 ## Key Diagrams
 

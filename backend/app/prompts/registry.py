@@ -5,10 +5,11 @@ from __future__ import annotations
 import hashlib
 from typing import TYPE_CHECKING
 
-from app.prompts.item_categorization import PROMPTS as ITEM_CATEGORIZATION_PROMPTS
-from app.prompts.receipt_structure import PROMPTS as RECEIPT_STRUCTURE_PROMPTS
-from app.prompts.statement_extraction import PROMPTS as STATEMENT_EXTRACTION_PROMPTS
-from app.prompts.store_categorization import PROMPTS as STORE_CATEGORIZATION_PROMPTS
+from app.prompts.receipt.extraction import PROMPTS as RECEIPT_STRUCTURE_PROMPTS
+from app.prompts.receipt.item_categorization import PROMPTS as ITEM_CATEGORIZATION_PROMPTS
+from app.prompts.receipt.store_categorization import PROMPTS as STORE_CATEGORIZATION_PROMPTS
+from app.prompts.statement.extraction import PROMPTS as STATEMENT_EXTRACTION_PROMPTS
+from app.prompts.statement.profile import PROMPTS as STATEMENT_LAYOUT_PROFILE_PROMPTS
 
 if TYPE_CHECKING:
     from app.prompts.definitions import PromptDefinition, PromptKind
@@ -16,6 +17,7 @@ if TYPE_CHECKING:
 PROMPTS: tuple[PromptDefinition, ...] = (
     *RECEIPT_STRUCTURE_PROMPTS,
     *STATEMENT_EXTRACTION_PROMPTS,
+    *STATEMENT_LAYOUT_PROFILE_PROMPTS,
     *ITEM_CATEGORIZATION_PROMPTS,
     *STORE_CATEGORIZATION_PROMPTS,
 )

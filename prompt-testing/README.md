@@ -7,10 +7,23 @@ drift from the deployed pipeline.
 For the full end-to-end map of runtime scan stages, prompt-lab stages, artifact files, and field
 ownership, see `prompt-testing/RECEIPT-PIPELINE.md`.
 
+Prompt-lab commands that create run folders now generate sortable run IDs when
+`--run-id` is omitted:
+
+```text
+YYYYMMDDTHHMMSSZ-001-short-label
+```
+
+That keeps the newest generated run last in normal lexicographic folder sorting,
+while still allowing an explicit `--run-id` when several commands must write
+into the same known evidence folder.
+
 Prompt files are split by responsibility:
 
-- `backend/app/prompts/receipt_structure.py`: receipt image to structured extraction prompt.
-- `backend/app/prompts/item_categorization.py`: extracted item text to V4 category prompt.
+- `backend/app/prompts/receipt/extraction.py`: receipt image to structured extraction prompt.
+- `backend/app/prompts/receipt/item_categorization.py`: extracted item text to V4 category prompt.
+- `backend/app/prompts/receipt/store_categorization.py`: merchant text to V4 store category prompt.
+- `backend/app/prompts/statement/extraction.py`: statement PDF/text to structured statement-line prompt.
 - `backend/app/prompts/values.py`: reusable prompt value lists such as supported currencies and
   V4 category keys/taxonomy text.
 - `backend/app/prompts/registry.py`: thin lookup/index for configured prompt IDs.
@@ -27,6 +40,7 @@ statements into the receipt corpus.
 - The statement pipeline and commands are documented in `prompt-testing/STATEMENT-PIPELINE.md`.
 - Statement schemas live in `backend/app/schemas/statement.py`.
 - Statement prompt definitions use prompt kind `statement-extraction`.
+- Statement prompt-lab code lives under `backend/app/prompt_lab/statement/`.
 - Private `.expected.json` files are created beside the ignored PDFs before Gemini scoring.
 
 Import the local legacy statement corpus:
@@ -43,8 +57,7 @@ Run a Codex-only sample extraction:
 ```bash
 cd backend
 uv run python -m app.prompt_lab statement-extract \
-  --case cmr/cmr202503 \
-  --run-id 20260525Tstatement-codex-samples
+  --case cmr/cmr202503
 ```
 
 Check representative expected-baseline coverage before Gemini iteration:
@@ -52,6 +65,41 @@ Check representative expected-baseline coverage before Gemini iteration:
 ```bash
 cd backend
 uv run python -m app.prompt_lab statement-list --json
+```
+
+Generate the current pre-Gemini expected-fixture report:
+
+```bash
+cd backend
+uv run python -m app.prompt_lab statement-report \
+  --credentials-root /home/khujta/projects/bmad/boletapp/prompt-testing/test-cases/CreditCard
+```
+
+Generate a mock-Gemini report without calling Gemini:
+
+```bash
+cd backend
+uv run python -m app.prompt_lab statement-report \
+  --actual-source mock-gemini \
+  --transaction-fixture edge-cases \
+  --credentials-root /home/khujta/projects/bmad/boletapp/prompt-testing/test-cases/CreditCard
+```
+
+Run the consolidated four-case approach suite. Omit `--gemini-live` while
+checking layout or cached evidence only; add `--gemini-live --confirm-live-cost`
+for a real provider comparison.
+
+```bash
+cd backend
+uv run python -m app.prompt_lab statement-suite-run \
+  --case cmr/cmr202503 \
+  --case cmr/cmr202504 \
+  --case edwards/edw202506 \
+  --case scotiabank/sco202206 \
+  --approach pymupdf \
+  --approach gemini \
+  --credentials-root /home/khujta/projects/bmad/boletapp/prompt-testing/test-cases/CreditCard \
+  --transaction-scope-firebase-uid local-user
 ```
 
 ## Evidence Boundary

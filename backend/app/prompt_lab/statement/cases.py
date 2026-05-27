@@ -19,6 +19,7 @@ from app.prompt_lab.paths import (
     STATEMENT_TEST_CASES_ROOT,
     ensure_workspace,
 )
+from app.prompt_lab.run_ids import next_serial_run_id
 from app.schemas.statement import (
     StatementExtractionOutput,
     StatementInfo,
@@ -296,10 +297,14 @@ def write_statement_extraction_packet(
     packet: StatementPromptLabExtractionPacket,
     *,
     output_root: Path = LATEST_RESULTS_ROOT,
-    run_id: str = "statement-codex-preflight",
+    run_id: str | None = None,
 ) -> dict[str, Any]:
     """Write ignored Codex text-extraction evidence without printing or committing private text."""
-    case_dir = output_root / "statements" / run_id / case.id.replace("/", "-")
+    resolved_run_id = run_id or next_serial_run_id(
+        output_root / "statements",
+        f"statement-codex-preflight-{case.id}",
+    )
+    case_dir = output_root / "statements" / resolved_run_id / case.id.replace("/", "-")
     case_dir.mkdir(parents=True, exist_ok=True)
     extraction_path = case_dir / "codex_extraction.json"
     extraction_path.write_text(
@@ -310,6 +315,7 @@ def write_statement_extraction_packet(
     manifest = {
         "case_id": case.id,
         "issuer": case.issuer,
+        "run_id": resolved_run_id,
         "status": extraction.pdf_status,
         "packet_status": "written",
         "document_type": extraction.document_type,

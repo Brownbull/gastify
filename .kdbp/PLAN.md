@@ -3,7 +3,7 @@
 <!-- status: active -->
 <!-- project_type: code -->
 <!-- created: 2026-05-24 -->
-<!-- last_updated: 2026-05-25 -->
+<!-- last_updated: 2026-05-27 -->
 
 ## Goal
 
@@ -18,6 +18,7 @@ Implement P5: PDF statement upload → extraction → match against existing rec
 - Runtime closure requires Railway staging evidence for Postgres, file/media, worker behavior, user-visible web results, and Android/S23 results.
 - iOS runtime testing is deferred post-roadmap by D47/P31 and is not a P5 blocker.
 - P5 implementation begins with Phase 0 statement-corpus discovery and prompt-lab contract design before runtime schema/UI work.
+- Phase 4 is the live Gemini statement prompt-lab quality gate. Current product decision promotes Gemini fallback with caveats for unsupported readable text-layer statements; deterministic PyMuPDF remains primary for known layouts.
 
 ## Environment Gate Standard
 
@@ -36,10 +37,11 @@ Runtime-gated P5 phases must close against branch-backed Railway staging evidenc
 | 0 | Statement corpus + extraction contract preflight | ent | ✅ | ✅ | ✅ | ✅ |
 | 1 | Card alias + statement schema foundation | ent | ✅ | ✅ | ✅ | ✅ |
 | 2 | Statement PDF upload + extraction worker | ent | ✅ | ✅ | ✅ | ✅ |
-| 3 | Reconciliation engine + coverage metric | ent | ✅ | ⬜ | ✅ | ⬜ |
-| 4 | Web statement reconciliation flow | ent | ⬜ | ⬜ | ⬜ | ⬜ |
-| 5 | Android mobile statement reconciliation flow | ent | ⬜ | ⬜ | ⬜ | ⬜ |
-| 6 | P5 exit gate + edge tests | ent | ⬜ | ⬜ | ⬜ | ⬜ |
+| 3 | Reconciliation engine + coverage metric | ent | ✅ | ✅ | ✅ | ⬜ |
+| 4 | Statement Gemini prompt lab + coalesce gate | ent | ✅ | ✅ | ⬜ | ⬜ |
+| 5 | Web statement reconciliation flow | ent | ⬜ | ⬜ | ⬜ | ⬜ |
+| 6 | Android mobile statement reconciliation flow | ent | ⬜ | ⬜ | ⬜ | ⬜ |
+| 7 | P5 exit gate + edge tests | ent | ⬜ | ⬜ | ⬜ | ⬜ |
 
 ## Phase Details
 
@@ -136,6 +138,9 @@ Build deterministic matching between statement lines and receipt-sourced transac
 - Match by merchant, date, amount, currency, and card alias.
 - Respect tolerance rules: date ±3 days, amount within 1% or currency-minimum-unit, and configurable fuzzy merchant matching.
 - Produce matched, statement-only, and receipt-only buckets.
+- For positive statement-only spend lines, return a ready-to-create transaction
+  candidate with `receipt_type=statement` and one flagged `Unidentified statement
+  item`; do not auto-create it until the user accepts it.
 - Compute coverage metric and persist line verdicts.
 - Preserve user-edited transaction precedence and avoid overwriting user corrections.
 - Support idempotent reruns and explicit ambiguous-match handling.
@@ -147,7 +152,38 @@ Exit signal:
 - Backend tests cover exact matches, fuzzy matches, no matches, ambiguous matches, archived alias behavior, and user-edited precedence.
 - Railway `staging-e2e` seeded receipt + statement run returns the three buckets and coverage metric through the deployed API.
 
-### Phase 4 — Web statement reconciliation flow
+### Phase 4 — Statement Gemini prompt lab + coalesce gate
+
+```yaml
+types: [ai-agent, prompt-lab, data-contract, test]
+tier: ent
+prototype: false
+decision: D55
+requirements: [REQ-07, REQ-08]
+```
+
+Build and run the real statement Gemini quality loop before UI implementation depends on live-provider quality:
+
+- Keep the statement Gemini agent separate from receipt extraction. Runtime fallback uses compact `profile-rows` evidence; direct PDF Gemini remains prompt-lab/debug only.
+- Decrypt encrypted private PDFs only in memory when local credentials are available; never write decrypted PDFs, passwords, raw PDF bytes, PAN/CVV/expiry, or raw statement text to committed files.
+- Add `statement-run` with dry-run, cache-only, cache-bypass, live-cost confirmation, credentials-root, prompt/model, run-id, and case/limit controls.
+- Add statement-specific cache keys using `statement-prompt-lab.v1`, PDF hash, prompt hash, model, encrypted/decrypted marker, and expected fixture identity.
+- Add statement coalesce/normalization for currencies, source order, line types, optional fields, provider metadata, confidence, and warnings.
+- Preserve raw Gemini output separately from processed statement output; statement-only transaction candidates stay in reconciliation, not extraction.
+- Add `statement-batch-report` to summarize pass/fail, provider errors, cache/no-cache status, token/cost totals, line deltas, field mismatches, reconciliation bucket effects, and failure ownership.
+- Run the first representative no-cache Gemini pass on `cmr/cmr202503`, `edwards/edw202506`, and `scotiabank/sco202206` only with explicit live-cost confirmation.
+- Track API cost controls: compact evidence v2 experiment, deterministic calls avoided, fallback calls made, average tokens/cost, highest-cost case, and cost per ledger-ready line.
+- Compact evidence v2 is cost-promising but not promoted yet: the 7-case live run reduced token/cost totals but reintroduced amount mismatches, so runtime keeps the previous P0-clean compact profile path.
+
+Exit signal:
+
+- Real Gemini statement runs exist for the current baselined statement set with no cache reuse when extraction behavior changes.
+- Every run has `pdf_input.json`, `raw_output.json`, `processed_output.json`, `field_provenance.json`, `score.json`, `reconciliation.json`, `payload_examples.json`, `cost_summary.json`, and `manifest.json`.
+- Provider errors and extraction failures are classified as prompt, coalesce, PDF/OCR/provider, baseline truth, or expected fixture gap.
+- Reports keep strict fixture diagnostics separate from runtime fallback readiness; `fallback_promoted_with_caveats` is accepted when date, amount, currency, and candidate safety pass.
+- Full 24-PDF corpus expansion remains later quality hardening before production provider promotion, not a blocker for building Web UI against stable API contracts.
+
+### Phase 5 — Web statement reconciliation flow
 
 ```yaml
 types: [web, user-facing, client-state, upload, realtime, file-media]
@@ -171,7 +207,7 @@ Exit signal:
 - Web unit/component tests cover card aliases, upload states, buckets, coverage, and sign-out cleanup.
 - Deployed Railway web/API browser proof captures the P5 statement journey against `staging-e2e`.
 
-### Phase 5 — Android mobile statement reconciliation flow
+### Phase 6 — Android mobile statement reconciliation flow
 
 ```yaml
 types: [native-mobile, user-facing, client-state, upload, realtime, streaming, file-media]
@@ -195,7 +231,7 @@ Exit signal:
 - Mobile typecheck/Jest cover the P5 Android flow and state transitions.
 - Samsung S23 `staging-e2e` run captures statement upload, progress, reconciliation buckets, coverage metric, and sign-out cleanup with grouped stage artifacts.
 
-### Phase 6 — P5 exit gate + edge tests
+### Phase 7 — P5 exit gate + edge tests
 
 ```yaml
 types: [core-only, test, web, native-mobile]
@@ -221,7 +257,7 @@ Exit signal:
 
 ## Current Phase
 
-Phase 3: Reconciliation engine + coverage metric.
+Phase 4: Statement Gemini prompt lab + coalesce gate.
 
 ## Dependencies
 
@@ -229,8 +265,9 @@ Phase 3: Reconciliation engine + coverage metric.
 - Phase 1 must land before Phases 2 and 3.
 - Phase 2 must land before deployed reconciliation proof can close.
 - Phase 3 must land before web/mobile bucket views are meaningful.
-- Phases 4 and 5 may proceed in parallel after Phase 3 API contracts stabilize.
-- Phase 6 closes only after Phases 1-5 are reviewed, committed, and pushed.
+- Phase 4 has promoted Gemini fallback with caveats for unsupported readable text-layer PDFs; future iterations must preserve P0 readiness and cost controls.
+- Phases 5 and 6 may proceed in parallel after Phase 3 API contracts stabilize; they do not require Phase 4 to prove live Gemini quality if they use fixture-backed contracts.
+- Phase 7 closes only after Phases 1-6 are reviewed, committed, and pushed.
 
 ## Risks
 
@@ -246,6 +283,7 @@ Phase 3: Reconciliation engine + coverage metric.
 | Railway volume portability | Keep file/media metadata explicit and record storage assumptions in review evidence. |
 | iOS runtime missing | Accepted by D47/P31; Android/S23 is the P5 native runtime gate. |
 | Staging data pollution | Use scoped staging-e2e fixtures and cleanup/reset helpers for repeatable proof. |
+| Prompt-lab live-cost drift | Require `statement-run --live --confirm-live-cost` and batch cost artifacts before live Gemini evidence is accepted. |
 
 ## Runtime Evidence Checkpoints
 
@@ -253,9 +291,10 @@ Phase 3: Reconciliation engine + coverage metric.
 - Phase 1: backend migration/test evidence and staging DB readiness.
 - Phase 2: deployed PDF upload + extraction worker artifact under `tests/.../results` or equivalent KDBP-linked evidence.
 - Phase 3: deployed API reconciliation response with matched, statement-only, receipt-only, and coverage metric.
-- Phase 4: deployed web browser evidence for statement upload and bucket drilldown.
-- Phase 5: S23 Android `staging-e2e` stage folder with manifest, screenshots, and passed flow manifests.
-- Phase 6: consolidated P5 evidence packet referenced from `.kdbp/LEDGER.md` and reviewed in `.kdbp/REVIEW.md`.
+- Phase 4: representative statement Gemini run folders plus `statement-live-summary.json` and `statement-live-analysis.md`.
+- Phase 5: deployed web browser evidence for statement upload and bucket drilldown.
+- Phase 6: S23 Android `staging-e2e` stage folder with manifest, screenshots, and passed flow manifests.
+- Phase 7: consolidated P5 evidence packet referenced from `.kdbp/LEDGER.md` and reviewed in `.kdbp/REVIEW.md`.
 
 ## Notes
 

@@ -1,5 +1,7 @@
 """Shared schema utilities."""
 
+from typing import Any
+
 from pydantic import BaseModel, ConfigDict
 
 
@@ -19,4 +21,4 @@ class PaginatedResponse[T](BaseModel):
 class ErrorDetail(BaseModel):
     code: str
     message: str
-    details: dict | None = None
+    details: dict[str, Any] | None = None

@@ -3,16 +3,10 @@
 sources:
   - cli: codex
     model: gpt-5
-    timestamp: 2026-05-25T16:53:56-04:00
-    findings: 3
-  - cli: claude
-    model: claude-opus-4-6
-    timestamp: 2026-05-25T17:15:00-04:00
-    findings: 3
-consolidated_at: 2026-05-25T17:15:00-04:00
-consolidation: union
+    timestamp: 2026-05-27T13:22:28-04:00
+    findings: 2
 project_root: /home/khujta/projects/apps/gastify
-target: P5 Phase 2 — Statement PDF upload + extraction worker
+target: P5 Phase 4 — Statement Gemini prompt lab + coalesce gate
 maturity: ent
 status: resolved
 ---
@@ -21,69 +15,80 @@ status: resolved
 
 **Verdict:** APPROVE
 **Confidence:** 95/100
-**Coverage:** HIGH — SSE endpoint tested (4 tests); codex-text-path tested; artifact privacy fixed
-**Findings:** 3 (CRITICAL: 0, HIGH: 2, MEDIUM: 0, LOW: 1) | **Sources:** codex+claude (full overlap — both agents independently flagged all 3)
-**Resolution:** 3 fixed / 0 deferred / 0 dismissed of 3 (pending: 0)
+**Coverage:** HIGH — duplicate statement metadata/reprocess behavior is now covered alongside the existing Phase 4 backend/prompt-lab verification.
+**Findings:** 2 (CRITICAL: 0, HIGH: 1, MEDIUM: 1, LOW: 0) | **Sources:** codex
+**Resolution:** 2 fixed / 0 deferred / 0 dismissed of 2 (pending: 0)
 
 ## Findings
 
 | # | Status | Severity | Finding | File | Churn | Fix Cost | Defer Risk | Maturity Gate | Escalation | Sources |
 |---|--------|----------|---------|------|-------|----------|------------|---------------|------------|---------|
-| 1 | fixed | HIGH | Codex-pdf-text provider returns `pdf_status="readable"` with `lines=[]` and warning `codex_text_only_no_line_normalization` for text-bearing PDFs. Worker persists this as `StatementStatus.EXTRACTED` with zero lines. Default production provider completes with false-success semantics — contradicts Phase 2 contract ("emit typed transaction-line records"). | `backend/app/services/statement_extraction.py:141` / `backend/app/services/statement_worker.py:90` | ✅ STABLE | M (1-3h) | FALSE EXTRACTION SUCCESS — P(high), I(high) | Enterprise | — | codex, claude |
-| 2 | fixed | HIGH | SSE endpoint `GET /statements/{id}/events` exists but has no integration test and the staging fixture gate polls REST only. Worker event emission is monkeypatched in `test_statement_worker.py`; no test exercises the live SSE transport/auth/reconnect path. A broken SSE route would pass all current evidence. | `backend/app/api/statement_stream.py:47` / `scripts/staging/run-statement-fixture-gate.py:241` | ✅ STABLE | M (1-3h) | STREAMING PATH SHIPS UNTESTED — P(medium), I(high) | Enterprise | — | codex, claude |
-| 3 | fixed | LOW | Staging fixture gate writes `firebase_uid` and `firebase_email` to ignored manifest artifacts. Not a committed secret (gitignored, staging E2E test account), but Phase 0 privacy rules prefer sanitized manifests. | `scripts/staging/run-statement-fixture-gate.py:218` | ✅ STABLE | S (<30m) | TEST IDENTIFIERS SPREAD — P(medium), I(low) | MVP | — | codex, claude |
+| 1 | fixed | HIGH | Duplicate statement uploads validate new `ai_processing_consent` and `card_alias_id`, but the duplicate branch returns the existing row without persisting either value before optional requeue. If the first row was created before consent enforcement, or was uploaded without a card alias, a later consented upload can trigger processing while the audit row still says no consent and the reconciliation/candidate payload remains unlinked to the selected card alias. Fixed by persisting duplicate consent/card alias metadata before requeue and adding a duplicate encrypted requeue regression test. | `backend/app/api/statements.py:87` | ✅ STABLE | S (<30m) | RESOLVED — duplicate reprocess keeps consent/card metadata | Enterprise | — | codex |
+| 2 | fixed | MEDIUM | The active P5 plan has Phase 3 with `Review=⬜` after `Commit=✅` while Current Phase is 4. `/gabe-next` routes from Current Phase, but `/gabe-review` no-arg resolves the first `Exec=✅ Review=⬜` row, so the plan can send a direct review invocation to stale Phase 3 instead of Phase 4. Fixed by reconciling the stale Phase 3 Review tick. | `.kdbp/PLAN.md:40` | 🔴 HOT | S (<30m) | RESOLVED — direct review routing no longer lands on stale Phase 3 | Enterprise | — | codex |
+
+## Risk Dashboard
+
+| # | Source | Age | Finding | File | Defer Risk | Escalation |
+|---|--------|-----|---------|------|------------|------------|
+| 1 | current review | 0d | Duplicate statement upload drops consent/card alias updates before requeue | `backend/app/api/statements.py:87` | RESOLVED | fixed |
+| 2 | current review | 0d | Phase tracker contains an earlier blank Review cell that can hijack direct `/gabe-review` routing | `.kdbp/PLAN.md:40` | RESOLVED | fixed |
+
+## Coverage Confidence
+
+Coverage: HIGH — full backend/web/mobile checks passed during Phase 4 consolidation, and the duplicate upload branch now asserts consent/card alias mutation on duplicate reprocess.
+
+## Review Confidence
+
+Score: 95 / 100
+
+| If you fix... | Findings resolved | Projected | Δ |
+|---------------|-------------------|-----------|---|
+| All CRITICAL + HIGH | 0 of 0 | 95 / 100 | +0 |
+| All MVP gate | 0 of 0 | 95 / 100 | +0 |
+| All Enterprise gate | 0 of 0 | 95 / 100 | +0 |
+| All (incl. Scale) | 0 of 0 | 95 / 100 | +0 |
+
+*Residual 5-point holdback is for the broad Phase 4 diff size and live-provider caveats already accepted by product decision, not unresolved review findings.*
+
+## Final Verdict
+
+APPROVE — Both review findings are fixed. Phase 4 Review is ticked and ready for `/gabe-commit`.
 
 ## Plan Alignment (5a)
 
-DRIFTED — 23 of 27 changed files are on-scope (statement API, worker, extraction, events, tests, staging gate, generated contracts). 4 files are off-scope: `docs/wells/*.md` (7 docs well files) and `.kdbp/` bookkeeping. The docs are thematically related (document the new statement subsystem) but not part of Phase 2's stated scope.
-
-On-scope files changed: 20 / 27
-Off-scope files changed: 7 (docs/wells/*.md, .kdbp/ bookkeeping)
-Scope files not touched: 0
+ALIGNED — The changed backend/prompt-lab/docs surface is aligned with Phase 4's statement Gemini prompt-lab and coalesce gate. The stale Phase 3 Review cell was reconciled so direct `/gabe-review` routing no longer lands on the wrong phase.
 
 ## Stale Verified Topics (5c)
 
-None.
+None identified in this pass.
 
 ## Architectural Decisions (5b)
 
-None new. D49 covers the Phase 2 worker/upload lane; D54 continues to govern statement privacy and fixture boundaries.
+None new. D55 covers the statement Gemini prompt-lab and runtime fallback promotion decision; D54 continues to govern private statement corpus handling.
 
 ## Tier Drift (5d)
 
-None. The findings are within the existing enterprise gate; no scale-only patterns were introduced.
+None. The new prompt-lab/runtime fallback, evidence fields, cost metadata, and generated API contract updates fit the declared Enterprise tier.
 
 ## Deferred Backlog Status
 
-No existing PENDING.md item was addressed or escalated by this diff. P18 (BaseHTTPMiddleware streaming) is tangentially related to finding #2 but is not directly exercised by the statement SSE endpoint (statement_stream.py uses sse-starlette, not BaseHTTPMiddleware).
+No existing PENDING.md item was resolved by this diff. P32 and P33 remain open from Phase 1 statement persistence review; this Phase 4 work does not add PostgreSQL RLS execution proof or denormalize statement child ownership scope.
 
 ## Evidence Reviewed
 
-- Phase 2 commits: `4f08a7a feat(statements): add PDF upload worker`, `96a6356 chore(kdbp): close P5 phase 2 exec`, `c0168f5 docs(wells): expand gravity well references`, `b803112 chore(kdbp): record push bookkeeping for P29`.
-- Local gates: ruff check/format, targeted mypy, statement tests (35 passed), full backend suite (553 passed), web build, mobile typecheck, PCI/RLS scripts, `git diff --check`.
-- CI: GitHub Actions runs `26419027709` and `26419180596` both passed.
-- Railway deploy: `gastify-api-staging-e2e` deployment `3db66826` reached SUCCESS/RUNNING; readiness probe migration_current=016.
-- Runtime artifact: `tests/mobile/results/runs/staging-e2e/20260525T-p5-statement-fixture-gate/p5-statement-fixture-backend/manifest.json` records `result_status=passed`, `git_rev=4f08a7a`, 2 fixture lines from deployed staging-e2e.
+- `.kdbp/PLAN.md` Phase 4 Exec is ✅; Review/Commit/Push are still ⬜.
+- `.kdbp/LEDGER.md` Phase 4 consolidation entry records no new Gemini provider call, cache-only 7-case suite, and privacy/leak checks.
+- Cache-only suite artifact: `prompt-testing/results/latest/statements/20260527T171106Z-001-statement-approach-suite/`.
+- Verification already recorded for this Phase 4 consolidation: backend ruff pass; focused backend pytest 215 passed; full backend pytest 645 passed, 2 skipped; prompt-lab validate 49 cases, 0 invalid; web build pass; mobile typecheck pass; mobile Jest 102 passed; `git diff --check` pass.
+- Current review rechecked `git diff --check` successfully.
+- Fix verification: `cd backend && uv run ruff check app/api/statements.py tests/test_statements.py` (pass); `cd backend && uv run pytest tests/test_statements.py tests/test_statement_reconciliation.py -q` (21 passed); scoped `git diff --check` (pass).
 
-## Triage Complete
+## Suggested Triage
 
-| Action | Count | Findings |
-|--------|-------|----------|
-| Fixed | 3 | #1 false-success extraction state, #2 SSE integration tests, #3 artifact privacy |
-| Deferred | 0 | — |
-| Dismissed | 0 | — |
-
-Review Confidence: 76 → 95 / 100 (+19)
-
-### Fixes Applied
-
-1. **#1 — False extraction success**: Changed `statement_extraction.py` to return `pdf_status="extraction_failed"` (not `"readable"`) when codex-pdf-text has text but cannot normalize lines. Worker now correctly routes to FAILED state. Added test `test_codex_worker_text_bearing_pdf_without_normalization_sets_failed`.
-2. **#2 — SSE untested**: Created `tests/test_statement_stream.py` with 4 integration tests exercising the SSE endpoint: full event sequence, token requirement, auth failure, and late-subscriber terminal event delivery.
-3. **#3 — Artifact privacy**: Replaced `firebase_uid`/`firebase_email` with `auth_verified: true` in `run-statement-fixture-gate.py` manifest output.
-
-### Final Verdict
-
-**APPROVE** — All 3 findings fixed. No CRITICAL, no unresolved HIGH. Coverage upgraded to HIGH (SSE path and codex-text-no-normalization path both covered by integration tests). 558 backend tests pass, lint clean.
+| Finding | Suggested action | Rationale |
+|---------|------------------|-----------|
+| #1 | fixed | Duplicate branch now persists consent/card alias metadata before optional requeue. |
+| #2 | fixed | Phase 3 Review state was reconciled in the active plan. |
 
 ---
-_Review resolved. Archived at `.kdbp/reviews-archive/REVIEW_2026-05-25-171500_resolved.md`._
+_Review resolved. Phase 4 Review ticked._

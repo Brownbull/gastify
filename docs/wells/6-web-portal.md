@@ -65,8 +65,8 @@ and inline editing. Desktop-first responsive layout with mobile-web support.
 | File | Role |
 |------|------|
 | `lib/api.ts` | openapi-fetch client instance — typed API calls from `api-types.d.ts`. |
-| `lib/api-types.d.ts` | Auto-generated TypeScript types from OpenAPI spec (61KB). |
-| `lib/openapi-spec.json` | OpenAPI specification (95KB) — source of truth for `api-types.d.ts`. |
+| `lib/api-types.d.ts` | Auto-generated TypeScript types from OpenAPI spec, including statement fallback evidence and recurrence fields. |
+| `lib/openapi-spec.json` | OpenAPI specification — source of truth for `api-types.d.ts`. |
 | `lib/firebase.ts` | Firebase SDK configuration — project ID, API key, auth domain. |
 | `lib/queryClient.ts` | TanStack Query client configuration — default stale time, retry policy. |
 | `lib/i18n.ts` | i18n setup — translation tables for es/en, locale detection. |
@@ -106,6 +106,13 @@ diagnostics accessible without a separate page.
 `onMutate`, then rolls back to the snapshot on error via `onError`. `onSettled`
 invalidates both the detail and list queries. Click-to-edit components keep
 editing state local — no Zustand needed for ephemeral input focus.
+
+### 2026-05-27 — Statement API types carry fallback evidence before UI build
+
+The web OpenAPI artifacts already include statement-line ledger readiness,
+amount candidates, usage metadata, and transaction recurrence fields. Phase 5
+can build the reconciliation UI against these stable contracts while upload
+consent is prompted in the application before each credit-card statement scan.
 
 ## Key Diagrams
 

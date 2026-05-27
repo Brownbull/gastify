@@ -1,5 +1,6 @@
-"""Backend-native receipt prompt lab.
+"""Backend-native prompt lab with separate receipt and statement lanes.
 
-The lab is AI-quality evidence only. Runtime journey proof still comes from
-staging and physical-device scan flows.
+Receipt-specific code lives in :mod:`app.prompt_lab.receipt`. Statement-specific
+code lives in :mod:`app.prompt_lab.statement`. Shared CLI, cache, cost, and path
+helpers stay at this package root.
 """

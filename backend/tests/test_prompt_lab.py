@@ -1,4 +1,5 @@
 import json
+from datetime import UTC, datetime
 from decimal import Decimal
 from pathlib import Path
 
@@ -8,16 +9,21 @@ from pydantic_ai.exceptions import ModelHTTPError
 
 from app.agents.categorization import CategorizationOutput, CategorizationUsage
 from app.agents.extraction import ExtractionResult, ExtractionUsage
-from app.prompt_lab import import_legacy as import_mod
-from app.prompt_lab import runner as runner_mod
-from app.prompt_lab.adapter import ExpectedReceipt, adapt_legacy_payload, load_expected_receipt
-from app.prompt_lab.batch_report import write_batch_report
 from app.prompt_lab.cache import build_cache_key
-from app.prompt_lab.cases import PromptCase, get_case
 from app.prompt_lab.cli import main
 from app.prompt_lab.costs import build_cost_summary
-from app.prompt_lab.provenance import build_field_provenance
-from app.prompt_lab.scoring import score_prompt_run
+from app.prompt_lab.receipt import import_legacy as import_mod
+from app.prompt_lab.receipt import runner as runner_mod
+from app.prompt_lab.receipt.adapter import (
+    ExpectedReceipt,
+    adapt_legacy_payload,
+    load_expected_receipt,
+)
+from app.prompt_lab.receipt.batch_report import write_batch_report
+from app.prompt_lab.receipt.cases import PromptCase, get_case
+from app.prompt_lab.receipt.provenance import build_field_provenance
+from app.prompt_lab.receipt.scoring import score_prompt_run
+from app.prompt_lab.run_ids import next_serial_run_id
 from app.schemas.scan import (
     CategorizationResult,
     CategoryAssignment,
@@ -29,6 +35,23 @@ from app.schemas.scan import (
     ReceiptAdjustmentEvidence,
 )
 from app.services.coalesce import coalesce_extraction
+
+
+def test_next_serial_run_id_sorts_and_increments_within_timestamp(tmp_path):
+    parent = tmp_path / "results"
+    parent.mkdir()
+    (parent / "20260526T101112Z-001-statement-report").mkdir()
+    (parent / "20260526T101112Z-002-statement-report").mkdir()
+    (parent / "20260526-statement-report").mkdir()
+
+    run_id = next_serial_run_id(
+        parent,
+        "Statement Report",
+        now=datetime(2026, 5, 26, 10, 11, 12, tzinfo=UTC),
+    )
+
+    assert run_id == "20260526T101112Z-003-Statement-Report"
+    assert run_id > "20260526-statement-report"
 
 
 def test_legacy_import_whitelists_receipts_and_skips_private_or_deferred_files(

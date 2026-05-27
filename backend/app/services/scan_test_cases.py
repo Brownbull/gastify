@@ -9,7 +9,7 @@ from pathlib import Path
 
 from PIL import Image
 
-from app.prompt_lab.adapter import ZERO_EXP_CURRENCIES, load_expected_receipt
+from app.prompt_lab.receipt.adapter import ZERO_EXP_CURRENCIES, load_expected_receipt
 from app.schemas.scan import GeminiExtractionResult, LineItemExtraction
 from app.schemas.scan_test_cases import ScanTestCaseSummary, ScanTestProviderMode
 

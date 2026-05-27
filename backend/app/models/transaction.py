@@ -40,6 +40,40 @@ class Transaction(Base):
             "scan_review_level IN ('none', 'warning', 'needs_review')",
             name="ck_transactions_scan_review_level",
         ),
+        CheckConstraint(
+            "recurrence_kind IN ('none', 'fixed_term', 'recurring', 'unknown')",
+            name="ck_transactions_recurrence_kind",
+        ),
+        CheckConstraint(
+            "recurrence_interval IS NULL OR recurrence_interval IN "
+            "('monthly', 'weekly', 'biweekly', 'annual', 'custom', 'unknown')",
+            name="ck_transactions_recurrence_interval",
+        ),
+        CheckConstraint(
+            "recurrence_source IN ('statement', 'receipt', 'user', 'inferred', 'none')",
+            name="ck_transactions_recurrence_source",
+        ),
+        CheckConstraint(
+            "term_current IS NULL OR term_current >= 1",
+            name="ck_transactions_term_current_gte1",
+        ),
+        CheckConstraint(
+            "term_total IS NULL OR term_total >= 1",
+            name="ck_transactions_term_total_gte1",
+        ),
+        CheckConstraint(
+            "term_current IS NULL OR term_total IS NULL OR term_current <= term_total",
+            name="ck_transactions_term_current_lte_total",
+        ),
+        CheckConstraint(
+            "recurrence_kind != 'fixed_term' OR term_total IS NOT NULL",
+            name="ck_transactions_fixed_term_total_present",
+        ),
+        CheckConstraint(
+            "recurrence_confidence IS NULL OR "
+            "(recurrence_confidence >= 0 AND recurrence_confidence <= 1)",
+            name="ck_transactions_recurrence_confidence_range",
+        ),
     )
 
     id: Mapped[uuid.UUID] = mapped_column(
@@ -79,6 +113,20 @@ class Transaction(Base):
     thumbnail_url: Mapped[str | None] = mapped_column(Text, nullable=True)
     country: Mapped[str | None] = mapped_column(Text, nullable=True)
     city: Mapped[str | None] = mapped_column(Text, nullable=True)
+    recurrence_kind: Mapped[str] = mapped_column(
+        String, nullable=False, default="none", server_default="none"
+    )
+    recurrence_interval: Mapped[str | None] = mapped_column(String, nullable=True)
+    term_current: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    term_total: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    recurrence_label: Mapped[str | None] = mapped_column(Text, nullable=True)
+    recurrence_source: Mapped[str] = mapped_column(
+        String, nullable=False, default="none", server_default="none"
+    )
+    recurrence_confidence: Mapped[Decimal | None] = mapped_column(Numeric(3, 2), nullable=True)
+    recurrence_user_edited_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
     prompt_version: Mapped[str | None] = mapped_column(Text, nullable=True)
     merchant_source: Mapped[str | None] = mapped_column(String, nullable=True)
     scan_review_level: Mapped[str] = mapped_column(String, nullable=False, server_default="none")

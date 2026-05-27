@@ -5,21 +5,34 @@ from app.prompts import (
     list_prompts,
     prompt_text_hash,
 )
-from app.prompts.item_categorization import ITEM_CATEGORIZATION_CURRENT
-from app.prompts.receipt_structure import RECEIPT_STRUCTURE_CURRENT
+from app.prompts.receipt.extraction import RECEIPT_STRUCTURE_CURRENT
+from app.prompts.receipt.item_categorization import ITEM_CATEGORIZATION_CURRENT
 
 
 def test_registry_exposes_current_production_prompts():
     extraction = get_prompt("receipt-extraction-current", kind="receipt-extraction")
     categorization = get_prompt("item-categorization-current", kind="item-categorization")
     store = get_prompt("store-categorization-current", kind="store-categorization")
+    statement_profile = get_prompt(
+        "statement-layout-profile-current",
+        kind="statement-layout-profile",
+    )
 
     assert extraction.status == "production"
     assert categorization.status == "production"
     assert store.status == "production"
+    assert statement_profile.status == "candidate"
     assert "receipt" in extraction.system_prompt.lower()
     assert "V4" in categorization.system_prompt
     assert "L2 Business Type" in store.system_prompt
+    assert "layout profile" in statement_profile.system_prompt
+    assert "amount_columns" in statement_profile.system_prompt
+    assert "Do not output final transaction values" in statement_profile.system_prompt
+    assert "several precise ranges" in statement_profile.system_prompt
+    assert "Reference numbers" in statement_profile.system_prompt
+    assert "foreign-currency debt" in statement_profile.system_prompt
+    assert "continuation transaction details" in statement_profile.system_prompt
+    assert "Include every movement section" in statement_profile.system_prompt
     assert prompt_text_hash(extraction) != prompt_text_hash(categorization)
     assert prompt_text_hash(store) != prompt_text_hash(categorization)
 
@@ -32,7 +45,7 @@ def test_active_prompt_version_contains_both_prompts_and_model():
         model="gemini-2.5-flash-lite",
     )
 
-    assert "receipt-extraction-current@2026-05-20.5" in version
+    assert "receipt-extraction-current@2026-05-26.0" in version
     assert "item-categorization-current@2026-05-18.1" in version
     assert "store-categorization-current@2026-05-19.1" in version
     assert "gemini-2.5-flash-lite" in version
@@ -51,7 +64,7 @@ def test_dev_only_prompt_slots_are_not_default_production_prompts():
 def test_v2_receipt_prompt_keeps_general_quantity_tax_and_discount_rules():
     prompt = get_prompt("receipt-extraction-v2-evidence", kind="receipt-extraction")
 
-    assert prompt.version == "2026-05-20.v2-dev.9"
+    assert prompt.version == "2026-05-26.v2-dev.10"
     assert "implicit single item, unit multiplier, or" in prompt.system_prompt
     assert "subtotal + tax = grand total" in prompt.system_prompt
     assert "price-history labels such as markdown/was/save" in prompt.system_prompt
@@ -65,6 +78,7 @@ def test_v2_receipt_prompt_keeps_general_quantity_tax_and_discount_rules():
     assert "2.000 X 1.090" in prompt.system_prompt
     assert "Total Descuentos" in prompt.system_prompt
     assert "Do not turn weight, quantity, package-size" in prompt.system_prompt
+    assert "recurrence_hint" in prompt.system_prompt
 
 
 def test_prompt_bodies_and_values_have_separate_modules():

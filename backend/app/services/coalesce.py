@@ -229,6 +229,7 @@ def coalesce_extraction(
         tax_amount=tax,
         discount_amount=discount,
         line_items=items,
+        recurrence_hint=result.recurrence_hint,
         confidence_score=result.confidence_score,
     )
 
@@ -243,7 +244,8 @@ def to_minor_units(amount: Decimal, currency_code: str) -> int:
     exponent = CURRENCY_EXPONENTS.get(currency_code.upper(), 2)
     if not amount.is_finite():
         return 0
-    if exponent == 0 or amount.as_tuple().exponent >= 0:
+    amount_exponent = amount.as_tuple().exponent
+    if exponent == 0 or (isinstance(amount_exponent, int) and amount_exponent >= 0):
         return int(amount)
     scale = Decimal(10) ** exponent
     return int((amount * scale).to_integral_value(rounding=ROUND_HALF_UP))

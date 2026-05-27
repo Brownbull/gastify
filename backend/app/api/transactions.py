@@ -28,6 +28,7 @@ from app.schemas.transaction import (
 )
 from app.services.fx import FxServiceError, compute_usd_shadow, get_fx_rate
 from app.services.mappings import remember_item_mapping, remember_merchant_mapping
+from app.services.recurrence import validate_recurrence_fields
 
 if TYPE_CHECKING:
     from sqlalchemy.engine import CursorResult
@@ -128,6 +129,14 @@ async def list_transactions(
                 thumbnail_url=txn.thumbnail_url,
                 country=txn.country,
                 city=txn.city,
+                recurrence_kind=txn.recurrence_kind,
+                recurrence_interval=txn.recurrence_interval,
+                term_current=txn.term_current,
+                term_total=txn.term_total,
+                recurrence_label=txn.recurrence_label,
+                recurrence_source=txn.recurrence_source,
+                recurrence_confidence=txn.recurrence_confidence,
+                recurrence_user_edited_at=txn.recurrence_user_edited_at,
                 item_count=item_counts.get(txn.id, 0),
                 created_at=txn.created_at,
                 updated_at=txn.updated_at,
@@ -168,6 +177,11 @@ async def create_transaction(
 ) -> dict[str, str]:
     if body.card_alias_id is not None:
         await _assert_active_card_alias(db, auth=auth, card_alias_id=body.card_alias_id)
+    _validate_recurrence_payload(
+        recurrence_kind=body.recurrence_kind,
+        term_current=body.term_current,
+        term_total=body.term_total,
+    )
 
     fx_rate_to_usd = None
     amount_usd_minor = None
@@ -221,6 +235,13 @@ async def create_transaction(
         country=body.country,
         city=body.city,
         card_alias_id=body.card_alias_id,
+        recurrence_kind=body.recurrence_kind,
+        recurrence_interval=body.recurrence_interval,
+        term_current=body.term_current,
+        term_total=body.term_total,
+        recurrence_label=body.recurrence_label,
+        recurrence_source=body.recurrence_source,
+        recurrence_confidence=body.recurrence_confidence,
         merchant_source=body.merchant_source,
         llm_tokens_in=body.llm_tokens_in,
         llm_tokens_out=body.llm_tokens_out,
@@ -330,6 +351,26 @@ async def update_transaction(
                 card_alias_id=update_data["card_alias_id"],
             )
         txn.card_alias_id = update_data["card_alias_id"]
+    recurrence_fields = {
+        "recurrence_kind",
+        "recurrence_interval",
+        "term_current",
+        "term_total",
+        "recurrence_label",
+        "recurrence_source",
+        "recurrence_confidence",
+    }
+    if recurrence_fields.intersection(update_data):
+        for field in recurrence_fields:
+            if field in update_data and field != "recurrence_source":
+                setattr(txn, field, update_data[field])
+        txn.recurrence_source = "user"
+        txn.recurrence_user_edited_at = now
+        _validate_recurrence_payload(
+            recurrence_kind=txn.recurrence_kind,
+            term_current=txn.term_current,
+            term_total=txn.term_total,
+        )
 
     if body.items is not None:
         for item_update in body.items:
@@ -509,3 +550,22 @@ async def _assert_active_card_alias(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail="Unknown active card alias",
         )
+
+
+def _validate_recurrence_payload(
+    *,
+    recurrence_kind: str,
+    term_current: int | None,
+    term_total: int | None,
+) -> None:
+    try:
+        validate_recurrence_fields(
+            recurrence_kind=recurrence_kind,
+            term_current=term_current,
+            term_total=term_total,
+        )
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=str(exc),
+        ) from exc

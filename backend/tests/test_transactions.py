@@ -90,6 +90,37 @@ class TestCreateTransaction:
         )
         assert resp.status_code == 201
 
+    async def test_create_with_fixed_term_recurrence(self, client: AsyncClient) -> None:
+        resp = await client.post(
+            "/api/v1/transactions",
+            json={
+                "transaction_date": "2026-05-04",
+                "merchant": "Installment Store",
+                "total_minor": 12000,
+                "currency": "CLP",
+                "recurrence_kind": "fixed_term",
+                "recurrence_interval": "monthly",
+                "term_current": 3,
+                "term_total": 12,
+                "recurrence_label": "03/12 cuotas",
+                "recurrence_source": "statement",
+                "recurrence_confidence": "0.90",
+            },
+        )
+        assert resp.status_code == 201
+
+        detail = await client.get(f"/api/v1/transactions/{resp.json()['id']}")
+        assert detail.status_code == 200
+        data = detail.json()
+        assert data["recurrence_kind"] == "fixed_term"
+        assert data["recurrence_interval"] == "monthly"
+        assert data["term_current"] == 3
+        assert data["term_total"] == 12
+        assert data["recurrence_label"] == "03/12 cuotas"
+        assert data["recurrence_source"] == "statement"
+        assert data["recurrence_confidence"] == "0.90"
+        assert data["recurrence_user_edited_at"] is None
+
 
 class TestGetTransaction:
     async def test_get_existing(self, client: AsyncClient, seed_transaction: str) -> None:
@@ -102,6 +133,8 @@ class TestGetTransaction:
         assert data["currency"] == "CLP"
         assert data["scan_review_level"] == "none"
         assert data["scan_review_signals"] == []
+        assert data["recurrence_kind"] == "none"
+        assert data["recurrence_source"] == "none"
         assert len(data["items"]) == 1
         assert data["items"][0]["name"] == "Leche Colun 1L"
         assert len(data["images"]) == 1
@@ -472,6 +505,27 @@ class TestUpdateTransaction:
         )
         assert resp.status_code == 200
         assert resp.json()["transaction_date"] == "2026-06-01"
+
+    async def test_update_recurrence_marks_user_source(
+        self, client: AsyncClient, seed_transaction: str
+    ) -> None:
+        resp = await client.patch(
+            f"/api/v1/transactions/{seed_transaction}",
+            json={
+                "recurrence_kind": "recurring",
+                "recurrence_interval": "monthly",
+                "recurrence_label": "Internet mensual",
+                "recurrence_confidence": "0.75",
+            },
+        )
+
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["recurrence_kind"] == "recurring"
+        assert data["recurrence_interval"] == "monthly"
+        assert data["recurrence_label"] == "Internet mensual"
+        assert data["recurrence_source"] == "user"
+        assert data["recurrence_user_edited_at"] is not None
 
 
 class TestDeleteTransaction:

@@ -8,6 +8,7 @@ from typing import Any, Literal
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from app.reference.categories import V4_CATEGORY_KEYS, V4_STORE_CATEGORY_KEYS
+from app.schemas.recurrence import RecurrenceHint
 
 
 class ImageMeta(BaseModel):
@@ -186,6 +187,7 @@ class RawGeminiExtractionResult(BaseModel):
     line_items: list[RawLineItemExtraction] = Field(default_factory=list)
     adjustment_lines: list[ReceiptAdjustmentEvidence] = Field(default_factory=list)
     source_lines: list[str] = Field(default_factory=list)
+    recurrence_hint: RecurrenceHint | None = None
     confidence_score: float = Field(ge=0.0, le=1.0)
 
 
@@ -207,6 +209,7 @@ class GeminiExtractionResult(BaseModel):
         description=("Positive integer minor-unit receipt discount total, or null when absent."),
     )
     line_items: list[LineItemExtraction] = Field(default_factory=list)
+    recurrence_hint: RecurrenceHint | None = None
     confidence_score: float = Field(ge=0.0, le=1.0)
 
 

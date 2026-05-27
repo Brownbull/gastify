@@ -51,7 +51,10 @@ EXTRACTION RULES:
 10. If only one price is visible per line, set both unit_price and total_price to that value
 11. MUST have at least one item: if no line items visible, create one using a keyword \
 from the receipt
-12. Validation: total should roughly equal sum of items' total_price + added tax \
+12. If the receipt visibly says a purchase is in cuotas/installments, a fixed term, or a
+   subscription/recurring bill, populate recurrence_hint from only that visible text. If no
+   recurrence or term evidence is visible, use null.
+13. Validation: total should roughly equal sum of items' total_price + added tax \
 - summary discount"""
 
 RECEIPT_EXTRACTION_CURRENT = RECEIPT_STRUCTURE_CURRENT
@@ -124,6 +127,16 @@ EVIDENCE:
   including labels such as "You Saved", "Promotion", "Total Descuentos", and Chilean
   "OFERTA" discount rows. Keep the purchased product row in line_items.
 
+RECURRENCE:
+- If visible text shows cuotas/installments such as "03/12", "3/12", or "12 cuotas", return
+  recurrence_hint.kind="fixed_term", recurrence_hint.interval="monthly", term_current/term_total
+  when visible, label with the source text, and confidence based on clarity.
+- If visible text shows a recurring/subscription bill such as "mensual", "internet mensual",
+  "subscription", or "plan mensual", return recurrence_hint.kind="recurring" and interval
+  "monthly" when clear.
+- Do not infer recurrence from merchant type alone. If no visible recurrence or term text exists,
+  return recurrence_hint=null.
+
 CHECK:
 - The visible grand total should equal sum(line_items.total_price) + added tax - discounts.
 - If it does not, still report only visible facts and let confidence_score reflect uncertainty.
@@ -138,7 +151,7 @@ PROMPTS: tuple[PromptDefinition, ...] = (
         id="receipt-extraction-current",
         kind="receipt-extraction",
         name="Current receipt structure extraction",
-        version="2026-05-20.5",
+        version="2026-05-26.0",
         status="production",
         system_prompt=RECEIPT_STRUCTURE_CURRENT,
         user_prompt=RECEIPT_STRUCTURE_USER_PROMPT,
@@ -158,7 +171,7 @@ PROMPTS: tuple[PromptDefinition, ...] = (
         id="receipt-extraction-v2-evidence",
         kind="receipt-extraction",
         name="Receipt extraction V2 evidence candidate",
-        version="2026-05-20.v2-dev.9",
+        version="2026-05-26.v2-dev.10",
         status="dev-only",
         system_prompt=RECEIPT_STRUCTURE_V2_EVIDENCE,
         user_prompt=RECEIPT_STRUCTURE_USER_PROMPT,

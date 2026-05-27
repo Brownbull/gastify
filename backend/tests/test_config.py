@@ -15,6 +15,7 @@ def test_e2e_scan_fixtures_disabled_by_default():
     assert settings.environment == "local"
     assert settings.scan_provider == "mock"
     assert settings.gemini_model == "gemini-2.5-flash-lite"
+    assert settings.statement_provider == "auto"
 
 
 def test_e2e_scan_fixtures_forbidden_in_production():
@@ -43,6 +44,24 @@ def test_scan_provider_forbidden_in_production():
 
     with pytest.raises(ValidationError, match="Mock or fixture scan providers"):
         Settings(environment="production", scan_provider="fixture")
+
+
+def test_statement_provider_allows_auto_and_gemini_modes():
+    auto = Settings(
+        environment="staging",
+        database_url="postgresql+asyncpg://postgres:postgres@localhost:5432/gastify",
+        scan_provider="gemini",
+        statement_provider="auto",
+    )
+    gemini = Settings(
+        environment="staging",
+        database_url="postgresql+asyncpg://postgres:postgres@localhost:5432/gastify",
+        scan_provider="gemini",
+        statement_provider="gemini",
+    )
+
+    assert auto.statement_provider == "auto"
+    assert gemini.statement_provider == "gemini"
 
 
 def test_e2e_auth_forbidden_in_production():

@@ -31,7 +31,10 @@ service.
 | `services/provider_retry.py` | Gemini / AI providers | `retry_provider_call()` — generic exponential backoff with transient/permanent error classification. Used by all three G4 agents (`extraction`, `categorization`, `store_categorization`). |
 | `services/scan_providers.py` | Gemini / Mock / Fixture | `active_scan_provider()` — returns the active provider mode (`fixture`, `gemini`, `mock`). `mock_case_for_scan()` — deterministic local fixture selection. Abstracts away which backend actually processes a scan. |
 | `services/json_repair.py` | Gemini output | `repair_json()` — recovers valid JSON from malformed LLM responses (markdown fences, unquoted keys, trailing commas, comments). Shields G4 agents from raw Gemini formatting quirks. |
-| `prompt_lab/statement_cases.py` | PDF files (pypdf) | `extract_statement_text()` — PDF text extraction via `pypdf.PdfReader`. The only file that imports `pypdf`. |
+| `services/statement_pdf_evidence.py` | PDF files (PyMuPDF) | Generic text/row evidence extraction for deterministic statement routing and Gemini fallback input. |
+| `services/statement_routing.py` | PDF files (PyMuPDF) | Known-layout deterministic statement parser and routing decision layer for CMR, Edwards, and Scotiabank-style statements. |
+| `services/statement_profile_fallback.py` | Gemini fallback | Unknown-layout profile fallback: Gemini maps fields/row ranges, deterministic code applies them to compact row evidence. |
+| `prompt_lab/statement/cases.py` | PDF files (pypdf) | Legacy statement corpus discovery and text extraction support for private prompt-lab fixtures. |
 
 ### Cross-well Consumers
 
@@ -42,6 +45,9 @@ service.
 | `services/provider_retry.py` | [G4](4-scan-pipeline.md) `agents/extraction.py`, `agents/categorization.py`, `agents/store_categorization.py` |
 | `services/scan_providers.py` | [G4](4-scan-pipeline.md) `services/scan_worker.py`, [G1](1-api-core.md) `api/scan_test_cases.py` |
 | `services/json_repair.py` | [G4](4-scan-pipeline.md) `agents/extraction.py` |
+| `services/statement_pdf_evidence.py` | [G4](4-scan-pipeline.md) `services/statement_worker.py`, `prompt_lab/statement/*` |
+| `services/statement_routing.py` | [G4](4-scan-pipeline.md) `services/statement_worker.py`, `prompt_lab/statement/*` |
+| `services/statement_profile_fallback.py` | [G4](4-scan-pipeline.md) `services/statement_worker.py`, `agents/statement_extraction.py` |
 
 ## Key Decisions
 
@@ -79,7 +85,7 @@ flowchart TD
     retry["services/provider_retry.py<br/>AI retry policy"]
     providers["services/scan_providers.py<br/>provider selection"]
     repair["services/json_repair.py<br/>JSON recovery"]
-    pdf["prompt_lab/statement_cases.py<br/>PDF extraction"]
+    pdf["prompt_lab/statement/cases.py<br/>PDF extraction"]
   end
 
   fb <-->|"JWT verify"| firebase_ext(("Firebase Auth"))

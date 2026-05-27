@@ -8,6 +8,7 @@ import random
 import time
 from collections import defaultdict
 from threading import Lock
+from typing import Any
 
 _MAX_RESERVOIR = 1024
 
@@ -66,7 +67,7 @@ class MetricsRegistry:
                 if j < _MAX_RESERVOIR:
                     reservoir[j] = value
 
-    def snapshot(self) -> dict:
+    def snapshot(self) -> dict[str, Any]:
         with self._lock:
             return self._snapshot_unlocked()
 
@@ -74,8 +75,8 @@ class MetricsRegistry:
         with self._lock:
             return self._prometheus_unlocked()
 
-    def _snapshot_unlocked(self) -> dict:
-        histograms = {}
+    def _snapshot_unlocked(self) -> dict[str, Any]:
+        histograms: dict[str, Any] = {}
         for name in self._hist_counts:
             count = self._hist_counts[name]
             if count == 0:

@@ -16,6 +16,12 @@ signals. The well exists to keep AI uncertainty contained behind typed
 contracts instead of letting prompt behavior leak directly into the ledger or
 UI.
 
+Credit-card statement scanning is adjacent but separate. Its PDF ingestion,
+statement-line extraction, statement-to-receipt matching, and statement-only
+transaction candidates are documented in `prompt-testing/STATEMENT-PIPELINE.md`
+and implemented through the `statement_*` services rather than the receipt
+coalescing/math-gate path.
+
 ## Files
 
 ### Pipeline Orchestration
@@ -69,10 +75,10 @@ UI.
 | `prompts/__init__.py` | Prompt registry interface: `get_prompt()`, `active_prompt_version()`, `list_prompts()`. |
 | `prompts/definitions.py` | `PromptKind` enum (receipt-extraction, statement-extraction, item-categorization, store-categorization), `PromptStatus`, `PromptDefinition` dataclass. |
 | `prompts/registry.py` | `PROMPTS` tuple of all definitions. `get_prompt()`, `is_prompt_id_allowed()`, `prompt_text_hash()`. |
-| `prompts/receipt_structure.py` | Receipt extraction system prompt (`RECEIPT_EXTRACTION_CURRENT`) with currency/amount formatting rules. |
-| `prompts/item_categorization.py` | Item categorization system prompt (`ITEM_CATEGORIZATION_CURRENT`) referencing V4 taxonomy. |
-| `prompts/store_categorization.py` | Store categorization system prompt (`STORE_CATEGORIZATION_CURRENT`) for merchant L2 assignment. |
-| `prompts/statement_extraction.py` | Credit card statement extraction prompt (`STATEMENT_EXTRACTION_CURRENT`) for P5 feature. |
+| `prompts/receipt/extraction.py` | Receipt extraction system prompt (`RECEIPT_EXTRACTION_CURRENT`) with currency/amount formatting rules. |
+| `prompts/receipt/item_categorization.py` | Item categorization system prompt (`ITEM_CATEGORIZATION_CURRENT`) referencing V4 taxonomy. |
+| `prompts/receipt/store_categorization.py` | Store categorization system prompt (`STORE_CATEGORIZATION_CURRENT`) for merchant L2 assignment. |
+| `prompts/statement/extraction.py` | Credit card statement extraction prompt (`STATEMENT_EXTRACTION_CURRENT`) for P5 feature. |
 | `prompts/values.py` | Shared prompt variables: `SUPPORTED_RECEIPT_CURRENCY_CODES`, `ZERO_DECIMAL_RECEIPT_CURRENCY_CODES`. Re-exports taxonomy rendering from `reference/categories.py`. |
 
 ### Prompt Lab (`backend/app/prompt_lab/`)
@@ -81,19 +87,20 @@ UI.
 |------|------|
 | `prompt_lab/__init__.py` | Package marker. |
 | `prompt_lab/__main__.py` | CLI entrypoint for `python -m app.prompt_lab`. |
-| `prompt_lab/cli.py` | Argparse CLI: subcommands for case listing, running, importing, batch reporting. |
-| `prompt_lab/runner.py` | `run_case()` — executes extraction + categorization on a single test case through the production pipeline with caching and scoring. |
-| `prompt_lab/cases.py` | `PromptCase` dataclass + `list_cases()`, `get_case()` — test case discovery and loading. |
-| `prompt_lab/scoring.py` | `score_prompt_run()` — compares actual vs. expected extraction/categorization results. |
-| `prompt_lab/adapter.py` | `load_expected_receipt()` — converts legacy BoletApp baseline JSON to gastify schema for scoring. |
+| `prompt_lab/cli.py` | Argparse CLI: subcommands for case listing, running, importing, statement reports, batch reporting. |
+| `prompt_lab/receipt/runner.py` | `run_case()` — executes extraction + categorization on a single receipt case through the production pipeline with caching and scoring. |
+| `prompt_lab/receipt/cases.py` | `PromptCase` dataclass + `list_cases()`, `get_case()` — receipt test case discovery and loading. |
+| `prompt_lab/receipt/scoring.py` | `score_prompt_run()` — compares actual vs. expected receipt extraction/categorization results. |
+| `prompt_lab/receipt/adapter.py` | `load_expected_receipt()` — converts legacy BoletApp baseline JSON to gastify schema for scoring. |
 | `prompt_lab/cache.py` | Gemini response cache (schema-versioned) to avoid re-running identical prompts during iteration. |
 | `prompt_lab/costs.py` | `build_cost_summary()` — token and cost reporting per prompt-lab run. |
-| `prompt_lab/batch_report.py` | `write_batch_report()` — generates summary from batch test results with promotion thresholds. |
+| `prompt_lab/receipt/batch_report.py` | `write_batch_report()` — generates summary from receipt batch test results with promotion thresholds. |
+| `prompt_lab/statement/report.py` | `write_statement_expected_report()` — generates the pre-Gemini statement expected-fixture comparison and read-only reconciliation simulation. |
 | `prompt_lab/paths.py` | Centralized path constants: `TEST_CASES_ROOT`, `CACHE_ROOT`, `RESULTS_ROOT`, `STATEMENT_TEST_CASES_ROOT`. |
-| `prompt_lab/provenance.py` | `build_field_provenance()` — tracks which extraction fields were modified by post-processing. |
-| `prompt_lab/import_legacy.py` | `import_legacy_cases()` — whitelist importer for legacy BoletApp receipt test assets. |
-| `prompt_lab/statement_cases.py` | `StatementCase` dataclass + `import_statement_corpus()`, `list_statement_cases()`, `extract_statement_text()` — PDF statement test case management. |
-| `prompt_lab/statement_scoring.py` | `score_statement_output()` — compares actual vs. expected statement extraction. |
+| `prompt_lab/receipt/provenance.py` | `build_field_provenance()` — tracks which receipt extraction fields were modified by post-processing. |
+| `prompt_lab/receipt/import_legacy.py` | `import_legacy_cases()` — whitelist importer for legacy BoletApp receipt test assets. |
+| `prompt_lab/statement/cases.py` | `StatementCase` dataclass + `import_statement_corpus()`, `list_statement_cases()`, `extract_statement_text()` — PDF statement test case management. |
+| `prompt_lab/statement/scoring.py` | `score_statement_output()` — compares actual vs. expected statement extraction. |
 
 ## Key Decisions
 
@@ -150,15 +157,15 @@ flowchart TD
 
 ```mermaid
 flowchart LR
-  ext["agents/extraction.py"] --> prompts_r["prompts/receipt_structure.py"]
+  ext["agents/extraction.py"] --> prompts_r["prompts/receipt/extraction.py"]
   ext --> coalesce["services/coalesce.py"]
   ext --> retry["services/provider_retry.py"]
   ext --> repair["services/json_repair.py"]
 
-  cat["agents/categorization.py"] --> prompts_i["prompts/item_categorization.py"]
+  cat["agents/categorization.py"] --> prompts_i["prompts/receipt/item_categorization.py"]
   cat --> retry
 
-  scat["agents/store_categorization.py"] --> prompts_s["prompts/store_categorization.py"]
+  scat["agents/store_categorization.py"] --> prompts_s["prompts/receipt/store_categorization.py"]
   scat --> retry
 
   prompts_r --> vals["prompts/values.py"]

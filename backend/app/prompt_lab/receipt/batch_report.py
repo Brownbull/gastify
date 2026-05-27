@@ -9,8 +9,8 @@ from difflib import SequenceMatcher
 from pathlib import Path
 from typing import Any
 
-from app.prompt_lab.adapter import load_expected_receipt
 from app.prompt_lab.costs import LEGACY_ESTIMATED_COST_PER_SCAN_USD
+from app.prompt_lab.receipt.adapter import load_expected_receipt
 from app.services.coalesce import to_minor_units
 from app.services.receipt_validation_policy import DEFAULT_RECEIPT_VALIDATION_POLICY
 

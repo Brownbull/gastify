@@ -48,10 +48,11 @@
 | D48 | 2026-05-24 | P5-Ph1 Card alias + statement schema foundation tier = ent | Statement/card schema touches financial data, ownership scope, RLS, migration ordering, and a PCI boundary; Ent is the minimum safe foundation | MVP ad hoc aliases and statement JSON blobs; Scale ledger/audit store before P5 behavior proves out | active | PCI-shaped fields appear OR ownership scope/card alias model changes |
 | D49 | 2026-05-24 | P5-Ph2 Statement PDF upload + extraction worker tier = ent | Upload, file/media persistence, async worker, AI structured output, failure states, and streaming progress are user-visible runtime behavior | MVP synchronous parse/no persistent file state; Scale multi-provider extraction cascade | active | Second provider is added OR statement volume exceeds current worker SLO |
 | D50 | 2026-05-24 | P5-Ph3 Reconciliation engine + coverage metric tier = ent | Matching financial lines against receipts requires deterministic verdicts, idempotent reruns, ambiguity handling, and user-edit precedence | MVP loose client-side matching; Scale ML matching/rule marketplace | active | Matching tolerance changes OR reconciliation becomes multi-user collaborative |
-| D51 | 2026-05-24 | P5-Ph4 Web statement reconciliation flow tier = ent | Web P5 is a primary user-facing upload/progress/bucket workflow with cache isolation and deployed browser proof requirements | MVP static result table; Scale collaborative review and advanced analytics | active | Web flow adds shared household review OR statement data becomes report-grade export |
-| D52 | 2026-05-24 | P5-Ph5 Android mobile statement reconciliation flow tier = ent | Native file picker, WebSocket progress, cache isolation, and S23 runtime proof are required for the Android roadmap lane; iOS remains deferred by D47 | MVP web-only fallback on mobile; Scale device farm/offline-first statements | active | iOS lane is pulled forward OR offline statement review becomes required |
-| D53 | 2026-05-24 | P5-Ph6 Exit gate + edge tests tier = ent | P5 closure must prove the full deployed journey and financial edge cases across Railway, web, and Android/S23 artifacts | MVP golden-path only; Scale load/performance suite beyond 200-line statement bound | active | Exit signal expands OR statement line count/SLO target changes |
+| D51 | 2026-05-24 | P5-Ph5 Web statement reconciliation flow tier = ent | Web P5 is a primary user-facing upload/progress/bucket workflow with cache isolation and deployed browser proof requirements | MVP static result table; Scale collaborative review and advanced analytics | active | Web flow adds shared household review OR statement data becomes report-grade export |
+| D52 | 2026-05-24 | P5-Ph6 Android mobile statement reconciliation flow tier = ent | Native file picker, WebSocket progress, cache isolation, and S23 runtime proof are required for the Android roadmap lane; iOS remains deferred by D47 | MVP web-only fallback on mobile; Scale device farm/offline-first statements | active | iOS lane is pulled forward OR offline statement review becomes required |
+| D53 | 2026-05-24 | P5-Ph7 Exit gate + edge tests tier = ent | P5 closure must prove the full deployed journey and financial edge cases across Railway, web, and Android/S23 artifacts | MVP golden-path only; Scale load/performance suite beyond 200-line statement bound | active | Exit signal expands OR statement line count/SLO target changes |
 | D54 | 2026-05-25 | P5-Ph0 Statement corpus + extraction contract preflight tier = ent | Private statement PDFs, encrypted/password paths, AI prompt-lab scoring, and no-PCI output contracts must be designed before runtime schema/UI work | Jump directly to DB/runtime tables; mix PDFs into receipt prompt lab; commit raw PDF fixtures | active | Statement contract changes OR private corpus handling changes |
+| D55 | 2026-05-25 | P5-Ph4 Statement Gemini prompt lab + coalesce gate tier = ent | Live provider extraction quality needs a statement-only Gemini runner, no-cache evidence, coalesce diagnostics, cost artifacts, and failure ownership before runtime provider promotion | Reuse receipt prompt lab; promote fixture extraction without provider evidence; wait until Web/Android are built to test Gemini | active | Statement Gemini prompt promotion starts OR representative prompt-lab failures remain unclassified |
 
 <!-- Status: active / superseded / revisit -->
 <!-- BEHAVIOR.md constraints reference decision IDs: "All integrations mocked (ref D1)" -->
@@ -1557,9 +1558,9 @@ after the full P1-P9 roadmap is implemented.
 
 ---
 
-## D51 — P5 Phase 4 web statement reconciliation flow tier: ent (2026-05-24)
+## D51 — P5 Phase 5 web statement reconciliation flow tier: ent (2026-05-24)
 
-**Phase:** P5-Ph4 Web statement reconciliation flow
+**Phase:** P5-Ph5 Web statement reconciliation flow
 **Types:** `web, user-facing, client-state, upload, realtime, file-media`
 **Tier chosen:** ent
 **Prototype:** no
@@ -1595,9 +1596,9 @@ after the full P1-P9 roadmap is implemented.
 
 ---
 
-## D52 — P5 Phase 5 Android mobile statement reconciliation flow tier: ent (2026-05-24)
+## D52 — P5 Phase 6 Android mobile statement reconciliation flow tier: ent (2026-05-24)
 
-**Phase:** P5-Ph5 Android mobile statement reconciliation flow
+**Phase:** P5-Ph6 Android mobile statement reconciliation flow
 **Types:** `native-mobile, user-facing, client-state, upload, realtime, streaming, file-media`
 **Tier chosen:** ent
 **Prototype:** no
@@ -1634,9 +1635,9 @@ after the full P1-P9 roadmap is implemented.
 
 ---
 
-## D53 — P5 Phase 6 exit gate + edge tests tier: ent (2026-05-24)
+## D53 — P5 Phase 7 exit gate + edge tests tier: ent (2026-05-24)
 
-**Phase:** P5-Ph6 P5 exit gate + edge tests
+**Phase:** P5-Ph7 P5 exit gate + edge tests
 **Types:** `core-only, test, web, native-mobile`
 **Tier chosen:** ent
 **Prototype:** no
@@ -1705,6 +1706,45 @@ after the full P1-P9 roadmap is implemented.
 - Statement output contract changes.
 - Private corpus location or credential-handling policy changes.
 - Gemini statement prompt promotion begins.
+
+### Status
+- accepted
+
+---
+
+## D55 — P5 Phase 4 statement Gemini prompt lab + coalesce gate tier: ent (2026-05-25)
+
+**Phase:** P5-Ph4 Statement Gemini prompt lab + coalesce gate
+**Types:** `ai-agent, prompt-lab, data-contract, test`
+**Tier chosen:** ent
+**Prototype:** no
+**Reason:** Live statement extraction quality should be proven in a provider-quality prompt-lab lane before runtime Gemini promotion. The phase needs a statement-specific PDF runner, encrypted PDF preflight, cache/no-cache evidence, coalesce diagnostics, cost artifacts, scoring, reconciliation effects, and explicit failure ownership.
+
+### Sections rendered
+- Core (always, all 4 dims)
+- AI/Agent: Gemini PDF runner, prompt identity, structured output, provider errors
+- File-media: encrypted PDF handling and in-memory decryption only
+- Test/Data contract: expected fixture scoring, coalesce artifacts, batch readiness report
+
+### Dimensions suppressed
+- Web/native UI — reason: UI can build against stable API contracts after provider quality is measured separately.
+- Scale multi-provider orchestration — reason: first gate is representative Gemini evidence, not provider marketplace hardening.
+- Full 24-PDF production corpus promotion — reason: representative three-case evidence is the Phase 4 exit gate; full corpus expansion is later hardening.
+
+### Grade overrides
+- AI.Structured-output: Ent required. Reason: statement lines feed reconciliation and cannot be free-form provider text.
+- File-media.Privacy: Ent required. Reason: raw PDFs, credentials, decrypted bytes, PAN/CVV/expiry, and raw statement text must not leak into committed artifacts.
+- Test.Contract: Ent required. Reason: the batch report must classify prompt, coalesce, provider/PDF, baseline truth, and expected-fixture gaps before runtime promotion.
+
+### Δ deferred by tier choice
+- Full corpus expansion beyond the representative issuer set is deferred.
+- Runtime Web and Android UI gates remain separate Phases 5 and 6.
+- Scale provider fallback/cascade behavior is deferred until Gemini quality evidence exposes a need.
+
+### Review trigger
+- Runtime statement extraction provider switches from fixture/Codex path to live Gemini.
+- Representative Gemini runs contain unclassified provider, prompt, coalesce, PDF/OCR, or expected-fixture failures.
+- The statement extraction contract changes.
 
 ### Status
 - accepted

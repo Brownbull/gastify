@@ -643,6 +643,11 @@ export interface components {
             card_alias_id?: string | null;
             /** Password */
             password?: string | null;
+            /**
+             * Ai Processing Consent
+             * @default false
+             */
+            ai_processing_consent: boolean;
         };
         /** CardAliasCreate */
         CardAliasCreate: {
@@ -1051,6 +1056,26 @@ export interface components {
              */
             submitted_at: string;
         };
+        /** StatementAmountCandidate */
+        StatementAmountCandidate: {
+            /**
+             * Role
+             * @default unknown
+             * @enum {string}
+             */
+            role: "selected" | "current_statement_amount" | "current_installment" | "purchase_total" | "plan_total" | "pending_balance" | "foreign_original" | "unknown";
+            /** Amount Minor */
+            amount_minor: number;
+            /**
+             * Currency
+             * @default CLP
+             */
+            currency: string;
+            /** Visible Text */
+            visible_text?: string | null;
+            /** Column Label */
+            column_label?: string | null;
+        };
         /** StatementLineRecordResponse */
         StatementLineRecordResponse: {
             /**
@@ -1065,6 +1090,12 @@ export interface components {
             statement_id: string;
             /** Source Order */
             source_order: number;
+            /**
+             * Row Type
+             * @default unknown
+             * @enum {string}
+             */
+            row_type: "charge" | "payment" | "interest" | "fee" | "insurance" | "tax" | "adjustment" | "summary" | "other" | "unknown";
             /** Line Date */
             line_date?: string | null;
             /** Description */
@@ -1088,6 +1119,27 @@ export interface components {
             card_alias_candidate?: string | null;
             /** Category Key */
             category_key?: string | null;
+            /** Amount Selection Reason */
+            amount_selection_reason?: string | null;
+            /** Amount Candidates */
+            amount_candidates?: components["schemas"]["StatementAmountCandidate"][];
+            /**
+             * Ledger Ready
+             * @default true
+             */
+            ledger_ready: boolean;
+            /** Confidence */
+            confidence?: number | null;
+            /** Warnings */
+            warnings?: string[];
+            /** Source Row Index */
+            source_row_index?: number | null;
+            /** Source Page */
+            source_page?: number | null;
+            /** Field Provenance */
+            field_provenance?: {
+                [key: string]: unknown;
+            };
         };
         /** StatementProcessRequest */
         StatementProcessRequest: {
@@ -1099,6 +1151,7 @@ export interface components {
             verdict: components["schemas"]["StatementReconciliationVerdictResponse"];
             statement_line?: components["schemas"]["StatementReconciliationLineSummary"] | null;
             receipt_transaction?: components["schemas"]["StatementReconciliationReceiptSummary"] | null;
+            candidate_transaction?: components["schemas"]["StatementTransactionCandidate"] | null;
         };
         /** StatementReconciliationLineSummary */
         StatementReconciliationLineSummary: {
@@ -1114,6 +1167,12 @@ export interface components {
             statement_id: string;
             /** Source Order */
             source_order: number;
+            /**
+             * Row Type
+             * @default unknown
+             * @enum {string}
+             */
+            row_type: "charge" | "payment" | "interest" | "fee" | "insurance" | "tax" | "adjustment" | "summary" | "other" | "unknown";
             /** Line Date */
             line_date?: string | null;
             /** Description */
@@ -1131,6 +1190,13 @@ export interface components {
             installment?: string | null;
             /** Card Alias Candidate */
             card_alias_candidate?: string | null;
+            /**
+             * Ledger Ready
+             * @default true
+             */
+            ledger_ready: boolean;
+            /** Warnings */
+            warnings?: string[];
         };
         /** StatementReconciliationReceiptSummary */
         StatementReconciliationReceiptSummary: {
@@ -1272,6 +1338,8 @@ export interface components {
             content_type: string;
             /** File Size Bytes */
             file_size_bytes: number;
+            /** Ai Processing Consent */
+            ai_processing_consent: boolean;
             /** Issuer */
             issuer?: string | null;
             /** Period Start */
@@ -1324,6 +1392,95 @@ export interface components {
              * Format: date-time
              */
             updated_at: string;
+        };
+        /**
+         * StatementTransactionCandidate
+         * @description Ready-to-submit transaction payload for a statement-only spend line.
+         */
+        StatementTransactionCandidate: {
+            /**
+             * Transaction Date
+             * Format: date
+             */
+            transaction_date: string;
+            /** Transaction Time */
+            transaction_time?: string | null;
+            /** Merchant */
+            merchant: string;
+            /** Store Category Id */
+            store_category_id?: string | null;
+            /** Store Category Source */
+            store_category_source?: ("mapping" | "ai" | "user" | "unknown") | null;
+            /** Store Category Confidence */
+            store_category_confidence?: string | null;
+            /** Store Category Mapping Id */
+            store_category_mapping_id?: string | null;
+            /** Total Minor */
+            total_minor: number;
+            /** Discount Total Minor */
+            discount_total_minor?: number | null;
+            /** Gross Total Minor */
+            gross_total_minor?: number | null;
+            /** Reconstructed Total Minor */
+            reconstructed_total_minor?: number | null;
+            /** Currency */
+            currency: string;
+            /** Receipt Type */
+            receipt_type?: ("scan" | "manual" | "statement" | "import") | null;
+            /** Country */
+            country?: string | null;
+            /** City */
+            city?: string | null;
+            /** Card Alias Id */
+            card_alias_id?: string | null;
+            /**
+             * Recurrence Kind
+             * @default none
+             * @enum {string}
+             */
+            recurrence_kind: "none" | "fixed_term" | "recurring" | "unknown";
+            /** Recurrence Interval */
+            recurrence_interval?: ("monthly" | "weekly" | "biweekly" | "annual" | "custom" | "unknown") | null;
+            /** Term Current */
+            term_current?: number | null;
+            /** Term Total */
+            term_total?: number | null;
+            /** Recurrence Label */
+            recurrence_label?: string | null;
+            /**
+             * Recurrence Source
+             * @default none
+             * @enum {string}
+             */
+            recurrence_source: "statement" | "receipt" | "user" | "inferred" | "none";
+            /** Recurrence Confidence */
+            recurrence_confidence?: string | null;
+            /** Merchant Source */
+            merchant_source?: ("ocr" | "user" | "ai" | "mapping") | null;
+            /** Llm Tokens In */
+            llm_tokens_in?: number | null;
+            /** Llm Tokens Out */
+            llm_tokens_out?: number | null;
+            /** Llm Cost Usd */
+            llm_cost_usd?: string | null;
+            /** Scan Duration Ms */
+            scan_duration_ms?: number | null;
+            /** Llm Latency Ms */
+            llm_latency_ms?: number | null;
+            /** Queue Wait Ms */
+            queue_wait_ms?: number | null;
+            /** Thumbnail Gen Ms */
+            thumbnail_gen_ms?: number | null;
+            /**
+             * Items
+             * @default []
+             */
+            items: components["schemas"]["TransactionItemCreate"][];
+            /**
+             * Image Urls
+             * @default []
+             */
+            image_urls: string[];
         };
         /** StatementUploadResponse */
         StatementUploadResponse: {
@@ -1403,6 +1560,28 @@ export interface components {
             city?: string | null;
             /** Card Alias Id */
             card_alias_id?: string | null;
+            /**
+             * Recurrence Kind
+             * @default none
+             * @enum {string}
+             */
+            recurrence_kind: "none" | "fixed_term" | "recurring" | "unknown";
+            /** Recurrence Interval */
+            recurrence_interval?: ("monthly" | "weekly" | "biweekly" | "annual" | "custom" | "unknown") | null;
+            /** Term Current */
+            term_current?: number | null;
+            /** Term Total */
+            term_total?: number | null;
+            /** Recurrence Label */
+            recurrence_label?: string | null;
+            /**
+             * Recurrence Source
+             * @default none
+             * @enum {string}
+             */
+            recurrence_source: "statement" | "receipt" | "user" | "inferred" | "none";
+            /** Recurrence Confidence */
+            recurrence_confidence?: number | string | null;
             /** Merchant Source */
             merchant_source?: ("ocr" | "user" | "ai" | "mapping") | null;
             /** Llm Tokens In */
@@ -1490,6 +1669,30 @@ export interface components {
             country?: string | null;
             /** City */
             city?: string | null;
+            /**
+             * Recurrence Kind
+             * @default none
+             * @enum {string}
+             */
+            recurrence_kind: "none" | "fixed_term" | "recurring" | "unknown";
+            /** Recurrence Interval */
+            recurrence_interval?: ("monthly" | "weekly" | "biweekly" | "annual" | "custom" | "unknown") | null;
+            /** Term Current */
+            term_current?: number | null;
+            /** Term Total */
+            term_total?: number | null;
+            /** Recurrence Label */
+            recurrence_label?: string | null;
+            /**
+             * Recurrence Source
+             * @default none
+             * @enum {string}
+             */
+            recurrence_source: "statement" | "receipt" | "user" | "inferred" | "none";
+            /** Recurrence Confidence */
+            recurrence_confidence?: string | null;
+            /** Recurrence User Edited At */
+            recurrence_user_edited_at?: string | null;
             /** Llm Tokens In */
             llm_tokens_in?: number | null;
             /** Llm Tokens Out */
@@ -1707,6 +1910,30 @@ export interface components {
             /** City */
             city?: string | null;
             /**
+             * Recurrence Kind
+             * @default none
+             * @enum {string}
+             */
+            recurrence_kind: "none" | "fixed_term" | "recurring" | "unknown";
+            /** Recurrence Interval */
+            recurrence_interval?: ("monthly" | "weekly" | "biweekly" | "annual" | "custom" | "unknown") | null;
+            /** Term Current */
+            term_current?: number | null;
+            /** Term Total */
+            term_total?: number | null;
+            /** Recurrence Label */
+            recurrence_label?: string | null;
+            /**
+             * Recurrence Source
+             * @default none
+             * @enum {string}
+             */
+            recurrence_source: "statement" | "receipt" | "user" | "inferred" | "none";
+            /** Recurrence Confidence */
+            recurrence_confidence?: string | null;
+            /** Recurrence User Edited At */
+            recurrence_user_edited_at?: string | null;
+            /**
              * Item Count
              * @default 0
              */
@@ -1750,6 +1977,20 @@ export interface components {
             city?: string | null;
             /** Card Alias Id */
             card_alias_id?: string | null;
+            /** Recurrence Kind */
+            recurrence_kind?: ("none" | "fixed_term" | "recurring" | "unknown") | null;
+            /** Recurrence Interval */
+            recurrence_interval?: ("monthly" | "weekly" | "biweekly" | "annual" | "custom" | "unknown") | null;
+            /** Term Current */
+            term_current?: number | null;
+            /** Term Total */
+            term_total?: number | null;
+            /** Recurrence Label */
+            recurrence_label?: string | null;
+            /** Recurrence Source */
+            recurrence_source?: ("statement" | "receipt" | "user" | "inferred" | "none") | null;
+            /** Recurrence Confidence */
+            recurrence_confidence?: number | string | null;
             /** Items */
             items?: components["schemas"]["TransactionItemUpdate"][] | null;
         };

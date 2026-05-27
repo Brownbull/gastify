@@ -8,6 +8,7 @@ from typing import Literal
 PromptKind = Literal[
     "receipt-extraction",
     "statement-extraction",
+    "statement-layout-profile",
     "item-categorization",
     "store-categorization",
 ]

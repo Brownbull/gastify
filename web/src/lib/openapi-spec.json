@@ -1356,6 +1356,92 @@
         }
       }
     },
+    "/api/v1/statements/{statement_id}/reconcile": {
+      "post": {
+        "tags": [
+          "statements"
+        ],
+        "summary": "Reconcile Statement",
+        "operationId": "reconcile_statement_api_v1_statements__statement_id__reconcile_post",
+        "parameters": [
+          {
+            "name": "statement_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Statement Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatementReconciliationResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/statements/{statement_id}/reconciliation": {
+      "get": {
+        "tags": [
+          "statements"
+        ],
+        "summary": "Get Statement Reconciliation",
+        "operationId": "get_statement_reconciliation_api_v1_statements__statement_id__reconciliation_get",
+        "parameters": [
+          {
+            "name": "statement_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Statement Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatementReconciliationResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/statements/{statement_id}/process": {
       "post": {
         "tags": [
@@ -1774,6 +1860,11 @@
               }
             ],
             "title": "Password"
+          },
+          "ai_processing_consent": {
+            "type": "boolean",
+            "title": "Ai Processing Consent",
+            "default": false
           }
         },
         "type": "object",
@@ -2774,6 +2865,63 @@
         ],
         "title": "ScanSubmission"
       },
+      "StatementAmountCandidate": {
+        "properties": {
+          "role": {
+            "type": "string",
+            "enum": [
+              "selected",
+              "current_statement_amount",
+              "current_installment",
+              "purchase_total",
+              "plan_total",
+              "pending_balance",
+              "foreign_original",
+              "unknown"
+            ],
+            "title": "Role",
+            "default": "unknown"
+          },
+          "amount_minor": {
+            "type": "integer",
+            "title": "Amount Minor"
+          },
+          "currency": {
+            "type": "string",
+            "maxLength": 3,
+            "minLength": 3,
+            "title": "Currency",
+            "default": "CLP"
+          },
+          "visible_text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Visible Text"
+          },
+          "column_label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Column Label"
+          }
+        },
+        "type": "object",
+        "required": [
+          "amount_minor"
+        ],
+        "title": "StatementAmountCandidate"
+      },
       "StatementLineRecordResponse": {
         "properties": {
           "id": {
@@ -2789,6 +2937,23 @@
           "source_order": {
             "type": "integer",
             "title": "Source Order"
+          },
+          "row_type": {
+            "type": "string",
+            "enum": [
+              "charge",
+              "payment",
+              "interest",
+              "fee",
+              "insurance",
+              "tax",
+              "adjustment",
+              "summary",
+              "other",
+              "unknown"
+            ],
+            "title": "Row Type",
+            "default": "unknown"
           },
           "line_date": {
             "anyOf": [
@@ -2882,6 +3047,74 @@
               }
             ],
             "title": "Category Key"
+          },
+          "amount_selection_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Amount Selection Reason"
+          },
+          "amount_candidates": {
+            "items": {
+              "$ref": "#/components/schemas/StatementAmountCandidate"
+            },
+            "type": "array",
+            "title": "Amount Candidates"
+          },
+          "ledger_ready": {
+            "type": "boolean",
+            "title": "Ledger Ready",
+            "default": true
+          },
+          "confidence": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Confidence"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Warnings"
+          },
+          "source_row_index": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Row Index"
+          },
+          "source_page": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Page"
+          },
+          "field_provenance": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Field Provenance"
           }
         },
         "type": "object",
@@ -2912,6 +3145,490 @@
         },
         "type": "object",
         "title": "StatementProcessRequest"
+      },
+      "StatementReconciliationBucketItem": {
+        "properties": {
+          "verdict": {
+            "$ref": "#/components/schemas/StatementReconciliationVerdictResponse"
+          },
+          "statement_line": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/StatementReconciliationLineSummary"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "receipt_transaction": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/StatementReconciliationReceiptSummary"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "candidate_transaction": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/StatementTransactionCandidate"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "verdict"
+        ],
+        "title": "StatementReconciliationBucketItem"
+      },
+      "StatementReconciliationLineSummary": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "statement_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Statement Id"
+          },
+          "source_order": {
+            "type": "integer",
+            "title": "Source Order"
+          },
+          "row_type": {
+            "type": "string",
+            "enum": [
+              "charge",
+              "payment",
+              "interest",
+              "fee",
+              "insurance",
+              "tax",
+              "adjustment",
+              "summary",
+              "other",
+              "unknown"
+            ],
+            "title": "Row Type",
+            "default": "unknown"
+          },
+          "line_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Line Date"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "amount_minor": {
+            "type": "integer",
+            "title": "Amount Minor"
+          },
+          "currency": {
+            "type": "string",
+            "title": "Currency"
+          },
+          "line_type": {
+            "type": "string",
+            "enum": [
+              "charge",
+              "payment",
+              "interest",
+              "fee",
+              "insurance",
+              "tax",
+              "adjustment",
+              "other"
+            ],
+            "title": "Line Type"
+          },
+          "installment": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Installment"
+          },
+          "card_alias_candidate": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Card Alias Candidate"
+          },
+          "ledger_ready": {
+            "type": "boolean",
+            "title": "Ledger Ready",
+            "default": true
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Warnings"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "statement_id",
+          "source_order",
+          "description",
+          "amount_minor",
+          "currency",
+          "line_type"
+        ],
+        "title": "StatementReconciliationLineSummary"
+      },
+      "StatementReconciliationReceiptSummary": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "transaction_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Transaction Date"
+          },
+          "merchant": {
+            "type": "string",
+            "title": "Merchant"
+          },
+          "merchant_user_edited_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Merchant User Edited At"
+          },
+          "total_minor": {
+            "type": "integer",
+            "title": "Total Minor"
+          },
+          "currency": {
+            "type": "string",
+            "title": "Currency"
+          },
+          "card_alias_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Card Alias Id"
+          },
+          "receipt_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Receipt Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "transaction_date",
+          "merchant",
+          "total_minor",
+          "currency"
+        ],
+        "title": "StatementReconciliationReceiptSummary"
+      },
+      "StatementReconciliationResponse": {
+        "properties": {
+          "run": {
+            "$ref": "#/components/schemas/StatementReconciliationRunResponse"
+          },
+          "matched": {
+            "items": {
+              "$ref": "#/components/schemas/StatementReconciliationBucketItem"
+            },
+            "type": "array",
+            "title": "Matched"
+          },
+          "statement_only": {
+            "items": {
+              "$ref": "#/components/schemas/StatementReconciliationBucketItem"
+            },
+            "type": "array",
+            "title": "Statement Only"
+          },
+          "receipt_only": {
+            "items": {
+              "$ref": "#/components/schemas/StatementReconciliationBucketItem"
+            },
+            "type": "array",
+            "title": "Receipt Only"
+          },
+          "ambiguous": {
+            "items": {
+              "$ref": "#/components/schemas/StatementReconciliationBucketItem"
+            },
+            "type": "array",
+            "title": "Ambiguous"
+          },
+          "failed": {
+            "items": {
+              "$ref": "#/components/schemas/StatementReconciliationBucketItem"
+            },
+            "type": "array",
+            "title": "Failed"
+          }
+        },
+        "type": "object",
+        "required": [
+          "run"
+        ],
+        "title": "StatementReconciliationResponse"
+      },
+      "StatementReconciliationRunResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "statement_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Statement Id"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "running",
+              "completed",
+              "failed"
+            ],
+            "title": "Status"
+          },
+          "total_statement_lines": {
+            "type": "integer",
+            "title": "Total Statement Lines"
+          },
+          "matched_count": {
+            "type": "integer",
+            "title": "Matched Count"
+          },
+          "statement_only_count": {
+            "type": "integer",
+            "title": "Statement Only Count"
+          },
+          "receipt_only_count": {
+            "type": "integer",
+            "title": "Receipt Only Count"
+          },
+          "ambiguous_count": {
+            "type": "integer",
+            "title": "Ambiguous Count"
+          },
+          "coverage_ratio": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Coverage Ratio"
+          },
+          "error_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Code"
+          },
+          "error_message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Message"
+          },
+          "started_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Started At"
+          },
+          "completed_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Completed At"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "statement_id",
+          "status",
+          "total_statement_lines",
+          "matched_count",
+          "statement_only_count",
+          "receipt_only_count",
+          "ambiguous_count",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "StatementReconciliationRunResponse"
+      },
+      "StatementReconciliationVerdictResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "run_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Run Id"
+          },
+          "statement_line_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Statement Line Id"
+          },
+          "receipt_transaction_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Receipt Transaction Id"
+          },
+          "verdict": {
+            "type": "string",
+            "enum": [
+              "matched",
+              "statement_only",
+              "receipt_only",
+              "ambiguous",
+              "failed"
+            ],
+            "title": "Verdict"
+          },
+          "score": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Score"
+          },
+          "reasons": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Reasons"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "run_id",
+          "verdict",
+          "created_at"
+        ],
+        "title": "StatementReconciliationVerdictResponse"
       },
       "StatementRecordResponse": {
         "properties": {
@@ -2962,6 +3679,10 @@
           "file_size_bytes": {
             "type": "integer",
             "title": "File Size Bytes"
+          },
+          "ai_processing_consent": {
+            "type": "boolean",
+            "title": "Ai Processing Consent"
           },
           "issuer": {
             "anyOf": [
@@ -3161,6 +3882,7 @@
           "file_sha256",
           "content_type",
           "file_size_bytes",
+          "ai_processing_consent",
           "currency",
           "pdf_status",
           "is_encrypted",
@@ -3169,6 +3891,392 @@
           "updated_at"
         ],
         "title": "StatementRecordResponse"
+      },
+      "StatementTransactionCandidate": {
+        "properties": {
+          "transaction_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Transaction Date"
+          },
+          "transaction_time": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Transaction Time"
+          },
+          "merchant": {
+            "type": "string",
+            "title": "Merchant"
+          },
+          "store_category_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Store Category Id"
+          },
+          "store_category_source": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "mapping",
+                  "ai",
+                  "user",
+                  "unknown"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Store Category Source"
+          },
+          "store_category_confidence": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Store Category Confidence"
+          },
+          "store_category_mapping_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Store Category Mapping Id"
+          },
+          "total_minor": {
+            "type": "integer",
+            "title": "Total Minor"
+          },
+          "discount_total_minor": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Discount Total Minor"
+          },
+          "gross_total_minor": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gross Total Minor"
+          },
+          "reconstructed_total_minor": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reconstructed Total Minor"
+          },
+          "currency": {
+            "type": "string",
+            "maxLength": 3,
+            "title": "Currency"
+          },
+          "receipt_type": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "scan",
+                  "manual",
+                  "statement",
+                  "import"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Receipt Type"
+          },
+          "country": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Country"
+          },
+          "city": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "City"
+          },
+          "card_alias_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Card Alias Id"
+          },
+          "recurrence_kind": {
+            "type": "string",
+            "enum": [
+              "none",
+              "fixed_term",
+              "recurring",
+              "unknown"
+            ],
+            "title": "Recurrence Kind",
+            "default": "none"
+          },
+          "recurrence_interval": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "monthly",
+                  "weekly",
+                  "biweekly",
+                  "annual",
+                  "custom",
+                  "unknown"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recurrence Interval"
+          },
+          "term_current": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Term Current"
+          },
+          "term_total": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Term Total"
+          },
+          "recurrence_label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recurrence Label"
+          },
+          "recurrence_source": {
+            "type": "string",
+            "enum": [
+              "statement",
+              "receipt",
+              "user",
+              "inferred",
+              "none"
+            ],
+            "title": "Recurrence Source",
+            "default": "none"
+          },
+          "recurrence_confidence": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recurrence Confidence"
+          },
+          "merchant_source": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "ocr",
+                  "user",
+                  "ai",
+                  "mapping"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Merchant Source"
+          },
+          "llm_tokens_in": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Llm Tokens In"
+          },
+          "llm_tokens_out": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Llm Tokens Out"
+          },
+          "llm_cost_usd": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Llm Cost Usd"
+          },
+          "scan_duration_ms": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Scan Duration Ms"
+          },
+          "llm_latency_ms": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Llm Latency Ms"
+          },
+          "queue_wait_ms": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Queue Wait Ms"
+          },
+          "thumbnail_gen_ms": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Thumbnail Gen Ms"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/TransactionItemCreate"
+            },
+            "type": "array",
+            "title": "Items",
+            "default": []
+          },
+          "image_urls": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Image Urls",
+            "default": []
+          }
+        },
+        "type": "object",
+        "required": [
+          "transaction_date",
+          "merchant",
+          "total_minor",
+          "currency"
+        ],
+        "title": "StatementTransactionCandidate",
+        "description": "Ready-to-submit transaction payload for a statement-only spend line."
       },
       "StatementUploadResponse": {
         "properties": {
@@ -3422,6 +4530,100 @@
               }
             ],
             "title": "Card Alias Id"
+          },
+          "recurrence_kind": {
+            "type": "string",
+            "enum": [
+              "none",
+              "fixed_term",
+              "recurring",
+              "unknown"
+            ],
+            "title": "Recurrence Kind",
+            "default": "none"
+          },
+          "recurrence_interval": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "monthly",
+                  "weekly",
+                  "biweekly",
+                  "annual",
+                  "custom",
+                  "unknown"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recurrence Interval"
+          },
+          "term_current": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Term Current"
+          },
+          "term_total": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Term Total"
+          },
+          "recurrence_label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recurrence Label"
+          },
+          "recurrence_source": {
+            "type": "string",
+            "enum": [
+              "statement",
+              "receipt",
+              "user",
+              "inferred",
+              "none"
+            ],
+            "title": "Recurrence Source",
+            "default": "none"
+          },
+          "recurrence_confidence": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recurrence Confidence"
           },
           "merchant_source": {
             "anyOf": [
@@ -3806,6 +5008,105 @@
               }
             ],
             "title": "City"
+          },
+          "recurrence_kind": {
+            "type": "string",
+            "enum": [
+              "none",
+              "fixed_term",
+              "recurring",
+              "unknown"
+            ],
+            "title": "Recurrence Kind",
+            "default": "none"
+          },
+          "recurrence_interval": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "monthly",
+                  "weekly",
+                  "biweekly",
+                  "annual",
+                  "custom",
+                  "unknown"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recurrence Interval"
+          },
+          "term_current": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Term Current"
+          },
+          "term_total": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Term Total"
+          },
+          "recurrence_label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recurrence Label"
+          },
+          "recurrence_source": {
+            "type": "string",
+            "enum": [
+              "statement",
+              "receipt",
+              "user",
+              "inferred",
+              "none"
+            ],
+            "title": "Recurrence Source",
+            "default": "none"
+          },
+          "recurrence_confidence": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recurrence Confidence"
+          },
+          "recurrence_user_edited_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recurrence User Edited At"
           },
           "llm_tokens_in": {
             "anyOf": [
@@ -4560,6 +5861,105 @@
             ],
             "title": "City"
           },
+          "recurrence_kind": {
+            "type": "string",
+            "enum": [
+              "none",
+              "fixed_term",
+              "recurring",
+              "unknown"
+            ],
+            "title": "Recurrence Kind",
+            "default": "none"
+          },
+          "recurrence_interval": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "monthly",
+                  "weekly",
+                  "biweekly",
+                  "annual",
+                  "custom",
+                  "unknown"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recurrence Interval"
+          },
+          "term_current": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Term Current"
+          },
+          "term_total": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Term Total"
+          },
+          "recurrence_label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recurrence Label"
+          },
+          "recurrence_source": {
+            "type": "string",
+            "enum": [
+              "statement",
+              "receipt",
+              "user",
+              "inferred",
+              "none"
+            ],
+            "title": "Recurrence Source",
+            "default": "none"
+          },
+          "recurrence_confidence": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recurrence Confidence"
+          },
+          "recurrence_user_edited_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recurrence User Edited At"
+          },
           "item_count": {
             "type": "integer",
             "title": "Item Count",
@@ -4737,6 +6137,112 @@
               }
             ],
             "title": "Card Alias Id"
+          },
+          "recurrence_kind": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "none",
+                  "fixed_term",
+                  "recurring",
+                  "unknown"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recurrence Kind"
+          },
+          "recurrence_interval": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "monthly",
+                  "weekly",
+                  "biweekly",
+                  "annual",
+                  "custom",
+                  "unknown"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recurrence Interval"
+          },
+          "term_current": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Term Current"
+          },
+          "term_total": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Term Total"
+          },
+          "recurrence_label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recurrence Label"
+          },
+          "recurrence_source": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "statement",
+                  "receipt",
+                  "user",
+                  "inferred",
+                  "none"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recurrence Source"
+          },
+          "recurrence_confidence": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recurrence Confidence"
           },
           "items": {
             "anyOf": [

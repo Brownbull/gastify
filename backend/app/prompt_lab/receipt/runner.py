@@ -14,7 +14,6 @@ from pydantic_ai.exceptions import ModelHTTPError
 from app.agents.categorization import categorize_items
 from app.agents.extraction import extract_receipt
 from app.config import settings
-from app.prompt_lab.adapter import load_expected_receipt
 from app.prompt_lab.cache import (
     build_processed_cache_key,
     build_raw_cache_key,
@@ -24,8 +23,10 @@ from app.prompt_lab.cache import (
 )
 from app.prompt_lab.costs import build_cost_summary
 from app.prompt_lab.paths import LATEST_RESULTS_ROOT, ensure_workspace
-from app.prompt_lab.provenance import build_field_provenance
-from app.prompt_lab.scoring import score_prompt_run
+from app.prompt_lab.receipt.adapter import load_expected_receipt
+from app.prompt_lab.receipt.provenance import build_field_provenance
+from app.prompt_lab.receipt.scoring import score_prompt_run
+from app.prompt_lab.run_ids import next_serial_run_id
 from app.schemas.scan import (
     CategorizationResult,
     GeminiExtractionResult,
@@ -39,8 +40,8 @@ from app.services.math_gate import reconcile
 if TYPE_CHECKING:
     from pathlib import Path
 
-    from app.prompt_lab.adapter import ExpectedReceipt
-    from app.prompt_lab.cases import PromptCase
+    from app.prompt_lab.receipt.adapter import ExpectedReceipt
+    from app.prompt_lab.receipt.cases import PromptCase
 
 PromptLabStage = Literal["raw", "processed", "both"]
 
@@ -592,24 +593,23 @@ def _write_manifest(
     results_root: Path,
     run_id: str | None = None,
 ) -> dict[str, Any]:
-    case_run_id = f"{datetime.now(UTC).strftime('%Y%m%dT%H%M%SZ')}-{_slug(packet['case_id'])}"
     prompt_id = packet.get("prompt_identity", {}).get("extraction_prompt_id")
     if not prompt_id:
         prompt_id = settings.receipt_extraction_prompt_id
+    prompt_root = results_root / packet["environment"] / prompt_id
     if run_id:
         batch_run_id = _slug(run_id)
         packet["artifact_layout"] = "run-folder-v1"
         packet["batch_run_id"] = batch_run_id
         packet_dir = (
-            results_root
-            / packet["environment"]
-            / prompt_id
+            prompt_root
             / batch_run_id
             / _slug(packet["case_id"])
         )
     else:
+        case_run_id = next_serial_run_id(prompt_root, f"receipt-{packet['case_id']}")
         packet["artifact_layout"] = "legacy-flat-v1"
-        packet_dir = results_root / packet["environment"] / prompt_id / case_run_id
+        packet_dir = prompt_root / case_run_id
     packet_dir.mkdir(parents=True, exist_ok=True)
 
     _write_optional_artifact(packet, packet_dir, "raw_output", "raw_output.json")

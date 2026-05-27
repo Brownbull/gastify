@@ -5,8 +5,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-from app.prompt_lab.import_legacy import IMAGE_SUFFIXES
 from app.prompt_lab.paths import TEST_CASES_ROOT
+from app.prompt_lab.receipt.import_legacy import IMAGE_SUFFIXES
 
 if TYPE_CHECKING:
     from pathlib import Path

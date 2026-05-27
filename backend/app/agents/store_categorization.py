@@ -15,7 +15,7 @@ from pydantic_ai import Agent
 from app.agents.usage import result_usage
 from app.config import settings
 from app.prompts import get_prompt
-from app.prompts.store_categorization import STORE_CATEGORIZATION_CURRENT
+from app.prompts.receipt.store_categorization import STORE_CATEGORIZATION_CURRENT
 from app.schemas.scan import StoreCategorizationResult
 from app.services.provider_retry import retry_provider_call
 

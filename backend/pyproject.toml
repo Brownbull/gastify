@@ -21,6 +21,7 @@ dependencies = [
     "google-generativeai>=0.8.0",
     "python-dotenv>=1.0.0",
     "pypdf>=6.10.2,<6.11.0",
+    "pymupdf>=1.24.0",
 ]
 
 [dependency-groups]

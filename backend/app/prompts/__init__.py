@@ -1,6 +1,7 @@
 """Versioned prompt registry for production agents and prompt-lab runs."""
 
 from app.prompts.definitions import PromptDefinition
+from app.prompts.receipt.store_categorization import STORE_CATEGORIZATION_CURRENT
 from app.prompts.registry import (
     active_prompt_version,
     get_prompt,
@@ -9,8 +10,8 @@ from app.prompts.registry import (
     list_prompts,
     prompt_text_hash,
 )
-from app.prompts.statement_extraction import STATEMENT_EXTRACTION_CURRENT
-from app.prompts.store_categorization import STORE_CATEGORIZATION_CURRENT
+from app.prompts.statement.extraction import STATEMENT_EXTRACTION_CURRENT
+from app.prompts.statement.profile import STATEMENT_LAYOUT_PROFILE_CURRENT
 from app.prompts.values import (
     DECIMAL_RECEIPT_CURRENCY_CODES,
     PRIMARY_RECEIPT_CURRENCY_CODES,
@@ -33,6 +34,7 @@ __all__ = [
     "PRIMARY_RECEIPT_CURRENCY_CODES",
     "PromptDefinition",
     "STATEMENT_EXTRACTION_CURRENT",
+    "STATEMENT_LAYOUT_PROFILE_CURRENT",
     "SPANISH_TO_ENGLISH_CATEGORY_KEYS",
     "STORE_CATEGORIZATION_CURRENT",
     "SUPPORTED_RECEIPT_CURRENCY_CODES",

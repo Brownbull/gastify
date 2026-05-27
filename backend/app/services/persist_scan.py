@@ -30,6 +30,7 @@ from app.services.mappings import (
     batch_lookup_item_mappings,
     lookup_merchant_mapping,
 )
+from app.services.recurrence import recurrence_fields_from_hint
 
 if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession
@@ -86,6 +87,7 @@ async def persist_scan_result(
         verdict.reconstructed_total if verdict.reconstructed_total is not None else total_minor
     )
     review_signal_payload = [signal.model_dump(mode="json") for signal in (review_signals or [])]
+    recurrence_fields = recurrence_fields_from_hint(ext.recurrence_hint, source="receipt")
 
     currency_row = await db.execute(select(Currency).where(Currency.code == currency_code))
     currency = currency_row.scalar_one_or_none()
@@ -162,6 +164,7 @@ async def persist_scan_result(
         fx_rate_to_usd=fx_rate,
         fx_captured_at=fx_captured_at,
         receipt_type="scan",
+        **recurrence_fields,
         thumbnail_url=scan.thumbnail_path,
         merchant_source=merchant_source,
         scan_review_level=review_level,

@@ -39,6 +39,7 @@ async def test_statement_reconciliation_tables_persist_foundation_records(engine
             file_sha256="a" * 64,
             content_type="application/pdf",
             file_size_bytes=42,
+            ai_processing_consent=True,
             issuer="cmr",
             period_start=date(2025, 3, 1),
             period_end=date(2025, 3, 31),
