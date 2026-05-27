@@ -2409,3 +2409,9 @@ DEPLOYMENTS: P29
 STAGING: `origin/staging` updated from `b84923f` to `8f4e77b`; GitHub Actions CI run 26417108834 passed 12/12. Railway fallback deploys used for `gastify-api-staging` deployment `55ef7412-314b-4763-adb3-ff0cfaf9400c` and `gastify-api-staging-e2e` deployment `235be0ab-25b4-4af9-b71b-193a3ba825aa`; both readiness probes returned `status=ok`, `database=connected`, `migration_status=current`, `migration_current=016`, `migration_head=016`.
 PRODUCTION PUSH: promoted tested `origin/staging` to `origin/main`; GitHub Actions CI run 26417227311 passed 12/12 for `8f4e77b`.
 PLAN: Phase 1 Push marked ✅.
+
+## 2026-05-27 14:19 -04 — [9a939fc] chore(backend): enforce strict mypy gate
+FINDINGS: 1 deferred item surfaced on a touched file; P24 remains open because this commit only typed the existing scan-complete payload construction and does not implement the remaining warning UI requirement.
+ACTIONS: skipped P24 for this commit; no new deferred items.
+CHECKS: `cd backend && uv run mypy app/ --no-error-summary` (pass); `cd backend && uv run ruff check app tests` (pass); `cd backend && uv run ruff format --check .` (pass); `cd backend && uv run pytest tests/ -x --tb=line -q` (645 passed, 2 skipped, 1 warning); `git diff --check` (pass).
+Gabe-Lens brief: The backend now has a typecheck turnstile in CI. The cleanup makes the existing strict mypy policy executable across the app instead of leaving it as local configuration debt.
