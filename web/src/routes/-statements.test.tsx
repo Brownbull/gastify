@@ -324,8 +324,25 @@ describe("statement route", () => {
     await user.upload(input, new File(["pdf"], "statement.pdf", {
       type: "application/pdf",
     }));
-    await user.click(screen.getByLabelText(/I consent to AI processing/i));
+    const consentCheckbox = screen.getByLabelText(/I consent to AI processing/i);
+    await user.click(consentCheckbox);
     await user.click(screen.getByRole("button", { name: "Start statement scan" }));
+
+    await waitFor(() => expect(screen.getByText("No PDF selected")).toBeInTheDocument());
+    expect(consentCheckbox).not.toBeChecked();
+    expect(screen.getByRole("button", { name: "Start statement scan" })).toBeDisabled();
+    expect(screen.getByText("Alias selected: Personal credit")).toBeInTheDocument();
+
+    const resetInput = document.querySelector('input[type="file"]');
+    if (!(resetInput instanceof HTMLInputElement)) {
+      throw new Error("reset statement file input not found");
+    }
+    await user.upload(resetInput, new File(["pdf-2"], "statement-2.pdf", {
+      type: "application/pdf",
+    }));
+    expect(screen.getByRole("button", { name: "Start statement scan" })).toBeDisabled();
+    await user.click(consentCheckbox);
+    expect(screen.getByRole("button", { name: "Start statement scan" })).toBeEnabled();
 
     await waitFor(() => expect(MockEventSource.instances).toHaveLength(1));
     expect(MockEventSource.instances[0].url).toContain("token=token-statement");

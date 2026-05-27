@@ -3,10 +3,10 @@
 sources:
   - cli: codex
     model: gpt-5
-    timestamp: 2026-05-27T13:22:28-04:00
-    findings: 2
+    timestamp: 2026-05-27T16:47:52-04:00
+    findings: 1
 project_root: /home/khujta/projects/apps/gastify
-target: P5 Phase 4 — Statement Gemini prompt lab + coalesce gate
+target: P5 Phase 5 — Web statement reconciliation flow
 maturity: ent
 status: resolved
 ---
@@ -14,81 +14,81 @@ status: resolved
 # Gabe Review — Live Document
 
 **Verdict:** APPROVE
-**Confidence:** 95/100
-**Coverage:** HIGH — duplicate statement metadata/reprocess behavior is now covered alongside the existing Phase 4 backend/prompt-lab verification.
-**Findings:** 2 (CRITICAL: 0, HIGH: 1, MEDIUM: 1, LOW: 0) | **Sources:** codex
-**Resolution:** 2 fixed / 0 deferred / 0 dismissed of 2 (pending: 0)
+**Confidence:** 96/100
+**Coverage:** HIGH — Phase 5 has clean committed scope, CI/deploy proof on `origin/staging`, staged browser proof for the web statement journey, and focused regression coverage for per-scan consent reset.
+**Findings:** 1 (CRITICAL: 0, HIGH: 1, MEDIUM: 0, LOW: 0) | **Sources:** codex
+**Resolution:** 1 fixed / 0 deferred / 0 dismissed of 1 (pending: 0)
 
 ## Findings
 
 | # | Status | Severity | Finding | File | Churn | Fix Cost | Defer Risk | Maturity Gate | Escalation | Sources |
 |---|--------|----------|---------|------|-------|----------|------------|---------------|------------|---------|
-| 1 | fixed | HIGH | Duplicate statement uploads validate new `ai_processing_consent` and `card_alias_id`, but the duplicate branch returns the existing row without persisting either value before optional requeue. If the first row was created before consent enforcement, or was uploaded without a card alias, a later consented upload can trigger processing while the audit row still says no consent and the reconciliation/candidate payload remains unlinked to the selected card alias. Fixed by persisting duplicate consent/card alias metadata before requeue and adding a duplicate encrypted requeue regression test. | `backend/app/api/statements.py:87` | ✅ STABLE | S (<30m) | RESOLVED — duplicate reprocess keeps consent/card metadata | Enterprise | — | codex |
-| 2 | fixed | MEDIUM | The active P5 plan has Phase 3 with `Review=⬜` after `Commit=✅` while Current Phase is 4. `/gabe-next` routes from Current Phase, but `/gabe-review` no-arg resolves the first `Exec=✅ Review=⬜` row, so the plan can send a direct review invocation to stale Phase 3 instead of Phase 4. Fixed by reconciling the stale Phase 3 Review tick. | `.kdbp/PLAN.md:40` | 🔴 HOT | S (<30m) | RESOLVED — direct review routing no longer lands on stale Phase 3 | Enterprise | — | codex |
+| 1 | fixed | HIGH | The upload form says consent applies only to this scan, but a successful upload left the selected PDF and `consentAccepted=true` in place. Fixed by resetting upload-only inputs after a successful upload and remounting the hidden file input so the next scan requires a fresh PDF selection and consent action. Regression coverage now proves the button is disabled after upload reset and stays disabled until both file and consent are provided again. | `web/src/routes/statements.tsx:63` | ✅ STABLE | S (<30m) | RESOLVED — per-scan consent is enforced in the web state loop. | Enterprise | Consent/audit | codex |
 
 ## Risk Dashboard
 
 | # | Source | Age | Finding | File | Defer Risk | Escalation |
 |---|--------|-----|---------|------|------------|------------|
-| 1 | current review | 0d | Duplicate statement upload drops consent/card alias updates before requeue | `backend/app/api/statements.py:87` | RESOLVED | fixed |
-| 2 | current review | 0d | Phase tracker contains an earlier blank Review cell that can hijack direct `/gabe-review` routing | `.kdbp/PLAN.md:40` | RESOLVED | fixed |
+| 1 | current review | 0d | Per-scan AI consent can be reused after a successful upload | `web/src/routes/statements.tsx:63` | RESOLVED | fixed |
 
 ## Coverage Confidence
 
-Coverage: HIGH — full backend/web/mobile checks passed during Phase 4 consolidation, and the duplicate upload branch now asserts consent/card alias mutation on duplicate reprocess.
+Coverage: HIGH — reviewed the committed Phase 5 range from `origin/main..HEAD`, the web statement route/hooks/store/reconciliation component, backend migration regression, KDBP proof docs, current staging proof, and the consent-reset regression test.
 
 ## Review Confidence
 
-Score: 95 / 100
+Score: 96 / 100
 
 | If you fix... | Findings resolved | Projected | Δ |
 |---------------|-------------------|-----------|---|
-| All CRITICAL + HIGH | 0 of 0 | 95 / 100 | +0 |
-| All MVP gate | 0 of 0 | 95 / 100 | +0 |
-| All Enterprise gate | 0 of 0 | 95 / 100 | +0 |
-| All (incl. Scale) | 0 of 0 | 95 / 100 | +0 |
+| All CRITICAL + HIGH | 0 of 0 | 96 / 100 | +0 |
+| All MVP gate | 0 of 0 | 96 / 100 | +0 |
+| All Enterprise gate | 0 of 0 | 96 / 100 | +0 |
+| All (incl. Scale) | 0 of 0 | 96 / 100 | +0 |
 
-*Residual 5-point holdback is for the broad Phase 4 diff size and live-provider caveats already accepted by product decision, not unresolved review findings.*
+*Residual 4-point holdback is for normal Phase 5 browser-surface risk until Android Phase 6 is exercised.*
 
 ## Final Verdict
 
-APPROVE — Both review findings are fixed. Phase 4 Review is ticked and ready for `/gabe-commit`.
+APPROVE — Phase 5 runtime proof exists, the backend transaction-candidate fix is deployed, and the web consent loop now requires fresh file selection and consent for each new statement scan.
 
 ## Plan Alignment (5a)
 
-ALIGNED — The changed backend/prompt-lab/docs surface is aligned with Phase 4's statement Gemini prompt-lab and coalesce gate. The stale Phase 3 Review cell was reconciled so direct `/gabe-review` routing no longer lands on the wrong phase.
+ALIGNED — The changes implement the Phase 5 web statement upload/reconciliation flow, deploy/migration proof, candidate transaction path, and per-scan consent reset.
 
 ## Stale Verified Topics (5c)
 
-None identified in this pass.
+The previous `.kdbp/REVIEW.md` was a resolved Phase 4 review. This review supersedes it for Phase 5.
 
 ## Architectural Decisions (5b)
 
-None new. D55 covers the statement Gemini prompt-lab and runtime fallback promotion decision; D54 continues to govern private statement corpus handling.
+None new. Existing statement fallback and consent decisions still apply.
 
 ## Tier Drift (5d)
 
-None. The new prompt-lab/runtime fallback, evidence fields, cost metadata, and generated API contract updates fit the declared Enterprise tier.
+None. The Phase 5 web implementation matches the declared Enterprise tier.
 
 ## Deferred Backlog Status
 
-No existing PENDING.md item was resolved by this diff. P32 and P33 remain open from Phase 1 statement persistence review; this Phase 4 work does not add PostgreSQL RLS execution proof or denormalize statement child ownership scope.
+No existing deferred item is resolved by this review. P31 remains the explicit iOS deferral; Android/S23 remains the next runtime platform gate after web review/commit/push.
 
 ## Evidence Reviewed
 
-- `.kdbp/PLAN.md` Phase 4 Exec is ✅; Review/Commit/Push are still ⬜.
-- `.kdbp/LEDGER.md` Phase 4 consolidation entry records no new Gemini provider call, cache-only 7-case suite, and privacy/leak checks.
-- Cache-only suite artifact: `prompt-testing/results/latest/statements/20260527T171106Z-001-statement-approach-suite/`.
-- Verification already recorded for this Phase 4 consolidation: backend ruff pass; focused backend pytest 215 passed; full backend pytest 645 passed, 2 skipped; prompt-lab validate 49 cases, 0 invalid; web build pass; mobile typecheck pass; mobile Jest 102 passed; `git diff --check` pass.
-- Current review rechecked `git diff --check` successfully.
-- Fix verification: `cd backend && uv run ruff check app/api/statements.py tests/test_statements.py` (pass); `cd backend && uv run pytest tests/test_statements.py tests/test_statement_reconciliation.py -q` (21 passed); scoped `git diff --check` (pass).
+- `origin/main..HEAD` diff: 18 files, 2128 insertions, 6 deletions.
+- `git diff --check origin/main..HEAD` passed.
+- `origin/staging` is at `7ef9d1c`; CI run `26534651479` completed successfully.
+- Railway deployed web and API services successfully for Phase 5.
+- Backend health: staging and staging-e2e both report `migration_current=021` and `migration_head=021`.
+- Web proof artifact: `.tmp/staging-e2e/web-statement/20260527T194301Z-phase5-web-statement/`.
+- Proof manifest showed upload `201`, transaction create `201`, and no console messages.
+- Local verification already recorded for the transaction-candidate migration fix: backend ruff, focused statement reconciliation tests, transaction/statement tests, backend ruff full app/tests, mypy, and diff check passed.
+- Consent reset verification: `cd web && npm test -- src/routes/-statements.test.tsx` (2 passed); `cd web && npx tsc -b` (pass); `git diff --check` (pass).
 
 ## Suggested Triage
 
 | Finding | Suggested action | Rationale |
 |---------|------------------|-----------|
-| #1 | fixed | Duplicate branch now persists consent/card alias metadata before optional requeue. |
-| #2 | fixed | Phase 3 Review state was reconciled in the active plan. |
+| #1 | fixed | Upload-only form state now resets after success, and the focused route test proves the second scan requires a fresh file and consent. |
 
 ---
-_Review resolved. Phase 4 Review ticked._
+_Review resolved. Phase 5 Review can be ticked._

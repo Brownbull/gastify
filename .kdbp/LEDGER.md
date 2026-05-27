@@ -2448,3 +2448,14 @@ WEB PROOF: `node .tmp/scripts/phase5-web-statement-proof.mjs` passed against dep
 CHECKS: `cd backend && uv run ruff check app/models/transaction.py tests/test_statement_reconciliation.py alembic/versions/021_statement_unidentified_item_source.py` (pass); `cd backend && uv run pytest tests/test_statement_reconciliation.py -q` (10 passed); `cd backend && uv run pytest tests/test_transactions.py tests/test_statement_reconciliation.py tests/test_statements.py -q` (54 passed); `cd backend && uv run ruff check app tests` (pass); `cd backend && uv run mypy app/ --no-error-summary` (pass); `git diff --check` (pass).
 TICK: ✅ Phase 5 Exec
 NEXT: Route to `/gabe-next`; expected command is `/gabe-review` for Phase 5.
+
+## 2026-05-27 16:53 -04 — PHASE 5 REVIEW: Web statement reconciliation flow
+VERDICT: APPROVE
+FINDINGS: 1 total (0 critical, 1 high, 0 medium, 0 low)
+COVERAGE: HIGH — Phase 5 staging/CI/Railway/browser proof exists, and the only review finding was resolved with focused web route coverage.
+CONFIDENCE: 96/100
+TRIAGE: fixed #1 consent reset issue. Successful statement upload now clears the selected PDF, password, and AI-processing consent while preserving the chosen card alias; the hidden file input remounts so the browser cannot reuse the stale file value.
+CHECKS: `cd web && npm test -- src/routes/-statements.test.tsx` (2 passed); `cd web && npx tsc -b` (pass); `git diff --check` (pass).
+TICK: ✅ Phase 5 Review
+NEXT: Commit the Phase 5 consent-reset fix and KDBP review reconciliation, then push to `origin/staging`.
+Gabe-Lens brief: The statement desk now closes the consent latch after each upload. A second scan must start with a fresh PDF selection and a fresh consent click, while the existing reconciliation and add-transaction proof still holds.

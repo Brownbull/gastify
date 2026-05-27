@@ -33,6 +33,7 @@ function StatementsPage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [password, setPassword] = useState("");
   const [consentAccepted, setConsentAccepted] = useState(false);
+  const [fileInputResetKey, setFileInputResetKey] = useState(0);
   const [activeBucket, setActiveBucket] = useState<BucketKey>("matched");
 
   const phase = useStatementStore((s) => s.phase);
@@ -56,6 +57,13 @@ function StatementsPage() {
     [aliasesQuery.data, selectedAliasId],
   );
 
+  function resetUploadInputs() {
+    setSelectedFile(null);
+    setPassword("");
+    setConsentAccepted(false);
+    setFileInputResetKey((key) => key + 1);
+  }
+
   async function submitUpload(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!selectedFile) return;
@@ -66,7 +74,7 @@ function StatementsPage() {
       password: password || null,
       aiProcessingConsent: consentAccepted,
     });
-    setPassword("");
+    resetUploadInputs();
   }
 
   async function submitPassword(event: FormEvent<HTMLFormElement>) {
@@ -100,9 +108,7 @@ function StatementsPage() {
           type="button"
           onClick={() => {
             resetStatement();
-            setSelectedFile(null);
-            setPassword("");
-            setConsentAccepted(false);
+            resetUploadInputs();
           }}
           className="rounded-md border px-3 py-2 text-sm font-medium"
           style={{ borderColor: "var(--border)", color: "var(--text)" }}
@@ -119,6 +125,7 @@ function StatementsPage() {
             selectedAliasId={selectedAliasId}
             selectedAlias={selectedAlias}
             selectedFile={selectedFile}
+            fileInputResetKey={fileInputResetKey}
             password={password}
             consentAccepted={consentAccepted}
             disabled={phase === "uploading" || uploadMutation.isPending}
@@ -177,6 +184,7 @@ interface UploadPanelProps {
   selectedAliasId: string;
   selectedAlias: CardAlias | undefined;
   selectedFile: File | null;
+  fileInputResetKey: number;
   password: string;
   consentAccepted: boolean;
   disabled: boolean;
@@ -194,6 +202,7 @@ function UploadPanel({
   selectedAliasId,
   selectedAlias,
   selectedFile,
+  fileInputResetKey,
   password,
   consentAccepted,
   disabled,
@@ -257,6 +266,7 @@ function UploadPanel({
             {fileLabel}
           </span>
           <input
+            key={fileInputResetKey}
             type="file"
             accept="application/pdf,.pdf"
             className="sr-only"
