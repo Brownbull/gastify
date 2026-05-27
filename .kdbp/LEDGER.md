@@ -2415,3 +2415,9 @@ FINDINGS: 1 deferred item surfaced on a touched file; P24 remains open because t
 ACTIONS: skipped P24 for this commit; no new deferred items.
 CHECKS: `cd backend && uv run mypy app/ --no-error-summary` (pass); `cd backend && uv run ruff check app tests` (pass); `cd backend && uv run ruff format --check .` (pass); `cd backend && uv run pytest tests/ -x --tb=line -q` (645 passed, 2 skipped, 1 warning); `git diff --check` (pass).
 Gabe-Lens brief: The backend now has a typecheck turnstile in CI. The cleanup makes the existing strict mypy policy executable across the app instead of leaving it as local configuration debt.
+
+## 2026-05-27 14:27 -04 — [8db82d9] fix(prompt-lab): tolerate missing local statement db
+FINDINGS: GitHub Actions staging run `26530292183` failed `Backend Test` because `test_statement_fallback_calibration_from_manifest_writes_reports` tried to open the private local SQLite path `../.tmp/local/gastify.db` on a fresh runner where the parent directory does not exist.
+ACTIONS: report generation now returns an empty unreadable DB snapshot with reason `transaction_database_unavailable` when the local transaction DB cannot be opened.
+CHECKS: `cd backend && uv run pytest tests/test_statement_prompt_lab.py::test_statement_fallback_calibration_from_manifest_writes_reports -q` (1 passed); `cd backend && uv run mypy app/ --no-error-summary` (pass); `cd backend && uv run ruff check app tests` (pass); `cd backend && uv run ruff format --check .` (pass); `cd backend && uv run pytest tests/ -x --tb=line -q` (645 passed, 2 skipped, 1 warning); `git diff --check` (pass).
+Gabe-Lens brief: The prompt-lab report now treats the local transaction DB like optional lab equipment. If it is not present on a clean runner, the report records that absence instead of stopping the whole CI line.
