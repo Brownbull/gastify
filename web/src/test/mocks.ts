@@ -1,5 +1,3 @@
-import type { ScanEvent } from "@/stores/scanStore";
-
 type Listener = (event: MessageEvent<string>) => void;
 
 export class MockEventSource {
@@ -36,7 +34,7 @@ export class MockEventSource {
     this.closed = true;
   }
 
-  emit(type: string, event: ScanEvent) {
+  emit(type: string, event: unknown) {
     const message = new MessageEvent<string>(type, {
       data: JSON.stringify(event),
     });

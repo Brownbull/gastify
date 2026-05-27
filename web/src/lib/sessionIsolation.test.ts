@@ -6,6 +6,7 @@ import {
 } from "./sessionIsolation";
 import { queryClient } from "@/lib/queryClient";
 import { useScanStore } from "@/stores/scanStore";
+import { useStatementStore } from "@/stores/statementStore";
 import { useUiStore } from "@/stores/uiStore";
 
 vi.mock("@/lib/api", () => ({
@@ -18,6 +19,7 @@ describe("sessionIsolation", () => {
     window.sessionStorage.clear();
     queryClient.clear();
     useScanStore.getState().reset();
+    useStatementStore.getState().reset();
     useUiStore.getState().reset();
     vi.clearAllMocks();
   });
@@ -25,6 +27,7 @@ describe("sessionIsolation", () => {
   it("clears cached queries, app stores, and browser storage", () => {
     queryClient.setQueryData(["transactions"], [{ id: "txn-1" }]);
     useScanStore.getState().startUpload();
+    useStatementStore.getState().startUpload();
     useUiStore.getState().setSidebarOpen(true);
     window.localStorage.setItem("firebase:authUser:test", "secret");
     window.sessionStorage.setItem("draft", "merchant");
@@ -35,6 +38,11 @@ describe("sessionIsolation", () => {
     expect(useScanStore.getState()).toMatchObject({
       phase: "idle",
       scanId: null,
+      events: [],
+    });
+    expect(useStatementStore.getState()).toMatchObject({
+      phase: "idle",
+      statement: null,
       events: [],
     });
     expect(useUiStore.getState().sidebarOpen).toBe(false);

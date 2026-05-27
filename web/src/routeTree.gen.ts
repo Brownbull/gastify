@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from "./routes/__root"
 import { Route as TransactionsRouteImport } from "./routes/transactions"
+import { Route as StatementsRouteImport } from "./routes/statements"
 import { Route as SignInRouteImport } from "./routes/sign-in"
 import { Route as ScanRouteImport } from "./routes/scan"
 import { Route as IndexRouteImport } from "./routes/index"
@@ -19,6 +20,11 @@ import { Route as TransactionsTransactionIdRouteImport } from "./routes/transact
 const TransactionsRoute = TransactionsRouteImport.update({
   id: "/transactions",
   path: "/transactions",
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StatementsRoute = StatementsRouteImport.update({
+  id: "/statements",
+  path: "/statements",
   getParentRoute: () => rootRouteImport,
 } as any)
 const SignInRoute = SignInRouteImport.update({
@@ -52,6 +58,7 @@ export interface FileRoutesByFullPath {
   "/": typeof IndexRoute
   "/scan": typeof ScanRoute
   "/sign-in": typeof SignInRoute
+  "/statements": typeof StatementsRoute
   "/transactions": typeof TransactionsRouteWithChildren
   "/transactions/$transactionId": typeof TransactionsTransactionIdRoute
   "/transactions/": typeof TransactionsIndexRoute
@@ -60,6 +67,7 @@ export interface FileRoutesByTo {
   "/": typeof IndexRoute
   "/scan": typeof ScanRoute
   "/sign-in": typeof SignInRoute
+  "/statements": typeof StatementsRoute
   "/transactions/$transactionId": typeof TransactionsTransactionIdRoute
   "/transactions": typeof TransactionsIndexRoute
 }
@@ -68,6 +76,7 @@ export interface FileRoutesById {
   "/": typeof IndexRoute
   "/scan": typeof ScanRoute
   "/sign-in": typeof SignInRoute
+  "/statements": typeof StatementsRoute
   "/transactions": typeof TransactionsRouteWithChildren
   "/transactions/$transactionId": typeof TransactionsTransactionIdRoute
   "/transactions/": typeof TransactionsIndexRoute
@@ -78,6 +87,7 @@ export interface FileRouteTypes {
     | "/"
     | "/scan"
     | "/sign-in"
+    | "/statements"
     | "/transactions"
     | "/transactions/$transactionId"
     | "/transactions/"
@@ -86,6 +96,7 @@ export interface FileRouteTypes {
     | "/"
     | "/scan"
     | "/sign-in"
+    | "/statements"
     | "/transactions/$transactionId"
     | "/transactions"
   id:
@@ -93,6 +104,7 @@ export interface FileRouteTypes {
     | "/"
     | "/scan"
     | "/sign-in"
+    | "/statements"
     | "/transactions"
     | "/transactions/$transactionId"
     | "/transactions/"
@@ -102,6 +114,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ScanRoute: typeof ScanRoute
   SignInRoute: typeof SignInRoute
+  StatementsRoute: typeof StatementsRoute
   TransactionsRoute: typeof TransactionsRouteWithChildren
 }
 
@@ -112,6 +125,13 @@ declare module "@tanstack/react-router" {
       path: "/transactions"
       fullPath: "/transactions"
       preLoaderRoute: typeof TransactionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    "/statements": {
+      id: "/statements"
+      path: "/statements"
+      fullPath: "/statements"
+      preLoaderRoute: typeof StatementsRouteImport
       parentRoute: typeof rootRouteImport
     }
     "/sign-in": {
@@ -170,6 +190,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ScanRoute: ScanRoute,
   SignInRoute: SignInRoute,
+  StatementsRoute: StatementsRoute,
   TransactionsRoute: TransactionsRouteWithChildren,
 }
 export const routeTree = rootRouteImport

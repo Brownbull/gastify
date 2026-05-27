@@ -1,6 +1,7 @@
 import { setAuthToken } from "@/lib/api";
 import { queryClient } from "@/lib/queryClient";
 import { useScanStore } from "@/stores/scanStore";
+import { useStatementStore } from "@/stores/statementStore";
 import { useUiStore } from "@/stores/uiStore";
 
 export const SIGN_OUT_BROADCAST_KEY = "gastify:sign-out";
@@ -17,6 +18,7 @@ export function clearClientSession({
   setAuthToken(null);
   queryClient.clear();
   useScanStore.getState().reset();
+  useStatementStore.getState().reset();
   useUiStore.getState().reset();
 
   if (!clearWebStorage || typeof window === "undefined") return;

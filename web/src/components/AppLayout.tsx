@@ -11,6 +11,7 @@ interface AppLayoutProps {
 const NAV_ITEMS = [
   { to: "/", labelKey: "nav.dashboard", icon: "📊" },
   { to: "/scan", labelKey: "nav.scan", icon: "📷" },
+  { to: "/statements", labelKey: "nav.statements", icon: "💳" },
   { to: "/transactions", labelKey: "nav.transactions", icon: "📋" },
 ] as const;
 
