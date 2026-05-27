@@ -1,5 +1,13 @@
 # Session Ledger
 
+## 2026-05-27 13:44 -04 — [7fcd8ba] feat(statements): promote fallback prompt lab
+FINDINGS: 0 critical blockers. Structure/docs drift was resolved before commit by adding nested prompt package patterns and updating the affected well docs.
+ACTIONS: Committed the Phase 4 statement prompt-lab/runtime fallback surface, migrations, generated web/mobile contracts, docs, and KDBP review fixes.
+CHECKS: `cd backend && uv run ruff check app tests` (pass); `cd backend && uv run pytest tests/ -x --tb=line -q` (645 passed, 2 skipped, 1 warning); `cd backend && uv run python -m app.prompt_lab validate` (49 total, 0 invalid); `cd web && npm run build` (pass); `cd mobile && npm run typecheck` (pass); `cd mobile && npm test -- --runInBand` (20 suites, 102 tests passed); `git diff --cached --check` (pass); staged leak scan found only generic `credentials.json` test-path references and generic gcloud command documentation, no local ADC tokens, project quota config, billing screenshots, or secrets.
+NOTE: Backend `mypy app/` was attempted but remains a non-established gate for this repository; it reports broad pre-existing untyped FastAPI/SQLAlchemy/Firebase surfaces in addition to new statement modules. Web and mobile TypeScript gates passed.
+TICK: ✅ Phase 4 Commit.
+NEXT: Route Phase 4 to `/gabe-push`, then start Phase 5 Web statement reconciliation flow after push bookkeeping.
+
 ## 2026-05-27 13:32 -04 — PHASE 4 REVIEW FIXES COMPLETE: duplicate metadata + tracker state
 VERDICT: APPROVE
 FINDINGS: 2 total (0 critical, 1 high, 1 medium, 0 low), both fixed.
