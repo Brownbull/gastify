@@ -2430,3 +2430,12 @@ DEPLOYMENTS: P31
 STAGING: `origin/staging` updated from `9873d4e` to `4354ad0`; GitHub Actions CI run 26530619227 passed after failed staging run 26530292183 exposed a fresh-runner local SQLite report assumption.
 PRODUCTION PUSH: promoted tested `origin/staging` to `origin/main`; GitHub Actions CI run 26530813772 passed 13/13 for `4354ad0`, including the new `Backend Typecheck` job.
 PLAN: Phase 4 Push marked ✅.
+
+## 2026-05-27 14:54 -04 — [2737d93] feat(web): add statement reconciliation flow
+FINDINGS: 0 blocking. `npm run lint` exits 0 with the existing Fast Refresh warning class; the new statement route follows the current route-file pattern and adds no lint errors.
+ACTIONS: committed Phase 5 T1-T4 web implementation checkpoint; left Phase 5 Exec 🔄 because deployed staging browser evidence is still required before closure.
+DEFERRED: none
+CHECKS: `git diff --cached --check` (pass); `git diff --check` (pass); `cd web && npm run build` (pass, Vite chunk-size warning only); `cd web && npm test -- --run` (9 files / 25 tests passed); `cd web && npm run lint` (0 errors, 33 warnings).
+SCOPE: `/statements` web route, statement upload hooks/store/SSE, card-alias controls, reconciliation buckets, statement-only transaction creation, session cleanup, route tree, and focused Vitest coverage.
+RUNTIME SCOPE: local web build/unit/component proof only. The branch-backed staging browser journey for statement upload/reconciliation remains the required Phase 5 runtime gate.
+Gabe-Lens brief: The web app now has the statement desk in place: users can bring in a card statement, watch the scan move, inspect reconciliation buckets, and choose which statement-only rows become transactions without mixing that state into receipt scanning.
