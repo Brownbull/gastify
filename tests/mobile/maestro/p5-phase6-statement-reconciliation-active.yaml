@@ -1,0 +1,163 @@
+appId: com.gastify.mobile
+---
+- waitForAnimationToEnd:
+    timeout: 10000
+- tapOn:
+    text: "Continue"
+    optional: true
+- tapOn:
+    text: "Got it"
+    optional: true
+- runFlow:
+    when:
+      visible: "Reload"
+    commands:
+      - tapOn:
+          point: "90%,45%"
+      - waitForAnimationToEnd:
+          timeout: 5000
+- runFlow:
+    when:
+      visible:
+        id: e2e-sign-in-button
+    commands:
+      - tapOn:
+          id: e2e-sign-in-button
+- runFlow:
+    when:
+      visible:
+        id: sign-out-button
+    commands:
+      - tapOn:
+          id: sign-out-button
+      - extendedWaitUntil:
+          visible:
+            id: sign-in-screen
+          timeout: 20000
+      - tapOn:
+          id: e2e-sign-in-button
+- waitForAnimationToEnd:
+    timeout: 10000
+- tapOn:
+    text: "Continue"
+    optional: true
+- tapOn:
+    text: "Got it"
+    optional: true
+- runFlow:
+    when:
+      visible:
+        id: e2e-sign-in-button
+    commands:
+      - tapOn:
+          id: e2e-sign-in-button
+- extendedWaitUntil:
+    visible:
+      id: home-screen
+    timeout: 60000
+- takeScreenshot:
+    path: 01-phase6-signed-in-home
+- swipe:
+    direction: UP
+- extendedWaitUntil:
+    visible:
+      id: open-statements-button
+    timeout: 20000
+- tapOn:
+    id: open-statements-button
+- extendedWaitUntil:
+    visible:
+      id: statements-screen
+    timeout: 30000
+- takeScreenshot:
+    path: 02-phase6-statement-entry
+- tapOn:
+    id: statement-new-alias-input
+- inputText: "S23 Statement Card"
+- hideKeyboard
+- tapOn:
+    id: statement-add-alias-button
+- extendedWaitUntil:
+    visible: "Alias selected: S23 Statement Card"
+    timeout: 30000
+- tapOn:
+    id: statement-choose-pdf-button
+- extendedWaitUntil:
+    visible: "gastify-statement-e2e.pdf"
+    timeout: 30000
+- tapOn: "gastify-statement-e2e.pdf"
+- extendedWaitUntil:
+    visible:
+      id: statement-pdf-preview
+    timeout: 30000
+- assertVisible: "gastify-statement-e2e.pdf"
+- takeScreenshot:
+    path: 03-phase6-pdf-selected
+- tapOn:
+    id: statement-ai-consent-switch
+- tapOn:
+    id: statement-start-scan-button
+- extendedWaitUntil:
+    visible:
+      id: statement-status-panel
+    timeout: 30000
+- takeScreenshot:
+    path: 04-phase6-statement-progress
+- extendedWaitUntil:
+    visible:
+      id: statement-reconciliation-panel
+    timeout: 90000
+- assertVisible: "Coverage"
+- assertVisible: "Matched"
+- assertVisible: "Statement only"
+- assertVisible: "App only"
+- takeScreenshot:
+    path: 05-phase6-reconciliation-buckets
+- tapOn:
+    id: statement-bucket-statement_only
+- extendedWaitUntil:
+    visible:
+      id: statement-bucket-list-statement_only
+    timeout: 20000
+- assertVisible: "Statement only"
+- takeScreenshot:
+    path: 06-phase6-statement-only-candidates
+- tapOn:
+    text: "Add transaction"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+- takeScreenshot:
+    path: 07-phase6-after-candidate-action
+- tapOn: "Back"
+- extendedWaitUntil:
+    visible:
+      id: home-screen
+    timeout: 30000
+- tapOn:
+    id: sign-out-button
+- extendedWaitUntil:
+    visible:
+      id: sign-in-screen
+    timeout: 30000
+- takeScreenshot:
+    path: 08-phase6-signed-out
+- tapOn:
+    id: e2e-sign-in-button
+- extendedWaitUntil:
+    visible:
+      id: home-screen
+    timeout: 60000
+- swipe:
+    direction: UP
+- tapOn:
+    id: open-statements-button
+- extendedWaitUntil:
+    visible:
+      id: statements-screen
+    timeout: 30000
+- assertVisible: "No PDF selected"
+- assertNotVisible:
+    id: statement-reconciliation-panel
+- takeScreenshot:
+    path: 09-phase6-reauthenticated-clean-statements

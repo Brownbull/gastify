@@ -129,3 +129,26 @@ permission denied, and SecureStore/query/cache eviction are covered by Jest/RNTL
 and must be green before this runtime packet can close Phase 5 Exec.
 
 iOS runtime testing is deferred post-roadmap and is not a Phase 5 blocker.
+
+## Phase 6 Statement Reconciliation Gate
+
+The Phase 6 S23 statement gate proves the Android-native statement lane against
+the deployed `staging-e2e` API. It seeds one private local PDF fixture into the
+device Downloads folder, opens it through the native document picker, requires
+per-scan AI consent, follows statement WebSocket progress, captures the coverage
+and reconciliation buckets, and verifies sign-out cleanup.
+
+```bash
+export GASTIFY_STAGING_E2E_API_BASE_URL=https://<gastify-api-staging-e2e-domain>
+export MAESTRO_DEVICE_ID="RFCW90N4BYP"
+bash scripts/staging/run-s23-phase6-statement-gate.sh
+```
+
+By default the seed step uses
+`prompt-testing/test-cases/statements/private/cmr/cmr202503.pdf`. Override with
+`GASTIFY_STATEMENT_FIXTURE_PDF=/path/to/private.pdf` when needed. The wrapper
+groups the evidence under:
+
+```text
+tests/mobile/results/runs/staging-e2e/<stage-id>/attempts/<attempt-id>/p5-phase6-statement-reconciliation-active/
+```
