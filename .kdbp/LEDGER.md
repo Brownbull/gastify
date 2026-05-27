@@ -2485,3 +2485,12 @@ STAGING: `origin/staging` had already passed GitHub Actions run 26538457661 for 
 PRODUCTION PUSH: promoted tested `origin/staging` to `origin/main`; GitHub Actions CI run 26538710272 passed 13/13 for `e6d04aa`.
 PLAN: Phase 5 Push marked ✅.
 Gabe-Lens brief: The web statement lane has crossed the final gate for this phase. The consent-reset fix was tested on staging, promoted to main, and the phase is now ready to hand off to Android.
+
+## 2026-05-27 17:31 -04 — [5f8552b] feat(mobile): add statement reconciliation journey
+FINDINGS: 1 deferred item surfaced on touched mobile screens; P24 remains open because this checkpoint adds the statement journey and does not implement the separate receipt review-warning UI requirement.
+ACTIONS: skipped P24 for this commit; no new deferred items.
+CHECKS: `cd backend && uv run ruff check app tests` (pass); `cd backend && uv run mypy app/ --no-error-summary` (pass); `cd backend && uv run pytest tests/test_statement_stream.py tests/test_statement_worker.py tests/test_statements.py -q` (26 passed); `cd mobile && npm run typecheck` (pass); `cd mobile && npm test -- --runInBand` (116 passed); `cd mobile && npm run check:expo-config` (pass); `git diff --check` and `git diff --cached --check` (pass).
+SCOPE: Added Android statement PDF selection, per-scan AI consent, card alias selection/creation, statement upload and password states, WebSocket progress, reconciliation buckets with coverage, statement-only candidate creation, and sign-out cleanup. Added `/ws/statements/{statement_id}` backend stream parity for mobile.
+RUNTIME SCOPE: Local type/Jest/backend proof only. Phase 6 Exec remains 🔄 until candidate code is pushed to staging and the Samsung S23 staging-e2e statement journey is captured with grouped artifacts.
+PLAN: Phase 6 Commit marked ✅; Exec remains 🔄 pending Android/S23 runtime evidence.
+Gabe-Lens brief: Android now has the statement workbench installed locally. The app can accept a statement PDF, keep consent per scan, watch reconciliation move over WebSocket, and expose the same buckets the web path already proved.
