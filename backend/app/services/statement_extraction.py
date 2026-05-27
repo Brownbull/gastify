@@ -27,7 +27,7 @@ from app.schemas.statement import (
 )
 from app.services.llm_costs import estimate_llm_cost_usd
 from app.services.statement_coalesce import coalesce_statement_output
-from app.services.statement_pdf_evidence import extract_statement_pdf_evidence
+from app.services.statement_pdf_evidence import StatementPdfEvidence, extract_statement_pdf_evidence
 from app.services.statement_profile_fallback import (
     apply_statement_layout_profile,
     build_statement_compact_evidence,
@@ -244,6 +244,8 @@ def _fixture_output(
                 line_type="charge",
                 card_alias_candidate="Fixture card",
                 category_key="supermarket",
+                amount_selection_reason="fixture selected line amount",
+                amount_candidates=[],
             ),
             StatementLine(
                 source_order=2,
@@ -253,6 +255,8 @@ def _fixture_output(
                 currency=currency,
                 line_type="payment",
                 card_alias_candidate="Fixture card",
+                amount_selection_reason="fixture selected line amount",
+                amount_candidates=[],
             ),
         ],
         processing=StatementProcessingMetadata(
@@ -278,6 +282,7 @@ def _gemini_output(
     fallback_warnings: list[str],
     gemini_input: str = "profile-rows",
 ) -> StatementExtractionOutput:
+    evidence: StatementPdfEvidence | None = None
     if gemini_input == "profile-rows":
         evidence = extract_statement_pdf_evidence(path, password=password)
         compact = build_statement_compact_evidence(evidence)
@@ -346,9 +351,7 @@ def _gemini_output(
                 evidence_candidate_row_count=None,
                 warnings=[*fallback_warnings, *evidence.warnings],
             )
-        result = asyncio.run(
-            extract_statement_with_gemini_evidence(evidence.provider_payload())
-        )
+        result = asyncio.run(extract_statement_with_gemini_evidence(evidence.provider_payload()))
         evidence_warnings = [
             "gemini_input_mode_pymupdf_evidence",
             *evidence.warnings,
@@ -360,9 +363,7 @@ def _gemini_output(
         evidence_warnings = ["gemini_input_mode_pdf"]
     extraction = result.extraction
     warnings = list(
-        dict.fromkeys(
-            [*fallback_warnings, *evidence_warnings, *extraction.processing.warnings]
-        )
+        dict.fromkeys([*fallback_warnings, *evidence_warnings, *extraction.processing.warnings])
     )
     raw_text_sha256 = (
         evidence.raw_text_sha256 if evidence is not None else extraction.processing.raw_text_sha256

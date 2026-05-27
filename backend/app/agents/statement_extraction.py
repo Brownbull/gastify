@@ -290,8 +290,7 @@ def _evidence_prompt_text(evidence: dict[str, Any]) -> str:
         "Normalize the following extracted PDF text/layout evidence into the "
         "credit-card statement JSON contract. Use only this evidence; do not "
         "infer from issuer-specific layout knowledge.\n\n"
-        "EVIDENCE_JSON:\n"
-        + json.dumps(evidence, ensure_ascii=False, sort_keys=True)
+        "EVIDENCE_JSON:\n" + json.dumps(evidence, ensure_ascii=False, sort_keys=True)
     )
 
 

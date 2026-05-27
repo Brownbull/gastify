@@ -198,7 +198,7 @@ async def remember_merchant_mapping(
             original_merchant=normalized,
             target_merchant=target,
             store_category_id=store_category_id,
-            confidence=Decimal("1.00"),
+            confidence=1.0,
             source="user",
         )
         db.add(mapping)
@@ -206,7 +206,7 @@ async def remember_merchant_mapping(
 
     mapping.target_merchant = target
     mapping.store_category_id = store_category_id
-    mapping.confidence = Decimal("1.00")
+    mapping.confidence = 1.0
     mapping.source = "user"
     return mapping
 
@@ -244,7 +244,7 @@ async def remember_item_mapping(
             target_item=target,
             target_category_id=target_category_id,
             merchant_pattern=normalized_merchant,
-            confidence=Decimal("1.00"),
+            confidence=1.0,
             source="user",
         )
         db.add(mapping)
@@ -252,6 +252,6 @@ async def remember_item_mapping(
 
     mapping.target_item = target
     mapping.target_category_id = target_category_id
-    mapping.confidence = Decimal("1.00")
+    mapping.confidence = 1.0
     mapping.source = "user"
     return mapping

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
 from app.prompt_lab.paths import CACHE_ROOT
 from app.prompts import get_prompt, prompt_text_hash
@@ -63,7 +63,7 @@ def read_statement_cache(cache_key: str, root: Path = CACHE_ROOT) -> dict[str, A
     path = statement_cache_path(cache_key, root=root)
     if not path.exists():
         return None
-    return json.loads(path.read_text(encoding="utf-8"))
+    return cast("dict[str, Any]", json.loads(path.read_text(encoding="utf-8")))
 
 
 def write_statement_cache(

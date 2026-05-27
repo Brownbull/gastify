@@ -60,6 +60,8 @@ DEFAULT_STATEMENT_GEMINI_INPUT_MODE = "profile-rows"
 if TYPE_CHECKING:
     from pathlib import Path
 
+    from app.prompts.definitions import PromptDefinition
+
 
 async def run_statement_case(
     case: StatementCase,
@@ -196,9 +198,7 @@ async def run_statement_case(
         if cached is not None:
             source = "gemini_cached_output"
             if gemini_input == "profile-rows" and cached.get("layout_profile"):
-                layout_profile = StatementLayoutProfile.model_validate(
-                    cached["layout_profile"]
-                )
+                layout_profile = StatementLayoutProfile.model_validate(cached["layout_profile"])
                 compact = build_statement_compact_evidence(
                     {
                         **dict(prepared["pdf_evidence"]),
@@ -223,9 +223,7 @@ async def run_statement_case(
                 base["unresolved_rows"] = [
                     row.model_dump(mode="json") for row in application.unresolved_rows
                 ]
-                raw = StatementExtractionOutput.model_validate(
-                    application.extraction.model_dump()
-                )
+                raw = StatementExtractionOutput.model_validate(application.extraction.model_dump())
                 source = "gemini_cached_profile_application"
             else:
                 raw = StatementExtractionOutput.model_validate(
@@ -287,9 +285,10 @@ async def run_statement_case(
             source="dry_run",
         )
 
-    if gemini_input in {"pymupdf-evidence", "profile-rows"} and prepared.get(
-        "evidence_status"
-    ) != "readable":
+    if (
+        gemini_input in {"pymupdf-evidence", "profile-rows"}
+        and prepared.get("evidence_status") != "readable"
+    ):
         return await _write_completed_packet(
             base,
             raw=None,
@@ -344,27 +343,43 @@ async def run_statement_case(
             base["unresolved_rows"] = [
                 row.model_dump(mode="json") for row in application.unresolved_rows
             ]
-            result = profile_result
-            raw = StatementExtractionOutput.model_validate(
-                application.extraction.model_dump()
-            )
+            raw = StatementExtractionOutput.model_validate(application.extraction.model_dump())
             usage = {"layout_profile": _dataclass_dict(profile_result.usage)}
+            prompt_identity = {
+                "prompt_id": profile_result.prompt_id,
+                "prompt_version": profile_result.prompt_version,
+                "model_name": profile_result.model_name,
+            }
         elif gemini_input == "pymupdf-evidence":
-            result = await extract_statement_with_gemini_evidence(
+            extraction_result = await extract_statement_with_gemini_evidence(
                 dict(prepared["pdf_evidence"]),
                 model=agent_model,
                 prompt_id=prompt.id,
             )
-            raw = StatementExtractionOutput.model_validate(result.raw_extraction.model_dump())
-            usage = {"extraction": _dataclass_dict(result.usage)}
+            raw = StatementExtractionOutput.model_validate(
+                extraction_result.raw_extraction.model_dump()
+            )
+            usage = {"extraction": _dataclass_dict(extraction_result.usage)}
+            prompt_identity = {
+                "prompt_id": extraction_result.prompt_id,
+                "prompt_version": extraction_result.prompt_version,
+                "model_name": extraction_result.model_name,
+            }
         else:
-            result = await extract_statement_with_gemini(
+            extraction_result = await extract_statement_with_gemini(
                 bytes(prepared["provider_pdf_bytes"]),
                 model=agent_model,
                 prompt_id=prompt.id,
             )
-            raw = StatementExtractionOutput.model_validate(result.raw_extraction.model_dump())
-            usage = {"extraction": _dataclass_dict(result.usage)}
+            raw = StatementExtractionOutput.model_validate(
+                extraction_result.raw_extraction.model_dump()
+            )
+            usage = {"extraction": _dataclass_dict(extraction_result.usage)}
+            prompt_identity = {
+                "prompt_id": extraction_result.prompt_id,
+                "prompt_version": extraction_result.prompt_version,
+                "model_name": extraction_result.model_name,
+            }
     except ModelHTTPError as exc:
         return _write_packet(
             _provider_error_packet(base, exc),
@@ -385,11 +400,7 @@ async def run_statement_case(
         "provider": "gemini",
         "input_mode": gemini_input,
         "extraction": raw.model_dump(mode="json"),
-        "prompt_identity": {
-            "prompt_id": result.prompt_id,
-            "prompt_version": result.prompt_version,
-            "model_name": result.model_name,
-        },
+        "prompt_identity": prompt_identity,
     }
     cache_payload = {
         "raw_output": raw_payload,
@@ -590,9 +601,7 @@ def _base_packet(
         "compact_evidence": compact_evidence,
         "compact_evidence_summary": _compact_evidence_summary(compact_evidence),
         "compact_provider_evidence": compact_provider_evidence,
-        "compact_provider_evidence_summary": _compact_evidence_summary(
-            compact_provider_evidence
-        ),
+        "compact_provider_evidence_summary": _compact_evidence_summary(compact_provider_evidence),
         "pdf_input": pdf_input,
         "status": status,
         "generated_at": datetime.now(UTC).isoformat(),
@@ -917,9 +926,7 @@ def _compact_evidence_summary(evidence: dict[str, Any] | None) -> dict[str, Any]
 
 def _legacy_v1_compact_evidence_hash(evidence: dict[str, Any]) -> str:
     legacy = _legacy_v1_profile_rows_provider_payload(evidence)
-    return sha256_bytes(
-        json.dumps(legacy, sort_keys=True, ensure_ascii=False).encode("utf-8")
-    )
+    return sha256_bytes(json.dumps(legacy, sort_keys=True, ensure_ascii=False).encode("utf-8"))
 
 
 def _legacy_v1_profile_rows_provider_payload(evidence: dict[str, Any]) -> dict[str, Any]:
@@ -928,7 +935,7 @@ def _legacy_v1_profile_rows_provider_payload(evidence: dict[str, Any]) -> dict[s
     return legacy
 
 
-def _prompt_for_input_mode(*, gemini_input: str, prompt_id: str | None):
+def _prompt_for_input_mode(*, gemini_input: str, prompt_id: str | None) -> PromptDefinition:
     if gemini_input == "profile-rows":
         return get_prompt(
             settings.statement_layout_profile_prompt_id,

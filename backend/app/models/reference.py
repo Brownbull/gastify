@@ -2,6 +2,7 @@
 
 import uuid
 from datetime import datetime
+from typing import Any
 
 from sqlalchemy import JSON, Boolean, DateTime, ForeignKey, SmallInteger, String, Text, Uuid, func
 from sqlalchemy.orm import Mapped, mapped_column
@@ -14,7 +15,9 @@ class Currency(Base):
 
     code: Mapped[str] = mapped_column(String(3), primary_key=True)
     exponent: Mapped[int] = mapped_column(SmallInteger, nullable=False)
-    display_labels: Mapped[dict] = mapped_column(JSON, nullable=False, server_default="{}")
+    display_labels: Mapped[dict[str, Any]] = mapped_column(
+        JSON, nullable=False, server_default="{}"
+    )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now()
     )
@@ -31,7 +34,9 @@ class StoreCategory(Base):
     parent_id: Mapped[uuid.UUID | None] = mapped_column(
         Uuid, ForeignKey("store_categories.id"), nullable=True
     )
-    display_labels: Mapped[dict] = mapped_column(JSON, nullable=False, server_default="{}")
+    display_labels: Mapped[dict[str, Any]] = mapped_column(
+        JSON, nullable=False, server_default="{}"
+    )
     is_sensitive: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default="false")
     sort_order: Mapped[int] = mapped_column(SmallInteger, nullable=False, server_default="0")
     created_at: Mapped[datetime] = mapped_column(
@@ -50,7 +55,9 @@ class ItemCategory(Base):
     parent_id: Mapped[uuid.UUID | None] = mapped_column(
         Uuid, ForeignKey("item_categories.id"), nullable=True
     )
-    display_labels: Mapped[dict] = mapped_column(JSON, nullable=False, server_default="{}")
+    display_labels: Mapped[dict[str, Any]] = mapped_column(
+        JSON, nullable=False, server_default="{}"
+    )
     is_sensitive: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default="false")
     sort_order: Mapped[int] = mapped_column(SmallInteger, nullable=False, server_default="0")
     created_at: Mapped[datetime] = mapped_column(

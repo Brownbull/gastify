@@ -7,7 +7,7 @@ from datetime import UTC, datetime
 from decimal import Decimal
 from difflib import SequenceMatcher
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 from app.prompt_lab.costs import LEGACY_ESTIMATED_COST_PER_SCAN_USD
 from app.prompt_lab.receipt.adapter import load_expected_receipt
@@ -247,7 +247,7 @@ def _case_summary(manifest: dict[str, Any]) -> dict[str, Any]:
     return case
 
 
-def _load_expected(manifest: dict[str, Any]):
+def _load_expected(manifest: dict[str, Any]) -> Any | None:
     baseline_path = manifest.get("baseline_path")
     if not baseline_path:
         return None
@@ -740,10 +740,14 @@ def _promotion_decision(summary: dict[str, Any]) -> dict[str, Any]:
         )
     if summary["cache_evidence_status_count"] > 0:
         blockers.append("cache-derived evidence present")
-    if summary["provider_error_count"] > threshold["max_provider_errors"]:
+    provider_error_count = cast("int", summary["provider_error_count"])
+    max_provider_errors = cast("int", threshold["max_provider_errors"])
+    if provider_error_count > max_provider_errors:
         blockers.append("provider-error packets present")
-    significant_failures = int(summary["severity_counts"].get("significant_failure", 0))
-    if significant_failures > threshold["max_significant_failures"]:
+    severity_counts = cast("dict[str, Any]", summary["severity_counts"])
+    significant_failures = int(severity_counts.get("significant_failure", 0))
+    max_significant_failures = cast("int", threshold["max_significant_failures"])
+    if significant_failures > max_significant_failures:
         blockers.append(f"{significant_failures} significant_failure cases present")
 
     unclassified = [
@@ -756,7 +760,8 @@ def _promotion_decision(summary: dict[str, Any]) -> dict[str, Any]:
         blockers.append("unclassified threshold failures: " + ", ".join(unclassified))
 
     prompt_lab_threshold_passed = not blockers
-    runtime_reasons = list(threshold["runtime_evidence_required"])
+    runtime_evidence_required = cast("list[str]", threshold["runtime_evidence_required"])
+    runtime_reasons = [str(value) for value in runtime_evidence_required]
     return {
         "threshold_id": threshold["threshold_id"],
         "prompt_lab_threshold_passed": prompt_lab_threshold_passed,
@@ -1290,7 +1295,7 @@ def _delta_with_ratio(delta: Any, ratio: Any) -> str:
 
 
 def _load_json(path: Path) -> dict[str, Any]:
-    return json.loads(path.read_text(encoding="utf-8"))
+    return cast("dict[str, Any]", json.loads(path.read_text(encoding="utf-8")))
 
 
 def _load_optional_json(path: str | None) -> dict[str, Any] | None:
@@ -1435,9 +1440,15 @@ def _max_int_match(left: Any, right: Any) -> Any:
 
 
 def _ratio_abs(value: Any, denominator: int | None) -> float | None:
-    if value is None or denominator in (None, 0):
+    if value is None or denominator is None or denominator == 0:
         return None
-    return abs(float(value)) / abs(float(denominator))
+    if not isinstance(value, int | float | str) or isinstance(value, bool):
+        return None
+    try:
+        numerator = float(value)
+    except (TypeError, ValueError):
+        return None
+    return abs(numerator) / abs(float(denominator))
 
 
 def _float_policy(policy: dict[str, Any], key: str) -> float | None:

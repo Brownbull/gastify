@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import uuid  # noqa: TC003 - Pydantic needs runtime access for OpenAPI generation.
-from typing import Annotated
+from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel
@@ -23,7 +23,7 @@ class StoreCategoryItem(BaseModel):
     key: str
     level: int
     parent_id: uuid.UUID | None = None
-    display_labels: dict
+    display_labels: dict[str, Any]
     is_sensitive: bool
     sort_order: int
 
@@ -46,7 +46,7 @@ class ItemCategoryItem(BaseModel):
     key: str
     level: int
     parent_id: uuid.UUID | None = None
-    display_labels: dict
+    display_labels: dict[str, Any]
     is_sensitive: bool
     sort_order: int
 

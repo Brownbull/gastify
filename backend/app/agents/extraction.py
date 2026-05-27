@@ -19,7 +19,7 @@ if TYPE_CHECKING:
 
 import structlog
 from pydantic_ai import Agent
-from pydantic_ai.messages import BinaryContent
+from pydantic_ai.messages import BinaryContent, UserContent
 
 from app.agents.usage import result_usage
 from app.config import settings
@@ -93,7 +93,7 @@ async def extract_receipt(
     )
 
     start = time.monotonic()
-    user_prompt = [
+    user_prompt: list[UserContent] = [
         BinaryContent(data=image_bytes, media_type=content_type),
         prompt.user_prompt or "Extract all data from this receipt image.",
     ]

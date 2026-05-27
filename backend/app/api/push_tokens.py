@@ -1,7 +1,7 @@
 """Mobile push-token registration endpoints."""
 
 from datetime import UTC, datetime
-from typing import Annotated
+from typing import TYPE_CHECKING, Annotated, Any, cast
 
 from fastapi import APIRouter, Depends, status
 from sqlalchemy import select, update
@@ -20,6 +20,9 @@ from app.schemas.push_tokens import (
 router = APIRouter(prefix="/push-tokens", tags=["push tokens"])
 
 DB = Annotated[AsyncSession, Depends(get_db)]
+
+if TYPE_CHECKING:
+    from sqlalchemy.engine import CursorResult
 
 
 @router.post("", status_code=status.HTTP_201_CREATED, response_model=PushTokenResponse)
@@ -97,7 +100,7 @@ async def unregister_push_token(
     if body.token is not None:
         query = query.where(MobilePushToken.token == body.token)
 
-    result = await db.execute(query)
+    result = cast("CursorResult[Any]", await db.execute(query))
     await db.commit()
 
     return PushTokenUnregisterResponse(revoked_count=result.rowcount or 0)

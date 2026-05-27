@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 from app.config import settings
 from app.services.scan_e2e_fixtures import E2EScanFixtureCase, fixture_case_by_key
 from app.services.scan_errors import ScanErrorCode
@@ -9,7 +11,7 @@ from app.services.scan_errors import ScanErrorCode
 type ScanProviderName = str
 
 
-def active_scan_provider(runtime_settings=settings) -> ScanProviderName:
+def active_scan_provider(runtime_settings: Any = settings) -> ScanProviderName:
     """Return the normalized scan provider.
 
     `GASTIFY_E2E_SCAN_FIXTURES_ENABLED` remains supported as a compatibility

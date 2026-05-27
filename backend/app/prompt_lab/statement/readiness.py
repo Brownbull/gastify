@@ -217,18 +217,13 @@ def aggregate_fallback_readiness(
         )
 
     case_readiness = [
-        case.get("fallback_readiness") or case_fallback_readiness(case)
-        for case in case_summaries
+        case.get("fallback_readiness") or case_fallback_readiness(case) for case in case_summaries
     ]
     blocking_reasons = _unique(
-        reason
-        for readiness in case_readiness
-        for reason in readiness.get("blocking_reasons", [])
+        reason for readiness in case_readiness for reason in readiness.get("blocking_reasons", [])
     )
     caveats = _unique(
-        caveat
-        for readiness in case_readiness
-        for caveat in readiness.get("caveats", [])
+        caveat for readiness in case_readiness for caveat in readiness.get("caveats", [])
     )
     if require_provider_quality and not any(
         readiness.get("provider_quality") for readiness in case_readiness
@@ -274,9 +269,7 @@ def _aggregate_result(
     expected = sum(int(case.get("expected_line_count") or 0) for case in case_summaries)
     actual = sum(int(case.get("actual_line_count") or 0) for case in case_summaries)
     fields = _sum_counter(case.get("field_mismatch_counts", {}) for case in case_summaries)
-    candidate_safety = [
-        case.get("candidate_safety", {}) for case in case_summaries
-    ]
+    candidate_safety = [case.get("candidate_safety", {}) for case in case_summaries]
     unsafe_count = sum(int(item.get("unsafe_candidate_count") or 0) for item in candidate_safety)
     line_coverage_ratio = round((actual / expected), 4) if expected else 1.0
     case_line_coverage_passed = all(
@@ -284,16 +277,14 @@ def _aggregate_result(
         for case in case_summaries
     )
     line_coverage_passed = (
-        line_coverage_ratio >= FALLBACK_MIN_LINE_COVERAGE_RATIO
-        and case_line_coverage_passed
+        line_coverage_ratio >= FALLBACK_MIN_LINE_COVERAGE_RATIO and case_line_coverage_passed
     )
     aggregate_candidate_safety = {
         "passed": unsafe_count == 0,
         "evaluated": any(bool(item.get("evaluated")) for item in candidate_safety),
         "unsafe_candidate_count": unsafe_count,
         "candidate_transaction_count": sum(
-            int(item.get("candidate_transaction_count") or 0)
-            for item in candidate_safety
+            int(item.get("candidate_transaction_count") or 0) for item in candidate_safety
         ),
     }
     p0_components = _p0_components(
@@ -355,9 +346,7 @@ def _aggregate_result(
         "blocking_reasons": blocking_reasons,
         "caveats": caveats[:20],
         "case_status_counts": _sum_counter(
-            {
-                str((case.get("fallback_readiness") or {}).get("status") or FALLBACK_NOT_READY): 1
-            }
+            {str((case.get("fallback_readiness") or {}).get("status") or FALLBACK_NOT_READY): 1}
             for case in case_summaries
         ),
         "ready_case_count": sum(
@@ -418,9 +407,7 @@ def _p0_components(
         "line_coverage": _component(
             weight=FALLBACK_P0_COMPONENT_WEIGHTS["line_coverage"],
             passed=line_coverage_passed,
-            current_result=(
-                f"{actual}/{expected} lines ({round(line_coverage_ratio * 100, 2)}%)"
-            ),
+            current_result=(f"{actual}/{expected} lines ({round(line_coverage_ratio * 100, 2)}%)"),
             decision_impact=(
                 "Blocker below 90% coverage; over-coverage is a caveat when candidate-safe."
             ),

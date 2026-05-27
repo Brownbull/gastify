@@ -239,10 +239,11 @@ def _severity_status(
         reasons.append("significant: visible total conflict")
     if categorization_score.get("all_category_keys_valid") is False:
         reasons.append("significant: invalid item category key")
+    discrepancy_ratio = pipeline_score.get("discrepancy_ratio")
     if (
-        isinstance(pipeline_score.get("discrepancy_ratio"), int | float)
-        and float(pipeline_score["discrepancy_ratio"])
-        > policy.major_reconstruction_discrepancy_ratio
+        isinstance(discrepancy_ratio, int | float)
+        and not isinstance(discrepancy_ratio, bool)
+        and float(discrepancy_ratio) > policy.major_reconstruction_discrepancy_ratio
     ):
         reasons.append("significant: reconstruction discrepancy over policy threshold")
 
@@ -308,9 +309,15 @@ def _severity_status(
 
 
 def _ratio_abs(value: object, denominator: int | None) -> float:
-    if value is None or denominator in (None, 0):
+    if value is None or denominator is None or denominator == 0:
         return 0.0 if value in (None, 0) else 1.0
-    return abs(float(value)) / abs(float(denominator))
+    if not isinstance(value, int | float | str) or isinstance(value, bool):
+        return 1.0
+    try:
+        numerator = float(value)
+    except (TypeError, ValueError):
+        return 1.0
+    return abs(numerator) / abs(float(denominator))
 
 
 def _optional_money_delta(actual: int | None, expected: int | None) -> int | None:

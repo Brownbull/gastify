@@ -28,9 +28,11 @@ from app.prompt_lab.statement.report import (
 from app.prompt_lab.statement.scoring import score_statement_output
 from app.schemas.statement import (
     StatementAmountCandidate,
+    StatementAmountRole,
     StatementExtractionOutput,
     StatementInfo,
     StatementLine,
+    StatementLineType,
     StatementProcessingMetadata,
 )
 from app.services.statement_routing import extract_statement_with_pymupdf
@@ -38,7 +40,7 @@ from app.services.statement_routing import extract_statement_with_pymupdf
 if TYPE_CHECKING:
     from pathlib import Path
 
-    import fitz
+    import fitz  # type: ignore[import-untyped]
 
 StatementDeterministicExtractor = Literal["pypdf", "pymupdf"]
 DeterministicOutput = tuple[
@@ -453,9 +455,7 @@ def _bank_candidate_row(
     if date_word is None:
         return _row(row_index=row_index, row_words=row_words, line=None, warnings=[])
     amount_words = [
-        word
-        for word in row_words
-        if word.x0 >= _BANK_AMOUNT_X_MIN and _is_money(word.text)
+        word for word in row_words if word.x0 >= _BANK_AMOUNT_X_MIN and _is_money(word.text)
     ]
     if not amount_words:
         return _row(
@@ -579,8 +579,7 @@ def _bank_transaction_date_word(words: list[_Word]) -> _Word | None:
     candidates = [
         word
         for word in words
-        if 90 <= word.x0 <= 190
-        and (_DATE_RE.match(word.text) or _SHORT_DATE_RE.match(word.text))
+        if 90 <= word.x0 <= 190 and (_DATE_RE.match(word.text) or _SHORT_DATE_RE.match(word.text))
     ]
     return candidates[0] if candidates else None
 
@@ -591,15 +590,11 @@ def _selected_amount_word(
     installment_word: _Word | None,
 ) -> _Word | None:
     if installment_word is not None:
-        right_of_installment = [
-            word for word in amount_words if word.x0 >= _CURRENT_AMOUNT_X_MIN
-        ]
+        right_of_installment = [word for word in amount_words if word.x0 >= _CURRENT_AMOUNT_X_MIN]
         if right_of_installment:
             return max(right_of_installment, key=lambda word: word.x0)
     non_zero = [
-        word
-        for word in amount_words
-        if (_parse_money(word.text, currency="CLP") or 0) != 0
+        word for word in amount_words if (_parse_money(word.text, currency="CLP") or 0) != 0
     ]
     if non_zero:
         return max(
@@ -742,7 +737,7 @@ def _bank_unselected_amount_role(
     selected: _Word,
     installment_word: _Word | None,
     currency: str,
-) -> str:
+) -> StatementAmountRole:
     if currency == "USD":
         return "foreign_original"
     if installment_word is not None and word.x0 < selected.x0:
@@ -830,7 +825,7 @@ def _amount_candidates(
                 column_label=_amount_column_label(selected, installment_word=installment_word),
             )
         )
-        current_role = (
+        current_role: StatementAmountRole = (
             "current_installment"
             if _fixed_term_parts(installment_word)
             else "current_statement_amount"
@@ -862,7 +857,7 @@ def _amount_candidates(
     return candidates
 
 
-def _unselected_amount_role(word: _Word, *, installment_word: _Word | None) -> str:
+def _unselected_amount_role(word: _Word, *, installment_word: _Word | None) -> StatementAmountRole:
     parts = _fixed_term_parts(installment_word)
     if parts and word.x0 < _CURRENT_AMOUNT_X_MIN:
         return "purchase_total" if word.x0 < 370 else "plan_total"
@@ -890,7 +885,7 @@ def _amount_selection_reason(
     return "selected non-zero statement amount cell from explicit row coordinates"
 
 
-def _line_type(*, description: str, amount_minor: int) -> str:
+def _line_type(*, description: str, amount_minor: int) -> StatementLineType:
     normalized = description.casefold()
     if amount_minor < 0 and "pago" in normalized:
         return "payment"
@@ -1192,10 +1187,7 @@ def _write_packet(
             )
         )
         packet_dir = (
-            batch_parent
-            / batch_run_id
-            / _slug(str(packet["case_id"]))
-            / str(packet["extractor"])
+            batch_parent / batch_run_id / _slug(str(packet["case_id"])) / str(packet["extractor"])
         )
     else:
         batch_run_id = _slug(run_id or artifact_dir.name)

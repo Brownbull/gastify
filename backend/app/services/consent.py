@@ -3,11 +3,15 @@
 import json
 import uuid
 from datetime import UTC, datetime
+from typing import TYPE_CHECKING, Any, cast
 
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.consent import AuditEvent, ConsentRecord, ProcessingRegister
+
+if TYPE_CHECKING:
+    from sqlalchemy.engine import CursorResult
 
 
 async def get_processing_purpose(db: AsyncSession, purpose: str) -> ProcessingRegister | None:
@@ -229,8 +233,8 @@ async def anonymize_user_transactions(
             country=None,
         )
     )
-    result = await db.execute(stmt)
-    txn_count = result.rowcount
+    result = cast("CursorResult[Any]", await db.execute(stmt))
+    txn_count = result.rowcount or 0
 
     scope_txn_ids = select(Transaction.id).where(
         Transaction.ownership_scope_id == ownership_scope_id

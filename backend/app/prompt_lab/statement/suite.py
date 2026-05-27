@@ -6,7 +6,7 @@ import json
 from datetime import UTC, datetime
 from decimal import Decimal
 from pathlib import Path
-from typing import Any, Literal
+from typing import TYPE_CHECKING, Any, Literal, cast
 
 from app.prompt_lab.paths import LATEST_RESULTS_ROOT, ensure_workspace
 from app.prompt_lab.run_ids import next_serial_run_id, slug_run_id
@@ -21,6 +21,9 @@ from app.prompt_lab.statement.readiness import (
 )
 from app.prompt_lab.statement.report import write_statement_expected_report
 from app.prompt_lab.statement.runner import run_statement_case
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
 StatementSuiteApproach = Literal["auto", "pymupdf", "gemini"]
 
@@ -136,9 +139,7 @@ async def run_statement_suite(
 
 def _assert_expected_fixtures(cases: list[StatementCase]) -> None:
     missing = [
-        case.id
-        for case in cases
-        if case.expected_path is None or not case.expected_path.exists()
+        case.id for case in cases if case.expected_path is None or not case.expected_path.exists()
     ]
     if missing:
         raise ValueError(
@@ -337,9 +338,9 @@ def _suite_report(
         "case_ids": case_ids,
         "recommendation": recommendation,
         "fallback_readiness": fallback_readiness,
-        "fallback_transaction_readiness": (
-            fallback_readiness or {}
-        ).get("fallback_transaction_readiness"),
+        "fallback_transaction_readiness": (fallback_readiness or {}).get(
+            "fallback_transaction_readiness"
+        ),
         "fallback_p0_components": (fallback_readiness or {}).get("fallback_p0_components", {}),
         "fallback_caveat_impact": (fallback_readiness or {}).get("fallback_caveat_impact", []),
         "line_coverage_band": (fallback_readiness or {}).get("line_coverage_band"),
@@ -364,13 +365,9 @@ def _approach_summary(
 ) -> dict[str, Any]:
     cases = report.get("cases", [])
     case_summaries = [_case_summary(case) for case in cases]
-    field_counts = _sum_counter(
-        case["field_mismatch_counts"] for case in case_summaries
-    )
+    field_counts = _sum_counter(case["field_mismatch_counts"] for case in case_summaries)
     severity_counts = _sum_counter(case["severity_counts"] for case in case_summaries)
-    reconciliation_counts = _sum_counter(
-        case["reconciliation_counts"] for case in case_summaries
-    )
+    reconciliation_counts = _sum_counter(case["reconciliation_counts"] for case in case_summaries)
     cost_totals = _approach_cost_totals(report)
     fallback_readiness = aggregate_fallback_readiness(
         approach=str(manifest["approach"]),
@@ -411,9 +408,7 @@ def _approach_summary(
             cost_totals=cost_totals,
         ),
         "fallback_readiness": fallback_readiness,
-        "fallback_transaction_readiness": fallback_readiness.get(
-            "fallback_transaction_readiness"
-        ),
+        "fallback_transaction_readiness": fallback_readiness.get("fallback_transaction_readiness"),
         "fallback_p0_components": fallback_readiness.get("fallback_p0_components", {}),
         "fallback_caveat_impact": fallback_readiness.get("fallback_caveat_impact", []),
         "line_coverage_band": fallback_readiness.get("line_coverage_band"),
@@ -466,20 +461,12 @@ def _case_summary(case: dict[str, Any]) -> dict[str, Any]:
         "fallback_caveat_impact", []
     )
     summary["line_coverage_band"] = summary["fallback_readiness"].get("line_coverage_band")
-    summary["decision_explanation"] = summary["fallback_readiness"].get(
-        "decision_explanation"
-    )
+    summary["decision_explanation"] = summary["fallback_readiness"].get("decision_explanation")
     return summary
 
 
 def _case_comparison(approaches: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    case_ids = sorted(
-        {
-            case["case_id"]
-            for approach in approaches
-            for case in approach["cases"]
-        }
-    )
+    case_ids = sorted({case["case_id"] for approach in approaches for case in approach["cases"]})
     rows: list[dict[str, Any]] = []
     for case_id in case_ids:
         by_approach = {
@@ -521,8 +508,10 @@ def _recommendation(approaches: list[dict[str, Any]]) -> str:
     gemini = by_name.get("gemini")
     deterministic_primary = auto or pymupdf
     gemini_readiness = (gemini or {}).get("fallback_readiness", {})
-    if deterministic_primary and _all_cases_pass(deterministic_primary) and (
-        not gemini or not _approach_better(gemini, deterministic_primary)
+    if (
+        deterministic_primary
+        and _all_cases_pass(deterministic_primary)
+        and (not gemini or not _approach_better(gemini, deterministic_primary))
     ):
         if gemini_readiness.get("status") in {
             FALLBACK_READY_WITH_CAVEATS,
@@ -530,8 +519,10 @@ def _recommendation(approaches: list[dict[str, Any]]) -> str:
         }:
             return "pymupdf_primary_gemini_fallback_promoted_with_caveats"
         return "pymupdf_primary"
-    if pymupdf and _all_cases_pass(pymupdf) and (
-        not gemini or not _approach_better(gemini, pymupdf)
+    if (
+        pymupdf
+        and _all_cases_pass(pymupdf)
+        and (not gemini or not _approach_better(gemini, pymupdf))
     ):
         if gemini_readiness.get("status") in {
             FALLBACK_READY_WITH_CAVEATS,
@@ -539,12 +530,13 @@ def _recommendation(approaches: list[dict[str, Any]]) -> str:
         }:
             return "pymupdf_primary_gemini_fallback_promoted_with_caveats"
         return "pymupdf_primary"
-    if gemini and _all_cases_pass(gemini) and (
-        not pymupdf or _approach_better(gemini, pymupdf)
-    ):
+    if gemini and _all_cases_pass(gemini) and (not pymupdf or _approach_better(gemini, pymupdf)):
         return "gemini_primary"
-    if deterministic_primary and gemini and deterministic_primary["passed_cases"] > 0 and (
-        gemini["provider_calls_allowed"] or gemini["passed_cases"] > 0
+    if (
+        deterministic_primary
+        and gemini
+        and deterministic_primary["passed_cases"] > 0
+        and (gemini["provider_calls_allowed"] or gemini["passed_cases"] > 0)
     ):
         return "pymupdf_with_gemini_fallback"
     return "needs_iteration"
@@ -721,10 +713,14 @@ def _primary_readiness_approach(approaches: list[dict[str, Any]]) -> dict[str, A
     if not approaches:
         return None
     by_name = {approach["approach"]: approach for approach in approaches}
-    return by_name.get("auto") or by_name.get("pymupdf") or sorted(
-        approaches,
-        key=_approach_rank,
-    )[0]
+    return (
+        by_name.get("auto")
+        or by_name.get("pymupdf")
+        or sorted(
+            approaches,
+            key=_approach_rank,
+        )[0]
+    )
 
 
 def _readiness_row(field: str, current_result: str, downstream_meaning: str) -> dict[str, str]:
@@ -812,9 +808,7 @@ def _approach_provider_cost_summary(
             "cost_usd": "0",
         },
     )
-    deterministic_calls_avoided = (
-        len(case_summaries) if approach in {"auto", "pymupdf"} else 0
-    )
+    deterministic_calls_avoided = len(case_summaries) if approach in {"auto", "pymupdf"} else 0
     avg_tokens = round(total_tokens / provider_call_count, 2) if provider_call_count else 0
     avg_cost = (
         str((total_cost / Decimal(provider_call_count)).quantize(Decimal("0.000000001")))
@@ -866,7 +860,7 @@ def _case_cost_items(report: dict[str, Any]) -> list[dict[str, Any]]:
 
 
 def _approach_cost_totals(report: dict[str, Any]) -> dict[str, Any]:
-    totals = {
+    totals: dict[str, int | Decimal] = {
         "input_tokens": 0,
         "output_tokens": 0,
         "total_tokens": 0,
@@ -889,7 +883,7 @@ def _approach_cost_totals(report: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def _sum_counter(counters: list[dict[str, Any]]) -> dict[str, int]:
+def _sum_counter(counters: Iterable[dict[str, Any]]) -> dict[str, int]:
     total: dict[str, int] = {}
     for counter in counters:
         for key, value in counter.items():
@@ -1130,8 +1124,10 @@ def _executive_bottom_line(report: dict[str, Any]) -> str:
             "fallback is promotion-ready for unsupported layouts with documented caveats "
             "because P0 fields and candidate safety passed."
         )
-    if deterministic_primary and _all_cases_pass(deterministic_primary) and (
-        gemini is None or not _approach_better(gemini, deterministic_primary)
+    if (
+        deterministic_primary
+        and _all_cases_pass(deterministic_primary)
+        and (gemini is None or not _approach_better(gemini, deterministic_primary))
     ):
         return (
             "`auto` routes to deterministic PyMuPDF for this suite. Keep Gemini as a "
@@ -1205,11 +1201,7 @@ def _executive_problem_points(report: dict[str, Any]) -> list[str]:
     points: list[str] = []
     for approach in report["approaches"]:
         readiness = approach.get("fallback_readiness", {})
-        failed_cases = [
-            case
-            for case in approach["cases"]
-            if not case["passed"]
-        ]
+        failed_cases = [case for case in approach["cases"] if not case["passed"]]
         if failed_cases:
             label = (
                 "strict fixture diagnostics"
@@ -1263,9 +1255,7 @@ def _executive_fix_points(report: dict[str, Any]) -> list[str]:
     gemini = by_name.get("gemini")
     if pymupdf and any(case["actual_line_count"] == 0 for case in pymupdf["cases"]):
         zero_cases = [
-            case["case_id"]
-            for case in pymupdf["cases"]
-            if int(case["actual_line_count"]) == 0
+            case["case_id"] for case in pymupdf["cases"] if int(case["actual_line_count"]) == 0
         ]
         fixes.append(
             "Add issuer-specific PyMuPDF row grouping/layout rules for "
@@ -1308,8 +1298,7 @@ def _executive_fix_points(report: dict[str, Any]) -> list[str]:
         )
     elif not fixes:
         fixes.append(
-            "Use the top-level `REPORT.md` mismatch table to choose the next prompt "
-            "or layout rule."
+            "Use the top-level `REPORT.md` mismatch table to choose the next prompt or layout rule."
         )
     return fixes
 
@@ -1383,9 +1372,7 @@ def _fallback_readiness_table(approaches: list[dict[str, Any]]) -> list[str]:
         "| --- | --- | ---: | --- | ---: | --- | ---: | --- | --- |",
     ]
     if not approaches:
-        lines.append(
-            "| `none` | `not_ready` | `0/100` | `no` | 0% | `no` | 0/0 | - | `no_cases` |"
-        )
+        lines.append("| `none` | `not_ready` | `0/100` | `no` | 0% | `no` | 0/0 | - | `no_cases` |")
         return lines
     for approach in approaches:
         readiness = approach.get("fallback_readiness", {})
@@ -1471,7 +1458,7 @@ def _case_slug(case_id: str) -> str:
 
 
 def _load_json(path: Path) -> dict[str, Any]:
-    return json.loads(path.read_text(encoding="utf-8"))
+    return cast("dict[str, Any]", json.loads(path.read_text(encoding="utf-8")))
 
 
 def _write_json(path: Path, payload: Any) -> None:

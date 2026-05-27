@@ -282,9 +282,7 @@ async def _persist_extraction(
         statement.extraction_cache_status = processing.cache_status
         statement.extraction_routing_reasons = processing.deterministic_routing_reasons
         statement.extraction_evidence_row_count = processing.evidence_row_count
-        statement.extraction_evidence_candidate_row_count = (
-            processing.evidence_candidate_row_count
-        )
+        statement.extraction_evidence_candidate_row_count = processing.evidence_candidate_row_count
         statement.confidence = (
             Decimal(str(processing.confidence)) if processing.confidence is not None else None
         )

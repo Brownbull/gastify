@@ -2,7 +2,7 @@
 
 from datetime import date, datetime
 from decimal import Decimal
-from typing import Literal
+from typing import Literal, cast
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
@@ -17,6 +17,9 @@ StatementPdfStatus = Literal[
     "password_invalid",
     "extraction_failed",
 ]
+STATEMENT_PDF_STATUSES = frozenset(
+    {"readable", "password_required", "password_invalid", "extraction_failed"}
+)
 
 StatementLifecycleStatus = Literal[
     "uploaded",
@@ -47,6 +50,9 @@ StatementLineType = Literal[
     "adjustment",
     "other",
 ]
+STATEMENT_LINE_TYPES = frozenset(
+    {"charge", "payment", "interest", "fee", "insurance", "tax", "adjustment", "other"}
+)
 
 StatementRowType = Literal[
     "charge",
@@ -60,6 +66,20 @@ StatementRowType = Literal[
     "other",
     "unknown",
 ]
+STATEMENT_ROW_TYPES = frozenset(
+    {
+        "charge",
+        "payment",
+        "interest",
+        "fee",
+        "insurance",
+        "tax",
+        "adjustment",
+        "summary",
+        "other",
+        "unknown",
+    }
+)
 
 StatementAmountRole = Literal[
     "selected",
@@ -71,6 +91,18 @@ StatementAmountRole = Literal[
     "foreign_original",
     "unknown",
 ]
+STATEMENT_AMOUNT_ROLES = frozenset(
+    {
+        "selected",
+        "current_statement_amount",
+        "current_installment",
+        "purchase_total",
+        "plan_total",
+        "pending_balance",
+        "foreign_original",
+        "unknown",
+    }
+)
 
 StatementReconciliationVerdict = Literal[
     "matched",
@@ -79,6 +111,30 @@ StatementReconciliationVerdict = Literal[
     "ambiguous",
     "failed",
 ]
+
+
+def as_statement_pdf_status(value: str) -> StatementPdfStatus:
+    if value not in STATEMENT_PDF_STATUSES:
+        raise ValueError(f"invalid statement pdf status: {value}")
+    return cast("StatementPdfStatus", value)
+
+
+def as_statement_line_type(value: str) -> StatementLineType:
+    if value not in STATEMENT_LINE_TYPES:
+        raise ValueError(f"invalid statement line type: {value}")
+    return cast("StatementLineType", value)
+
+
+def as_statement_row_type(value: str) -> StatementRowType:
+    if value not in STATEMENT_ROW_TYPES:
+        raise ValueError(f"invalid statement row type: {value}")
+    return cast("StatementRowType", value)
+
+
+def as_statement_amount_role(value: str) -> StatementAmountRole:
+    if value not in STATEMENT_AMOUNT_ROLES:
+        raise ValueError(f"invalid statement amount role: {value}")
+    return cast("StatementAmountRole", value)
 
 
 class StatementPdfMetadata(BaseModel):

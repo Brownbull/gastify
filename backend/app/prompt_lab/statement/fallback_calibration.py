@@ -7,7 +7,7 @@ import re
 from datetime import UTC, datetime
 from decimal import Decimal
 from pathlib import Path
-from typing import Any, Literal
+from typing import TYPE_CHECKING, Any, Literal, cast
 
 from app.config import settings
 from app.prompt_lab.paths import LATEST_RESULTS_ROOT, ensure_workspace
@@ -24,6 +24,9 @@ from app.prompt_lab.statement.readiness import (
 from app.prompt_lab.statement.report import write_statement_expected_report
 from app.prompt_lab.statement.runner import run_statement_case
 from app.prompt_lab.statement.suite import DEFAULT_STATEMENT_SUITE_CASE_IDS
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
 CALIBRATION_SCHEMA_VERSION = "statement-gemini-fallback-calibration.v1"
 DEFAULT_BASELINE_RUN_ID = "20260527T011456Z-001-statement-fallback-calibration"
@@ -247,9 +250,7 @@ def build_statement_fallback_calibration_report(
         "transaction_scope_firebase_uid": transaction_scope_firebase_uid,
         "recommendation": recommendation,
         "fallback_readiness": fallback_readiness,
-        "fallback_transaction_readiness": fallback_readiness.get(
-            "fallback_transaction_readiness"
-        ),
+        "fallback_transaction_readiness": fallback_readiness.get("fallback_transaction_readiness"),
         "fallback_p0_components": fallback_readiness.get("fallback_p0_components", {}),
         "fallback_caveat_impact": fallback_readiness.get("fallback_caveat_impact", []),
         "line_coverage_band": fallback_readiness.get("line_coverage_band"),
@@ -441,8 +442,7 @@ def build_prompt_improvement_candidates(
                 impacted_fields=["currency", "original_currency", "original_amount_minor"],
                 failure_classes=["currency", "amount_candidates_evidence"],
                 impact=(
-                    "Wrong currencies prevent reconciliation and make audit trails hard to "
-                    "explain."
+                    "Wrong currencies prevent reconciliation and make audit trails hard to explain."
                 ),
                 tradeoff=(
                     "Foreign purchase rows may show both original and statement currencies, "
@@ -815,14 +815,11 @@ def _cases_from_manifests(manifest_paths: list[Path]) -> list[StatementCase]:
 
 def _assert_expected_fixtures(cases: list[StatementCase]) -> None:
     missing = [
-        case.id
-        for case in cases
-        if case.expected_path is None or not case.expected_path.exists()
+        case.id for case in cases if case.expected_path is None or not case.expected_path.exists()
     ]
     if missing:
         raise ValueError(
-            "statement-fallback-calibrate requires expected fixtures for: "
-            + ", ".join(missing)
+            "statement-fallback-calibrate requires expected fixtures for: " + ", ".join(missing)
         )
 
 
@@ -834,8 +831,7 @@ def _case_summary(case: dict[str, Any]) -> dict[str, Any]:
     expected_line_count = int(case.get("expected", {}).get("line_count", 0) or 0)
     actual_line_count = int(extraction.get("line_count", 0) or 0)
     comparable_lines = int(
-        differences.get("comparable_lines")
-        or max(min(expected_line_count, actual_line_count), 0)
+        differences.get("comparable_lines") or max(min(expected_line_count, actual_line_count), 0)
     )
     ledger_ready_count = int(extraction.get("ledger_ready_count", 0) or 0)
     non_ledger_ready_count = int(extraction.get("non_ledger_ready_count", 0) or 0)
@@ -855,9 +851,7 @@ def _case_summary(case: dict[str, Any]) -> dict[str, Any]:
         "gemini_input_mode": extraction.get("gemini_input_mode", "pdf"),
         "pdf_evidence_summary": extraction.get("pdf_evidence_summary"),
         "compact_evidence_summary": extraction.get("compact_evidence_summary"),
-        "compact_provider_evidence_summary": extraction.get(
-            "compact_provider_evidence_summary"
-        ),
+        "compact_provider_evidence_summary": extraction.get("compact_provider_evidence_summary"),
         "passed": bool(score.get("passed")),
         "expected_line_count": expected_line_count,
         "actual_line_count": actual_line_count,
@@ -908,9 +902,7 @@ def _case_summary(case: dict[str, Any]) -> dict[str, Any]:
         "fallback_caveat_impact", []
     )
     summary["line_coverage_band"] = summary["fallback_readiness"].get("line_coverage_band")
-    summary["decision_explanation"] = summary["fallback_readiness"].get(
-        "decision_explanation"
-    )
+    summary["decision_explanation"] = summary["fallback_readiness"].get("decision_explanation")
     return summary
 
 
@@ -948,8 +940,10 @@ def _weighted_impact_summary(
     correction_by_source_order: dict[int, dict[str, Any]],
 ) -> dict[str, Any]:
     comparable_lines = int(differences.get("comparable_lines") or 0)
-    denominator = comparable_lines if comparable_lines > 0 else max(
-        min(expected_line_count, actual_line_count), 1
+    denominator = (
+        comparable_lines
+        if comparable_lines > 0
+        else max(min(expected_line_count, actual_line_count), 1)
     )
     field_scores: dict[str, int] = {}
     locations: list[dict[str, Any]] = []
@@ -1000,8 +994,7 @@ def _weighted_impact_summary(
     for line in differences.get("unmatched_expected", []):
         total_score += _IMPACT_WEIGHTS["missing_extra_line"]
         field_scores["missing_actual_line"] = (
-            field_scores.get("missing_actual_line", 0)
-            + _IMPACT_WEIGHTS["missing_extra_line"]
+            field_scores.get("missing_actual_line", 0) + _IMPACT_WEIGHTS["missing_extra_line"]
         )
         locations.append(
             {
@@ -1022,8 +1015,7 @@ def _weighted_impact_summary(
     for line in differences.get("unmatched_actual", []):
         total_score += _IMPACT_WEIGHTS["missing_extra_line"]
         field_scores["extra_actual_line"] = (
-            field_scores.get("extra_actual_line", 0)
-            + _IMPACT_WEIGHTS["missing_extra_line"]
+            field_scores.get("extra_actual_line", 0) + _IMPACT_WEIGHTS["missing_extra_line"]
         )
         locations.append(
             {
@@ -1057,9 +1049,7 @@ def _weighted_impact_summary(
                     "case_field": "order_drift",
                     "field": "source_order",
                     "source_order": _source_order_value(example.get("expected_source_order")),
-                    "actual_source_order": _source_order_value(
-                        example.get("actual_source_order")
-                    ),
+                    "actual_source_order": _source_order_value(example.get("actual_source_order")),
                     "severity": "low",
                     "pattern": "order_drift",
                     "weight": _IMPACT_WEIGHTS["order_drift"],
@@ -1166,9 +1156,7 @@ def _concrete_examples(differences: dict[str, Any]) -> dict[str, list[dict[str, 
     examples: dict[str, list[dict[str, Any]]] = {}
     for mismatch in differences.get("mismatches", []):
         issues_by_field = {
-            issue.get("field"): issue
-            for issue in mismatch.get("issues", [])
-            if issue.get("field")
+            issue.get("field"): issue for issue in mismatch.get("issues", []) if issue.get("field")
         }
         for field, values in mismatch.get("fields", {}).items():
             failure_class = _FIELD_FAILURE_CLASSES.get(field, str(field))
@@ -1185,9 +1173,7 @@ def _concrete_examples(differences: dict[str, Any]) -> dict[str, list[dict[str, 
                     "actual": values.get("actual"),
                     "expected_line": mismatch.get("expected_line"),
                     "actual_line": mismatch.get("actual_line"),
-                    "matched_expected_source_order": mismatch.get(
-                        "matched_expected_source_order"
-                    ),
+                    "matched_expected_source_order": mismatch.get("matched_expected_source_order"),
                     "matched_actual_source_order": mismatch.get("matched_actual_source_order"),
                     "match_score": mismatch.get("match_score"),
                     "match_reasons": mismatch.get("match_reasons", []),
@@ -1228,9 +1214,7 @@ def _totals(
 ) -> dict[str, Any]:
     field_counts = _sum_counter(case["field_mismatch_counts"] for case in case_summaries)
     severity_counts = _sum_counter(case["severity_counts"] for case in case_summaries)
-    reconciliation_counts = _sum_counter(
-        case["reconciliation_counts"] for case in case_summaries
-    )
+    reconciliation_counts = _sum_counter(case["reconciliation_counts"] for case in case_summaries)
     expected_line_count = sum(int(case["expected_line_count"]) for case in case_summaries)
     actual_line_count = sum(int(case["actual_line_count"]) for case in case_summaries)
     ledger_ready_count = sum(int(case.get("ledger_ready_count") or 0) for case in case_summaries)
@@ -1238,14 +1222,10 @@ def _totals(
         int(case.get("non_ledger_ready_count") or 0) for case in case_summaries
     )
     weighted_score = sum(
-        int(case.get("weighted_impact", {}).get("score") or 0)
-        for case in case_summaries
+        int(case.get("weighted_impact", {}).get("score") or 0) for case in case_summaries
     )
     weighted_field_scores = _sum_counter(
-        [
-            case.get("weighted_impact", {}).get("field_scores", {})
-            for case in case_summaries
-        ]
+        [case.get("weighted_impact", {}).get("field_scores", {}) for case in case_summaries]
     )
     comparable_lines = sum(
         max(
@@ -1255,16 +1235,12 @@ def _totals(
         for case in case_summaries
     )
     coalesce_correction_count = sum(
-        int(case.get("coalesce_correction_count") or 0)
-        for case in case_summaries
+        int(case.get("coalesce_correction_count") or 0) for case in case_summaries
     )
     return {
         "case_count": len(case_summaries),
         "gemini_input_modes": _sum_counter(
-            [
-                {str(case.get("gemini_input_mode") or "unknown"): 1}
-                for case in case_summaries
-            ]
+            [{str(case.get("gemini_input_mode") or "unknown"): 1} for case in case_summaries]
         ),
         "pdf_evidence": _pdf_evidence_totals(case_summaries),
         "compact_evidence": _compact_evidence_totals(case_summaries),
@@ -1298,11 +1274,7 @@ def _totals(
 
 
 def _pdf_evidence_totals(case_summaries: list[dict[str, Any]]) -> dict[str, Any]:
-    evidence = [
-        case.get("pdf_evidence_summary")
-        for case in case_summaries
-        if case.get("pdf_evidence_summary")
-    ]
+    evidence = _dict_items(case.get("pdf_evidence_summary") for case in case_summaries)
     return {
         "case_count": len(evidence),
         "status_counts": _sum_counter(
@@ -1315,11 +1287,7 @@ def _pdf_evidence_totals(case_summaries: list[dict[str, Any]]) -> dict[str, Any]
 
 
 def _compact_evidence_totals(case_summaries: list[dict[str, Any]]) -> dict[str, Any]:
-    evidence = [
-        case.get("compact_evidence_summary")
-        for case in case_summaries
-        if case.get("compact_evidence_summary")
-    ]
+    evidence = _dict_items(case.get("compact_evidence_summary") for case in case_summaries)
     return {
         "case_count": len(evidence),
         "status_counts": _sum_counter(
@@ -1327,30 +1295,21 @@ def _compact_evidence_totals(case_summaries: list[dict[str, Any]]) -> dict[str, 
         ),
         "text_line_count": sum(int(item.get("text_line_count") or 0) for item in evidence),
         "row_count": sum(int(item.get("row_count") or 0) for item in evidence),
-        "candidate_row_count": sum(
-            int(item.get("candidate_row_count") or 0) for item in evidence
-        ),
+        "candidate_row_count": sum(int(item.get("candidate_row_count") or 0) for item in evidence),
     }
 
 
 def _compact_provider_evidence_totals(case_summaries: list[dict[str, Any]]) -> dict[str, Any]:
-    evidence = [
-        case.get("compact_provider_evidence_summary")
-        for case in case_summaries
-        if case.get("compact_provider_evidence_summary")
-    ]
+    evidence = _dict_items(case.get("compact_provider_evidence_summary") for case in case_summaries)
     return {
         "case_count": len(evidence),
         "status_counts": _sum_counter(
             [{str(item.get("status") or "unknown"): 1} for item in evidence]
         ),
         "provider_row_count": sum(
-            int(item.get("provider_row_count") or item.get("row_count") or 0)
-            for item in evidence
+            int(item.get("provider_row_count") or item.get("row_count") or 0) for item in evidence
         ),
-        "candidate_row_count": sum(
-            int(item.get("candidate_row_count") or 0) for item in evidence
-        ),
+        "candidate_row_count": sum(int(item.get("candidate_row_count") or 0) for item in evidence),
     }
 
 
@@ -1362,10 +1321,14 @@ def _apply_case_contribution_percentages(
     for case in case_summaries:
         impact = case.get("weighted_impact", {})
         score = int(impact.get("score") or 0)
-        impact["case_contribution_pct"] = round(
-            (score / denominator) * 100,
-            2,
-        ) if denominator else 0.0
+        impact["case_contribution_pct"] = (
+            round(
+                (score / denominator) * 100,
+                2,
+            )
+            if denominator
+            else 0.0
+        )
 
 
 def _top_weighted_locations(case_summaries: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -1388,9 +1351,7 @@ def _baseline_comparison(
     calibration_dir: Path,
     totals: dict[str, Any],
 ) -> dict[str, Any]:
-    baseline_report_path = (
-        calibration_dir.parent / DEFAULT_BASELINE_RUN_ID / "report.json"
-    )
+    baseline_report_path = calibration_dir.parent / DEFAULT_BASELINE_RUN_ID / "report.json"
     if not baseline_report_path.exists():
         return {
             "baseline_run_id": DEFAULT_BASELINE_RUN_ID,
@@ -1414,8 +1375,7 @@ def _baseline_comparison(
     baseline_fields = baseline_totals.get("field_mismatch_counts", {})
     current_fields = totals.get("field_mismatch_counts", {})
     field_deltas = {
-        field: int(current_fields.get(field, 0) or 0)
-        - int(baseline_fields.get(field, 0) or 0)
+        field: int(current_fields.get(field, 0) or 0) - int(baseline_fields.get(field, 0) or 0)
         for field in sorted(set(baseline_fields) | set(current_fields))
     }
     return {
@@ -1471,9 +1431,7 @@ def _estimated_weighted_score_from_totals(totals: dict[str, Any]) -> int:
     score = 0
     for field, count in field_counts.items():
         score += _IMPACT_WEIGHTS.get(str(field), 0) * int(count or 0)
-    score += abs(int(totals.get("line_count_delta") or 0)) * _IMPACT_WEIGHTS[
-        "missing_extra_line"
-    ]
+    score += abs(int(totals.get("line_count_delta") or 0)) * _IMPACT_WEIGHTS["missing_extra_line"]
     return score
 
 
@@ -1595,23 +1553,20 @@ def _calibration_recommendation(
     }:
         return FALLBACK_PROMOTED_WITH_CAVEATS
     if any(
-        str(candidate["priority"]).startswith(("P0", "P1"))
-        for candidate in recommended_candidates
+        str(candidate["priority"]).startswith(("P0", "P1")) for candidate in recommended_candidates
     ):
         return "needs_prompt_iteration"
     return "needs_more_baselines"
 
 
 def _cost_totals(approach_report: dict[str, Any]) -> dict[str, Any]:
-    totals = {
+    totals: dict[str, int | Decimal] = {
         "input_tokens": 0,
         "output_tokens": 0,
         "total_tokens": 0,
         "cost_usd": Decimal("0"),
     }
-    artifact_files = approach_report.get("generated_artifacts", {}).get(
-        "case_artifact_files", {}
-    )
+    artifact_files = approach_report.get("generated_artifacts", {}).get("case_artifact_files", {})
     for artifacts in artifact_files.values():
         cost_path = artifacts.get("cost_summary_path")
         if not cost_path:
@@ -1677,27 +1632,27 @@ def _markdown_report(report: dict[str, Any]) -> str:
         f"- Cache policy: `{report['cache_policy']}`",
         f"- Cases: `{totals['case_count']}`",
         f"- Passed: `{totals['passed_cases']}`",
-            f"- Failed: `{totals['failed_cases']}`",
-            f"- Cost USD: `{totals['cost_totals']['cost_usd']}`",
-            f"- Gemini input modes: `{totals.get('gemini_input_modes', {})}`",
-            f"- Fallback readiness: `{report.get('fallback_readiness', {}).get('status')}`",
-            "",
-            "## Fallback Transaction Readiness",
-            "",
-            *_fallback_transaction_readiness_summary(report.get("fallback_readiness", {})),
-            "",
-            *_fallback_factor_weight_table(report.get("fallback_readiness", {})),
-            "",
-            "## API Usage And Cost",
-            "",
-            *_provider_cost_table(report.get("provider_cost_report", [])),
-            "",
-            "## Fallback Readiness Gate",
-            "",
-            *_fallback_readiness_table(report.get("fallback_readiness", {})),
-            "",
-            "## Case Results",
-            "",
+        f"- Failed: `{totals['failed_cases']}`",
+        f"- Cost USD: `{totals['cost_totals']['cost_usd']}`",
+        f"- Gemini input modes: `{totals.get('gemini_input_modes', {})}`",
+        f"- Fallback readiness: `{report.get('fallback_readiness', {}).get('status')}`",
+        "",
+        "## Fallback Transaction Readiness",
+        "",
+        *_fallback_transaction_readiness_summary(report.get("fallback_readiness", {})),
+        "",
+        *_fallback_factor_weight_table(report.get("fallback_readiness", {})),
+        "",
+        "## API Usage And Cost",
+        "",
+        *_provider_cost_table(report.get("provider_cost_report", [])),
+        "",
+        "## Fallback Readiness Gate",
+        "",
+        *_fallback_readiness_table(report.get("fallback_readiness", {})),
+        "",
+        "## Case Results",
+        "",
         "| Case | Status | Passed | Lines | Amount | Date | Description | Type | Currency | "
         "Installment | Order Drift | Weighted Impact | Case Contribution |",
         "| --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
@@ -1767,9 +1722,7 @@ def _markdown_report(report: dict[str, Any]) -> str:
     lines.extend(_improvement_potential_table(report.get("improvement_potential", [])))
     lines.extend(["", "### Where The Weighted Differences Are Located", ""])
     lines.extend(
-        _weighted_locations_table(
-            report.get("totals", {}).get("top_weighted_locations", [])
-        )
+        _weighted_locations_table(report.get("totals", {}).get("top_weighted_locations", []))
     )
     if report.get("baseline_comparison", {}).get("available"):
         baseline = report["baseline_comparison"]
@@ -1888,8 +1841,7 @@ def _markdown_report(report: dict[str, Any]) -> str:
     if rejected:
         for candidate in rejected:
             lines.append(
-                f"- `{candidate['id']}` rejected: "
-                + ", ".join(candidate.get("reasons", []))
+                f"- `{candidate['id']}` rejected: " + ", ".join(candidate.get("reasons", []))
             )
     else:
         lines.append("- No rejected case-specific suggestions were generated.")
@@ -1902,11 +1854,7 @@ def _markdown_report(report: dict[str, Any]) -> str:
         ]
     )
     impacts = sorted(
-        {
-            impact
-            for case in report["cases"]
-            for impact in case.get("downstream_impact", [])
-        }
+        {impact for case in report["cases"] for impact in case.get("downstream_impact", [])}
     )
     if impacts:
         lines.extend(f"- {impact}" for impact in impacts)
@@ -2323,12 +2271,16 @@ def _cache_policy(
     return "dry_run_no_provider_call"
 
 
-def _sum_counter(counters: list[dict[str, Any]]) -> dict[str, int]:
+def _sum_counter(counters: Iterable[dict[str, Any]]) -> dict[str, int]:
     total: dict[str, int] = {}
     for counter in counters:
         for key, value in counter.items():
             total[key] = total.get(key, 0) + int(value or 0)
     return dict(sorted(total.items()))
+
+
+def _dict_items(values: Iterable[Any]) -> list[dict[str, Any]]:
+    return [value for value in values if isinstance(value, dict)]
 
 
 def _case_slug(value: str) -> str:
@@ -2380,7 +2332,7 @@ def _example_difference_summary(example: dict[str, Any]) -> str:
 
 
 def _load_json(path: Path) -> dict[str, Any]:
-    return json.loads(path.read_text(encoding="utf-8"))
+    return cast("dict[str, Any]", json.loads(path.read_text(encoding="utf-8")))
 
 
 def _write_json(path: Path, payload: Any) -> None:

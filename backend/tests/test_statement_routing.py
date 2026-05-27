@@ -365,10 +365,7 @@ def test_profile_application_falls_back_to_likely_rows_when_profile_yields_no_li
     )
 
     assert [line.description for line in result.extraction.lines] == ["Unknown shop"]
-    assert (
-        "statement_profile_used_likely_financial_rows_after_empty_profile"
-        in result.warnings
-    )
+    assert "statement_profile_used_likely_financial_rows_after_empty_profile" in result.warnings
 
 
 def test_profile_application_does_not_flip_positive_pago_merchant_rows(tmp_path):
@@ -568,8 +565,7 @@ def test_profile_application_ignores_merchant_suffix_when_selecting_installment_
     line = result.extraction.lines[0]
     assert line.amount_minor == 28_000
     assert (
-        line.amount_selection_reason
-        == "profile_rows_selected_smallest_visible_installment_amount"
+        line.amount_selection_reason == "profile_rows_selected_smallest_visible_installment_amount"
     )
     assert all(candidate.visible_text != "4" for candidate in line.amount_candidates)
     assert line.ledger_ready is False

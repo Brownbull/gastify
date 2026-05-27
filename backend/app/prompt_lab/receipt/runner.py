@@ -601,11 +601,7 @@ def _write_manifest(
         batch_run_id = _slug(run_id)
         packet["artifact_layout"] = "run-folder-v1"
         packet["batch_run_id"] = batch_run_id
-        packet_dir = (
-            prompt_root
-            / batch_run_id
-            / _slug(packet["case_id"])
-        )
+        packet_dir = prompt_root / batch_run_id / _slug(packet["case_id"])
     else:
         case_run_id = next_serial_run_id(prompt_root, f"receipt-{packet['case_id']}")
         packet["artifact_layout"] = "legacy-flat-v1"

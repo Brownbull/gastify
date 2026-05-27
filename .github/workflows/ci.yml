@@ -153,6 +153,18 @@ jobs:
       - run: uv run ruff check .
       - run: uv run ruff format --check .
 
+  backend-typecheck:
+    name: Backend Typecheck
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v4
+      - run: uv sync --frozen
+      - run: uv run mypy app/ --no-error-summary
+
   security-gitleaks:
     name: Secret Scan
     runs-on: ubuntu-latest

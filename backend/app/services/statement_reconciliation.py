@@ -34,6 +34,7 @@ from app.schemas.statement import (
     StatementReconciliationVerdictResponse,
     StatementTransactionCandidate,
     StatementTransactionCandidateItem,
+    as_statement_row_type,
 )
 from app.services.recurrence import recurrence_fields_from_statement_installment
 
@@ -490,7 +491,7 @@ def _line_summary(line: StatementLine | None) -> StatementReconciliationLineSumm
         id=line.id,
         statement_id=line.statement_id,
         source_order=line.source_order,
-        row_type=line.row_type,
+        row_type=as_statement_row_type(line.row_type),
         line_date=line.line_date,
         description=line.description,
         amount_minor=line.amount_minor,

@@ -18,8 +18,12 @@ depends_on = None
 
 def upgrade() -> None:
     op.add_column("statements", sa.Column("extraction_input_mode", sa.String(50), nullable=True))
-    op.add_column("statements", sa.Column("extraction_llm_input_tokens", sa.Integer(), nullable=True))
-    op.add_column("statements", sa.Column("extraction_llm_output_tokens", sa.Integer(), nullable=True))
+    op.add_column(
+        "statements", sa.Column("extraction_llm_input_tokens", sa.Integer(), nullable=True)
+    )
+    op.add_column(
+        "statements", sa.Column("extraction_llm_output_tokens", sa.Integer(), nullable=True)
+    )
     op.add_column(
         "statements",
         sa.Column("extraction_llm_cost_usd", sa.Numeric(12, 9), nullable=True),

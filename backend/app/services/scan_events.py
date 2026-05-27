@@ -18,6 +18,7 @@ import structlog
 
 if TYPE_CHECKING:
     import uuid
+    from collections.abc import AsyncIterator
 
     from app.schemas.scan import ScanEvent
 
@@ -46,7 +47,7 @@ class _Subscription:
                 self.queue.get_nowait()
             self.queue.put_nowait(None)
 
-    async def __aiter__(self):
+    async def __aiter__(self) -> AsyncIterator[ScanEvent]:
         while True:
             event = await self.queue.get()
             if event is None:

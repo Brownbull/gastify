@@ -17,6 +17,11 @@ from app.models.reference import Currency
 from app.models.statement import CardAlias
 from app.models.transaction import Transaction, TransactionImage, TransactionItem
 from app.schemas.common import PaginatedResponse
+from app.schemas.recurrence import (
+    as_recurrence_interval,
+    as_recurrence_kind,
+    as_recurrence_source,
+)
 from app.schemas.transaction import (
     BatchDeleteRequest,
     BatchResult,
@@ -129,12 +134,12 @@ async def list_transactions(
                 thumbnail_url=txn.thumbnail_url,
                 country=txn.country,
                 city=txn.city,
-                recurrence_kind=txn.recurrence_kind,
-                recurrence_interval=txn.recurrence_interval,
+                recurrence_kind=as_recurrence_kind(txn.recurrence_kind),
+                recurrence_interval=as_recurrence_interval(txn.recurrence_interval),
                 term_current=txn.term_current,
                 term_total=txn.term_total,
                 recurrence_label=txn.recurrence_label,
-                recurrence_source=txn.recurrence_source,
+                recurrence_source=as_recurrence_source(txn.recurrence_source),
                 recurrence_confidence=txn.recurrence_confidence,
                 recurrence_user_edited_at=txn.recurrence_user_edited_at,
                 item_count=item_counts.get(txn.id, 0),

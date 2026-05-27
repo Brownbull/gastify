@@ -13,9 +13,18 @@ from __future__ import annotations
 import asyncio
 import contextlib
 import uuid  # noqa: TC003 — FastAPI evaluates path param annotations at runtime
+from typing import TYPE_CHECKING, Any
 
 import structlog
-from fastapi import APIRouter, HTTPException, Query, Request, WebSocket, WebSocketDisconnect, status
+from fastapi import (
+    APIRouter,
+    HTTPException,
+    Query,
+    Request,
+    WebSocket,
+    WebSocketDisconnect,
+    status,
+)
 from sqlalchemy import select
 from sse_starlette.sse import EventSourceResponse
 
@@ -25,6 +34,9 @@ from app.db import async_session
 from app.models.scan import Scan
 from app.models.user import User
 from app.services.scan_events import dispatcher
+
+if TYPE_CHECKING:
+    from collections.abc import AsyncIterator
 
 logger = structlog.get_logger()
 
@@ -36,7 +48,7 @@ HEARTBEAT_INTERVAL_S = _settings.scan_event_heartbeat_interval_s
 
 async def _verify_token(token: str) -> FirebaseUser:
     """Verify Firebase JWT from query param. Raises HTTPException on failure."""
-    import firebase_admin.auth as firebase_auth
+    import firebase_admin.auth as firebase_auth  # type: ignore[import-untyped]
 
     _get_firebase_app()
     try:
@@ -87,7 +99,7 @@ async def scan_events_sse(
 
     sub = dispatcher.subscribe(scan_id)
 
-    async def event_generator():
+    async def event_generator() -> AsyncIterator[dict[str, str]]:
         try:
             heartbeat_task = asyncio.create_task(_heartbeat_loop(sub, scan_id))
             try:
@@ -108,7 +120,7 @@ async def scan_events_sse(
     return EventSourceResponse(event_generator())
 
 
-async def _heartbeat_loop(sub, scan_id: uuid.UUID) -> None:
+async def _heartbeat_loop(sub: Any, scan_id: uuid.UUID) -> None:
     from app.schemas.scan import ScanEvent
 
     while True:
@@ -166,7 +178,7 @@ async def scan_events_ws(
 async def _ws_heartbeat_loop(
     websocket: WebSocket,
     scan_id: uuid.UUID,
-    sub: object,
+    sub: Any,
 ) -> None:
     from app.schemas.scan import ScanEvent
 

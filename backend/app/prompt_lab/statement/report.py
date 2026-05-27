@@ -12,7 +12,7 @@ from datetime import date, datetime, timedelta
 from decimal import Decimal
 from difflib import SequenceMatcher
 from pathlib import Path
-from typing import Any, Literal
+from typing import Any, Literal, cast
 
 from sqlalchemy import inspect, text
 from sqlalchemy.engine import make_url
@@ -35,9 +35,10 @@ from app.prompt_lab.statement.scoring import (
 from app.prompt_lab.statement.seed_db import STATEMENT_LAB_SEED_PROMPT_PREFIX
 from app.schemas.statement import (
     StatementExtractionOutput,
+    StatementInfo,
     StatementLine,
-    StatementPdfStatus,
     StatementProcessingMetadata,
+    as_statement_pdf_status,
 )
 from app.services.recurrence import recurrence_fields_from_statement_installment
 
@@ -449,9 +450,7 @@ def _case_report_from_manifest(
             "gemini_input_mode": manifest.get("gemini_input_mode", "pdf"),
             "pdf_evidence_summary": manifest.get("pdf_evidence_summary"),
             "compact_evidence_summary": manifest.get("compact_evidence_summary"),
-            "compact_provider_evidence_summary": manifest.get(
-                "compact_provider_evidence_summary"
-            ),
+            "compact_provider_evidence_summary": manifest.get("compact_provider_evidence_summary"),
         },
         "reconciliation": reconciliation,
     }
@@ -576,14 +575,13 @@ def _empty_actual_from_manifest(
     manifest: dict[str, Any],
 ) -> StatementExtractionOutput:
     source_status = str(manifest.get("status") or "extraction_failed")
-    pdf_status = (
-        source_status
-        if source_status in StatementPdfStatus.__args__
-        else "extraction_failed"
-    )
+    try:
+        pdf_status = as_statement_pdf_status(source_status)
+    except ValueError:
+        pdf_status = "extraction_failed"
     return StatementExtractionOutput(
         pdf_status=pdf_status,
-        statement={"issuer": case.issuer},
+        statement=StatementInfo(issuer=case.issuer),
         lines=[],
         processing=StatementProcessingMetadata(
             provider="gemini",
@@ -733,14 +731,15 @@ def _write_live_manifest_case_artifacts(
     pdf_input = _load_optional_json(source_manifest.get("pdf_input_path")) or {}
     pdf_evidence = _load_optional_json(source_manifest.get("pdf_evidence_path")) or {}
     compact_evidence = _load_optional_json(source_manifest.get("compact_evidence_path")) or {}
-    compact_provider_evidence = _load_optional_json(
-        source_manifest.get("compact_provider_evidence_path")
-    ) or {}
+    compact_provider_evidence = (
+        _load_optional_json(source_manifest.get("compact_provider_evidence_path")) or {}
+    )
     layout_profile = _load_optional_json(source_manifest.get("layout_profile_path")) or {}
-    profile_application = _load_optional_json(
-        source_manifest.get("profile_application_path")
-    ) or {}
-    unresolved_rows = _load_optional_json(source_manifest.get("unresolved_rows_path")) or []
+    profile_application = _load_optional_json(source_manifest.get("profile_application_path")) or {}
+    unresolved_rows_raw = _load_optional_json_value(source_manifest.get("unresolved_rows_path"))
+    unresolved_rows: list[Any] = (
+        unresolved_rows_raw if isinstance(unresolved_rows_raw, list) else []
+    )
     raw_output = _load_optional_json(source_manifest.get("raw_output_path")) or {}
     processed_output = _load_optional_json(source_manifest.get("processed_output_path")) or {
         "document_type": "credit_card_statement",
@@ -1375,7 +1374,8 @@ def _description_has_foreign_currency_marker(line: StatementLine) -> bool:
 def _highest_severity(issues: list[dict[str, Any]]) -> str:
     if not issues:
         return "low"
-    return max(issues, key=lambda issue: _SEVERITY_ORDER[str(issue["severity"])])["severity"]
+    issue = max(issues, key=lambda item: _SEVERITY_ORDER[str(item["severity"])])
+    return str(issue["severity"])
 
 
 def _recommended_owner(
@@ -2563,14 +2563,13 @@ def _report_artifacts(
             if "manifest_path" in case["artifacts"]
         ],
         "case_artifact_files": {
-            case.get("case_variant_id", case["case_id"]): case["artifacts"]
-            for case in case_reports
+            case.get("case_variant_id", case["case_id"]): case["artifacts"] for case in case_reports
         },
     }
 
 
 def _load_json(path: Path) -> dict[str, Any]:
-    return json.loads(path.read_text(encoding="utf-8"))
+    return cast("dict[str, Any]", json.loads(path.read_text(encoding="utf-8")))
 
 
 def _load_optional_json(path: str | None) -> dict[str, Any] | None:
@@ -2580,6 +2579,15 @@ def _load_optional_json(path: str | None) -> dict[str, Any] | None:
     if not json_path.exists():
         return None
     return _load_json(json_path)
+
+
+def _load_optional_json_value(path: str | None) -> Any | None:
+    if not path:
+        return None
+    json_path = Path(path)
+    if not json_path.exists():
+        return None
+    return json.loads(json_path.read_text(encoding="utf-8"))
 
 
 def _write_json(path: Path, payload: Any) -> None:
@@ -2737,7 +2745,7 @@ def _markdown_report(report: dict[str, Any]) -> str:
             "- Top-level `REPORT.md`: human-readable report.",
             "- Per case `pdf_text_extraction.json`: PDF status/text metadata without raw text.",
             (
-            "- Per case `text_layer.json`, `layout_words.json`, and `candidate_rows.json`: "
+                "- Per case `text_layer.json`, `layout_words.json`, and `candidate_rows.json`: "
                 "deterministic PDF parser evidence."
                 if actual_source == "deterministic"
                 else "- Deterministic parser artifacts are not present in this report mode."
@@ -2884,9 +2892,7 @@ def _markdown_failure_diagnostics(report: dict[str, Any]) -> list[str]:
         + ", ".join(f"`{blocker}`" for blocker in report["promotion_blockers"]),
         "- Field mismatch counts: "
         + (
-            ", ".join(
-                f"`{field}={count}`" for field, count in field_counts.items() if int(count)
-            )
+            ", ".join(f"`{field}={count}`" for field, count in field_counts.items() if int(count))
             or "`none`"
         ),
         "- Severity counts: "
@@ -3145,9 +3151,17 @@ def _markdown_difference_summary(*, expected: Any, actual: Any) -> str:
 
 def _first_line_alignment(report: dict[str, Any]) -> dict[str, str] | None:
     for case in report.get("cases", []):
-        alignment = case.get("current_extraction", {}).get("differences", {}).get("line_alignment")
-        if alignment:
-            return alignment
+        if not isinstance(case, dict):
+            continue
+        current_extraction = case.get("current_extraction")
+        if not isinstance(current_extraction, dict):
+            continue
+        differences = current_extraction.get("differences")
+        if not isinstance(differences, dict):
+            continue
+        alignment = differences.get("line_alignment")
+        if isinstance(alignment, dict):
+            return {str(key): str(value) for key, value in alignment.items()}
     return None
 
 

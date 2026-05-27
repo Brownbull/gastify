@@ -307,9 +307,10 @@ async def test_reconcile_does_not_create_candidate_for_non_ledger_ready_line(cli
     assert item["candidate_transaction"] is None
     assert item["verdict"]["reasons"] == ["line_not_ledger_ready"]
     assert item["statement_line"]["ledger_ready"] is False
-    assert "statement_profile_amount_role_unknown_with_multiple_amounts" in item[
-        "statement_line"
-    ]["warnings"]
+    assert (
+        "statement_profile_amount_role_unknown_with_multiple_amounts"
+        in item["statement_line"]["warnings"]
+    )
 
 
 @pytest.mark.asyncio

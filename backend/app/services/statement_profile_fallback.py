@@ -11,10 +11,14 @@ from typing import Any
 
 from app.schemas.statement import (
     StatementAmountCandidate,
+    StatementAmountRole,
     StatementExtractionOutput,
     StatementInfo,
     StatementLine,
+    StatementLineType,
+    StatementPdfStatus,
     StatementProcessingMetadata,
+    as_statement_amount_role,
 )
 from app.schemas.statement_profile import (
     STATEMENT_COMPACT_EVIDENCE_SCHEMA_VERSION,
@@ -125,9 +129,7 @@ def build_statement_compact_evidence(
 ) -> StatementCompactEvidence:
     """Build compact provider evidence from generic PyMuPDF evidence."""
     payload = (
-        evidence.provider_payload()
-        if isinstance(evidence, StatementPdfEvidence)
-        else evidence
+        evidence.provider_payload() if isinstance(evidence, StatementPdfEvidence) else evidence
     )
     status = str(payload.get("status") or "extraction_failed")
     rows_payload = list(payload.get("row_groups", {}).get("rows", []))
@@ -244,7 +246,7 @@ def apply_statement_layout_profile(
                 continue
             lines.append(line)
 
-    pdf_status = "readable" if lines else "extraction_failed"
+    pdf_status: StatementPdfStatus = "readable" if lines else "extraction_failed"
     if not lines:
         warnings.append("statement_profile_no_usable_rows")
     if unresolved:
@@ -317,9 +319,7 @@ def _provider_rows(rows: list[StatementRowCandidate]) -> list[dict[str, Any]]:
     if not selected_indexes:
         selected_indexes = set(range(len(rows)))
     return [
-        _provider_row_payload(row)
-        for index, row in enumerate(rows)
-        if index in selected_indexes
+        _provider_row_payload(row) for index, row in enumerate(rows) if index in selected_indexes
     ]
 
 
@@ -330,12 +330,8 @@ def _provider_row_payload(row: StatementRowCandidate) -> dict[str, Any]:
         "y0": round(row.y0, 2),
         "y1": round(row.y1, 2),
         "visible_text": row.text,
-        "date_candidates": [
-            candidate.model_dump(mode="json") for candidate in row.date_candidates
-        ],
-        "amount_tokens": [
-            candidate.model_dump(mode="json") for candidate in row.amount_candidates
-        ],
+        "date_candidates": [candidate.model_dump(mode="json") for candidate in row.date_candidates],
+        "amount_tokens": [candidate.model_dump(mode="json") for candidate in row.amount_candidates],
         "currency_hints": row.currency_hints,
         "installment_markers": [
             candidate.model_dump(mode="json") for candidate in row.installment_candidates
@@ -347,12 +343,8 @@ def _provider_row_payload(row: StatementRowCandidate) -> dict[str, Any]:
 
 def _provider_context(row: StatementRowCandidate) -> dict[str, list[str]]:
     return {
-        "before": [
-            text for text in row.context_before if _looks_like_provider_context_row(text)
-        ],
-        "after": [
-            text for text in row.context_after if _looks_like_provider_context_row(text)
-        ],
+        "before": [text for text in row.context_before if _looks_like_provider_context_row(text)],
+        "after": [text for text in row.context_after if _looks_like_provider_context_row(text)],
     }
 
 
@@ -485,15 +477,9 @@ def _filter_amount_candidates(
     candidates: list[StatementAmountToken],
 ) -> list[StatementAmountToken]:
     if any(_has_money_like_evidence(candidate) for candidate in candidates):
-        return [
-            candidate
-            for candidate in candidates
-            if _has_money_like_evidence(candidate)
-        ]
+        return [candidate for candidate in candidates if _has_money_like_evidence(candidate)]
     return [
-        candidate
-        for candidate in candidates
-        if not _looks_like_reference_amount_token(candidate)
+        candidate for candidate in candidates if not _looks_like_reference_amount_token(candidate)
     ]
 
 
@@ -682,9 +668,7 @@ def _selected_amount(
             return _rightmost_amount(clp_like)
     if currency_context.billing_currency == "USD" and currency_context.explicit_foreign_section:
         usd_like = [
-            candidate
-            for candidate in candidates
-            if _looks_like_decimal_money(candidate.token)
+            candidate for candidate in candidates if _looks_like_decimal_money(candidate.token)
         ]
         if usd_like:
             if not any(candidate.token.x0 is not None for candidate in usd_like):
@@ -932,16 +916,10 @@ def _selected_statement_currency(
             return layout_profile.default_currency
         return row_currency
     if selected.role == "foreign_original":
-        return (
-            selected.column_currency
-            or layout_profile.default_currency
-        )
+        return selected.column_currency or layout_profile.default_currency
     if layout_profile.currency_policy in {"billing_currency_default", "mixed_billing_and_original"}:
         return layout_profile.default_currency
-    return (
-        selected.column_currency
-        or layout_profile.default_currency
-    )
+    return selected.column_currency or layout_profile.default_currency
 
 
 def _selected_original_amount(
@@ -957,8 +935,7 @@ def _selected_original_amount(
         original = _leftmost_matching_amount(
             candidates,
             predicate=lambda candidate: (
-                candidate.token is not selected.token
-                and _looks_like_decimal_money(candidate.token)
+                candidate.token is not selected.token and _looks_like_decimal_money(candidate.token)
             ),
         )
         if original is not None:
@@ -982,9 +959,8 @@ def _selected_original_amount(
         return None, None
     original = _rightmost_amount(foreign_candidates)
     currency = _candidate_currency(original, selected_currency)
-    if currency == layout_profile.default_currency:
-        currency = None
-    return currency, original.token.amount_minor
+    original_currency = None if currency == layout_profile.default_currency else currency
+    return original_currency, original.token.amount_minor
 
 
 def _description_from_row(
@@ -1018,7 +994,7 @@ def _description_from_row(
     return _clean_description(text)
 
 
-def _line_type(text: str, amount: _ProfiledAmount) -> str:
+def _line_type(text: str, amount: _ProfiledAmount) -> StatementLineType:
     lowered = text.casefold()
     if any(token in lowered for token in _INSURANCE_TOKENS):
         return "insurance"
@@ -1039,7 +1015,7 @@ def _signed_amount(
     *,
     row: StatementRowCandidate,
     amount: StatementAmountToken,
-    line_type: str,
+    line_type: StatementLineType,
 ) -> int:
     value = abs(amount.amount_minor)
     if line_type in {"payment", "adjustment"}:
@@ -1062,7 +1038,7 @@ def _statement_amount_candidates(
     selected_abs = abs(selected_amount)
     result: list[StatementAmountCandidate] = []
     for candidate in _profiled_amounts(row, layout_profile):
-        role = candidate.role
+        role: StatementAmountRole = as_statement_amount_role(candidate.role)
         if candidate.token is selected.token and role == "unknown":
             role = "selected"
         if candidate.token.amount_minor == selected_abs:
@@ -1271,9 +1247,8 @@ def _has_explicit_foreign_section(row: StatementRowCandidate) -> bool:
     if re.search(r"\bUS\$?\b", row.text, re.IGNORECASE):
         return True
     context = " ".join([*row.context_before, row.text, *row.context_after]).casefold()
-    return (
-        any(token in context for token in _FOREIGN_SECTION_TOKENS)
-        and any(_looks_like_decimal_money(candidate) for candidate in row.amount_candidates)
+    return any(token in context for token in _FOREIGN_SECTION_TOKENS) and any(
+        _looks_like_decimal_money(candidate) for candidate in row.amount_candidates
     )
 
 
@@ -1434,9 +1409,7 @@ def _looks_like_summary(text: str) -> bool:
     lowered = text.casefold()
     if any(token in lowered for token in _ALWAYS_SUMMARY_TOKENS):
         return True
-    if any(token in lowered for token in _IDENTITY_OR_CONTACT_TOKENS) and not _DATE_RE.search(
-        text
-    ):
+    if any(token in lowered for token in _IDENTITY_OR_CONTACT_TOKENS) and not _DATE_RE.search(text):
         return True
     if re.search(r"\*{2,}|\bx{3,}\b", lowered):
         return True

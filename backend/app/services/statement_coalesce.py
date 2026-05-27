@@ -173,10 +173,11 @@ def _installment_amount_evidence_warnings(line: StatementLine) -> list[str]:
     if parts is not None:
         _current, total = parts
         if any(
-            _looks_like_term_total(line.amount_minor, amount, total)
-            for amount in current_amounts
+            _looks_like_term_total(line.amount_minor, amount, total) for amount in current_amounts
         ):
-            warnings.append("statement_line_installment_selected_amount_matches_term_total_multiple")
+            warnings.append(
+                "statement_line_installment_selected_amount_matches_term_total_multiple"
+            )
     if (
         line.amount_candidates
         and _selected_amount_has_total_evidence(line)
@@ -261,18 +262,13 @@ def _selected_amount_has_total_evidence(line: StatementLine) -> bool:
         if candidate.amount_minor == line.amount_minor
     ]
     if any(
-        candidate.role in _SUSPICIOUS_INSTALLMENT_AMOUNT_ROLES
-        for candidate in selected_candidates
+        candidate.role in _SUSPICIOUS_INSTALLMENT_AMOUNT_ROLES for candidate in selected_candidates
     ):
         return True
     selected_text = _normalize_text(
         line.amount_selection_reason,
         *[
-            " ".join(
-                part
-                for part in (candidate.column_label, candidate.visible_text)
-                if part
-            )
+            " ".join(part for part in (candidate.column_label, candidate.visible_text) if part)
             for candidate in selected_candidates
         ],
     )

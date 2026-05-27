@@ -3,6 +3,7 @@
 import uuid
 from datetime import date, datetime, time
 from decimal import Decimal
+from typing import Any
 
 from sqlalchemy import (
     JSON,
@@ -130,7 +131,7 @@ class Transaction(Base):
     prompt_version: Mapped[str | None] = mapped_column(Text, nullable=True)
     merchant_source: Mapped[str | None] = mapped_column(String, nullable=True)
     scan_review_level: Mapped[str] = mapped_column(String, nullable=False, server_default="none")
-    scan_review_signals: Mapped[list[dict]] = mapped_column(
+    scan_review_signals: Mapped[list[dict[str, Any]]] = mapped_column(
         JSON, nullable=False, server_default="[]"
     )
 

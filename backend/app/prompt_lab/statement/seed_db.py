@@ -285,10 +285,7 @@ async def _insert_available_columns(
     columns = list(payload)
     placeholders = [f":{column}" for column in columns]
     await session.execute(
-        text(
-            f"insert into {table_name} ({', '.join(columns)}) "
-            f"values ({', '.join(placeholders)})"
-        ),
+        text(f"insert into {table_name} ({', '.join(columns)}) values ({', '.join(placeholders)})"),
         payload,
     )
 

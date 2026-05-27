@@ -610,8 +610,8 @@ def _statement_fallback_calibrate(args: argparse.Namespace) -> int:
             "statement-fallback-calibrate requires --live, --cache-only, or --from-manifest"
         )
 
-    effective_bypass_cache = (
-        bool(args.bypass_cache) or (bool(args.live) and not bool(args.cache_only))
+    effective_bypass_cache = bool(args.bypass_cache) or (
+        bool(args.live) and not bool(args.cache_only)
     )
     manifest = asyncio.run(
         run_statement_fallback_calibration(
@@ -904,7 +904,7 @@ def _resolve_statement_run_id(
 
 def _resolve_receipt_run_id(args: argparse.Namespace) -> str:
     if args.run_id:
-        return args.run_id
+        return str(args.run_id)
     prompt_id = str(args.extraction_prompt or settings.receipt_extraction_prompt_id)
     parent = LATEST_RESULTS_ROOT / str(args.environment) / prompt_id
     return next_serial_run_id(parent, _receipt_run_label(args))
@@ -920,9 +920,7 @@ def _statement_run_label(args: argparse.Namespace) -> str:
     else:
         mode = "dry-run"
     case_label = (
-        str(args.case_id).replace("/", "-")
-        if args.case_id
-        else f"{args.limit or 'all'}-cases"
+        str(args.case_id).replace("/", "-") if args.case_id else f"{args.limit or 'all'}-cases"
     )
     return f"statement-{mode}-{case_label}"
 
@@ -937,9 +935,7 @@ def _receipt_run_label(args: argparse.Namespace) -> str:
     else:
         mode = "dry-run"
     case_label = (
-        str(args.case_id).replace("/", "-")
-        if args.case_id
-        else f"{args.limit or 'all'}-cases"
+        str(args.case_id).replace("/", "-") if args.case_id else f"{args.limit or 'all'}-cases"
     )
     stage_label = f"{mode}-{args.stage}"
     if args.no_postprocess:

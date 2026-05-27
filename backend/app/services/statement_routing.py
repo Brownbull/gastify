@@ -9,13 +9,16 @@ from datetime import date
 from decimal import Decimal, InvalidOperation
 from typing import TYPE_CHECKING, Any
 
-import fitz
+import fitz  # type: ignore[import-untyped]
 
 from app.schemas.statement import (
     StatementAmountCandidate,
+    StatementAmountRole,
     StatementExtractionOutput,
     StatementInfo,
     StatementLine,
+    StatementLineType,
+    StatementPdfStatus,
     StatementProcessingMetadata,
 )
 
@@ -332,8 +335,7 @@ def _has_cmr_row_signature(words: list[_Word]) -> bool:
 def _has_bank_row_signature(words: list[_Word]) -> bool:
     for row in _group_words_into_rows(words):
         has_date = any(
-            90 <= word.x0 <= 190
-            and (_DATE_RE.match(word.text) or _SHORT_DATE_RE.match(word.text))
+            90 <= word.x0 <= 190 and (_DATE_RE.match(word.text) or _SHORT_DATE_RE.match(word.text))
             for word in row
         )
         has_amount = any(word.x0 >= _BANK_AMOUNT_X_MIN and _is_money(word.text) for word in row)
@@ -697,8 +699,7 @@ def _bank_transaction_date_word(words: list[_Word]) -> _Word | None:
     candidates = [
         word
         for word in words
-        if 90 <= word.x0 <= 190
-        and (_DATE_RE.match(word.text) or _SHORT_DATE_RE.match(word.text))
+        if 90 <= word.x0 <= 190 and (_DATE_RE.match(word.text) or _SHORT_DATE_RE.match(word.text))
     ]
     return candidates[0] if candidates else None
 
@@ -852,7 +853,7 @@ def _bank_unselected_amount_role(
     selected: _Word,
     installment_word: _Word | None,
     currency: str,
-) -> str:
+) -> StatementAmountRole:
     if currency == "USD":
         return "foreign_original"
     if installment_word is not None and word.x0 < selected.x0:
@@ -972,7 +973,7 @@ def _amount_candidates(
     return candidates
 
 
-def _unselected_amount_role(word: _Word, *, installment_word: _Word | None) -> str:
+def _unselected_amount_role(word: _Word, *, installment_word: _Word | None) -> StatementAmountRole:
     parts = _fixed_term_parts(installment_word)
     if parts and word.x0 < _CURRENT_AMOUNT_X_MIN:
         return "purchase_total" if word.x0 < 370 else "plan_total"
@@ -1000,7 +1001,7 @@ def _amount_selection_reason(
     return "selected non-zero statement amount cell from explicit row coordinates"
 
 
-def _line_type(*, description: str, amount_minor: int) -> str:
+def _line_type(*, description: str, amount_minor: int) -> StatementLineType:
     normalized = description.casefold()
     if amount_minor < 0 and "pago" in normalized:
         return "payment"
@@ -1079,7 +1080,7 @@ def _statement_info(
 
 def _status_output(
     *,
-    status: str,
+    status: StatementPdfStatus,
     issuer_hint: str | None,
     page_count: int | None,
     warnings: list[str],

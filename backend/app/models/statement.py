@@ -163,9 +163,7 @@ class Statement(Base):
     extraction_input_mode: Mapped[str | None] = mapped_column(String(50), nullable=True)
     extraction_llm_input_tokens: Mapped[int | None] = mapped_column(Integer, nullable=True)
     extraction_llm_output_tokens: Mapped[int | None] = mapped_column(Integer, nullable=True)
-    extraction_llm_cost_usd: Mapped[Decimal | None] = mapped_column(
-        Numeric(12, 9), nullable=True
-    )
+    extraction_llm_cost_usd: Mapped[Decimal | None] = mapped_column(Numeric(12, 9), nullable=True)
     extraction_fallback_reason: Mapped[str | None] = mapped_column(Text, nullable=True)
     extraction_cache_status: Mapped[str | None] = mapped_column(String(50), nullable=True)
     extraction_routing_reasons: Mapped[list[str]] = mapped_column(

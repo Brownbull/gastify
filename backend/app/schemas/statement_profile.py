@@ -9,7 +9,9 @@ from pydantic import BaseModel, Field, field_validator
 
 from app.schemas.statement import StatementExtractionOutput  # noqa: TC001 - pydantic model field.
 
-STATEMENT_COMPACT_EVIDENCE_SCHEMA_VERSION = "statement-compact-evidence.v2"
+STATEMENT_COMPACT_EVIDENCE_SCHEMA_VERSION: Literal["statement-compact-evidence.v2"] = (
+    "statement-compact-evidence.v2"
+)
 
 StatementProfileEvidenceStatus = Literal[
     "readable",

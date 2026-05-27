@@ -13,7 +13,7 @@ import asyncio
 import time
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 
 import structlog
 from sqlalchemy import select, update
@@ -24,7 +24,7 @@ from app.config import settings
 from app.db import async_session
 from app.models.scan import Scan, ScanStatus
 from app.observability import metrics
-from app.schemas.scan import ScanCompleteData
+from app.schemas.scan import ScanCompleteData, ScanCompleteLineItem
 from app.services.llm_costs import estimate_llm_cost_usd
 from app.services.math_gate import reconcile
 from app.services.persist_scan import persist_scan_result
@@ -106,7 +106,7 @@ def _estimate_cost_usd(input_tokens: int, output_tokens: int) -> float:
 
 def _scan_complete_data(
     *,
-    status: str,
+    status: Literal["completed", "needs_review"],
     transaction_id: object,
     extraction: GeminiExtractionResult,
     verdict: MathReconciliationVerdict,
@@ -130,12 +130,12 @@ def _scan_complete_data(
         reconciliation_severity=verdict.severity,
         line_items_count=len(extraction.line_items),
         line_items=[
-            {
-                "name": item.name,
-                "qty": float(item.qty) if item.qty is not None else None,
-                "unit_price": float(item.unit_price) if item.unit_price is not None else None,
-                "total_price": float(item.total_price),
-            }
+            ScanCompleteLineItem(
+                name=item.name,
+                qty=float(item.qty) if item.qty is not None else None,
+                unit_price=float(item.unit_price) if item.unit_price is not None else None,
+                total_price=float(item.total_price),
+            )
             for item in extraction.line_items
         ],
         confidence_score=extraction.confidence_score,

@@ -302,16 +302,10 @@ def test_statement_prompt_is_registered_as_own_kind():
     assert "extracted PDF\ntext/layout evidence from PyMuPDF" in prompt.system_prompt
     assert "never ask the user for clarification or approval" in prompt.system_prompt
     assert "P0: `date`, `amount_minor`, and `currency`" in prompt.system_prompt
-    assert "description`, preserving merchant, payee, or place text" in (
-        prompt.system_prompt
-    )
-    assert "Include every visible amount that plausibly belongs to a row" in (
-        prompt.system_prompt
-    )
+    assert "description`, preserving merchant, payee, or place text" in (prompt.system_prompt)
+    assert "Include every visible amount that plausibly belongs to a row" in (prompt.system_prompt)
     assert "pick the best current statement\n  amount" in prompt.system_prompt
-    assert "Preserve visible installment or term markers when present" in (
-        prompt.system_prompt
-    )
+    assert "Preserve visible installment or term markers when present" in (prompt.system_prompt)
     assert "Do not output previous balance, opening balance" in prompt.system_prompt
     assert "amount_candidates" in prompt.system_prompt
     assert "amount_selection_reason" in prompt.system_prompt
@@ -1031,9 +1025,7 @@ async def test_statement_suite_run_writes_one_folder_with_approach_reports(
     assert (suite_dir / "approaches" / "pymupdf" / "REPORT.md").exists()
     assert (suite_dir / "approaches" / "gemini" / "REPORT.md").exists()
     assert (suite_dir / "approaches" / "auto" / "cases" / "cmr-cmr202504" / "run").exists()
-    assert (
-        suite_dir / "approaches" / "pymupdf" / "cases" / "cmr-cmr202504" / "run"
-    ).exists()
+    assert (suite_dir / "approaches" / "pymupdf" / "cases" / "cmr-cmr202504" / "run").exists()
     assert report["approaches"][0]["case_count"] == 4
     assert report["approaches"][0]["recurrence_field_mismatches"] == 0
     assert report["fallback_readiness"]["status"] == "strict_ready"
@@ -1157,9 +1149,7 @@ async def test_statement_fallback_calibration_from_manifest_writes_reports(
     assert report["runtime_critical_field_readiness"][0]["field"] == "Date"
     assert report["improvement_potential"][0]["improvement"] == "Fix selected statement amount"
     assert report["failure_classes"]["amount_selection"] == 1
-    assert report["recommended_prompt_improvements"][0]["priority"] == (
-        "P0 financial correctness"
-    )
+    assert report["recommended_prompt_improvements"][0]["priority"] == ("P0 financial correctness")
     assert "Concrete Expected Vs Actual Examples" in markdown
     assert "| Field | Expected Fixture | Actual Origin | Actual Value | Difference Summary |" in (
         markdown
@@ -1280,9 +1270,7 @@ def test_statement_compact_evidence_provider_payload_v2_omits_word_lists():
     assert provider_payload["privacy"]["full_word_lists_included"] is False
     assert "compact_evidence_sha256" in provider_payload
     assert "words" not in provider_payload["rows"][0]
-    assert provider_payload["rows"][0]["visible_text"] == (
-        "03/05/2026 EXACT MARKET 10000"
-    )
+    assert provider_payload["rows"][0]["visible_text"] == ("03/05/2026 EXACT MARKET 10000")
 
 
 @pytest.mark.asyncio
@@ -2597,10 +2585,7 @@ def test_statement_profile_application_selects_usd_section_amount():
                     {
                         "row_index": 2,
                         "page": 1,
-                        "text": (
-                            "11/06/25 STEAMGAMES.COM 4259 912-1844160 "
-                            "US 9.000,00 9,60"
-                        ),
+                        "text": ("11/06/25 STEAMGAMES.COM 4259 912-1844160 US 9.000,00 9,60"),
                     },
                 ]
             },

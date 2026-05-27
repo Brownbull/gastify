@@ -2,7 +2,7 @@ import asyncio
 import json
 from typing import Annotated
 
-import firebase_admin
+import firebase_admin  # type: ignore[import-untyped]
 from fastapi import Depends, HTTPException, Request, status
 from firebase_admin import auth as firebase_auth
 from firebase_admin import credentials
