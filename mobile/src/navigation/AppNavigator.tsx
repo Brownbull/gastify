@@ -4,6 +4,7 @@ import { ActivityIndicator, StyleSheet, View } from "react-native";
 import { useAuth } from "../providers/AuthProvider";
 import { HomeScreen } from "../screens/HomeScreen";
 import { SignInScreen } from "../screens/SignInScreen";
+import { StatementsScreen } from "../screens/StatementsScreen";
 import { TransactionDetailScreen } from "../screens/TransactionDetailScreen";
 import { TransactionsScreen } from "../screens/TransactionsScreen";
 import type { RootStackParamList } from "../types/navigation";
@@ -35,6 +36,11 @@ export function AppNavigator() {
               name="Transactions"
               component={TransactionsScreen}
               options={{ title: "Transactions" }}
+            />
+            <Stack.Screen
+              name="Statements"
+              component={StatementsScreen}
+              options={{ title: "Statements" }}
             />
             <Stack.Screen
               name="TransactionDetail"

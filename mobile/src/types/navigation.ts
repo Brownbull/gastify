@@ -1,6 +1,7 @@
 export type RootStackParamList = {
   SignIn: undefined;
   Home: undefined;
+  Statements: undefined;
   Transactions: undefined;
   TransactionDetail: { transactionId: string };
 };

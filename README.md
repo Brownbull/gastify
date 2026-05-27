@@ -5,8 +5,9 @@ Chilean smart expense tracker — AI receipt scanning, multi-currency analytics,
 ## Status
 
 Active rebuild. Current KDBP work is P5 Statement Reconciliation + Cards.
-Phase 0 establishes the private statement-corpus prompt-lab lane and extraction
-contract before runtime schema, upload, web, or mobile work begins.
+Phases 0-5 are implemented through the web statement reconciliation flow; Phase
+6 is adding the Android-native statement upload, progress, and reconciliation
+journey. iOS runtime proof is deferred until after the roadmap by D47/P31.
 
 See [`docs/rebuild/PLAN.md`](docs/rebuild/PLAN.md) for the phased implementation plan, [`docs/rebuild/LESSONS.md`](docs/rebuild/LESSONS.md) for rebuild rules derived from the prototype, and [`docs/runbooks/ENVIRONMENTS.md`](docs/runbooks/ENVIRONMENTS.md) for the environment-gated development model.
 
@@ -44,7 +45,7 @@ The backend reads settings from environment variables (prefix `GASTIFY_`):
 | `GASTIFY_STORE_CATEGORIZATION_PROMPT_ID` | Active store categorization prompt registry id | `store-categorization-current` |
 | `GASTIFY_ENVIRONMENT` | Runtime lane (`local`, `staging`, `staging-e2e`, `production`) | `local` |
 | `GASTIFY_SCAN_PROVIDER` | Scan provider (`mock`, `fixture`, `gemini`) | `mock` |
-| `GASTIFY_STATEMENT_PROVIDER` | Statement provider (`codex-pdf-text`, `fixture`) | `codex-pdf-text` |
+| `GASTIFY_STATEMENT_PROVIDER` | Statement provider (`auto`, `gemini`, `codex-pdf-text`, `fixture`) | `auto` |
 | `GASTIFY_STATEMENT_RECONCILIATION_DATE_TOLERANCE_DAYS` | Statement-to-receipt date tolerance | `3` |
 | `GASTIFY_STATEMENT_RECONCILIATION_AMOUNT_TOLERANCE_RATIO` | Statement-to-receipt amount tolerance ratio | `0.01` |
 | `GASTIFY_STATEMENT_RECONCILIATION_MERCHANT_SIMILARITY_THRESHOLD` | Fuzzy merchant matching threshold | `0.72` |

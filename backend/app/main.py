@@ -13,6 +13,7 @@ from app.api.scan_stream import ws_router as scan_ws_router
 from app.api.scan_test_cases import router as scan_test_cases_router
 from app.api.scans import router as scans_router
 from app.api.statement_stream import router as statement_stream_router
+from app.api.statement_stream import ws_router as statement_ws_router
 from app.api.statements import router as statements_router
 from app.api.transactions import router as transactions_router
 from app.config import settings
@@ -51,5 +52,6 @@ app.include_router(scan_stream_router, prefix="/api/v1")
 app.include_router(statements_router, prefix="/api/v1")
 app.include_router(statement_stream_router, prefix="/api/v1")
 app.include_router(scan_ws_router)
+app.include_router(statement_ws_router)
 app.include_router(reference_router, prefix="/api/v1")
 app.include_router(metrics_router, prefix="/api/v1")

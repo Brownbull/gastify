@@ -119,15 +119,17 @@ describe("HomeScreen", () => {
     expect(chooseFromLibrary).toHaveBeenCalled();
   });
 
-  it("opens the transaction ledger from the home screen", () => {
+  it("opens the transaction ledger and statements from the home screen", () => {
     const navigate = jest.fn();
     const screen = render(
       <HomeScreen navigation={{ navigate } as never} />,
     );
 
     fireEvent.press(screen.getByTestId("open-ledger-button"));
+    fireEvent.press(screen.getByTestId("open-statements-button"));
 
     expect(navigate).toHaveBeenCalledWith("Transactions");
+    expect(navigate).toHaveBeenCalledWith("Statements");
   });
 
   it("requests push registration from the notification panel", () => {

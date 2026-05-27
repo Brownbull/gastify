@@ -9,6 +9,7 @@ Cross-platform Expo/React Native app for the Gastify mobile MVP.
 - React Native Firebase Auth + Google Sign-In
 - Expo SecureStore for the API bearer-token snapshot
 - Expo ImagePicker for camera and library receipt capture
+- Expo DocumentPicker for statement PDF upload
 - TanStack Query for server state
 - Zustand for scoped client state
 - openapi-fetch with generated backend types
@@ -50,6 +51,20 @@ React Native Firebase owns the native Firebase session. The API ID token used by
 The home screen exposes camera and image-library receipt capture. Selected images are validated locally, uploaded as multipart form data to `POST /api/v1/scans`, then tracked through the backend WebSocket stream at `/ws/scans/{scan_id}?token=<firebase-id-token>`.
 
 The scan store maps backend progress events into the native stages shown in the UI: submitted, processing, extracting, categorizing, verified, complete, and failed. Terminal `scan_complete` payloads surface low-confidence and new-merchant review signals when the backend provides them.
+
+## Statement Scans
+
+The Statements screen exposes the Android-native P5 journey: choose a statement
+PDF, optionally select or create a card alias, provide a PDF password when
+needed, and accept per-scan AI-processing consent before upload. The app posts
+multipart data to `POST /api/v1/statements` and follows extraction/reconciliation
+progress over `/ws/statements/{statement_id}?token=<firebase-id-token>`.
+
+Completed statement scans render the coverage metric and reconciliation buckets:
+matched, statement-only, app-only, ambiguous, and failed. Statement-only
+candidates can be added as uncategorized statement transactions with one flagged
+`Unidentified statement item`; the mobile app does not collect PAN, CVV, expiry,
+or other PCI-shaped card fields.
 
 ## Testing
 

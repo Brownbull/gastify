@@ -27,6 +27,13 @@ def mock_authorize():
         yield m
 
 
+@pytest.fixture
+def mock_ws_authorize():
+    """Bypass auth + statement ownership check for statement WebSocket."""
+    with patch(f"{_STREAM}._authorize_statement", new_callable=AsyncMock) as m:
+        yield m
+
+
 def _event(
     statement_id: uuid.UUID, event_type: str = "statement_picked_up", pct: int = 0
 ) -> StatementEvent:
@@ -121,3 +128,67 @@ class TestStatementSSEEndpoint:
         assert events[0]["event_type"] == "statement_completed"
 
         statement_dispatcher.clear_terminal(statement_id)
+
+
+class TestStatementWebSocketEndpoint:
+    def test_ws_streams_statement_events(self, statement_id, mock_ws_authorize) -> None:
+        import threading
+
+        from starlette.testclient import TestClient
+
+        def emit_in_background() -> None:
+            import time
+
+            time.sleep(0.1)
+            statement_dispatcher.emit(_event(statement_id, "statement_picked_up", 5))
+            statement_dispatcher.emit(_event(statement_id, "statement_completed", 100))
+            statement_dispatcher.close_statement(statement_id)
+
+        t = threading.Thread(target=emit_in_background, daemon=True)
+
+        with TestClient(app) as tc:
+            t.start()
+            with tc.websocket_connect(f"/ws/statements/{statement_id}?token=fake-token") as ws:
+                events = []
+                for _ in range(2):
+                    events.append(json.loads(ws.receive_text()))
+            t.join(timeout=2)
+
+        assert len(events) == 2
+        assert events[0]["event_type"] == "statement_picked_up"
+        assert events[1]["event_type"] == "statement_completed"
+        assert events[1]["progress_pct"] == 100
+
+    def test_ws_auth_failure_closes_connection(self) -> None:
+        from fastapi import HTTPException
+        from starlette.testclient import TestClient
+        from starlette.websockets import WebSocketDisconnect
+
+        with (
+            patch(
+                f"{_STREAM}._authorize_statement",
+                new_callable=AsyncMock,
+                side_effect=HTTPException(status_code=401, detail="Bad token"),
+            ),
+            TestClient(app) as tc,
+            pytest.raises(WebSocketDisconnect),
+            tc.websocket_connect(f"/ws/statements/{uuid.uuid4()}?token=bad-token"),
+        ):
+            pass
+
+    def test_ws_statement_not_found_closes_connection(self) -> None:
+        from fastapi import HTTPException
+        from starlette.testclient import TestClient
+        from starlette.websockets import WebSocketDisconnect
+
+        with (
+            patch(
+                f"{_STREAM}._authorize_statement",
+                new_callable=AsyncMock,
+                side_effect=HTTPException(status_code=404, detail="Statement not found"),
+            ),
+            TestClient(app) as tc,
+            pytest.raises(WebSocketDisconnect),
+            tc.websocket_connect(f"/ws/statements/{uuid.uuid4()}?token=fake-token"),
+        ):
+            pass

@@ -6,6 +6,7 @@ import {
   saveSecureAuthToken,
 } from "../secureAuthToken";
 import { useScanStore } from "../../stores/scanStore";
+import { useStatementStore } from "../../stores/statementStore";
 import { useSessionStore } from "../../stores/sessionStore";
 
 jest.mock("../api", () => ({
@@ -28,6 +29,7 @@ describe("authSession", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useScanStore.getState().reset();
+    useStatementStore.getState().reset();
     useSessionStore.getState().reset();
   });
 
@@ -102,6 +104,11 @@ describe("authSession", () => {
       mimeType: "image/jpeg",
       source: "camera",
     });
+    useStatementStore.getState().startUpload({
+      uri: "file:///tmp/statement.pdf",
+      fileName: "statement.pdf",
+      mimeType: "application/pdf",
+    });
 
     await clearMobileSession();
 
@@ -110,6 +117,7 @@ describe("authSession", () => {
     expect(queryClient.cancelQueries).toHaveBeenCalled();
     expect(queryClient.clear).toHaveBeenCalled();
     expect(useScanStore.getState().phase).toBe("idle");
+    expect(useStatementStore.getState().phase).toBe("idle");
     expect(useSessionStore.getState().signedInUser).toBeNull();
   });
 

@@ -6,6 +6,7 @@ import {
   saveSecureAuthToken,
 } from "./secureAuthToken";
 import { useScanStore } from "../stores/scanStore";
+import { useStatementStore } from "../stores/statementStore";
 import { useSessionStore } from "../stores/sessionStore";
 import { usePushRegistrationStore } from "../stores/pushRegistrationStore";
 
@@ -60,6 +61,7 @@ export async function clearMobileSession(): Promise<ClearMobileSessionResult> {
   queryClient.clear();
   usePushRegistrationStore.getState().reset();
   useScanStore.getState().reset();
+  useStatementStore.getState().reset();
   useSessionStore.getState().reset();
 
   return {

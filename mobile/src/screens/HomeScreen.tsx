@@ -157,11 +157,16 @@ export function HomeScreen({ navigation }: HomeScreenProps = {}) {
       <View style={styles.panel} testID="ledger-entry-panel">
         <Text style={styles.label}>Ledger</Text>
         <Text style={styles.panelTitle}>Transactions and edits</Text>
-        <View style={styles.panelAction}>
+        <View style={styles.actionStack}>
           <Button
             title="Open ledger"
             testID="open-ledger-button"
             onPress={() => navigation?.navigate("Transactions")}
+          />
+          <Button
+            title="Open statements"
+            testID="open-statements-button"
+            onPress={() => navigation?.navigate("Statements")}
           />
         </View>
       </View>
@@ -681,6 +686,10 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   panelAction: {
+    marginTop: 14,
+  },
+  actionStack: {
+    gap: 10,
     marginTop: 14,
   },
   panelBody: {

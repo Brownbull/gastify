@@ -7,7 +7,15 @@ import contextlib
 import uuid  # noqa: TC003 - FastAPI evaluates path param annotations at runtime.
 from typing import TYPE_CHECKING, Any
 
-from fastapi import APIRouter, HTTPException, Query, Request, status
+from fastapi import (
+    APIRouter,
+    HTTPException,
+    Query,
+    Request,
+    WebSocket,
+    WebSocketDisconnect,
+    status,
+)
 from sqlalchemy import select
 from sse_starlette.sse import EventSourceResponse
 
@@ -22,6 +30,7 @@ if TYPE_CHECKING:
     from collections.abc import AsyncIterator
 
 router = APIRouter(tags=["statement-stream"])
+ws_router = APIRouter(tags=["statement-stream-ws"])
 
 
 async def _check_statement_ownership(statement_id: uuid.UUID, scope_id: uuid.UUID) -> bool:
@@ -85,3 +94,57 @@ async def _heartbeat_loop(sub: Any, statement_id: uuid.UUID) -> None:
             progress_pct=0,
         )
         sub.put_nowait(heartbeat)
+
+
+@ws_router.websocket("/ws/statements/{statement_id}")
+async def statement_events_ws(
+    websocket: WebSocket,
+    statement_id: uuid.UUID,
+    token: str = Query(..., description="Firebase JWT for authentication"),
+) -> None:
+    try:
+        await _authorize_statement(token, statement_id)
+    except HTTPException as exc:
+        code = 4004 if exc.status_code == status.HTTP_404_NOT_FOUND else 4001
+        reason = str(exc.detail)
+        await websocket.close(code=code, reason=reason)
+        return
+
+    await websocket.accept()
+    sub = statement_dispatcher.subscribe(statement_id)
+
+    try:
+        heartbeat_task = asyncio.create_task(_ws_heartbeat_loop(websocket, statement_id, sub))
+        try:
+            async for event in sub:
+                await websocket.send_text(event.model_dump_json())
+        finally:
+            heartbeat_task.cancel()
+            with contextlib.suppress(asyncio.CancelledError):
+                await heartbeat_task
+    except WebSocketDisconnect:
+        pass
+    finally:
+        statement_dispatcher.unsubscribe(sub)
+        with contextlib.suppress(Exception):
+            await websocket.close()
+
+
+async def _ws_heartbeat_loop(
+    websocket: WebSocket,
+    statement_id: uuid.UUID,
+    sub: Any,
+) -> None:
+    while True:
+        await asyncio.sleep(settings.scan_event_heartbeat_interval_s)
+        heartbeat = StatementEvent(
+            event_type="heartbeat",
+            statement_id=statement_id,
+            step="keepalive",
+            progress_pct=0,
+        )
+        try:
+            await websocket.send_text(heartbeat.model_dump_json())
+        except Exception:
+            sub.close()
+            break
