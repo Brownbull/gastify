@@ -164,6 +164,13 @@ class Transaction(Base):
 
 class TransactionItem(Base):
     __tablename__ = "transaction_items"
+    __table_args__ = (
+        CheckConstraint(
+            "category_source IS NULL OR category_source IN "
+            "('ocr', 'user', 'ai', 'mapping', 'statement_unidentified')",
+            name="ck_transaction_items_category_source",
+        ),
+    )
 
     id: Mapped[uuid.UUID] = mapped_column(
         Uuid, primary_key=True, default=uuid.uuid4, server_default=func.gen_random_uuid()

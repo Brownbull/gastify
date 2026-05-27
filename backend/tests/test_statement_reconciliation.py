@@ -219,6 +219,8 @@ async def test_reconcile_produces_statement_only_and_receipt_only_buckets(client
             "sort_order": 0,
         }
     ]
+    create_response = await client.post("/api/v1/transactions", json=candidate)
+    assert create_response.status_code == 201
     assert body["receipt_only"][0]["receipt_transaction"]["merchant"] == "Different merchant"
 
 
