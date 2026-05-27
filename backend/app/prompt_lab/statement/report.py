@@ -16,6 +16,7 @@ from typing import Any, Literal, cast
 
 from sqlalchemy import inspect, text
 from sqlalchemy.engine import make_url
+from sqlalchemy.exc import OperationalError
 
 from app.config import settings
 from app.db import engine
@@ -2103,84 +2104,114 @@ async def _load_receipt_transactions_snapshot(
     *,
     transaction_scope_firebase_uid: str | None = None,
 ) -> tuple[list[_ReceiptTransaction], dict[str, Any]]:
-    async with engine.connect() as connection:
-        tables = await connection.run_sync(lambda sync_conn: inspect(sync_conn).get_table_names())
-        if "transactions" not in tables:
-            return [], _db_snapshot(
-                tables,
-                transactions_available=0,
-                readable=False,
-                transaction_scope_firebase_uid=transaction_scope_firebase_uid,
-            )
-
-        columns = await _table_columns(connection, "transactions")
-        required = {"id", "transaction_date", "merchant", "total_minor", "currency"}
-        if not required.issubset(columns):
-            return [], _db_snapshot(
-                tables,
-                transactions_available=0,
-                readable=False,
-                reason="transactions_table_missing_required_columns",
-                transaction_scope_firebase_uid=transaction_scope_firebase_uid,
-            )
-        scope_id = await _scope_id_for_firebase_uid(
-            connection,
-            tables=tables,
+    try:
+        connection_context = engine.connect()
+    except OperationalError:
+        return [], _db_snapshot(
+            [],
+            transactions_available=0,
+            readable=False,
+            reason="transaction_database_unavailable",
             transaction_scope_firebase_uid=transaction_scope_firebase_uid,
         )
-        if transaction_scope_firebase_uid and scope_id is None:
-            return [], _db_snapshot(
-                tables,
-                transactions_available=0,
-                readable=True,
-                reason="transaction_scope_firebase_uid_not_found",
+    try:
+        async with connection_context as connection:
+            return await _load_receipt_transactions_snapshot_from_connection(
+                connection,
                 transaction_scope_firebase_uid=transaction_scope_firebase_uid,
             )
-        if scope_id is not None and "ownership_scope_id" not in columns:
-            return [], _db_snapshot(
-                tables,
-                transactions_available=0,
-                readable=False,
-                reason="transactions_table_missing_ownership_scope_id",
-                transaction_scope_firebase_uid=transaction_scope_firebase_uid,
-                transaction_scope_ownership_scope_id=scope_id,
-            )
-
-        select_columns = [
-            "id",
-            "transaction_date",
-            "merchant",
-            "total_minor",
-            "currency",
-            _optional_column(columns, "ownership_scope_id"),
-            _optional_column(columns, "receipt_type"),
-            _optional_column(columns, "card_alias_id"),
-            _optional_column(columns, "merchant_user_edited_at"),
-            _optional_column(columns, "prompt_version"),
-        ]
-        where_clauses = ["(receipt_type is null or receipt_type != 'statement')"]
-        params: dict[str, Any] = {}
-        if scope_id is not None:
-            where_clauses.append("ownership_scope_id = :ownership_scope_id")
-            params["ownership_scope_id"] = scope_id
-        rows = (
-            (
-                await connection.execute(
-                    text(
-                        "select "
-                        + ", ".join(select_columns)
-                        + " from transactions "
-                        + "where "
-                        + " and ".join(where_clauses)
-                        + " "
-                        + "order by transaction_date, id"
-                    ),
-                    params,
-                )
-            )
-            .mappings()
-            .all()
+    except OperationalError:
+        return [], _db_snapshot(
+            [],
+            transactions_available=0,
+            readable=False,
+            reason="transaction_database_unavailable",
+            transaction_scope_firebase_uid=transaction_scope_firebase_uid,
         )
+
+
+async def _load_receipt_transactions_snapshot_from_connection(
+    connection: Any,
+    *,
+    transaction_scope_firebase_uid: str | None = None,
+) -> tuple[list[_ReceiptTransaction], dict[str, Any]]:
+    tables = await connection.run_sync(lambda sync_conn: inspect(sync_conn).get_table_names())
+    if "transactions" not in tables:
+        return [], _db_snapshot(
+            tables,
+            transactions_available=0,
+            readable=False,
+            transaction_scope_firebase_uid=transaction_scope_firebase_uid,
+        )
+
+    columns = await _table_columns(connection, "transactions")
+    required = {"id", "transaction_date", "merchant", "total_minor", "currency"}
+    if not required.issubset(columns):
+        return [], _db_snapshot(
+            tables,
+            transactions_available=0,
+            readable=False,
+            reason="transactions_table_missing_required_columns",
+            transaction_scope_firebase_uid=transaction_scope_firebase_uid,
+        )
+    scope_id = await _scope_id_for_firebase_uid(
+        connection,
+        tables=tables,
+        transaction_scope_firebase_uid=transaction_scope_firebase_uid,
+    )
+    if transaction_scope_firebase_uid and scope_id is None:
+        return [], _db_snapshot(
+            tables,
+            transactions_available=0,
+            readable=True,
+            reason="transaction_scope_firebase_uid_not_found",
+            transaction_scope_firebase_uid=transaction_scope_firebase_uid,
+        )
+    if scope_id is not None and "ownership_scope_id" not in columns:
+        return [], _db_snapshot(
+            tables,
+            transactions_available=0,
+            readable=False,
+            reason="transactions_table_missing_ownership_scope_id",
+            transaction_scope_firebase_uid=transaction_scope_firebase_uid,
+            transaction_scope_ownership_scope_id=scope_id,
+        )
+
+    select_columns = [
+        "id",
+        "transaction_date",
+        "merchant",
+        "total_minor",
+        "currency",
+        _optional_column(columns, "ownership_scope_id"),
+        _optional_column(columns, "receipt_type"),
+        _optional_column(columns, "card_alias_id"),
+        _optional_column(columns, "merchant_user_edited_at"),
+        _optional_column(columns, "prompt_version"),
+    ]
+    where_clauses = ["(receipt_type is null or receipt_type != 'statement')"]
+    params: dict[str, Any] = {}
+    if scope_id is not None:
+        where_clauses.append("ownership_scope_id = :ownership_scope_id")
+        params["ownership_scope_id"] = scope_id
+    rows = (
+        (
+            await connection.execute(
+                text(
+                    "select "
+                    + ", ".join(select_columns)
+                    + " from transactions "
+                    + "where "
+                    + " and ".join(where_clauses)
+                    + " "
+                    + "order by transaction_date, id"
+                ),
+                params,
+            )
+        )
+        .mappings()
+        .all()
+    )
     transactions = [_transaction_from_row(row) for row in rows]
     return transactions, _db_snapshot(
         tables,
