@@ -2467,3 +2467,11 @@ DEFERRED: none
 CHECKS: `git diff --cached --check` (pass); `git diff --check` (pass); `cd web && npm run lint` (0 errors, 33 existing Fast Refresh warnings); `cd web && npx tsc -b` (pass); `cd web && npm test -- src/routes/-statements.test.tsx` (2 passed).
 PLAN: Phase 5 Commit marked ✅.
 Gabe-Lens brief: The statement upload form now behaves like a consent turnstile. Once a scan goes through, the file and consent reset, so the next scan has to pass through the same explicit gate again.
+
+## 2026-05-27 17:02 -04 — PUSH main -> staging
+PR: —
+CI: all passed (`staging` run 26538457661)
+PROMOTION: N/A — staging push only
+DEPLOYMENTS: P32
+STAGING: `origin/staging` updated from `7ef9d1c` to `e6d04aa`; GitHub Actions CI run 26538457661 passed 13/13 for the Phase 5 web consent-reset fix and KDBP commit bookkeeping.
+PLAN: Phase 5 Push remains ⬜ because this was the non-default staging environment; production promotion is the next push gate.
