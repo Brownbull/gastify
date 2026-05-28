@@ -2536,3 +2536,15 @@ TICK: ✅ Phase 6 Commit.
 NEXT: Route Phase 6 to `/gabe-push` so the review fixes and S23 evidence can be pushed to `origin/staging`.
 
 Gabe-Lens brief: The commit changes the Android statement journey from a button press into a proven handoff. The S23 artifact now shows the charge crossing the line into an added transaction, and the staging fixture no longer adds extra app-only rows every time we rerun the same gate.
+
+## 2026-05-28 10:40 -04 — PUSH main -> staging
+PR: —
+CI: all passed (`staging` run 26581579919, 13/13 jobs, 104s)
+PROMOTION: N/A — staging push only
+DEPLOYMENTS: P35
+STAGING: `origin/staging` updated from `b49a3cd` to `1f00a4d`; pushed `09f39ae fix(mobile): prove statement candidate creation` and `1f00a4d chore(kdbp): record Phase 6 review fixes`.
+RESOURCE SMOKE: After Railway was resized to lower CPU/RAM limits, two deployed backend statement fixture gates passed: `tests/mobile/results/runs/staging-e2e/20260528-resource-smoke/p5-statement-fixture-backend/manifest.json` and `tests/mobile/results/runs/staging-e2e/20260528-resource-smoke-r2/p5-statement-fixture-backend/manifest.json`.
+S23 RESOURCE GATE: `GASTIFY_STAGING_E2E_API_BASE_URL=https://gastify-api-staging-e2e-staging.up.railway.app GASTIFY_MOBILE_STAGE_ID=20260528-resource-smoke-s23 bash scripts/staging/run-s23-phase6-statement-gate.sh` passed after attaching the S23 to WSL USBIP, authorizing ADB, starting Metro, and opening the dev-client URL. Manifest: `tests/mobile/results/runs/staging-e2e/20260528-resource-smoke-s23/attempts/143225Z/p5-phase6-statement-reconciliation-active/manifest.json`; result `passed`, device `RFCW90N4BYP`, provider `fixture`, API URL deployed staging-e2e.
+RAILWAY METRICS: Post-run `railway metrics --all --environment staging --since 20m --json` showed `gastify-api-staging-e2e` at about 0.6% CPU and 308 MB / 1 GB RAM, `Postgres-67_W` at about 0.2% CPU and 61 MB / 1 GB RAM, and `gastify-web-staging` at about 10 MB / 512 MB RAM.
+PLAN: Phase 6 Push remains ⬜ because this was the non-default staging environment; production promotion is the next push gate once we choose to promote tested `origin/staging`.
+Gabe-Lens brief: The Android statement lane is now staged with its review fix and resource proof. The smaller Railway box still carried the S23 journey: PDF picked, consent granted, buckets loaded, statement-only charge added, and clean sign-out verified.
