@@ -2656,3 +2656,10 @@ PLATFORM PROGRESS: Phase 2 now has a stronger analytics target: the rollup engin
 CHECKS: `cd backend && uv run ruff check app tests` (pass); `cd backend && uv run mypy app/ --no-error-summary` (pass); `cd backend && uv run pytest tests/test_insights_contract.py tests/test_reference_categories.py -q` (14 passed); `cd backend && uv run pytest tests/ -x --tb=line -q` (655 passed, 2 skipped, 1 warning); `git diff --check` (pass).
 TICK: ✅ Phase 1 Review.
 NEXT: Route to `/gabe-commit` for the P6 Phase 1 contract set.
+
+## 2026-05-28 17:48 -04 — [605d633] feat(insights): add P6 analytics contract
+FINDINGS: 0 commit-gate blockers. Direct `.kdbp/ROADMAP.md` edit accepted as status reconciliation after P5 completion and P6 activation; commit carries `Scope-Bypass-Audit: true`.
+ACTIONS: Committed the P6 Phase 1 analytics contract, deterministic seed corpus, locked March expected output, review fixes, KDBP roadmap/plan/decision updates, runbook, and Data Model well doc note.
+CHECKS: `cd backend && uv run ruff check app tests` (pass); `cd backend && uv run mypy app/ --no-error-summary` (pass); `cd backend && uv run pytest tests/ -x --tb=line -q` (655 passed, 2 skipped, 1 warning); `git diff --cached --check` (pass).
+TICK: ✅ Phase 1 Commit.
+NEXT: Route to `/gabe-push` for the P6 Phase 1 contract set.
