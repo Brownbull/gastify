@@ -2610,3 +2610,13 @@ PRODUCTION PUSH: Promoted tested `origin/staging` to `origin/main`; GitHub Actio
 PENDING: Re-surfaced classifier item P26 remains deferred; incremented `Times Deferred` to 7 because no triage action was selected during the push.
 PLAN: Phase 7 Push marked ✅. Phase 7 is complete; P5 Statement Reconciliation + Cards is ready for plan completion routing.
 Gabe-Lens brief: The P5 statement lane is now fully shipped. The final push moved the tested staging head to main, with Web, backend, S23, edge evidence, and CI all pointing at the same exit-gate package.
+
+## 2026-05-28 16:56 -04 — PLAN RECONCILIATION: Phase 3 push tick
+SCOPE: Reconciled the stale P5 Phase 3 Push cell before plan archival.
+EVIDENCE: Deployment `P31` promoted `origin/staging` to `origin/main` at `4354ad0` and explicitly carried the Phase 3 reconciliation engine alongside Phase 4 prompt-lab/backend hardening. Staging CI run `26530619227` and main CI run `26530813772` passed 13/13.
+TICK: ✅ Phase 3 Push.
+
+## 2026-05-28 16:56 -04 — PLAN COMPLETED: P5 Statement Reconciliation + Cards
+ARCHIVE: .kdbp/archive/completed_PLAN_2026-05-28_p5-statement-reconciliation-cards.md
+PHASES COMPLETED: 8 of 8
+REASON: Goal achieved — statement upload, card aliases, extraction, deterministic primary parsing, promoted Gemini fallback with caveats, reconciliation buckets, Web desktop validation, Android/S23 validation, and the final P5 exit gate are complete. iOS runtime testing remains deferred post-roadmap by D47/P31.
