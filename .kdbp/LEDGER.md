@@ -2582,3 +2582,11 @@ REVIEW: `.kdbp/REVIEW.md` updated to resolved with verdict APPROVE and confidenc
 TICK: ✅ Phase 7 Review.
 NEXT: Route to `/gabe-commit` for Phase 7 exit-gate harness, evidence packet, and KDBP review closure.
 Gabe-Lens brief: The runway cleanup is now scoped. New statement test stages reuse the same fixture history instead of piling up another month of app-only rows, so future P5 checks stay readable while the current Web and S23 proof remains intact.
+
+## 2026-05-28 16:46 -04 — [7d23447] test(statements): close p5 exit gate
+FINDINGS: 1 medium Phase 7 review finding fixed before commit; no open blockers.
+ACTIONS: Committed the P5 Phase 7 exit-gate harness updates, shared 20-day fixture-history scope, S23 wrapper preflight flag, durable exit evidence packet, and resolved review document.
+CHECKS: `python3 -m py_compile scripts/staging/run-statement-fixture-gate.py` (pass); `bash -n scripts/staging/run-s23-phase6-statement-gate.sh scripts/staging/run-statement-fixture-gate.py tests/mobile/scripts/seed-statement-fixture.sh tests/mobile/scripts/run-maestro.sh` (pass); `cd backend && uv run ruff check ../scripts/staging/run-statement-fixture-gate.py` (pass); `cd backend && uv run pytest tests/test_statement_worker.py tests/test_statement_reconciliation.py tests/test_statement_routing.py tests/test_statement_stream.py tests/test_statements.py -q` (59 passed); `git diff --cached --check` (pass).
+TICK: ✅ Phase 7 Commit.
+NEXT: Route to `/gabe-push` for the P5 exit-gate candidate; iOS remains deferred by D47/P31.
+Gabe-Lens brief: The P5 exit package is now sealed for shipping. The commit keeps the deployed proof, edge matrix, and fixture cleanup together so the next step can focus on pushing and watching CI instead of rediscovering what was tested.
