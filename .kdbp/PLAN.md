@@ -3,7 +3,7 @@
 <!-- status: active -->
 <!-- project_type: code -->
 <!-- created: 2026-05-24 -->
-<!-- last_updated: 2026-05-27 -->
+<!-- last_updated: 2026-05-28 -->
 
 ## Goal
 
@@ -40,7 +40,7 @@ Runtime-gated P5 phases must close against branch-backed Railway staging evidenc
 | 3 | Reconciliation engine + coverage metric | ent | ✅ | ✅ | ✅ | ⬜ |
 | 4 | Statement Gemini prompt lab + coalesce gate | ent | ✅ | ✅ | ✅ | ✅ |
 | 5 | Web statement reconciliation flow | ent | ✅ | ✅ | ✅ | ✅ |
-| 6 | Android mobile statement reconciliation flow | ent | 🔄 | ⬜ | ✅ | ⬜ |
+| 6 | Android mobile statement reconciliation flow | ent | ✅ | ✅ | ✅ | ⬜ |
 | 7 | P5 exit gate + edge tests | ent | ⬜ | ⬜ | ⬜ | ⬜ |
 
 ## Phase Details
