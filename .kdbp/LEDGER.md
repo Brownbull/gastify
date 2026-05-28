@@ -2657,9 +2657,20 @@ CHECKS: `cd backend && uv run ruff check app tests` (pass); `cd backend && uv ru
 TICK: ✅ Phase 1 Review.
 NEXT: Route to `/gabe-commit` for the P6 Phase 1 contract set.
 
-## 2026-05-28 17:48 -04 — [605d633] feat(insights): add P6 analytics contract
+## 2026-05-28 17:48 -04 — [b667ca1] feat(insights): add P6 analytics contract
 FINDINGS: 0 commit-gate blockers. Direct `.kdbp/ROADMAP.md` edit accepted as status reconciliation after P5 completion and P6 activation; commit carries `Scope-Bypass-Audit: true`.
 ACTIONS: Committed the P6 Phase 1 analytics contract, deterministic seed corpus, locked March expected output, review fixes, KDBP roadmap/plan/decision updates, runbook, and Data Model well doc note.
 CHECKS: `cd backend && uv run ruff check app tests` (pass); `cd backend && uv run mypy app/ --no-error-summary` (pass); `cd backend && uv run pytest tests/ -x --tb=line -q` (655 passed, 2 skipped, 1 warning); `git diff --cached --check` (pass).
 TICK: ✅ Phase 1 Commit.
 NEXT: Route to `/gabe-push` for the P6 Phase 1 contract set.
+
+## 2026-05-28 18:08 -04 — PUSH main -> staging
+PR: —
+CI: ✅ 13/13 (117s) — GitHub Actions run `26605045075` for `133a076`
+PROMOTION: staging-only push; production promotion still pending.
+DEPLOYMENTS: P39  (added row to .kdbp/DEPLOYMENTS.md)
+STAGING: `origin/staging` updated from `8e03928` to `133a076`; pushed `a5479cb`, `cc423e2`, `dbd04b7`, `b667ca1`, and `133a076`.
+CI FIX: Initial staging run `26604835283` failed on backend `ruff format --check` and a gitleaks false positive from `InsightSeedTransaction.key`. Rewrote the local Phase 1 commits so the fixture identifier field is `fixture_id`, verified local gitleaks/ruff/mypy/focused pytest, then force-updated only `origin/staging` with lease.
+PLAN: Phase 1 Push remains ⬜ because this was the non-default staging environment.
+PENDING: Re-surfaced classifier item P26 remains deferred; incremented `Times Deferred` to 8 because no triage action was selected during the push.
+Gabe-Lens brief: Phase 1 is now on the staging track. The analytics contract, fixture corpus, and review hardening are in the integration lane with green CI, while production remains a separate promotion step.
