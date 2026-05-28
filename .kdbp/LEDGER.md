@@ -2674,3 +2674,13 @@ CI FIX: Initial staging run `26604835283` failed on backend `ruff format --check
 PLAN: Phase 1 Push remains ⬜ because this was the non-default staging environment.
 PENDING: Re-surfaced classifier item P26 remains deferred; incremented `Times Deferred` to 8 because no triage action was selected during the push.
 Gabe-Lens brief: Phase 1 is now on the staging track. The analytics contract, fixture corpus, and review hardening are in the integration lane with green CI, while production remains a separate promotion step.
+
+## 2026-05-28 19:02 -04 — PUSH staging -> main
+PR: —
+CI: ✅ 13/13 (111s) — GitHub Actions run `26607287523` for `133a076`
+PROMOTION: promoted `origin/staging` -> `origin/main` at `133a076`
+DEPLOYMENTS: P40  (added row to .kdbp/DEPLOYMENTS.md)
+PRODUCTION PUSH: Promoted tested `origin/staging` to `origin/main`; GitHub Actions CI run `26607287523` passed 13/13 after staging CI run `26605045075`.
+PLAN: Phase 1 Push marked ✅. Phase 1 is complete.
+PENDING: Re-surfaced classifier item P26 remains deferred; incremented `Times Deferred` to 9 because no triage action was selected during the push.
+Gabe-Lens brief: The P6 analytics contract is now shipped through the full lane. The seeded 3-month corpus and monthly insight shape are on main with green staging and production CI, so Phase 2 can build the rollup engine against a stable target.
