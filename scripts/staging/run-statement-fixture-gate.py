@@ -13,6 +13,7 @@ import time
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, cast
+from urllib.parse import urlencode
 
 import httpx
 from pypdf import PdfWriter
@@ -137,10 +138,12 @@ def generated_pdf_bytes(stage_id: str) -> bytes:
     buffer = io.BytesIO()
     writer = PdfWriter()
     writer.add_blank_page(width=144, height=144)
+    generated_at = datetime.now(UTC).isoformat()
     writer.add_metadata(
         {
             "/Title": "Gastify P5 statement fixture",
             "/Subject": f"Generated staging-e2e statement upload fixture {stage_id}",
+            "/Keywords": f"gastify-e2e-fixture-generated-at:{generated_at}",
         }
     )
     writer.write(buffer)
@@ -200,6 +203,72 @@ def request_no_content(
     response.raise_for_status()
 
 
+def find_fixture_match_transaction(
+    client: httpx.Client,
+    *,
+    api_base_url: str,
+    token: str,
+) -> dict[str, Any] | None:
+    existing = request_json(
+        client,
+        "GET",
+        f"{api_base_url}/api/v1/transactions?"
+        + urlencode(
+            {
+                "date_from": "2026-05-03",
+                "date_to": "2026-05-03",
+                "merchant": "Supermercado Fixture",
+            }
+        ),
+        token=token,
+    )
+    if not isinstance(existing, dict):
+        return None
+    for transaction in existing.get("data", []):
+        if (
+            isinstance(transaction, dict)
+            and transaction.get("merchant", "").casefold() == "supermercado fixture"
+            and transaction.get("total_minor") == 19_990
+            and transaction.get("currency") == FIXTURE_CURRENCY
+        ):
+            return transaction
+    return None
+
+
+def find_fixture_receipt_only_transaction(
+    client: httpx.Client,
+    *,
+    api_base_url: str,
+    token: str,
+    stage_id: str,
+) -> dict[str, Any] | None:
+    merchant = f"Receipt Only Fixture {stage_id}"
+    existing = request_json(
+        client,
+        "GET",
+        f"{api_base_url}/api/v1/transactions?"
+        + urlencode(
+            {
+                "date_from": "2026-05-06",
+                "date_to": "2026-05-06",
+                "merchant": merchant,
+            }
+        ),
+        token=token,
+    )
+    if not isinstance(existing, dict):
+        return None
+    for transaction in existing.get("data", []):
+        if (
+            isinstance(transaction, dict)
+            and transaction.get("merchant", "").casefold() == merchant.casefold()
+            and transaction.get("total_minor") == 7_777
+            and transaction.get("currency") == FIXTURE_CURRENCY
+        ):
+            return transaction
+    return None
+
+
 def seed_fixture_transactions(
     client: httpx.Client,
     *,
@@ -207,61 +276,52 @@ def seed_fixture_transactions(
     token: str,
     stage_id: str,
 ) -> dict[str, Any]:
-    existing = request_json(
+    matching = find_fixture_match_transaction(
         client,
-        "GET",
-        (
-            f"{api_base_url}/api/v1/transactions"
-            "?date_from=2026-05-03&date_to=2026-05-03&merchant=Supermercado%20Fixture"
-        ),
+        api_base_url=api_base_url,
         token=token,
     )
-    deleted: list[str] = []
-    if isinstance(existing, dict):
-        for transaction in existing.get("data", []):
-            if (
-                isinstance(transaction, dict)
-                and transaction.get("merchant", "").casefold() == "supermercado fixture"
-                and transaction.get("total_minor") == 19_990
-                and transaction.get("currency") == FIXTURE_CURRENCY
-            ):
-                transaction_id = str(transaction["id"])
-                request_no_content(
-                    client,
-                    "DELETE",
-                    f"{api_base_url}/api/v1/transactions/{transaction_id}",
-                    token=token,
-                )
-                deleted.append(transaction_id)
-
-    matching = request_json(
+    created_matching = False
+    if matching is None:
+        matching = request_json(
+            client,
+            "POST",
+            f"{api_base_url}/api/v1/transactions",
+            token=token,
+            json={
+                "transaction_date": "2026-05-03",
+                "merchant": "Supermercado Fixture",
+                "total_minor": 19_990,
+                "currency": FIXTURE_CURRENCY,
+                "receipt_type": "scan",
+            },
+        )
+        created_matching = True
+    receipt_only = find_fixture_receipt_only_transaction(
         client,
-        "POST",
-        f"{api_base_url}/api/v1/transactions",
+        api_base_url=api_base_url,
         token=token,
-        json={
-            "transaction_date": "2026-05-03",
-            "merchant": "Supermercado Fixture",
-            "total_minor": 19_990,
-            "currency": FIXTURE_CURRENCY,
-            "receipt_type": "scan",
-        },
+        stage_id=stage_id,
     )
-    receipt_only = request_json(
-        client,
-        "POST",
-        f"{api_base_url}/api/v1/transactions",
-        token=token,
-        json={
-            "transaction_date": "2026-05-06",
-            "merchant": f"Receipt Only Fixture {stage_id}",
-            "total_minor": 7_777,
-            "currency": FIXTURE_CURRENCY,
-            "receipt_type": "scan",
-        },
-    )
+    created_receipt_only = False
+    if receipt_only is None:
+        receipt_only = request_json(
+            client,
+            "POST",
+            f"{api_base_url}/api/v1/transactions",
+            token=token,
+            json={
+                "transaction_date": "2026-05-06",
+                "merchant": f"Receipt Only Fixture {stage_id}",
+                "total_minor": 7_777,
+                "currency": FIXTURE_CURRENCY,
+                "receipt_type": "scan",
+            },
+        )
+        created_receipt_only = True
     return {
-        "deleted_existing_match_ids": deleted,
+        "created_matching_transaction": created_matching,
+        "created_receipt_only_transaction": created_receipt_only,
         "matching_transaction": matching,
         "receipt_only_transaction": receipt_only,
     }
@@ -336,6 +396,7 @@ def main() -> int:
                 "POST",
                 f"{api_base_url}/api/v1/statements",
                 token=token,
+                data={"ai_processing_consent": "true"},
                 files={"file": ("p5-statement-fixture.pdf", pdf_bytes, "application/pdf")},
             )
             json_write(result_dir / "upload-response.json", upload)
@@ -382,7 +443,11 @@ def main() -> int:
                 raise RuntimeError(f"Expected 2 fixture lines, got: {lines}")
 
             descriptions = {line.get("description") for line in lines if isinstance(line, dict)}
-            if {"SUPERMERCADO FIXTURE", "PAGO RECIBIDO"} - descriptions:
+            has_statement_only_fixture = any(
+                str(description).startswith("STATEMENT ONLY FIXTURE")
+                for description in descriptions
+            )
+            if "SUPERMERCADO FIXTURE" not in descriptions or not has_statement_only_fixture:
                 raise RuntimeError(f"Unexpected fixture line descriptions: {descriptions}")
 
             reconciliation = request_json(
@@ -403,6 +468,21 @@ def main() -> int:
                 and run.get("receipt_only_count", 0) >= 1
             ):
                 raise RuntimeError(f"Expected three reconciliation buckets: {run}")
+            statement_only = reconciliation.get("statement_only")
+            if args.require_three_buckets and isinstance(statement_only, list):
+                candidate_descriptions = {
+                    item.get("statement_line", {}).get("description")
+                    for item in statement_only
+                    if isinstance(item, dict) and item.get("candidate_transaction")
+                }
+                if not any(
+                    str(description).startswith("STATEMENT ONLY FIXTURE")
+                    for description in candidate_descriptions
+                ):
+                    raise RuntimeError(
+                        "Expected statement-only fixture charge to expose a create candidate: "
+                        f"{statement_only}"
+                    )
 
             manifest.update(
                 {

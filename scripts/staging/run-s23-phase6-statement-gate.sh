@@ -12,6 +12,42 @@ fi
 bash "${ROOT_DIR}/scripts/staging/check-backend-ready.sh" \
   "${GASTIFY_STAGING_E2E_API_BASE_URL}"
 
+DEFAULT_STAGE_ID="$(date -u '+%Y%m%d')-phase6-s23-statement-gate"
+
+if [[ "${GASTIFY_SKIP_STATEMENT_BACKEND_FIXTURE_GATE:-false}" != "true" ]]; then
+  (
+    cd "${ROOT_DIR}/backend"
+    uv run python ../scripts/staging/run-statement-fixture-gate.py \
+      --api-base-url "${GASTIFY_STAGING_E2E_API_BASE_URL}" \
+      --stage-id "${GASTIFY_MOBILE_STAGE_ID:-${GASTIFY_MOBILE_RUN_STAGE_ID:-${DEFAULT_STAGE_ID}}}" \
+      --seed-fixture-transactions \
+      --require-three-buckets
+  )
+fi
+
+if [[ -z "${GASTIFY_STATEMENT_FIXTURE_PDF:-}" ]]; then
+  UNIQUE_FIXTURE_DIR="${ROOT_DIR}/.tmp/mobile-statement-fixtures"
+  UNIQUE_FIXTURE_PATH="${UNIQUE_FIXTURE_DIR}/$(date -u '+%Y%m%dT%H%M%SZ')-gastify-statement-e2e.pdf"
+  mkdir -p "${UNIQUE_FIXTURE_DIR}"
+  (
+    cd "${ROOT_DIR}/backend"
+    uv run python - "${UNIQUE_FIXTURE_PATH}" <<'PY'
+import sys
+from pathlib import Path
+
+from pypdf import PdfWriter
+
+path = Path(sys.argv[1])
+writer = PdfWriter()
+writer.add_blank_page(width=144, height=144)
+writer.add_metadata({"/Title": f"Gastify S23 statement fixture {path.stem}"})
+with path.open("wb") as handle:
+    writer.write(handle)
+PY
+  )
+  export GASTIFY_STATEMENT_FIXTURE_PDF="${UNIQUE_FIXTURE_PATH}"
+fi
+
 bash "${ROOT_DIR}/tests/mobile/scripts/seed-statement-fixture.sh"
 
 # Keep the localhost Metro dev-client reachable from the USB-attached S23 when
@@ -26,7 +62,6 @@ fi
 
 cd "${ROOT_DIR}/mobile"
 
-DEFAULT_STAGE_ID="$(date -u '+%Y%m%d')-phase6-s23-statement-gate"
 DEFAULT_ATTEMPT_ID="$(date -u '+%H%M%SZ')"
 
 if [[ -z "${GASTIFY_MOBILE_STAGE_ID:-${GASTIFY_MOBILE_RUN_STAGE_ID:-}}" && "${GASTIFY_MOBILE_RUN_ID:-}" =~ ^(.+)-r([0-9]+)$ ]]; then

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   Button,
@@ -68,6 +68,9 @@ export function StatementsScreen() {
   const [consentAccepted, setConsentAccepted] = useState(false);
   const [newAliasName, setNewAliasName] = useState("");
   const [activeBucket, setActiveBucket] = useState<BucketKey>("matched");
+  const [createdCandidateIds, setCreatedCandidateIds] = useState<ReadonlySet<string>>(
+    () => new Set(),
+  );
 
   const phase = useStatementStore((state) => state.phase);
   const statement = useStatementStore((state) => state.statement);
@@ -107,6 +110,10 @@ export function StatementsScreen() {
     upload.isUploading;
   const canSubmit = Boolean(selectedAsset) && consentAccepted && !uploadLocked;
 
+  useEffect(() => {
+    setCreatedCandidateIds(new Set());
+  }, [statement?.id]);
+
   async function chooseStatementPdf() {
     const asset = await choosePdf();
     if (asset) setSelectedAsset(asset);
@@ -140,8 +147,12 @@ export function StatementsScreen() {
     setPassword("");
   }
 
-  async function createCandidate(candidate: StatementTransactionCandidate) {
+  async function createCandidate(
+    verdictId: string,
+    candidate: StatementTransactionCandidate,
+  ) {
     await createTransaction.mutateAsync(candidate as TransactionCreate);
+    setCreatedCandidateIds((current) => new Set(current).add(verdictId));
   }
 
   return (
@@ -259,6 +270,7 @@ export function StatementsScreen() {
         <ReconciliationPanel
           activeBucket={activeBucket}
           activeItems={activeItems}
+          createdCandidateIds={createdCandidateIds}
           createPending={createTransaction.isPending}
           errorMessage={reconciliationQuery.error?.message ?? null}
           isLoading={reconciliationQuery.isLoading}
@@ -515,6 +527,7 @@ function StageRow({
 function ReconciliationPanel({
   activeBucket,
   activeItems,
+  createdCandidateIds,
   createPending,
   errorMessage,
   isLoading,
@@ -526,11 +539,15 @@ function ReconciliationPanel({
 }: {
   activeBucket: BucketKey;
   activeItems: readonly StatementReconciliationBucketItem[];
+  createdCandidateIds: ReadonlySet<string>;
   createPending: boolean;
   errorMessage: string | null;
   isLoading: boolean;
   onBucketChange: (bucket: BucketKey) => void;
-  onCreateCandidate: (candidate: StatementTransactionCandidate) => Promise<void>;
+  onCreateCandidate: (
+    verdictId: string,
+    candidate: StatementTransactionCandidate,
+  ) => Promise<void>;
   onReconcile: () => void;
   reconcilePending: boolean;
   reconciliation: ReturnType<typeof useStatementReconciliation>["data"];
@@ -596,6 +613,7 @@ function ReconciliationPanel({
           activeItems.map((item) => (
             <BucketItem
               key={item.verdict.id}
+              created={createdCandidateIds.has(item.verdict.id)}
               createPending={createPending}
               item={item}
               onCreateCandidate={onCreateCandidate}
@@ -619,13 +637,18 @@ function Metric({ label, value }: { label: string; value: string | number }) {
 
 function BucketItem({
   createPending,
+  created,
   item,
   onCreateCandidate,
   showCreate,
 }: {
   createPending: boolean;
+  created: boolean;
   item: StatementReconciliationBucketItem;
-  onCreateCandidate: (candidate: StatementTransactionCandidate) => Promise<void>;
+  onCreateCandidate: (
+    verdictId: string,
+    candidate: StatementTransactionCandidate,
+  ) => Promise<void>;
   showCreate: boolean;
 }) {
   const line = item.statement_line;
@@ -680,11 +703,20 @@ function BucketItem({
           {reason.replaceAll("_", " ")}
         </Text>
       ))}
-      {showCreate && candidate ? (
+      {showCreate && candidate && created ? (
+        <View
+          accessibilityLiveRegion="polite"
+          style={styles.successBadge}
+          testID={`statement-transaction-added-${item.verdict.id}`}
+        >
+          <Text style={styles.successText}>Transaction added</Text>
+        </View>
+      ) : null}
+      {showCreate && candidate && !created ? (
         <Button
           title="Add transaction"
           testID={`statement-add-transaction-${item.verdict.id}`}
-          onPress={() => void onCreateCandidate(candidate)}
+          onPress={() => void onCreateCandidate(item.verdict.id, candidate)}
           disabled={createPending}
         />
       ) : null}

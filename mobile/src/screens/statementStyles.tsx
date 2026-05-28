@@ -264,6 +264,19 @@ export const styles = StyleSheet.create({
   stageTextPending: {
     color: "#94a3b8",
   },
+  successBadge: {
+    backgroundColor: "#dcfce7",
+    borderColor: "#86efac",
+    borderRadius: 8,
+    borderWidth: 1,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+  },
+  successText: {
+    color: "#166534",
+    fontSize: 13,
+    fontWeight: "800",
+  },
   textInput: {
     borderColor: "#cbd5e1",
     borderRadius: 8,

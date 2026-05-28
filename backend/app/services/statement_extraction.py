@@ -164,12 +164,14 @@ def extract_statement_pdf(
     raw_text = "\n".join(pages)
     text_lines = [line.strip() for line in raw_text.splitlines() if line.strip()]
     raw_text_hash = hashlib.sha256(raw_text.encode("utf-8")).hexdigest()
+    pdf_hash = hashlib.sha256(path.read_bytes()).hexdigest()
 
     if provider_name == "fixture":
         return _fixture_output(
             page_count=len(reader.pages),
             raw_text=raw_text,
             raw_text_hash=raw_text_hash,
+            fixture_seed_hash=pdf_hash,
             text_line_count=len(text_lines),
             issuer_hint=issuer_hint,
         )
@@ -215,11 +217,14 @@ def _fixture_output(
     page_count: int,
     raw_text: str,
     raw_text_hash: str,
+    fixture_seed_hash: str,
     text_line_count: int,
     issuer_hint: str | None,
 ) -> StatementExtractionOutput:
     issuer = issuer_hint or "fixture-bank"
     currency = "USD"
+    statement_only_suffix = fixture_seed_hash[:8].upper()
+    statement_only_amount = 12_000 + (int(fixture_seed_hash[:4], 16) % 1_000)
     return StatementExtractionOutput(
         pdf_status="readable",
         statement=StatementInfo(
@@ -229,9 +234,9 @@ def _fixture_output(
             closing_date=date(2026, 5, 31),
             due_date=date(2026, 6, 15),
             currency=currency,
-            total_debit_minor=29_990,
-            total_credit_minor=10_000,
-            payment_due_minor=19_990,
+            total_debit_minor=19_990 + statement_only_amount,
+            total_credit_minor=0,
+            payment_due_minor=19_990 + statement_only_amount,
             card_alias_candidate="Fixture card",
         ),
         lines=[
@@ -250,10 +255,10 @@ def _fixture_output(
             StatementLine(
                 source_order=2,
                 date=date(2026, 5, 15),
-                description="PAGO RECIBIDO",
-                amount_minor=-10_000,
+                description=f"STATEMENT ONLY FIXTURE {statement_only_suffix}",
+                amount_minor=statement_only_amount,
                 currency=currency,
-                line_type="payment",
+                line_type="charge",
                 card_alias_candidate="Fixture card",
                 amount_selection_reason="fixture selected line amount",
                 amount_candidates=[],

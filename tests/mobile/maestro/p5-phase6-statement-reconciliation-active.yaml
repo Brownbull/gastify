@@ -72,16 +72,11 @@ appId: com.gastify.mobile
 - takeScreenshot:
     path: 02-phase6-statement-entry
 - tapOn:
-    id: statement-new-alias-input
-- inputText: "S23 Statement Card"
-- hideKeyboard
-- tapOn:
-    id: statement-add-alias-button
-- extendedWaitUntil:
-    visible: "Alias selected: S23 Statement Card"
-    timeout: 30000
-- tapOn:
     id: statement-choose-pdf-button
+- tapOn:
+    id: com.google.android.documentsui:id/option_menu_search
+- inputText: "gastify-statement-e2e"
+- hideKeyboard
 - extendedWaitUntil:
     visible: "gastify-statement-e2e.pdf"
     timeout: 30000
@@ -103,6 +98,8 @@ appId: com.gastify.mobile
     timeout: 30000
 - takeScreenshot:
     path: 04-phase6-statement-progress
+- swipe:
+    direction: UP
 - extendedWaitUntil:
     visible:
       id: statement-reconciliation-panel
@@ -114,25 +111,40 @@ appId: com.gastify.mobile
 - takeScreenshot:
     path: 05-phase6-reconciliation-buckets
 - tapOn:
+    id: statement-bucket-receipt_only
+- extendedWaitUntil:
+    visible:
+      id: statement-bucket-list-receipt_only
+    timeout: 20000
+- assertVisible: "No statement row"
+- takeScreenshot:
+    path: 06-phase6-app-only-transactions
+- tapOn:
     id: statement-bucket-statement_only
 - extendedWaitUntil:
     visible:
       id: statement-bucket-list-statement_only
     timeout: 20000
 - assertVisible: "Statement only"
+- swipe:
+    direction: UP
+- extendedWaitUntil:
+    visible: "Add transaction"
+    timeout: 20000
 - takeScreenshot:
-    path: 06-phase6-statement-only-candidates
+    path: 07-phase6-statement-only-candidates
 - tapOn:
     text: "Add transaction"
-    optional: true
-- waitForAnimationToEnd:
-    timeout: 5000
+- extendedWaitUntil:
+    visible: "Transaction added"
+    timeout: 30000
+- assertNotVisible: "Add transaction"
 - takeScreenshot:
-    path: 07-phase6-after-candidate-action
+    path: 08-phase6-after-candidate-action
 - tapOn: "Back"
 - extendedWaitUntil:
     visible:
-      id: home-screen
+      id: sign-out-button
     timeout: 30000
 - tapOn:
     id: sign-out-button
@@ -141,7 +153,7 @@ appId: com.gastify.mobile
       id: sign-in-screen
     timeout: 30000
 - takeScreenshot:
-    path: 08-phase6-signed-out
+    path: 09-phase6-signed-out
 - tapOn:
     id: e2e-sign-in-button
 - extendedWaitUntil:
@@ -160,4 +172,4 @@ appId: com.gastify.mobile
 - assertNotVisible:
     id: statement-reconciliation-panel
 - takeScreenshot:
-    path: 09-phase6-reauthenticated-clean-statements
+    path: 10-phase6-reauthenticated-clean-statements

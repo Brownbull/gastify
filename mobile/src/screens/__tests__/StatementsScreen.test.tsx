@@ -302,6 +302,11 @@ describe("StatementsScreen", () => {
         total_minor: 12990,
       }),
     );
+    await waitFor(() =>
+      expect(screen.getByTestId("statement-transaction-added-verdict-1")).toBeTruthy(),
+    );
+    expect(screen.getByText("Transaction added")).toBeTruthy();
+    expect(screen.queryByTestId("statement-add-transaction-verdict-1")).toBeNull();
   });
 
   it("surfaces password-required state and submits password reprocessing", async () => {
