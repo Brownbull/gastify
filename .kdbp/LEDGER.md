@@ -2600,3 +2600,13 @@ STAGING: `origin/staging` updated from `1f00a4d` to `8e03928`; pushed `f72588c`,
 PLAN: Phase 7 Push remains ⬜ because this was the non-default staging environment.
 PENDING: Re-surfaced classifier item P26 remains deferred; incremented `Times Deferred` to 6 because no triage action was selected during the push.
 Gabe-Lens brief: Phase 7 is now on the staging track. The exit-gate proof and cleanup are in the integration lane with green CI, ready for the production promotion step once we choose to ship the tested staging head.
+
+## 2026-05-28 16:55 -04 — PUSH staging -> main
+PR: —
+CI: ✅ 13/13 (112s) — GitHub Actions run `26601589188` for `8e03928`
+PROMOTION: promoted `origin/staging` -> `origin/main` at `8e03928`
+DEPLOYMENTS: P38  (added row to .kdbp/DEPLOYMENTS.md)
+PRODUCTION PUSH: Promoted tested `origin/staging` to `origin/main`; GitHub Actions CI run `26601589188` passed 13/13 after staging CI run `26601432082`.
+PENDING: Re-surfaced classifier item P26 remains deferred; incremented `Times Deferred` to 7 because no triage action was selected during the push.
+PLAN: Phase 7 Push marked ✅. Phase 7 is complete; P5 Statement Reconciliation + Cards is ready for plan completion routing.
+Gabe-Lens brief: The P5 statement lane is now fully shipped. The final push moved the tested staging head to main, with Web, backend, S23, edge evidence, and CI all pointing at the same exit-gate package.
