@@ -1,9 +1,9 @@
 ---
 name: gastify
-version: 1.2
+version: 1.3
 created_at: 2026-04-22
-last_changed_at: 2026-05-24
-status: finalized v1.2
+last_changed_at: 2026-05-28
+status: finalized v1.3
 derived_from: SCOPE.md v1
 granularity: fine
 phase_count: 9
@@ -12,7 +12,7 @@ phase_count: 9
 # ROADMAP — Gastify
 
 > **Derived from `.kdbp/SCOPE.md`.** Medium-inertia. Updates on any `/gabe-scope-change` (addition, pivot, addition-of-phase, removal-of-phase) or on phase completion.
-> Status: **finalized v1.2** (2026-05-24).
+> Status: **finalized v1.3** (2026-05-28). Phase status reconciled after P5 completion; P6 is the next active roadmap phase.
 
 ## §1 How to read this file
 
@@ -27,12 +27,12 @@ phase_count: 9
 
 | # | Phase | Goal | Depends on | Parallel with | REQs | Status |
 |---|---|---|---|---|---|---|
-| P1 | **Foundation** | Backend scaffold + identity + ownership-scope + money/FX + consent/processing register + observability — the stage on which everything else stands. | — | — | REQ-15, REQ-16, REQ-17, REQ-18, REQ-19, REQ-20, REQ-21, REQ-22 | pending |
-| P2 | **Receipt Scan Pipeline** | Photo → two-stage vision-LLM extraction → math-gate → L4 item categorization + L2 transaction categorization → persisted transaction with USD shadow. Dual-transport scan-progress streaming. | P1 | — | REQ-01, REQ-02, REQ-03, REQ-04, REQ-12 | pending |
-| P3 | **Web Portal MVP** | Responsive static SPA — auth, receipt scan flow, transaction ledger, manual edits with `user_edited_at`, sign-out isolation. | P1, P2 | P4 | REQ-05 (web slice), REQ-13, REQ-14 (web), REQ-23 | pending |
-| P4 | **Mobile App MVP** | Single cross-platform codebase with Android-first runtime proof for the current desktop/dev roadmap cycle. Native camera, bidirectional streaming, native keystore, sign-out isolation. iOS runtime lane deferred post-roadmap. | P1, P2 | P3 | REQ-05 (mobile slice), REQ-13, REQ-14 (mobile), REQ-24, REQ-25 | pending |
-| P5 | **Statement Reconciliation + Cards** | PDF statement upload → extraction → match against existing receipts → 3-bucket view + coverage metric. Card alias CRUD (no PCI). | P2 | P6 | REQ-07, REQ-08, REQ-09 | pending |
-| P6 | **Insights + Item Flags** | Monthly view with deterministic taxonomy rollups (L2 transaction categories and L4 item categories grouped through L1/L3), gravity-center detection, item urgency/special-case flag with personal-only scope enforcement. | P2 | P5 | REQ-06, REQ-10, REQ-11 | pending |
+| P1 | **Foundation** | Backend scaffold + identity + ownership-scope + money/FX + consent/processing register + observability — the stage on which everything else stands. | — | — | REQ-15, REQ-16, REQ-17, REQ-18, REQ-19, REQ-20, REQ-21, REQ-22 | completed |
+| P2 | **Receipt Scan Pipeline** | Photo → two-stage vision-LLM extraction → math-gate → L4 item categorization + L2 transaction categorization → persisted transaction with USD shadow. Dual-transport scan-progress streaming. | P1 | — | REQ-01, REQ-02, REQ-03, REQ-04, REQ-12 | completed |
+| P3 | **Web Portal MVP** | Responsive static SPA — auth, receipt scan flow, transaction ledger, manual edits with `user_edited_at`, sign-out isolation. | P1, P2 | P4 | REQ-05 (web slice), REQ-13, REQ-14 (web), REQ-23 | completed |
+| P4 | **Mobile App MVP** | Single cross-platform codebase with Android-first runtime proof for the current desktop/dev roadmap cycle. Native camera, bidirectional streaming, native keystore, sign-out isolation. iOS runtime lane deferred post-roadmap. | P1, P2 | P3 | REQ-05 (mobile slice), REQ-13, REQ-14 (mobile), REQ-24, REQ-25 | completed |
+| P5 | **Statement Reconciliation + Cards** | PDF statement upload → extraction → match against existing receipts → 3-bucket view + coverage metric. Card alias CRUD (no PCI). | P2 | P6 | REQ-07, REQ-08, REQ-09 | completed |
+| P6 | **Insights + Item Flags** | Monthly view with deterministic taxonomy rollups (L2 transaction categories and L4 item categories grouped through L1/L3), gravity-center detection, item urgency/special-case flag with personal-only scope enforcement. | P2 | P5 | REQ-06, REQ-10, REQ-11 | active |
 | P7 | **Compliance + Launch Hardening** | Four-jurisdiction regulatory readiness validated (Law 21.719, GDPR, PIPEDA, CCPA/CPRA) + launch infra + cutover drill. Paid-tier LLM pre-commit in place. Monetization plumbing live. | P1, P2, P3, P4, P5, P6 | — | Consolidates + audits REQ-20, REQ-21 | pending |
 | P8 | **Structured-Boleta Shortcut** | Chilean electronic-boleta QR/CAF parser bypasses the vision LLM for structured receipts — cuts per-scan cost on SII-Resolution-52/2026 electronic boletas. Nice-to-have, post-MVP. | P2, P7 | P9 | REQ-26 | pending |
 | P9 | **Cohort Benchmarking (DP-engineered)** | Consent-gated cohort aggregation with k ≥ 20 floor, ε ≤ 1 DP noise, sensitive-category suppression, revocation-aware recompute. Unlocks SC-11 / JTBD-05. Post-MVP. | P1, P6, P7 | P8 | REQ-27 | pending |

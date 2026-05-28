@@ -53,6 +53,12 @@
 | D53 | 2026-05-24 | P5-Ph7 Exit gate + edge tests tier = ent | P5 closure must prove the full deployed journey and financial edge cases across Railway, web, and Android/S23 artifacts | MVP golden-path only; Scale load/performance suite beyond 200-line statement bound | active | Exit signal expands OR statement line count/SLO target changes |
 | D54 | 2026-05-25 | P5-Ph0 Statement corpus + extraction contract preflight tier = ent | Private statement PDFs, encrypted/password paths, AI prompt-lab scoring, and no-PCI output contracts must be designed before runtime schema/UI work | Jump directly to DB/runtime tables; mix PDFs into receipt prompt lab; commit raw PDF fixtures | active | Statement contract changes OR private corpus handling changes |
 | D55 | 2026-05-25 | P5-Ph4 Statement Gemini prompt lab + coalesce gate tier = ent | Live provider extraction quality needs a statement-only Gemini runner, no-cache evidence, coalesce diagnostics, cost artifacts, and failure ownership before runtime provider promotion | Reuse receipt prompt lab; promote fixture extraction without provider evidence; wait until Web/Android are built to test Gemini | active | Statement Gemini prompt promotion starts OR representative prompt-lab failures remain unclassified |
+| D56 | 2026-05-28 | P6-Ph1 Analytics contract + seeded 3-month corpus tier = ent | Analytics will become a user-visible trust surface; fixture-backed deterministic contracts prevent taxonomy, currency, and user-edit drift before UI work | Build charts first; derive expected outputs manually during UI review; use production data as the first validation set | active | Analytics schema changes OR taxonomy parent model changes |
+| D57 | 2026-05-28 | P6-Ph2 Rollup + gravity-center engine tier = ent | Monthly top categories and gravity centers must be deterministic, explainable, ownership-scoped, cache-safe, and stable under user edits | Client-side aggregation; black-box anomaly score; Scale event-sourced analytics pipeline | active | Baseline thresholds change OR analytics volume exceeds current cache strategy |
+| D58 | 2026-05-28 | P6-Ph3 Item flag persistence + exclusion semantics tier = ent | Item flags are personal privacy/context markers; aggregate exclusion must not mutate transaction detail or leak into future shared/cohort contexts | Store flags as display-only client state; delete flagged items from reports; Scale policy engine for all item annotations | active | Household sharing or cohort benchmarking consumes item flags |
+| D59 | 2026-05-28 | P6-Ph4 Web insights + flag review flow tier = ent | Web P6 is a primary user-facing analytics surface with cache invalidation, flag mutation, sign-out cleanup, and deployed browser proof requirements | Static dashboard without mutation; mobile-only insights first; Scale interactive report builder | active | Web analytics adds export/reporting or collaborative review |
+| D60 | 2026-05-28 | P6-Ph5 Android insights + flag review flow tier = ent | Android/S23 remains the runtime mobile proof lane; the insights journey must prove native cache cleanup, flag mutation, and category drilldowns | Web-only analytics; unit-only mobile proof; Scale offline analytics cache | active | iOS lane is pulled forward OR offline analytics becomes required |
+| D61 | 2026-05-28 | P6-Ph6 Exit gate + performance evidence tier = ent | P6 closure must prove the roadmap <=20s top-5 bound, aggregate exclusion, cache behavior, web rendering, and S23 runtime artifacts on staging | Golden-path-only tests; defer performance to P7; Scale load/performance suite beyond staged fixture volume | active | P6 exit signal changes OR staging proof cannot meet the 20s target |
 
 <!-- Status: active / superseded / revisit -->
 <!-- BEHAVIOR.md constraints reference decision IDs: "All integrations mocked (ref D1)" -->
@@ -1745,6 +1751,246 @@ after the full P1-P9 roadmap is implemented.
 - Runtime statement extraction provider switches from fixture/Codex path to live Gemini.
 - Representative Gemini runs contain unclassified provider, prompt, coalesce, PDF/OCR, or expected-fixture failures.
 - The statement extraction contract changes.
+
+### Status
+- accepted
+
+---
+
+## D56 — P6 Phase 1 analytics contract + seeded 3-month corpus tier: ent (2026-05-28)
+
+**Phase:** P6-Ph1 Analytics contract + seeded 3-month corpus
+**Types:** `data-contract, analytics, test`
+**Tier chosen:** ent
+**Prototype:** no
+**Reason:** Analytics will become a user-visible trust surface. The contract needs deterministic expected outputs before UI work so taxonomy parent rollups, currency treatment, user-edited fields, statement-created transactions, and item flags do not drift silently.
+
+### Sections rendered
+- Core (always, all 4 dims)
+- Data: schema stability, fixture integrity, migration awareness
+- Analytics: rollup semantics, expected outputs, explainability
+- Test: fixture-backed contract tests and regression evidence
+
+### Dimensions suppressed
+- Web/native UI — reason: later phases own rendering.
+- Scale data warehouse — reason: fixture-backed transactional queries are enough before launch.
+- Cohort/DP aggregation — reason: P9 owns cohort benchmarking.
+- Report export — reason: launch reports are not part of P6.
+
+### Grade overrides
+- Data.Contract: Ent required. Reason: downstream web/mobile views and P7 compliance checks depend on stable analytics semantics.
+- Test.Expected outputs: Ent required. Reason: top-5 and gravity-center results must be reproducible from seeded data.
+- Analytics.Explainability: Ent required. Reason: deterministic parent rollups are part of the product promise, not cosmetic detail.
+
+### Δ deferred by tier choice
+- Scale warehouse/OLAP pipeline is deferred.
+- Cohort benchmarking and DP noise are deferred to P9.
+- Export/report-generation hardening is deferred.
+
+### Review trigger
+- Analytics response schemas change.
+- Canonical taxonomy parent relationships change.
+- Statement-created transactions change how they enter analytics.
+
+### Status
+- accepted
+
+---
+
+## D57 — P6 Phase 2 rollup + gravity-center engine tier: ent (2026-05-28)
+
+**Phase:** P6-Ph2 Rollup + gravity-center engine
+**Types:** `analytics, data-view, persistence`
+**Tier chosen:** ent
+**Prototype:** no
+**Reason:** Monthly insights and gravity centers are user-facing financial interpretation. They must be deterministic, explainable, ownership-scoped, cache-safe, and stable under user edits.
+
+### Sections rendered
+- Core (always, all 4 dims)
+- Data: query shape, cache invalidation, ownership isolation
+- Analytics: top categories, trailing baseline, growth/shrink thresholds
+- Data-view: drilldown support and response shape
+
+### Dimensions suppressed
+- Black-box ML anomaly detection — reason: roadmap requires deterministic explainability.
+- Scale materialized analytics warehouse — reason: current volume can use transactional queries plus focused caching.
+- Cohort comparison — reason: P9 owns cohort analytics.
+
+### Grade overrides
+- Analytics.Determinism: Ent required. Reason: the user must understand why a category is growing or shrinking.
+- Data.Cache invalidation: Ent required. Reason: user edits, statement-created transactions, and item flags must refresh aggregates correctly.
+- Multi-tenant isolation: Ent required. Reason: analytics queries are privacy-sensitive.
+
+### Δ deferred by tier choice
+- Scale event-sourced analytics pipeline is deferred.
+- Automated threshold learning is deferred.
+- Cross-user cohort baselines are deferred.
+
+### Review trigger
+- Gravity-center thresholds change.
+- Analytics latency exceeds the 20-second roadmap bound.
+- Cache invalidation becomes inconsistent after transaction or item mutations.
+
+### Status
+- accepted
+
+---
+
+## D58 — P6 Phase 3 item flag persistence + exclusion semantics tier: ent (2026-05-28)
+
+**Phase:** P6-Ph3 Item flag persistence + exclusion semantics
+**Types:** `data-migration, persistence, user-facing, multi-tenant`
+**Tier chosen:** ent
+**Prototype:** no
+**Reason:** Item flags are personal privacy/context markers. Aggregate exclusion must be explicit and reversible, while the source transaction remains visible and future shared/cohort contexts cannot leak another user's personal annotations.
+
+### Sections rendered
+- Core (always, all 4 dims)
+- Data: migration, schema constraints, auditability
+- Multi-tenant: user-private ownership and future household safety
+- UI/UX: mutation semantics and transaction-detail visibility
+
+### Dimensions suppressed
+- Full household sharing policy — reason: household UI is not in MVP.
+- Scale policy engine — reason: two current flag types do not need a general rules engine.
+- Tax/reporting flags — reason: explicit non-goal.
+- Recurring-series automation — reason: statement recurrence fields already exist but automation is out of scope.
+- Cohort suppression automation — reason: P9 owns cohort flow.
+
+### Grade overrides
+- Data.Migration safety: Ent required. Reason: item-level financial records must remain intact.
+- Multi-tenant.Row isolation: Ent required. Reason: flags are personal-only and must not bleed into shared contexts.
+- UI/UX.Error recovery: Ent required. Reason: flag mutations must not leave aggregate and detail views contradictory.
+
+### Δ deferred by tier choice
+- Scale annotation policy engine is deferred.
+- Household/shared-ledger flag controls are deferred.
+- Cohort-specific suppression wiring is deferred to P9.
+
+### Review trigger
+- Household sharing lands.
+- Cohort benchmarking consumes flagged item state.
+- New flag classes are added beyond urgency/special-case.
+
+### Status
+- accepted
+
+---
+
+## D59 — P6 Phase 4 web insights + flag review flow tier: ent (2026-05-28)
+
+**Phase:** P6-Ph4 Web insights + flag review flow
+**Types:** `web, user-facing, client-state, data-view`
+**Tier chosen:** ent
+**Prototype:** no
+**Reason:** Web P6 is a primary user-facing analytics surface. It must prove deployed rendering, cache invalidation after flag changes, drilldowns, and sign-out cleanup rather than only static dashboard markup.
+
+### Sections rendered
+- Core (always, all 4 dims)
+- Web: deployed browser journey and responsive behavior
+- Client State: cache keys, invalidation, stale data controls
+- UI/UX: data density, drilldown, loading/error states
+
+### Dimensions suppressed
+- Full report builder — reason: P6 only needs monthly insights and drilldown.
+- Export/PDF output — reason: not part of the roadmap exit signal.
+- Collaborative review — reason: household sharing is post-MVP.
+- Offline analytics — reason: web runtime is online-first.
+
+### Grade overrides
+- Client State.Cache invalidation: Ent required. Reason: flagged items must disappear from aggregates immediately while staying in transaction detail.
+- Web.Runtime proof: Ent required. Reason: roadmap closure requires deployed browser evidence.
+- UI/UX.Accessibility baseline: Ent required. Reason: analytics tables and controls are primary product surfaces.
+
+### Δ deferred by tier choice
+- Scale report builder and exports are deferred.
+- Offline-first web analytics are deferred.
+- Household/collaborative analytics views are deferred.
+
+### Review trigger
+- Web insights adds exports or complex custom report filters.
+- Analytics cache behavior diverges from Android.
+- Browser proof cannot meet the top-5 visibility bound.
+
+### Status
+- accepted
+
+---
+
+## D60 — P6 Phase 5 Android insights + flag review flow tier: ent (2026-05-28)
+
+**Phase:** P6-Ph5 Android insights + flag review flow
+**Types:** `native-mobile, user-facing, client-state, data-view`
+**Tier chosen:** ent
+**Prototype:** no
+**Reason:** Android/S23 remains the mobile runtime proof lane. The insights journey must prove native rendering, category drilldowns, item flag mutation, aggregate refresh, and sign-out cleanup on the physical device path.
+
+### Sections rendered
+- Core (always, all 4 dims)
+- Native Mobile: S23 runtime proof, app storage, navigation
+- Client State: cache invalidation and mutation recovery
+- UI/UX: compact analytics layout and drilldown behavior
+
+### Dimensions suppressed
+- iOS runtime proof — reason: D47/P31 defers iOS post-roadmap.
+- Offline-first analytics cache — reason: not required for MVP.
+- Device farm coverage — reason: S23 is the accepted current hardware lane.
+- Push/notification behavior — reason: P6 insights has no push requirement.
+
+### Grade overrides
+- Native runtime proof: Ent required. Reason: roadmap closure requires Android/S23 artifacts.
+- Client State.Sign-out cleanup: Ent required. Reason: analytics data is authenticated user data.
+- UI/UX.Mobile data density: Ent required. Reason: top categories and drilldowns must remain usable on phone viewport.
+
+### Δ deferred by tier choice
+- iOS runtime proof remains deferred.
+- Scale device-farm testing is deferred.
+- Offline analytics sync is deferred.
+
+### Review trigger
+- iOS lane is pulled forward.
+- Offline analytics is added.
+- S23 lane stops being reproducible.
+
+### Status
+- accepted
+
+---
+
+## D61 — P6 Phase 6 exit gate + performance evidence tier: ent (2026-05-28)
+
+**Phase:** P6-Ph6 P6 exit gate + performance evidence
+**Types:** `core-only, test, web, native-mobile, analytics`
+**Tier chosen:** ent
+**Prototype:** no
+**Reason:** P6 closure must prove the roadmap exit signal across backend, web, and Android/S23: 3-month seeded data, top-5 visible within 20 seconds, gravity-center output, item flag aggregate exclusion, cache behavior, and sign-out cleanup.
+
+### Sections rendered
+- Core (always, all 4 dims)
+- Test: backend, web, mobile, artifact integrity
+- Web: deployed browser proof
+- Native Mobile: Android/S23 proof
+- Analytics: seeded expected outputs and performance timing
+
+### Dimensions suppressed
+- Scale load/performance suite beyond seeded fixture volume — reason: P7 owns launch hardening.
+- Production journey smoke — reason: production testing requires separate cutover approval.
+- iOS runtime proof — reason: D47/P31 defers iOS post-roadmap.
+
+### Grade overrides
+- Core.Testing: Ent required. Reason: exit gate is the proof package for the roadmap phase.
+- Runtime evidence: Ent required. Reason: web and S23 artifacts must support phase closure.
+- Analytics.Performance: Ent required. Reason: <=20s app-open-to-visible is a roadmap bound.
+
+### Δ deferred by tier choice
+- Scale analytics load suite is deferred to P7 if needed.
+- Production smoke is deferred until cutover approval.
+- iOS proof remains deferred.
+
+### Review trigger
+- P6 exit signal changes.
+- Staging proof cannot meet the 20-second visibility target.
+- P7 launch hardening requires broader analytics load evidence.
 
 ### Status
 - accepted

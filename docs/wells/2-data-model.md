@@ -44,6 +44,7 @@ Security (RLS) is enforced via `ownership_scope_id` on every tenant table.
 | `schemas/consent.py` | `ConsentGrant`, `ConsentResponse`, `DataAccessResponse`, `ErasureResponse`, `PortabilityResponse`, `RectificationRequest`. Jurisdictions: CL, EU, CA, US-CA. |
 | `schemas/push_tokens.py` | `PushTokenRegistration`, `PushTokenUnregister`, `PushTokenResponse`. Platform and provider type literals. |
 | `schemas/scan_test_cases.py` | `ScanTestCaseSummary`, `ScanTestCaseList`, `ScanTestRunSubmission`. Provider mode: mock / fixture / gemini. |
+| `schemas/insights.py` | `MonthlyInsightsResponse`, rollup rows, gravity-center rows, excluded-item summaries, and validation for taxonomy parent paths plus top-5 transaction/item rollup lanes. |
 | `schemas/statement.py` | Credit-card statement extraction contracts plus reconciliation run, verdict, bucket, coverage, fallback-evidence, and usage response shapes (P5 feature). |
 | `schemas/statement_profile.py` | Internal fixed row contract and layout-profile structures for unknown statement fallback. |
 
@@ -109,6 +110,14 @@ safe for reconciliation or candidate creation: row/page index, ledger readiness,
 amount candidates, selected amount reason, warnings, and provenance. This keeps
 unknown-layout Gemini fallback output auditable without storing raw PDFs,
 passwords, or raw extracted statement text.
+
+### 2026-05-28 — P6 insights contract locks reporting-currency rollups
+
+Monthly insights keep source transaction currency and USD shadow fields in the
+seed corpus, then lock reporting-currency totals in `MonthlyInsightsResponse`.
+Top transaction categories are L2 store rollups, top item categories are L4 item
+rollups, and both lanes are capped at five so later API and UI work cannot
+silently swap axes.
 
 ## Key Diagrams
 

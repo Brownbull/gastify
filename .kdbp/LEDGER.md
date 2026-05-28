@@ -2620,3 +2620,39 @@ TICK: ✅ Phase 3 Push.
 ARCHIVE: .kdbp/archive/completed_PLAN_2026-05-28_p5-statement-reconciliation-cards.md
 PHASES COMPLETED: 8 of 8
 REASON: Goal achieved — statement upload, card aliases, extraction, deterministic primary parsing, promoted Gemini fallback with caveats, reconciliation buckets, Web desktop validation, Android/S23 validation, and the final P5 exit gate are complete. iOS runtime testing remains deferred post-roadmap by D47/P31.
+
+## 2026-05-28 17:07 -04 — ROADMAP STATUS RECONCILED: P1-P5 complete, P6 active
+SCOPE: Updated `.kdbp/ROADMAP.md` from v1.2 to v1.3 so the phase table reflects the current KDBP archive/ledger truth: P1 Foundation, P2 Receipt Scan Pipeline, P3 Web Portal MVP, P4 Mobile App MVP, and P5 Statement Reconciliation + Cards are complete; P6 Insights + Item Flags is active; P7-P9 remain pending; iOS remains deferred post-roadmap by D47/P31.
+EVIDENCE: Completed plan archives exist for P1, P2, P3, P4, and P5. Latest P5 completion archive is `.kdbp/archive/completed_PLAN_2026-05-28_p5-statement-reconciliation-cards.md`.
+NEXT: Start the P6 plan.
+
+## 2026-05-28 17:07 -04 — PLAN CREATED: P6 Insights + Item Flags
+PHASES: 6 | COMPLEXITY: high | MATURITY: mvp
+TIERS: mvp × 0, ent × 6, scale × 0 | PROTOTYPES: 0
+DECISIONS: D56 → D61 (6 phase tier decisions logged)
+SCOPE: Monthly analytics contracts, deterministic taxonomy rollups, gravity-center detection, item urgency/special-case flags, aggregate exclusion, web desktop validation, Android/S23 validation, and a final P6 performance/runtime exit gate.
+NATIVE GATE: Android/S23 only for this roadmap cycle; iOS remains deferred by D47/P31.
+NEXT: Route to `/gabe-next`; expected command is `/gabe-execute` for Phase 1.
+
+## 2026-05-28 17:14 -04 — PHASE EXEC START: Phase 1 — Analytics contract + seeded 3-month corpus
+ROUTE: `/gabe-next` resolved active P6 Phase 1 to `/gabe-execute` because Exec was ⬜.
+TASKS: Define monthly insights schemas, deterministic three-month seed corpus, expected rollup outputs, taxonomy-parent validation, and focused contract tests. Runtime endpoints and UI are explicitly out of scope for Phase 1.
+STATE: Phase 1 Exec set to 🔄.
+
+## 2026-05-28 17:20 -04 — PHASE EXEC COMPLETE: Phase 1 — Analytics contract + seeded 3-month corpus
+TIER: ent
+TASKS: Added the P6 monthly insights response contract, taxonomy-parent validation, a deterministic 3-month seed corpus, locked March 2026 expected insights, and a runbook describing the Phase 2 target.
+PLATFORM PROGRESS: The backend now has a fixed analytics target for Phase 2: deterministic L1/L2 and L3/L4 rollups, a March top-category expected output, gravity-center expected rows, statement-sourced transaction coverage, user-edited category coverage, multi-scope isolation data, and a special-case flagged item excluded from aggregates.
+FILES: `backend/app/schemas/insights.py`; `backend/app/services/insights_fixtures.py`; `backend/tests/test_insights_contract.py`; `docs/runbooks/P6-INSIGHTS-CONTRACT.md`.
+CHECKS: `cd backend && uv run ruff check app tests` (pass); `cd backend && uv run mypy app/ --no-error-summary` (pass); `cd backend && uv run pytest tests/ -x --tb=line -q` (654 passed, 2 skipped, 1 warning); `git diff --check` (pass).
+TICK: ✅ Phase 1 Exec. Review remains ⬜.
+NEXT: Route to `/gabe-review` for Phase 1 contract review.
+
+## 2026-05-28 17:38 -04 — PHASE 1 REVIEW FIXES COMPLETE: analytics contract hardening
+VERDICT: APPROVE
+FINDINGS: 2 total (0 critical, 1 high, 1 medium, 0 low), both fixed.
+FIXES: Added a March USD source transaction with USD-shadow identity and deterministic CLP reporting totals; updated the locked March expected response and runbook totals. Added response-level validation so `top_transaction_categories` only accepts transaction-category rollups, `top_item_categories` only accepts item-category rollups, both top lists are capped at five, and rollup/exclusion currencies match the response currency.
+PLATFORM PROGRESS: Phase 2 now has a stronger analytics target: the rollup engine must preserve source currency/USD-shadow data while aggregating into the reporting currency, and the API contract rejects swapped category axes before Web/Android consume it.
+CHECKS: `cd backend && uv run ruff check app tests` (pass); `cd backend && uv run mypy app/ --no-error-summary` (pass); `cd backend && uv run pytest tests/test_insights_contract.py tests/test_reference_categories.py -q` (14 passed); `cd backend && uv run pytest tests/ -x --tb=line -q` (655 passed, 2 skipped, 1 warning); `git diff --check` (pass).
+TICK: ✅ Phase 1 Review.
+NEXT: Route to `/gabe-commit` for the P6 Phase 1 contract set.
