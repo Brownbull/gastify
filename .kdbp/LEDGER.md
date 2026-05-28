@@ -2548,3 +2548,14 @@ S23 RESOURCE GATE: `GASTIFY_STAGING_E2E_API_BASE_URL=https://gastify-api-staging
 RAILWAY METRICS: Post-run `railway metrics --all --environment staging --since 20m --json` showed `gastify-api-staging-e2e` at about 0.6% CPU and 308 MB / 1 GB RAM, `Postgres-67_W` at about 0.2% CPU and 61 MB / 1 GB RAM, and `gastify-web-staging` at about 10 MB / 512 MB RAM.
 PLAN: Phase 6 Push remains ⬜ because this was the non-default staging environment; production promotion is the next push gate once we choose to promote tested `origin/staging`.
 Gabe-Lens brief: The Android statement lane is now staged with its review fix and resource proof. The smaller Railway box still carried the S23 journey: PDF picked, consent granted, buckets loaded, statement-only charge added, and clean sign-out verified.
+
+## 2026-05-28 10:47 -04 — PUSH staging -> main
+PR: —
+CI: all passed (`main` run 26581997471, 13/13 jobs, 110s)
+PROMOTION: promoted `origin/staging` -> `origin/main` at `1f00a4d`
+DEPLOYMENTS: P36
+STAGING: `origin/staging` had already passed GitHub Actions run `26581579919` for the Phase 6 review-fix push and had supplemental S23 resource proof at `tests/mobile/results/runs/staging-e2e/20260528-resource-smoke-s23/attempts/143225Z/p5-phase6-statement-reconciliation-active/manifest.json`.
+PRODUCTION PUSH: Promoted tested `origin/staging` to `origin/main`; GitHub Actions CI run `26581997471` passed 13/13 for `1f00a4d`.
+PENDING: Re-surfaced classifier item P26 remains deferred; incremented `Times Deferred` to 5 because no triage action was selected during the push.
+PLAN: Phase 6 Push marked ✅. Phase 6 is complete.
+Gabe-Lens brief: Phase 6 has crossed the final gate. The Android statement journey was staged, tested on the S23, promoted to main, and now has the proof chain from device screen to CI to production branch.
