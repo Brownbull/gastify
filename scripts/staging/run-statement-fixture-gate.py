@@ -10,7 +10,7 @@ import os
 import subprocess
 import sys
 import time
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
 from typing import Any, cast
 from urllib.parse import urlencode
@@ -21,6 +21,9 @@ from pypdf import PdfWriter
 ROOT_DIR = Path(__file__).resolve().parents[2]
 MOBILE_DIR = ROOT_DIR / "mobile"
 FIXTURE_CURRENCY = "USD"
+FIXTURE_SCOPE = "shared-v1"
+RECEIPT_ONLY_FIXTURE_MERCHANT = f"Receipt Only Fixture {FIXTURE_SCOPE}"
+RECEIPT_HISTORY_SCOPE = "shared-v1"
 
 
 def parse_args() -> argparse.Namespace:
@@ -77,6 +80,14 @@ def parse_args() -> argparse.Namespace:
         "--require-three-buckets",
         action="store_true",
         help="Fail unless matched, statement-only, and receipt-only buckets are all present.",
+    )
+    parser.add_argument(
+        "--seed-20-day-receipt-history",
+        action="store_true",
+        help=(
+            "Seed one receipt-sourced app transaction for each of 20 statement-period days "
+            "and verify those rows appear in the receipt-only bucket."
+        ),
     )
     return parser.parse_args()
 
@@ -209,15 +220,34 @@ def find_fixture_match_transaction(
     api_base_url: str,
     token: str,
 ) -> dict[str, Any] | None:
+    return find_fixture_transaction(
+        client,
+        api_base_url=api_base_url,
+        token=token,
+        transaction_date=date(2026, 5, 3),
+        merchant="Supermercado Fixture",
+        total_minor=19_990,
+    )
+
+
+def find_fixture_transaction(
+    client: httpx.Client,
+    *,
+    api_base_url: str,
+    token: str,
+    transaction_date: date,
+    merchant: str,
+    total_minor: int,
+) -> dict[str, Any] | None:
     existing = request_json(
         client,
         "GET",
         f"{api_base_url}/api/v1/transactions?"
         + urlencode(
             {
-                "date_from": "2026-05-03",
-                "date_to": "2026-05-03",
-                "merchant": "Supermercado Fixture",
+                "date_from": transaction_date.isoformat(),
+                "date_to": transaction_date.isoformat(),
+                "merchant": merchant,
             }
         ),
         token=token,
@@ -227,8 +257,8 @@ def find_fixture_match_transaction(
     for transaction in existing.get("data", []):
         if (
             isinstance(transaction, dict)
-            and transaction.get("merchant", "").casefold() == "supermercado fixture"
-            and transaction.get("total_minor") == 19_990
+            and transaction.get("merchant", "").casefold() == merchant.casefold()
+            and transaction.get("total_minor") == total_minor
             and transaction.get("currency") == FIXTURE_CURRENCY
         ):
             return transaction
@@ -242,31 +272,14 @@ def find_fixture_receipt_only_transaction(
     token: str,
     stage_id: str,
 ) -> dict[str, Any] | None:
-    merchant = f"Receipt Only Fixture {stage_id}"
-    existing = request_json(
+    return find_fixture_transaction(
         client,
-        "GET",
-        f"{api_base_url}/api/v1/transactions?"
-        + urlencode(
-            {
-                "date_from": "2026-05-06",
-                "date_to": "2026-05-06",
-                "merchant": merchant,
-            }
-        ),
+        api_base_url=api_base_url,
         token=token,
+        transaction_date=date(2026, 5, 6),
+        merchant=RECEIPT_ONLY_FIXTURE_MERCHANT,
+        total_minor=7_777,
     )
-    if not isinstance(existing, dict):
-        return None
-    for transaction in existing.get("data", []):
-        if (
-            isinstance(transaction, dict)
-            and transaction.get("merchant", "").casefold() == merchant.casefold()
-            and transaction.get("total_minor") == 7_777
-            and transaction.get("currency") == FIXTURE_CURRENCY
-        ):
-            return transaction
-    return None
 
 
 def seed_fixture_transactions(
@@ -312,7 +325,7 @@ def seed_fixture_transactions(
             token=token,
             json={
                 "transaction_date": "2026-05-06",
-                "merchant": f"Receipt Only Fixture {stage_id}",
+                "merchant": RECEIPT_ONLY_FIXTURE_MERCHANT,
                 "total_minor": 7_777,
                 "currency": FIXTURE_CURRENCY,
                 "receipt_type": "scan",
@@ -320,11 +333,91 @@ def seed_fixture_transactions(
         )
         created_receipt_only = True
     return {
+        "scope": FIXTURE_SCOPE,
+        "run_stage_id": stage_id,
         "created_matching_transaction": created_matching,
         "created_receipt_only_transaction": created_receipt_only,
         "matching_transaction": matching,
         "receipt_only_transaction": receipt_only,
     }
+
+
+def receipt_history_merchant(day_index: int) -> str:
+    return f"Receipt History Fixture {RECEIPT_HISTORY_SCOPE} D{day_index:02d}"
+
+
+def receipt_history_amount_minor(day_index: int) -> int:
+    return 4_000 + (day_index * 111)
+
+
+def seed_fixture_receipt_history(
+    client: httpx.Client,
+    *,
+    api_base_url: str,
+    token: str,
+    stage_id: str,
+    days: int = 20,
+) -> dict[str, Any]:
+    seeded: list[dict[str, Any]] = []
+    created_count = 0
+    reused_count = 0
+    start = date(2026, 5, 1)
+
+    for offset in range(days):
+        day_index = offset + 1
+        transaction_date = start + timedelta(days=offset)
+        merchant = receipt_history_merchant(day_index)
+        total_minor = receipt_history_amount_minor(day_index)
+        transaction = find_fixture_transaction(
+            client,
+            api_base_url=api_base_url,
+            token=token,
+            transaction_date=transaction_date,
+            merchant=merchant,
+            total_minor=total_minor,
+        )
+        created = False
+        if transaction is None:
+            transaction = request_json(
+                client,
+                "POST",
+                f"{api_base_url}/api/v1/transactions",
+                token=token,
+                json={
+                    "transaction_date": transaction_date.isoformat(),
+                    "merchant": merchant,
+                    "total_minor": total_minor,
+                    "currency": FIXTURE_CURRENCY,
+                    "receipt_type": "scan",
+                },
+            )
+            created = True
+            created_count += 1
+        else:
+            reused_count += 1
+        seeded.append(
+            {
+                "day_index": day_index,
+                "transaction_date": transaction_date.isoformat(),
+                "merchant": merchant,
+                "total_minor": total_minor,
+                "created": created,
+                "transaction": transaction,
+            }
+        )
+
+    return {
+        "scope": RECEIPT_HISTORY_SCOPE,
+        "run_stage_id": stage_id,
+        "days": days,
+        "created_count": created_count,
+        "reused_count": reused_count,
+        "transactions": seeded,
+    }
+
+
+def expected_receipt_history_merchants(days: int = 20) -> set[str]:
+    return {receipt_history_merchant(index) for index in range(1, days + 1)}
 
 
 def main() -> int:
@@ -389,6 +482,22 @@ def main() -> int:
                 manifest["seeded_fixture_transactions"] = True
             else:
                 manifest["seeded_fixture_transactions"] = False
+
+            if args.seed_20_day_receipt_history:
+                history_seed = seed_fixture_receipt_history(
+                    client,
+                    api_base_url=api_base_url,
+                    token=token,
+                    stage_id=stage_id,
+                )
+                json_write(result_dir / "seeded-receipt-history.json", history_seed)
+                manifest["seeded_20_day_receipt_history"] = True
+                manifest["receipt_history_scope"] = history_seed["scope"]
+                manifest["receipt_history_days"] = history_seed["days"]
+                manifest["receipt_history_created_count"] = history_seed["created_count"]
+                manifest["receipt_history_reused_count"] = history_seed["reused_count"]
+            else:
+                manifest["seeded_20_day_receipt_history"] = False
 
             pdf_bytes = generated_pdf_bytes(stage_id)
             upload = request_json(
@@ -483,6 +592,24 @@ def main() -> int:
                         "Expected statement-only fixture charge to expose a create candidate: "
                         f"{statement_only}"
                     )
+            if args.seed_20_day_receipt_history:
+                receipt_only = reconciliation.get("receipt_only")
+                if not isinstance(receipt_only, list):
+                    raise RuntimeError(f"Expected receipt-only bucket list: {reconciliation}")
+                receipt_only_merchants = {
+                    item.get("receipt_transaction", {}).get("merchant")
+                    for item in receipt_only
+                    if isinstance(item, dict)
+                }
+                missing_history_merchants = sorted(
+                    expected_receipt_history_merchants() - receipt_only_merchants
+                )
+                if missing_history_merchants:
+                    raise RuntimeError(
+                        "Expected 20-day receipt history rows in receipt-only bucket, missing: "
+                        f"{missing_history_merchants}"
+                    )
+                manifest["receipt_history_receipt_only_verified"] = True
 
             manifest.update(
                 {

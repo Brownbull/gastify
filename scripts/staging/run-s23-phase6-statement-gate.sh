@@ -21,6 +21,7 @@ if [[ "${GASTIFY_SKIP_STATEMENT_BACKEND_FIXTURE_GATE:-false}" != "true" ]]; then
       --api-base-url "${GASTIFY_STAGING_E2E_API_BASE_URL}" \
       --stage-id "${GASTIFY_MOBILE_STAGE_ID:-${GASTIFY_MOBILE_RUN_STAGE_ID:-${DEFAULT_STAGE_ID}}}" \
       --seed-fixture-transactions \
+      --seed-20-day-receipt-history \
       --require-three-buckets
   )
 fi

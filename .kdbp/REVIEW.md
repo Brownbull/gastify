@@ -3,10 +3,10 @@
 sources:
   - cli: codex
     model: gpt-5
-    timestamp: 2026-05-27T19:30:00-04:00
-    findings: 2
+    timestamp: 2026-05-28T11:08:00-04:00
+    findings: 1
 project_root: /home/khujta/projects/apps/gastify
-target: P5 Phase 6 — Android mobile statement reconciliation flow
+target: P5 Phase 7 — P5 exit gate + edge tests
 maturity: ent
 status: resolved
 ---
@@ -15,48 +15,52 @@ status: resolved
 
 **Verdict:** APPROVE
 **Confidence:** 96/100
-**Coverage:** HIGH — the S23 packet now proves PDF picking, per-scan upload consent, deployed fixture processing, progress, matched/statement-only/app-only bucket visibility, statement-only transaction creation success, app-only review visibility, and sign-out cleanup.
-**Findings:** 2 (CRITICAL: 0, HIGH: 1, MEDIUM: 1, LOW: 0) | **Sources:** codex
-**Resolution:** 2 fixed / 0 deferred / 0 dismissed of 2 (pending: 0)
+**Coverage:** HIGH — reviewed the Phase 7 harness diff, P5 exit evidence packet, deployed backend fixture manifests, S23 Maestro manifest/screenshots, backend statement edge tests, SSE/WebSocket tests, web/mobile statement tests, and the full local gate results recorded in the evidence packet.
+**Findings:** 1 (CRITICAL: 0, HIGH: 0, MEDIUM: 1, LOW: 0) | **Sources:** codex
+**Resolution:** 1 fixed / 0 deferred / 0 dismissed of 1 (pending: 0)
 
 ## Findings
 
 | # | Status | Severity | Finding | File | Churn | Fix Cost | Defer Risk | Maturity Gate | Escalation | Sources |
 |---|--------|----------|---------|------|-------|----------|------------|---------------|------------|---------|
-| 1 | fixed | HIGH | The S23 gate previously tapped `Add transaction` but did not assert success. Fixed by adding a durable `Transaction added` success state after the create mutation resolves, hiding the add button for that candidate, covering it in Jest, and rerunning the S23 gate with explicit `Transaction added` / `Add transaction` absence assertions. | `tests/mobile/maestro/p5-phase6-statement-reconciliation-active.yaml:136` | ⚠️ WARM | M (1-3h) | RESOLVED — Android statement-only creation is now asserted on-device. | Enterprise | Runtime evidence gap; Architecture principles: AP8 explicit state, AP11 testability | codex |
-| 2 | fixed | MEDIUM | The fixture backend gate reused or created the matched transaction idempotently but appended a new app-only transaction on each same-stage rerun. Fixed by making the stage app-only fixture row find-or-create and recording whether it was created. The rerun reused both fixture rows (`created_receipt_only_transaction=false`) and kept the app-only count stable at `43`. | `scripts/staging/run-statement-fixture-gate.py:261` | ⚠️ WARM | S (<30m) | RESOLVED — same-stage fixture reruns no longer inflate the app-only bucket. | Enterprise | Harness reliability; Architecture principles: AP4 automation over memory, AP11 testability | codex |
+| 1 | fixed | MEDIUM | The new 20-day receipt-history fixture was idempotent only within the same stage id. Fixed by moving both the app-only fixture row and the 20-day receipt-history rows into a shared deterministic fixture namespace. Cross-stage validation proved `20260528-phase7-cleanup-d` reused the shared app-only row and all 20 history rows after `20260528-phase7-cleanup-c`, keeping the receipt-only bucket stable at `111`. | `scripts/staging/run-statement-fixture-gate.py:340` | ⚠️ WARM | M (1-3h) | RESOLVED — cross-stage fixture rows are now reused instead of appended. | Enterprise | Similar to prior same-stage idempotency concern; Architecture principles: AP4 automation over memory, AP11 testability | codex |
 
 ## Risk Dashboard
 
 | # | Source | Age | Finding | File | Defer Risk | Escalation |
 |---|--------|-----|---------|------|------------|------------|
-| 1 | current review | 0d | Android statement-only create action is now proven by the S23 gate | `tests/mobile/maestro/p5-phase6-statement-reconciliation-active.yaml:136` | RESOLVED | fixed |
-| 2 | current review | 0d | Fixture seed no longer appends same-stage app-only rows | `scripts/staging/run-statement-fixture-gate.py:261` | RESOLVED | fixed |
+| 1 | current review | 0d | Cross-stage fixture history rows now reuse shared deterministic rows | `scripts/staging/run-statement-fixture-gate.py:340` | RESOLVED | fixed |
 
 ## Coverage Confidence
 
-Coverage: HIGH — reviewed the Phase 6 committed range from `origin/main..HEAD`, current S23 gate hardening diff, focused backend/provider tests, focused and full mobile tests, backend fixture manifest, the fresh S23 Maestro manifest, and the screenshot packet. The fresh screenshot `08-phase6-after-candidate-action.png` now shows `Transaction added`.
+Coverage is HIGH. The review verified:
+
+- The new harness flag `--seed-20-day-receipt-history` creates or reuses 20 deterministic receipt-sourced app transactions in a shared fixture namespace.
+- The deployed backend gate verified all 20 rows in the receipt-only/app-only bucket.
+- Cross-stage cleanup validation reused the shared app-only fixture row and all 20 history rows under a different stage id (`created_receipt_only_transaction=false`, `receipt_history_created_count=0`, `receipt_history_reused_count=20`).
+- The S23 gate passed against `staging-e2e` and captured PDF selection, consent, progress, reconciliation buckets, app-only drilldown, statement-only candidate creation, `Transaction added`, sign-out, and clean reauth.
+- The edge matrix maps encrypted/missing/wrong password, invalid PDF, duplicate upload, extraction failure, no matches, ambiguous matches, archived alias, user-edited precedence, non-ledger-ready rows, payment-like rows, SSE, WebSocket, web cleanup, and Android cleanup to tests/artifacts.
 
 ## Review Confidence
 
 Score: 96 / 100
 
-| If you fix... | Findings resolved | Projected | Δ |
-|---------------|-------------------|-----------|---|
+| If you fix... | Findings resolved | Projected | Delta |
+|---------------|-------------------|-----------|---:|
 | All CRITICAL + HIGH | 0 of 0 | 96 / 100 | +0 |
 | All MVP gate | 0 of 0 | 96 / 100 | +0 |
 | All Enterprise gate | 0 of 0 | 96 / 100 | +0 |
 | All (incl. Scale) | 0 of 0 | 96 / 100 | +0 |
 
-*Residual 4-point holdback is normal mobile runtime risk until the full P5 exit gate broadens edge coverage.
+The remaining 4-point holdback is normal runtime-gate residual risk; the known finding is resolved.
 
 ## Final Verdict
 
-APPROVE — Phase 6 Android runtime proof now shows the full statement journey on the S23, including successful statement-only transaction creation and stable same-stage fixture seeding.
+APPROVE — Phase 7 has the required P5 exit evidence, and the cross-stage fixture hygiene finding has been fixed.
 
 ## Plan Alignment (5a)
 
-ALIGNED — the changes are in Phase 6 scope and support the Android statement reconciliation runtime gate.
+ALIGNED — the diff is Phase 7 scope: edge-test harness, evidence packet, KDBP Exec closure, and deployed proof artifacts for P5.
 
 ## Stale Verified Topics (5c)
 
@@ -68,30 +72,31 @@ None new.
 
 ## Tier Drift (5d)
 
-None. The Phase 6 work remains within the declared Enterprise tier.
+None. The Phase 7 work remains within Enterprise tier; the finding is a fixture-data lifecycle concern, not an over-tier architecture addition.
 
 ## Deferred Backlog Status
 
-P24 remains open for receipt scan review-warning UI on mobile/web; this Phase 6 statement review does not resolve it. P31 remains the explicit iOS deferral. No new deferred items were created.
+- P24 remains open for receipt scan review-warning UI on mobile/web; Phase 7 statement exit proof does not resolve it.
+- P26 remains open for the PyJWT audit-ignore revisit.
+- P31 remains the explicit iOS runtime deferral and is honored by this review.
+- P32/P33 remain open statement RLS/scale follow-ups and are not resolved by this harness work.
 
 ## Evidence Reviewed
 
-- Phase 6 scope from `origin/main..HEAD`: 34 files, 3273 insertions, 9 deletions.
-- Current fixed files: `mobile/src/screens/StatementsScreen.tsx`, `mobile/src/screens/statementStyles.tsx`, `mobile/src/screens/__tests__/StatementsScreen.test.tsx`, `tests/mobile/maestro/p5-phase6-statement-reconciliation-active.yaml`, `scripts/staging/run-statement-fixture-gate.py`, plus existing Phase 6 gate hardening files.
-- Backend checks: `cd backend && uv run pytest tests/test_statement_worker.py tests/test_statement_reconciliation.py tests/test_statement_routing.py -q` (41 passed); `cd backend && uv run ruff check app/services/statement_extraction.py tests/test_statement_worker.py ../scripts/staging/run-statement-fixture-gate.py` (pass).
-- Mobile checks: `cd mobile && npm test -- --runInBand src/screens/__tests__/StatementsScreen.test.tsx` (3 passed); `cd mobile && npm run typecheck` (pass); `cd mobile && npm test -- --runInBand` (24 suites, 116 tests passed); `cd mobile && npm run check:expo-config` (pass).
-- Script checks: `python3 -m py_compile scripts/staging/run-statement-fixture-gate.py` (pass); `bash -n scripts/staging/run-s23-phase6-statement-gate.sh scripts/staging/run-statement-fixture-gate.py tests/mobile/scripts/seed-statement-fixture.sh tests/mobile/scripts/run-maestro.sh` (pass); `git diff --check` (pass).
-- Backend fixture gate manifest: `tests/mobile/results/runs/staging-e2e/20260527-phase6-s23-statement-gate/p5-statement-fixture-backend/manifest.json`.
-- Backend seed evidence: `tests/mobile/results/runs/staging-e2e/20260527-phase6-s23-statement-gate/p5-statement-fixture-backend/seeded-transactions.json` records `created_matching_transaction=false` and `created_receipt_only_transaction=false`.
-- Fresh S23 flow manifest: `tests/mobile/results/runs/staging-e2e/20260527-phase6-s23-statement-gate/attempts/232758Z/p5-phase6-statement-reconciliation-active/manifest.json`.
-- Fresh screenshot packet: `tests/mobile/results/runs/staging-e2e/20260527-phase6-s23-statement-gate/attempts/232758Z/p5-phase6-statement-reconciliation-active/screenshots/`, including `08-phase6-after-candidate-action.png` with `Transaction added`.
+- Diff: `scripts/staging/run-statement-fixture-gate.py`, `scripts/staging/run-s23-phase6-statement-gate.sh`, `docs/runbooks/P5-STATEMENT-EXIT-GATE.md`, `.kdbp/PLAN.md`, `.kdbp/LEDGER.md`.
+- Backend 20-day gate manifest: `tests/mobile/results/runs/staging-e2e/20260528-phase7-cleanup-d/p5-statement-fixture-backend/manifest.json`.
+- Cross-stage cleanup comparison: `tests/mobile/results/runs/staging-e2e/20260528-phase7-cleanup-c/p5-statement-fixture-backend/manifest.json` and `tests/mobile/results/runs/staging-e2e/20260528-phase7-cleanup-d/p5-statement-fixture-backend/manifest.json`.
+- Backend S23 preflight manifest: `tests/mobile/results/runs/staging-e2e/20260528-phase7-exit-s23/p5-statement-fixture-backend/manifest.json`.
+- S23 flow manifest: `tests/mobile/results/runs/staging-e2e/20260528-phase7-exit-s23/attempts/145857Z/p5-phase6-statement-reconciliation-active/manifest.json`.
+- S23 screenshots: `tests/mobile/results/runs/staging-e2e/20260528-phase7-exit-s23/attempts/145857Z/p5-phase6-statement-reconciliation-active/screenshots/`.
+- Web proof manifest: `.tmp/staging-e2e/web-statement/20260527T194301Z-phase5-web-statement/manifest.json`.
+- Local checks recorded in `docs/runbooks/P5-STATEMENT-EXIT-GATE.md`: backend ruff/format/mypy/full pytest, web lint/typecheck/Vitest, mobile typecheck/Jest/Expo config, `git diff --check`.
 
 ## Suggested Triage
 
 | Finding | Suggested action | Rationale |
 |---------|------------------|-----------|
-| #1 | fixed | The mobile UI now exposes a post-create success state and Maestro asserts it. |
-| #2 | fixed | Same-stage fixture reruns now reuse both seeded app transactions. |
+| #1 | fixed | Shared fixture namespace prevents new stage IDs from appending another app-only fixture row or another 20 receipt-history rows. |
 
 ---
-_Review resolved. Phase 6 Review can be ticked._
+_Review resolved. Phase 7 Review can be ticked._
