@@ -2590,3 +2590,13 @@ CHECKS: `python3 -m py_compile scripts/staging/run-statement-fixture-gate.py` (p
 TICK: ✅ Phase 7 Commit.
 NEXT: Route to `/gabe-push` for the P5 exit-gate candidate; iOS remains deferred by D47/P31.
 Gabe-Lens brief: The P5 exit package is now sealed for shipping. The commit keeps the deployed proof, edge matrix, and fixture cleanup together so the next step can focus on pushing and watching CI instead of rediscovering what was tested.
+
+## 2026-05-28 16:51 -04 — PUSH main -> staging
+PR: —
+CI: ✅ 13/13 (79s) — GitHub Actions run `26601432082` for `8e03928`
+PROMOTION: staging-only push; production promotion still pending.
+DEPLOYMENTS: P37  (added row to .kdbp/DEPLOYMENTS.md)
+STAGING: `origin/staging` updated from `1f00a4d` to `8e03928`; pushed `f72588c`, `d4e8909`, `7d23447`, and `8e03928`.
+PLAN: Phase 7 Push remains ⬜ because this was the non-default staging environment.
+PENDING: Re-surfaced classifier item P26 remains deferred; incremented `Times Deferred` to 6 because no triage action was selected during the push.
+Gabe-Lens brief: Phase 7 is now on the staging track. The exit-gate proof and cleanup are in the integration lane with green CI, ready for the production promotion step once we choose to ship the tested staging head.
