@@ -1,5 +1,14 @@
 # Session Ledger
 
+## 2026-05-29 — PHASE 6 + P7 LOCAL-COMPLETE: Launch hardening + readiness packet
+SCOPE: Runbooks docs/runbooks/{DPO-PROCEDURES, DISASTER-RECOVERY, INCIDENT-RESPONSE, SECURITY-CHECKLIST, P7-LAUNCH-EXIT-GATE}.md + compliance observability counter (`metrics.inc("audit_event_{type}")` in log_audit_event → counts every DSR/consent/propagation event on /metrics, REQ-21) + test.
+REVIEW: self-review (docs + 1-line observability counter, low-risk; full suite green). Per-phase adversarial reviews already covered the code surfaces.
+GATES: ruff + format (pass), mypy app/ (clean), pytest (693 passed, 2 skipped — +1 compliance-metric test).
+EXEC ✅ Review ✅ Commit ✅.
+P7 PLAN STATUS: all 6 phases Exec ✅ Review ✅ Commit ✅. Push columns ⬜ pending the user's staging push + deferred operational drills (load test, retention scheduled run, paid-Gemini pre-commit, cutover/DR drill).
+DEFERRED: P34/P35 (runtime), P36 (billing concurrency), + the P7 operational drills (P7-LAUNCH-EXIT-GATE.md "Deferred").
+NEXT: commit → archive P7 plan → /gabe-plan P8 (Structured-boleta QR/CAF shortcut).
+
 ## 2026-05-29 — PHASE 5 EXEC+REVIEW: P7 Phase 5 — Monetization plumbing (schema-only)
 SCOPE: `plan_tier` on credit_balances (migration 025 + model CHECK constraint) + `app/services/billing.py` (PlanTier free/basic/pro, PLAN_MONTHLY_CREDITS 50/500/5000, credits_for_plan, get_or_create_balance, set_plan, has_scan_credit, deduct_scan_credit, BillingHook seam + NullBillingHook). Schema-only per SCOPE §9.2 — no live provider, no live enforcement.
 REVIEW: security-reviewer (financial code) → APPROVE, 0 CRITICAL/HIGH; 2 MED concurrency findings DEFERRED to PENDING P36 with the pricing-enforcement ADR (both carry inline caveats; not on a live path), 1 LOW (missing CHECK) FIXED. Tenant isolation + validation + no-secrets verified.
