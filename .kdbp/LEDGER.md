@@ -1,5 +1,12 @@
 # Session Ledger
 
+## 2026-05-29 — PLAN: P7 Compliance + Launch Hardening created (P6 plan archived)
+ARCHIVED: P6 plan → `.kdbp/archive/completed_PLAN_2026-05-29_p6-insights-item-flags.md` (local-complete; Push pending user).
+NEW PLAN: P7 — 6 phases (all ent): (1) DSR completeness + four-jurisdiction audit, (2) consent-revocation propagation, (3) scan quota graceful degradation, (4) retention/TTL enforcement, (5) monetization plumbing (SCHEMA-ONLY per SCOPE §9.2), (6) launch hardening + readiness packet.
+GROUNDING: Explore-agent inventory of existing consent/DSR/observability/credit surface vs gaps; SCOPE confirms monetization is schema-only (pricing mechanism = separate ADR) and the four jurisdictions.
+DEFERRED (runtime): load test to real quota throttle, retention scheduled-job on staging, paid-Gemini tier pre-commit, cutover/DR drill → user staging session.
+NEXT: /gabe-execute Phase 1 (after user reviews the P7 plan — gabe-plan checkpoint).
+
 ## 2026-05-29 — [c8b5b10] docs(p6): P6 insights exit-gate evidence packet + P6 PLAN LOCAL-COMPLETE
 SCOPE: Phase 6 evidence packet committed; Phase 6 Commit ✅.
 P6 PLAN STATUS: all 6 phases Exec ✅ Review ✅ Commit ✅. Push columns ⬜ across all phases pending the user's staging push (the agent is reserved from shared-infra deploys per the classifier; PUSH HANDOFF POLICY above).
