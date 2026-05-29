@@ -608,6 +608,69 @@
         }
       }
     },
+    "/api/v1/transactions/{transaction_id}/items/{item_id}/flags": {
+      "put": {
+        "tags": [
+          "transactions"
+        ],
+        "summary": "Update Transaction Item Flags",
+        "operationId": "update_transaction_item_flags_api_v1_transactions__transaction_id__items__item_id__flags_put",
+        "parameters": [
+          {
+            "name": "transaction_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Transaction Id"
+            }
+          },
+          {
+            "name": "item_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Item Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TransactionItemFlagsUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransactionDetail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/transactions/batch-update": {
       "post": {
         "tags": [
@@ -5730,6 +5793,24 @@
         ],
         "title": "TransactionItemCreate"
       },
+      "TransactionItemFlagsUpdate": {
+        "properties": {
+          "flags": {
+            "items": {
+              "type": "string",
+              "enum": [
+                "urgency",
+                "special_case"
+              ]
+            },
+            "type": "array",
+            "maxItems": 2,
+            "title": "Flags"
+          }
+        },
+        "type": "object",
+        "title": "TransactionItemFlagsUpdate"
+      },
       "TransactionItemResponse": {
         "properties": {
           "id": {
@@ -5852,6 +5933,17 @@
           "is_flagged": {
             "type": "boolean",
             "title": "Is Flagged"
+          },
+          "flags": {
+            "items": {
+              "type": "string",
+              "enum": [
+                "urgency",
+                "special_case"
+              ]
+            },
+            "type": "array",
+            "title": "Flags"
           },
           "sort_order": {
             "type": "integer",

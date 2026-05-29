@@ -39,6 +39,7 @@ async def get_monthly_insights_endpoint(
     return await get_monthly_insights(
         db,
         ownership_scope_id=auth.ownership_scope_id,
+        user_id=auth.user_id,
         period_start=period_start,
         currency=reporting_currency,
     )

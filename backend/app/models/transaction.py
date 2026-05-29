@@ -13,12 +13,14 @@ from sqlalchemy import (
     Date,
     DateTime,
     ForeignKey,
+    Index,
     Integer,
     Numeric,
     SmallInteger,
     String,
     Text,
     Time,
+    UniqueConstraint,
     Uuid,
     func,
 )
@@ -205,6 +207,53 @@ class TransactionItem(Base):
     )
 
     transaction: Mapped[Transaction] = relationship(back_populates="items")
+    item_flags: Mapped[list["TransactionItemFlag"]] = relationship(
+        back_populates="item",
+        cascade="all, delete-orphan",
+        order_by="TransactionItemFlag.flag_kind",
+    )
+
+
+class TransactionItemFlag(Base):
+    __tablename__ = "transaction_item_flags"
+    __table_args__ = (
+        UniqueConstraint(
+            "transaction_item_id",
+            "user_id",
+            "flag_kind",
+            name="uq_transaction_item_flags_item_user_kind",
+        ),
+        CheckConstraint(
+            "flag_kind IN ('urgency', 'special_case')",
+            name="ck_transaction_item_flags_kind",
+        ),
+        Index(
+            "idx_transaction_item_flags_scope_user_kind",
+            "ownership_scope_id",
+            "user_id",
+            "flag_kind",
+        ),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        Uuid, primary_key=True, default=uuid.uuid4, server_default=func.gen_random_uuid()
+    )
+    ownership_scope_id: Mapped[uuid.UUID] = mapped_column(
+        Uuid, ForeignKey("ownership_scopes.id"), nullable=False, index=True
+    )
+    transaction_item_id: Mapped[uuid.UUID] = mapped_column(
+        Uuid, ForeignKey("transaction_items.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    user_id: Mapped[uuid.UUID] = mapped_column(Uuid, ForeignKey("users.id"), nullable=False)
+    flag_kind: Mapped[str] = mapped_column(String, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=func.now()
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=func.now(), onupdate=func.now()
+    )
+
+    item: Mapped[TransactionItem] = relationship(back_populates="item_flags")
 
 
 class TransactionImage(Base):

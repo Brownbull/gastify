@@ -202,3 +202,9 @@ def as_insight_dimension(value: str) -> InsightDimension:
     if value not in {"transaction_category", "item_category"}:
         raise ValueError(f"invalid insight dimension: {value}")
     return cast("InsightDimension", value)
+
+
+def as_item_insight_flag_kind(value: str) -> ItemInsightFlagKind:
+    if value not in {"urgency", "special_case"}:
+        raise ValueError(f"invalid item insight flag kind: {value}")
+    return cast("ItemInsightFlagKind", value)

@@ -17,7 +17,12 @@ from app.models.statement import (
     StatementReconciliationVerdict,
     StatementStatus,
 )
-from app.models.transaction import Transaction, TransactionImage, TransactionItem
+from app.models.transaction import (
+    Transaction,
+    TransactionImage,
+    TransactionItem,
+    TransactionItemFlag,
+)
 from app.models.user import MobilePushToken, OwnershipScope, OwnershipScopeMember, User
 
 __all__ = [
@@ -48,5 +53,6 @@ __all__ = [
     "Transaction",
     "TransactionImage",
     "TransactionItem",
+    "TransactionItemFlag",
     "User",
 ]

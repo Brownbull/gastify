@@ -112,6 +112,23 @@ export interface paths {
         patch: operations["update_transaction_api_v1_transactions__transaction_id__patch"];
         trace?: never;
     };
+    "/api/v1/transactions/{transaction_id}/items/{item_id}/flags": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Update Transaction Item Flags */
+        put: operations["update_transaction_item_flags_api_v1_transactions__transaction_id__items__item_id__flags_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/transactions/batch-update": {
         parameters: {
             query?: never;
@@ -1930,6 +1947,11 @@ export interface components {
              */
             sort_order: number;
         };
+        /** TransactionItemFlagsUpdate */
+        TransactionItemFlagsUpdate: {
+            /** Flags */
+            flags?: ("urgency" | "special_case")[];
+        };
         /** TransactionItemResponse */
         TransactionItemResponse: {
             /**
@@ -1967,6 +1989,8 @@ export interface components {
             category_source?: string | null;
             /** Is Flagged */
             is_flagged: boolean;
+            /** Flags */
+            flags?: ("urgency" | "special_case")[];
             /** Sort Order */
             sort_order: number;
         };
@@ -2536,6 +2560,42 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["TransactionUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TransactionDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_transaction_item_flags_api_v1_transactions__transaction_id__items__item_id__flags_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                transaction_id: string;
+                item_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TransactionItemFlagsUpdate"];
             };
         };
         responses: {

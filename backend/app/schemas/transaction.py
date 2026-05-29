@@ -7,6 +7,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, Field
 
+from app.schemas.insights import ItemInsightFlagKind
 from app.schemas.recurrence import RecurrenceInterval, RecurrenceKind, RecurrenceSource
 from app.schemas.scan import ScanReviewLevel, ScanReviewSignal
 
@@ -57,6 +58,7 @@ class TransactionItemResponse(BaseModel):
     subcategory: str | None = None
     category_source: str | None = None
     is_flagged: bool
+    flags: list[ItemInsightFlagKind] = Field(default_factory=list)
     sort_order: int
 
 
@@ -133,6 +135,10 @@ class TransactionUpdate(BaseModel):
     recurrence_source: RecurrenceSource | None = None
     recurrence_confidence: Decimal | None = Field(default=None, ge=0, le=1)
     items: list[TransactionItemUpdate] | None = None
+
+
+class TransactionItemFlagsUpdate(BaseModel):
+    flags: list[ItemInsightFlagKind] = Field(default_factory=list, max_length=2)
 
 
 class TransactionListItem(BaseModel):

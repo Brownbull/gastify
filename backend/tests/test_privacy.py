@@ -138,7 +138,12 @@ async def test_erasure_then_access_shows_empty_consents(client):
 @pytest.mark.asyncio
 async def test_erasure_anonymizes_all_pii(client, engine):
     """Verify erasure redacts transaction fields, items, images, and user profile."""
-    from app.models.transaction import Transaction, TransactionImage, TransactionItem
+    from app.models.transaction import (
+        Transaction,
+        TransactionImage,
+        TransactionItem,
+        TransactionItemFlag,
+    )
 
     session_factory = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
@@ -158,11 +163,28 @@ async def test_erasure_anonymizes_all_pii(client, engine):
         session.add(txn)
         await session.flush()
 
+        item = TransactionItem(
+            transaction_id=txn_id,
+            name="Prescription Medication",
+            total_price_minor=15000,
+            subcategory="pharmacy",
+        )
+        session.add(item)
+        await session.flush()
+
+        session.add(
+            TransactionItemFlag(
+                ownership_scope_id=TEST_SCOPE_ID,
+                transaction_item_id=item.id,
+                user_id=TEST_USER_ID,
+                flag_kind="special_case",
+            )
+        )
         session.add(
             TransactionItem(
                 transaction_id=txn_id,
-                name="Prescription Medication",
-                total_price_minor=15000,
+                name="Over-the-counter item",
+                total_price_minor=0,
                 subcategory="pharmacy",
             )
         )
@@ -212,6 +234,19 @@ async def test_erasure_anonymizes_all_pii(client, engine):
         for item in items:
             assert item.name == "[REDACTED]"
             assert item.subcategory is None
+
+        flags = (
+            (
+                await session.execute(
+                    select(TransactionItemFlag).where(
+                        TransactionItemFlag.ownership_scope_id == TEST_SCOPE_ID
+                    )
+                )
+            )
+            .scalars()
+            .all()
+        )
+        assert flags == []
 
         images = (
             (

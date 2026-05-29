@@ -11,7 +11,7 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import selectinload
 
 from app.models.reference import ItemCategory, StoreCategory
-from app.models.transaction import Transaction, TransactionItem
+from app.models.transaction import Transaction, TransactionItem, TransactionItemFlag
 from app.reference.categories import (
     V4_ITEM_CATEGORY_TAXONOMY,
     V4_STORE_CATEGORY_TAXONOMY,
@@ -27,6 +27,7 @@ from app.schemas.insights import (
     InsightParentLevel,
     ItemInsightFlagKind,
     MonthlyInsightsResponse,
+    as_item_insight_flag_kind,
     insight_parent_for_category,
 )
 
@@ -91,6 +92,7 @@ class _PreparedTransaction:
 @dataclass(frozen=True)
 class _InsightsCacheKey:
     ownership_scope_id: UUID
+    user_id: UUID | None
     period_start: date
     currency: str
 
@@ -111,12 +113,14 @@ class MonthlyInsightsCache:
         self,
         *,
         ownership_scope_id: UUID,
+        user_id: UUID | None = None,
         period_start: date,
         currency: str,
         fingerprint: str,
     ) -> MonthlyInsightsResponse | None:
         key = _InsightsCacheKey(
             ownership_scope_id=ownership_scope_id,
+            user_id=user_id,
             period_start=period_start,
             currency=currency.upper(),
         )
@@ -129,6 +133,7 @@ class MonthlyInsightsCache:
         self,
         *,
         ownership_scope_id: UUID,
+        user_id: UUID | None = None,
         period_start: date,
         currency: str,
         fingerprint: str,
@@ -138,6 +143,7 @@ class MonthlyInsightsCache:
             self._entries.clear()
         key = _InsightsCacheKey(
             ownership_scope_id=ownership_scope_id,
+            user_id=user_id,
             period_start=period_start,
             currency=currency.upper(),
         )
@@ -159,6 +165,7 @@ async def get_monthly_insights(
     ownership_scope_id: UUID,
     period_start: date,
     currency: str,
+    user_id: UUID | None = None,
     cache: MonthlyInsightsCache | None = MONTHLY_INSIGHTS_CACHE,
 ) -> MonthlyInsightsResponse:
     """Build monthly insights for one ownership scope from persisted transactions."""
@@ -170,6 +177,7 @@ async def get_monthly_insights(
     fingerprint = await _database_fingerprint(
         db,
         ownership_scope_id=ownership_scope_id,
+        user_id=user_id,
         start_date=baseline_start,
         end_date=period_end,
     )
@@ -177,6 +185,7 @@ async def get_monthly_insights(
     if cache is not None:
         cached = cache.get(
             ownership_scope_id=ownership_scope_id,
+            user_id=user_id,
             period_start=normalized_period,
             currency=normalized_currency,
             fingerprint=fingerprint,
@@ -190,6 +199,7 @@ async def get_monthly_insights(
         start_date=baseline_start,
         end_date=period_end,
         currency=normalized_currency,
+        user_id=user_id,
     )
     response = build_monthly_insights_from_records(
         records,
@@ -200,6 +210,7 @@ async def get_monthly_insights(
     if cache is not None:
         cache.set(
             ownership_scope_id=ownership_scope_id,
+            user_id=user_id,
             period_start=normalized_period,
             currency=normalized_currency,
             fingerprint=fingerprint,
@@ -215,13 +226,14 @@ async def load_insight_records_from_db(
     start_date: date,
     end_date: date,
     currency: str,
+    user_id: UUID | None = None,
 ) -> tuple[InsightTransactionRecord, ...]:
     """Load persisted transactions into the reporting-currency rollup shape."""
 
     store_category_keys, item_category_keys = await _load_category_key_maps(db)
     result = await db.execute(
         select(Transaction)
-        .options(selectinload(Transaction.items))
+        .options(selectinload(Transaction.items).selectinload(TransactionItem.item_flags))
         .where(
             Transaction.ownership_scope_id == ownership_scope_id,
             Transaction.transaction_date >= start_date,
@@ -244,6 +256,7 @@ async def load_insight_records_from_db(
                 item_category_keys=item_category_keys,
                 source_total_minor=txn.total_minor,
                 reporting_total_minor=total_minor,
+                user_id=user_id,
             )
             for item in raw_items
         )
@@ -366,6 +379,7 @@ async def _database_fingerprint(
     db: AsyncSession,
     *,
     ownership_scope_id: UUID,
+    user_id: UUID | None,
     start_date: date,
     end_date: date,
 ) -> str:
@@ -397,6 +411,22 @@ async def _database_fingerprint(
             )
         )
     ).one()
+    flag_query = (
+        select(
+            func.count(TransactionItemFlag.id),
+            func.max(TransactionItemFlag.updated_at),
+        )
+        .join(TransactionItem, TransactionItemFlag.transaction_item_id == TransactionItem.id)
+        .join(Transaction, TransactionItem.transaction_id == Transaction.id)
+        .where(
+            Transaction.ownership_scope_id == ownership_scope_id,
+            Transaction.transaction_date >= start_date,
+            Transaction.transaction_date <= end_date,
+        )
+    )
+    if user_id is not None:
+        flag_query = flag_query.where(TransactionItemFlag.user_id == user_id)
+    flag_row = (await db.execute(flag_query)).one()
     return "|".join(
         (
             str(transaction_row[0] or 0),
@@ -405,6 +435,8 @@ async def _database_fingerprint(
             str(item_row[0] or 0),
             str(item_row[1] or ""),
             str(item_row[2] or 0),
+            str(flag_row[0] or 0),
+            str(flag_row[1] or ""),
         )
     )
 
@@ -444,6 +476,7 @@ def _item_record_from_db(
     item_category_keys: dict[UUID, str],
     source_total_minor: int,
     reporting_total_minor: int,
+    user_id: UUID | None,
 ) -> InsightItemRecord:
     if source_total_minor == reporting_total_minor:
         total_minor = item.total_price_minor
@@ -460,11 +493,25 @@ def _item_record_from_db(
             else None
         ),
         total_minor=total_minor,
-        flag_kind=_flag_kind_from_item(item),
+        flag_kind=_flag_kind_from_item(item, user_id=user_id),
     )
 
 
-def _flag_kind_from_item(item: TransactionItem) -> ItemInsightFlagKind | None:
+def _flag_kind_from_item(
+    item: TransactionItem,
+    *,
+    user_id: UUID | None,
+) -> ItemInsightFlagKind | None:
+    if user_id is not None:
+        user_flag_kinds = [
+            as_item_insight_flag_kind(flag.flag_kind)
+            for flag in item.item_flags
+            if flag.user_id == user_id
+        ]
+        if "special_case" in user_flag_kinds:
+            return "special_case"
+        if "urgency" in user_flag_kinds:
+            return "urgency"
     if item.is_flagged and item.category_source != "statement_unidentified":
         return "special_case"
     return None

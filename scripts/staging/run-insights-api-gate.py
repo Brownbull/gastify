@@ -20,6 +20,7 @@ ROOT_DIR = Path(__file__).resolve().parents[2]
 MOBILE_DIR = ROOT_DIR / "mobile"
 FIXTURE_CURRENCY = "USD"
 FIXTURE_SCOPE = "p6-insights-shared-v1"
+FLAG_MUTATION_FIXTURE_ID = "primary-2026-03-restaurant"
 
 
 def parse_args() -> argparse.Namespace:
@@ -260,14 +261,35 @@ def seed_fixture_transactions(
             token=token,
             json=payload,
         )
+        transaction_id = created.get("id") if isinstance(created, dict) else None
+        detail = (
+            request_json(
+                client,
+                "GET",
+                f"{api_base_url}/api/v1/transactions/{transaction_id}",
+                token=token,
+            )
+            if transaction_id
+            else {}
+        )
+        detail_items = detail.get("items", []) if isinstance(detail, dict) else []
         seeded.append(
             {
                 "fixture_id": row.fixture_id,
-                "transaction_id": created.get("id") if isinstance(created, dict) else None,
+                "transaction_id": transaction_id,
                 "transaction_date": transaction_date,
                 "merchant": merchant,
                 "total_minor": row.analytics_total_minor,
                 "currency": FIXTURE_CURRENCY,
+                "items": [
+                    {
+                        "id": item.get("id"),
+                        "name": item.get("name"),
+                        "total_price_minor": item.get("total_price_minor"),
+                    }
+                    for item in detail_items
+                    if isinstance(item, dict)
+                ],
             }
         )
     return seeded
@@ -305,6 +327,59 @@ def assert_insights_response(payload: dict[str, Any]) -> None:
     ]
     if gravity != expected_gravity:
         raise RuntimeError(f"Unexpected gravity centers: {gravity}")
+
+
+def assert_flagged_insights_response(payload: dict[str, Any]) -> None:
+    if payload.get("currency") != FIXTURE_CURRENCY:
+        raise RuntimeError(f"Unexpected flagged currency: {payload.get('currency')}")
+    if payload.get("total_spend_minor") != 231_500:
+        raise RuntimeError(
+            f"Unexpected flagged total_spend_minor: {payload.get('total_spend_minor')}"
+        )
+    excluded_items = payload.get("excluded_items")
+    expected_excluded = [
+        {
+            "flag_kind": "special_case",
+            "total_minor": 80_000,
+            "currency": FIXTURE_CURRENCY,
+            "item_count": 2,
+        }
+    ]
+    if excluded_items != expected_excluded:
+        raise RuntimeError(f"Unexpected flagged excluded_items: {excluded_items}")
+    top_item_keys = [row.get("category_key") for row in payload.get("top_item_categories", [])]
+    if "PreparedFood" in top_item_keys:
+        raise RuntimeError(f"Flagged item still present in top item categories: {top_item_keys}")
+
+
+def find_seeded_fixture_item(
+    seeded: list[dict[str, Any]],
+    *,
+    fixture_id: str,
+) -> tuple[str, str]:
+    for row in seeded:
+        if row.get("fixture_id") != fixture_id:
+            continue
+        transaction_id = row.get("transaction_id")
+        items = row.get("items")
+        if not isinstance(transaction_id, str) or not isinstance(items, list) or not items:
+            break
+        item = items[0]
+        if isinstance(item, dict) and isinstance(item.get("id"), str):
+            return transaction_id, str(item["id"])
+    raise RuntimeError(f"Seeded fixture item not found for {fixture_id}")
+
+
+def assert_flag_visible_in_transaction_detail(payload: dict[str, Any], *, item_id: str) -> None:
+    for item in payload.get("items", []):
+        if not isinstance(item, dict) or item.get("id") != item_id:
+            continue
+        if item.get("flags") != ["special_case"]:
+            raise RuntimeError(f"Flagged item did not expose current-user flags: {item}")
+        if item.get("is_flagged") is not True:
+            raise RuntimeError(f"Flagged item did not preserve is_flagged=true: {item}")
+        return
+    raise RuntimeError(f"Flagged item {item_id} missing from transaction detail")
 
 
 def main() -> None:
@@ -369,6 +444,44 @@ def main() -> None:
                 raise RuntimeError(f"Unexpected insights response: {insights}")
             assert_insights_response(insights)
             json_write(result_dir / "insights-response.json", insights)
+
+            transaction_id, item_id = find_seeded_fixture_item(
+                seeded,
+                fixture_id=FLAG_MUTATION_FIXTURE_ID,
+            )
+            flag_update = request_json(
+                client,
+                "PUT",
+                f"{api_base_url}/api/v1/transactions/{transaction_id}/items/{item_id}/flags",
+                token=token,
+                json={"flags": ["special_case"]},
+            )
+            if not isinstance(flag_update, dict):
+                raise RuntimeError(f"Unexpected flag update response: {flag_update}")
+            assert_flag_visible_in_transaction_detail(flag_update, item_id=item_id)
+            json_write(result_dir / "flag-update-response.json", flag_update)
+
+            flagged_detail = request_json(
+                client,
+                "GET",
+                f"{api_base_url}/api/v1/transactions/{transaction_id}",
+                token=token,
+            )
+            if not isinstance(flagged_detail, dict):
+                raise RuntimeError(f"Unexpected flagged detail response: {flagged_detail}")
+            assert_flag_visible_in_transaction_detail(flagged_detail, item_id=item_id)
+            json_write(result_dir / "transaction-detail-after-flag.json", flagged_detail)
+
+            flagged_insights = request_json(
+                client,
+                "GET",
+                f"{api_base_url}/api/v1/insights/monthly?period=2026-03&currency={FIXTURE_CURRENCY}",
+                token=token,
+            )
+            if not isinstance(flagged_insights, dict):
+                raise RuntimeError(f"Unexpected flagged insights response: {flagged_insights}")
+            assert_flagged_insights_response(flagged_insights)
+            json_write(result_dir / "insights-after-flag-response.json", flagged_insights)
             manifest.update(
                 {
                     "result_status": "passed",
@@ -376,6 +489,10 @@ def main() -> None:
                     "top_transaction_count": len(insights.get("top_transaction_categories", [])),
                     "top_item_count": len(insights.get("top_item_categories", [])),
                     "gravity_center_count": len(insights.get("gravity_centers", [])),
+                    "flag_mutation_verified": True,
+                    "flagged_fixture_id": FLAG_MUTATION_FIXTURE_ID,
+                    "flagged_total_spend_minor": flagged_insights.get("total_spend_minor"),
+                    "flagged_excluded_items": flagged_insights.get("excluded_items"),
                     "completed_at": datetime.now(UTC).isoformat(),
                 }
             )

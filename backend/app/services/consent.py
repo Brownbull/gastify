@@ -5,7 +5,7 @@ import uuid
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any, cast
 
-from sqlalchemy import select, update
+from sqlalchemy import delete, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.consent import AuditEvent, ConsentRecord, ProcessingRegister
@@ -219,8 +219,14 @@ async def anonymize_user_transactions(
     db: AsyncSession,
     *,
     ownership_scope_id: uuid.UUID,
+    user_id: uuid.UUID,
 ) -> int:
-    from app.models.transaction import Transaction, TransactionImage, TransactionItem
+    from app.models.transaction import (
+        Transaction,
+        TransactionImage,
+        TransactionItem,
+        TransactionItemFlag,
+    )
 
     stmt = (
         update(Transaction)
@@ -250,6 +256,15 @@ async def anonymize_user_transactions(
         update(TransactionImage)
         .where(TransactionImage.transaction_id.in_(scope_txn_ids))
         .values(image_url="[REDACTED]")
+    )
+    # Item flags are user-private annotations: a DSR erasure deletes only the
+    # requesting user's own flags, never co-scope members'. user_id is required
+    # (not optional) so no caller can accidentally widen this to a scope-wide wipe.
+    await db.execute(
+        delete(TransactionItemFlag).where(
+            TransactionItemFlag.ownership_scope_id == ownership_scope_id,
+            TransactionItemFlag.user_id == user_id,
+        )
     )
 
     return txn_count

@@ -11,12 +11,18 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.auth.deps import Auth
+from app.auth.deps import Auth, AuthContext
 from app.db import get_db
 from app.models.reference import Currency
 from app.models.statement import CardAlias
-from app.models.transaction import Transaction, TransactionImage, TransactionItem
+from app.models.transaction import (
+    Transaction,
+    TransactionImage,
+    TransactionItem,
+    TransactionItemFlag,
+)
 from app.schemas.common import PaginatedResponse
+from app.schemas.insights import ItemInsightFlagKind, as_item_insight_flag_kind
 from app.schemas.recurrence import (
     as_recurrence_interval,
     as_recurrence_kind,
@@ -28,6 +34,7 @@ from app.schemas.transaction import (
     BatchUpdateRequest,
     TransactionCreate,
     TransactionDetail,
+    TransactionItemFlagsUpdate,
     TransactionListItem,
     TransactionUpdate,
 )
@@ -159,19 +166,11 @@ async def get_transaction(
     auth: Auth,
     db: DB,
 ) -> TransactionDetail:
-    result = await db.execute(
-        select(Transaction)
-        .options(selectinload(Transaction.items), selectinload(Transaction.images))
-        .where(
-            Transaction.id == transaction_id,
-            Transaction.ownership_scope_id == auth.ownership_scope_id,
-        )
-    )
-    txn = result.scalar_one_or_none()
+    txn = await _load_owned_transaction_detail(db, auth=auth, transaction_id=transaction_id)
     if txn is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Transaction not found")
 
-    return TransactionDetail.model_validate(txn)
+    return _transaction_detail_for_user(txn, user_id=auth.user_id)
 
 
 @router.post("", status_code=status.HTTP_201_CREATED)
@@ -303,15 +302,7 @@ async def update_transaction(
     auth: Auth,
     db: DB,
 ) -> TransactionDetail:
-    result = await db.execute(
-        select(Transaction)
-        .options(selectinload(Transaction.items), selectinload(Transaction.images))
-        .where(
-            Transaction.id == transaction_id,
-            Transaction.ownership_scope_id == auth.ownership_scope_id,
-        )
-    )
-    txn = result.scalar_one_or_none()
+    txn = await _load_owned_transaction_detail(db, auth=auth, transaction_id=transaction_id)
     if txn is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Transaction not found")
 
@@ -453,9 +444,55 @@ async def update_transaction(
             txn.fx_captured_at = None
 
     await db.commit()
-    await db.refresh(txn)
 
-    return TransactionDetail.model_validate(txn)
+    refreshed = await _load_owned_transaction_detail(db, auth=auth, transaction_id=transaction_id)
+    if refreshed is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Transaction not found")
+    return _transaction_detail_for_user(refreshed, user_id=auth.user_id)
+
+
+@router.put("/{transaction_id}/items/{item_id}/flags", response_model=TransactionDetail)
+async def update_transaction_item_flags(
+    transaction_id: UUID,
+    item_id: UUID,
+    body: TransactionItemFlagsUpdate,
+    auth: Auth,
+    db: DB,
+) -> TransactionDetail:
+    txn = await _load_owned_transaction_detail(db, auth=auth, transaction_id=transaction_id)
+    if txn is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Transaction not found")
+
+    item = next((candidate for candidate in txn.items if candidate.id == item_id), None)
+    if item is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Transaction item not found",
+        )
+
+    normalized_flags = _dedupe_flags(body.flags)
+    await db.execute(
+        delete(TransactionItemFlag).where(
+            TransactionItemFlag.transaction_item_id == item_id,
+            TransactionItemFlag.user_id == auth.user_id,
+        )
+    )
+    for flag_kind in normalized_flags:
+        db.add(
+            TransactionItemFlag(
+                ownership_scope_id=auth.ownership_scope_id,
+                transaction_item_id=item_id,
+                user_id=auth.user_id,
+                flag_kind=flag_kind,
+            )
+        )
+
+    await db.commit()
+
+    refreshed = await _load_owned_transaction_detail(db, auth=auth, transaction_id=transaction_id)
+    if refreshed is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Transaction not found")
+    return _transaction_detail_for_user(refreshed, user_id=auth.user_id)
 
 
 @router.delete("/{transaction_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -535,6 +572,59 @@ async def batch_delete_transactions(
     result = cast("CursorResult[Any]", await db.execute(stmt))
     await db.commit()
     return BatchResult(count=result.rowcount)
+
+
+async def _load_owned_transaction_detail(
+    db: AsyncSession,
+    *,
+    auth: AuthContext,
+    transaction_id: UUID,
+) -> Transaction | None:
+    result = await db.execute(
+        select(Transaction)
+        .options(
+            selectinload(Transaction.items).selectinload(TransactionItem.item_flags),
+            selectinload(Transaction.images),
+        )
+        .where(
+            Transaction.id == transaction_id,
+            Transaction.ownership_scope_id == auth.ownership_scope_id,
+        )
+        .execution_options(populate_existing=True)
+    )
+    return result.scalar_one_or_none()
+
+
+def _transaction_detail_for_user(txn: Transaction, *, user_id: UUID) -> TransactionDetail:
+    detail = TransactionDetail.model_validate(txn)
+    item_by_id = {item.id: item for item in txn.items}
+    for item_response in detail.items:
+        item = item_by_id.get(item_response.id)
+        if item is None:
+            continue
+        flags = _flag_kinds_for_user(item, user_id=user_id)
+        item_response.flags = flags
+        item_response.is_flagged = item_response.is_flagged or bool(flags)
+    return detail
+
+
+def _flag_kinds_for_user(item: TransactionItem, *, user_id: UUID) -> list[ItemInsightFlagKind]:
+    flags: list[ItemInsightFlagKind] = []
+    for flag in item.item_flags:
+        if flag.user_id != user_id:
+            continue
+        flag_kind = as_item_insight_flag_kind(flag.flag_kind)
+        if flag_kind not in flags:
+            flags.append(flag_kind)
+    return flags
+
+
+def _dedupe_flags(flags: list[ItemInsightFlagKind]) -> list[ItemInsightFlagKind]:
+    deduped: list[ItemInsightFlagKind] = []
+    for flag in flags:
+        if flag not in deduped:
+            deduped.append(flag)
+    return deduped
 
 
 async def _assert_active_card_alias(

@@ -106,6 +106,31 @@ Runtime behavior:
   requested month plus the trailing baseline window, so transaction or item
   edits invalidate stale monthly output.
 
+## Phase 3 Item Flag Semantics
+
+Phase 3 promotes item flags from fixture-only `is_flagged` compatibility into a
+user-private mutation contract:
+
+```text
+PUT /api/v1/transactions/{transaction_id}/items/{item_id}/flags
+```
+
+Runtime behavior:
+
+- Request body is `{"flags": ["urgency" | "special_case"]}`; an empty list
+  clears the current user's flags for that item.
+- Flags are stored in `transaction_item_flags` with explicit `user_id` and
+  `ownership_scope_id`; the source transaction item remains unchanged.
+- Transaction detail still returns the item and exposes the current user's
+  `flags`; `is_flagged` is true when either legacy item state or current-user
+  flags are present.
+- Monthly insights exclude current-user flagged items from aggregates while
+  preserving their totals in `excluded_items`.
+- The monthly insights cache fingerprint includes current-user item flags, so
+  flag create/update/remove operations invalidate stale aggregate output.
+- Privacy erasure removes the erasing user's flag rows along with existing
+  transaction anonymization.
+
 ## Staging API Gate
 
 The deployed Phase 2 proof is the ignored artifact packet produced by:
@@ -119,5 +144,11 @@ uv run python ../scripts/staging/run-insights-api-gate.py \
 The gate signs in with the local staging E2E Firebase credentials, seeds the P6
 fixture corpus through the deployed `/transactions` API using a deterministic
 fixture merchant scope, fetches `/insights/monthly`, verifies the locked top
-transaction categories, item categories, gravity-center rows, and total spend,
-then writes its manifest under `tests/mobile/results/runs/<env>/<stage-id>/`.
+transaction categories, item categories, gravity-center rows, and total spend.
+For Phase 3 and later it also flags one seeded transaction item through the
+deployed item-flag endpoint, verifies the flag remains visible in transaction
+detail, re-fetches `/insights/monthly`, and verifies the flagged item is
+excluded from aggregate spend while reported in `excluded_items`.
+
+The gate writes its manifest under
+`tests/mobile/results/runs/<env>/<stage-id>/`.

@@ -2,14 +2,19 @@
 
 import uuid
 from datetime import date
+from pathlib import Path
 
 import pytest
 from httpx import AsyncClient
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from app.models.transaction import Transaction
+from app.models.transaction import Transaction, TransactionItem, TransactionItemFlag
+from app.models.user import OwnershipScope, User
 
 TEST_SCOPE_ID = uuid.UUID("00000000-0000-0000-0000-000000000001")
+OTHER_SCOPE_ID = uuid.UUID("00000000-0000-0000-0000-000000000102")
+OTHER_USER_ID = uuid.UUID("00000000-0000-0000-0000-000000000202")
 
 
 @pytest.fixture
@@ -526,6 +531,166 @@ class TestUpdateTransaction:
         assert data["recurrence_label"] == "Internet mensual"
         assert data["recurrence_source"] == "user"
         assert data["recurrence_user_edited_at"] is not None
+
+
+class TestTransactionItemFlags:
+    async def test_update_item_flags_are_visible_and_clearable(
+        self,
+        client: AsyncClient,
+        seed_transaction: str,
+    ) -> None:
+        get_resp = await client.get(f"/api/v1/transactions/{seed_transaction}")
+        assert get_resp.status_code == 200
+        item_id = get_resp.json()["items"][0]["id"]
+        assert get_resp.json()["items"][0]["flags"] == []
+        assert get_resp.json()["items"][0]["is_flagged"] is False
+
+        flag_resp = await client.put(
+            f"/api/v1/transactions/{seed_transaction}/items/{item_id}/flags",
+            json={"flags": ["special_case"]},
+        )
+        assert flag_resp.status_code == 200
+        flagged_item = flag_resp.json()["items"][0]
+        assert flagged_item["flags"] == ["special_case"]
+        assert flagged_item["is_flagged"] is True
+
+        detail_resp = await client.get(f"/api/v1/transactions/{seed_transaction}")
+        assert detail_resp.status_code == 200
+        assert detail_resp.json()["items"][0]["flags"] == ["special_case"]
+
+        replace_resp = await client.put(
+            f"/api/v1/transactions/{seed_transaction}/items/{item_id}/flags",
+            json={"flags": ["urgency", "urgency"]},
+        )
+        assert replace_resp.status_code == 200
+        assert replace_resp.json()["items"][0]["flags"] == ["urgency"]
+
+        clear_resp = await client.put(
+            f"/api/v1/transactions/{seed_transaction}/items/{item_id}/flags",
+            json={"flags": []},
+        )
+        assert clear_resp.status_code == 200
+        cleared_item = clear_resp.json()["items"][0]
+        assert cleared_item["flags"] == []
+        assert cleared_item["is_flagged"] is False
+
+    async def test_update_item_flags_rejects_unknown_item(
+        self,
+        client: AsyncClient,
+        seed_transaction: str,
+    ) -> None:
+        response = await client.put(
+            f"/api/v1/transactions/{seed_transaction}/items/{uuid.uuid4()}/flags",
+            json={"flags": ["special_case"]},
+        )
+
+        assert response.status_code == 404
+
+    async def test_update_item_flags_is_owner_scoped(self, client: AsyncClient, engine) -> None:
+        session_factory = async_sessionmaker(
+            engine,
+            class_=AsyncSession,
+            expire_on_commit=False,
+        )
+        async with session_factory() as session:
+            session.add(OwnershipScope(id=OTHER_SCOPE_ID, scope_type="individual"))
+            await session.flush()
+            transaction = Transaction(
+                ownership_scope_id=OTHER_SCOPE_ID,
+                transaction_date=date(2026, 5, 4),
+                merchant="Other Scope Store",
+                total_minor=1000,
+                currency="CLP",
+            )
+            session.add(transaction)
+            await session.flush()
+            item = TransactionItem(
+                transaction_id=transaction.id,
+                name="Other scope item",
+                total_price_minor=1000,
+            )
+            session.add(item)
+            await session.commit()
+            transaction_id = transaction.id
+            item_id = item.id
+
+        response = await client.put(
+            f"/api/v1/transactions/{transaction_id}/items/{item_id}/flags",
+            json={"flags": ["special_case"]},
+        )
+
+        assert response.status_code == 404
+
+    async def test_detail_only_exposes_current_users_item_flags(
+        self,
+        client: AsyncClient,
+        engine,
+        seed_transaction: str,
+    ) -> None:
+        get_resp = await client.get(f"/api/v1/transactions/{seed_transaction}")
+        assert get_resp.status_code == 200
+        item_id = uuid.UUID(get_resp.json()["items"][0]["id"])
+
+        session_factory = async_sessionmaker(
+            engine,
+            class_=AsyncSession,
+            expire_on_commit=False,
+        )
+        async with session_factory() as session:
+            session.add(
+                User(
+                    id=OTHER_USER_ID,
+                    firebase_uid="other-flag-user",
+                    email="other@example.com",
+                    display_name="Other User",
+                    default_currency="CLP",
+                    locale="es",
+                    ownership_scope_id=TEST_SCOPE_ID,
+                )
+            )
+            await session.flush()
+            session.add(
+                TransactionItemFlag(
+                    ownership_scope_id=TEST_SCOPE_ID,
+                    transaction_item_id=item_id,
+                    user_id=OTHER_USER_ID,
+                    flag_kind="special_case",
+                )
+            )
+            await session.commit()
+
+        other_flag_detail = await client.get(f"/api/v1/transactions/{seed_transaction}")
+        assert other_flag_detail.status_code == 200
+        assert other_flag_detail.json()["items"][0]["flags"] == []
+        assert other_flag_detail.json()["items"][0]["is_flagged"] is False
+
+        own_flag_resp = await client.put(
+            f"/api/v1/transactions/{seed_transaction}/items/{item_id}/flags",
+            json={"flags": ["urgency"]},
+        )
+        assert own_flag_resp.status_code == 200
+        assert own_flag_resp.json()["items"][0]["flags"] == ["urgency"]
+
+        # Write-path isolation: the caller's flag replace must NOT touch a
+        # co-scope member's private flags on the same item.
+        async with session_factory() as session:
+            surviving = await session.execute(
+                select(TransactionItemFlag).where(
+                    TransactionItemFlag.transaction_item_id == item_id,
+                    TransactionItemFlag.user_id == OTHER_USER_ID,
+                )
+            )
+            other_flags = surviving.scalars().all()
+        assert [flag.flag_kind for flag in other_flags] == ["special_case"]
+
+    def test_item_flags_migration_defines_rls_for_scope_bound_table(self) -> None:
+        migration = Path("alembic/versions/022_transaction_item_user_flags.py")
+        content = migration.read_text(encoding="utf-8")
+
+        assert "transaction_item_flags" in content
+        assert "ENABLE ROW LEVEL SECURITY" in content
+        assert "FORCE ROW LEVEL SECURITY" in content
+        assert "current_setting('app.ownership_scope_id')::uuid" in content
 
 
 class TestDeleteTransaction:

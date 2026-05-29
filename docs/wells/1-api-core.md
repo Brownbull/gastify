@@ -41,8 +41,8 @@ domain logic to the wells that own it.
 | `backend/app/api/statements.py` | Statement PDF upload/list/detail/lines/process plus `POST /statements/{id}/reconcile` and `GET /statements/{id}/reconciliation`. Upload requires per-scan AI processing consent before runtime fallback can call Gemini. |
 | `backend/app/api/statement_stream.py` | `GET /statements/{id}/events` — statement extraction/reconciliation SSE progress with Firebase JWT auth. |
 | `backend/app/api/card_aliases.py` | Alias-only card CRUD. Rejects PCI-shaped fields and scopes aliases by ownership scope. |
-| `backend/app/api/transactions.py` | Full CRUD for transactions: list (paginated), get, create, update, delete, batch update/delete. FX conversion on write. |
-| `backend/app/api/insights.py` | `GET /insights/monthly` — authenticated monthly top-category rollups and gravity-center rows for one ownership scope. |
+| `backend/app/api/transactions.py` | Full CRUD for transactions: list (paginated), get, create, update, delete, batch update/delete, and user-private item flag mutation. FX conversion on write. |
+| `backend/app/api/insights.py` | `GET /insights/monthly` — authenticated monthly top-category rollups, gravity-center rows, and current-user item-flag exclusions for one ownership scope. |
 | `backend/app/api/reference.py` | Read-only endpoints for store and item category taxonomies. |
 | `backend/app/api/consent.py` | Consent grant/revoke + audit event listing per G3 Identity requirements. |
 | `backend/app/api/privacy.py` | DSR endpoints: data access, rectification, erasure, portability (Law 21.719 CL, GDPR EU, PIPEDA CA, CCPA US-CA). |
@@ -80,6 +80,15 @@ authenticated ownership scope. The route delegates all taxonomy grouping,
 special-case exclusion, baseline comparison, and cache fingerprint behavior to
 the deterministic insights service so Web and Android clients receive the same
 shape that the Phase 1 contract tests locked.
+
+### 2026-05-28 — Transaction item flags are personal API state
+
+`PUT /api/v1/transactions/{transaction_id}/items/{item_id}/flags` lets the
+authenticated user set or clear `urgency` / `special_case` markers on one item.
+The response is the normal transaction detail shape, with the item still
+visible and the current user's `flags` projected onto that item. Insights use
+the authenticated `user_id` when computing aggregate exclusions, so future
+household/shared contexts do not inherit another user's flags by accident.
 
 ## Key Diagrams
 

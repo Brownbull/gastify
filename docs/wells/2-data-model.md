@@ -24,7 +24,7 @@ Security (RLS) is enforced via `ownership_scope_id` on every tenant table.
 |------|------|
 | `models/__init__.py` | Re-exports all model classes so `Base.metadata` registers them at import time. |
 | `models/user.py` | `OwnershipScope`, `User`, `OwnershipScopeMember`, `MobilePushToken` — multi-tenant user hierarchy. Every tenant table FKs to `OwnershipScope`. |
-| `models/transaction.py` | `Transaction`, `TransactionItem`, `TransactionImage` — expense records with line items (sort_order, minor-unit amounts), receipt images, and optional recurrence/fixed-term annotations. |
+| `models/transaction.py` | `Transaction`, `TransactionItem`, `TransactionItemFlag`, `TransactionImage` — expense records with line items (sort_order, minor-unit amounts), user-private item flags, receipt images, and optional recurrence/fixed-term annotations. |
 | `models/scan.py` | `Scan` + `ScanStatus` enum (`submitted` → `processing` → `extracted` → `categorized` → `completed` / `failed` / `needs_review`). |
 | `models/consent.py` | `ConsentRecord`, `ProcessingRegister`, `AuditEvent` — GDPR/privacy consent and audit trail. Used by [G3 Identity + Ownership](3-identity-ownership.md). |
 | `models/credit.py` | `CreditBalance` — per-scope scan credit tracking (BigInteger, default 50). Used by [G3](3-identity-ownership.md) JIT provisioning. |
@@ -38,7 +38,7 @@ Security (RLS) is enforced via `ownership_scope_id` on every tenant table.
 |------|------|
 | `schemas/__init__.py` | Package marker. |
 | `schemas/common.py` | `CamelModel` (camelCase serialization base), `PaginatedResponse[T]`, `ErrorDetail` — shared across all routers. |
-| `schemas/transaction.py` | `TransactionCreate`, `TransactionUpdate`, `TransactionDetail`, `TransactionListItem`, `BatchUpdateRequest`, `BatchDeleteRequest`, `BatchResult`. |
+| `schemas/transaction.py` | `TransactionCreate`, `TransactionUpdate`, `TransactionDetail`, `TransactionListItem`, `TransactionItemFlagsUpdate`, `BatchUpdateRequest`, `BatchDeleteRequest`, `BatchResult`. |
 | `schemas/recurrence.py` | Shared recurrence literals and validation helpers for fixed-term and recurring transaction annotations. |
 | `schemas/scan.py` | `ScanSubmission`, `GeminiExtractionResult`, `RawGeminiExtractionResult`, `CategorizationResult`, `ScanEvent`, `ScanCompleteData`, `ScanReviewSignal`, `MathReconciliationVerdict` — the full scan pipeline contract. |
 | `schemas/consent.py` | `ConsentGrant`, `ConsentResponse`, `DataAccessResponse`, `ErasureResponse`, `PortabilityResponse`, `RectificationRequest`. Jurisdictions: CL, EU, CA, US-CA. |
@@ -79,6 +79,8 @@ Security (RLS) is enforced via `ownership_scope_id` on every tenant table.
 | `018_statement_ai_processing_consent` | Statement upload-level AI processing consent audit field. |
 | `019_statement_line_fallback_evidence` | Statement-line fallback evidence fields: ledger readiness, source row/page, amount candidates, warnings, and provenance. |
 | `020_statement_extraction_usage_metadata` | Statement processing metadata for provider mode, token/cost summaries, fallback reason, cache status, and routing evidence. |
+| `021_statement_unidentified_item_source` | Adds `statement_unidentified` item category source for statement-created candidate items. |
+| `022_transaction_item_user_flags` | User-scoped transaction item flags with uniqueness by item/user/kind and RLS on `ownership_scope_id`. |
 
 ## Key Decisions
 
@@ -119,6 +121,15 @@ Top transaction categories are L2 store rollups, top item categories are L4 item
 rollups, and both lanes are capped at five so later API and UI work cannot
 silently swap axes.
 
+### 2026-05-28 — P6 item flags are user-scoped association rows
+
+Item flags live in `transaction_item_flags` instead of mutating
+`transaction_items`. Each row stores `ownership_scope_id`, `transaction_item_id`,
+`user_id`, and `flag_kind`, with a unique item/user/kind constraint. The legacy
+`transaction_items.is_flagged` boolean remains as compatibility input, but new
+P6 mutations use the association table so aggregate exclusions can be personal
+while transaction detail still shows the original item.
+
 ## Key Diagrams
 
 ### Entity Relationships
@@ -139,6 +150,8 @@ erDiagram
   Transaction }o--o| StoreCategory : "categorized as"
 
   TransactionItem }o--o| ItemCategory : "categorized as"
+  TransactionItem ||--o{ TransactionItemFlag : "current-user flags"
+  User ||--o{ TransactionItemFlag : "sets"
 
   Scan }o--|| User : "submitted by"
 
@@ -157,7 +170,7 @@ flowchart TD
   models["models/*<br/>SQLAlchemy ORM"] --> |"queried by"| services[["G1/G3/G4 Services"]]
   ref["reference/categories.py<br/>V4 taxonomy"] --> |"taxonomy keys"| models
   ref --> |"prompt text"| prompts[["G4 Prompts"]]
-  models --> |"tracked by"| alembic["alembic/versions/<br/>14 migrations"]
+  models --> |"tracked by"| alembic["alembic/versions/<br/>22 migrations"]
 
   classDef g2 fill:#fff4cc,stroke:#9a6b00,color:#2b2300;
   classDef external fill:#eef2f7,stroke:#475467,color:#101828;

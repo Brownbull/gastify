@@ -172,6 +172,7 @@ async def erasure(request: Request, auth: Auth, db: DB) -> ErasureResponse:
     txn_anonymized = await anonymize_user_transactions(
         db,
         ownership_scope_id=auth.ownership_scope_id,
+        user_id=auth.user_id,
     )
 
     await anonymize_user_profile(db, user_id=auth.user_id)
