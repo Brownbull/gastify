@@ -3,6 +3,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
 import { useAuth } from "../providers/AuthProvider";
 import { HomeScreen } from "../screens/HomeScreen";
+import { InsightsScreen } from "../screens/InsightsScreen";
 import { SignInScreen } from "../screens/SignInScreen";
 import { StatementsScreen } from "../screens/StatementsScreen";
 import { TransactionDetailScreen } from "../screens/TransactionDetailScreen";
@@ -41,6 +42,11 @@ export function AppNavigator() {
               name="Statements"
               component={StatementsScreen}
               options={{ title: "Statements" }}
+            />
+            <Stack.Screen
+              name="Insights"
+              component={InsightsScreen}
+              options={{ title: "Insights" }}
             />
             <Stack.Screen
               name="TransactionDetail"

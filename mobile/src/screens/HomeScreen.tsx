@@ -168,6 +168,11 @@ export function HomeScreen({ navigation }: HomeScreenProps = {}) {
             testID="open-statements-button"
             onPress={() => navigation?.navigate("Statements")}
           />
+          <Button
+            title="Open insights"
+            testID="open-insights-button"
+            onPress={() => navigation?.navigate("Insights")}
+          />
         </View>
       </View>
 

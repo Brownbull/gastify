@@ -3,12 +3,14 @@ import { TransactionDetailScreen } from "../TransactionDetailScreen";
 import { useItemCategories, useStoreCategories } from "../../hooks/useCategories";
 import {
   useTransaction,
+  useUpdateItemFlags,
   useUpdateTransaction,
 } from "../../hooks/useTransactions";
 
 jest.mock("../../hooks/useTransactions", () => ({
   useTransaction: jest.fn(),
   useUpdateTransaction: jest.fn(),
+  useUpdateItemFlags: jest.fn(),
 }));
 
 jest.mock("../../hooks/useCategories", () => ({
@@ -141,6 +143,12 @@ describe("TransactionDetailScreen", () => {
       isPending: false,
       mutate,
       reset,
+    } as never);
+    jest.mocked(useUpdateItemFlags).mockReturnValue({
+      error: null,
+      isPending: false,
+      mutate: jest.fn(),
+      reset: jest.fn(),
     } as never);
   });
 

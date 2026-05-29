@@ -14,7 +14,13 @@ import {
 } from "react-native";
 import { ScreenShell } from "../components/ScreenShell";
 import { useItemCategories, useStoreCategories } from "../hooks/useCategories";
-import { useTransaction, useUpdateTransaction } from "../hooks/useTransactions";
+import {
+  useTransaction,
+  useUpdateItemFlags,
+  useUpdateTransaction,
+} from "../hooks/useTransactions";
+import { ItemFlagChips } from "../components/ItemFlagChips";
+import type { ItemFlagKind } from "../lib/transactions";
 import {
   categoryLabel,
   categoryPath,
@@ -56,6 +62,19 @@ export function TransactionDetailScreen({
   const save = (body: TransactionUpdate) => {
     if (!transactionId) return;
     mutation.mutate(body);
+  };
+
+  const flagMutation = useUpdateItemFlags(transactionId ?? "");
+  const toggleFlag = (
+    item: TransactionDetail["items"][number],
+    kind: ItemFlagKind,
+  ) => {
+    if (!transactionId) return;
+    const current = item.flags ?? [];
+    const next = current.includes(kind)
+      ? current.filter((flag) => flag !== kind)
+      : [...current, kind];
+    flagMutation.mutate({ itemId: item.id, flags: next });
   };
 
   if (!transactionId) {
@@ -124,12 +143,22 @@ export function TransactionDetailScreen({
         transaction={transaction}
       />
 
+      {flagMutation.error ? (
+        <View style={styles.errorPanel} testID="transaction-flag-error">
+          <Text style={styles.errorTitle}>Flag change failed</Text>
+          <Text style={styles.errorBody}>{flagMutation.error.message}</Text>
+          <Button title="Dismiss" onPress={() => flagMutation.reset()} />
+        </View>
+      ) : null}
+
       <LineItemsPanel
         currency={transaction.currency}
         disabled={mutation.isPending}
+        flagPending={flagMutation.isPending}
         itemCategories={itemCategories}
         items={transaction.items}
         onSaveItem={(item) => save({ items: [item] })}
+        onToggleFlag={toggleFlag}
       />
 
       {transaction.images.length > 0 ? (
@@ -299,15 +328,22 @@ function TransactionEditor({
 function LineItemsPanel({
   currency,
   disabled,
+  flagPending,
   itemCategories,
   items,
   onSaveItem,
+  onToggleFlag,
 }: {
   currency: string;
   disabled: boolean;
+  flagPending: boolean;
   itemCategories: ReturnType<typeof useItemCategories>["data"];
   items: TransactionDetail["items"];
   onSaveItem: (item: TransactionItemUpdate) => void;
+  onToggleFlag: (
+    item: TransactionDetail["items"][number],
+    kind: ItemFlagKind,
+  ) => void;
 }) {
   if (items.length === 0) return null;
 
@@ -319,10 +355,12 @@ function LineItemsPanel({
           key={item.id}
           currency={currency}
           disabled={disabled}
+          flagPending={flagPending}
           itemIndex={index}
           item={item}
           itemCategories={itemCategories}
           onSave={onSaveItem}
+          onToggleFlag={onToggleFlag}
         />
       ))}
     </View>
@@ -332,17 +370,24 @@ function LineItemsPanel({
 function LineItemEditor({
   currency,
   disabled,
+  flagPending,
   item,
   itemIndex,
   itemCategories,
   onSave,
+  onToggleFlag,
 }: {
   currency: string;
   disabled: boolean;
+  flagPending: boolean;
   item: TransactionDetail["items"][number];
   itemIndex: number;
   itemCategories: ReturnType<typeof useItemCategories>["data"];
   onSave: (item: TransactionItemUpdate) => void;
+  onToggleFlag: (
+    item: TransactionDetail["items"][number],
+    kind: ItemFlagKind,
+  ) => void;
 }) {
   const [nameDraft, setNameDraft] = useState(item.name);
   const [totalDraft, setTotalDraft] = useState(
@@ -435,6 +480,11 @@ function LineItemEditor({
         testID={`transaction-item-${itemIndex}-save-button`}
         onPress={save}
         disabled={disabled}
+      />
+      <ItemFlagChips
+        item={item}
+        disabled={flagPending}
+        onToggleFlag={onToggleFlag}
       />
     </View>
   );

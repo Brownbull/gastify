@@ -9,12 +9,15 @@ import { useCallback } from "react";
 import {
   getTransaction,
   listTransactions,
+  updateItemFlags,
   updateTransaction,
+  type ItemFlagKind,
   type TransactionDetail,
   type TransactionFilters,
   type TransactionsPage,
   type TransactionUpdate,
 } from "../lib/transactions";
+import { insightsKeys } from "./insightsKeys";
 
 export const transactionKeys = {
   all: ["transactions"] as const,
@@ -98,6 +101,35 @@ export function useUpdateTransaction(transactionId: string) {
         queryKey: transactionKeys.detail(transactionId),
       });
       void queryClient.invalidateQueries({ queryKey: transactionKeys.lists() });
+    },
+  });
+}
+
+/**
+ * Replace the current user's flags on a transaction item. Flags are
+ * personal-only: flagged items drop out of the user's monthly insight
+ * aggregates while staying on the transaction, so a successful mutation
+ * refreshes both the detail cache and the insights aggregate.
+ */
+export function useUpdateItemFlags(transactionId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      itemId,
+      flags,
+    }: {
+      itemId: string;
+      flags: ItemFlagKind[];
+    }) => updateItemFlags(transactionId, itemId, flags),
+    onSuccess: (data) => {
+      queryClient.setQueryData<TransactionDetail>(
+        transactionKeys.detail(transactionId),
+        data,
+      );
+    },
+    onSettled: () => {
+      void queryClient.invalidateQueries({ queryKey: insightsKeys.all });
     },
   });
 }

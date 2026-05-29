@@ -10,6 +10,9 @@ export type TransactionItemUpdate =
   components["schemas"]["TransactionItemUpdate"];
 export type TransactionsPage =
   components["schemas"]["PaginatedResponse_TransactionListItem_"];
+export type ItemFlagKind = NonNullable<
+  components["schemas"]["TransactionItemFlagsUpdate"]["flags"]
+>[number];
 
 export interface TransactionFilters {
   dateFrom?: string;
@@ -82,6 +85,26 @@ export async function updateTransaction(
 
   if (error || !data) {
     throw new Error(readApiError(error, "Failed to update transaction"));
+  }
+
+  return data;
+}
+
+export async function updateItemFlags(
+  transactionId: string,
+  itemId: string,
+  flags: ItemFlagKind[],
+): Promise<TransactionDetail> {
+  const { data, error } = await apiClient.PUT(
+    "/api/v1/transactions/{transaction_id}/items/{item_id}/flags",
+    {
+      body: { flags },
+      params: { path: { transaction_id: transactionId, item_id: itemId } },
+    },
+  );
+
+  if (error || !data) {
+    throw new Error(readApiError(error, "Failed to update item flags"));
   }
 
   return data;
