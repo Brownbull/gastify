@@ -24,8 +24,8 @@ Code + local gates close Exec/Review/Commit. Deferred to runtime/staging: the 50
 
 | # | Phase | Types | Description | Tier | Complexity | Exec | Review | Commit | Push |
 |---|-------|-------|-------------|------|------------|------|--------|--------|------|
-| 1 | DP cohort engine + consent-gated aggregation | `analytics, privacy, dp, multi-tenant, test` | A differential-privacy cohort aggregator: k≥20 membership floor (suppress below), ε≤1 Laplace mechanism over clamped contributions (seedable RNG for tests), sensitive-category suppression, and membership derived live from `is_cohort_eligible` (revocation-aware, no cached membership). | scale | high | ⬜ | ⬜ | ⬜ | ⬜ |
-| 2 | P9 exit-gate evidence packet | `docs, test` | Map the REQ-27 exit signal (k-floor, ε≤1 noise, suppression, revocation removes a user, no cached-cohort leak) to local evidence; document the deferred runtime (50-profile deployed run + bar-chart UI). | scale | medium | ⬜ | ⬜ | ⬜ | ⬜ |
+| 1 | DP cohort engine + consent-gated aggregation | `analytics, privacy, dp, multi-tenant, test` | A differential-privacy cohort aggregator: k≥20 membership floor (suppress below), ε≤1 Laplace mechanism over clamped contributions (seedable RNG for tests), sensitive-category suppression, and membership derived live from `is_cohort_eligible` (revocation-aware, no cached membership). | scale | high | ✅ | ✅ | ✅ | ⬜ |
+| 2 | P9 exit-gate evidence packet | `docs, test` | Map the REQ-27 exit signal (k-floor, ε≤1 noise, suppression, revocation removes a user, no cached-cohort leak) to local evidence; document the deferred runtime (50-profile deployed run + bar-chart UI). | scale | medium | ✅ | ✅ | ✅ | ⬜ |
 
 ## Phase Details
 
@@ -53,7 +53,9 @@ requirements: [REQ-27]
 
 ## Current Phase
 
-Phase 1: DP cohort engine + consent-gated aggregation.
+P9 plan is **local-complete** — both phases Exec ✅ Review ✅ Commit ✅. Push ⬜ pending the user's staging push + deferred runtime (50-synthetic-profile deployed cohort run + bar-chart client UI + live revocation-recompute proof, per `docs/runbooks/P9-COHORT-EXIT-GATE.md`; count-DP hardening tracked as PENDING P37).
+
+**P9 is the final roadmap phase — the entire P6→P9 roadmap drive is now local-complete.**
 
 ## Dependencies
 - Phase 1 reuses P7's `is_cohort_eligible` seam + the taxonomy `is_sensitive` flag + P6 insights data.
