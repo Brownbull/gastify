@@ -1,5 +1,15 @@
 # Session Ledger
 
+## 2026-05-29 — PHASE 3 EXEC+REVIEW: P7 Phase 3 — Scan quota graceful degradation
+SCOPE: ScanStatus.QUEUED (migration 024 ALTER TYPE ADD VALUE) + _queue_scan/_settle_pipeline_error routing QUOTA_EXCEEDED → QUEUED (scan_queued event + scans_queued + per-error-code metrics) instead of FAILED, at both LLM call sites; + re-entry path (HIGH review fix).
+REVIEW: adversarial python-reviewer → 1 HIGH (QUEUED parked-forever, no re-entry) FIXED; 2 MED (1 addressed=status-based re-entry, 1 refuted=patch auto-AsyncMock); 1 LOW accepted. 5 verification points all confirmed. VERDICT APPROVE ~94/100.
+HIGH FIX: _acquire_scan accepts QUEUED (reprocess from stage1); reprocess endpoint accepts QUEUED (reset→SUBMITTED); requeue_quota_throttled_scans() sweep primitive (scheduled dispatch = deferred-runtime).
+GATES: ruff + format (pass), mypy app/ (clean), pytest scan_worker+scans (48 passed); full suite 682 passed.
+EXEC ✅ Review ✅. Commit next.
+ARCHIVE: .kdbp/reviews-archive/REVIEW_2026-05-29-144500_resolved.md
+DEFERRED: scheduled requeue-sweep dispatch + the real quota load test → operational/staging.
+NEXT: commit → Phase 4 (retention/TTL).
+
 ## 2026-05-29 — PHASE 2 EXEC+REVIEW+COMMIT: P7 Phase 2 — Consent-revocation propagation
 SCOPE: New `consent_propagation.py` (is_cohort_eligible / is_ai_training_eligible derived live from granted ConsentRecord, scoped user+scope — the P9 recompute seam) + propagation audit logging wired into grant/revoke/revoke_all in consent.py.
 REVIEW: 2-lens adversarial workflow → 2 distinct confirmed (MED audit-key `cohort_effect` wrong for ai_training; LOW revoke_all_consents docstring), both fixed; load-bearing eligibility behavior verified correct (live-derived, scoped, immediate cohort-unflag, no import cycle). VERDICT APPROVE, ~96/100.
