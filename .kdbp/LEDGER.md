@@ -1,5 +1,13 @@
 # Session Ledger
 
+## 2026-05-29 — PHASE 2 EXEC+REVIEW+COMMIT: P7 Phase 2 — Consent-revocation propagation
+SCOPE: New `consent_propagation.py` (is_cohort_eligible / is_ai_training_eligible derived live from granted ConsentRecord, scoped user+scope — the P9 recompute seam) + propagation audit logging wired into grant/revoke/revoke_all in consent.py.
+REVIEW: 2-lens adversarial workflow → 2 distinct confirmed (MED audit-key `cohort_effect` wrong for ai_training; LOW revoke_all_consents docstring), both fixed; load-bearing eligibility behavior verified correct (live-derived, scoped, immediate cohort-unflag, no import cycle). VERDICT APPROVE, ~96/100.
+GATES: ruff + format (pass), mypy app/ (clean), pytest tests/test_consent_propagation.py + test_consent.py + test_privacy.py (31 passed); full suite 676 passed.
+EXEC ✅ Review ✅. Commit next.
+ARCHIVE: .kdbp/reviews-archive/REVIEW_2026-05-29-143000_resolved.md
+NEXT: commit → Phase 3 (scan quota graceful degradation).
+
 ## 2026-05-29 — PHASE 1 EXEC+REVIEW: P7 Phase 1 — DSR completeness + four-jurisdiction audit
 SCOPE-DISCOVERY: `backend/app/api/consent.py` already ships single-consent revoke, audit-event read (`/consent/audit`), and processing-register read (`/consent/processing-register`) — all registered + covered by test_consent.py (10) + test_privacy.py (13). The Explore inventory had missed this file, so Phase 1's planned scope was largely pre-built.
 REAL DELTA: added the `withdrawn_at` distinction — user-initiated withdrawal (set in `revoke_consent`, GDPR Art 7(3)) vs system revocation on erasure (`revoke_all_consents` leaves it null); cleared on re-grant. Migration 023, model + schema + service + 3 tests.
