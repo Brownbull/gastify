@@ -1,5 +1,17 @@
 # Session Ledger
 
+## 2026-05-28 23:02 -04 — PHASE 2 EXEC COMPLETE: deployed monthly insights API gate
+ROUTE: `/gabe-next` resumed P6 Phase 2 `/gabe-execute`; Phase 2 Exec is now closed by deployed staging-e2e proof.
+COMMITS: `6dc490f` monthly insights engine/API/staging gate; `9cd2a99` Phase 2 commit bookkeeping.
+CI: `origin/staging` run `26615109015` passed 13/13, including Backend Typecheck, Backend Test, Mobile API Drift, web/mobile gates, SCA, and secret scan.
+RAILWAY: Branch push did not auto-create a fresh Railway deployment. Manual CLI fallback from repo root failed because it ignored `backend/railway.toml` and selected Railpack/Node without a start command (`78650c28-78c7-4236-9e63-1eab60099eef`, failed). Corrected fallback deploy used `railway up backend --path-as-root --service gastify-api-staging-e2e --environment staging --detach`, producing deployment `3aa3b796-2fb2-466a-95a3-22fcd459e053` with Dockerfile backend config; deployment reached `SUCCESS`.
+READINESS: `bash scripts/staging/check-backend-ready.sh https://gastify-api-staging-e2e-staging.up.railway.app` passed with `status=ok`, database connected, migration current/head `021`.
+RUNTIME PROOF: `cd backend && uv run python ../scripts/staging/run-insights-api-gate.py --api-base-url https://gastify-api-staging-e2e-staging.up.railway.app --stage-id 20260528T2300-p6-phase2-insights-api-gate` passed. The gate signed into staging Firebase, seeded 15 P6 fixture transactions through the deployed `/transactions` API, fetched `/api/v1/insights/monthly?period=2026-03&currency=USD`, and verified top transaction categories, top item categories, gravity centers, and total spend.
+ARTIFACTS: `tests/mobile/results/runs/staging-e2e/20260528T2300-p6-phase2-insights-api-gate/p6-insights-api-gate/manifest.json`; `readiness.json`; `seeded-transactions.json`; `insights-response.json`.
+RESULT: manifest `result_status=passed`, `seeded_transaction_count=15`, `top_transaction_count=5`, `top_item_count=5`, `gravity_center_count=3`, `git_rev=9cd2a99377917e5cf13a492ddfda328ba3e73bf9`.
+TICK: ✅ Phase 2 Exec. Review remains ⬜; Commit is already ✅ from the pre-proof checkpoint.
+NEXT: Route to `/gabe-review` for Phase 2 before the push/promotion lane.
+
 ## 2026-05-28 22:52 -04 — [6dc490f] feat(insights): add monthly rollup engine
 FINDINGS: 0 critical blockers. Docs/structure drift was preemptively resolved by updating the P6 insights runbook and API well docs before commit.
 ACTIONS: Committed the Phase 2 monthly insights engine, authenticated `/api/v1/insights/monthly` route, generated web/mobile contracts, local tests, KDBP checkpoint, and deployed staging API gate script.
