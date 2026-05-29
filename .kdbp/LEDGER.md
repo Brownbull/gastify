@@ -1,5 +1,13 @@
 # Session Ledger
 
+## 2026-05-29 — PHASE 2+3 + P8 LOCAL-COMPLETE: Boleta scan shortcut + exit-gate packet
+SCOPE: Ph2 — `decode_boleta_barcode` seam (native decode runtime-deferred, returns None) + `_try_boleta_shortcut`/`_run_boleta_pipeline` in scan_worker (parse TED → produce transaction with 0 extraction+categorization LLM tokens via `_run_stage2` with prebuilt result; synthetic item when no IT1 so math gate passes; fail-safe fall-through to vision on any miss). Ph3 — `docs/runbooks/P8-BOLETA-EXIT-GATE.md`.
+REVIEW: python-reviewer adversarial pass on Ph2 → APPROVE, 0 CRITICAL/HIGH; all 5 safety axes confirmed (fail-safe, 0 tokens, persist-empty-categorization safe, no regression, no silent mis-transaction); 1 MED (no-IT1 test) + 1 LOW (prompt_version audit signal) both fixed. Ph3 self-review (docs).
+GATES: ruff + format (pass), mypy app/ (clean), pytest scan_worker (28) + boleta (9); full suite 705 passed.
+P8 PLAN STATUS: all 3 phases Exec ✅ Review ✅ Commit ✅. Push ⬜ pending staging push + deferred runtime (native PDF417/QR decode + <3s/0-token live proof).
+ARCHIVE: .kdbp/reviews-archive/REVIEW_2026-05-29-153300_resolved.md
+NEXT: commit → archive P8 plan → /gabe-plan P9 (final: DP cohort benchmarking).
+
 ## 2026-05-29 — PHASE 1 EXEC+REVIEW: P8 Phase 1 — TED payload parser
 SCOPE: `app/services/boleta.py` — `parse_ted_payload(payload) -> GeminiExtractionResult` parsing the SII TED `<DD>` (RE/TD/F/FE/RR/RSR/MNT/IT1) into the extraction shape; validates TD∈{39,41}; rejects malformed/non-boleta/missing-required/oversized/negative. Uses defusedxml (untrusted barcode input) + 8KB size cap.
 REVIEW: self-review (pure parser, security-hardened with defusedxml, 9 tests incl. attack cases: malformed XML, oversized, negative/invalid MNT, non-boleta TD, missing DD/fields). Adversarial review reserved for Phase 2 (the worker integration / LLM-bypass safety).
