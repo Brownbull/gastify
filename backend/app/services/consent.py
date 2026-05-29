@@ -9,9 +9,53 @@ from sqlalchemy import delete, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.consent import AuditEvent, ConsentRecord, ProcessingRegister
+from app.services.consent_propagation import (
+    AI_TRAINING_CONSENT_PURPOSE,
+    COHORT_CONSENT_PURPOSE,
+    PROPAGATING_PURPOSES,
+)
 
 if TYPE_CHECKING:
     from sqlalchemy.engine import CursorResult
+
+# Names the downstream surface each propagating purpose governs, so the audit
+# trail labels an ai_training change as the AI pipeline (not the cohort).
+_PROPAGATION_SURFACE = {
+    COHORT_CONSENT_PURPOSE: "cohort_benchmarking",
+    AI_TRAINING_CONSENT_PURPOSE: "ai_training_pipeline",
+}
+
+
+async def _log_consent_propagation(
+    db: AsyncSession,
+    *,
+    ownership_scope_id: uuid.UUID,
+    user_id: uuid.UUID,
+    purpose: str,
+    granted: bool,
+) -> None:
+    """Record the downstream effect of a consent change for propagating purposes
+    (cohort data-sharing, AI-training). Eligibility itself is derived live in
+    `consent_propagation`; this leaves an audit trail of the propagation."""
+    if purpose not in PROPAGATING_PURPOSES:
+        return
+    await log_audit_event(
+        db,
+        ownership_scope_id=ownership_scope_id,
+        user_id=user_id,
+        event_type="consent_propagation",
+        resource_type="consent_record",
+        details=json.dumps(
+            {
+                "purpose": purpose,
+                "granted": granted,
+                "downstream_effect": {
+                    "surface": _PROPAGATION_SURFACE.get(purpose, purpose),
+                    "state": "included" if granted else "excluded",
+                },
+            }
+        ),
+    )
 
 
 async def get_processing_purpose(db: AsyncSession, purpose: str) -> ProcessingRegister | None:
@@ -93,6 +137,14 @@ async def grant_consent(
         ip_address=ip_address,
     )
 
+    await _log_consent_propagation(
+        db,
+        ownership_scope_id=ownership_scope_id,
+        user_id=user_id,
+        purpose=purpose,
+        granted=True,
+    )
+
     return record
 
 
@@ -133,6 +185,14 @@ async def revoke_consent(
         resource_id=record.id,
         details=json.dumps({"purpose": purpose}),
         ip_address=ip_address,
+    )
+
+    await _log_consent_propagation(
+        db,
+        ownership_scope_id=ownership_scope_id,
+        user_id=user_id,
+        purpose=purpose,
+        granted=False,
     )
 
     return record
@@ -201,6 +261,13 @@ async def revoke_all_consents(
     ownership_scope_id: uuid.UUID,
     user_id: uuid.UUID,
 ) -> int:
+    """Revoke all granted consents for a user — SYSTEM-INITIATED only (DSR erasure).
+
+    Sets `revoked_at` but intentionally leaves `withdrawn_at` null: per the model
+    contract, `withdrawn_at` marks a *user*-initiated withdrawal (GDPR Art 7(3)).
+    A future user-facing "revoke all" action must NOT reuse this function as-is —
+    it should set `withdrawn_at` (e.g. via a `caller_initiated` flag).
+    """
     result = await db.execute(
         select(ConsentRecord).where(
             ConsentRecord.user_id == user_id,
@@ -214,6 +281,13 @@ async def revoke_all_consents(
     for record in records:
         record.status = "revoked"
         record.revoked_at = now
+        await _log_consent_propagation(
+            db,
+            ownership_scope_id=ownership_scope_id,
+            user_id=user_id,
+            purpose=record.purpose,
+            granted=False,
+        )
 
     return len(records)
 
