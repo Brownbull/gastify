@@ -31,6 +31,7 @@ from app.services.persist_scan import persist_scan_result
 from app.services.scan_e2e_fixtures import E2EScanFixtureCase, fixture_case_for_scan_image
 from app.services.scan_errors import (
     PermanentScanError,
+    ScanError,
     ScanErrorCode,
     classify_error,
 )
@@ -201,7 +202,7 @@ async def _acquire_scan(
                 log.info("scan_skipped", status=scan.status.value)
                 return None, False
             log.warning("scan_processing_stuck_recovered", age_s=round(age_s))
-        elif scan.status != ScanStatus.SUBMITTED:
+        elif scan.status not in (ScanStatus.SUBMITTED, ScanStatus.QUEUED):
             log.info("scan_skipped", status=scan.status.value)
             return None, False
 
@@ -276,16 +277,7 @@ async def _run_stage1(
             transient=not isinstance(classified_final, PermanentScanError),
         )
 
-    await _fail_scan(scan_id, classified_final.code.value, str(classified_final))
-    await _emit(
-        scan_id,
-        "scan_failed",
-        "stage1",
-        0,
-        error={"code": classified_final.code.value, "message": str(classified_final)},
-    )
-    dispatcher.close_scan(scan_id)
-    metrics.inc("scans_failed")
+    await _settle_pipeline_error(scan_id, classified_final, stage="stage1", progress=0)
     return None
 
 
@@ -320,16 +312,7 @@ async def _run_stage2(
                 error_code=classified.code.value,
                 transient=not isinstance(classified, PermanentScanError),
             )
-            await _fail_scan(scan_id, classified.code.value, str(classified))
-            await _emit(
-                scan_id,
-                "scan_failed",
-                "stage2",
-                40,
-                error={"code": classified.code.value, "message": str(classified)},
-            )
-            dispatcher.close_scan(scan_id)
-            metrics.inc("scans_failed")
+            await _settle_pipeline_error(scan_id, classified, stage="stage2", progress=40)
             return False
     else:
         log.info(
@@ -697,3 +680,79 @@ async def _fail_scan(scan_id: uuid.UUID, error_code: str, error_message: str) ->
             )
         )
         await db.commit()
+
+
+async def _queue_scan(scan_id: uuid.UUID, error_code: str, error_message: str) -> None:
+    """Park a quota-throttled scan in QUEUED for a later retry sweep — NOT a
+    terminal failure. processed_at stays null so the scan remains retriable."""
+    async with async_session() as db:
+        await db.execute(
+            update(Scan)
+            .where(Scan.id == scan_id)
+            .values(
+                status=ScanStatus.QUEUED,
+                error_code=error_code,
+                error_message=error_message[:500],
+            )
+        )
+        await db.commit()
+
+
+async def requeue_quota_throttled_scans() -> list[uuid.UUID]:
+    """Retry sweep: flip quota-throttled QUEUED scans back to SUBMITTED so the
+    worker reprocesses them once quota recovers, clearing the parked error.
+
+    Returns the requeued scan ids for the caller (scheduler / ops entrypoint) to
+    re-dispatch through ``process_scan``. The periodic invocation is operational
+    (a scheduled job); this function is the testable primitive it calls.
+    """
+    async with async_session() as db:
+        rows = await db.execute(select(Scan.id).where(Scan.status == ScanStatus.QUEUED))
+        ids = [row[0] for row in rows.all()]
+        if ids:
+            await db.execute(
+                update(Scan)
+                .where(Scan.status == ScanStatus.QUEUED)
+                .values(
+                    status=ScanStatus.SUBMITTED,
+                    error_code=None,
+                    error_message=None,
+                )
+            )
+            await db.commit()
+        return ids
+
+
+async def _settle_pipeline_error(
+    scan_id: uuid.UUID,
+    classified: ScanError,
+    *,
+    stage: str,
+    progress: int,
+) -> None:
+    """Settle a classified LLM-pipeline error. QUOTA_EXCEEDED degrades gracefully
+    to QUEUED (no 5xx, retriable); every other code fails. Emits the matching
+    stream event, records a per-error-code metric, and closes the stream."""
+    code = classified.code.value
+    metrics.inc(f"scan_error_{code.lower()}")
+    if classified.code == ScanErrorCode.QUOTA_EXCEEDED:
+        await _queue_scan(scan_id, code, str(classified))
+        await _emit(
+            scan_id,
+            "scan_queued",
+            stage,
+            progress,
+            data={"code": code, "reason": "quota_throttled"},
+        )
+        metrics.inc("scans_queued")
+    else:
+        await _fail_scan(scan_id, code, str(classified))
+        await _emit(
+            scan_id,
+            "scan_failed",
+            stage,
+            progress,
+            error={"code": code, "message": str(classified)},
+        )
+        metrics.inc("scans_failed")
+    dispatcher.close_scan(scan_id)

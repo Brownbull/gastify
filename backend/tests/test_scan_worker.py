@@ -188,6 +188,96 @@ class TestFullPipeline:
             assert await process_scan(_mock_scan().id) is True
 
 
+class TestQuotaGracefulDegradation:
+    @pytest.mark.asyncio
+    async def test_stage1_quota_throttle_queues_not_fails(self):
+        scan = _mock_scan()
+        quota_err = Exception("Resource exhausted: quota exceeded for gemini-flash")
+        p = _pipeline_ctx(scan, _mock_extraction(), _mock_categorization(), extract_side=quota_err)
+        with (
+            p[0],
+            p[1],
+            p[2],
+            p[3],
+            p[4],
+            p[5],
+            p[6],
+            patch(f"{_W}._queue_scan", new_callable=AsyncMock) as queue,
+            patch(f"{_W}._fail_scan", new_callable=AsyncMock) as fail,
+            patch(f"{_W}._emit") as mock_emit,
+        ):
+            result = await process_scan(scan.id)
+
+        # Graceful: no exception propagates (no 5xx), scan parked in QUEUED.
+        assert result is False
+        queue.assert_awaited_once()
+        fail.assert_not_awaited()
+        assert queue.await_args.args[1] == ScanErrorCode.QUOTA_EXCEEDED.value
+        event_types = [call.args[1] for call in mock_emit.call_args_list]
+        assert "scan_queued" in event_types
+        assert "scan_failed" not in event_types
+
+    @pytest.mark.asyncio
+    async def test_stage2_quota_throttle_queues_not_fails(self):
+        scan = _mock_scan()
+        quota_err = Exception("RESOURCE_EXHAUSTED: quota exceeded")
+        p = _pipeline_ctx(scan, _mock_extraction(), _mock_categorization(), cat_side=quota_err)
+        with (
+            p[0],
+            p[1],
+            p[2],
+            p[3],
+            p[4],
+            p[5],
+            p[6],
+            patch(f"{_W}._queue_scan", new_callable=AsyncMock) as queue,
+            patch(f"{_W}._fail_scan", new_callable=AsyncMock) as fail,
+            patch(f"{_W}._emit") as mock_emit,
+        ):
+            result = await process_scan(scan.id)
+
+        assert result is False
+        queue.assert_awaited_once()
+        fail.assert_not_awaited()
+        event_types = [call.args[1] for call in mock_emit.call_args_list]
+        assert "scan_queued" in event_types
+
+    @pytest.mark.asyncio
+    async def test_non_quota_error_still_fails(self):
+        scan = _mock_scan()
+        bad = Exception("invalid image: corrupt input request")
+        p = _pipeline_ctx(scan, _mock_extraction(), _mock_categorization(), extract_side=bad)
+        with (
+            p[0],
+            p[1],
+            p[2],
+            p[3],
+            p[4],
+            p[5],
+            p[6],
+            patch(f"{_W}._queue_scan", new_callable=AsyncMock) as queue,
+            patch(f"{_W}._fail_scan", new_callable=AsyncMock) as fail,
+            patch(f"{_W}._emit") as mock_emit,
+        ):
+            result = await process_scan(scan.id)
+
+        assert result is False
+        fail.assert_awaited_once()
+        queue.assert_not_awaited()
+        event_types = [call.args[1] for call in mock_emit.call_args_list]
+        assert "scan_failed" in event_types
+        assert "scan_queued" not in event_types
+
+    @pytest.mark.asyncio
+    async def test_queued_scan_is_reprocessable(self):
+        # Re-entry path: a quota-queued scan reprocesses from stage 1 when
+        # re-dispatched (graceful degradation must be retriable, not a dead end).
+        scan = _mock_scan(status=ScanStatus.QUEUED)
+        p = _pipeline_ctx(scan, _mock_extraction(), _mock_categorization())
+        with p[0], p[1], p[2], p[3], p[4], p[5], p[6]:
+            assert await process_scan(scan.id) is True
+
+
 class TestE2EScanFixturePipeline:
     @pytest.mark.asyncio
     async def test_success_fixture_bypasses_ai_and_emits_normal_sequence(self):

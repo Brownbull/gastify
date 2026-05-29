@@ -28,6 +28,9 @@ class ScanStatus(enum.StrEnum):
     COMPLETED = "completed"
     FAILED = "failed"
     NEEDS_REVIEW = "needs_review"
+    # Quota-throttled: the extraction LLM hit its quota; the scan waits here
+    # (not FAILED) for a later retry sweep — graceful degradation, no 5xx.
+    QUEUED = "queued"
 
 
 class Scan(Base):

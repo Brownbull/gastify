@@ -266,6 +266,44 @@ class TestTriggerEndpoint:
         assert data["error_message"] is None
 
     @pytest.mark.asyncio
+    async def test_trigger_queued_resets_to_submitted(self, client, engine):
+        scan_id = await self._insert_scan(
+            engine,
+            status=ScanStatus.QUEUED,
+            error_code="QUOTA_EXCEEDED",
+            error_message="quota exceeded",
+        )
+        resp = await client.post(f"/api/v1/scans/{scan_id}/process")
+        assert resp.status_code == 202
+        data = resp.json()
+        assert data["status"] == "submitted"
+        assert data["error_code"] is None
+
+    @pytest.mark.asyncio
+    async def test_requeue_quota_throttled_scans_sweep(self, engine):
+        from unittest.mock import patch as _patch
+
+        from app.services import scan_worker
+
+        q1 = await self._insert_scan(engine, status=ScanStatus.QUEUED, error_code="QUOTA_EXCEEDED")
+        q2 = await self._insert_scan(engine, status=ScanStatus.QUEUED, error_code="QUOTA_EXCEEDED")
+        failed = await self._insert_scan(engine, status=ScanStatus.FAILED)
+
+        factory = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+        with _patch.object(scan_worker, "async_session", factory):
+            requeued = await scan_worker.requeue_quota_throttled_scans()
+
+        assert set(requeued) == {q1, q2}
+        async with factory() as session:
+            rows = await session.execute(
+                sa.select(Scan.id, Scan.status).where(Scan.id.in_([q1, q2, failed]))
+            )
+            statuses = {row[0]: row[1] for row in rows.all()}
+        assert statuses[q1] == ScanStatus.SUBMITTED
+        assert statuses[q2] == ScanStatus.SUBMITTED
+        assert statuses[failed] == ScanStatus.FAILED  # non-quota untouched
+
+    @pytest.mark.asyncio
     async def test_trigger_nonexistent_scan_404(self, client):
         resp = await client.post(f"/api/v1/scans/{uuid.uuid4()}/process")
         assert resp.status_code == 404

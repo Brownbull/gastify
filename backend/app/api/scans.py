@@ -134,13 +134,14 @@ async def trigger_process_scan(
             detail="Scan not found",
         )
 
-    if scan.status not in (ScanStatus.SUBMITTED, ScanStatus.FAILED):
+    if scan.status not in (ScanStatus.SUBMITTED, ScanStatus.FAILED, ScanStatus.QUEUED):
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail=f"Scan is {scan.status.value}, cannot reprocess",
         )
 
-    if scan.status == ScanStatus.FAILED:
+    # FAILED and quota-throttled QUEUED scans reset to SUBMITTED before retry.
+    if scan.status in (ScanStatus.FAILED, ScanStatus.QUEUED):
         scan.status = ScanStatus.SUBMITTED
         scan.error_code = None
         scan.error_message = None
