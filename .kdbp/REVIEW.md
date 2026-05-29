@@ -3,10 +3,10 @@
 sources:
   - cli: codex
     model: gpt-5
-    timestamp: 2026-05-28T17:30:11-04:00
-    findings: 2
+    timestamp: 2026-05-28T23:14:00-04:00
+    findings: 0
 project_root: /home/khujta/projects/apps/gastify
-target: P6 Phase 1 — Analytics contract + seeded 3-month corpus
+target: P6 Phase 2 — Rollup + gravity-center engine
 maturity: ent
 status: resolved
 ---
@@ -14,54 +14,49 @@ status: resolved
 # Gabe Review — Live Document
 
 **Verdict:** APPROVE
-**Confidence:** 96/100
-**Coverage:** HIGH — fixed the mixed-currency/USD-shadow corpus gap and hardened the monthly response contract against swapped or overlong top-category rollups.
-**Findings:** 2 (CRITICAL: 0, HIGH: 1, MEDIUM: 1, LOW: 0) | **Sources:** codex
-**Resolution:** 2 fixed / 0 deferred / 0 dismissed of 2 (pending: 0)
+**Confidence:** 95/100
+**Coverage:** HIGH — reviewed the deterministic insights engine, authenticated API route, cache/fingerprint behavior, fixture-backed tests, generated contracts, docs, CI status, and deployed staging-e2e API gate evidence.
+**Findings:** 0 (CRITICAL: 0, HIGH: 0, MEDIUM: 0, LOW: 0) | **Sources:** codex
+**Resolution:** no findings opened.
 
 ## Findings
 
-| # | Status | Severity | Finding | File | Churn | Fix Cost | Defer Risk | Maturity Gate | Escalation | Sources |
-|---|--------|----------|---------|------|-------|----------|------------|---------------|------------|---------|
-| 1 | fixed | HIGH | Phase 1 explicitly required the seed corpus to prove multi-currency USD-shadow handling, but the original corpus was CLP-only. Fixed by adding a March USD source transaction with USD-shadow identity plus deterministic CLP reporting totals, then updating the locked March expected response and docs. | `backend/app/services/insights_fixtures.py:64` | ✅ STABLE | S (30-60m) | RESOLVED — Phase 2 now has a mixed-currency fixture target that must preserve source currency, USD shadow, and reporting-currency aggregation. | Enterprise | Plan requirement from `.kdbp/PLAN.md:71`; Architecture principles: AP11 testability | codex |
-| 2 | fixed | MEDIUM | `MonthlyInsightsResponse` accepted valid rollup objects in either top-category list and did not cap top lists to the top-5 contract. Fixed by adding max-length constraints plus response-level validation for transaction/item rollup dimensions and response-currency consistency. | `backend/app/schemas/insights.py:164` | ✅ STABLE | S (30-60m) | RESOLVED — Phase 2 cannot accidentally validate swapped category axes or overlong top lists. | Enterprise | None | codex |
+No actionable findings.
 
 ## Risk Dashboard
 
-| # | Source | Age | Finding | File | Defer Risk | Escalation |
-|---|--------|-----|---------|------|------------|------------|
-| 1 | current review | 0d | Mixed-currency/USD-shadow fixture target added | `backend/app/services/insights_fixtures.py:64` | RESOLVED | fixed |
-| 2 | current review | 0d | Top-category response lists now validate dimension and top-5 shape | `backend/app/schemas/insights.py:164` | RESOLVED | fixed |
+No open review risks.
 
 ## Coverage Confidence
 
 Coverage is HIGH.
 
-- The seed corpus now includes three primary-user months, a second ownership scope, receipt and statement transactions, a user-edited category, a special-case flagged item, and one USD source transaction with deterministic CLP reporting totals.
-- The expected March response now locks the mixed-currency contribution in total spend and the top transaction categories.
-- The schema rejects swapped transaction/item category lists and overlong top-category lists.
-- Whole-backend typecheck, lint, full pytest, and diff whitespace checks pass.
+- The engine computes monthly top L2 transaction categories, top L4 item categories, and growth/shrink gravity centers from persisted transactions.
+- The API route is authenticated, owner-scoped through the backend auth dependency, and validates period shape before calling the service.
+- The test suite covers seeded fixture parity, empty-period behavior, secondary ownership-scope isolation, API owner scoping, and cache invalidation after transaction changes.
+- Generated web/mobile OpenAPI artifacts include the new endpoint contract.
+- The deployed staging-e2e gate signed into Firebase, seeded 15 fixture transactions through the deployed `/transactions` API, fetched `/api/v1/insights/monthly`, and verified total spend, top transaction categories, top item categories, and gravity centers.
 
 ## Review Confidence
 
-Score: 96 / 100
+Score: 95 / 100
 
 | If you fix... | Findings resolved | Projected | Delta |
 |---------------|-------------------|-----------|---:|
-| All CRITICAL + HIGH | 1 of 1 | 96 / 100 | +0 |
-| All MVP gate | 0 of 0 | 96 / 100 | +0 |
-| All Enterprise gate | 2 of 2 | 96 / 100 | +0 |
-| All (incl. Scale) | 2 of 2 | 96 / 100 | +0 |
+| All CRITICAL + HIGH | 0 of 0 | 95 / 100 | +0 |
+| All MVP gate | 0 of 0 | 95 / 100 | +0 |
+| All Enterprise gate | 0 of 0 | 95 / 100 | +0 |
+| All (incl. Scale) | 0 of 0 | 95 / 100 | +0 |
 
-The remaining 4-point holdback is normal contract-phase residual risk; Phase 2 still has to prove the runtime engine computes this target from persisted data.
+The remaining 5-point holdback is residual rollout risk, not a Phase 2 blocker: Web/Android have not consumed the endpoint yet, and the deployed gate intentionally validates the persisted API path for a deterministic fixture user rather than the full future interactive insights UI.
 
 ## Final Verdict
 
-APPROVE — both Phase 1 review findings are fixed and the analytics contract is ready for commit.
+APPROVE — Phase 2 has the backend engine, API contract, generated clients, and branch-backed staging-e2e runtime proof needed to proceed to Push and then Phase 3.
 
 ## Plan Alignment (5a)
 
-ALIGNED — the diff remains scoped to P6 Phase 1 contract, fixtures, tests, docs, and KDBP review bookkeeping.
+ALIGNED — the diff stays scoped to P6 Phase 2 rollup computation, the monthly insights API, generated contracts, runtime proof tooling, docs, and KDBP bookkeeping.
 
 ## Stale Verified Topics (5c)
 
@@ -77,29 +72,41 @@ None. The implementation remains within Enterprise tier.
 
 ## Deferred Backlog Status
 
-- P24 remains open for receipt scan review-warning UI on mobile/web; this P6 contract work does not resolve it.
+- P24 remains open for receipt scan review-warning UI on mobile/web.
 - P26 remains open for the PyJWT audit-ignore revisit.
-- P31 remains the explicit iOS runtime deferral and is honored by the P6 plan.
-- P32/P33 remain open statement RLS/scale follow-ups and are not resolved by this analytics contract work.
+- P31 remains the explicit iOS runtime deferral.
+- P32/P33 remain open statement RLS/scale follow-ups.
 
 ## Evidence Reviewed
 
-- Scope: `.kdbp/PLAN.md`, `.kdbp/LEDGER.md`, `.kdbp/DECISIONS.md`, `.kdbp/ROADMAP.md`.
-- Source: `backend/app/schemas/insights.py`, `backend/app/services/insights_fixtures.py`.
-- Tests/docs: `backend/tests/test_insights_contract.py`, `docs/runbooks/P6-INSIGHTS-CONTRACT.md`.
-- Checks after fixes:
-  - `cd backend && uv run ruff check app tests` — pass.
-  - `cd backend && uv run mypy app/ --no-error-summary` — pass.
-  - `cd backend && uv run pytest tests/test_insights_contract.py tests/test_reference_categories.py -q` — pass, 14 tests.
-  - `cd backend && uv run pytest tests/ -x --tb=line -q` — pass, 655 passed, 2 skipped, 1 warning.
-  - `git diff --check` — pass.
+- Scope: `.kdbp/PLAN.md`, `.kdbp/LEDGER.md`.
+- Source: `backend/app/api/insights.py`, `backend/app/services/insights.py`, `backend/app/schemas/insights.py`, `backend/app/services/insights_fixtures.py`.
+- Tests/proof: `backend/tests/test_insights_engine.py`, `scripts/staging/run-insights-api-gate.py`.
+- Generated contracts: `web/src/lib/openapi-spec.json`, `web/src/lib/api-types.d.ts`, `mobile/src/lib/openapi-spec.json`, `mobile/src/lib/api-types.d.ts`.
+- Docs: `docs/runbooks/P6-INSIGHTS-CONTRACT.md`, `docs/wells/1-api-core.md`.
+- CI: `origin/staging` run `26615109015` passed 13/13.
+- Railway staging-e2e deployment: `3aa3b796-2fb2-466a-95a3-22fcd459e053` reached `SUCCESS`.
+- Runtime artifacts:
+  - `tests/mobile/results/runs/staging-e2e/20260528T2300-p6-phase2-insights-api-gate/p6-insights-api-gate/manifest.json`
+  - `tests/mobile/results/runs/staging-e2e/20260528T2300-p6-phase2-insights-api-gate/p6-insights-api-gate/readiness.json`
+  - `tests/mobile/results/runs/staging-e2e/20260528T2300-p6-phase2-insights-api-gate/p6-insights-api-gate/seeded-transactions.json`
+  - `tests/mobile/results/runs/staging-e2e/20260528T2300-p6-phase2-insights-api-gate/p6-insights-api-gate/insights-response.json`
+
+## Checks Reviewed
+
+- `cd backend && uv run ruff check app tests ../scripts/staging/run-insights-api-gate.py` — pass.
+- `cd backend && uv run ruff format --check app tests ../scripts/staging/run-insights-api-gate.py` — pass.
+- `cd backend && uv run mypy app/ --no-error-summary` — pass.
+- `cd backend && uv run pytest tests/ -x --tb=line -q` — pass, 660 passed, 2 skipped, 1 warning.
+- `cd web && npm run build` — pass, chunk-size warning only.
+- `cd mobile && npm run typecheck` — pass.
+- `cd backend && uv run python -m py_compile ../scripts/staging/run-insights-api-gate.py` — pass.
+- `git diff --cached --check` — pass before the Phase 2 commit.
+- Deployed gate: `cd backend && uv run python ../scripts/staging/run-insights-api-gate.py --api-base-url https://gastify-api-staging-e2e-staging.up.railway.app --stage-id 20260528T2300-p6-phase2-insights-api-gate` — pass.
 
 ## Suggested Triage
 
-| Finding | Suggested action | Rationale |
-|---------|------------------|-----------|
-| #1 | fixed | Mixed-currency seed and expected output now exercise the planned USD-shadow/reporting-currency behavior. |
-| #2 | fixed | Schema and tests now lock the top-category response shape before the runtime engine is built. |
+No triage actions needed.
 
 ---
-_Review resolved. Phase 1 Review is ticked._
+_Review resolved. Phase 2 Review is ticked._
