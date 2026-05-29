@@ -71,4 +71,7 @@
 <!-- P36 from /gabe-review P7 Phase 5 (2026-05-29) — concurrency hardening deferred WITH the pricing-enforcement ADR (SCOPE §9.2); both functions carry inline caveats. Not on a live path today. -->
 <!-- P34/P35 runtime + P36 enforcement deferrals span the P6→P9 code-complete drive. -->
 
-<!-- P34/P35/P36 from 2026-05-29 roadmap drive. -->
+| P37 | 2026-05-29 | gabe-review P9-Ph1 | DP cohort `member_count` (n) is released EXACT (un-noised). The cohort sum/mean is ε-DP, but the count query (sensitivity 1) is protected only by the k≥20 floor — under frequent/repeated cohort queries an adversary could observe ±1 join/leave changes. Harden before cohort queries become frequent: noise the count with a separate ε budget (split ε_sum + ε_count ≤ 1) or release a bucketed count. Documented inline in CohortStat. | `backend/app/services/cohort.py` | scale | medium | moderate | 0 | open |
+
+<!-- P34/P35/P36 from 2026-05-29 roadmap drive. P37 from /gabe-review P9 Phase 1 — count-DP is a Scale-tier hardening; one-shot baseline risk is low (k≥20 + infrequent consent changes), so deferred with an inline caveat rather than degrading baseline accuracy with a noisy denominator now. -->
+<!-- P37 from 2026-05-29 P9 review. -->

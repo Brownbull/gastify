@@ -1,5 +1,14 @@
 # Session Ledger
 
+## 2026-05-29 — PHASE 1+2 + P9 LOCAL-COMPLETE: DP cohort benchmarking — ★ P6→P9 ROADMAP DRIVE COMPLETE ★
+SCOPE: Ph1 — `app/services/cohort.py`: `cohort_baseline` (k≥20 floor → suppress; clamp to [0,cap]; Laplace DP sum scale=cap/ε with ε≤1 enforced; mean), `compare_to_cohort` (sensitive-category suppression), `eligible_cohort_member_ids` (live data_sharing consent → revocation-aware, no cached membership). Ph2 — `docs/runbooks/P9-COHORT-EXIT-GATE.md`.
+REVIEW: security-reviewer DP-privacy adversarial pass → APPROVE, 0 CRITICAL/HIGH; 5 privacy properties verified (DP scale, k-floor ordering, suppression, revocation-aware, Laplace correctness); 1 MED (exact member_count un-noised) resolved via precise DP-scope docs + PENDING P37 (count-DP = Scale hardening; degrading the baseline with a noisy denominator now is the worse trade). Ph2 self-review (docs).
+GATES: ruff + format (pass), mypy app/ (Success, 132 files), pytest test_cohort.py (12); full suite 717 passed.
+P9 PLAN STATUS: both phases Exec ✅ Review ✅ Commit ✅. Push ⬜ pending staging + deferred runtime (50-profile run + bar-chart UI).
+ARCHIVE: .kdbp/reviews-archive/REVIEW_2026-05-29-154500_resolved.md
+★ ROADMAP DRIVE COMPLETE: P6 (Insights+Flags) + P7 (Compliance+Launch) + P8 (Boleta shortcut) + P9 (DP cohort) all local-complete. All pushes + runtime/operational drills deferred to the user's staging session (PENDING P34/P35 runtime, P36 billing-enforcement, P37 count-DP; iOS P31).
+NEXT: commit → archive P9 plan → user runs staging pushes + deferred runtime closures.
+
 ## 2026-05-29 — PLAN: P9 Cohort Benchmarking (DP-engineered) created (P8 plan archived) — FINAL roadmap phase
 ARCHIVED: P8 plan → `.kdbp/archive/completed_PLAN_2026-05-29_p8-boleta-shortcut.md`.
 NEW PLAN: P9 — 2 phases (scale): (1) DP cohort engine + consent-gated aggregation (k≥20 floor, ε≤1 Laplace, sensitive-category suppression, revocation-aware via P7's is_cohort_eligible), (2) exit-gate packet.
