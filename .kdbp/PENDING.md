@@ -66,3 +66,9 @@
 
 <!-- P34 from 2026-05-29 roadmap drive — user authorized "code-complete + local gates, defer deployed-staging/device/cutover runtime proof to PENDING" across P6→P9. Runtime evidence deferrals for this drive are tracked here and fold into the P6 Phase 6 staging exit gate / P7 launch hardening. -->
 | P35 | 2026-05-29 | roadmap-drive android defer | Samsung S23 device e2e for the P6 Android insights + flag journey (Phase 5) is DEFERRED per explicit user direction ("we can defer android tests for later"). Android code + local typecheck/Jest are in scope; the S23 staging-e2e run with grouped stage artifacts is not run this drive. | `tests/mobile/maestro/*`, `mobile/src/screens/*` | ent | high | high | 0 | open |
+| P36 | 2026-05-29 | gabe-review P7-Ph5 | Billing primitives are concurrency-naive (acceptable while not enforced): `get_or_create_balance` select-then-insert TOCTOU races on unique(ownership_scope_id); `deduct_scan_credit` read-check-decrement is non-atomic across sessions (could go negative). MUST be hardened (INSERT…ON CONFLICT + atomic `UPDATE…WHERE scan_credits>0`) before the deferred pricing-enforcement ADR wires these into live concurrent paths. | `backend/app/services/billing.py` | ent | medium | moderate | 0 | open |
+
+<!-- P36 from /gabe-review P7 Phase 5 (2026-05-29) — concurrency hardening deferred WITH the pricing-enforcement ADR (SCOPE §9.2); both functions carry inline caveats. Not on a live path today. -->
+<!-- P34/P35 runtime + P36 enforcement deferrals span the P6→P9 code-complete drive. -->
+
+<!-- P34/P35/P36 from 2026-05-29 roadmap drive. -->

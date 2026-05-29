@@ -1,5 +1,14 @@
 # Session Ledger
 
+## 2026-05-29 — PHASE 5 EXEC+REVIEW: P7 Phase 5 — Monetization plumbing (schema-only)
+SCOPE: `plan_tier` on credit_balances (migration 025 + model CHECK constraint) + `app/services/billing.py` (PlanTier free/basic/pro, PLAN_MONTHLY_CREDITS 50/500/5000, credits_for_plan, get_or_create_balance, set_plan, has_scan_credit, deduct_scan_credit, BillingHook seam + NullBillingHook). Schema-only per SCOPE §9.2 — no live provider, no live enforcement.
+REVIEW: security-reviewer (financial code) → APPROVE, 0 CRITICAL/HIGH; 2 MED concurrency findings DEFERRED to PENDING P36 with the pricing-enforcement ADR (both carry inline caveats; not on a live path), 1 LOW (missing CHECK) FIXED. Tenant isolation + validation + no-secrets verified.
+GATES: ruff + format (pass), mypy app/ (clean), alembic heads (025), pytest test_billing.py (6 passed); full suite 692 passed.
+EXEC ✅ Review ✅. Commit next.
+ARCHIVE: .kdbp/reviews-archive/REVIEW_2026-05-29-150500_resolved.md
+DEFERRED: P36 (billing concurrency hardening) + the pricing mechanism/enforcement (SCOPE §9.2 ADR).
+NEXT: commit → Phase 6 (launch hardening + readiness packet).
+
 ## 2026-05-29 — PHASE 4 EXEC+REVIEW: P7 Phase 4 — Retention / TTL enforcement
 SCOPE: `app/services/retention.py` (purge_expired_scans [terminal + processed_at<now-90d], purge_expired_audit_events [<now-6y], count_expired dry-run, apply_retention) + `scripts/ops/run_retention.py` (dry-run default, --apply, best-effort image unlink) + tests. Transactions never deleted (anonymized via DSR per D4); in-flight scans never deleted.
 REVIEW: security-reviewer data-loss adversarial pass → APPROVE, 0 CRITICAL/HIGH; 1 MED (TTL rationale undocumented) + 1 LOW (test coverage gap) both fixed. All safety properties verified (no financial/in-flight deletion, no FK cascade, correct cutoff, non-destructive count, dry-run default).
@@ -2901,3 +2910,8 @@ PENDING: Re-surfaced classifier item P26 remains deferred; incremented `Times De
 Gabe-Lens brief: The P6 analytics contract is now shipped through the full lane. The seeded 3-month corpus and monthly insight shape are on main with green staging and production CI, so Phase 2 can build the rollup engine against a stable target.
 - 2026-05-29 14:38 | Write | /home/khujta/projects/apps/gastify/backend/app/services/retention.py
 - 2026-05-29 14:38 | Write | /home/khujta/projects/apps/gastify/scripts/ops/run_retention.py
+- 2026-05-29 14:51 | Write | /home/khujta/projects/apps/gastify/backend/alembic/versions/025_credit_plan_tier.py
+- 2026-05-29 14:51 | Edit | /home/khujta/projects/apps/gastify/backend/app/models/credit.py
+- 2026-05-29 14:51 | Edit | /home/khujta/projects/apps/gastify/backend/app/models/credit.py
+- 2026-05-29 14:51 | Write | /home/khujta/projects/apps/gastify/backend/app/services/billing.py
+- 2026-05-29 14:52 | Write | /home/khujta/projects/apps/gastify/backend/tests/test_billing.py

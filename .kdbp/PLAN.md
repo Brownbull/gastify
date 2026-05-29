@@ -34,7 +34,7 @@ Runtime-gated P7 items must close against deployed staging evidence before the r
 | 2 | Consent-revocation propagation | `compliance, persistence, analytics, multi-tenant` | Wire consent revocation to downstream unflag/suppress (AI-processing revocation unflags AI-derived state; cohort/aggregate surfaces honor revocation); revocation-aware recompute seam for P9. | ent | high | ✅ | ✅ | ✅ | ⬜ |
 | 3 | Scan quota graceful degradation | `api, worker, resilience, test` | Add a `queued` scan state + credit/quota pre-check so a quota-throttle path enqueues instead of 5xx; classify quota vs rate-limit; per-error-code metrics. | ent | high | ✅ | ✅ | ✅ | ⬜ |
 | 4 | Retention / TTL enforcement | `compliance, data-migration, jobs, test` | Retention service that deletes/anonymizes data older than `ProcessingRegister.retention_period`; invokable management entrypoint; audit-trail retention policy; tests. | ent | high | ✅ | ✅ | ✅ | ⬜ |
-| 5 | Monetization plumbing (schema-level) | `data-migration, persistence, billing-seam, test` | Plan-tier schema (SubscriptionPlan/plan tier on scope) + billing-hook interface seam + per-plan credit allocation/deduction wiring. No live provider (pricing ADR deferred). Migration 023+. | ent | high | ⬜ | ⬜ | ⬜ | ⬜ |
+| 5 | Monetization plumbing (schema-level) | `data-migration, persistence, billing-seam, test` | Plan-tier schema (SubscriptionPlan/plan tier on scope) + billing-hook interface seam + per-plan credit allocation/deduction wiring. No live provider (pricing ADR deferred). Migration 023+. | ent | high | ✅ | ✅ | ✅ | ⬜ |
 | 6 | Launch hardening + readiness packet | `docs, runbook, observability, test` | DPO / disaster-recovery / incident-response / security runbooks; consolidate PRODUCTION-CHECKLIST; consent/DSR + per-error observability counters; P7 exit-gate evidence packet. Cutover drill + paid-Gemini pre-commit + load test = deferred runtime. | ent | high | ⬜ | ⬜ | ⬜ | ⬜ |
 
 <!-- Exec written by /gabe-execute; Review/Commit/Push auto-ticked. A phase is complete when all four columns are ✅. -->
@@ -98,7 +98,7 @@ Author DPO, disaster-recovery, incident-response, and security runbooks; consoli
 
 ## Current Phase
 
-Phase 5: Monetization plumbing (schema-level).
+Phase 6: Launch hardening + readiness packet.
 
 (Phase 1 closed smaller than scoped — audit of `backend/app/api/consent.py` found single-consent revoke, audit-event read, and processing-register read ALREADY shipped + tested. Phase 1's real delta was the `withdrawn_at` user-withdrawal-vs-system-revocation distinction + 3 tests. The initial Explore inventory had missed `api/consent.py`.)
 
