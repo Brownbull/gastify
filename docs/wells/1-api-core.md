@@ -42,6 +42,7 @@ domain logic to the wells that own it.
 | `backend/app/api/statement_stream.py` | `GET /statements/{id}/events` — statement extraction/reconciliation SSE progress with Firebase JWT auth. |
 | `backend/app/api/card_aliases.py` | Alias-only card CRUD. Rejects PCI-shaped fields and scopes aliases by ownership scope. |
 | `backend/app/api/transactions.py` | Full CRUD for transactions: list (paginated), get, create, update, delete, batch update/delete. FX conversion on write. |
+| `backend/app/api/insights.py` | `GET /insights/monthly` — authenticated monthly top-category rollups and gravity-center rows for one ownership scope. |
 | `backend/app/api/reference.py` | Read-only endpoints for store and item category taxonomies. |
 | `backend/app/api/consent.py` | Consent grant/revoke + audit event listing per G3 Identity requirements. |
 | `backend/app/api/privacy.py` | DSR endpoints: data access, rectification, erasure, portability (Law 21.719 CL, GDPR EU, PIPEDA CA, CCPA US-CA). |
@@ -72,6 +73,14 @@ credit-card statement scan. The API stores that audit signal on the statement
 row and the worker uses it to authorize the transparent Gemini fallback when a
 known deterministic PDF parser cannot handle the uploaded layout.
 
+### 2026-05-28 — Monthly insights are served through an ownership-scoped route
+
+`GET /api/v1/insights/monthly` computes the P6 monthly rollup contract for the
+authenticated ownership scope. The route delegates all taxonomy grouping,
+special-case exclusion, baseline comparison, and cache fingerprint behavior to
+the deterministic insights service so Web and Android clients receive the same
+shape that the Phase 1 contract tests locked.
+
 ## Key Diagrams
 
 ### Router Registration and Cross-Well Dependencies
@@ -84,6 +93,7 @@ flowchart TD
   main --> scans["api/scans.py<br/>POST /scans"]
   main --> stream["api/scan_stream.py<br/>SSE + WS"]
   main --> txns["api/transactions.py<br/>CRUD /transactions"]
+  main --> insights["api/insights.py<br/>GET /insights/monthly"]
   main --> ref["api/reference.py<br/>GET /reference"]
   main --> consent["api/consent.py<br/>consent lifecycle"]
   main --> privacy["api/privacy.py<br/>DSR endpoints"]
@@ -94,6 +104,7 @@ flowchart TD
   scans -->|"background task"| g4[["G4 Scan Pipeline"]]
   stream -->|"subscribe events"| g4
   txns -->|"FX + models"| g2[["G2 Data Model"]]
+  insights -->|"rollups + gravity centers"| g2
   consent -->|"consent service"| g3[["G3 Identity"]]
   privacy -->|"DSR service"| g3
 
@@ -101,7 +112,7 @@ flowchart TD
   classDef router fill:#e8f1ff,stroke:#1f5fbf,color:#10233f;
   classDef well fill:#e7f6ec,stroke:#1f7a3f,color:#0b2f18;
   class main,cors,reqid,acclog infra;
-  class scans,stream,txns,ref,consent,privacy,push,health,metrics_ep router;
+  class scans,stream,txns,insights,ref,consent,privacy,push,health,metrics_ep router;
   class g2,g3,g4 well;
 ```
 

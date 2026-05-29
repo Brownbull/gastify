@@ -1,8 +1,7 @@
 """P6 monthly insight API contracts.
 
-These schemas are intentionally endpoint-ready but do not expose an endpoint yet.
-Phase 1 locks the response shape and taxonomy invariants; Phase 2 implements the
-runtime rollup service against this contract.
+Phase 1 locked the response shape and taxonomy invariants. Phase 2 implements
+the runtime rollup service against this contract.
 """
 
 from datetime import date

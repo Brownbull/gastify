@@ -1,5 +1,16 @@
 # Session Ledger
 
+## 2026-05-28 22:32 -04 — P6 PHASE 2 LOCAL CHECKPOINT: insights rollup API
+SCOPE: Added the deterministic monthly insights engine, ownership-scoped `/api/v1/insights/monthly` endpoint, cache fingerprinting, fixture/database adapters, generated web/mobile API contracts, API/runbook docs, and a reusable deployed staging API gate at `scripts/staging/run-insights-api-gate.py`.
+PLATFORM PROGRESS: The backend can now compute monthly top L2 transaction categories, top L4 item categories, special-case exclusions, and growth/shrink gravity centers from persisted transactions. The API is ready for Web/Android integration once branch-backed staging proof confirms the deployed path.
+CHECKS: `cd backend && uv run ruff check app tests` (pass); `cd backend && uv run ruff format --check app tests` (pass after formatting new files); `cd backend && uv run mypy app/ --no-error-summary` (pass); `cd backend && uv run pytest tests/ -x --tb=line -q` (660 passed, 2 skipped, 1 warning); `cd backend && uv run pytest tests/test_insights_contract.py tests/test_insights_engine.py -q` (12 passed); `cd backend && uv run python -m py_compile ../scripts/staging/run-insights-api-gate.py` (pass); `cd web && npm run generate:api` (pass); `cd web && npm run build` (pass); `cd mobile && npm run generate:api` (pass); `cd mobile && npm run typecheck` (pass); `git diff --check` (pass). Refreshed focused gates after docs alignment: `cd backend && uv run ruff check app tests ../scripts/staging/run-insights-api-gate.py` (pass); `cd backend && uv run mypy app/ --no-error-summary` (pass); `cd backend && uv run pytest tests/test_insights_contract.py tests/test_insights_engine.py -q` (12 passed); `git diff --check` (pass).
+NEXT: Commit/push this candidate to `origin/staging`, wait for CI/Railway readiness, then run `cd backend && uv run python ../scripts/staging/run-insights-api-gate.py --api-base-url https://gastify-api-staging-e2e-staging.up.railway.app` to capture the required staging artifact before ticking Phase 2 Exec ✅.
+
+## 2026-05-28 22:17 -04 — PHASE EXEC START: P6 Phase 2 — Rollup + gravity-center engine
+ROUTE: `/gabe-next` advanced the active P6 plan to Phase 2 and dispatched `/gabe-execute`.
+TASKS: implement deterministic monthly L2/L4 rollups, trailing-baseline gravity-center detection, ownership-scoped API access, and cache/fingerprint behavior against the Phase 1 seeded corpus.
+STATE: Phase 2 Exec set to 🔄.
+
 ## 2026-05-27 13:44 -04 — [7fcd8ba] feat(statements): promote fallback prompt lab
 FINDINGS: 0 critical blockers. Structure/docs drift was resolved before commit by adding nested prompt package patterns and updating the affected well docs.
 ACTIONS: Committed the Phase 4 statement prompt-lab/runtime fallback surface, migrations, generated web/mobile contracts, docs, and KDBP review fixes.

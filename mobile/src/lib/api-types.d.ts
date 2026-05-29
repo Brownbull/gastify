@@ -558,6 +558,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/insights/monthly": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Monthly Insights Endpoint */
+        get: operations["get_monthly_insights_endpoint_api_v1_insights_monthly_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/metrics": {
         parameters: {
             query?: never;
@@ -767,6 +784,105 @@ export interface components {
             /** Detail */
             detail?: components["schemas"]["ValidationError"][];
         };
+        /** InsightCategoryRollup */
+        InsightCategoryRollup: {
+            /**
+             * Dimension
+             * @enum {string}
+             */
+            dimension: "transaction_category" | "item_category";
+            /** Category Key */
+            category_key: string;
+            /**
+             * Category Level
+             * @enum {integer}
+             */
+            category_level: 2 | 4;
+            /** Parent Key */
+            parent_key: string;
+            /**
+             * Parent Level
+             * @enum {integer}
+             */
+            parent_level: 1 | 3;
+            /** Label */
+            label: string;
+            /** Parent Label */
+            parent_label: string;
+            /** Total Minor */
+            total_minor: number;
+            /** Currency */
+            currency: string;
+            /** Share Of Total Percent */
+            share_of_total_percent: string;
+            /** Transaction Count */
+            transaction_count: number;
+            /** Item Count */
+            item_count: number;
+            /**
+             * Excluded Total Minor
+             * @default 0
+             */
+            excluded_total_minor: number;
+            /**
+             * Excluded Item Count
+             * @default 0
+             */
+            excluded_item_count: number;
+        };
+        /** InsightExcludedItemSummary */
+        InsightExcludedItemSummary: {
+            /**
+             * Flag Kind
+             * @enum {string}
+             */
+            flag_kind: "urgency" | "special_case";
+            /** Total Minor */
+            total_minor: number;
+            /** Currency */
+            currency: string;
+            /** Item Count */
+            item_count: number;
+        };
+        /** InsightGravityCenter */
+        InsightGravityCenter: {
+            /**
+             * Dimension
+             * @enum {string}
+             */
+            dimension: "transaction_category" | "item_category";
+            /** Category Key */
+            category_key: string;
+            /**
+             * Category Level
+             * @enum {integer}
+             */
+            category_level: 2 | 4;
+            /** Parent Key */
+            parent_key: string;
+            /**
+             * Parent Level
+             * @enum {integer}
+             */
+            parent_level: 1 | 3;
+            /** Label */
+            label: string;
+            /**
+             * Direction
+             * @enum {string}
+             */
+            direction: "growth" | "shrink";
+            /** Current Total Minor */
+            current_total_minor: number;
+            /** Baseline Average Minor */
+            baseline_average_minor: number;
+            /** Ratio */
+            ratio: string;
+            /** Threshold */
+            threshold: string;
+            /** Explanation */
+            explanation: string;
+        };
         /** ItemCategoryItem */
         ItemCategoryItem: {
             /**
@@ -788,6 +904,41 @@ export interface components {
             is_sensitive: boolean;
             /** Sort Order */
             sort_order: number;
+        };
+        /** MonthlyInsightsResponse */
+        MonthlyInsightsResponse: {
+            /**
+             * Schema Version
+             * @default monthly-insights.v1
+             * @constant
+             */
+            schema_version: "monthly-insights.v1";
+            /**
+             * Period Start
+             * Format: date
+             */
+            period_start: string;
+            /**
+             * Period End
+             * Format: date
+             */
+            period_end: string;
+            /** Currency */
+            currency: string;
+            /** Total Spend Minor */
+            total_spend_minor: number;
+            /** Transaction Count */
+            transaction_count: number;
+            /** Item Count */
+            item_count: number;
+            /** Top Transaction Categories */
+            top_transaction_categories?: components["schemas"]["InsightCategoryRollup"][];
+            /** Top Item Categories */
+            top_item_categories?: components["schemas"]["InsightCategoryRollup"][];
+            /** Gravity Centers */
+            gravity_centers?: components["schemas"]["InsightGravityCenter"][];
+            /** Excluded Items */
+            excluded_items?: components["schemas"]["InsightExcludedItemSummary"][];
         };
         /** PaginatedResponse[TransactionListItem] */
         PaginatedResponse_TransactionListItem_: {
@@ -3150,6 +3301,40 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ItemCategoryItem"][];
+                };
+            };
+        };
+    };
+    get_monthly_insights_endpoint_api_v1_insights_monthly_get: {
+        parameters: {
+            query: {
+                /** @description Monthly period in YYYY-MM format. */
+                period: string;
+                /** @description Reporting currency. Defaults to the user's default currency. */
+                currency?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonthlyInsightsResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

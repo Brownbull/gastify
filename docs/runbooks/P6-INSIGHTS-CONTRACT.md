@@ -85,3 +85,39 @@ corpus before any web or Android UI depends on the analytics API.
 Mixed-currency rows should contribute their deterministic reporting-currency
 minor units to the CLP monthly response while preserving the transaction's USD
 shadow fields for cross-currency stability checks.
+
+## Phase 2 Runtime API
+
+Phase 2 promotes the contract through an authenticated backend route:
+
+```text
+GET /api/v1/insights/monthly?period=YYYY-MM&currency=CLP
+```
+
+Runtime behavior:
+
+- `period` is required and must be a valid `YYYY-MM` month.
+- `currency` is optional; when absent, the API uses the authenticated user's
+  default currency.
+- Results are ownership-scoped through the normal Firebase-auth dependency.
+- The service computes transaction L2 rollups, item L4 rollups, special-case
+  item exclusions, and gravity centers from persisted transactions.
+- A process-local cache is guarded by a database fingerprint covering the
+  requested month plus the trailing baseline window, so transaction or item
+  edits invalidate stale monthly output.
+
+## Staging API Gate
+
+The deployed Phase 2 proof is the ignored artifact packet produced by:
+
+```bash
+cd backend
+uv run python ../scripts/staging/run-insights-api-gate.py \
+  --api-base-url https://gastify-api-staging-e2e-staging.up.railway.app
+```
+
+The gate signs in with the local staging E2E Firebase credentials, seeds the P6
+fixture corpus through the deployed `/transactions` API using a deterministic
+fixture merchant scope, fetches `/insights/monthly`, verifies the locked top
+transaction categories, item categories, gravity-center rows, and total spend,
+then writes its manifest under `tests/mobile/results/runs/<env>/<stage-id>/`.

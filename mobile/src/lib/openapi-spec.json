@@ -1597,6 +1597,71 @@
         }
       }
     },
+    "/api/v1/insights/monthly": {
+      "get": {
+        "tags": [
+          "insights"
+        ],
+        "summary": "Get Monthly Insights Endpoint",
+        "operationId": "get_monthly_insights_endpoint_api_v1_insights_monthly_get",
+        "parameters": [
+          {
+            "name": "period",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}$",
+              "description": "Monthly period in YYYY-MM format.",
+              "title": "Period"
+            },
+            "description": "Monthly period in YYYY-MM format."
+          },
+          {
+            "name": "currency",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 3,
+                  "maxLength": 3
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Reporting currency. Defaults to the user's default currency.",
+              "title": "Currency"
+            },
+            "description": "Reporting currency. Defaults to the user's default currency."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MonthlyInsightsResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/metrics": {
       "get": {
         "tags": [
@@ -2135,6 +2200,228 @@
         "type": "object",
         "title": "HTTPValidationError"
       },
+      "InsightCategoryRollup": {
+        "properties": {
+          "dimension": {
+            "type": "string",
+            "enum": [
+              "transaction_category",
+              "item_category"
+            ],
+            "title": "Dimension"
+          },
+          "category_key": {
+            "type": "string",
+            "title": "Category Key"
+          },
+          "category_level": {
+            "type": "integer",
+            "enum": [
+              2,
+              4
+            ],
+            "title": "Category Level"
+          },
+          "parent_key": {
+            "type": "string",
+            "title": "Parent Key"
+          },
+          "parent_level": {
+            "type": "integer",
+            "enum": [
+              1,
+              3
+            ],
+            "title": "Parent Level"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "parent_label": {
+            "type": "string",
+            "title": "Parent Label"
+          },
+          "total_minor": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Total Minor"
+          },
+          "currency": {
+            "type": "string",
+            "maxLength": 3,
+            "minLength": 3,
+            "title": "Currency"
+          },
+          "share_of_total_percent": {
+            "type": "string",
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Share Of Total Percent"
+          },
+          "transaction_count": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Transaction Count"
+          },
+          "item_count": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Item Count"
+          },
+          "excluded_total_minor": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Excluded Total Minor",
+            "default": 0
+          },
+          "excluded_item_count": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Excluded Item Count",
+            "default": 0
+          }
+        },
+        "type": "object",
+        "required": [
+          "dimension",
+          "category_key",
+          "category_level",
+          "parent_key",
+          "parent_level",
+          "label",
+          "parent_label",
+          "total_minor",
+          "currency",
+          "share_of_total_percent",
+          "transaction_count",
+          "item_count"
+        ],
+        "title": "InsightCategoryRollup"
+      },
+      "InsightExcludedItemSummary": {
+        "properties": {
+          "flag_kind": {
+            "type": "string",
+            "enum": [
+              "urgency",
+              "special_case"
+            ],
+            "title": "Flag Kind"
+          },
+          "total_minor": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Total Minor"
+          },
+          "currency": {
+            "type": "string",
+            "maxLength": 3,
+            "minLength": 3,
+            "title": "Currency"
+          },
+          "item_count": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Item Count"
+          }
+        },
+        "type": "object",
+        "required": [
+          "flag_kind",
+          "total_minor",
+          "currency",
+          "item_count"
+        ],
+        "title": "InsightExcludedItemSummary"
+      },
+      "InsightGravityCenter": {
+        "properties": {
+          "dimension": {
+            "type": "string",
+            "enum": [
+              "transaction_category",
+              "item_category"
+            ],
+            "title": "Dimension"
+          },
+          "category_key": {
+            "type": "string",
+            "title": "Category Key"
+          },
+          "category_level": {
+            "type": "integer",
+            "enum": [
+              2,
+              4
+            ],
+            "title": "Category Level"
+          },
+          "parent_key": {
+            "type": "string",
+            "title": "Parent Key"
+          },
+          "parent_level": {
+            "type": "integer",
+            "enum": [
+              1,
+              3
+            ],
+            "title": "Parent Level"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "direction": {
+            "type": "string",
+            "enum": [
+              "growth",
+              "shrink"
+            ],
+            "title": "Direction"
+          },
+          "current_total_minor": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Current Total Minor"
+          },
+          "baseline_average_minor": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Baseline Average Minor"
+          },
+          "ratio": {
+            "type": "string",
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Ratio"
+          },
+          "threshold": {
+            "type": "string",
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Threshold"
+          },
+          "explanation": {
+            "type": "string",
+            "title": "Explanation"
+          }
+        },
+        "type": "object",
+        "required": [
+          "dimension",
+          "category_key",
+          "category_level",
+          "parent_key",
+          "parent_level",
+          "label",
+          "direction",
+          "current_total_minor",
+          "baseline_average_minor",
+          "ratio",
+          "threshold",
+          "explanation"
+        ],
+        "title": "InsightGravityCenter"
+      },
       "ItemCategoryItem": {
         "properties": {
           "id": {
@@ -2186,6 +2473,87 @@
           "sort_order"
         ],
         "title": "ItemCategoryItem"
+      },
+      "MonthlyInsightsResponse": {
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "monthly-insights.v1",
+            "title": "Schema Version",
+            "default": "monthly-insights.v1"
+          },
+          "period_start": {
+            "type": "string",
+            "format": "date",
+            "title": "Period Start"
+          },
+          "period_end": {
+            "type": "string",
+            "format": "date",
+            "title": "Period End"
+          },
+          "currency": {
+            "type": "string",
+            "maxLength": 3,
+            "minLength": 3,
+            "title": "Currency"
+          },
+          "total_spend_minor": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Total Spend Minor"
+          },
+          "transaction_count": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Transaction Count"
+          },
+          "item_count": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Item Count"
+          },
+          "top_transaction_categories": {
+            "items": {
+              "$ref": "#/components/schemas/InsightCategoryRollup"
+            },
+            "type": "array",
+            "maxItems": 5,
+            "title": "Top Transaction Categories"
+          },
+          "top_item_categories": {
+            "items": {
+              "$ref": "#/components/schemas/InsightCategoryRollup"
+            },
+            "type": "array",
+            "maxItems": 5,
+            "title": "Top Item Categories"
+          },
+          "gravity_centers": {
+            "items": {
+              "$ref": "#/components/schemas/InsightGravityCenter"
+            },
+            "type": "array",
+            "title": "Gravity Centers"
+          },
+          "excluded_items": {
+            "items": {
+              "$ref": "#/components/schemas/InsightExcludedItemSummary"
+            },
+            "type": "array",
+            "title": "Excluded Items"
+          }
+        },
+        "type": "object",
+        "required": [
+          "period_start",
+          "period_end",
+          "currency",
+          "total_spend_minor",
+          "transaction_count",
+          "item_count"
+        ],
+        "title": "MonthlyInsightsResponse"
       },
       "PaginatedResponse_TransactionListItem_": {
         "properties": {
