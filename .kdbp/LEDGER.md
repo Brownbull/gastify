@@ -1,5 +1,11 @@
 # Session Ledger
 
+## 2026-05-29 — PLAN: P9 Cohort Benchmarking (DP-engineered) created (P8 plan archived) — FINAL roadmap phase
+ARCHIVED: P8 plan → `.kdbp/archive/completed_PLAN_2026-05-29_p8-boleta-shortcut.md`.
+NEW PLAN: P9 — 2 phases (scale): (1) DP cohort engine + consent-gated aggregation (k≥20 floor, ε≤1 Laplace, sensitive-category suppression, revocation-aware via P7's is_cohort_eligible), (2) exit-gate packet.
+DEFERRED: 50-synthetic-profile deployed cohort run + bar-chart client UI + live revocation-recompute proof → runtime/staging.
+NEXT: /gabe-execute Phase 1 (DP cohort engine).
+
 ## 2026-05-29 — PHASE 2+3 + P8 LOCAL-COMPLETE: Boleta scan shortcut + exit-gate packet
 SCOPE: Ph2 — `decode_boleta_barcode` seam (native decode runtime-deferred, returns None) + `_try_boleta_shortcut`/`_run_boleta_pipeline` in scan_worker (parse TED → produce transaction with 0 extraction+categorization LLM tokens via `_run_stage2` with prebuilt result; synthetic item when no IT1 so math gate passes; fail-safe fall-through to vision on any miss). Ph3 — `docs/runbooks/P8-BOLETA-EXIT-GATE.md`.
 REVIEW: python-reviewer adversarial pass on Ph2 → APPROVE, 0 CRITICAL/HIGH; all 5 safety axes confirmed (fail-safe, 0 tokens, persist-empty-categorization safe, no regression, no silent mis-transaction); 1 MED (no-IT1 test) + 1 LOW (prompt_version audit signal) both fixed. Ph3 self-review (docs).
