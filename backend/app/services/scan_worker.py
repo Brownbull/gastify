@@ -25,6 +25,7 @@ from app.db import async_session
 from app.models.scan import Scan, ScanStatus
 from app.observability import metrics
 from app.schemas.scan import ScanCompleteData, ScanCompleteLineItem
+from app.services.boleta import BoletaParseError, decode_boleta_barcode, parse_ted_payload
 from app.services.llm_costs import estimate_llm_cost_usd
 from app.services.math_gate import reconcile
 from app.services.persist_scan import persist_scan_result
@@ -173,11 +174,106 @@ async def process_scan(scan_id: uuid.UUID) -> bool:
     if scan_provider == "mock":
         return await _run_mock_provider_pipeline(scan, scan_id, log, start)
 
+    # Structured-boleta shortcut: if the upload carries a parseable SII timbre
+    # (TED), produce the transaction from it with 0 extraction-LLM tokens. Any
+    # miss (no barcode / unparseable) falls through to the proven vision path.
+    boleta_result = await _try_boleta_shortcut(scan, scan_id, log, start)
+    if boleta_result is not None:
+        return boleta_result
+
     extraction = await _run_stage1(scan, scan_id, log, start)
     if extraction is None:
         return False
 
     return await _run_stage2(scan, scan_id, extraction, log, start)
+
+
+async def _try_boleta_shortcut(
+    scan: Scan,
+    scan_id: uuid.UUID,
+    log: structlog.stdlib.BoundLogger,
+    start: float,
+) -> bool | None:
+    """Attempt the structured-boleta shortcut. Returns the pipeline result when a
+    boleta was handled, or None to fall through to the vision pipeline."""
+    image_path = Path(scan.image_path)
+    if not image_path.exists():
+        return None  # let _run_stage1 own the missing-image failure path
+
+    image_bytes = await asyncio.to_thread(image_path.read_bytes)
+    payload = decode_boleta_barcode(image_bytes)
+    if payload is None:
+        return None  # no boleta barcode → vision path
+
+    try:
+        extraction_data = parse_ted_payload(payload)
+    except BoletaParseError as exc:
+        # Fail-safe: an unparseable/forged timbre falls through to vision.
+        log.info("boleta_parse_failed_fallback_to_vision", error=str(exc))
+        return None
+
+    log.info("boleta_shortcut", merchant=extraction_data.merchant_name)
+    return await _run_boleta_pipeline(scan, scan_id, log, start, extraction_data)
+
+
+async def _run_boleta_pipeline(
+    scan: Scan,
+    scan_id: uuid.UUID,
+    log: structlog.stdlib.BoundLogger,
+    start: float,
+    extraction_data: GeminiExtractionResult,
+) -> bool:
+    """Produce a transaction from a parsed boleta TED with 0 LLM tokens, reusing
+    the proven persist/math/event path (`_run_stage2` with a prebuilt result)."""
+    from app.agents.categorization import CategorizationOutput, CategorizationUsage
+    from app.agents.extraction import ExtractionUsage
+    from app.schemas.scan import CategorizationResult, LineItemExtraction
+
+    # Reconciliation needs items summing to the total; synthesize one when the
+    # timbre carried no IT1 so the math gate passes on the structured total.
+    if not extraction_data.line_items:
+        extraction_data = extraction_data.model_copy(
+            update={
+                "line_items": [
+                    LineItemExtraction(
+                        name="Boleta electrónica",
+                        total_price=extraction_data.total_amount,
+                    )
+                ]
+            }
+        )
+
+    extraction = ExtractionResult(
+        extraction=extraction_data,
+        usage=ExtractionUsage(input_tokens=0, output_tokens=0, latency_ms=0.0),
+        # Audit signal: the persisted prompt_version cleanly identifies the boleta
+        # shortcut (vs a vision-extracted transaction), not a gemini model name.
+        model_name="boleta-structured",
+    )
+    metrics.inc("scans_boleta_shortcut")
+
+    await _emit(scan_id, "image_processed", "load_image", 5, data={"boleta": True})
+    await _transition_scan(scan_id, ScanStatus.EXTRACTED)
+    await _emit(
+        scan_id,
+        "extraction_complete",
+        "stage1",
+        40,
+        data={
+            "merchant": extraction_data.merchant_name,
+            "items": len(extraction_data.line_items),
+            "confidence": extraction_data.confidence_score,
+            "boleta": True,
+        },
+    )
+
+    # Items keep no AI category (deterministic boleta path, 0 categorization
+    # tokens); merchant→category mapping memory applies downstream.
+    categorization = CategorizationOutput(
+        result=CategorizationResult(assignments=[]),
+        usage=CategorizationUsage(input_tokens=0, output_tokens=0, latency_ms=0.0),
+    )
+    return await _run_stage2(scan, scan_id, extraction, log, start, categorization=categorization)
 
 
 async def _acquire_scan(

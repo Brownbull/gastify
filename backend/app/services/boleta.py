@@ -37,6 +37,18 @@ class BoletaParseError(ValueError):
     """The payload is not a parseable boleta TED."""
 
 
+def decode_boleta_barcode(image_bytes: bytes) -> str | None:
+    """Decode a boleta's QR/PDF417 timbre barcode from image bytes into its TED
+    payload string, or None if no boleta barcode is present.
+
+    The native PDF417/QR decode (a heavy/native dependency) is DEFERRED to the
+    runtime/operational lane per the roadmap drive — this default returns None,
+    so every scan falls through to the proven vision pipeline. A real decoder is
+    injected here at runtime (and the scan-worker shortcut is exercised in tests
+    by patching this function)."""
+    return None
+
+
 def _text(node: Element | None, tag: str) -> str | None:
     if node is None:
         return None

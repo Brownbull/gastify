@@ -278,6 +278,109 @@ class TestQuotaGracefulDegradation:
             assert await process_scan(scan.id) is True
 
 
+class TestBoletaShortcut:
+    _PAYLOAD = (
+        '<TED version="1.0"><DD>'
+        "<RE>76192083-9</RE><TD>39</TD><F>1234</F>"
+        "<FE>2026-05-15</FE><MNT>15990</MNT><IT1>Almuerzo</IT1>"
+        "</DD><FRMT>x</FRMT></TED>"
+    )
+
+    @pytest.mark.asyncio
+    async def test_boleta_shortcut_bypasses_llm(self):
+        scan = _mock_scan()
+        with (
+            patch(f"{_W}.async_session", side_effect=_session_factory(scan)),
+            patch(f"{_W}.decode_boleta_barcode", return_value=self._PAYLOAD),
+            patch(f"{_W}.extract_receipt", new_callable=AsyncMock) as mock_extract,
+            patch(f"{_W}.categorize_items", new_callable=AsyncMock) as mock_categorize,
+            patch(
+                f"{_W}.persist_scan_result",
+                new_callable=AsyncMock,
+                return_value=_mock_transaction(),
+            ),
+            patch.object(Path, "exists", return_value=True),
+            patch.object(Path, "read_bytes", return_value=b"img"),
+            patch(f"{_W}.settings", **_SETTINGS),
+            patch(f"{_W}._emit") as mock_emit,
+        ):
+            result = await process_scan(scan.id)
+
+        assert result is True
+        # 0 extraction-LLM and 0 categorization-LLM tokens (REQ-26)
+        assert mock_extract.await_count == 0
+        assert mock_categorize.await_count == 0
+        event_types = [c.args[1] for c in mock_emit.call_args_list]
+        assert "extraction_complete" in event_types
+        assert "scan_complete" in event_types
+
+    @pytest.mark.asyncio
+    async def test_unparseable_timbre_falls_through_to_vision(self):
+        scan = _mock_scan()
+        with (
+            patch(f"{_W}.async_session", side_effect=_session_factory(scan)),
+            # TD 33 = factura, not a boleta -> parse rejects -> vision path
+            patch(f"{_W}.decode_boleta_barcode", return_value="<DD><TD>33</TD></DD>"),
+            patch(
+                f"{_W}.extract_receipt",
+                new_callable=AsyncMock,
+                return_value=_mock_extraction(),
+            ) as mock_extract,
+            patch(
+                f"{_W}.categorize_items",
+                new_callable=AsyncMock,
+                return_value=_mock_categorization(),
+            ),
+            patch(
+                f"{_W}.persist_scan_result",
+                new_callable=AsyncMock,
+                return_value=_mock_transaction(),
+            ),
+            patch.object(Path, "exists", return_value=True),
+            patch.object(Path, "read_bytes", return_value=b"img"),
+            patch(f"{_W}.settings", **_SETTINGS),
+        ):
+            result = await process_scan(scan.id)
+
+        assert result is True
+        # fell through to the vision pipeline
+        assert mock_extract.await_count == 1
+
+    @pytest.mark.asyncio
+    async def test_boleta_shortcut_no_it1_synthesizes_reconciling_item(self):
+        # A boleta with no IT1 still reconciles: a synthetic item summing to MNT
+        # is injected so the math gate passes and the scan completes.
+        scan = _mock_scan()
+        payload = (
+            "<DD><RE>76192083-9</RE><TD>39</TD><F>7</F><FE>2026-05-15</FE><MNT>15990</MNT></DD>"
+        )
+        with (
+            patch(f"{_W}.async_session", side_effect=_session_factory(scan)),
+            patch(f"{_W}.decode_boleta_barcode", return_value=payload),
+            patch(f"{_W}.extract_receipt", new_callable=AsyncMock) as mock_extract,
+            patch(f"{_W}.categorize_items", new_callable=AsyncMock),
+            patch(
+                f"{_W}.persist_scan_result",
+                new_callable=AsyncMock,
+                return_value=_mock_transaction(),
+            ) as mock_persist,
+            patch.object(Path, "exists", return_value=True),
+            patch.object(Path, "read_bytes", return_value=b"img"),
+            patch(f"{_W}.settings", **_SETTINGS),
+            patch(f"{_W}._emit") as mock_emit,
+        ):
+            result = await process_scan(scan.id)
+
+        assert result is True
+        assert mock_extract.await_count == 0
+        persisted = mock_persist.await_args.kwargs["extraction"].extraction
+        assert len(persisted.line_items) == 1
+        assert persisted.line_items[0].name == "Boleta electrónica"
+        assert persisted.line_items[0].total_price == persisted.total_amount
+        complete = next(c for c in mock_emit.call_args_list if c.args[1] == "scan_complete")
+        assert complete.kwargs["data"]["status"] == "completed"
+
+
 class TestE2EScanFixturePipeline:
     @pytest.mark.asyncio
     async def test_success_fixture_bypasses_ai_and_emits_normal_sequence(self):
