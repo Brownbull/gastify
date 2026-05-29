@@ -220,7 +220,9 @@ Exit signal:
 
 ## Current Phase
 
-Phase 3: Item flag persistence + exclusion semantics.
+Phase 4: Web insights + flag review flow.
+
+(Phase 3 is Exec ✅ Review ✅ Commit ✅; its Push is ⬜ pending the user's staging push — see LEDGER "PUSH HANDOFF POLICY".)
 
 ## Dependencies
 

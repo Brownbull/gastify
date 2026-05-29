@@ -1,5 +1,9 @@
 # Session Ledger
 
+## 2026-05-29 — PUSH HANDOFF POLICY (roadmap drive)
+The auto-mode permission classifier reserves pushes to shared staging/main infra for the user. Operating mode for the P6→P9 drive: the agent does plan/execute/review/commit + all local gates (ruff/mypy/pytest/tsc/vitest/jest/build); the USER runs the staging pushes + main promotions. Push columns stay ⬜ until the user pushes.
+READY TO PUSH (origin/staging): local `main` @ 544d1ff (P6 Phase 3 item flags, 4 commits ahead of origin/staging). Command: `git push origin main:staging` → watch GitHub Actions → `git push origin staging:main` (or `/gabe-push`) to promote + tick Phase 3 Push ✅.
+
 ## 2026-05-29 — [2d91f1f] feat(insights): user-private item flags with aggregate exclusion
 FINDINGS: 6 (0 critical, 1 high, 3 medium, 2 low) from the Phase 3 adversarial review
 ACTIONS: 4 fixed (RLS migration-content test, urgency insights-exclusion test, cross-user PUT write-isolation assertion, anonymize_user_transactions user_id required), 1 deferred (P34 runtime evidence), 1 dismissed (dedupe nit)
