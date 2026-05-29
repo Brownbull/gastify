@@ -1,5 +1,12 @@
 # Session Ledger
 
+## 2026-05-29 — PLAN: P8 Structured-Boleta QR/CAF Shortcut created (P7 plan archived)
+ARCHIVED: P7 plan → `.kdbp/archive/completed_PLAN_2026-05-29_p7-compliance-launch-hardening.md` (local-complete; Push pending).
+NEW PLAN: P8 — 3 phases (ent): (1) TED payload parser, (2) boleta scan shortcut bypassing the vision LLM (0 tokens), (3) exit-gate packet.
+RESEARCH: confirmed the SII timbre TED format (<DD>: RE/TD/F/FE/RR/RSR/MNT/IT1 + FRMT signature; TD 39/41 = boleta) via SII docs + sii-chile prior art.
+DEFERRED: native barcode image-decode (PDF417/QR) + <3s/0-token live proof → runtime/staging (decode behind a seam).
+NEXT: /gabe-execute Phase 1 (TED parser).
+
 ## 2026-05-29 — PHASE 6 + P7 LOCAL-COMPLETE: Launch hardening + readiness packet
 SCOPE: Runbooks docs/runbooks/{DPO-PROCEDURES, DISASTER-RECOVERY, INCIDENT-RESPONSE, SECURITY-CHECKLIST, P7-LAUNCH-EXIT-GATE}.md + compliance observability counter (`metrics.inc("audit_event_{type}")` in log_audit_event → counts every DSR/consent/propagation event on /metrics, REQ-21) + test.
 REVIEW: self-review (docs + 1-line observability counter, low-risk; full suite green). Per-phase adversarial reviews already covered the code surfaces.
