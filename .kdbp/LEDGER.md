@@ -1,5 +1,12 @@
 # Session Ledger
 
+## 2026-05-28 22:52 -04 — [6dc490f] feat(insights): add monthly rollup engine
+FINDINGS: 0 critical blockers. Docs/structure drift was preemptively resolved by updating the P6 insights runbook and API well docs before commit.
+ACTIONS: Committed the Phase 2 monthly insights engine, authenticated `/api/v1/insights/monthly` route, generated web/mobile contracts, local tests, KDBP checkpoint, and deployed staging API gate script.
+CHECKS: `cd backend && uv run ruff check app tests ../scripts/staging/run-insights-api-gate.py` (pass); `cd backend && uv run ruff format --check app tests ../scripts/staging/run-insights-api-gate.py` (pass); `cd backend && uv run mypy app/ --no-error-summary` (pass); `cd backend && uv run pytest tests/ -x --tb=line -q` (660 passed, 2 skipped, 1 warning); `cd web && npm run build` (pass, chunk-size warning only); `cd mobile && npm run typecheck` (pass); `cd backend && uv run python -m py_compile ../scripts/staging/run-insights-api-gate.py` (pass); `git diff --cached --check` (pass).
+TICK: ✅ Phase 2 Commit.
+NEXT: Push `HEAD` to `origin/staging`, wait for Railway readiness, then run the deployed insights API gate before Phase 2 Exec can close.
+
 ## 2026-05-28 22:32 -04 — P6 PHASE 2 LOCAL CHECKPOINT: insights rollup API
 SCOPE: Added the deterministic monthly insights engine, ownership-scoped `/api/v1/insights/monthly` endpoint, cache fingerprinting, fixture/database adapters, generated web/mobile API contracts, API/runbook docs, and a reusable deployed staging API gate at `scripts/staging/run-insights-api-gate.py`.
 PLATFORM PROGRESS: The backend can now compute monthly top L2 transaction categories, top L4 item categories, special-case exclusions, and growth/shrink gravity centers from persisted transactions. The API is ready for Web/Android integration once branch-backed staging proof confirms the deployed path.
