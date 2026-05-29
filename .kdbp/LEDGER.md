@@ -1,5 +1,35 @@
 # Session Ledger
 
+## 2026-05-29 — [8310a63] feat(web): monthly insights view + item-flag controls
+FINDINGS: 3 distinct (0 critical, 0 high, 1 medium, 2 low) from the Phase 4 adversarial review — all fixed pre-commit.
+ACTIONS: disable-while-pending + error banner for flag chips; dropped redundant detail invalidation; DimensionToggle aria-pressed; +1 regression test.
+GATES: npx tsc -b (clean), npx eslint . (0 errors), npm run build (ok), npm test (vitest 35 passed).
+CHECK 6/7/8: deferred=none matching web files; doc-drift=none (no new backend routes; web files unmapped to wells); structure=all new files match web/src/{hooks,routes} MVP patterns.
+SCOPE: web monthly insights surface + item-flag controls. 9 files (5 modified incl. generated route tree, 4 new). .kdbp bookkeeping committed separately.
+TICK: Phase 4 Commit ✅. Current Phase advanced to Phase 5.
+
+## 2026-05-29 — PHASE 4 REVIEW: P6 Phase 4 — Web insights + flag review flow
+VERDICT: APPROVE (post-triage)
+METHOD: 2-lens adversarial workflow (typescript-reviewer / correctness+cache+a11y) → per-finding verification. 4 confirmed (2 = same lost-update race from both lenses → high-confidence), 1 refuted.
+FINDINGS: 3 distinct (0 critical, 0 high, 1 medium, 2 low)
+COVERAGE: MEDIUM → HIGH — added flag-mutation error regression test.
+CONFIDENCE: 86 → 98/100
+TRIAGE: 3 fixed (disable-while-pending + error banner for flag chips; dropped redundant detail invalidation; DimensionToggle aria-pressed a11y), 0 deferred, 1 refuted (ExcludedItems key provably unique).
+GATES: npx tsc -b (clean), npx eslint . (0 errors), npm run build (ok), npm test (vitest 35 passed, 11 files).
+ALIGNMENT: ALIGNED
+TIER: ent | DRIFT: none
+TICK: ✅ (Phase 4 Review ticked)
+ARCHIVE: .kdbp/reviews-archive/REVIEW_2026-05-29-102400_resolved.md
+
+## 2026-05-29 — PHASE EXEC COMPLETE: P6 Phase 4 — Web insights + flag review flow
+TIER: ent
+SCOPE: New web monthly insights surface — `useInsights` hook (monthly query + currentPeriod), `useUpdateItemFlags` mutation (PUT flags → set detail cache + invalidate insights), `/insights` route page (period selector, summary stats, transaction↔item dimension toggle, top-category rollups with share bars + per-category exclusion annotation, gravity-center ranking, excluded-items summary, loading/error/empty states), item-flag toggle chips on the transaction-detail line items, `nav.insights` i18n (es/en/pt) + sidebar/mobile nav, route-tree registration.
+EXEC: ⬜ → ✅ on local evidence per the code-complete + defer-runtime drive.
+GATES: `npx tsc -b` (clean); `npx eslint .` (0 errors; pre-existing react-refresh warnings only); `npm test` (vitest 34 passed, 11 files — +2 new test files: useInsights.test.tsx, -insights.test.tsx); `npm run build` (tsc -b && vite build pass, pre-existing >500kB chunk warning).
+TESTS ADDED: useInsights query success/error, useUpdateItemFlags cache-write + insights invalidation, currentPeriod formatting, queryClient.clear analytics eviction (sign-out isolation), insights page render (summary/top-categories/gravity/excluded), dimension toggle, empty + error states.
+DEFERRED: Deployed-staging browser journey proof (Railway SPA/API) folds into PENDING P34 + the P6 Phase 6 exit gate. Local jsdom/build is development evidence, not the deployed-web runtime gate.
+NEXT: /gabe-review → /gabe-commit → push handoff (user pushes staging).
+
 ## 2026-05-29 — PUSH HANDOFF POLICY (roadmap drive)
 The auto-mode permission classifier reserves pushes to shared staging/main infra for the user. Operating mode for the P6→P9 drive: the agent does plan/execute/review/commit + all local gates (ruff/mypy/pytest/tsc/vitest/jest/build); the USER runs the staging pushes + main promotions. Push columns stay ⬜ until the user pushes.
 READY TO PUSH (origin/staging): local `main` @ 544d1ff (P6 Phase 3 item flags, 4 commits ahead of origin/staging). Command: `git push origin main:staging` → watch GitHub Actions → `git push origin staging:main` (or `/gabe-push`) to promote + tick Phase 3 Push ✅.
