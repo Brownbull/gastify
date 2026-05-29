@@ -1,5 +1,14 @@
 # Session Ledger
 
+## 2026-05-28 23:37 -04 — PUSH staging -> main
+PR: —
+CI: all passed, 13/13 on GitHub Actions run `26616372516`.
+PROMOTION: promoted `origin/staging` at `53aba37` to `origin/main`.
+DEPLOYMENTS: P42 (added row to `.kdbp/DEPLOYMENTS.md`).
+TICK: ✅ Phase 2 Push.
+NOTES: Production promotion ships P6 Phase 2 monthly insights engine/API after green staging CI `26615771386`, green main CI `26616372516`, and deployed staging-e2e API proof `tests/mobile/results/runs/staging-e2e/20260528T2300-p6-phase2-insights-api-gate/p6-insights-api-gate/manifest.json`.
+NEXT: `/gabe-next` can advance the active plan to Phase 3 — Item flag persistence + exclusion semantics.
+
 ## 2026-05-28 23:17 -04 — PUSH main -> staging
 PR: —
 CI: all passed, 13/13 on GitHub Actions run `26615771386`.
