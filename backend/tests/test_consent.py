@@ -121,6 +121,53 @@ async def test_audit_trail_records_grant_and_revoke(client):
 
 
 @pytest.mark.asyncio
+async def test_user_withdrawal_sets_withdrawn_at(client):
+    await client.post(
+        "/api/v1/consent/marketing/grant",
+        json={"jurisdiction": "EU"},
+    )
+
+    resp = await client.post("/api/v1/consent/marketing/revoke")
+    assert resp.status_code == 200
+    data = resp.json()
+    # User-initiated withdrawal (GDPR Art 7(3)) records withdrawn_at.
+    assert data["withdrawn_at"] is not None
+    assert data["revoked_at"] is not None
+
+
+@pytest.mark.asyncio
+async def test_erasure_revocation_does_not_set_withdrawn_at(client):
+    await client.post(
+        "/api/v1/consent/analytics/grant",
+        json={"jurisdiction": "CL"},
+    )
+
+    erasure = await client.post("/api/v1/privacy/erasure")
+    assert erasure.status_code == 200
+    assert erasure.json()["consents_revoked"] >= 1
+
+    resp = await client.get("/api/v1/consent")
+    assert resp.status_code == 200
+    analytics = next(c for c in resp.json()["consents"] if c["purpose"] == "analytics")
+    # System revocation on erasure is NOT a user withdrawal.
+    assert analytics["status"] == "revoked"
+    assert analytics["revoked_at"] is not None
+    assert analytics["withdrawn_at"] is None
+
+
+@pytest.mark.asyncio
+async def test_re_grant_clears_withdrawn_at(client):
+    await client.post("/api/v1/consent/analytics/grant", json={"jurisdiction": "CL"})
+    await client.post("/api/v1/consent/analytics/revoke")
+    resp = await client.post(
+        "/api/v1/consent/analytics/grant",
+        json={"jurisdiction": "EU"},
+    )
+    assert resp.status_code == 201
+    assert resp.json()["withdrawn_at"] is None
+
+
+@pytest.mark.asyncio
 async def test_processing_register_returns_seeded_purposes(client):
     resp = await client.get("/api/v1/consent/processing-register")
     assert resp.status_code == 200

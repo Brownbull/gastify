@@ -52,6 +52,7 @@ async def grant_consent(
         existing.jurisdiction = jurisdiction
         existing.granted_at = now
         existing.revoked_at = None
+        existing.withdrawn_at = None
         existing.consent_version = consent_version
         existing.ip_address = ip_address
         existing.user_agent = user_agent
@@ -119,6 +120,8 @@ async def revoke_consent(
 
     record.status = "revoked"
     record.revoked_at = now
+    # User-initiated withdrawal (distinct from system revocation on erasure).
+    record.withdrawn_at = now
     record.updated_at = now
 
     await log_audit_event(

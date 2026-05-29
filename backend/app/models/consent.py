@@ -37,6 +37,9 @@ class ConsentRecord(Base):
         DateTime(timezone=True), nullable=False, server_default=func.now()
     )
     revoked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    # withdrawn_at is set only on user-initiated withdrawal (GDPR Art 7(3));
+    # left null when revoked_at is set by a system action (e.g. DSR erasure).
+    withdrawn_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     consent_version: Mapped[str] = mapped_column(String, nullable=False, server_default="1.0")
     ip_address: Mapped[str | None] = mapped_column(String, nullable=True)
     user_agent: Mapped[str | None] = mapped_column(Text, nullable=True)

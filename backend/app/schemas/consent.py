@@ -26,6 +26,7 @@ class ConsentResponse(BaseModel):
     jurisdiction: str
     granted_at: datetime
     revoked_at: datetime | None = None
+    withdrawn_at: datetime | None = None
     consent_version: str
     created_at: datetime
     updated_at: datetime
