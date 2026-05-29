@@ -178,3 +178,13 @@ async def test_processing_register_returns_seeded_purposes(client):
     assert "marketing" in purposes
     assert "data_sharing" in purposes
     assert "ai_training" in purposes
+
+
+@pytest.mark.asyncio
+async def test_audit_event_increments_compliance_metric(client):
+    from app.observability import metrics
+
+    before = metrics._counters.get("audit_event_consent_granted", 0)
+    await client.post("/api/v1/consent/analytics/grant", json={"jurisdiction": "CL"})
+    after = metrics._counters.get("audit_event_consent_granted", 0)
+    assert after >= before + 1

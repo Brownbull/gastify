@@ -9,6 +9,7 @@ from sqlalchemy import delete, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.consent import AuditEvent, ConsentRecord, ProcessingRegister
+from app.observability import metrics
 from app.services.consent_propagation import (
     AI_TRAINING_CONSENT_PURPOSE,
     COHORT_CONSENT_PURPOSE,
@@ -252,6 +253,9 @@ async def log_audit_event(
     )
     db.add(event)
     await db.flush()
+    # Observability (REQ-21): count every compliance event by type so DSR /
+    # consent activity is queryable on /metrics, not only in the audit table.
+    metrics.inc(f"audit_event_{event_type}")
     return event
 
 
