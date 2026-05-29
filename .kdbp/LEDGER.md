@@ -1,5 +1,46 @@
 # Session Ledger
 
+## 2026-05-29 — [2d91f1f] feat(insights): user-private item flags with aggregate exclusion
+FINDINGS: 6 (0 critical, 1 high, 3 medium, 2 low) from the Phase 3 adversarial review
+ACTIONS: 4 fixed (RLS migration-content test, urgency insights-exclusion test, cross-user PUT write-isolation assertion, anonymize_user_transactions user_id required), 1 deferred (P34 runtime evidence), 1 dismissed (dedupe nit)
+GATES: ruff (pass), mypy app/ (clean), uv run pytest (668 passed, 2 skipped)
+CHECK 6/7/8: deferred=P34 (intentional, tracked); doc-drift=none (wells 1/2 + P6 contract in-diff); structure=migration 022 matches backend/alembic/versions/*.py (MVP)
+SCOPE: backend item-flag persistence/API/insights-exclusion/DSR + regenerated web+mobile contracts + docs. 21 files. .kdbp bookkeeping committed separately.
+TICK: Phase 3 Commit ✅
+
+## 2026-05-29 — PHASE 3 REVIEW: P6 Phase 3 — Item flag persistence + exclusion semantics
+VERDICT: APPROVE (post-triage)
+METHOD: 3-lens adversarial workflow (python-reviewer / security-reviewer / coverage+runtime) → per-finding verification. 6 confirmed, 9 refuted.
+FINDINGS: 6 total (0 critical, 1 high, 3 medium, 2 low)
+COVERAGE: MEDIUM → HIGH — added urgency-exclusion, RLS-migration-content, and cross-user write-isolation tests.
+CONFIDENCE: 64 → 94/100
+TRIAGE: 4 fixed (#1 RLS migration-content test, #2 urgency insights exclusion test, #3 cross-user PUT write-isolation assertion, #5 made anonymize_user_transactions user_id required), 1 deferred (#4 runtime evidence → PENDING P34), 1 dismissed (#6 dedupe O(n) nit — 2-value enum, dedup-merge premise refuted).
+GATES: ruff (pass), ruff format (pass), mypy app/ (clean), uv run pytest (668 passed, 2 skipped) — +2 net new tests.
+DEFERRED: P34 (deployed-staging runtime proof; folds into P6 Phase 6 exit gate).
+ALIGNMENT: ALIGNED
+TIER: ent | DRIFT: none
+TICK: ✅ (Phase 3 Review ticked)
+ARCHIVE: .kdbp/reviews-archive/REVIEW_2026-05-29-093900_resolved.md
+
+## 2026-05-29 — PHASE EXEC COMPLETE: P6 Phase 3 — Item flag persistence + exclusion semantics
+TIER: ent
+TASKS: 1 implementation unit (item flag persistence + API + insights exclusion + DSR/consent cleanup + contract regen), code-complete.
+EXEC: 🔄 → ✅ on backend evidence per Phase 3's own exit signal (migration/API tests, seeded aggregate-exclusion proof, contract regen — all present and green).
+EVIDENCE: `uv run pytest` → 666 passed, 2 skipped. Exit-signal proofs present: `test_item_flag_api_excludes_item_from_monthly_insights` (aggregate exclusion), `test_update_item_flags_are_visible_and_clearable` (create/update/remove + detail visibility), `test_update_item_flags_is_owner_scoped` + `test_detail_only_exposes_current_users_item_flags` (ownership/personal-only isolation), `test_monthly_insights_cache_fingerprint_reflects_item_flag_changes` (cache invalidation), privacy/consent tests (flag erasure on DSR). Contracts regenerated: `web/` + `mobile/` openapi-spec.json + api-types.d.ts.
+DECISION: Per explicit user direction (2026-05-29 roadmap drive), runtime-evidence gates that need deployed Railway staging / physical device / live-Gemini are CODE-COMPLETE + local-gate closed and the deployed-staging runtime proof is DEFERRED to PENDING (see new PENDING row). This supersedes the prior session's "Exec stays 🔄 until staging" hold for the explicitly-authorized roadmap drive. Phase 3's exit signal itself is backend-test-closeable; deployed UI proof is owned by P6 Phases 4/5/6.
+NEXT: /gabe-review → /gabe-commit → /gabe-push.
+
+## 2026-05-29 00:01 -04 — P6 PHASE 3 LOCAL CHECKPOINT: item flag persistence + exclusion
+SCOPE: Added user-scoped `transaction_item_flags` persistence, transaction item flag mutation API, current-user flag projection in transaction detail, current-user aggregate exclusion in monthly insights, cache fingerprinting for item flags, DSR erasure cleanup for user flag rows, regenerated web/mobile API contracts, docs, and an upgraded staging insights gate that now verifies deployed item flag mutation plus aggregate refresh.
+PLATFORM PROGRESS: The backend can now persist urgency/special-case item flags without mutating the source transaction item. A flagged item remains visible in transaction detail, disappears from that user's monthly aggregate totals, and appears in `excluded_items`; other users' flags are not projected into the current user's detail response.
+CHECKS: `cd backend && uv run ruff check app tests ../scripts/staging/run-insights-api-gate.py alembic/versions/022_transaction_item_user_flags.py` (pass); `cd backend && uv run ruff format --check app tests ../scripts/staging/run-insights-api-gate.py alembic/versions/022_transaction_item_user_flags.py` (pass); `cd backend && uv run mypy app/ --no-error-summary` (pass); `cd backend && uv run pytest tests/ -x --tb=line -q` (666 passed, 2 skipped, 1 warning); `cd backend && uv run alembic heads` (`022 (head)`); `python3 -m py_compile scripts/staging/run-insights-api-gate.py` (pass); `cd web && npm run build` (pass, existing chunk-size warning); `cd mobile && npm run typecheck` (pass); `git diff --check` (pass).
+STATE: Phase 3 Exec remains 🔄 until this branch is committed/pushed and `scripts/staging/run-insights-api-gate.py` passes against branch-backed Railway staging with the new migration and item-flag endpoint deployed.
+
+## 2026-05-28 23:49 -04 — PHASE EXEC START: P6 Phase 3 — Item flag persistence + exclusion semantics
+ROUTE: `/gabe-next` advanced the active P6 plan to Phase 3 and dispatched `/gabe-execute`.
+TASKS: add user-private urgency/special-case item flag persistence, transaction-detail visibility, ownership isolation, analytics aggregate exclusion, API contract updates, and focused migration/API/analytics verification.
+STATE: Phase 3 Exec set to 🔄.
+
 ## 2026-05-28 23:37 -04 — PUSH staging -> main
 PR: —
 CI: all passed, 13/13 on GitHub Actions run `26616372516`.

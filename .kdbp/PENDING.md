@@ -61,3 +61,8 @@
 
 <!-- P32-P33 from /gabe-review P5 Phase 1 cross-agent consolidation (2026-05-25) — deferred per triage option [2] (fix MVP+Enterprise). P32 Enterprise gate, P33 Scale gate. -->
 <!-- Backend P1 pending items are tracked inside .kdbp/archive/queued_backend-p1.md and activate with that plan. -->
+
+| P34 | 2026-05-29 | roadmap-drive runtime defer | P6 Phase 3 item-flag persistence closed Exec on local backend evidence (666 tests). Deployed-staging runtime proof — branch-backed Railway staging with migration 022 + `PUT /transactions/{id}/items/{item_id}/flags` deployed, verified via `scripts/staging/run-insights-api-gate.py` against the staging URL — is DEFERRED per explicit user direction (code-complete + defer runtime). Close when staging is exercised (naturally folds into P6 Phase 6 exit gate). | `scripts/staging/run-insights-api-gate.py`, `backend/alembic/versions/022_transaction_item_user_flags.py` | ent | high | high | 0 | open |
+
+<!-- P34 from 2026-05-29 roadmap drive — user authorized "code-complete + local gates, defer deployed-staging/device/cutover runtime proof to PENDING" across P6→P9. Runtime evidence deferrals for this drive are tracked here and fold into the P6 Phase 6 staging exit gate / P7 launch hardening. -->
+| P35 | 2026-05-29 | roadmap-drive android defer | Samsung S23 device e2e for the P6 Android insights + flag journey (Phase 5) is DEFERRED per explicit user direction ("we can defer android tests for later"). Android code + local typecheck/Jest are in scope; the S23 staging-e2e run with grouped stage artifacts is not run this drive. | `tests/mobile/maestro/*`, `mobile/src/screens/*` | ent | high | high | 0 | open |
