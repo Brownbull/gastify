@@ -1,5 +1,12 @@
 # Session Ledger
 
+## 2026-05-28 23:17 -04 — PUSH main -> staging
+PR: —
+CI: all passed, 13/13 on GitHub Actions run `26615771386`.
+PROMOTION: N/A — staging integration push only.
+DEPLOYMENTS: P41 (added row to `.kdbp/DEPLOYMENTS.md`).
+NOTES: Pushed local `main` at `53aba37` to `origin/staging`, carrying the Phase 2 exec proof and review tick commits. Phase 2 Push remains ⬜ until tested `origin/staging` is promoted to `main`.
+
 ## 2026-05-28 23:14 -04 — PHASE 2 REVIEW COMPLETE: monthly insights engine/API
 ROUTE: `/gabe-next` resolved P6 Phase 2 to `/gabe-review` because Exec ✅ and Review ⬜.
 FINDINGS: 0 actionable findings. Verdict APPROVE, confidence 95/100, coverage HIGH.
