@@ -1,5 +1,14 @@
 # Session Ledger
 
+## 2026-05-29 — PHASE 4 EXEC+REVIEW: P7 Phase 4 — Retention / TTL enforcement
+SCOPE: `app/services/retention.py` (purge_expired_scans [terminal + processed_at<now-90d], purge_expired_audit_events [<now-6y], count_expired dry-run, apply_retention) + `scripts/ops/run_retention.py` (dry-run default, --apply, best-effort image unlink) + tests. Transactions never deleted (anonymized via DSR per D4); in-flight scans never deleted.
+REVIEW: security-reviewer data-loss adversarial pass → APPROVE, 0 CRITICAL/HIGH; 1 MED (TTL rationale undocumented) + 1 LOW (test coverage gap) both fixed. All safety properties verified (no financial/in-flight deletion, no FK cascade, correct cutoff, non-destructive count, dry-run default).
+GATES: ruff + format (pass), mypy app/ (clean), pytest test_retention.py (4 passed); full suite 686 passed.
+EXEC ✅ Review ✅. Commit next.
+ARCHIVE: .kdbp/reviews-archive/REVIEW_2026-05-29-145300_resolved.md
+DEFERRED: scheduled run_retention.py invocation (cron/Railway scheduler) → operational.
+NEXT: commit → Phase 5 (monetization schema).
+
 ## 2026-05-29 — PHASE 3 EXEC+REVIEW: P7 Phase 3 — Scan quota graceful degradation
 SCOPE: ScanStatus.QUEUED (migration 024 ALTER TYPE ADD VALUE) + _queue_scan/_settle_pipeline_error routing QUOTA_EXCEEDED → QUEUED (scan_queued event + scans_queued + per-error-code metrics) instead of FAILED, at both LLM call sites; + re-entry path (HIGH review fix).
 REVIEW: adversarial python-reviewer → 1 HIGH (QUEUED parked-forever, no re-entry) FIXED; 2 MED (1 addressed=status-based re-entry, 1 refuted=patch auto-AsyncMock); 1 LOW accepted. 5 verification points all confirmed. VERDICT APPROVE ~94/100.
@@ -2890,3 +2899,5 @@ PRODUCTION PUSH: Promoted tested `origin/staging` to `origin/main`; GitHub Actio
 PLAN: Phase 1 Push marked ✅. Phase 1 is complete.
 PENDING: Re-surfaced classifier item P26 remains deferred; incremented `Times Deferred` to 9 because no triage action was selected during the push.
 Gabe-Lens brief: The P6 analytics contract is now shipped through the full lane. The seeded 3-month corpus and monthly insight shape are on main with green staging and production CI, so Phase 2 can build the rollup engine against a stable target.
+- 2026-05-29 14:38 | Write | /home/khujta/projects/apps/gastify/backend/app/services/retention.py
+- 2026-05-29 14:38 | Write | /home/khujta/projects/apps/gastify/scripts/ops/run_retention.py
