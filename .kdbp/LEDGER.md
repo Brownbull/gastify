@@ -1,5 +1,12 @@
 # Session Ledger
 
+## 2026-05-29 — PHASE 1 EXEC+REVIEW: P8 Phase 1 — TED payload parser
+SCOPE: `app/services/boleta.py` — `parse_ted_payload(payload) -> GeminiExtractionResult` parsing the SII TED `<DD>` (RE/TD/F/FE/RR/RSR/MNT/IT1) into the extraction shape; validates TD∈{39,41}; rejects malformed/non-boleta/missing-required/oversized/negative. Uses defusedxml (untrusted barcode input) + 8KB size cap.
+REVIEW: self-review (pure parser, security-hardened with defusedxml, 9 tests incl. attack cases: malformed XML, oversized, negative/invalid MNT, non-boleta TD, missing DD/fields). Adversarial review reserved for Phase 2 (the worker integration / LLM-bypass safety).
+GATES: ruff + format (pass), mypy app/ (Success, 131 files; defusedxml import-untyped ignored locally), pytest test_boleta.py (9 passed); full suite 702 passed.
+EXEC ✅ Review ✅. Commit next.
+NEXT: commit → Phase 2 (boleta scan shortcut bypassing the vision LLM).
+
 ## 2026-05-29 — PLAN: P8 Structured-Boleta QR/CAF Shortcut created (P7 plan archived)
 ARCHIVED: P7 plan → `.kdbp/archive/completed_PLAN_2026-05-29_p7-compliance-launch-hardening.md` (local-complete; Push pending).
 NEW PLAN: P8 — 3 phases (ent): (1) TED payload parser, (2) boleta scan shortcut bypassing the vision LLM (0 tokens), (3) exit-gate packet.

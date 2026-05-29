@@ -24,7 +24,7 @@ Code + local gates close Exec/Review/Commit. Deferred to the launch staging sess
 
 | # | Phase | Types | Description | Tier | Complexity | Exec | Review | Commit | Push |
 |---|-------|-------|-------------|------|------------|------|--------|--------|------|
-| 1 | TED payload parser | `parser, data-contract, test` | Parse a TED XML payload (`<DD>` fields) into a structured boleta result (merchant, RUT, folio, date, total, optional first item); validate tipo DTE is a boleta; reject malformed/non-boleta payloads. | ent | high | ⬜ | ⬜ | ⬜ | ⬜ |
+| 1 | TED payload parser | `parser, data-contract, test` | Parse a TED XML payload (`<DD>` fields) into a structured boleta result (merchant, RUT, folio, date, total, optional first item); validate tipo DTE is a boleta; reject malformed/non-boleta payloads. | ent | high | ✅ | ✅ | ✅ | ⬜ |
 | 2 | Boleta scan shortcut (bypass vision LLM) | `worker, integration, resilience, test` | Detect a boleta payload on a scan and, when present, produce the transaction directly from the parsed TED (0 extraction-LLM tokens, math-gated on MNT), bypassing stage-1/2 LLM; emit the normal scan events; paper path unchanged. Image-decode behind a runtime-deferred seam. | ent | high | ⬜ | ⬜ | ⬜ | ⬜ |
 | 3 | P8 exit-gate evidence packet | `docs, test` | Map the REQ-26 exit signal (parse → bypass → 0 tokens, paper unchanged) to local evidence; document the deferred runtime (native barcode decode + <3s live proof). | ent | medium | ⬜ | ⬜ | ⬜ | ⬜ |
 
@@ -59,7 +59,7 @@ requirements: [REQ-26]
 
 ## Current Phase
 
-Phase 1: TED payload parser.
+Phase 2: Boleta scan shortcut (bypass vision LLM).
 
 ## Dependencies
 - Phase 2 depends on Phase 1's parser.
