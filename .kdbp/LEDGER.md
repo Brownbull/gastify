@@ -1,5 +1,12 @@
 # Session Ledger
 
+## 2026-05-29 — PHASE 1 EXEC+REVIEW: P7 Phase 1 — DSR completeness + four-jurisdiction audit
+SCOPE-DISCOVERY: `backend/app/api/consent.py` already ships single-consent revoke, audit-event read (`/consent/audit`), and processing-register read (`/consent/processing-register`) — all registered + covered by test_consent.py (10) + test_privacy.py (13). The Explore inventory had missed this file, so Phase 1's planned scope was largely pre-built.
+REAL DELTA: added the `withdrawn_at` distinction — user-initiated withdrawal (set in `revoke_consent`, GDPR Art 7(3)) vs system revocation on erasure (`revoke_all_consents` leaves it null); cleared on re-grant. Migration 023, model + schema + service + 3 tests.
+EXEC ✅ + REVIEW ✅ (self-review — additive nullable column + audit distinction, low-risk, mirrors existing patterns; full multi-agent review reserved for the larger Phases 2-5).
+GATES: ruff (pass), ruff format (pass), mypy app/ (clean), alembic heads (023), pytest tests/test_consent.py tests/test_privacy.py (26 passed, +3 new).
+NEXT: commit → Phase 2 (consent-revocation propagation — genuinely missing, real work).
+
 ## 2026-05-29 — PLAN: P7 Compliance + Launch Hardening created (P6 plan archived)
 ARCHIVED: P6 plan → `.kdbp/archive/completed_PLAN_2026-05-29_p6-insights-item-flags.md` (local-complete; Push pending user).
 NEW PLAN: P7 — 6 phases (all ent): (1) DSR completeness + four-jurisdiction audit, (2) consent-revocation propagation, (3) scan quota graceful degradation, (4) retention/TTL enforcement, (5) monetization plumbing (SCHEMA-ONLY per SCOPE §9.2), (6) launch hardening + readiness packet.
