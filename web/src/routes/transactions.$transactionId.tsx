@@ -3,6 +3,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   useTransaction,
   useUpdateTransaction,
+  useUpdateItemFlags,
+  type ItemFlagKind,
 } from "@/hooks/useTransactions";
 import { useStoreCategories } from "@/hooks/useCategories";
 import { formatMinorAmount, formatDate } from "@/lib/format";
@@ -10,6 +12,13 @@ import type { components } from "@/lib/api-types";
 
 type TransactionDetail = components["schemas"]["TransactionDetail"];
 type TransactionItemResponse = components["schemas"]["TransactionItemResponse"];
+
+const FLAG_OPTIONS: { kind: ItemFlagKind; label: string }[] = [
+  { kind: "urgency", label: "Urgency" },
+  { kind: "special_case", label: "Special-case" },
+];
+
+type ToggleFlag = (item: TransactionItemResponse, kind: ItemFlagKind) => void;
 
 export const Route = createFileRoute("/transactions/$transactionId")({
   component: TransactionDetailPage,
@@ -19,6 +28,15 @@ function TransactionDetailPage() {
   const { transactionId } = Route.useParams();
   const { data: txn, isLoading, error } = useTransaction(transactionId);
   const mutation = useUpdateTransaction(transactionId);
+  const flagMutation = useUpdateItemFlags(transactionId);
+
+  const toggleFlag: ToggleFlag = (item, kind) => {
+    const current = item.flags ?? [];
+    const next = current.includes(kind)
+      ? current.filter((flag) => flag !== kind)
+      : [...current, kind];
+    flagMutation.mutate({ itemId: item.id, flags: next });
+  };
 
   if (isLoading) return <DetailSkeleton />;
 
@@ -91,7 +109,36 @@ function TransactionDetailPage() {
 
       <SummaryCard txn={txn} onCategoryChange={(id) => mutation.mutate({ store_category_id: id })} />
 
-      {txn.items.length > 0 && <ItemsTable txn={txn} />}
+      {flagMutation.error && (
+        <div
+          className="flex items-center justify-between rounded-lg border px-4 py-3"
+          style={{
+            borderColor: "var(--error)",
+            backgroundColor:
+              "color-mix(in srgb, var(--error) 10%, transparent)",
+          }}
+          role="alert"
+        >
+          <p className="text-sm" style={{ color: "var(--error)" }}>
+            {flagMutation.error.message}
+          </p>
+          <button
+            onClick={() => flagMutation.reset()}
+            className="text-xs font-medium underline"
+            style={{ color: "var(--error)" }}
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
+
+      {txn.items.length > 0 && (
+        <ItemsTable
+          txn={txn}
+          onToggleFlag={toggleFlag}
+          flagPending={flagMutation.isPending}
+        />
+      )}
 
       {txn.images.length > 0 && <ImagesSection images={txn.images} />}
 
@@ -225,7 +272,15 @@ function Field({
   );
 }
 
-function ItemsTable({ txn }: { txn: TransactionDetail }) {
+function ItemsTable({
+  txn,
+  onToggleFlag,
+  flagPending,
+}: {
+  txn: TransactionDetail;
+  onToggleFlag: ToggleFlag;
+  flagPending: boolean;
+}) {
   return (
     <div
       className="overflow-x-auto rounded-lg border"
@@ -241,6 +296,9 @@ function ItemsTable({ txn }: { txn: TransactionDetail }) {
         >
           Line items ({txn.items.length})
         </h2>
+        <p className="text-xs" style={{ color: "var(--text-muted)" }}>
+          Flag an item to keep it out of your monthly insights — it stays here.
+        </p>
       </div>
       <table className="w-full text-sm">
         <thead>
@@ -287,7 +345,13 @@ function ItemsTable({ txn }: { txn: TransactionDetail }) {
         </thead>
         <tbody>
           {txn.items.map((item) => (
-            <ItemRow key={item.id} item={item} currency={txn.currency} />
+            <ItemRow
+              key={item.id}
+              item={item}
+              currency={txn.currency}
+              onToggleFlag={onToggleFlag}
+              flagPending={flagPending}
+            />
           ))}
         </tbody>
         <tfoot>
@@ -316,12 +380,59 @@ function ItemsTable({ txn }: { txn: TransactionDetail }) {
   );
 }
 
+function ItemFlagControls({
+  item,
+  onToggleFlag,
+  flagPending,
+}: {
+  item: TransactionItemResponse;
+  onToggleFlag: ToggleFlag;
+  flagPending: boolean;
+}) {
+  const flags = item.flags ?? [];
+
+  return (
+    <div className="mt-1 flex flex-wrap gap-1.5">
+      {FLAG_OPTIONS.map((option) => {
+        const active = flags.includes(option.kind);
+        return (
+          <button
+            key={option.kind}
+            type="button"
+            aria-pressed={active}
+            disabled={flagPending}
+            onClick={() => onToggleFlag(item, option.kind)}
+            className="rounded-full border px-2 py-0.5 text-xs font-medium transition-colors disabled:opacity-50"
+            style={{
+              borderColor: active ? "var(--primary)" : "var(--border)",
+              backgroundColor: active ? "var(--primary-light)" : "transparent",
+              color: active ? "var(--primary)" : "var(--text-muted)",
+            }}
+            title={
+              active
+                ? `Remove ${option.label.toLowerCase()} flag`
+                : `Flag as ${option.label.toLowerCase()} (excluded from your insights)`
+            }
+          >
+            {active ? "✓ " : ""}
+            {option.label}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
 function ItemRow({
   item,
   currency,
+  onToggleFlag,
+  flagPending,
 }: {
   item: TransactionItemResponse;
   currency: string;
+  onToggleFlag: ToggleFlag;
+  flagPending: boolean;
 }) {
   const isEdited =
     item.name_user_edited_at != null ||
@@ -333,25 +444,23 @@ function ItemRow({
       style={{ borderColor: "var(--border)" }}
     >
       <td className="px-5 py-2.5" style={{ color: "var(--text)" }}>
-        {item.name}
-        {isEdited && (
-          <span
-            className="ml-1.5 text-xs"
-            style={{ color: "var(--secondary)" }}
-            title="User edited"
-          >
-            (edited)
-          </span>
-        )}
-        {item.is_flagged && (
-          <span
-            className="ml-1.5 text-xs"
-            style={{ color: "var(--warning, var(--secondary))" }}
-            title="Flagged for review"
-          >
-            (flagged)
-          </span>
-        )}
+        <div>
+          {item.name}
+          {isEdited && (
+            <span
+              className="ml-1.5 text-xs"
+              style={{ color: "var(--secondary)" }}
+              title="User edited"
+            >
+              (edited)
+            </span>
+          )}
+        </div>
+        <ItemFlagControls
+          item={item}
+          onToggleFlag={onToggleFlag}
+          flagPending={flagPending}
+        />
       </td>
       <td
         className="hidden px-5 py-2.5 text-center tabular-nums sm:table-cell"

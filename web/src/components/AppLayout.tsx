@@ -13,6 +13,7 @@ const NAV_ITEMS = [
   { to: "/scan", labelKey: "nav.scan", icon: "📷" },
   { to: "/statements", labelKey: "nav.statements", icon: "💳" },
   { to: "/transactions", labelKey: "nav.transactions", icon: "📋" },
+  { to: "/insights", labelKey: "nav.insights", icon: "📈" },
 ] as const;
 
 export function AppLayout({ children }: AppLayoutProps) {

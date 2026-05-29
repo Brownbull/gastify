@@ -6,6 +6,11 @@ import {
 } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api";
 import type { components } from "@/lib/api-types";
+import { insightsKeys } from "@/hooks/useInsights";
+
+export type ItemFlagKind = NonNullable<
+  components["schemas"]["TransactionItemFlagsUpdate"]["flags"]
+>[number];
 
 export interface TransactionFilters {
   dateFrom?: string;
@@ -137,6 +142,54 @@ export function useUpdateTransaction(id: string) {
       void queryClient.invalidateQueries({
         queryKey: transactionKeys.lists(),
       });
+    },
+  });
+}
+
+/**
+ * Replace the current user's flags on a single transaction item. The flag set
+ * is personal-only: flagged items drop out of that user's monthly insight
+ * aggregates while staying visible here, so a successful mutation invalidates
+ * the insights cache to force an aggregate refresh.
+ */
+export function useUpdateItemFlags(transactionId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      itemId,
+      flags,
+    }: {
+      itemId: string;
+      flags: ItemFlagKind[];
+    }) => {
+      const { data, error } = await apiClient.PUT(
+        "/api/v1/transactions/{transaction_id}/items/{item_id}/flags",
+        {
+          params: {
+            path: { transaction_id: transactionId, item_id: itemId },
+          },
+          body: { flags },
+        },
+      );
+
+      if (error || !data) {
+        throw new Error("Failed to update item flags");
+      }
+
+      return data;
+    },
+    onSuccess: (data) => {
+      queryClient.setQueryData<TransactionDetail>(
+        transactionKeys.detail(transactionId),
+        data,
+      );
+    },
+    onSettled: () => {
+      // onSuccess already wrote the authoritative TransactionDetail from the
+      // PUT response, so the detail query needs no extra refetch — only the
+      // monthly insights aggregate has to refresh to reflect the exclusion.
+      void queryClient.invalidateQueries({ queryKey: insightsKeys.all });
     },
   });
 }

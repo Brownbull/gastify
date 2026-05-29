@@ -13,6 +13,7 @@ import { Route as TransactionsRouteImport } from "./routes/transactions"
 import { Route as StatementsRouteImport } from "./routes/statements"
 import { Route as SignInRouteImport } from "./routes/sign-in"
 import { Route as ScanRouteImport } from "./routes/scan"
+import { Route as InsightsRouteImport } from "./routes/insights"
 import { Route as IndexRouteImport } from "./routes/index"
 import { Route as TransactionsIndexRouteImport } from "./routes/transactions.index"
 import { Route as TransactionsTransactionIdRouteImport } from "./routes/transactions.$transactionId"
@@ -37,6 +38,11 @@ const ScanRoute = ScanRouteImport.update({
   path: "/scan",
   getParentRoute: () => rootRouteImport,
 } as any)
+const InsightsRoute = InsightsRouteImport.update({
+  id: "/insights",
+  path: "/insights",
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: "/",
   path: "/",
@@ -56,6 +62,7 @@ const TransactionsTransactionIdRoute =
 
 export interface FileRoutesByFullPath {
   "/": typeof IndexRoute
+  "/insights": typeof InsightsRoute
   "/scan": typeof ScanRoute
   "/sign-in": typeof SignInRoute
   "/statements": typeof StatementsRoute
@@ -65,6 +72,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   "/": typeof IndexRoute
+  "/insights": typeof InsightsRoute
   "/scan": typeof ScanRoute
   "/sign-in": typeof SignInRoute
   "/statements": typeof StatementsRoute
@@ -74,6 +82,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   "/": typeof IndexRoute
+  "/insights": typeof InsightsRoute
   "/scan": typeof ScanRoute
   "/sign-in": typeof SignInRoute
   "/statements": typeof StatementsRoute
@@ -85,6 +94,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | "/"
+    | "/insights"
     | "/scan"
     | "/sign-in"
     | "/statements"
@@ -94,6 +104,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | "/"
+    | "/insights"
     | "/scan"
     | "/sign-in"
     | "/statements"
@@ -102,6 +113,7 @@ export interface FileRouteTypes {
   id:
     | "__root__"
     | "/"
+    | "/insights"
     | "/scan"
     | "/sign-in"
     | "/statements"
@@ -112,6 +124,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  InsightsRoute: typeof InsightsRoute
   ScanRoute: typeof ScanRoute
   SignInRoute: typeof SignInRoute
   StatementsRoute: typeof StatementsRoute
@@ -146,6 +159,13 @@ declare module "@tanstack/react-router" {
       path: "/scan"
       fullPath: "/scan"
       preLoaderRoute: typeof ScanRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    "/insights": {
+      id: "/insights"
+      path: "/insights"
+      fullPath: "/insights"
+      preLoaderRoute: typeof InsightsRouteImport
       parentRoute: typeof rootRouteImport
     }
     "/": {
@@ -188,6 +208,7 @@ const TransactionsRouteWithChildren = TransactionsRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  InsightsRoute: InsightsRoute,
   ScanRoute: ScanRoute,
   SignInRoute: SignInRoute,
   StatementsRoute: StatementsRoute,
