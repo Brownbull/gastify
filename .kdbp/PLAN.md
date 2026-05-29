@@ -38,7 +38,7 @@ Runtime-gated P6 phases must close against branch-backed Railway staging evidenc
 | 2 | Rollup + gravity-center engine | `analytics, data-view, persistence` | Build deterministic monthly top-category rollups, trailing-baseline comparison, growth/shrink detection, and explainable gravity-center output. | ent | high | ✅ | ✅ | ✅ | ✅ |
 | 3 | Item flag persistence + exclusion semantics | `data-migration, persistence, user-facing, multi-tenant` | Add user-private urgency/special-case item flags, API mutations, transaction-detail visibility, and aggregate-exclusion behavior. | ent | high | ✅ | ✅ | ✅ | ⬜ |
 | 4 | Web insights + flag review flow | `web, user-facing, client-state, data-view` | Implement the deployed web monthly insights view, drilldowns, item flag controls, aggregate refresh, and sign-out/cache cleanup. | ent | high | ✅ | ✅ | ✅ | ⬜ |
-| 5 | Android insights + flag review flow | `native-mobile, user-facing, client-state, data-view` | Implement the Android/S23 monthly insights journey, item flag controls, aggregate refresh, and sign-out/cache cleanup. | ent | high | ⬜ | ⬜ | ⬜ | ⬜ |
+| 5 | Android insights + flag review flow | `native-mobile, user-facing, client-state, data-view` | Implement the Android/S23 monthly insights journey, item flag controls, aggregate refresh, and sign-out/cache cleanup. | ent | high | ✅ | ✅ | ✅ | ⬜ |
 | 6 | P6 exit gate + performance evidence | `core-only, test, web, native-mobile, analytics` | Prove the full P6 journey on staging with 3-month seeded data, web + S23 artifacts, cache checks, and the <=20s top-5 visibility target. | ent | high | ⬜ | ⬜ | ⬜ | ⬜ |
 
 <!-- Exec is written by /gabe-execute: ⬜ not started, 🔄 in progress, ✅ complete -->
@@ -220,9 +220,9 @@ Exit signal:
 
 ## Current Phase
 
-Phase 5: Android insights + flag review flow.
+Phase 6: P6 exit gate + performance evidence.
 
-(Phases 3 & 4 are Exec ✅ Review ✅ Commit ✅; their Push is ⬜ pending the user's staging push — see LEDGER "PUSH HANDOFF POLICY". Phase 5 runs code-only; the Samsung S23 e2e is deferred per PENDING P35.)
+(Phases 3, 4 & 5 are Exec ✅ Review ✅ Commit ✅; their Push is ⬜ pending the user's staging push — see LEDGER "PUSH HANDOFF POLICY". Phase 6 closes the local-evidence portion of the exit gate; deployed-staging browser proof, S23 e2e, and perf timing are deferred per PENDING P34/P35.)
 
 ## Dependencies
 

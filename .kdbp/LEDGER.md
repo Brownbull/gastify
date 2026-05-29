@@ -1,5 +1,35 @@
 # Session Ledger
 
+## 2026-05-29 — [9c0667e] feat(mobile): Android monthly insights screen + item-flag controls
+FINDINGS: 0 confirmed (2 refuted) from the Phase 5 adversarial review — nothing to fix.
+GATES: npm run typecheck (clean), npm test (27 suites / 125 passed, clean exit).
+CHECK 6/7/8: deferred=none matching at MVP gate; doc-drift=none (no backend routes); structure=all new mobile files match mobile/src/{components,hooks,lib,screens} MVP patterns.
+SCOPE: Android insights screen + item-flag controls + insightsKeys decoupling. 18 files (10 modified incl. 2 patched existing tests, 8 new). .kdbp bookkeeping committed separately.
+TICK: Phase 5 Commit ✅. Current Phase advanced to Phase 6.
+
+## 2026-05-29 — PHASE 5 REVIEW: P6 Phase 5 — Android insights + flag review flow
+VERDICT: APPROVE
+METHOD: 2-lens adversarial workflow (typescript-reviewer / web-parity+correctness+test-integrity) → per-finding verification.
+FINDINGS: 0 confirmed, 2 refuted (missing-detail-invalidation = intentional for non-optimistic mutation; ScrollView/flex = incorrect RN premises).
+COVERAGE: HIGH — 9 new tests; full mobile suite 125 passed clean-exit.
+CONFIDENCE: 100/100
+TRIAGE: nothing to fix.
+GATES: npm run typecheck (clean), npm test (27 suites / 125 passed, clean exit).
+DEFERRED: Samsung S23 staging-e2e (PENDING P35); iOS lane (P31).
+ALIGNMENT: ALIGNED
+TIER: ent | DRIFT: none
+TICK: ✅ (Phase 5 Review ticked)
+ARCHIVE: .kdbp/reviews-archive/REVIEW_2026-05-29-110000_resolved.md
+
+## 2026-05-29 — PHASE EXEC COMPLETE: P6 Phase 5 — Android insights + flag review flow (code-only)
+TIER: ent
+SCOPE: Android monthly insights journey + item flags. New: lib/insights.ts (getMonthlyInsights + currentPeriod + types), hooks/useInsights.ts (useMonthlyInsights), hooks/insightsKeys.ts (decoupled key factory), components/ItemFlagChips.tsx, screens/InsightsScreen.tsx. Modified: lib/transactions.ts (updateItemFlags + ItemFlagKind), hooks/useTransactions.ts (useUpdateItemFlags), screens/TransactionDetailScreen.tsx (flag chips + flag-error banner), navigation (types + AppNavigator Insights screen), HomeScreen (Open insights button).
+EXEC: ⬜ → ✅ on local evidence per the code-complete + defer-runtime drive.
+GATES: `npm run typecheck` (tsc --noEmit clean); `npm test` (jest 27 suites / 125 passed, clean exit). Added 9 tests (useInsights hook query/mutation/error, InsightsScreen render/toggle/empty/error, ItemFlagChips press/disabled).
+TEST-INFRA: extracted insightsKeys to a pure module so useTransactions no longer transitively loads lib/api→expo-secure-store (fixes useTransactions.test); patched AppNavigator.test (mock InsightsScreen) + TransactionDetailScreen.test (mock useUpdateItemFlags); hook test uses gcTime:Infinity + cleanup to avoid jest open-handle hang.
+DEFERRED: Samsung S23 staging-e2e journey (grouped stage artifacts) per PENDING P35 + user "defer android tests". iOS lane stays deferred (D47/P31).
+NEXT: /gabe-review → /gabe-commit → push handoff.
+
 ## 2026-05-29 — [8310a63] feat(web): monthly insights view + item-flag controls
 FINDINGS: 3 distinct (0 critical, 0 high, 1 medium, 2 low) from the Phase 4 adversarial review — all fixed pre-commit.
 ACTIONS: disable-while-pending + error banner for flag chips; dropped redundant detail invalidation; DimensionToggle aria-pressed; +1 regression test.
