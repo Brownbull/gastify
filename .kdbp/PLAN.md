@@ -39,7 +39,7 @@ Runtime-gated P6 phases must close against branch-backed Railway staging evidenc
 | 3 | Item flag persistence + exclusion semantics | `data-migration, persistence, user-facing, multi-tenant` | Add user-private urgency/special-case item flags, API mutations, transaction-detail visibility, and aggregate-exclusion behavior. | ent | high | ✅ | ✅ | ✅ | ⬜ |
 | 4 | Web insights + flag review flow | `web, user-facing, client-state, data-view` | Implement the deployed web monthly insights view, drilldowns, item flag controls, aggregate refresh, and sign-out/cache cleanup. | ent | high | ✅ | ✅ | ✅ | ⬜ |
 | 5 | Android insights + flag review flow | `native-mobile, user-facing, client-state, data-view` | Implement the Android/S23 monthly insights journey, item flag controls, aggregate refresh, and sign-out/cache cleanup. | ent | high | ✅ | ✅ | ✅ | ⬜ |
-| 6 | P6 exit gate + performance evidence | `core-only, test, web, native-mobile, analytics` | Prove the full P6 journey on staging with 3-month seeded data, web + S23 artifacts, cache checks, and the <=20s top-5 visibility target. | ent | high | ⬜ | ⬜ | ⬜ | ⬜ |
+| 6 | P6 exit gate + performance evidence | `core-only, test, web, native-mobile, analytics` | Prove the full P6 journey on staging with 3-month seeded data, web + S23 artifacts, cache checks, and the <=20s top-5 visibility target. | ent | high | ✅ | ✅ | ✅ | ⬜ |
 
 <!-- Exec is written by /gabe-execute: ⬜ not started, 🔄 in progress, ✅ complete -->
 <!-- Review/Commit/Push auto-ticked by /gabe-review, /gabe-commit, /gabe-push -->
@@ -220,9 +220,7 @@ Exit signal:
 
 ## Current Phase
 
-Phase 6: P6 exit gate + performance evidence.
-
-(Phases 3, 4 & 5 are Exec ✅ Review ✅ Commit ✅; their Push is ⬜ pending the user's staging push — see LEDGER "PUSH HANDOFF POLICY". Phase 6 closes the local-evidence portion of the exit gate; deployed-staging browser proof, S23 e2e, and perf timing are deferred per PENDING P34/P35.)
+P6 plan is **local-complete** — all 6 phases Exec ✅ Review ✅ Commit ✅. Push columns ⬜ pending the user's staging push + deployed-runtime closure (PENDING P34/P35; see LEDGER "PUSH HANDOFF POLICY" and `docs/runbooks/P6-INSIGHTS-EXIT-GATE.md`). The roadmap drive continues to P7 (Compliance + launch hardening) via a new plan; P6 runtime closure is a parallel pending item the user closes when pushing.
 
 ## Dependencies
 

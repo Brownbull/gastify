@@ -1,5 +1,20 @@
 # Session Ledger
 
+## 2026-05-29 — [c8b5b10] docs(p6): P6 insights exit-gate evidence packet + P6 PLAN LOCAL-COMPLETE
+SCOPE: Phase 6 evidence packet committed; Phase 6 Commit ✅.
+P6 PLAN STATUS: all 6 phases Exec ✅ Review ✅ Commit ✅. Push columns ⬜ across all phases pending the user's staging push (the agent is reserved from shared-infra deploys per the classifier; PUSH HANDOFF POLICY above).
+RUNTIME CLOSURE PENDING: P34 (deployed-staging browser + insights-api-gate), P35 (Samsung S23 e2e), perf timing — all fold into one staging session. P6 roadmap phase stays "active" until that session + staging→main promotion.
+NEXT: roadmap drive continues — /gabe-plan P7 (Compliance + launch hardening), then execute. P6 runtime closure proceeds in parallel when the user pushes.
+
+## 2026-05-29 — PHASE EXEC+REVIEW COMPLETE: P6 Phase 6 — Exit gate + performance evidence
+TIER: ent
+SCOPE: Consolidated P6 exit-gate evidence packet (`docs/runbooks/P6-INSIGHTS-EXIT-GATE.md`) mapping every roadmap exit-signal element to its local evidence, plus a deployed-staging runbook for the deferred portions.
+LOCAL GATE SWEEP: backend `uv run pytest` 668 passed/2 skipped; web `tsc -b` clean + vitest 35 passed; mobile `tsc --noEmit` clean + jest 125 passed. 828 tests across the P6 surface, all green.
+REVIEW: self-verified — every test name + script + review-archive cited in the packet exists on disk; per-phase reviews (Ph3 94/100, Ph4 98/100, Ph5 100/100) all APPROVE; iOS deferred (P31). No code diff to adversarially review (doc + consolidation only).
+EXEC ✅ + REVIEW ✅ on the local-evidence portion of the exit gate.
+DEFERRED (runtime closure): Railway staging + staging-e2e green, web browser journey, Samsung S23 stage artifacts, and app-open-to-top-5 ≤20s timing → PENDING P34 (staging/web) + P35 (S23). Folds into one staging session the user runs after pushing origin/staging.
+NEXT: /gabe-commit (evidence packet) → push handoff. P6 plan local-complete; Push columns ⬜ pending the user's staging push.
+
 ## 2026-05-29 — [9c0667e] feat(mobile): Android monthly insights screen + item-flag controls
 FINDINGS: 0 confirmed (2 refuted) from the Phase 5 adversarial review — nothing to fix.
 GATES: npm run typecheck (clean), npm test (27 suites / 125 passed, clean exit).
