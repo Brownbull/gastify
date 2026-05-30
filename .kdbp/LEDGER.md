@@ -2986,3 +2986,13 @@ DEPLOYMENTS: P44 (added row to .kdbp/DEPLOYMENTS.md)
 PRODUCTION PUSH: Shipped the entire remaining roadmap to production — P6 item-flags + web/Android insights + exit-gate, all of P7 (DSR completeness, consent-revocation propagation, scan-quota graceful degradation, retention/TTL, monetization schema seam, launch-hardening runbooks), P8 (TED boleta parser + 0-token scan shortcut + exit-gate), P9 (DP cohort engine + exit-gate), plus the mobile-contract drift fix.
 PLAN: Push column ticked ✅ across archived plans P6 (Phases 3-6), P7 (1-6), P8 (1-3), P9 (1-2). Roadmap P6→P9 is fully shipped.
 Gabe-Lens brief: Production now carries the complete P6→P9 roadmap. Staging proved green first, then was promoted unchanged to main — the tested artifact is exactly what shipped.
+- 2026-05-30 09:27 | Edit | /home/khujta/projects/apps/gastify/mobile/.env
+- 2026-05-30 09:39 | Edit | /home/khujta/projects/apps/gastify/tests/mobile/maestro/p4-phase1-smoke-active.yaml
+
+## 2026-05-30 09:40 -04 — S23 DEVICE LANE-PROOF (staging-e2e)
+DEVICE: Samsung S23 (SM-S911B, Android 16, serial RFCW90N4BYP) attached into WSL via usbipd-win (bus 2-2), native Linux ADB, Maestro driver installed.
+LANE: usbipd attach → native Linux adb → Metro tunnel (zd59yzw-brownbull-8081.exp.direct) → Expo dev-client loaded current P6→P9 JS bundle (1260 modules) → E2E auth (gastify-mobile-e2e@gastify-staging.test) against deployed Railway staging (https://gastify-api-staging-staging.up.railway.app, /api/v1/health 200).
+FLOW: p4-phase1-smoke-active **PASSED (16s)** — sign-in-screen → USE TEST AUTH → home-screen → signed-in-user-panel → scroll → SIGN OUT → sign-in-screen. Artifacts: tests/mobile/results/runs/staging-e2e/20260530T134014Z-staging-e2e-p4-phase1-smoke-active/ (report.html + 01-sign-in/02-home/03-signed-out screenshots, manifest result_status=passed).
+FIX: p4-phase1-smoke-active.yaml — added `scrollUntilVisible: sign-out-button` before the sign-out tap. P6's home-screen insights/ledger card pushed the sign-out control below the fold; the pre-P6 flow tapped it without scrolling. Test maintenance attributable to the P6 UI change, not an app defect.
+PENDING: P35 lane + auth + staging reachability now PROVEN (de-risked). What remains for P35 proper is a P6-insights-specific Maestro journey (open insights, assert monthly rollup, toggle an item flag) — not yet authored.
+Gabe-Lens brief: The S23 automation lane is alive again — physical device, Metro tunnel, and deployed staging all wired through one green Maestro run. The only flow edit was a scroll the taller P6 home screen now requires.

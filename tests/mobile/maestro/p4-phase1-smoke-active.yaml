@@ -20,6 +20,14 @@ appId: com.gastify.mobile
     path: 02-home
 - assertVisible:
     id: signed-in-user-panel
+# P6 added the insights/ledger card to the home screen, pushing the sign-out
+# control below the fold. Scroll it into view before tapping (the panel is
+# the last card on the home scroll view).
+- scrollUntilVisible:
+    element:
+      id: sign-out-button
+    direction: DOWN
+    timeout: 15000
 - tapOn:
     id: sign-out-button
 - assertVisible:
