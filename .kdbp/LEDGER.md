@@ -2961,3 +2961,10 @@ Gabe-Lens brief: The P6 analytics contract is now shipped through the full lane.
 - 2026-05-29 14:51 | Edit | /home/khujta/projects/apps/gastify/backend/app/models/credit.py
 - 2026-05-29 14:51 | Write | /home/khujta/projects/apps/gastify/backend/app/services/billing.py
 - 2026-05-29 14:52 | Write | /home/khujta/projects/apps/gastify/backend/tests/test_billing.py
+
+## 2026-05-30 12:55 — [d254539] fix(mobile): regenerate openapi contract for consent withdrawn_at field
+FINDINGS: 1 (0 critical, 0 high, 0 medium, 0 low) — 1 flaky test (StatementsScreen full-suite-load timeout, passes isolated 295ms)
+CHECKS: ✅ types (tsc --noEmit) ✅ tests (125/125 accounting for load flake) ✅ lint (generated artifact)
+CONTEXT: Staging CI run 26684148648 for 8ead1be failed ONLY on "Mobile API Drift" — P7's optional ConsentRecord.withdrawn_at field was synced into the web contract but not the mobile one. Regenerated mobile/src/lib/openapi-spec.json + api-types.d.ts via `npm run generate:api` (same command CI runs).
+ACTIONS: none deferred
+Gabe-Lens brief: The mobile API type-stubs are now back in lockstep with the backend's OpenAPI schema. CI's drift gate regenerates the contract from the running app and demands it match what's committed; the missing optional consent field is now present, so the gate goes green.

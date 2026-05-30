@@ -2155,6 +2155,18 @@
             ],
             "title": "Revoked At"
           },
+          "withdrawn_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Withdrawn At"
+          },
           "consent_version": {
             "type": "string",
             "title": "Consent Version"

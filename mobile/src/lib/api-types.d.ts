@@ -751,6 +751,8 @@ export interface components {
             granted_at: string;
             /** Revoked At */
             revoked_at?: string | null;
+            /** Withdrawn At */
+            withdrawn_at?: string | null;
             /** Consent Version */
             consent_version: string;
             /**
