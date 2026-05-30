@@ -36,10 +36,10 @@ Runtime-gated P6 phases must close against branch-backed Railway staging evidenc
 |---|-------|-------|-------------|------|------------|------|--------|--------|------|
 | 1 | Analytics contract + seeded 3-month corpus | `data-contract, analytics, test` | Define monthly insight response contracts, deterministic expected rollups, and fixture data for three months of multi-category transactions. | ent | high | ✅ | ✅ | ✅ | ✅ |
 | 2 | Rollup + gravity-center engine | `analytics, data-view, persistence` | Build deterministic monthly top-category rollups, trailing-baseline comparison, growth/shrink detection, and explainable gravity-center output. | ent | high | ✅ | ✅ | ✅ | ✅ |
-| 3 | Item flag persistence + exclusion semantics | `data-migration, persistence, user-facing, multi-tenant` | Add user-private urgency/special-case item flags, API mutations, transaction-detail visibility, and aggregate-exclusion behavior. | ent | high | ✅ | ✅ | ✅ | ⬜ |
-| 4 | Web insights + flag review flow | `web, user-facing, client-state, data-view` | Implement the deployed web monthly insights view, drilldowns, item flag controls, aggregate refresh, and sign-out/cache cleanup. | ent | high | ✅ | ✅ | ✅ | ⬜ |
-| 5 | Android insights + flag review flow | `native-mobile, user-facing, client-state, data-view` | Implement the Android/S23 monthly insights journey, item flag controls, aggregate refresh, and sign-out/cache cleanup. | ent | high | ✅ | ✅ | ✅ | ⬜ |
-| 6 | P6 exit gate + performance evidence | `core-only, test, web, native-mobile, analytics` | Prove the full P6 journey on staging with 3-month seeded data, web + S23 artifacts, cache checks, and the <=20s top-5 visibility target. | ent | high | ✅ | ✅ | ✅ | ⬜ |
+| 3 | Item flag persistence + exclusion semantics | `data-migration, persistence, user-facing, multi-tenant` | Add user-private urgency/special-case item flags, API mutations, transaction-detail visibility, and aggregate-exclusion behavior. | ent | high | ✅ | ✅ | ✅ | ✅ |
+| 4 | Web insights + flag review flow | `web, user-facing, client-state, data-view` | Implement the deployed web monthly insights view, drilldowns, item flag controls, aggregate refresh, and sign-out/cache cleanup. | ent | high | ✅ | ✅ | ✅ | ✅ |
+| 5 | Android insights + flag review flow | `native-mobile, user-facing, client-state, data-view` | Implement the Android/S23 monthly insights journey, item flag controls, aggregate refresh, and sign-out/cache cleanup. | ent | high | ✅ | ✅ | ✅ | ✅ |
+| 6 | P6 exit gate + performance evidence | `core-only, test, web, native-mobile, analytics` | Prove the full P6 journey on staging with 3-month seeded data, web + S23 artifacts, cache checks, and the <=20s top-5 visibility target. | ent | high | ✅ | ✅ | ✅ | ✅ |
 
 <!-- Exec is written by /gabe-execute: ⬜ not started, 🔄 in progress, ✅ complete -->
 <!-- Review/Commit/Push auto-ticked by /gabe-review, /gabe-commit, /gabe-push -->
