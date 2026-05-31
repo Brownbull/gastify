@@ -3019,3 +3019,15 @@ DEPLOY: pushed main->staging (CI 26701671100 green incl. Mobile API Drift) then 
 RUNTIME EVIDENCE: S23 device Maestro proof DEFERRED -> P40 (device disconnected). Proven by unit tests + the SSE-works-on-Railway evidence.
 WEB FINDING: the desktop web app uses SSE (EventSource), which returns 200 through Railway's edge -> it is UNAFFECTED by the WS-403 bug (mobile-WebSocket-only). Web also reconnects with backoff on SSE error and is unit-tested for both the happy journey and the error-reconnect path (useScanStream.test.tsx). No web bug; web polling-fallback (D62 symmetry) not needed for the fix.
 PLAN: Phase 1 Exec 🔄 (runtime deferred), Review/Commit/Push ✅.
+- 2026-05-30 23:31 | Write | /home/khujta/projects/apps/gastify/tests/web-e2e/playwright.config.ts
+- 2026-05-30 23:31 | Write | /home/khujta/projects/apps/gastify/tests/web-e2e/scan-progress.spec.ts
+- 2026-05-30 23:32 | Edit | /home/khujta/projects/apps/gastify/tests/web-e2e/playwright.config.ts
+- 2026-05-31 00:02 | Edit | /home/khujta/projects/apps/gastify/tests/web-e2e/scan-progress.spec.ts
+- 2026-05-31 00:02 | Edit | /home/khujta/projects/apps/gastify/tests/web-e2e/scan-progress.spec.ts
+- 2026-05-31 00:03 | Write | /home/khujta/projects/apps/gastify/tests/web-e2e/README.md
+- 2026-05-31 00:04 | Edit | /home/khujta/projects/apps/gastify/package.json
+
+## 2026-05-31 — Web e2e GREEN (scan progress over SSE)
+HARNESS: tests/web-e2e (Playwright + vite dev --mode staging-e2e -> deployed staging-e2e backend, fixture provider, $0). Gated web test-auth committed (f5a9c69); harness committed.
+RESULT: 2/2 passed (25.7s) — real Chromium + real EventSource + real SSE: sign in -> upload fixture -> live progress -> "Scan Complete" (Supermercado Jumbo, CLP 3,280); + SSE-drop-and-recover.
+FINDING: web is SSE-based -> UNAFFECTED by the WS-403 bug; now has real-browser runtime evidence. Gotchas documented in tests/web-e2e/README.md (shell VITE_* shadowing -> pinned config; gastify-staging reCAPTCHA/enumeration toggle).
