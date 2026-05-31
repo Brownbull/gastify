@@ -3036,3 +3036,15 @@ FINDING: web is SSE-based -> UNAFFECTED by the WS-403 bug; now has real-browser 
 - 2026-05-31 15:51 | Edit | /home/khujta/projects/apps/gastify/backend/app/config.py
 - 2026-05-31 15:52 | Edit | /home/khujta/projects/apps/gastify/frontend/public/firebase-messaging-sw.js
 - 2026-05-31 15:52 | Write | /home/khujta/projects/apps/gastify/.gitleaks.toml
+
+## 2026-05-31 15:55 — [d7ea8fe] fix(security): purge legacy boletapp-d609f Firebase config + path-scope gitleaks allowlist
+SEPARATE ENDEAVOR: legacy-config cleanup, not part of the Phase 1 progress-delivery work (no phase footer).
+FINDINGS: 1 (0 critical, 0 high, 1 medium, 0 low)
+ACTIONS: 1:accept (README#Configuration doc-drift — env var still "(required)", only the fail-closed default changed)
+CHANGES:
+- backend/app/config.py: firebase_project_id default boletapp-d609f -> gastify-local (fail-CLOSED if GASTIFY_FIREBASE_PROJECT_ID unset).
+- frontend/public/firebase-messaging-sw.js: hardcoded legacy boletapp-d609f web config (incl. real AIzaSyDoIg... key) -> placeholders (frozen Storybook harness; firebase mocked; SW never registered).
+- .gitleaks.toml: literal gastify-staging key regex -> PATH allowlist (playwright.config.ts, firebase-messaging-sw.js, .gitleaks.toml). Removes the flaggable key value from the committed config (GitGuardian #33524280) while still suppressing full-history gitleaks findings.
+VERIFIED: gitleaks full-history = 331 commits / 0 leaks; backend suite 721 passed, 2 skipped; both legacy + staging keys absent from all tracked files.
+TRIGGER: GitGuardian incident #33524280 (Google API Key in .gitleaks.toml @ b1e2aa6) + user request to purge legacy boletapp-d609f refs.
+OUTSTANDING (owner action, off-repo): restrict + optionally rotate the gastify-staging web API key in GCP; resolve GitGuardian #33524280 in dashboard (history retains the value). DEFERRED.
