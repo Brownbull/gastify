@@ -7,11 +7,13 @@ import {
 } from "react";
 import {
   onAuthStateChanged,
+  signInWithEmailAndPassword,
   signInWithPopup,
   signOut as firebaseSignOut,
   type User,
 } from "firebase/auth";
 import { auth, googleProvider } from "@/lib/firebase";
+import { e2eAuthConfig } from "@/lib/e2eAuth";
 import { setAuthToken } from "@/lib/api";
 import {
   broadcastSignOut,
@@ -28,6 +30,8 @@ interface AuthState {
 
 interface AuthContextValue extends AuthState {
   signInWithGoogle: () => Promise<void>;
+  /** E2E-only: present when the gated test-auth path is enabled (never in prod). */
+  signInWithTestAuth: (() => Promise<void>) | null;
   signOut: () => Promise<void>;
 }
 
@@ -109,6 +113,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  async function signInWithTestAuth() {
+    if (!e2eAuthConfig.enabled) return;
+    setState((prev) => ({ ...prev, error: null }));
+    try {
+      await signInWithEmailAndPassword(auth, e2eAuthConfig.email, e2eAuthConfig.password);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Test sign-in failed";
+      setState((prev) => ({ ...prev, error: message }));
+    }
+  }
+
   async function signOut() {
     try {
       await firebaseSignOut(auth);
@@ -121,7 +136,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AuthContext value={{ ...state, signInWithGoogle, signOut }}>
+    <AuthContext
+      value={{
+        ...state,
+        signInWithGoogle,
+        signInWithTestAuth: e2eAuthConfig.enabled ? signInWithTestAuth : null,
+        signOut,
+      }}
+    >
       {children}
     </AuthContext>
   );
