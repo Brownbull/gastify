@@ -1994,3 +1994,125 @@ after the full P1-P9 roadmap is implemented.
 
 ### Status
 - accepted
+
+## D62 — Real-time scan/statement progress: polling fallback now (Path A), Redis bus + durable workers deferred behind measurable triggers (Path B) (2026-05-30)
+
+**Decision.** Fix the broken mobile progress delivery with a **REST polling fallback** in the mobile progress hooks (Phase 0 / "Path A"): when the progress WebSocket fails or stalls, poll the existing authoritative status endpoints (`GET /api/v1/scans/{id}`, `GET /api/v1/statements/{id}`) until terminal. **Defer** the horizontally-scalable redesign — a Redis-backed pub/sub dispatcher replacing the in-process in-memory `asyncio.Queue` dispatcher, plus a durable worker queue replacing in-process `BackgroundTasks` ("Path B") — behind explicit, measurable triggers (below). Record the full phased path (Phase 1 SSE transport → Phase 2 Redis bus → Phase 3 durable workers) for the future.
+
+**Context / root cause (discovered via S23 device e2e against deployed Railway staging).** Scan/statement processing completes correctly server-side (statement done in ~11s, `error_code: None`), but the mobile UI sits at "queued 0%" forever. Cause: the app receives progress over a **WebSocket** (`/ws/scans/{id}`, `/ws/statements/{id}`); against Railway the WS handshake returns **403** while the backend's equivalent **SSE** endpoint (`/api/v1/statements/{id}/events`) returns **200 and streams correctly** (same token; auth proven fine). The progress/stream/middleware code is unchanged since this flow last passed (2026-05-28), so this is a Railway-edge / WS-handshake behavior — not a code regression. Research indicates a 403 (vs 404/timeout) most likely means the app/uvicorn rejects the upgrade behind the proxy (candidate fix: uvicorn `--proxy-headers --forwarded-allow-ips="*"`), with Railway's 15-min connection cap + ~45s idle reap as additional constraints on any long-lived transport.
+
+**Two-axis framing (the load-bearing insight).** The problem has two orthogonal axes: **Axis A — edge transport** (the 403: how bytes reach the client) and **Axis B — fan-out / horizontal scale** (how an event reaches the connection-holding process). The progress dispatcher is an **in-process in-memory singleton** (`backend/app/services/scan_events.py:62`, `statement_events.py:97` — module-level, holding `asyncio.Queue`s), fed by **in-process `BackgroundTasks`** (`scans.py:107,151`, `statements.py:112,168,295`). This works **only with exactly one API instance**: with 2+ replicas, a client's stream on replica A and processing on replica B (emitting to B's in-memory dispatcher) never meet — regardless of transport. Switching WS→SSE fixes Axis A only; it does **not** fix Axis B.
+
+**Rationale for Path A now.** (1) It is the **only option already multi-replica-safe** — polling reads shared Postgres `status`, so it is replica-independent by construction, which uniquely makes adding uvicorn workers / Railway replicas safe (impossible today under the in-process dispatcher). (2) **Zero backend/infra change**, lowest blast radius, reversible. (3) It fixes the user-facing 403 immediately and unblocks the S23 device flows. (4) For a multi-user app, polling's capacity ceiling (Postgres + Gemini RPM) is far higher than the single-event-loop ceiling it replaces. Accepted cost: **coarser progress granularity** (DB-status milestones, not sub-step streamed events) and a small steady DB-read load proportional to concurrent active jobs (mitigated by jittered/adaptive polling + status caching).
+
+**Alternatives considered.**
+- **(b) Switch mobile WS → existing SSE endpoints.** Fixes Axis A with smoother UX; backend SSE already built + tested. Rejected for *now*: needs a React Native SSE client (`react-native-sse` — Expo dev-build bug #27526 + backgrounding caveat), more blast radius than polling, and still single-instance for fan-out. Retained as **Phase 1**.
+- **(c) uvicorn `--proxy-headers --forwarded-allow-ips="*"` (keep WS).** Cheapest *potential* WS repair (1 line + redeploy). Rejected as the primary fix: unverified until redeployed, and WS is the **worst** load-balancer fit (Railway: no sticky sessions across replicas → WS bounced) — a dead-end for multi-user scale. May be tried opportunistically but does not change the phased path.
+- **(d) Redis dispatcher + durable worker queue now (Path B).** The real horizontal-scale fix. Rejected for *now*: high blast radius (new Redis infra, backend changes, new failure modes) to solve a multi-replica load we do not have on a single instance today. Retained as **Phase 2 + 3**.
+
+**Capacity estimate (config-derived; validate via load test).** Bound by **peak concurrent active scans**, not registered-user count. Binding constraints: DB pool `5+10=15` (`db.py:11`), single uvicorn worker (no `--workers`), Gemini `gemini-2.5-flash-lite` ~2 calls/scan (I/O-bound), free-tier usage ≈50 scans/month/user. Rough: **~5,000–15,000 registered users untuned**; **~50,000–150,000 with config-only knobs** (pool↑, jittered/adaptive polling, status cache, add workers/replicas — all polling-safe), then bound by Postgres + Gemini RPM. **Load test must use the existing `scan_provider=mock`/`fixture` + `statement_provider=fixture` paths with `e2e_scan_event_delay_ms` to simulate latency — ZERO Gemini calls / $0** (mock/fixture are blocked in production by config guard, so run against a dedicated load env). Gemini's own RPM/TPM ceiling is computed analytically, never load-tested live.
+
+**Path B triggers (measurable, armed in this ADR).** Move Phase 2 (Redis bus) **before any 2nd API replica** is added. Move Phase 3 (durable workers) **before sustained concurrent processing degrades p95 request latency or in-flight-job loss on deploy is unacceptable**. Concretely, escalate when monitoring shows: peak concurrent active scans approaching Gemini RPM limits, OR Postgres connection-pool saturation / pool-wait p95 climbing despite added workers/replicas, OR a product need for smooth sub-step streaming at scale. Not "at N users" — these are the real signals.
+
+**Status:** accepted.
+
+**Review trigger:** (a) load-test results contradict the capacity estimate; (b) decision to add a 2nd replica (forces Phase 2); (c) the uvicorn proxy-headers experiment changes the transport calculus; (d) Railway changes its WS/edge behavior.
+
+### Amendment (2026-05-30) — Path B is Postgres-native-first; bus/queue/streaming design stays an OPEN architecture decision
+
+Refines D62's Path B (deferred). The founding architecture decision is **FastAPI + Postgres, minimize moving parts** (Postgres deliberately does work other components might) — and Path A adds **zero** new runtime components, so Path B must be evaluated against the same minimalism.
+
+- **Preferred Path B implementation = Postgres-native (no new datastore):**
+  - *Fan-out (Phase 2's job):* Postgres **`LISTEN/NOTIFY`** (native to `asyncpg`, zero new dep) — or skip a bus entirely, since **polling already makes fan-out replica-safe** (reads the shared status row). Redis-pub/sub would only buy smoother streaming UX, not correctness.
+  - *Durable jobs (Phase 3's job):* Postgres **`SELECT … FOR UPDATE SKIP LOCKED`**, e.g. the **`procrastinate`** async Postgres-only task queue (LISTEN/NOTIFY wakeup + SKIP LOCKED durability). Replaces Celery/arq **and** Redis with a `jobs` table; the only genuinely new deployment unit is a **worker process** (talks only to Postgres — no new technology).
+- **Redis = throughput-triggered escalation, not the default.** Adopt Redis (pub/sub bus and/or queue broker) only when **measured** load exceeds the Postgres-native ceiling — `LISTEN/NOTIFY` connection pressure (pool=15) / NOTIFY-rate bottleneck, or the SKIP-LOCKED queue throughput ceiling / vacuum-bloat pressure. The capacity estimate puts that well above the near-term horizon.
+- **Open architecture decision (explicitly NOT locked here).** The concrete Path-B bus/queue/streaming design — Postgres-native vs **Redis** (Pub/Sub or Streams) vs an event-streaming platform like **Kafka/NATS/Redpanda** — is reserved for a dedicated architecture session **when a trigger fires, informed by measured load**, with updated architecture knowledge. Initial architect lean (to be challenged in that session): **Kafka/NATS are likely disproportionate** for our needs — they solve high-volume durable event streaming / event-sourcing / many-consumer fan-out at platform scale, a different problem class than "deliver a scan's progress to one owner + run a durable job queue." The expected ladder is **Postgres-native → Redis → (only at true event-platform scale) Kafka/NATS**, but the session may revise this if requirements shift (e.g., analytics event firehose, multi-product event bus, external integrations consuming our events).
+
+**Status of amendment:** accepted. **Trigger for the architecture session:** any D62 Path-B trigger fires, OR a requirement emerges that needs durable multi-consumer event streaming (which would change the calculus toward a real bus/log).
+
+## D63 — Phase 0/Phase 1 tier: mvp (2026-05-30)
+
+**Phase:** Mobile polling fallback
+**Types:** native-mobile, client-state, realtime, resilience
+**Tier chosen:** mvp
+**Prototype:** no
+**Reason:** Focused resilience fallback — happy path + WS-fail/stall trigger + terminal stop is the honest baseline (U2). No backend change; reads existing Postgres-backed REST. Runtime evidence (S23 Maestro flows reaching reconciliation/scan-result) gates Exec.
+
+### Sections rendered
+- Core (always)
+- Client-State / Realtime: relevant dims (polling cadence, reconnect/foreground reconcile, terminal detection)
+
+### Dimensions suppressed (Layer 2 filter)
+- none material at mvp
+
+### Per-dim tier overrides (if any)
+```yaml
+dim_overrides: []
+```
+
+### Δ deferred by tier choice
+- Ent-tier extras deferred: exhaustive backoff/jitter edge matrix, offline-queue of polls, telemetry on poll efficiency — fold in only if Phase 2 load data shows polling pressure.
+
+### Review trigger (when to escalate this phase)
+- Phase 2 load test shows poll-driven DB pool-wait climbing, OR users report "stuck" progress between milestones at a rate that needs richer client-side progress modeling.
+
+### Status
+- accepted
+
+## D64 — Phase 2 tier: ent (2026-05-30)
+
+**Phase:** Zero-Gemini load test + capacity validation
+**Types:** test, performance, backend
+**Tier chosen:** ent
+**Prototype:** no
+**Reason:** Load/capacity evaluation IS the deliverable (Core.Testing load-eval dimension), and it validates the multi-user capacity claim in D62 (~5–15k untuned / ~50–150k tuned). Escalation over mvp justified because the output is a capacity gate, not a smoke check.
+
+### Sections rendered
+- Core (always)
+- Performance: load profile (ramp concurrency), saturation point, pool-wait p95, status-endpoint p95, throughput, error/timeout rate
+
+### Dimensions suppressed (Layer 2 filter)
+- Performance.Caching — reason: deferred; only add status caching if the load test proves the pool is the bottleneck (don't pre-optimize).
+
+### Per-dim tier overrides (if any)
+```yaml
+dim_overrides: []
+```
+
+### Δ deferred by tier choice
+- Scale-tier deferred: continuous/automated load regression in CI, real-Gemini soak (intentionally excluded — cost), multi-replica fan-out load (belongs to Path B).
+
+### Review trigger (when to escalate this phase)
+- Results contradict the D62 estimate, OR a decision to add a 2nd replica forces measuring fan-out (Path B territory).
+
+### Status
+- accepted
+
+## D65 — Phase 3 tier: mvp (2026-05-30)
+
+**Phase:** Path-B trigger instrumentation
+**Types:** observability, backend, docs
+**Tier chosen:** mvp
+**Prototype:** no
+**Reason:** Lightweight — reuse existing `app/observability.py` + middleware metrics to surface the D62 trigger signals (peak concurrent active scans, DB pool-wait, Gemini 429 rate) and document scaling levers + thresholds. No new infra; honest baseline.
+
+### Sections rendered
+- Core (always)
+- Observability: metric surface for the three trigger signals + a runbook note
+
+### Dimensions suppressed (Layer 2 filter)
+- Observability.Tracing/Alerting — reason: metric exposure + a documented threshold is enough to arm the trigger; alerting wiring is a separate ops task.
+
+### Per-dim tier overrides (if any)
+```yaml
+dim_overrides: []
+```
+
+### Δ deferred by tier choice
+- Ent-tier deferred: automated alert rules / dashboards on the trigger signals — add when the team operationalizes on-call.
+
+### Review trigger (when to escalate this phase)
+- A D62 Path-B trigger approaches → promote to ent (real alerting/dashboards) as part of the architecture session.
+
+### Status
+- accepted

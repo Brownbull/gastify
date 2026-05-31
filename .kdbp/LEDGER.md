@@ -2996,3 +2996,9 @@ FLOW: p4-phase1-smoke-active **PASSED (16s)** — sign-in-screen → USE TEST AU
 FIX: p4-phase1-smoke-active.yaml — added `scrollUntilVisible: sign-out-button` before the sign-out tap. P6's home-screen insights/ledger card pushed the sign-out control below the fold; the pre-P6 flow tapped it without scrolling. Test maintenance attributable to the P6 UI change, not an app defect.
 PENDING: P35 lane + auth + staging reachability now PROVEN (de-risked). What remains for P35 proper is a P6-insights-specific Maestro journey (open insights, assert monthly rollup, toggle an item flag) — not yet authored.
 Gabe-Lens brief: The S23 automation lane is alive again — physical device, Metro tunnel, and deployed staging all wired through one green Maestro run. The only flow edit was a scroll the taller P6 home screen now requires.
+
+## 2026-05-30 14:30 — PLAN CREATED: Path A (Phase 0) progress polling fallback + load-test + trigger instrumentation
+PHASES: 3 | COMPLEXITY: med | MATURITY: mvp
+TIERS: mvp × 2, ent × 1, scale × 0 | PROTOTYPES: 0
+DECISIONS: D63 → D65 (3 phase tier decisions logged); D62 amended — Path B is Postgres-native-first (LISTEN/NOTIFY or polling for fan-out; procrastinate/SKIP-LOCKED for durable jobs), Redis throughput-triggered, full bus/queue/streaming design (Redis vs Kafka/NATS) left as an OPEN architecture decision for a triggered session.
+NOTE: plan implements ADR D62 Path A only; adds ZERO new runtime components (stays FastAPI + Postgres). Unblocks PENDING P35 (S23 device flows). Plan-only — no code yet.
