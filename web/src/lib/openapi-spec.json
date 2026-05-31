@@ -1213,6 +1213,50 @@
         }
       }
     },
+    "/api/v1/scans/{scan_id}": {
+      "get": {
+        "tags": [
+          "scans"
+        ],
+        "summary": "Get Scan",
+        "description": "Status of a single scan (ownership-scoped).\n\nAuthoritative Postgres-backed status row for the mobile progress poll fallback\n(D66 / ADR D62 Path A): replica-safe, no WebSocket. `transaction_id` is populated\nonce the scan persists its transaction so the client can navigate to the result.",
+        "operationId": "get_scan_api_v1_scans__scan_id__get",
+        "parameters": [
+          {
+            "name": "scan_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Scan Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScanResult"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/scans/{scan_id}/events": {
       "get": {
         "tags": [
@@ -2154,6 +2198,18 @@
               }
             ],
             "title": "Revoked At"
+          },
+          "withdrawn_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Withdrawn At"
           },
           "consent_version": {
             "type": "string",
@@ -3161,6 +3217,18 @@
               }
             ],
             "title": "Error Message"
+          },
+          "transaction_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Transaction Id"
           }
         },
         "type": "object",

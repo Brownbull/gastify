@@ -458,6 +458,13 @@ async def _run_stage2(
                 review_level=review_level,
                 review_signals=review_signals,
             )
+            # Durably link the scan to its transaction in the SAME commit as the
+            # transaction creation (atomic; covers both the completed and needs_review
+            # terminal branches). Lets GET /scans/{id} expose the result to the poll
+            # fallback without the in-process event snapshot (D66).
+            await db.execute(
+                update(Scan).where(Scan.id == scan_id).values(transaction_id=transaction.id)
+            )
             await db.commit()
         except Exception as exc:
             log.error("scan_persist_failed", error=str(exc))

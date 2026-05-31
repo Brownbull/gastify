@@ -186,7 +186,13 @@ export const useScanStore = create<ScanStore>()((set) => ({
 
       if (event.event_type === "scan_complete") {
         next.phase = "complete";
-        next.result = parseScanResult(event.data);
+        const parsed = parseScanResult(event.data);
+        // Don't let a sparse poll-fallback snapshot (status + transaction_id only)
+        // clobber a richer result the WebSocket already delivered (amounts, line items).
+        // Overlay only the polled fields that are actually present.
+        next.result = state.result
+          ? { ...state.result, ...definedOnly(parsed) }
+          : parsed;
         next.connectionStatus = "closed";
         next.connectionMessage = null;
       }
@@ -232,6 +238,16 @@ function parseScanResult(data: Record<string, unknown> | null | undefined): Scan
     discrepancy: typeof d.discrepancy === "number" ? d.discrepancy : undefined,
     line_items: Array.isArray(d.line_items) ? d.line_items : undefined,
   };
+}
+
+function definedOnly(result: ScanResultData): Partial<ScanResultData> {
+  const out: Partial<ScanResultData> = {};
+  for (const key of Object.keys(result) as (keyof ScanResultData)[]) {
+    if (result[key] !== undefined) {
+      (out[key] as unknown) = result[key];
+    }
+  }
+  return out;
 }
 
 function normalizeErrorCode(code: string): string {

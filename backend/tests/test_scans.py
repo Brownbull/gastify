@@ -328,3 +328,55 @@ class TestTriggerEndpoint:
         resp = await client.post(f"/api/v1/scans/{scan_id}/process")
         assert resp.status_code == 409
         assert "extracted" in resp.json()["detail"]
+
+
+class TestGetScan:
+    """GET /api/v1/scans/{scan_id} — Postgres-backed status row for the poll fallback (D66)."""
+
+    async def _insert_scan(self, engine, *, status=ScanStatus.SUBMITTED, scope_id=None):
+        sid = uuid.uuid4()
+        factory = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+        async with factory() as session:
+            if scope_id and scope_id != _TEST_SCOPE_ID:
+                await session.execute(
+                    sa.text(
+                        "INSERT INTO ownership_scopes (id, scope_type) VALUES (:id, 'individual')"
+                    ),
+                    {"id": scope_id.hex},
+                )
+            session.add(
+                Scan(
+                    id=sid,
+                    ownership_scope_id=scope_id or _TEST_SCOPE_ID,
+                    status=status,
+                    image_path="/tmp/test/receipt.jpg",
+                    original_filename="test.jpg",
+                    content_type="image/jpeg",
+                    file_size_bytes=1024,
+                )
+            )
+            await session.commit()
+        return sid
+
+    @pytest.mark.asyncio
+    async def test_get_scan_returns_status_row(self, client, engine):
+        scan_id = await self._insert_scan(engine, status=ScanStatus.SUBMITTED)
+        resp = await client.get(f"/api/v1/scans/{scan_id}")
+        assert resp.status_code == 200
+        body = resp.json()
+        assert body["id"] == str(scan_id)
+        assert body["status"] == "submitted"
+        # transaction_id is exposed (null until the scan persists its transaction).
+        assert "transaction_id" in body
+        assert body["transaction_id"] is None
+
+    @pytest.mark.asyncio
+    async def test_get_scan_unknown_id_404(self, client):
+        resp = await client.get(f"/api/v1/scans/{uuid.uuid4()}")
+        assert resp.status_code == 404
+
+    @pytest.mark.asyncio
+    async def test_get_scan_other_scope_hidden_404(self, client, engine):
+        scan_id = await self._insert_scan(engine, scope_id=uuid.uuid4())
+        resp = await client.get(f"/api/v1/scans/{scan_id}")
+        assert resp.status_code == 404

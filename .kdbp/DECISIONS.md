@@ -2116,3 +2116,19 @@ dim_overrides: []
 
 ### Status
 - accepted
+
+## D66 — Phase 1 scope discovery: add GET /scans/{id} + persist scan.transaction_id (corrects D62 premise) (2026-05-30)
+
+**Decision.** Relax PLAN Phase 1's "mobile-only / no backend change" constraint to add a **minimal additive backend change**: (1) a nullable `scans.transaction_id` FK column (Alembic migration) set by the scan worker when it creates the transaction, and (2) `GET /api/v1/scans/{scan_id}` → `ScanResult` (ownership-scoped, mirrors the existing `GET /api/v1/statements/{statement_id}`). Both scan and statement progress then use true **REST Postgres-status polling** — uniform, replica-safe, Railway-correct (plain GET, no 403), cheap per tick.
+
+**Why (surfaced by the Phase-1 understand→design workflow's adversarial critique, verified against source).** D62 stated Path A would "poll the existing authoritative status endpoints `GET /api/v1/scans/{id}` + `GET /api/v1/statements/{id}`" — but `GET /scans/{id}` **does not exist** (scans.py has only `POST ""` + `POST /{id}/process`), and the scan **completion payload is not persisted** (`ScanCompleteData`, incl. `transaction_id`, is built ephemerally in `scan_worker._scan_complete_data()` and stored only in the in-process dispatcher terminal snapshot; there is NO `scan.transaction_id` and NO `transaction.scan_id`). So a mobile-only scan fallback could only be a fragile SSE re-subscribe that delivers no in-flight progress and is single-instance-only — failing the replica-safety that is the entire point of Path A, and unable to drive the golden flow's `scan-view-transaction-button`.
+
+**Decision detail (user chose "persist scan.transaction_id", the minimal correct option).** Persist only `transaction_id` (not the full amount summary). Under poll-fallback the scan completion panel renders `complete` + a working view-transaction navigation (golden flow passes); inline amounts/line-items remain delivered via the WS path when it works. This fills a genuine data-model gap (a scan that produced a transaction should record which one — queryable + durable + replica-safe), at the cost of one nullable column.
+
+**Alternatives considered.** (B) status-only GET, no migration — rejected: scan completion can't navigate to its transaction under fallback, golden flow's view-transaction step fails, degraded UX. (C) persist the full completion summary (transaction_id + amounts) — deferred: bigger migration + more worker-sync surface than needed for Phase 1; revisit if fallback amount-parity is wanted.
+
+**Net architecture impact.** Still **FastAPI + Postgres, no new runtime component** — one additive read endpoint + one nullable column. Consistent with D62's amendment (Postgres-centric, minimize moving parts).
+
+**Status:** accepted. **Review trigger:** if fallback completion UX needs inline amounts (→ option C), or if a `transaction.scan_id` direction is later preferred for analytics.
+
+> **D62 correction.** D62's Path-A description naming an existing `GET /api/v1/scans/{id}` was inaccurate; that endpoint is created here in D66. The statement endpoint (`GET /api/v1/statements/{id}`) did already exist. The two-axis finding and the rest of D62 stand.

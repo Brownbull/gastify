@@ -19,7 +19,7 @@ Path A (Phase 0): fix the Railway WebSocket-403 progress stall with a REST polli
 
 | # | Phase | Description | Tier | Complexity | Exec | Review | Commit | Push |
 |---|-------|-------------|------|------------|------|--------|--------|------|
-| 1 | Mobile polling fallback | When the progress WebSocket fails/stalls, poll existing `GET /scans/{id}` + `GET /statements/{id}` until terminal; reuse store `status→phase` reducers; jittered + adaptive backoff; reconcile-on-foreground (AppState). Mobile-only, no backend change. | mvp | med | ⬜ | ⬜ | ⬜ | ⬜ |
+| 1 | Progress polling fallback | Add minimal backend `GET /scans/{id}` status endpoint + persist `scan.transaction_id` (the scan side lacked both — see D66); mobile hooks fall back to polling `GET /scans/{id}` + `GET /statements/{id}` when the WS fails/stalls (HYBRID: WS-primary, fallback on distress + always foreground-reconcile); reuse store `status→phase` reducers; jittered + adaptive backoff (stall threshold ≥2.5× the 15s heartbeat). | mvp | med | ⬜ | ⬜ | ⬜ | ⬜ |
 | 2 | Zero-Gemini load test + capacity validation | `httpx` async harness using `scan_provider=mock/fixture` + `statement_provider=fixture` + `e2e_scan_event_delay_ms` ($0, no LLM). Ramp concurrent active jobs + polling load; measure DB pool-wait, p95 status latency, throughput, error rate; confirm/correct the D62 estimate. Dedicated load env (mock/fixture blocked in prod). | ent | med | ⬜ | ⬜ | ⬜ | ⬜ |
 | 3 | Path-B trigger instrumentation | Make the D62 Path-B triggers data-driven: surface metrics for peak concurrent active scans, DB pool-wait, Gemini 429 rate; document polling-safe scaling levers (pool size, uvicorn `--workers`, replicas) + the threshold to start Path B. | mvp | low | ⬜ | ⬜ | ⬜ | ⬜ |
 
@@ -37,20 +37,21 @@ Path A (Phase 0): fix the Railway WebSocket-403 progress stall with a REST polli
 
 ```yaml
 phase: 1
-types: [native-mobile, client-state, realtime, resilience]
+types: [native-mobile, client-state, realtime, resilience, backend, data-migration]
 phase_tier: mvp
 prototype: false
 dim_overrides: []
-sections_considered: [Core, Client-State, Realtime]
+sections_considered: [Core, Client-State, Realtime, Data]
 suppressed_dims_count: 0
 decisions_entry: D63
+scope_amendment: D66
 ```
 
 - **Tier chosen:** mvp — focused resilience fallback; happy path + WS-fail trigger + terminal stop is the honest baseline (U2).
 - **Prototype:** no
 - **Key files:** `mobile/src/hooks/useScanProgressSocket.ts`, `mobile/src/hooks/useStatementProgressSocket.ts`, new `mobile/src/lib/{scan,statement}ProgressPoll.ts`, reuse `mobile/src/stores/{scanStore,statementStore}.ts` `status→phase` reducers, plus hook/store tests.
-- **No backend change.** Reads existing Postgres-backed REST endpoints — no new architectural component (per D62 / the Postgres-centric stack).
-- **Trade-offs accepted:** See DECISIONS.md D63.
+- **Minimal backend addition (D66 scope discovery):** the scan side had NO `GET /scans/{id}` status route and NO persisted scan→transaction link, so a correct/replica-safe scan poll was impossible mobile-only. Adds: a nullable `scans.transaction_id` FK (migration) set by the worker, and `GET /api/v1/scans/{scan_id}` → `ScanResult` (mirrors `GET /statements/{id}`). Still **no new runtime component** (FastAPI + Postgres) — additive read endpoint + one column.
+- **Trade-offs accepted:** See DECISIONS.md D63 + D66.
 
 ### Phase 2 — Zero-Gemini load test + capacity validation
 
@@ -109,7 +110,7 @@ Phase 1: Mobile polling fallback
 ## Notes
 
 - This plan implements **Path A** from ADR **D62** only. Path B (fan-out bus + durable workers) is deferred behind D62's measurable triggers and is **Postgres-native-first** per the D62 amendment (LISTEN/NOTIFY or polling for fan-out; `procrastinate`/SKIP-LOCKED for durable jobs); Redis/Kafka remain an **open architecture decision** to be made when a trigger fires, informed by measured load.
-- Architecturally **additive-zero**: no new runtime component; leans on the existing FastAPI + Postgres stack.
+- Architecturally **no new runtime component**: leans on the existing FastAPI + Postgres stack. Phase 1 adds one additive read endpoint (`GET /scans/{id}`) + one nullable column (`scans.transaction_id`) per D66 — no new service/datastore/process.
 - Relates to PENDING **P35** (S23 device e2e for scan/statement) — this fix unblocks those flows.
 
 ## Runtime Evidence Checkpoints

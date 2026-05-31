@@ -1,9 +1,10 @@
 import { useEffect } from "react";
-import {
-  ScanProgressSocket,
-} from "../lib/scanProgressSocket";
+import { ScanProgressSocket } from "../lib/scanProgressSocket";
+import { ProgressFallback } from "../lib/progressFallback";
+import { applyScanStatus } from "../lib/scanProgressFallback";
+import { getScan } from "../lib/scans";
 import { getFreshFirebaseIdToken } from "../lib/scanUpload";
-import { useScanStore, type ScanPhase } from "../stores/scanStore";
+import { useScanStore, type ScanEvent, type ScanPhase } from "../stores/scanStore";
 
 const STREAMING_PHASES = new Set<ScanPhase>([
   "submitted",
@@ -26,17 +27,33 @@ export function useScanProgressSocket() {
   useEffect(() => {
     if (!scanId || !shouldStream) return;
 
+    // HYBRID transport (ADR D62 Path A): the WebSocket stays primary; the REST poll
+    // fallback engages only while the WS is in distress (or stalled) and yields the
+    // instant the WS reconnects. It also reconciles once on app-foreground.
+    const fallback = new ProgressFallback({
+      fetchOnce: (signal) => getScan(scanId, signal),
+      apply: applyScanStatus,
+    });
+
     const controller = new ScanProgressSocket({
       scanId,
       tokenProvider: getFreshFirebaseIdToken,
-      onEvent: receiveEvent,
+      onEvent: (event: ScanEvent) => {
+        receiveEvent(event);
+        fallback.noteWsActivity();
+      },
       onFatalError: failScan,
-      onStatusChange: setConnectionStatus,
+      onStatusChange: (status, options) => {
+        setConnectionStatus(status, options);
+        fallback.noteWsStatus(status);
+      },
     });
 
     controller.start();
+    fallback.start();
 
     return () => {
+      fallback.stop();
       controller.stop();
     };
   }, [failScan, receiveEvent, scanId, setConnectionStatus, shouldStream]);

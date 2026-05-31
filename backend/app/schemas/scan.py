@@ -42,6 +42,9 @@ class ScanResult(BaseModel):
     processed_at: datetime | None = None
     error_code: str | None = None
     error_message: str | None = None
+    # Set once the scan persists its transaction (completed / needs_review). Lets the
+    # mobile poll fallback navigate to the result transaction without the WS event (D66).
+    transaction_id: uuid.UUID | None = None
 
 
 class ScanEvent(BaseModel):

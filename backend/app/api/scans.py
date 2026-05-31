@@ -151,3 +151,24 @@ async def trigger_process_scan(
     background_tasks.add_task(process_scan, scan_id)
 
     return ScanResult.model_validate(scan)
+
+
+@router.get("/{scan_id}", response_model=ScanResult)
+async def get_scan(scan_id: uuid.UUID, auth: Auth, db: DB) -> ScanResult:
+    """Status of a single scan (ownership-scoped).
+
+    Authoritative Postgres-backed status row for the mobile progress poll fallback
+    (D66 / ADR D62 Path A): replica-safe, no WebSocket. `transaction_id` is populated
+    once the scan persists its transaction so the client can navigate to the result.
+    """
+    row = await db.execute(
+        select(Scan).where(
+            Scan.id == scan_id,
+            Scan.ownership_scope_id == auth.ownership_scope_id,
+        )
+    )
+    scan = row.scalar_one_or_none()
+    if scan is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Scan not found")
+
+    return ScanResult.model_validate(scan)

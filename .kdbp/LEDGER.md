@@ -3002,3 +3002,12 @@ PHASES: 3 | COMPLEXITY: med | MATURITY: mvp
 TIERS: mvp × 2, ent × 1, scale × 0 | PROTOTYPES: 0
 DECISIONS: D63 → D65 (3 phase tier decisions logged); D62 amended — Path B is Postgres-native-first (LISTEN/NOTIFY or polling for fan-out; procrastinate/SKIP-LOCKED for durable jobs), Redis throughput-triggered, full bus/queue/streaming design (Redis vs Kafka/NATS) left as an OPEN architecture decision for a triggered session.
 NOTE: plan implements ADR D62 Path A only; adds ZERO new runtime components (stays FastAPI + Postgres). Unblocks PENDING P35 (S23 device flows). Plan-only — no code yet.
+
+## 2026-05-30 15:00 — PLAN UPDATED (Phase 1 scope discovery): + GET /scans/{id} + persist scan.transaction_id
+CHANGE: Phase-1 understand→design workflow (adversarial critique) found scan has no GET status route and no persisted completion link. Per D66, Phase 1 now adds a minimal additive backend change (nullable scans.transaction_id FK + GET /scans/{scan_id}->ScanResult) so both scan+statement poll true Postgres status (replica-safe). Still no new runtime component. D62 scan-endpoint premise corrected. Workflow run wf_7d84c848-7aa; verdict was "do not implement verbatim" — also adopting fixes: stall threshold >=2.5x 15s heartbeat, don't latch statement 'extracted' as terminal, auth refresh-retry-once, stale-resolve guard, openapi-fetch HTTP-status surfacing, idempotent terminal latch, jest timer determinism.
+- 2026-05-30 22:05 | Edit | /home/khujta/projects/apps/gastify/backend/app/models/scan.py
+- 2026-05-30 22:05 | Edit | /home/khujta/projects/apps/gastify/backend/app/schemas/scan.py
+- 2026-05-30 22:06 | Edit | /home/khujta/projects/apps/gastify/backend/app/services/scan_worker.py
+- 2026-05-30 22:06 | Edit | /home/khujta/projects/apps/gastify/backend/app/services/scan_worker.py
+- 2026-05-30 22:06 | Edit | /home/khujta/projects/apps/gastify/backend/app/services/scan_worker.py
+- 2026-05-30 22:06 | Edit | /home/khujta/projects/apps/gastify/backend/app/api/scans.py

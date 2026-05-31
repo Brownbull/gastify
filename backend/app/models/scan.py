@@ -64,6 +64,13 @@ class Scan(Base):
     error_code: Mapped[str | None] = mapped_column(String(50), nullable=True)
     error_message: Mapped[str | None] = mapped_column(Text, nullable=True)
 
+    # Durable scan -> transaction link, set by the worker when a completed/needs_review
+    # scan persists its transaction. Lets GET /scans/{id} expose the result transaction
+    # to the mobile poll fallback (D66) without relying on the in-process event snapshot.
+    transaction_id: Mapped[uuid.UUID | None] = mapped_column(
+        Uuid, ForeignKey("transactions.id", ondelete="SET NULL"), nullable=True, index=True
+    )
+
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now()
     )

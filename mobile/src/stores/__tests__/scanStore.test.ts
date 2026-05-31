@@ -81,6 +81,37 @@ describe("scanStore", () => {
     });
   });
 
+  it("does not let a sparse poll scan_complete clobber a richer WS result", () => {
+    const store = useScanStore.getState();
+    // Rich WS scan_complete first (amounts + line items).
+    store.receiveEvent({
+      event_type: "scan_complete",
+      scan_id: "scan-123",
+      step: "done",
+      progress_pct: 100,
+      data: {
+        status: "completed",
+        transaction_id: "txn-1",
+        total_amount: 15990,
+        line_items: [{ name: "Leche", total_price: 15990 }],
+      },
+    });
+    expect(useScanStore.getState().result?.total_amount).toBe(15990);
+
+    // Sparse poll-fallback scan_complete (status + transaction_id only) must not wipe amounts.
+    store.receiveEvent({
+      event_type: "scan_complete",
+      scan_id: "scan-123",
+      step: "done",
+      progress_pct: 100,
+      data: { status: "completed", transaction_id: "txn-1" },
+    });
+    const result = useScanStore.getState().result;
+    expect(result?.total_amount).toBe(15990);
+    expect(result?.line_items).toHaveLength(1);
+    expect(result?.transaction_id).toBe("txn-1");
+  });
+
   it("normalizes backend scan failures for the UI", () => {
     useScanStore.getState().uploadComplete(submission);
 

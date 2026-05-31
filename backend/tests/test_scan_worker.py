@@ -187,6 +187,33 @@ class TestFullPipeline:
         with p[0], p[1], p[2], p[3], p[4], p[5], p[6]:
             assert await process_scan(_mock_scan().id) is True
 
+    @pytest.mark.asyncio
+    async def test_persists_transaction_link_atomically(self):
+        """A successful scan stamps scans.transaction_id in the SAME commit as the
+        transaction (atomic; one site covers both the completed + needs_review terminal
+        branches) so GET /scans/{id} can expose it to the poll fallback (D66)."""
+        scan = _mock_scan()
+        sessions: list[object] = []
+
+        def factory():
+            ctx, db = _mock_db_session(scan if not sessions else None)
+            sessions.append(db)
+            return ctx
+
+        p = _pipeline_ctx(scan, _mock_extraction(), _mock_categorization())
+        with patch(f"{_W}.async_session", side_effect=factory), p[1], p[2], p[3], p[4], p[5], p[6]:
+            assert await process_scan(scan.id) is True
+
+        # Exactly one UPDATE across all sessions sets scans.transaction_id — emitted by
+        # _run_stage2 right after persist_scan_result, before the persist commit.
+        stamping = [
+            str(call.args[0])
+            for db in sessions
+            for call in db.execute.await_args_list  # type: ignore[attr-defined]
+            if call.args and "transaction_id" in str(call.args[0])
+        ]
+        assert stamping, "expected an UPDATE stamping scans.transaction_id on the persist session"
+
 
 class TestQuotaGracefulDegradation:
     @pytest.mark.asyncio

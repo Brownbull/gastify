@@ -1,5 +1,6 @@
 import { apiClient } from "./api";
 import { mobileConfig } from "./mobileConfig";
+import { PollHttpError } from "./progressFallback";
 import { getFreshFirebaseIdToken } from "./scanUpload";
 import type { components } from "./api-types";
 import type { StatementPdfAsset, StatementUploadResponse } from "../stores/statementStore";
@@ -140,6 +141,25 @@ export async function listStatements(): Promise<StatementRecord[]> {
   const { data, error } = await apiClient.GET("/api/v1/statements");
   if (error || !data) {
     throw new Error("Failed to fetch statements");
+  }
+  return data;
+}
+
+/**
+ * GET a single statement's status row (poll-fallback source of truth, ADR D62 Path A).
+ * Throws PollHttpError (carrying HTTP status) so the fallback controller can route
+ * 404 vs transient errors. Auth header injected by the apiClient middleware.
+ */
+export async function getStatement(
+  statementId: string,
+  signal?: AbortSignal,
+): Promise<StatementRecord> {
+  const { data, error, response } = await apiClient.GET("/api/v1/statements/{statement_id}", {
+    params: { path: { statement_id: statementId } },
+    signal,
+  });
+  if (error || !data) {
+    throw new PollHttpError(response?.status ?? 0, "Failed to fetch statement status");
   }
   return data;
 }
