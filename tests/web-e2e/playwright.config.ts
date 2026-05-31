@@ -1,16 +1,39 @@
+import fs from "node:fs";
+import path from "node:path";
 import { defineConfig, devices } from "@playwright/test";
 
 /**
  * Real-browser e2e for the desktop web app's scan/statement progress journey.
  *
- * Runs `vite dev --mode staging-e2e` (loads web/.env.staging-e2e: gated test-auth on,
- * API pointed at the deterministic staging-e2e backend with the FIXTURE scan provider
- * — no Gemini, $0) and drives a real Chromium with a real EventSource consuming the
- * real SSE stream. Proves the SSE progress path end-to-end (the web's transport is
- * unaffected by the mobile WS-403 bug; this is the accessible runtime evidence).
+ * Runs `vite dev --mode staging-e2e` (against the deterministic staging-e2e backend —
+ * FIXTURE scan provider, no Gemini, $0) and drives a real Chromium + real EventSource
+ * over the real SSE stream. Proves the SSE progress path end-to-end (the web transport is
+ * unaffected by the mobile WS-403 bug; ADR D62).
  *
- * Run: npx playwright test --config=tests/web-e2e/playwright.config.ts
+ * Run: npm run test:web-e2e   (needs web/.env.staging-e2e — see tests/web-e2e/README.md)
  */
+
+// Load the gitignored web/.env.staging-e2e and pass its VITE_* values into the vite
+// process env. This (a) pins the gastify-staging config so shell-profile VITE_* vars
+// (a dev's legacy boletapp-d609f config) cannot shadow it, and (b) keeps the Firebase
+// web config + disposable creds OUT of this committed file.
+function loadDotenv(file: string): Record<string, string> {
+  const out: Record<string, string> = {};
+  if (!fs.existsSync(file)) return out;
+  for (const raw of fs.readFileSync(file, "utf8").split("\n")) {
+    const line = raw.trim();
+    if (!line || line.startsWith("#")) continue;
+    const eq = line.indexOf("=");
+    if (eq === -1) continue;
+    const key = line.slice(0, eq).trim();
+    const value = line.slice(eq + 1).trim().replace(/^["']|["']$/g, "");
+    if (key) out[key] = value;
+  }
+  return out;
+}
+
+const webEnv = loadDotenv(path.resolve(__dirname, "../../web/.env.staging-e2e"));
+
 export default defineConfig({
   testDir: ".",
   fullyParallel: false,
@@ -31,20 +54,6 @@ export default defineConfig({
     url: "http://localhost:5173/sign-in",
     reuseExistingServer: !process.env.CI,
     timeout: 60_000,
-    // Pin the gastify-staging web config (all PUBLIC — embedded in the deployed bundle)
-    // so it can't be shadowed by shell-profile VITE_* vars (a dev's local config points
-    // at the legacy boletapp-d609f project). The disposable test creds stay in the
-    // gitignored web/.env.staging-e2e (vite reads them from the file).
-    env: {
-      ...process.env,
-      VITE_API_BASE_URL: "https://gastify-api-staging-e2e-staging.up.railway.app",
-      VITE_FIREBASE_API_KEY: "AIzaSyDA7CKkfTdP2dEck3fmmONg-k6jfOi8AVo",
-      VITE_FIREBASE_AUTH_DOMAIN: "gastify-staging.firebaseapp.com",
-      VITE_FIREBASE_PROJECT_ID: "gastify-staging",
-      VITE_FIREBASE_STORAGE_BUCKET: "gastify-staging.firebasestorage.app",
-      VITE_FIREBASE_MESSAGING_SENDER_ID: "52976046656",
-      VITE_FIREBASE_APP_ID: "1:52976046656:web:e2eplaceholder",
-      VITE_E2E_AUTH_ENABLED: "true",
-    },
+    env: { ...process.env, ...webEnv },
   },
 });

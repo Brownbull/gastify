@@ -1,0 +1,17 @@
+title = "gastify gitleaks config"
+
+# Use gitleaks' full default ruleset, plus the allowlist below.
+[extend]
+useDefault = true
+
+[allowlist]
+description = """
+Public Firebase WEB config values are NOT secrets — a Firebase web app's apiKey/etc. are
+embedded in the client JS bundle by design and are extractable from any deployed build.
+Access is controlled by Firebase Security Rules + App Check, not by hiding the apiKey.
+Allowlist the gastify-staging web apiKey so it does not block CI (it appears in the e2e
+harness history; runtime config now loads from the gitignored web/.env.staging-e2e).
+"""
+regexes = [
+  '''AIzaSyDA7CKkfTdP2dEck3fmmONg-k6jfOi8AVo''',
+]
