@@ -6,12 +6,29 @@ useDefault = true
 
 [allowlist]
 description = """
-Public Firebase WEB config values are NOT secrets — a Firebase web app's apiKey/etc. are
-embedded in the client JS bundle by design and are extractable from any deployed build.
-Access is controlled by Firebase Security Rules + App Check, not by hiding the apiKey.
-Allowlist the gastify-staging web apiKey so it does not block CI (it appears in the e2e
-harness history; runtime config now loads from the gitignored web/.env.staging-e2e).
+Path-scoped allowlist for KNOWN-PUBLIC Firebase WEB config values.
+
+A Firebase web app's apiKey/projectId/etc. are NOT secrets — they are embedded
+in the client JS bundle by design and are extractable from any deployed build.
+Access is controlled by Firebase Security Rules + App Check, not by hiding the
+apiKey. CI runs gitleaks over FULL history (fetch-depth: 0), so these public
+web values live in history permanently; allowlist them by PATH so we never
+commit the literal key value into this config (which a second scanner — e.g.
+GitGuardian — would itself flag).
+
+Scoped paths:
+- tests/web-e2e/playwright.config.ts — formerly hardcoded the gastify-staging
+  web apiKey; runtime config now loads from the gitignored web/.env.staging-e2e.
+- frontend/public/firebase-messaging-sw.js — frozen Storybook mockup harness
+  worker; legacy boletapp-d609f web config was replaced with placeholders.
+- .gitleaks.toml — an earlier revision of this file embedded the literal
+  gastify-staging web apiKey; allowlist the path so that history doesn't re-fire.
+
+These paths hold only public web config, never server keys / service-account
+JSON / tokens — those remain fully scanned everywhere else.
 """
-regexes = [
-  '''AIzaSyDA7CKkfTdP2dEck3fmmONg-k6jfOi8AVo''',
+paths = [
+  '''tests/web-e2e/playwright\.config\.ts''',
+  '''frontend/public/firebase-messaging-sw\.js''',
+  '''\.gitleaks\.toml''',
 ]

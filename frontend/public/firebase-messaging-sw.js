@@ -7,21 +7,27 @@
  * Handles background push notifications when the app is not in focus.
  * This service worker runs independently of the main app.
  *
- * Note: Firebase config values here are public (not secrets).
- * They identify the project but don't grant any special permissions.
+ * NOTE: `frontend/` is the Storybook mockup harness — it mocks every Firebase
+ * module (see src/__firebase-mocks__/) and never registers this worker, so the
+ * config below is inert. The values are placeholders; the legacy boletapp-d609f
+ * project config was removed in the gastify legacy-config cleanup. If this
+ * harness is ever wired to a real Firebase project, inject the config at build
+ * time rather than hardcoding it (Firebase web config is public, but it should
+ * still come from env so it tracks the active project).
  */
 
 importScripts('https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js');
 importScripts('https://www.gstatic.com/firebasejs/10.14.1/firebase-messaging-compat.js');
 
-// Firebase configuration (public values - safe to include)
+// Placeholder Firebase config — replace via build-time injection if this
+// mockup harness is ever pointed at a real project (see note above).
 firebase.initializeApp({
-  apiKey: 'AIzaSyDoIgjggfVampyZysdeWTucVFurxnbCL1M',
-  authDomain: 'boletapp-d609f.firebaseapp.com',
-  projectId: 'boletapp-d609f',
-  storageBucket: 'boletapp-d609f.firebasestorage.app',
-  messagingSenderId: '171460588224',
-  appId: '1:171460588224:web:69e7552f8fa95297603325'
+  apiKey: 'REPLACE_WITH_FIREBASE_WEB_API_KEY',
+  authDomain: 'REPLACE_WITH_PROJECT.firebaseapp.com',
+  projectId: 'REPLACE_WITH_PROJECT_ID',
+  storageBucket: 'REPLACE_WITH_PROJECT.firebasestorage.app',
+  messagingSenderId: 'REPLACE_WITH_MESSAGING_SENDER_ID',
+  appId: 'REPLACE_WITH_WEB_APP_ID'
 });
 
 const messaging = firebase.messaging();

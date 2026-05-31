@@ -22,7 +22,13 @@ class Settings(BaseSettings):
     database_url: str = "sqlite+aiosqlite:///../.tmp/local/gastify.db"
     database_echo: bool = False
 
-    firebase_project_id: str = "boletapp-d609f"
+    # Audience for Firebase ID-token verification. Real envs MUST set
+    # GASTIFY_FIREBASE_PROJECT_ID (gastify-staging / gastify-prod) — every
+    # .env.*.example and the Railway config does. The default is a
+    # non-existent local placeholder so that if the env var is ever missing,
+    # token verification fails CLOSED rather than silently authenticating
+    # against some other real project.
+    firebase_project_id: str = "gastify-local"
     firebase_credentials_path: str | None = None
     firebase_credentials_json: str | None = None
 

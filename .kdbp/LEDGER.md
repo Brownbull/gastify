@@ -3031,3 +3031,8 @@ PLAN: Phase 1 Exec 🔄 (runtime deferred), Review/Commit/Push ✅.
 HARNESS: tests/web-e2e (Playwright + vite dev --mode staging-e2e -> deployed staging-e2e backend, fixture provider, $0). Gated web test-auth committed (f5a9c69); harness committed.
 RESULT: 2/2 passed (25.7s) — real Chromium + real EventSource + real SSE: sign in -> upload fixture -> live progress -> "Scan Complete" (Supermercado Jumbo, CLP 3,280); + SSE-drop-and-recover.
 FINDING: web is SSE-based -> UNAFFECTED by the WS-403 bug; now has real-browser runtime evidence. Gotchas documented in tests/web-e2e/README.md (shell VITE_* shadowing -> pinned config; gastify-staging reCAPTCHA/enumeration toggle).
+- 2026-05-31 15:29 | Write | /home/khujta/projects/apps/gastify/tests/web-e2e/playwright.config.ts
+- 2026-05-31 15:29 | Write | /home/khujta/projects/apps/gastify/.gitleaks.toml
+- 2026-05-31 15:51 | Edit | /home/khujta/projects/apps/gastify/backend/app/config.py
+- 2026-05-31 15:52 | Edit | /home/khujta/projects/apps/gastify/frontend/public/firebase-messaging-sw.js
+- 2026-05-31 15:52 | Write | /home/khujta/projects/apps/gastify/.gitleaks.toml
