@@ -3011,3 +3011,11 @@ CHANGE: Phase-1 understand→design workflow (adversarial critique) found scan h
 - 2026-05-30 22:06 | Edit | /home/khujta/projects/apps/gastify/backend/app/services/scan_worker.py
 - 2026-05-30 22:06 | Edit | /home/khujta/projects/apps/gastify/backend/app/services/scan_worker.py
 - 2026-05-30 22:06 | Edit | /home/khujta/projects/apps/gastify/backend/app/api/scans.py
+
+## 2026-05-30 16:30 — [9fe24c4] feat(progress): REST polling fallback (P0 Path A) + deploy
+REVIEW: phase1-adversarial-review workflow (wf_18abda6b) — 4 lenses, 10 findings, 6 confirmed; all HIGH/MEDIUM fixed (atomic transaction_id stamp resolving the test gap + non-atomicity, stale-poll WS-health guard, rich-result merge); 2 LOW deferred -> P38/P39. 4 dismissed correctly refuted.
+GATES: backend 721 pytest + mypy + ruff; mobile typecheck + 147 jest; web typecheck. Contracts regenerated (web+mobile).
+DEPLOY: pushed main->staging (CI 26701671100 green incl. Mobile API Drift) then promoted staging->main (CI 26701721902 green). GET /api/v1/scans/{id} + scans.transaction_id now live in production.
+RUNTIME EVIDENCE: S23 device Maestro proof DEFERRED -> P40 (device disconnected). Proven by unit tests + the SSE-works-on-Railway evidence.
+WEB FINDING: the desktop web app uses SSE (EventSource), which returns 200 through Railway's edge -> it is UNAFFECTED by the WS-403 bug (mobile-WebSocket-only). Web also reconnects with backoff on SSE error and is unit-tested for both the happy journey and the error-reconnect path (useScanStream.test.tsx). No web bug; web polling-fallback (D62 symmetry) not needed for the fix.
+PLAN: Phase 1 Exec 🔄 (runtime deferred), Review/Commit/Push ✅.
