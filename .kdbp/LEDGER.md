@@ -3050,3 +3050,17 @@ TRIGGER: GitGuardian incident #33524280 (Google API Key in .gitleaks.toml @ b1e2
 OUTSTANDING (owner action, off-repo): restrict + optionally rotate the gastify-staging web API key in GCP; resolve GitGuardian #33524280 in dashboard (history retains the value). DEFERRED.
 - 2026-05-31 16:10 | Write | /home/khujta/.claude/projects/-home-khujta-projects-apps-gastify/memory/project_firebase_key_followup.md
 - 2026-05-31 16:10 | Edit | /home/khujta/.claude/projects/-home-khujta-projects-apps-gastify/memory/MEMORY.md
+- 2026-06-01 10:55 | Edit | /home/khujta/projects/apps/gastify/tests/mobile/maestro/p5-phase6-statement-reconciliation-active.yaml
+- 2026-06-01 11:03 | Write | /home/khujta/.claude/projects/-home-khujta-projects-apps-gastify/memory/project_s23_wireless_adb.md
+- 2026-06-01 11:03 | Edit | /home/khujta/.claude/projects/-home-khujta-projects-apps-gastify/memory/MEMORY.md
+- 2026-06-01 11:40 | Edit | /home/khujta/projects/apps/gastify/mobile/.env
+- 2026-06-01 11:53 | Edit | /home/khujta/.claude/projects/-home-khujta-projects-apps-gastify/memory/project_firebase_key_followup.md
+- 2026-06-01 11:53 | Edit | /home/khujta/.claude/projects/-home-khujta-projects-apps-gastify/memory/project_firebase_key_followup.md
+- 2026-06-01 11:53 | Edit | /home/khujta/.claude/projects/-home-khujta-projects-apps-gastify/memory/MEMORY.md
+
+## 2026-06-01 — INCIDENT+FIX: deployed-staging stale → scan fallback 404 → defusedxml crash-loop
+SYMPTOM: S23 golden-journey scan never reached scan-result-panel. TRACE (single manual scan + backend status): minted token, POST /scans OK, but GET /scans/{id} → 404 ("Not Found" = route missing). OpenAPI confirmed deployed staging-e2e had GET /statements/{id} (statement fallback worked) but NOT GET /scans/{id} (scan fallback 404'd) — the D66 endpoint added 2026-05-30 (9fe24c4) was never deployed.
+ROOT CAUSE 1 (stale deploy): the 3 API services were CLI-deployed (railway up), NOT GitHub-connected (source repo:null) → no auto-deploy on push; dashboard "Redeploy" only rebuilt the stale image. Fixed by connecting each service to Brownbull/gastify with Root Directory=backend, branch=main, Wait-for-CI on.
+ROOT CAUSE 2 (crash-loop): once git-connected, deploys still FAILED — container crash-looped on ModuleNotFoundError: No module named 'defusedxml'. boleta.py (P8 TED parser) imports defusedxml, present in uv.lock + local .venv but NOT in pyproject.toml [dependencies]; Docker installs via `uv pip install .` (pyproject, not lock) → never installed. HOTFIX 1b7612f adds defusedxml>=0.7.1; verified by fresh-venv Docker-install sim + app.main import. Pushed main:staging→CI green→staging:main→CI green; Railway auto-deployed both.
+RESULT: both staging API services back up (health 200), GET /scans/{id} live. API trace: POST happy fixture → submitted→processing→categorized→completed + transaction_id. ON-DEVICE: scan-upload {happy,review,failure} all GREEN on S23 vs deployed staging-e2e → P40 scan-fallback proven. See [[s23-device-testing-wireless-adb]].
+ALSO: P41 (firebase key rotation/GitGuardian) resolved by owner. Untracked stray app.json at repo root (from a CLI tool) — left untracked, investigate.
