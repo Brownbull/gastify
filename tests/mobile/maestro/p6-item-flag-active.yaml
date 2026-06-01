@@ -1,0 +1,118 @@
+appId: com.gastify.mobile
+---
+- waitForAnimationToEnd:
+    timeout: 10000
+- tapOn:
+    text: "Continue"
+    optional: true
+- tapOn:
+    text: "Got it"
+    optional: true
+- runFlow:
+    when:
+      visible: "Reload"
+    commands:
+      - tapOn:
+          point: "90%,45%"
+      - waitForAnimationToEnd:
+          timeout: 5000
+- tapOn:
+    text: "Continue"
+    optional: true
+- tapOn:
+    text: "Got it"
+    optional: true
+- runFlow:
+    when:
+      visible:
+        id: e2e-sign-in-button
+    commands:
+      - tapOn:
+          id: e2e-sign-in-button
+- waitForAnimationToEnd:
+    timeout: 10000
+- runFlow:
+    when:
+      visible:
+        id: e2e-sign-in-button
+    commands:
+      - tapOn:
+          id: e2e-sign-in-button
+- extendedWaitUntil:
+    visible:
+      id: home-screen
+    timeout: 60000
+# --- P6 Item flagging (REQ-11). Scan a fresh receipt + jump to its transaction
+# (items guaranteed fresh + unflagged) rather than fishing the polluted ledger. ---
+- swipe:
+    direction: UP
+- extendedWaitUntil:
+    visible:
+      id: scan-library-button
+    timeout: 20000
+- tapOn:
+    id: scan-library-button
+- tapOn:
+    text: "Allow all photos"
+    optional: true
+- tapOn:
+    text: "Allow"
+    optional: true
+- tapOn:
+    text: "Dismiss"
+    optional: true
+- tapOn:
+    point: "16%,50%"
+- tapOn:
+    text: "Done"
+    optional: true
+- extendedWaitUntil:
+    visible:
+      id: scan-progress-panel
+    timeout: 30000
+- extendedWaitUntil:
+    visible:
+      id: scan-result-panel
+    timeout: 90000
+- swipe:
+    direction: UP
+- extendedWaitUntil:
+    visible:
+      id: scan-view-transaction-button
+    timeout: 20000
+- tapOn:
+    id: scan-view-transaction-button
+- extendedWaitUntil:
+    visible:
+      id: transaction-detail-screen
+    timeout: 30000
+# Reveal the line-item flag chips
+- scrollUntilVisible:
+    element:
+      text: "Keep out of my insights:"
+    direction: DOWN
+    timeout: 30000
+- takeScreenshot:
+    path: 01-flag-chips
+# Fresh item: Urgency flag is off
+- assertNotVisible: ".*✓ Urgency.*"
+# Flag it (REQ-11): tap Urgency chip -> backend toggle -> active
+- tapOn:
+    text: ".*Urgency.*"
+- waitForAnimationToEnd:
+    timeout: 4000
+- assertVisible: ".*✓ Urgency.*"
+- assertNotVisible:
+    id: transaction-flag-error
+- takeScreenshot:
+    path: 02-flag-on
+# Unflag (net-zero, re-run safe)
+- tapOn:
+    text: ".*Urgency.*"
+- waitForAnimationToEnd:
+    timeout: 4000
+- assertNotVisible: ".*✓ Urgency.*"
+- assertNotVisible:
+    id: transaction-flag-error
+- takeScreenshot:
+    path: 03-flag-off

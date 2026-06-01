@@ -1,0 +1,108 @@
+appId: com.gastify.mobile
+---
+- waitForAnimationToEnd:
+    timeout: 10000
+- tapOn:
+    text: "Continue"
+    optional: true
+- tapOn:
+    text: "Got it"
+    optional: true
+- runFlow:
+    when:
+      visible: "Reload"
+    commands:
+      - tapOn:
+          point: "90%,45%"
+      - waitForAnimationToEnd:
+          timeout: 5000
+- tapOn:
+    text: "Continue"
+    optional: true
+- tapOn:
+    text: "Got it"
+    optional: true
+- runFlow:
+    when:
+      visible:
+        id: e2e-sign-in-button
+    commands:
+      - tapOn:
+          id: e2e-sign-in-button
+- waitForAnimationToEnd:
+    timeout: 10000
+- runFlow:
+    when:
+      visible:
+        id: e2e-sign-in-button
+    commands:
+      - tapOn:
+          id: e2e-sign-in-button
+- extendedWaitUntil:
+    visible:
+      id: home-screen
+    timeout: 60000
+# --- P6 Insights journey (REQ-06 monthly rollups, REQ-10 gravity-center) ---
+- swipe:
+    direction: UP
+- extendedWaitUntil:
+    visible:
+      id: open-insights-button
+    timeout: 20000
+- tapOn:
+    id: open-insights-button
+- extendedWaitUntil:
+    visible:
+      id: insights-screen
+    timeout: 30000
+- assertVisible:
+    id: insights-period
+- takeScreenshot:
+    path: 01-insights-current-month
+# Seeded transaction history lives in a prior month; step back to a populated month.
+- tapOn:
+    text: ".*PREV.*"
+- waitForAnimationToEnd:
+    timeout: 4000
+- runFlow:
+    when:
+      visible:
+        id: insights-empty
+    commands:
+      - tapOn:
+          text: ".*PREV.*"
+      - waitForAnimationToEnd:
+          timeout: 4000
+- runFlow:
+    when:
+      visible:
+        id: insights-empty
+    commands:
+      - tapOn:
+          text: ".*PREV.*"
+      - waitForAnimationToEnd:
+          timeout: 4000
+- extendedWaitUntil:
+    visible:
+      id: insights-summary
+    timeout: 20000
+- assertVisible: "Total spend"
+- takeScreenshot:
+    path: 02-insights-populated
+# REQ-06 category drill-down: toggle item-category <-> transaction-category dimension
+- tapOn:
+    id: insights-dimension-item_category
+- waitForAnimationToEnd:
+    timeout: 2000
+- tapOn:
+    id: insights-dimension-transaction_category
+- waitForAnimationToEnd:
+    timeout: 2000
+- takeScreenshot:
+    path: 03-insights-dimension-toggle
+- tapOn:
+    text: "Back"
+- extendedWaitUntil:
+    visible:
+      id: open-insights-button
+    timeout: 30000
