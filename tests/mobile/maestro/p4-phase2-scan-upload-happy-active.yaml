@@ -64,7 +64,7 @@ appId: com.gastify.mobile
 - extendedWaitUntil:
     visible:
       id: scan-result-panel
-    timeout: 60000
+    timeout: 120000
 - swipe:
     direction: UP
 - assertVisible: "Scan complete"

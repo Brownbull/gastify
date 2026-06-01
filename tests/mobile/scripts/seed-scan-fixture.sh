@@ -35,6 +35,12 @@ esac
 
 "${ADB_BIN_RESOLVED}" shell "mkdir -p '${DEVICE_DIR}'"
 "${ADB_BIN_RESOLVED}" shell "rm -f '${DEVICE_DIR}'/gastify-e2e-*.jpg"
+# Drop stale MediaStore rows for the just-deleted fixtures, otherwise the photo
+# picker keeps showing phantom thumbnails for files that no longer exist on disk
+# — which makes the "first thumbnail" tap (point 16%,50%) select the WRONG
+# fixture when flows run back-to-back. (MEDIA_SCANNER_SCAN_FILE only indexes a
+# file that EXISTS; it does not retract deletions.)
+"${ADB_BIN_RESOLVED}" shell "content delete --uri content://media/external/images/media --where \"_data LIKE '%/gastify-e2e-%'\"" >/dev/null 2>&1 || true
 
 for file in "${FILES[@]}"; do
   local_path="${FIXTURE_DIR}/${file}"
