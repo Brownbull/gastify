@@ -3077,3 +3077,32 @@ ALSO: P41 (firebase key rotation/GitGuardian) resolved by owner. Untracked stray
 - 2026-06-01 16:10 | Edit | /home/khujta/projects/apps/gastify/backend/app/services/fx.py
 - 2026-06-01 16:11 | Edit | /home/khujta/projects/apps/gastify/backend/app/services/fx.py
 - 2026-06-01 16:23 | Write | /home/khujta/projects/apps/gastify/tests/mobile/maestro/p4-multicurrency-active.yaml
+- 2026-06-01 16:33 | Write | /tmp/regression.sh
+- 2026-06-01 17:04 | Edit | /home/khujta/projects/apps/gastify/tests/mobile/maestro/p4-phase2-scan-upload-happy-active.yaml
+- 2026-06-01 17:04 | Edit | /home/khujta/projects/apps/gastify/tests/mobile/maestro/p4-phase5-golden-journey-active.yaml
+- 2026-06-01 17:04 | Edit | /home/khujta/projects/apps/gastify/tests/mobile/maestro/p4-phase2-scan-upload-review-active.yaml
+- 2026-06-01 17:04 | Edit | /home/khujta/projects/apps/gastify/tests/mobile/maestro/p4-phase3-scan-to-transaction-active.yaml
+- 2026-06-01 17:05 | Edit | /home/khujta/projects/apps/gastify/tests/mobile/maestro/p4-multicurrency-active.yaml
+- 2026-06-01 17:05 | Edit | /home/khujta/projects/apps/gastify/tests/mobile/maestro/p6-item-flag-active.yaml
+- 2026-06-01 17:06 | Write | /tmp/finish_regression.sh
+- 2026-06-01 17:10 | Edit | /home/khujta/projects/apps/gastify/tests/mobile/scripts/seed-scan-fixture.sh
+- 2026-06-01 17:23 | Write | /home/khujta/projects/apps/gastify/tests/web-e2e/transaction-edit.spec.ts
+- 2026-06-01 17:25 | Edit | /home/khujta/projects/apps/gastify/tests/web-e2e/transaction-edit.spec.ts
+- 2026-06-01 17:27 | Edit | /home/khujta/projects/apps/gastify/tests/web-e2e/transaction-edit.spec.ts
+- 2026-06-01 17:28 | Edit | /home/khujta/projects/apps/gastify/tests/web-e2e/transaction-edit.spec.ts
+- 2026-06-01 17:28 | Write | /home/khujta/projects/apps/gastify/tests/web-e2e/insights.spec.ts
+- 2026-06-01 17:31 | Write | /home/khujta/projects/apps/gastify/tests/web-e2e/statement-reconcile.spec.ts
+- 2026-06-01 17:32 | Edit | /home/khujta/projects/apps/gastify/tests/web-e2e/statement-reconcile.spec.ts
+- 2026-06-01 17:43 | Write | /home/khujta/projects/apps/gastify/tests/web-e2e/capture-proof.spec.ts
+- 2026-06-01 17:48 | Write | /home/khujta/projects/apps/gastify/tests/web-e2e/scan-outcomes.spec.ts
+- 2026-06-01 17:49 | Write | /home/khujta/projects/apps/gastify/tests/web-e2e/transaction-detail.spec.ts
+- 2026-06-01 17:51 | Edit | /home/khujta/projects/apps/gastify/tests/web-e2e/transaction-detail.spec.ts
+- 2026-06-01 17:52 | Edit | /home/khujta/projects/apps/gastify/tests/web-e2e/transaction-detail.spec.ts
+- 2026-06-01 17:54 | Edit | /home/khujta/projects/apps/gastify/tests/web-e2e/transaction-detail.spec.ts
+
+## 2026-06-01 — Web e2e suite + mobile↔web parity (a4554ed, pushed)
+SHIPPED: web Playwright e2e expanded 2 → 14 tests, all green vs deployed staging-e2e backend (real browser, $0 fixture provider). Pushed 29384e7 (initial 10) + a4554ed (parity 4).
+COVERAGE: scan-progress ×2 (SSE + drop-recovery), auth-isolation ×5 (protected-route redirect on /scan,/statements,/transactions,/insights + sign-out SC-08), transaction-edit (REQ-13 user_edited_at marker), insights (REQ-06 monthly + dimension toggle), statement-reconcile (REQ-07/08/09 coverage buckets), scan-outcomes ×2 (low-confidence review + INVALID_IMAGE error panel), transaction-detail ×2 (REQ-11 item urgency flag via aria-pressed + REQ-17/18 USD-equivalent shadow).
+PARITY: every mobile device journey now has a web counterpart except inherently-native ones (camera-permission-denied, scan-upload-live, push register/unregister). Closed 4 gaps this pass: scan review, scan failure, item-flag, multi-currency.
+PROOF: capture-proof.spec.ts saves full-page screenshots to tests/web-e2e/proof/ (gitignored, regenerable); 5 staging shots captured + delivered (scan-complete Supermercado Jumbo CLP 3,280 94% conf; tx edited; insights by-item; statement reconciled Coverage 50%/Matched 1/App only 88; signed out).
+TEST-INFRA NOTES: web UI is text/role-based (2 testIDs) → getByRole/getByText/getByLabel; strict-mode dupes need .first(); item-flag needs a tx WITH line items (scan happy → filter ledger to Supermercado Jumbo; statement-only rows have 0 items). Earlier 7d8c6c8 hardened mobile scan flows (60→120s waits; MediaStore stale-row delete in seed-scan-fixture.sh).
