@@ -3066,3 +3066,10 @@ RESULT: both staging API services back up (health 200), GET /scans/{id} live. AP
 ALSO: P41 (firebase key rotation/GitGuardian) resolved by owner. Untracked stray app.json at repo root (from a CLI tool) — left untracked, investigate.
 - 2026-06-01 14:28 | Edit | /home/khujta/projects/apps/gastify/tests/mobile/maestro/p4-phase5-golden-journey-active.yaml
 - 2026-06-01 14:33 | Edit | /home/khujta/projects/apps/gastify/tests/mobile/maestro/p5-phase6-statement-reconciliation-active.yaml
+- 2026-06-01 15:15 | Edit | /home/khujta/projects/apps/gastify/tests/mobile/maestro/p4-phase3-ledger-edit-active.yaml
+- 2026-06-01 15:38 | Write | /home/khujta/projects/apps/gastify/tests/mobile/maestro/p6-insights-active.yaml
+- 2026-06-01 15:41 | Edit | /home/khujta/projects/apps/gastify/tests/mobile/maestro/p6-insights-active.yaml
+- 2026-06-01 15:46 | Edit | /home/khujta/projects/apps/gastify/tests/mobile/maestro/p6-insights-active.yaml
+- 2026-06-01 15:51 | Edit | /home/khujta/projects/apps/gastify/tests/mobile/maestro/p6-insights-active.yaml
+- 2026-06-01 15:56 | Write | /home/khujta/projects/apps/gastify/tests/mobile/maestro/p6-item-flag-active.yaml
+- 2026-06-01 16:00 | Write | /home/khujta/projects/apps/gastify/tests/mobile/maestro/p6-item-flag-active.yaml
