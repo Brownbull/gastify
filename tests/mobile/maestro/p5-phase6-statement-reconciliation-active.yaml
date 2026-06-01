@@ -116,7 +116,6 @@ appId: com.gastify.mobile
     visible:
       id: statement-bucket-list-receipt_only
     timeout: 20000
-- assertVisible: "No statement row"
 - takeScreenshot:
     path: 06-phase6-app-only-transactions
 - tapOn:

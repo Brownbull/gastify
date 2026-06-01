@@ -145,8 +145,11 @@ appId: com.gastify.mobile
     visible:
       id: home-screen
     timeout: 60000
-- assertVisible:
-    id: scan-capture-panel
+- scrollUntilVisible:
+    element:
+      id: scan-capture-panel
+    direction: DOWN
+    timeout: 20000
 - assertNotVisible:
     id: scan-result-panel
 - takeScreenshot:
