@@ -103,9 +103,7 @@ async def _admin_setup(admin: asyncpg.Connection) -> str:
         f"GRANT SELECT, INSERT, UPDATE, DELETE ON rls_parent, rls_child TO {_APP_ROLE}"
     )
     # Build the app DSN from the admin DSN (swap user, keep host/port/db).
-    parts = await admin.fetchrow(
-        "SELECT current_setting('port') AS port, current_database() AS db"
-    )
+    parts = await admin.fetchrow("SELECT current_setting('port') AS port, current_database() AS db")
     # asyncpg admin connection exposes host via its address; reconstruct from env DSN host.
     assert ADMIN_DSN is not None
     host = ADMIN_DSN.split("@")[-1].split("/")[0].split(":")[0]
@@ -168,8 +166,7 @@ async def test_direct_policy_isolates_rows_across_scopes() -> None:
                 await _set_scope(app, scope_b)
                 with pytest.raises(asyncpg.PostgresError):
                     await app.execute(
-                        "INSERT INTO rls_parent (ownership_scope_id, label)"
-                        " VALUES ($1,'X')",
+                        "INSERT INTO rls_parent (ownership_scope_id, label) VALUES ($1,'X')",
                         scope_a,
                     )
 
