@@ -3113,3 +3113,10 @@ RESULT: PASSED on BOTH deployed backends at git 1a018b1 — gastify-api-staging-
 PROVES: migration 022 (transaction_item_user_flags) applied on deployed staging; PUT /transactions/{id}/items/{item_id}/flags live; insights-exclusion logic correct end-to-end on real Railway infra. Satisfies the P6 Phase-6 staging exit gate.
 ARTIFACTS: tests/mobile/results/{latest,runs}/{staging,staging-e2e}/.../p6-insights-api-gate/ — readiness/seeded-transactions/insights-response/flag-update-response/transaction-detail-after-flag/insights-after-flag-response/manifest (7 files).
 NEXT: technical-debt batch (P36 billing concurrency, P32 RLS PG-exec test, DOCS.md glob drift, P26/P37/P38/P33), then Phase 2 zero-Gemini load test.
+- 2026-06-01 18:22 | Edit | /home/khujta/projects/apps/gastify/scripts/staging/run-statement-fixture-gate.py
+
+## 2026-06-01 — Deployed statement-reconciliation gate proven + raced-gate fix
+GATE: scripts/staging/run-statement-fixture-gate.py against deployed gastify-api-staging-e2e — upload PDF → extract → reconcile → assert buckets.
+BUG FOUND + FIXED: the gate read GET /statements/{id}/reconciliation while accepting `extracted` as terminal, but reconciliation is only computed at `completed` or on demand via POST /reconcile → raced to 404. Added an idempotent POST /reconcile before the GET (mirrors the app's reconcile-then-read flow; web hook does the same). NOT an app bug — manual trace confirmed GET /reconciliation returns 200 once completed.
+RESULT (git 155e8cc): result_status=passed, reconciliation_status=completed, coverage 0.5, matched 1, statement-only 1, receipt-only 151, migration current@026.
+DEPLOYED-RUNTIME GROUP now complete: P34 insights+item-flag gate (both backends) + statement gate (staging-e2e) all green on real Railway infra. P35 (S23 device P6) already covered by last session's on-device p6-insights/p6-item-flag green runs.

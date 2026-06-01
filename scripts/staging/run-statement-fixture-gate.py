@@ -559,6 +559,18 @@ def main() -> int:
             if "SUPERMERCADO FIXTURE" not in descriptions or not has_statement_only_fixture:
                 raise RuntimeError(f"Unexpected fixture line descriptions: {descriptions}")
 
+            # Trigger reconciliation explicitly before reading it. GET
+            # /reconciliation only returns a run once one exists — it is computed
+            # at `completed` OR on demand via POST /reconcile. When the gate
+            # accepts `extracted` (require_three_buckets=False), reconciliation is
+            # not yet computed, so the prior GET-only path raced to a 404. POST is
+            # idempotent and mirrors the app's reconcile-then-read flow.
+            request_json(
+                client,
+                "POST",
+                f"{api_base_url}/api/v1/statements/{statement_id}/reconcile",
+                token=token,
+            )
             reconciliation = request_json(
                 client,
                 "GET",
