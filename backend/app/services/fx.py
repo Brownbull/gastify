@@ -44,11 +44,14 @@ async def _fetch_external_rate(from_currency: str, to_currency: str) -> Decimal:
         try:
             async with httpx.AsyncClient(timeout=_FX_TIMEOUT_S) as client:
                 resp = await client.get(
-                    f"{api_url}/v1/rates/{from_currency}/{to_currency}",
+                    f"{api_url}/v6/latest/{from_currency}",
                 )
                 resp.raise_for_status()
                 data = resp.json()
-                return Decimal(str(data["rate"]))
+                # open.er-api: {"result":"success","rates":{"USD":<rate>,...}}.
+                # Frankfurter (ECB) was the old default but doesn't price CLP — the
+                # app's primary currency — so USD-shadow (REQ-18) was broken (P42).
+                return Decimal(str(data["rates"][to_currency]))
         except (httpx.HTTPError, KeyError, ValueError) as exc:
             logger.warning(
                 "fx_fetch_failed",
@@ -111,7 +114,7 @@ async def get_fx_rate(
             "from_currency": from_currency,
             "to_currency": to_currency,
             "rate": float(rate),
-            "source": "frankfurter",
+            "source": "open-er-api",
             "created_at": now,
         },
     )

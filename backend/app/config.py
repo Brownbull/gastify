@@ -32,7 +32,7 @@ class Settings(BaseSettings):
     firebase_credentials_path: str | None = None
     firebase_credentials_json: str | None = None
 
-    fx_api_url: str = "https://api.frankfurter.dev"
+    fx_api_url: str = "https://open.er-api.com"
 
     scan_storage_dir: str = "data/scans"
     statement_storage_dir: str = "data/statements"

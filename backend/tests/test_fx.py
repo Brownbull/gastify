@@ -96,7 +96,7 @@ class TestFetchExternalRate:
         from app.services.fx import _fetch_external_rate
 
         mock_response = MagicMock()
-        mock_response.json.return_value = {"rate": "0.00105"}
+        mock_response.json.return_value = {"result": "success", "rates": {"USD": "0.00105"}}
         mock_response.raise_for_status = MagicMock()
 
         with patch("httpx.AsyncClient") as mock_cls:
