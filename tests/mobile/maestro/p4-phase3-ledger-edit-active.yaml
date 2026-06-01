@@ -54,11 +54,12 @@ appId: com.gastify.mobile
     timeout: 30000
 - takeScreenshot:
     path: 01-phase3-ledger-list
-- swipe:
-    direction: UP
-- extendedWaitUntil:
-    visible: "Supermercado Jumbo"
-    timeout: 10000
+- scrollUntilVisible:
+    element:
+      text: "Supermercado Jumbo"
+    direction: DOWN
+    timeout: 40000
+    speed: 60
 - tapOn:
     text: "Supermercado Jumbo"
 - extendedWaitUntil:
