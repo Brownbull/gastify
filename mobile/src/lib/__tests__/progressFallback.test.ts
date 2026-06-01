@@ -238,4 +238,36 @@ describe("ProgressFallback termination + guards", () => {
     fb.stop();
     expect(removeSpy).toHaveBeenCalledTimes(1);
   });
+
+  it("is idempotent: a double start() removes the prior AppState listener (no leak, P38)", () => {
+    let live = 0;
+    const clearSpy = jest.fn();
+    const removeSpy = jest.fn(() => {
+      live -= 1;
+    });
+    const appState: AppStateLike = {
+      addEventListener: () => {
+        live += 1;
+        return { remove: removeSpy };
+      },
+    };
+    const fb = new ProgressFallback<unknown>({
+      fetchOnce: jest.fn().mockResolvedValue({}),
+      apply: jest.fn().mockReturnValue(false),
+      setTimer: ((cb: () => void) => {
+        void cb;
+        return 1 as unknown as ReturnType<typeof setTimeout>;
+      }) as typeof setTimeout,
+      clearTimer: clearSpy as unknown as typeof clearTimeout,
+      now: () => 100000,
+      appState,
+    });
+    fb.start();
+    fb.start(); // double-start without an intervening stop()
+    expect(removeSpy).toHaveBeenCalledTimes(1); // prior subscription torn down
+    expect(live).toBe(1); // exactly one live AppState listener (no leak)
+    expect(clearSpy).toHaveBeenCalledTimes(1); // prior pending poll timer cancelled (not stacked)
+    fb.stop();
+    expect(live).toBe(0); // fully cleaned up
+  });
 });

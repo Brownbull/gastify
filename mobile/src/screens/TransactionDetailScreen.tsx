@@ -616,7 +616,9 @@ function ErrorPanel({ body, title }: { body: string; title: string }) {
 }
 
 function formatReviewLevel(level: string): string {
-  return level.replace("_", " ");
+  // replaceAll so multi-underscore review levels (e.g. a future "needs_manual_review")
+  // render fully, not just the first underscore.
+  return level.replaceAll("_", " ");
 }
 
 const styles = StyleSheet.create({

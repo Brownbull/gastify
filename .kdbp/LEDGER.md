@@ -3120,3 +3120,19 @@ GATE: scripts/staging/run-statement-fixture-gate.py against deployed gastify-api
 BUG FOUND + FIXED: the gate read GET /statements/{id}/reconciliation while accepting `extracted` as terminal, but reconciliation is only computed at `completed` or on demand via POST /reconcile → raced to 404. Added an idempotent POST /reconcile before the GET (mirrors the app's reconcile-then-read flow; web hook does the same). NOT an app bug — manual trace confirmed GET /reconciliation returns 200 once completed.
 RESULT (git 155e8cc): result_status=passed, reconciliation_status=completed, coverage 0.5, matched 1, statement-only 1, receipt-only 151, migration current@026.
 DEPLOYED-RUNTIME GROUP now complete: P34 insights+item-flag gate (both backends) + statement gate (staging-e2e) all green on real Railway infra. P35 (S23 device P6) already covered by last session's on-device p6-insights/p6-item-flag green runs.
+- 2026-06-01 18:37 | Edit | /home/khujta/projects/apps/gastify/mobile/src/lib/progressFallback.ts
+- 2026-06-01 18:38 | Edit | /home/khujta/projects/apps/gastify/mobile/src/lib/__tests__/progressFallback.test.ts
+- 2026-06-01 18:41 | Edit | /home/khujta/projects/apps/gastify/backend/app/services/scan_errors.py
+
+## 2026-06-01 — Technical-debt batch (code/test debt + stale closes)
+SCOPE: user-selected "code/test debt + stale closes" from the 28 open PENDING items.
+FIXED:
+- P26: PyJWT 2.12.1 -> 2.13.0 (transitive via firebase-admin); PYSEC-2025-183 is last_affected=2.10.1 so it never applied — dropped the --ignore-vuln from CI; pip-audit now clean with no ignores.
+- P28: formatReviewLevel .replace("_"," ") -> .replaceAll (mobile TransactionDetailScreen) so multi-underscore review levels render fully.
+- P38: ProgressFallback.start() is now idempotent — tears down any prior AppState subscription + pending poll timer before re-arming (double-start no longer leaks). +regression test (13/13).
+- P39: scan error_message no longer echoes the raw Gemini provider response body — classify_error persists only str(error) via _redacted_error_message; classification still inspects the full body internally. Updated test_provider_body_unavailable to assert the redaction.
+- P16: conftest _create_tables now strips gen_random_uuid server-defaults on a to_metadata() DEEP COPY instead of mutating shared Base.metadata (proved: 22 defaults survive on Base.metadata post-create).
+- P32: NEW backend/tests/test_rls_postgres.py — PostgreSQL-executed RLS isolation tests (direct + subquery/statement-child shapes) via a non-superuser role; runs when GASTIFY_TEST_PG_DSN is set, skips cleanly otherwise. VERIFIED PASS against a throwaway PG (zonky embedded-postgres binary, no docker).
+CLOSED (stale/already-resolved): P5 (CHANGES.jsonl git mv -> archive), P11 (obsolete mockup-plan review collision), P15 (obsolete stale-Phase-L2), P27 (readApiError already shared in apiError.ts), P35 (S23 P6 device flows green last session).
+NEW FINDING -> P43: the P32 test surfaced that the deployed app connects as the `postgres` SUPERUSER, which bypasses RLS entirely — so RLS is inert in prod. NOT a leak (app-layer .where(ownership_scope_id==...) scoping holds + GUC set per request); defense-in-depth gap. Fix = dedicated non-superuser role on Railway PG.
+VERIFY: backend 721 passed/4 skipped (2 RLS skip w/o DSN); mobile 22 passed + tsc clean; pip-audit clean.

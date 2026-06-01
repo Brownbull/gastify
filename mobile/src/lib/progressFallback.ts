@@ -94,6 +94,15 @@ export class ProgressFallback<T> {
   }
 
   start(): void {
+    // Idempotent: tear down any prior AppState subscription + pending poll timer
+    // before re-arming, so a double-start() (e.g. StrictMode double-invoke or
+    // hot-reload on the same instance) cannot leak the previous subscription/timer.
+    if (this.pollTimer) {
+      this.clearTimer(this.pollTimer);
+      this.pollTimer = null;
+    }
+    this.appSub?.remove();
+    this.appSub = null;
     this.stopped = false;
     this.terminal = false;
     this.lastWsActivity = this.now();

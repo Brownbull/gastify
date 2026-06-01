@@ -93,18 +93,30 @@ async def engine():
 
 
 def _create_tables(connection):
-    """Create tables without server defaults that SQLite can't handle."""
+    """Create tables without server defaults that SQLite can't handle.
+
+    Operates on a DEEP COPY of Base.metadata (via to_metadata) and strips the
+    Postgres-only gen_random_uuid server defaults on the copy, so the shared
+    Base.metadata is never mutated. (Previously this set col.server_default = None
+    on the live metadata — a process-wide side effect that stripped the defaults
+    globally for every later importer; see P16.)
+    """
+    sqlite_metadata = sa.MetaData()
     for table in Base.metadata.sorted_tables:
+        table.to_metadata(sqlite_metadata)
+
+    for table in sqlite_metadata.sorted_tables:
         for col in table.columns:
-            if col.server_default is not None:
-                sd = col.server_default
-                if (
-                    hasattr(sd, "arg")
-                    and hasattr(sd.arg, "name")
-                    and "gen_random_uuid" in str(sd.arg)
-                ):
-                    col.server_default = None
-    Base.metadata.create_all(connection)
+            sd = col.server_default
+            if (
+                sd is not None
+                and hasattr(sd, "arg")
+                and hasattr(sd.arg, "name")
+                and "gen_random_uuid" in str(sd.arg)
+            ):
+                col.server_default = None
+
+    sqlite_metadata.create_all(connection)
 
 
 @event.listens_for(Base, "init", propagate=True)

@@ -72,13 +72,29 @@ class PermanentScanError(ScanError):
 
 
 def classify_error(error: Exception) -> ScanError:
-    """Classify an exception as transient or permanent for retry decisions."""
+    """Classify an exception as transient or permanent for retry decisions.
+
+    Classification inspects the full provider body (so keyword matches like
+    "quota exceeded" work), but the PERSISTED message is redacted: the raw
+    provider (Gemini) response body is dropped so it cannot leak into
+    `scan.error_message` / `GET /scans/{id}` (P39). The exception's own message
+    text is kept — it carries the useful, non-sensitive context.
+    """
     code = _extract_error_code(error)
-    message = _message_with_provider_body(error)[:500]
+    message = _redacted_error_message(error)[:500]
 
     if code in _TRANSIENT_CODES:
         return TransientScanError(code, message)
     return PermanentScanError(code, message)
+
+
+def _redacted_error_message(error: Exception) -> str:
+    """The exception's own message, WITHOUT the appended provider response body.
+
+    Mirrors _message_with_provider_body but omits the `.body` attribute, so
+    provider response fragments are never persisted to error_message.
+    """
+    return str(error)
 
 
 def _extract_error_code(error: Exception) -> ScanErrorCode:

@@ -187,9 +187,7 @@ jobs:
           node-version: 20
           cache: npm
           cache-dependency-path: frontend/package-lock.json
-      # PYSEC-2025-183 is currently reported by pip-audit against PyJWT 2.12.1,
-      # but PyJWT 2.12.1 is the latest published version and has no newer fix.
-      - run: cd backend && uv sync --frozen && uv run pip-audit --ignore-vuln PYSEC-2025-183
+      - run: cd backend && uv sync --frozen && uv run pip-audit
       - run: cd frontend && npm ci && npm audit --audit-level=high
 
   custom-gates:

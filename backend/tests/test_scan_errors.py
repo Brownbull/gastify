@@ -93,8 +93,13 @@ class TestClassifyError:
         err = classify_error(exc)
 
         assert isinstance(err, TransientScanError)
+        # Classification still uses the provider body to pick the code...
         assert err.code == ScanErrorCode.SERVER_ERROR
-        assert "UNAVAILABLE" in err.message
+        # ...but the body must NOT leak into the persisted message (P39): only the
+        # exception's own text is kept; the Gemini response fragment is redacted.
+        assert err.message == "provider failed"
+        assert "UNAVAILABLE" not in err.message
+        assert "high demand" not in err.message
 
     def test_provider_body_resource_exhausted_is_quota_exceeded(self):
         exc = Exception("provider failed")
