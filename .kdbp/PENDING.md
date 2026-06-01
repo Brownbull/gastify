@@ -78,3 +78,8 @@
 
 <!-- P34/P35/P36 from 2026-05-29 roadmap drive. P37 from /gabe-review P9 Phase 1 — count-DP is a Scale-tier hardening; one-shot baseline risk is low (k≥20 + infrequent consent changes), so deferred with an inline caveat rather than degrading baseline accuracy with a noisy denominator now. -->
 <!-- P37 from 2026-05-29 P9 review. -->
+
+| P41 | 2026-05-31 | legacy-config cleanup / GitGuardian #33524280 | Restrict the gastify-staging Firebase WEB API key (`AIzaSyDA7…`) in GCP: add HTTP-referrer + API restrictions and enable App Check; optionally rotate (mint new web key → update gitignored `web/.env.staging` + Railway env → delete old). Public-by-design web key (low severity) but an unrestricted key is abusable for quota/billing. Repo side DONE (d7ea8fe: legacy + staging keys purged from all tracked files; `.gitleaks.toml` path-allowlisted). GitGuardian dashboard incident already resolved by owner — this row tracks ONLY the GCP-side hardening. | GCP console (off-repo); `web/.env.staging` + Railway if rotated | ent | medium | moderate | 0 | open |
+
+<!-- P41 from 2026-05-31 legacy-config cleanup (d7ea8fe). Owner off-repo action: GCP key restriction/rotation. GitGuardian #33524280 dashboard-resolved by owner; mirrored in memory project-firebase-key-followup. -->
+

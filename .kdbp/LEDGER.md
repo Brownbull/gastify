@@ -3048,3 +3048,5 @@ CHANGES:
 VERIFIED: gitleaks full-history = 331 commits / 0 leaks; backend suite 721 passed, 2 skipped; both legacy + staging keys absent from all tracked files.
 TRIGGER: GitGuardian incident #33524280 (Google API Key in .gitleaks.toml @ b1e2aa6) + user request to purge legacy boletapp-d609f refs.
 OUTSTANDING (owner action, off-repo): restrict + optionally rotate the gastify-staging web API key in GCP; resolve GitGuardian #33524280 in dashboard (history retains the value). DEFERRED.
+- 2026-05-31 16:10 | Write | /home/khujta/.claude/projects/-home-khujta-projects-apps-gastify/memory/project_firebase_key_followup.md
+- 2026-05-31 16:10 | Edit | /home/khujta/.claude/projects/-home-khujta-projects-apps-gastify/memory/MEMORY.md
