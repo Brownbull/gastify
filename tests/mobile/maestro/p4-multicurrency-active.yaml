@@ -1,0 +1,108 @@
+appId: com.gastify.mobile
+---
+- waitForAnimationToEnd:
+    timeout: 10000
+- tapOn:
+    text: "Continue"
+    optional: true
+- tapOn:
+    text: "Got it"
+    optional: true
+- runFlow:
+    when:
+      visible: "Reload"
+    commands:
+      - tapOn:
+          point: "90%,45%"
+      - waitForAnimationToEnd:
+          timeout: 5000
+- tapOn:
+    text: "Continue"
+    optional: true
+- tapOn:
+    text: "Got it"
+    optional: true
+- runFlow:
+    when:
+      visible:
+        id: e2e-sign-in-button
+    commands:
+      - tapOn:
+          id: e2e-sign-in-button
+- waitForAnimationToEnd:
+    timeout: 10000
+- runFlow:
+    when:
+      visible:
+        id: e2e-sign-in-button
+    commands:
+      - tapOn:
+          id: e2e-sign-in-button
+- extendedWaitUntil:
+    visible:
+      id: home-screen
+    timeout: 60000
+# --- Multi-currency display (REQ-17 integer-minor-units, REQ-18 USD shadow + FX
+# snapshot). Scan a fresh CLP receipt so its USD shadow is freshly computed by the
+# fixed FX provider (open.er-api), then view the transaction detail. ---
+- swipe:
+    direction: UP
+- extendedWaitUntil:
+    visible:
+      id: scan-library-button
+    timeout: 20000
+- tapOn:
+    id: scan-library-button
+- tapOn:
+    text: "Allow all photos"
+    optional: true
+- tapOn:
+    text: "Allow"
+    optional: true
+- tapOn:
+    text: "Dismiss"
+    optional: true
+- tapOn:
+    point: "16%,50%"
+- tapOn:
+    text: "Done"
+    optional: true
+- extendedWaitUntil:
+    visible:
+      id: scan-progress-panel
+    timeout: 30000
+- extendedWaitUntil:
+    visible:
+      id: scan-result-panel
+    timeout: 90000
+- swipe:
+    direction: UP
+- extendedWaitUntil:
+    visible:
+      id: scan-view-transaction-button
+    timeout: 20000
+- tapOn:
+    id: scan-view-transaction-button
+- extendedWaitUntil:
+    visible:
+      id: transaction-detail-screen
+    timeout: 30000
+- extendedWaitUntil:
+    visible:
+      id: transaction-summary-panel
+    timeout: 20000
+# REQ-17: original CLP amount shown
+- assertVisible: "Original"
+# REQ-18: USD shadow metric shown
+- assertVisible: "USD"
+- takeScreenshot:
+    path: 01-multicurrency-summary
+# REQ-18: the FX line ("FX <rate> captured ...") only renders when fx_rate_to_usd
+# is populated — proving the USD shadow was actually computed (not "-").
+- scrollUntilVisible:
+    element:
+      text: ".*FX .*"
+    direction: DOWN
+    timeout: 20000
+- takeScreenshot:
+    path: 02-multicurrency-fx-rate
