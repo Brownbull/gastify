@@ -5,115 +5,166 @@
 
 ## Goal
 
-Path A (Phase 0): fix the Railway WebSocket-403 progress stall with a REST polling fallback (mobile-only, no backend change), validated by a zero-Gemini load test against the D62 capacity estimate; Path B stays deferred behind D62 triggers.
+Feature parity with legacy BoletApp — implement missing screens and features before P7 launch gate. Write-first ordering: mutating features land first (settings, batch ops, batch scan), read-only features last (dashboard, charts, items, reports, notifications). Groups/shared expenses deferred.
 
 ## Context
 
 - **Maturity:** mvp
 - **Domain:** Chilean smart expense tracker (AI receipt scanning, multi-currency analytics, PWA + native mobile)
-- **Created:** 2026-05-30
+- **Created:** 2026-06-02
 - **Last Updated:** 2026-06-02
-- **Decision basis:** ADR D62 (two-axis progress-delivery finding; Path A now, Path B Postgres-native-first + triggered)
+- **Decision basis:** APP-STATE.html audit (2026-06-02) comparing Gastify vs legacy BoletApp — 9 missing features, 5 API-only gaps. Write-first ordering per user direction.
 
 ## Phases
 
 | # | Phase | Description | Tier | Complexity | Exec | Review | Commit | Push |
 |---|-------|-------------|------|------------|------|--------|--------|------|
-| 1 | Progress polling fallback | Add minimal backend `GET /scans/{id}` status endpoint + persist `scan.transaction_id` (the scan side lacked both — see D66); mobile hooks fall back to polling `GET /scans/{id}` + `GET /statements/{id}` when the WS fails/stalls (HYBRID: WS-primary, fallback on distress + always foreground-reconcile); reuse store `status→phase` reducers; jittered + adaptive backoff (stall threshold ≥2.5× the 15s heartbeat). | mvp | med | ✅ | ✅ | ✅ | ✅ |
-| 2 | Zero-Gemini load test + capacity validation | `httpx` async harness using `scan_provider=mock/fixture` + `statement_provider=fixture` + `e2e_scan_event_delay_ms` ($0, no LLM). Ramp concurrent active jobs + polling load; measure DB pool-wait, p95 status latency, throughput, error rate; confirm/correct the D62 estimate. Dedicated load env (mock/fixture blocked in prod). | ent | med | ✅ | ✅ | ✅ | ✅ |
-| 3 | Path-B trigger instrumentation | Make the D62 Path-B triggers data-driven: surface metrics for peak concurrent active scans, DB pool-wait, Gemini 429 rate; document polling-safe scaling levers (pool size, uvicorn `--workers`, replicas) + the threshold to start Path B. | mvp | low | ✅ | ✅ | ✅ | ✅ |
+| 1 | Settings + Profile + Themes | Settings screen with sub-views: profile (name, email, currency, locale), preferences (language, date format), theme switcher (3 color themes × light/dark — ported from legacy `categoryColors/`), consent management UI (wire existing /consent API), data export (wire /privacy/portability), account actions (wipe, sign-out from settings). Web + mobile. | mvp | high | ⬜ | ⬜ | ⬜ | ⬜ |
+| 2 | Batch Ops + Category Management | Multi-select on transaction list (web + mobile) wiring existing batch-update/batch-delete APIs. Category/merchant management: view/edit/delete learned L2 store-category and L4 item-category mappings. Backend category CRUD endpoints if needed. | mvp | med | ⬜ | ⬜ | ⬜ | ⬜ |
+| 3 | Batch Scanning | Multi-receipt capture with image queue + batch review step before save. Reuses single-scan pipeline per receipt. New capture flow UI (web + mobile). | mvp | high | ⬜ | ⬜ | ⬜ | ⬜ |
+| 4 | Dashboard + Charts/Trends | Rich home dashboard replacing simple hub (treemap or category breakdown). Trends view with chart library: donut (category distribution), bar/line (time-series), drill-down by L1→L2 and L3→L4. Period navigation (month/quarter/year). | mvp | high | ⬜ | ⬜ | ⬜ | ⬜ |
+| 5 | Items View + Reports | Dedicated items/products screen: cross-transaction item search with filters (category, date, merchant). Weekly/monthly report cards with spending summaries and chart visualizations. | mvp | med | ⬜ | ⬜ | ⬜ | ⬜ |
+| 6 | Notification Center | In-app notification view: list with read/unread status, mark-read, delete. Backend notification creation hooks (scan complete, statement reconciled, etc.). Web + mobile. | mvp | low | ⬜ | ⬜ | ⬜ | ⬜ |
 
 <!-- Exec is written by /gabe-execute: ⬜ not started, 🔄 in progress, ✅ complete -->
 <!-- Review/Commit/Push auto-ticked by /gabe-review, /gabe-commit, /gabe-push -->
 <!-- A phase is complete when all four status columns are ✅ -->
 <!-- /gabe-next routes to the next command based on column state (Exec → Review → Commit → Push → advance phase) -->
 <!-- Tier column values: mvp | ent | scale. Read by /gabe-execute (tier-cap) and /gabe-review (TIER_DRIFT finding). -->
-<!-- User-facing/runtime phase types require journey evidence artifacts before Exec can be ✅. -->
 <!-- Manual override is fine — edit cells by hand any time -->
 
 ## Phase Details
 
-### Phase 1 — Mobile polling fallback
+### Phase 1 — Settings + Profile + Themes
 
 ```yaml
 phase: 1
-types: [native-mobile, client-state, realtime, resilience, backend, data-migration]
+types: [user-facing, auth, settings]
 phase_tier: mvp
 prototype: false
 dim_overrides: []
-sections_considered: [Core, Client-State, Realtime, Data]
+sections_considered: [Core, Auth/Session, Client-State, UI/UX]
 suppressed_dims_count: 0
-decisions_entry: D63
-scope_amendment: D66
 ```
 
-- **Tier chosen:** mvp — focused resilience fallback; happy path + WS-fail trigger + terminal stop is the honest baseline (U2).
+- **Tier chosen:** mvp — wire existing backend APIs to new UI screens; theme tokens ported from legacy CSS variables, not designed from scratch.
 - **Prototype:** no
-- **Key files:** `mobile/src/hooks/useScanProgressSocket.ts`, `mobile/src/hooks/useStatementProgressSocket.ts`, new `mobile/src/lib/{scan,statement}ProgressPoll.ts`, reuse `mobile/src/stores/{scanStore,statementStore}.ts` `status→phase` reducers, plus hook/store tests.
-- **Minimal backend addition (D66 scope discovery):** the scan side had NO `GET /scans/{id}` status route and NO persisted scan→transaction link, so a correct/replica-safe scan poll was impossible mobile-only. Adds: a nullable `scans.transaction_id` FK (migration) set by the worker, and `GET /api/v1/scans/{scan_id}` → `ScanResult` (mirrors `GET /statements/{id}`). Still **no new runtime component** (FastAPI + Postgres) — additive read endpoint + one column.
-- **Trade-offs accepted:** See DECISIONS.md D63 + D66.
+- **Key files:** `web/src/routes/settings.tsx` (new), `mobile/src/screens/SettingsScreen.tsx` (new), `web/src/styles/themes/` (new — 3 theme CSS files from legacy `categoryColors/`), `mobile/src/lib/theme.ts` (new), consent/privacy hooks wiring existing API endpoints.
+- **Legacy reference:** `boletapp/src/features/settings/views/SettingsView/` (9 sub-views), `boletapp/src/config/categoryColors/` (3 themes).
+- **Runtime evidence:** Settings screen renders on web (browser) and mobile (S23) with theme switching, profile edit round-trip, and consent grant/revoke.
 
-### Phase 2 — Zero-Gemini load test + capacity validation
+### Phase 2 — Batch Ops + Category Management
 
 ```yaml
 phase: 2
-types: [test, performance, backend]
-phase_tier: ent
-prototype: false
-dim_overrides: []
-sections_considered: [Core, Performance]
-suppressed_dims_count: 0
-decisions_entry: D64
-```
-
-- **Tier chosen:** ent — load/capacity evaluation IS the deliverable (Core.Testing load-eval dimension); it validates the multi-user capacity claim in D62.
-- **Prototype:** no
-- **Key files:** new `scripts/loadtest/` (async `httpx` harness — no new runtime dep; `httpx` already installed), a short results doc.
-- **Zero Gemini cost:** uses `scan_provider=mock/fixture` + `statement_provider=fixture` + `e2e_scan_event_delay_ms` to simulate latency with NO LLM calls. Gemini RPM ceiling stays analytical. Run against a dedicated load env (mock/fixture are config-blocked in production).
-- **Trade-offs accepted:** See DECISIONS.md D64.
-
-### Phase 3 — Path-B trigger instrumentation
-
-```yaml
-phase: 3
-types: [observability, backend, docs]
+types: [user-facing, client-state, data]
 phase_tier: mvp
 prototype: false
 dim_overrides: []
-sections_considered: [Core, Observability]
+sections_considered: [Core, Client-State, Data]
 suppressed_dims_count: 0
-decisions_entry: D65
 ```
 
-- **Tier chosen:** mvp — lightweight; reuses existing `app/observability.py` + middleware metrics, no new infra.
+- **Tier chosen:** mvp — multi-select UI + wire existing batch APIs; category CRUD is additive.
 - **Prototype:** no
-- **Key files:** backend metrics (existing metrics router / `app/observability.py`), `docs/runbooks/` (scaling levers + Path-B trigger thresholds).
-- **Trade-offs accepted:** See DECISIONS.md D65.
+- **Key files:** `web/src/routes/transactions.tsx` (add multi-select), `mobile/src/screens/TransactionsScreen.tsx` (add multi-select), `backend/app/api/categories.py` (new — if category CRUD endpoints needed), `web/src/routes/settings/learned-data.tsx` (new sub-view).
+- **Legacy reference:** `boletapp/src/features/history/views/HistoryView.tsx` (selection mode), `boletapp/src/features/settings/components/CategoryMappingsList.tsx`.
+
+### Phase 3 — Batch Scanning
+
+```yaml
+phase: 3
+types: [user-facing, upload, realtime]
+phase_tier: mvp
+prototype: false
+dim_overrides: []
+sections_considered: [Core, Upload/File-media, Real-time]
+suppressed_dims_count: 0
+```
+
+- **Tier chosen:** mvp — reuses single-scan pipeline; new UI flow for multi-image queue + review.
+- **Prototype:** no
+- **Key files:** `web/src/routes/scan-batch.tsx` (new), `mobile/src/screens/BatchCaptureScreen.tsx` (new), `mobile/src/screens/BatchReviewScreen.tsx` (new).
+- **Legacy reference:** `boletapp/src/features/batch-review/views/BatchCaptureView.tsx`, `BatchReviewView.tsx`.
+- **Runtime evidence:** Capture 3 receipts in batch mode, review each, submit all. All 3 produce transactions.
+
+### Phase 4 — Dashboard + Charts/Trends
+
+```yaml
+phase: 4
+types: [user-facing, analytics]
+phase_tier: mvp
+prototype: false
+dim_overrides: []
+sections_considered: [Core, UI/UX]
+suppressed_dims_count: 0
+```
+
+- **Tier chosen:** mvp — chart library integration (ECharts or Recharts); backend already serves monthly insights data.
+- **Prototype:** no
+- **Key files:** `web/src/routes/index.tsx` (dashboard upgrade), `web/src/routes/trends.tsx` (new), `mobile/src/screens/DashboardScreen.tsx` (new or upgrade HomeScreen), `mobile/src/screens/TrendsScreen.tsx` (new), shared chart components.
+- **Legacy reference:** `boletapp/src/features/dashboard/views/DashboardView/` (treemap), `boletapp/src/features/analytics/views/TrendsView/` (5 chart types). Start with donut + bar/line; add treemap/sankey if time permits.
+- **Runtime evidence:** Dashboard renders category breakdown on web + mobile. Trends view shows at least 2 chart types with period navigation.
+
+### Phase 5 — Items View + Reports
+
+```yaml
+phase: 5
+types: [user-facing, data-view, analytics]
+phase_tier: mvp
+prototype: false
+dim_overrides: []
+sections_considered: [Core, UI/UX]
+suppressed_dims_count: 0
+```
+
+- **Tier chosen:** mvp — new read-only screens; may need a backend items-list endpoint.
+- **Prototype:** no
+- **Key files:** `web/src/routes/items.tsx` (new), `mobile/src/screens/ItemsScreen.tsx` (new), `backend/app/api/items.py` (new — cross-transaction item query), `web/src/routes/reports.tsx` (new), `mobile/src/screens/ReportsScreen.tsx` (new).
+- **Legacy reference:** `boletapp/src/features/items/views/ItemsView/`, `boletapp/src/features/reports/views/ReportsView.tsx`.
+
+### Phase 6 — Notification Center
+
+```yaml
+phase: 6
+types: [user-facing, notifications]
+phase_tier: mvp
+prototype: false
+dim_overrides: []
+sections_considered: [Core, Notifications]
+suppressed_dims_count: 0
+```
+
+- **Tier chosen:** mvp — in-app notification list; backend notification model + creation hooks.
+- **Prototype:** no
+- **Key files:** `backend/app/models/notification.py` (new), `backend/app/api/notifications.py` (new), `web/src/routes/notifications.tsx` (new), `mobile/src/screens/NotificationsScreen.tsx` (new).
+- **Legacy reference:** `boletapp/src/views/NotificationsView.tsx`.
 
 ## Current Phase
 
-Phase 3: Path-B trigger instrumentation
+Phase 1: Settings + Profile + Themes
 
 ## Dependencies
 
-- Phase 2 depends on Phase 1 (the load test must exercise the new polling path).
-- Phase 3 is independent of 1 and 2 (can run in parallel).
+- Phase 1 is independent — can start immediately
+- Phase 2 depends on Phase 1 (settings nav pattern, learned-data sub-view lives in settings)
+- Phase 3 is independent of 1-2
+- Phase 4 depends on Phase 1 (theme tokens needed for chart colors)
+- Phase 5 depends on Phase 4 (chart library reuse)
+- Phase 6 is independent
 
 ## Risks
 
 | Risk | Severity | Mitigation |
 |------|----------|------------|
-| Polling adds steady DB-read load on the 15-conn pool | medium | jitter + adaptive backoff + poll-only-while-active; **validated in Phase 2** |
-| Coarser granularity feels "stuck" between status milestones | low | optimistic local progress / indeterminate spinner between DB milestones |
-| Mock load test cannot reproduce Gemini latency tail | low | approximate via `e2e_scan_event_delay_ms`; Gemini RPM stays analytical (documented caveat) |
+| Theme porting is more work than expected (legacy CSS variables → new system) | medium | Start with 1 theme + light/dark, add remaining 2 incrementally |
+| Chart library bundle size on mobile | medium | Use lightweight charting (Recharts or Victory Native) or server-rendered chart images |
+| Batch scan UX complexity (multi-image queue + per-receipt review) | medium | MVP: sequential processing with simple queue; defer parallel processing |
+| Items endpoint needs new backend query (cross-transaction item aggregation) | low | Simple JOIN on transaction_items; no new infrastructure |
 
 ## Notes
 
-- This plan implements **Path A** from ADR **D62** only. Path B (fan-out bus + durable workers) is deferred behind D62's measurable triggers and is **Postgres-native-first** per the D62 amendment (LISTEN/NOTIFY or polling for fan-out; `procrastinate`/SKIP-LOCKED for durable jobs); Redis/Kafka remain an **open architecture decision** to be made when a trigger fires, informed by measured load.
-- Architecturally **no new runtime component**: leans on the existing FastAPI + Postgres stack. Phase 1 adds one additive read endpoint (`GET /scans/{id}`) + one nullable column (`scans.transaction_id`) per D66 — no new service/datastore/process.
-- Relates to PENDING **P35** (S23 device e2e for scan/statement) — this fix unblocks those flows.
-
-## Runtime Evidence Checkpoints
-
-- **Phase 1 (required before Exec ✅):** re-run on the Samsung S23 against deployed staging — `npm run maestro:statement:active` and `npm run maestro:phase5:golden:active` must now reach the **reconciliation-panel / scan-result-panel** (the "queued 0%" stall is gone). Artifacts → `tests/mobile/results/runs/staging-e2e/...`.
-- **Phase 2:** capacity report (pool-wait, p95 status latency, throughput, error rate vs concurrency) committed under `scripts/loadtest/` or `docs/`.
+- This plan covers ROADMAP phases P10-P15 (inserted before P7 launch gate).
+- Legacy reference: `boletapp/` at `/home/khujta/projects/bmad/boletapp/` — screen components, theme configs, chart implementations.
+- Groups/shared expenses remain deferred (both legacy and Gastify had "coming soon").
+- APP-STATE.html audit at `docs/APP-STATE.html` documents the full feature matrix.

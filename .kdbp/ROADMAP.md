@@ -6,7 +6,7 @@ last_changed_at: 2026-05-28
 status: finalized v1.3
 derived_from: SCOPE.md v1
 granularity: fine
-phase_count: 9
+phase_count: 15
 ---
 
 # ROADMAP — Gastify
@@ -33,9 +33,15 @@ phase_count: 9
 | P4 | **Mobile App MVP** | Single cross-platform codebase with Android-first runtime proof for the current desktop/dev roadmap cycle. Native camera, bidirectional streaming, native keystore, sign-out isolation. iOS runtime lane deferred post-roadmap. | P1, P2 | P3 | REQ-05 (mobile slice), REQ-13, REQ-14 (mobile), REQ-24, REQ-25 | completed |
 | P5 | **Statement Reconciliation + Cards** | PDF statement upload → extraction → match against existing receipts → 3-bucket view + coverage metric. Card alias CRUD (no PCI). | P2 | P6 | REQ-07, REQ-08, REQ-09 | completed |
 | P6 | **Insights + Item Flags** | Monthly view with deterministic taxonomy rollups (L2 transaction categories and L4 item categories grouped through L1/L3), gravity-center detection, item urgency/special-case flag with personal-only scope enforcement. | P2 | P5 | REQ-06, REQ-10, REQ-11 | active |
-| P7 | **Compliance + Launch Hardening** | Four-jurisdiction regulatory readiness validated (Law 21.719, GDPR, PIPEDA, CCPA/CPRA) + launch infra + cutover drill. Paid-tier LLM pre-commit in place. Monetization plumbing live. | P1, P2, P3, P4, P5, P6 | — | Consolidates + audits REQ-20, REQ-21 | pending |
-| P8 | **Structured-Boleta Shortcut** | Chilean electronic-boleta QR/CAF parser bypasses the vision LLM for structured receipts — cuts per-scan cost on SII-Resolution-52/2026 electronic boletas. Nice-to-have, post-MVP. | P2, P7 | P9 | REQ-26 | pending |
-| P9 | **Cohort Benchmarking (DP-engineered)** | Consent-gated cohort aggregation with k ≥ 20 floor, ε ≤ 1 DP noise, sensitive-category suppression, revocation-aware recompute. Unlocks SC-11 / JTBD-05. Post-MVP. | P1, P6, P7 | P8 | REQ-27 | pending |
+| P10 | **Settings + Profile + Themes** | Settings screen (profile, preferences, themes, consent UI, data export, account actions). 3 color themes × light/dark ported from legacy. Web + mobile. | P6 | P11, P12 | Feature parity | pending |
+| P11 | **Batch Ops + Category Management** | Multi-select transaction list + batch update/delete. Category/merchant learned-data management (view/edit/delete). | P10 | P12 | Feature parity | pending |
+| P12 | **Batch Scanning** | Multi-receipt capture with image queue + batch review before save. Reuses single-scan pipeline per receipt. | P2 | P11 | Feature parity | pending |
+| P13 | **Dashboard + Charts/Trends** | Rich home dashboard (treemap/category breakdown). Trends view with charts (donut, bar, line) + drill-down + period navigation. | P10 | P14 | Feature parity | pending |
+| P14 | **Items View + Reports** | Dedicated cross-transaction item search. Weekly/monthly report cards with spending summaries and charts. | P13 | — | Feature parity | pending |
+| P15 | **Notification Center** | In-app notification view (list, read/unread, mark-read, delete). Backend notification hooks. | P2 | — | Feature parity | pending |
+| P16 | **Compliance + Launch Hardening** | Four-jurisdiction regulatory readiness validated (Law 21.719, GDPR, PIPEDA, CCPA/CPRA) + launch infra + cutover drill. Paid-tier LLM pre-commit in place. Monetization plumbing live. | P1–P15 | — | Consolidates + audits REQ-20, REQ-21 | pending |
+| P17 | **Structured-Boleta Shortcut** | Chilean electronic-boleta QR/CAF parser bypasses the vision LLM for structured receipts — cuts per-scan cost on SII-Resolution-52/2026 electronic boletas. Nice-to-have, post-MVP. | P2, P16 | P18 | REQ-26 | pending |
+| P18 | **Cohort Benchmarking (DP-engineered)** | Consent-gated cohort aggregation with k ≥ 20 floor, ε ≤ 1 DP noise, sensitive-category suppression, revocation-aware recompute. Unlocks SC-11 / JTBD-05. Post-MVP. | P1, P6, P16 | P17 | REQ-27 | pending |
 
 ## §3 Phase Detail
 
@@ -269,6 +275,7 @@ graph LR
 
 | Date | Version | Change |
 |---|---|---|
+| 2026-06-02 | v1.4 | Inserted P10-P15 (feature parity with legacy BoletApp) before launch gate. P7→P16, P8→P17, P9→P18. Write-first ordering: settings/themes → batch ops → batch scan → dashboard/charts → items/reports → notifications. Groups deferred. New critical path: P6 → P10-P15 → P16 (launch). |
 | 2026-05-24 | v1.2 | deferred iOS runtime testing until after P1-P9; P4/Phase 5 closes on Android physical hardware for the current roadmap cycle. |
 | 2026-05-19 | v1.1 | clarified four-level taxonomy usage: prompts assign only L2/L4; L1/L3 are deterministic reporting groups with English canonical keys and Spanish labels from day zero. |
 | 2026-04-22 | v1 | init — derived from SCOPE.md v1. 9 phases (granularity = fine). 27 REQs mapped; no orphans. Critical path P1 → P2 → (P3∥P4∥P5∥P6) → P7 → launch. Post-launch: P8 ∥ P9. |

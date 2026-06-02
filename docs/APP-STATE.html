@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gastify — Application State Report</title>
+<style>
+:root {
+  --bg: #0f1117;
+  --surface: #1a1d27;
+  --surface-2: #242836;
+  --border: #2e3345;
+  --text: #e4e6f0;
+  --text-dim: #8b8fa8;
+  --green: #4ade80;
+  --green-bg: rgba(74, 222, 128, 0.08);
+  --yellow: #facc15;
+  --yellow-bg: rgba(250, 204, 21, 0.08);
+  --red: #f87171;
+  --red-bg: rgba(248, 113, 113, 0.08);
+  --blue: #60a5fa;
+  --blue-bg: rgba(96, 165, 250, 0.08);
+  --purple: #a78bfa;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+h1 { font-size: 1.75rem; font-weight: 700; margin-bottom: 0.25rem; }
+h2 { font-size: 1.25rem; font-weight: 600; margin: 2.5rem 0 1rem; color: var(--blue); border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; }
+h3 { font-size: 1rem; font-weight: 600; margin: 1.5rem 0 0.75rem; }
+.subtitle { color: var(--text-dim); margin-bottom: 2rem; }
+.date { color: var(--text-dim); font-size: 0.85rem; }
+
+/* Summary cards */
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+.summary-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+  text-align: center;
+}
+.summary-card .number { font-size: 2rem; font-weight: 700; }
+.summary-card .label { color: var(--text-dim); font-size: 0.85rem; margin-top: 0.25rem; }
+.summary-card.green .number { color: var(--green); }
+.summary-card.yellow .number { color: var(--yellow); }
+.summary-card.red .number { color: var(--red); }
+.summary-card.blue .number { color: var(--blue); }
+
+/* Feature table */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+  font-size: 0.9rem;
+}
+th {
+  background: var(--surface-2);
+  text-align: left;
+  padding: 0.75rem 1rem;
+  font-weight: 600;
+  border-bottom: 2px solid var(--border);
+  position: sticky;
+  top: 0;
+}
+td {
+  padding: 0.6rem 1rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+tr:hover td { background: var(--surface); }
+
+/* Status badges */
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+.badge-full { background: var(--green-bg); color: var(--green); }
+.badge-partial { background: var(--yellow-bg); color: var(--yellow); }
+.badge-missing { background: var(--red-bg); color: var(--red); }
+.badge-new { background: var(--blue-bg); color: var(--blue); }
+.badge-api { background: rgba(167, 139, 250, 0.12); color: var(--purple); }
+
+/* Legend */
+.legend {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  margin: 1rem 0;
+  padding: 0.75rem 1rem;
+  background: var(--surface);
+  border-radius: 6px;
+  font-size: 0.85rem;
+}
+
+/* Section cards */
+.gap-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+  margin: 0.75rem 0;
+}
+.gap-card h4 {
+  font-size: 0.95rem;
+  margin-bottom: 0.5rem;
+}
+.gap-card p, .gap-card ul {
+  color: var(--text-dim);
+  font-size: 0.85rem;
+}
+.gap-card ul { padding-left: 1.25rem; }
+.gap-card li { margin: 0.25rem 0; }
+.gap-card .tag {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  margin-left: 0.5rem;
+}
+.tag-high { background: var(--red-bg); color: var(--red); }
+.tag-medium { background: var(--yellow-bg); color: var(--yellow); }
+.tag-low { background: rgba(96, 165, 250, 0.1); color: var(--blue); }
+
+/* Responsive */
+@media (max-width: 768px) {
+  body { padding: 1rem; }
+  table { font-size: 0.8rem; }
+  td, th { padding: 0.5rem; }
+  .summary-grid { grid-template-columns: repeat(2, 1fr); }
+}
+</style>
+</head>
+<body>
+
+<h1>Gastify Application State</h1>
+<p class="subtitle">Feature inventory &amp; comparison against legacy BoletApp</p>
+<p class="date">Generated: 2026-06-02 &mdash; Branch: main @ cd61513</p>
+
+<!-- ============================================================ -->
+<h2>Summary</h2>
+
+<div class="summary-grid">
+  <div class="summary-card green">
+    <div class="number">14</div>
+    <div class="label">Features Fully Built</div>
+  </div>
+  <div class="summary-card yellow">
+    <div class="number">5</div>
+    <div class="label">Partial / API-Only</div>
+  </div>
+  <div class="summary-card red">
+    <div class="number">9</div>
+    <div class="label">Missing from Legacy</div>
+  </div>
+  <div class="summary-card blue">
+    <div class="number">6</div>
+    <div class="label">New in Gastify</div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<h2>Feature Matrix</h2>
+
+<div class="legend">
+  <span><span class="badge badge-full">Full</span> Backend + Web + Mobile</span>
+  <span><span class="badge badge-partial">Partial</span> Some surfaces missing</span>
+  <span><span class="badge badge-api">API only</span> No UI</span>
+  <span><span class="badge badge-missing">Missing</span> Not in Gastify</span>
+  <span><span class="badge badge-new">New</span> Not in BoletApp</span>
+</div>
+
+<table>
+<thead>
+<tr>
+  <th style="width:22%">Feature</th>
+  <th style="width:8%">Backend</th>
+  <th style="width:8%">Web</th>
+  <th style="width:8%">Mobile</th>
+  <th style="width:8%">Status</th>
+  <th style="width:10%">Legacy</th>
+  <th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<!-- CORE FEATURES -->
+<tr>
+  <td><strong>Receipt Scanning</strong></td>
+  <td>&#10003;</td><td>&#10003;</td><td>&#10003;</td>
+  <td><span class="badge badge-full">Full</span></td>
+  <td>&#10003;</td>
+  <td>Single scan with real-time SSE/WS progress. Camera + gallery on mobile.</td>
+</tr>
+<tr>
+  <td><strong>Transaction List</strong></td>
+  <td>&#10003;</td><td>&#10003;</td><td>&#10003;</td>
+  <td><span class="badge badge-full">Full</span></td>
+  <td>&#10003;</td>
+  <td>Cursor-based pagination, date/category/merchant/currency/card filters.</td>
+</tr>
+<tr>
+  <td><strong>Transaction Detail &amp; Edit</strong></td>
+  <td>&#10003;</td><td>&#10003;</td><td>&#10003;</td>
+  <td><span class="badge badge-full">Full</span></td>
+  <td>&#10003;</td>
+  <td>Edit merchant, category, date, amount, items with flags.</td>
+</tr>
+<tr>
+  <td><strong>Item-Level Flags</strong></td>
+  <td>&#10003;</td><td>&#10003;</td><td>&#10003;</td>
+  <td><span class="badge badge-full">Full</span></td>
+  <td>&mdash;</td>
+  <td>Per-item urgency/special_case flags. Excluded from insights aggregates.</td>
+</tr>
+<tr>
+  <td><strong>Multi-Currency / USD Shadow</strong></td>
+  <td>&#10003;</td><td>&#10003;</td><td>&#10003;</td>
+  <td><span class="badge badge-full">Full</span></td>
+  <td>&#10003;</td>
+  <td>FX auto-fetched on create; amount_usd_minor computed server-side.</td>
+</tr>
+<tr>
+  <td><strong>Monthly Insights</strong></td>
+  <td>&#10003;</td><td>&#10003;</td><td>&#10003;</td>
+  <td><span class="badge badge-full">Full</span></td>
+  <td>&#10003;</td>
+  <td>Category rollups, item rollups, gravity centers (top merchants), period nav.</td>
+</tr>
+<tr>
+  <td><strong>Statement Upload</strong></td>
+  <td>&#10003;</td><td>&#10003;</td><td>&#10003;</td>
+  <td><span class="badge badge-full">Full</span></td>
+  <td>placeholder</td>
+  <td>PDF upload, password-protected support, duplicate detection by SHA-256.</td>
+</tr>
+<tr>
+  <td><strong>Statement Reconciliation</strong></td>
+  <td>&#10003;</td><td>&#10003;</td><td>&#10003;</td>
+  <td><span class="badge badge-full">Full</span></td>
+  <td>&mdash;</td>
+  <td>Matched/statement-only/app-only/ambiguous/failed buckets.</td>
+</tr>
+<tr>
+  <td><strong>Card Aliases</strong></td>
+  <td>&#10003;</td><td>&#10003;</td><td>&#10003;</td>
+  <td><span class="badge badge-full">Full</span></td>
+  <td>&mdash;</td>
+  <td>CRUD + soft archive; used in statement upload.</td>
+</tr>
+<tr>
+  <td><strong>Transaction Search &amp; Filter</strong></td>
+  <td>&#10003;</td><td>&#10003;</td><td>&#10003;</td>
+  <td><span class="badge badge-full">Full</span></td>
+  <td>&#10003;</td>
+  <td>Date range, category, merchant, currency, card. No location filter (legacy had it).</td>
+</tr>
+<tr>
+  <td><strong>Authentication (Firebase)</strong></td>
+  <td>&#10003;</td><td>&#10003;</td><td>&#10003;</td>
+  <td><span class="badge badge-full">Full</span></td>
+  <td>&#10003;</td>
+  <td>Firebase JWT; Google Sign-In + test auth on staging.</td>
+</tr>
+<tr>
+  <td><strong>Sign-Out Isolation</strong></td>
+  <td>&#10003;</td><td>&#10003;</td><td>&#10003;</td>
+  <td><span class="badge badge-full">Full</span></td>
+  <td>&#10003;</td>
+  <td>Multi-tab broadcast (web), keystore/cache purge (mobile).</td>
+</tr>
+<tr>
+  <td><strong>Push Token Registration</strong></td>
+  <td>&#10003;</td><td>&mdash;</td><td>&#10003;</td>
+  <td><span class="badge badge-full">Full</span></td>
+  <td>&#10003;</td>
+  <td>Mobile only; FCM/APN token lifecycle.</td>
+</tr>
+<tr>
+  <td><strong>Health &amp; Metrics</strong></td>
+  <td>&#10003;</td><td>&mdash;</td><td>&mdash;</td>
+  <td><span class="badge badge-full">Full</span></td>
+  <td>&mdash;</td>
+  <td>Liveness, readiness, Prometheus metrics with D62 trigger gauges.</td>
+</tr>
+
+<!-- PARTIAL / API ONLY -->
+<tr style="background: var(--surface);">
+  <td><strong>Consent Management</strong></td>
+  <td>&#10003;</td><td>&mdash;</td><td>&mdash;</td>
+  <td><span class="badge badge-api">API only</span></td>
+  <td>&mdash;</td>
+  <td>Full CRUD + audit trail API. 4 jurisdictions (CL/EU/CA/US). Zero UI.</td>
+</tr>
+<tr style="background: var(--surface);">
+  <td><strong>Privacy / DSR</strong></td>
+  <td>&#10003;</td><td>&mdash;</td><td>&mdash;</td>
+  <td><span class="badge badge-api">API only</span></td>
+  <td>&mdash;</td>
+  <td>Data access, rectification, erasure, portability. Zero UI.</td>
+</tr>
+<tr style="background: var(--surface);">
+  <td><strong>Settings / Profile</strong></td>
+  <td>&#10003;</td><td>&mdash;</td><td>&mdash;</td>
+  <td><span class="badge badge-api">API only</span></td>
+  <td>&#10003;</td>
+  <td>Legacy had 9 settings sub-views. Gastify has /privacy/rectification API but no screen.</td>
+</tr>
+<tr style="background: var(--surface);">
+  <td><strong>Batch Operations</strong></td>
+  <td>&#10003;</td><td>&mdash;</td><td>&mdash;</td>
+  <td><span class="badge badge-api">API only</span></td>
+  <td>&#10003;</td>
+  <td>batch-update, batch-delete APIs exist. No multi-select UI.</td>
+</tr>
+<tr style="background: var(--surface);">
+  <td><strong>Data Export</strong></td>
+  <td>&#10003;</td><td>&mdash;</td><td>&mdash;</td>
+  <td><span class="badge badge-api">API only</span></td>
+  <td>&#10003;</td>
+  <td>Portability API returns JSON. Legacy had export button in settings.</td>
+</tr>
+
+<!-- MISSING FROM LEGACY -->
+<tr>
+  <td><strong>Dashboard (Treemap)</strong></td>
+  <td>&mdash;</td><td>&mdash;</td><td>&mdash;</td>
+  <td><span class="badge badge-missing">Missing</span></td>
+  <td>&#10003;</td>
+  <td>Legacy had a rich treemap home with "Este Mes" category breakdown.</td>
+</tr>
+<tr>
+  <td><strong>Trends &amp; Charts</strong></td>
+  <td>&mdash;</td><td>&mdash;</td><td>&mdash;</td>
+  <td><span class="badge badge-missing">Missing</span></td>
+  <td>&#10003;</td>
+  <td>Legacy had Donut, Treemap, Sankey, Bump, Radar charts. Gastify has basic monthly rollups only.</td>
+</tr>
+<tr>
+  <td><strong>Items / Products View</strong></td>
+  <td>&mdash;</td><td>&mdash;</td><td>&mdash;</td>
+  <td><span class="badge badge-missing">Missing</span></td>
+  <td>&#10003;</td>
+  <td>Legacy had a dedicated items list (Productos) with filters. Gastify shows items only inside transaction detail.</td>
+</tr>
+<tr>
+  <td><strong>Weekly Reports</strong></td>
+  <td>&mdash;</td><td>&mdash;</td><td>&mdash;</td>
+  <td><span class="badge badge-missing">Missing</span></td>
+  <td>&#10003;</td>
+  <td>Legacy had weekly report cards with spending summaries and donut charts.</td>
+</tr>
+<tr>
+  <td><strong>Batch Capture / Review</strong></td>
+  <td>&mdash;</td><td>&mdash;</td><td>&mdash;</td>
+  <td><span class="badge badge-missing">Missing</span></td>
+  <td>&#10003;</td>
+  <td>Legacy had multi-receipt batch scanning with a review step. Gastify: single scan only.</td>
+</tr>
+<tr>
+  <td><strong>Notifications View</strong></td>
+  <td>&mdash;</td><td>&mdash;</td><td>&mdash;</td>
+  <td><span class="badge badge-missing">Missing</span></td>
+  <td>&#10003;</td>
+  <td>Legacy had an in-app notification center (Alerts) with read/delete. Gastify: token registration only.</td>
+</tr>
+<tr>
+  <td><strong>Theme Switcher</strong></td>
+  <td>&mdash;</td><td>&mdash;</td><td>&mdash;</td>
+  <td><span class="badge badge-missing">Missing</span></td>
+  <td>&#10003;</td>
+  <td>Legacy had 3 color themes (Normal/Professional/Mono) &times; light/dark. Gastify: no runtime theming.</td>
+</tr>
+<tr>
+  <td><strong>Category / Merchant Management</strong></td>
+  <td>&mdash;</td><td>&mdash;</td><td>&mdash;</td>
+  <td><span class="badge badge-missing">Missing</span></td>
+  <td>&#10003;</td>
+  <td>Legacy had Datos Aprendidos: view/edit/delete learned categories, merchants, item mappings, subcategories.</td>
+</tr>
+<tr>
+  <td><strong>Credit System UI</strong></td>
+  <td>partial</td><td>&mdash;</td><td>&mdash;</td>
+  <td><span class="badge badge-missing">Missing</span></td>
+  <td>&#10003;</td>
+  <td>Legacy had credit badges on FAB, credit info modal, subscription view. Gastify has backend billing table but no UI.</td>
+</tr>
+
+<!-- NEW IN GASTIFY -->
+<tr>
+  <td><strong>RLS Enforcement</strong></td>
+  <td>&#10003;</td><td>&mdash;</td><td>&mdash;</td>
+  <td><span class="badge badge-new">New</span></td>
+  <td>&mdash;</td>
+  <td>PostgreSQL row-level security with non-superuser roles + startup guard (D67/P43).</td>
+</tr>
+<tr>
+  <td><strong>Boleta Barcode Shortcut</strong></td>
+  <td>&#10003;</td><td>&mdash;</td><td>&mdash;</td>
+  <td><span class="badge badge-new">New</span></td>
+  <td>&mdash;</td>
+  <td>SII TED barcode parsing for Chilean boletas: 0 LLM tokens when barcode is present.</td>
+</tr>
+<tr>
+  <td><strong>Scan Review Signals</strong></td>
+  <td>&#10003;</td><td>&#10003;</td><td>&#10003;</td>
+  <td><span class="badge badge-new">New</span></td>
+  <td>&mdash;</td>
+  <td>Math gate, review level, confidence scoring on scans. Surfaces extraction quality.</td>
+</tr>
+<tr>
+  <td><strong>Recurrence Detection</strong></td>
+  <td>&#10003;</td><td>&mdash;</td><td>&mdash;</td>
+  <td><span class="badge badge-new">New</span></td>
+  <td>&mdash;</td>
+  <td>Backend detects recurring transactions (monthly patterns). Limited UI exposure.</td>
+</tr>
+<tr>
+  <td><strong>Capacity Metrics (D62)</strong></td>
+  <td>&#10003;</td><td>&mdash;</td><td>&mdash;</td>
+  <td><span class="badge badge-new">New</span></td>
+  <td>&mdash;</td>
+  <td>Concurrent scans gauge, pool-wait histogram, Gemini 429 rate counter.</td>
+</tr>
+<tr>
+  <td><strong>Polling Fallback (Path A)</strong></td>
+  <td>&#10003;</td><td>&mdash;</td><td>&#10003;</td>
+  <td><span class="badge badge-new">New</span></td>
+  <td>&mdash;</td>
+  <td>Mobile falls back to REST polling when WS fails. Replica-safe by design.</td>
+</tr>
+</tbody>
+</table>
+
+<!-- ============================================================ -->
+<h2>Biggest Gaps vs Legacy</h2>
+
+<div class="gap-card">
+  <h4>1. No Dashboard / Home Analytics <span class="tag tag-high">high</span></h4>
+  <p>BoletApp's home screen was a rich treemap showing "Este Mes" (This Month) spending by category, with recent transactions expandable below. Gastify's home is a simple hub with navigation links. The dashboard was the first thing users saw and set the tone for the app as an analytics product, not just a scanner.</p>
+</div>
+
+<div class="gap-card">
+  <h4>2. No Charts / Trends View <span class="tag tag-high">high</span></h4>
+  <p>BoletApp had 5 chart types (Treemap, Donut, Sankey, Bump, Radar) with multi-level drill-down (store groups &rarr; store categories &rarr; item groups &rarr; items) and temporal navigation (year/quarter/month/week). Gastify's insights are text-only monthly rollups &mdash; functional but visually flat.</p>
+  <ul>
+    <li>Treemap: category spending at a glance</li>
+    <li>Donut: store/item distribution</li>
+    <li>Sankey: store &rarr; item category flow</li>
+    <li>Bump: time-series category trends</li>
+    <li>Radar: comparative category analysis</li>
+  </ul>
+</div>
+
+<div class="gap-card">
+  <h4>3. No Settings Screen <span class="tag tag-high">high</span></h4>
+  <p>BoletApp had a comprehensive settings view with 9 sub-sections: profile, preferences (language, currency, date format, themes), scan defaults, subscription/credits, learned data management, groups, app settings, and account (export, wipe, sign-out). Gastify has zero settings UI despite having backend APIs for profile rectification and data portability.</p>
+</div>
+
+<div class="gap-card">
+  <h4>4. No Items / Products View <span class="tag tag-medium">medium</span></h4>
+  <p>BoletApp had a dedicated "Productos" screen showing all scanned items across transactions, with the same filter/search capabilities as the transaction list. Gastify shows item-level data only within a transaction's detail view &mdash; there's no way to search "how much did I spend on chicken across all transactions."</p>
+</div>
+
+<div class="gap-card">
+  <h4>5. No Reports <span class="tag tag-medium">medium</span></h4>
+  <p>Weekly/monthly spending summaries with donut chart visualizations. Not just raw data &mdash; formatted cards with insights. Gastify's insights endpoint covers some of this data but the presentation is basic.</p>
+</div>
+
+<div class="gap-card">
+  <h4>6. No Theme Switcher <span class="tag tag-medium">medium</span></h4>
+  <p>BoletApp ran 3 color themes (Normal, Professional, Mono) &times; light/dark mode = 6 visual variants. The theme system was designed and stress-tested across mockups. Gastify has no runtime theme control &mdash; there's one appearance. The design tokens were specced (in the legacy mockup phase) but never wired to a runtime toggle.</p>
+</div>
+
+<div class="gap-card">
+  <h4>7. No Batch Scan <span class="tag tag-low">low</span></h4>
+  <p>BoletApp let users capture multiple receipts in a batch, then review each one before saving. Gastify processes one scan at a time. Batch scanning was a power-user feature &mdash; most users scanned one receipt at a time.</p>
+</div>
+
+<div class="gap-card">
+  <h4>8. No Notification Center <span class="tag tag-low">low</span></h4>
+  <p>BoletApp had an in-app alerts view (read/unread, mark read, delete). Gastify has push token registration on mobile but no UI to view or manage notifications. Less critical until push notifications are actively being sent.</p>
+</div>
+
+<div class="gap-card">
+  <h4>9. No Category/Merchant Management <span class="tag tag-low">low</span></h4>
+  <p>BoletApp's "Datos Aprendidos" let users view, edit, and delete the system's learned category/merchant/item/subcategory mappings. Gastify's categorization is fully AI-driven with no user override UI. Less critical if AI accuracy is high, but reduces user control.</p>
+</div>
+
+<!-- ============================================================ -->
+<h2>What Gastify Added</h2>
+
+<div class="gap-card">
+  <h4>Statement Reconciliation <span class="tag" style="background:var(--blue-bg);color:var(--blue)">major</span></h4>
+  <p>Full bank statement pipeline: PDF upload, AI extraction, reconciliation engine matching statement lines to receipt transactions. Buckets (matched, statement-only, app-only, ambiguous) with coverage metrics. BoletApp only had a placeholder.</p>
+</div>
+
+<div class="gap-card">
+  <h4>Privacy &amp; Compliance (4 jurisdictions) <span class="tag" style="background:var(--blue-bg);color:var(--blue)">major</span></h4>
+  <p>Law 21.719 (Chile) + GDPR + PIPEDA + CCPA/CPRA compliance: consent management with audit trail, data subject request APIs (access, rectification, erasure, portability), processing register. Not in BoletApp.</p>
+</div>
+
+<div class="gap-card">
+  <h4>PostgreSQL RLS + Non-Superuser Roles <span class="tag" style="background:var(--blue-bg);color:var(--blue)">infra</span></h4>
+  <p>Defense-in-depth: runtime connects as a least-privilege role; RLS policies enforce tenant isolation at the database. Startup guard refuses to boot if the role can bypass RLS. BoletApp used Firebase (no SQL, no RLS).</p>
+</div>
+
+<div class="gap-card">
+  <h4>Scan Review Signals &amp; Math Gate</h4>
+  <p>Extraction quality surfaced to users: math reconciliation, confidence scoring, review-level classification. BoletApp trusted extraction output silently.</p>
+</div>
+
+<div class="gap-card">
+  <h4>Boleta Barcode Shortcut</h4>
+  <p>Chilean boletas with SII TED barcodes are parsed without LLM calls (0 tokens, 0 cost). Falls through to vision extraction if no barcode detected.</p>
+</div>
+
+<!-- ============================================================ -->
+<h2>Architecture Comparison</h2>
+
+<table>
+<thead>
+<tr><th>Aspect</th><th>BoletApp (Legacy)</th><th>Gastify (Rebuild)</th></tr>
+</thead>
+<tbody>
+<tr><td>Backend</td><td>Firebase (Firestore, Functions, Auth, Storage)</td><td>FastAPI + PostgreSQL + SQLAlchemy + Alembic</td></tr>
+<tr><td>Auth</td><td>Firebase Auth (client-side)</td><td>Firebase Auth (server-verified JWT)</td></tr>
+<tr><td>Database</td><td>Firestore (NoSQL)</td><td>PostgreSQL with RLS + migrations</td></tr>
+<tr><td>AI/LLM</td><td>Gemini (basic OCR)</td><td>Gemini 2.5 Flash Lite (structured output, math gate, review signals)</td></tr>
+<tr><td>Web Framework</td><td>React + Vite (SPA)</td><td>React + Vite + TanStack Router (SPA)</td></tr>
+<tr><td>Mobile</td><td>PWA only</td><td>React Native + Expo (native Android, iOS deferred)</td></tr>
+<tr><td>State</td><td>Zustand + React Query</td><td>Zustand + TanStack Query</td></tr>
+<tr><td>Charts</td><td>ECharts (5 chart types)</td><td>None (text rollups only)</td></tr>
+<tr><td>Themes</td><td>3 color themes &times; light/dark</td><td>Single appearance</td></tr>
+<tr><td>Deploy</td><td>Firebase Hosting</td><td>Railway (API + Postgres + Web)</td></tr>
+<tr><td>Testing</td><td>Vitest + Playwright</td><td>pytest + Vitest + Playwright + Maestro (S23 device)</td></tr>
+<tr><td>Observability</td><td>Firebase console</td><td>Structured logging + Prometheus metrics + D62 gauges</td></tr>
+</tbody>
+</table>
+
+<!-- ============================================================ -->
+<h2>Screen Count Comparison</h2>
+
+<table>
+<thead>
+<tr><th>Screen</th><th>BoletApp</th><th>Gastify Web</th><th>Gastify Mobile</th></tr>
+</thead>
+<tbody>
+<tr><td>Dashboard / Home</td><td>&#10003; (rich treemap)</td><td>&#10003; (simple hub)</td><td>&#10003; (scan hub)</td></tr>
+<tr><td>Trends / Charts</td><td>&#10003;</td><td>&mdash;</td><td>&mdash;</td></tr>
+<tr><td>Insights</td><td>&#10003; (4 view modes)</td><td>&#10003; (monthly)</td><td>&#10003; (monthly)</td></tr>
+<tr><td>History / Transactions</td><td>&#10003;</td><td>&#10003;</td><td>&#10003;</td></tr>
+<tr><td>Items / Products</td><td>&#10003;</td><td>&mdash;</td><td>&mdash;</td></tr>
+<tr><td>Transaction Detail</td><td>&#10003;</td><td>&#10003;</td><td>&#10003;</td></tr>
+<tr><td>Scan / Capture</td><td>&#10003;</td><td>&#10003;</td><td>&#10003;</td></tr>
+<tr><td>Batch Capture</td><td>&#10003;</td><td>&mdash;</td><td>&mdash;</td></tr>
+<tr><td>Batch Review</td><td>&#10003;</td><td>&mdash;</td><td>&mdash;</td></tr>
+<tr><td>Recent Scans</td><td>&#10003;</td><td>&mdash;</td><td>&mdash;</td></tr>
+<tr><td>Statement Upload</td><td>placeholder</td><td>&#10003;</td><td>&#10003;</td></tr>
+<tr><td>Reports</td><td>&#10003;</td><td>&mdash;</td><td>&mdash;</td></tr>
+<tr><td>Settings (9 sub-views)</td><td>&#10003;</td><td>&mdash;</td><td>&mdash;</td></tr>
+<tr><td>Notifications</td><td>&#10003;</td><td>&mdash;</td><td>&mdash;</td></tr>
+<tr><td>Sign-In</td><td>&#10003;</td><td>&#10003;</td><td>&#10003;</td></tr>
+<tr><td><strong>Total</strong></td><td><strong>15</strong></td><td><strong>7</strong></td><td><strong>7</strong></td></tr>
+</tbody>
+</table>
+
+<p style="margin-top:2rem;color:var(--text-dim);font-size:0.85rem;text-align:center;">
+  Gastify &copy; 2026 &mdash; This report is auto-generated and reflects the codebase at the listed commit.
+</p>
+
+</body>
+</html>

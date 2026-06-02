@@ -3234,3 +3234,16 @@ All 3 phases complete (✅×4 each):
   Phase 1: Progress polling fallback
   Phase 2: Zero-Gemini load test + capacity validation
   Phase 3: Path-B trigger instrumentation
+- 2026-06-02 18:42 | Write | /home/khujta/projects/apps/gastify/docs/APP-STATE.html
+
+## 2026-06-02 23:00 — NEW PLAN: Feature parity with legacy BoletApp
+ARCHIVED: D62 polling-fallback plan (completed, all 3 phases ✅×4) → .kdbp/archive/
+NEW PLAN: 6 phases (P10-P15 in ROADMAP), write-first ordering
+  Phase 1: Settings + Profile + Themes (high)
+  Phase 2: Batch Ops + Category Management (med)
+  Phase 3: Batch Scanning (high)
+  Phase 4: Dashboard + Charts/Trends (high)
+  Phase 5: Items View + Reports (med)
+  Phase 6: Notification Center (low)
+ROADMAP: v1.4 — P7→P16, P8→P17, P9→P18. P10-P15 inserted before launch gate.
+SOURCE: docs/APP-STATE.html audit (9 missing features, 5 API-only gaps vs legacy BoletApp)
