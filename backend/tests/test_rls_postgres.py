@@ -39,7 +39,11 @@ pytestmark = pytest.mark.skipif(
 _APP_ROLE = "gastify_rls_test_app"
 _APP_PASSWORD = "rls_test_pw"
 
-_SETUP_SQL = """
+# missing_ok + NULLIF('') so an unset OR reset-to-empty GUC yields NULL (fail-safe);
+# mirrors migration 027.
+_SCOPE = "NULLIF(current_setting('app.ownership_scope_id', true), '')::uuid"
+
+_SETUP_SQL = f"""
 DROP TABLE IF EXISTS rls_child CASCADE;
 DROP TABLE IF EXISTS rls_parent CASCADE;
 
@@ -57,22 +61,20 @@ CREATE TABLE rls_child (
 ALTER TABLE rls_parent ENABLE ROW LEVEL SECURITY;
 ALTER TABLE rls_parent FORCE ROW LEVEL SECURITY;
 CREATE POLICY rls_parent_scope_isolation ON rls_parent
-    USING (ownership_scope_id = current_setting('app.ownership_scope_id')::uuid)
-    WITH CHECK (ownership_scope_id = current_setting('app.ownership_scope_id')::uuid);
+    USING (ownership_scope_id = {_SCOPE})
+    WITH CHECK (ownership_scope_id = {_SCOPE});
 
 ALTER TABLE rls_child ENABLE ROW LEVEL SECURITY;
 ALTER TABLE rls_child FORCE ROW LEVEL SECURITY;
 CREATE POLICY rls_child_scope_isolation ON rls_child
     USING (
         parent_id IN (
-            SELECT id FROM rls_parent
-            WHERE ownership_scope_id = current_setting('app.ownership_scope_id')::uuid
+            SELECT id FROM rls_parent WHERE ownership_scope_id = {_SCOPE}
         )
     )
     WITH CHECK (
         parent_id IN (
-            SELECT id FROM rls_parent
-            WHERE ownership_scope_id = current_setting('app.ownership_scope_id')::uuid
+            SELECT id FROM rls_parent WHERE ownership_scope_id = {_SCOPE}
         )
     );
 """
@@ -225,6 +227,44 @@ async def test_subquery_policy_isolates_child_rows_across_scopes() -> None:
                 await _set_scope(app, scope_a)
                 child_rows = await app.fetch("SELECT note FROM rls_child")
                 assert {r["note"] for r in child_rows} == {"child-A"}
+        finally:
+            await app.close()
+    finally:
+        await _admin_teardown(admin)
+        await admin.close()
+
+
+@pytest.mark.asyncio
+async def test_unset_guc_is_fail_safe_not_error(monkeypatch=None) -> None:
+    """missing_ok current_setting: an unset GUC yields ZERO rows, never an error (P43).
+
+    The policies use current_setting('app.ownership_scope_id', true), so when the
+    GUC is unset the comparison is against NULL → no rows match (fail-safe) instead
+    of raising 'unrecognized configuration parameter' (which 500'd writes that
+    commit mid-request and lost the transaction-local GUC).
+    """
+    _reachable_or_skip()
+    assert ADMIN_DSN is not None
+    try:
+        admin = await asyncpg.connect(ADMIN_DSN, timeout=5)
+    except Exception:
+        pytest.skip(f"Postgres not reachable at GASTIFY_TEST_PG_DSN ({ADMIN_DSN.split('@')[-1]}).")
+
+    scope_a = uuid.uuid4()
+    try:
+        app_dsn = await _admin_setup(admin)
+        app = await asyncpg.connect(app_dsn, timeout=5)
+        try:
+            # Seed a row under scope A.
+            async with app.transaction():
+                await _set_scope(app, scope_a)
+                await app.execute(
+                    "INSERT INTO rls_parent (ownership_scope_id, label) VALUES ($1,'A')", scope_a
+                )
+            # Fresh transaction with NO GUC set: must return 0 rows, NOT raise.
+            async with app.transaction():
+                rows = await app.fetch("SELECT label FROM rls_parent")
+                assert rows == []  # fail-safe: unset GUC hides everything
         finally:
             await app.close()
     finally:

@@ -9,7 +9,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.firebase import CurrentUser
-from app.db import get_db
+from app.db import SCOPE_INFO_KEY, get_db
 from app.models.credit import CreditBalance
 from app.models.user import OwnershipScope, OwnershipScopeMember, User
 
@@ -24,7 +24,13 @@ class AuthContext:
 
 
 async def _set_postgres_ownership_scope(db: AsyncSession, scope_id: uuid.UUID) -> None:
-    """Set the transaction-local RLS scope for PostgreSQL-backed requests."""
+    """Set the transaction-local RLS scope for PostgreSQL-backed requests.
+
+    Also stashes the scope on session.info so the `after_begin` event in app.db
+    re-establishes the GUC at the start of every subsequent transaction — the
+    transaction-local set_config below is lost across any mid-request commit (P43).
+    """
+    db.info[SCOPE_INFO_KEY] = scope_id
     if db.bind and db.bind.dialect.name == "postgresql":
         await db.execute(
             text("SELECT set_config('app.ownership_scope_id', :sid, true)"),

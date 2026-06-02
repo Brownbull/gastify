@@ -1,14 +1,14 @@
 from collections.abc import AsyncGenerator
 
 import structlog
-from sqlalchemy import text
+from sqlalchemy import event, text
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
     AsyncSession,
     async_sessionmaker,
     create_async_engine,
 )
-from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.orm import DeclarativeBase, Session
 
 from app.config import LOCAL_ENVIRONMENTS, Settings, settings
 
@@ -22,6 +22,31 @@ engine = create_async_engine(
 )
 
 async_session = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+
+# Key under which a request's ownership scope is stashed on the session, so the
+# per-transaction GUC event below can re-establish it after mid-request commits.
+SCOPE_INFO_KEY = "ownership_scope_id"
+
+
+@event.listens_for(Session, "after_begin")
+def _reapply_ownership_scope_guc(session: Session, transaction: object, connection: object) -> None:
+    """Re-establish app.ownership_scope_id at the start of EVERY transaction (P43).
+
+    The RLS scope GUC is transaction-local (set_config ..., is_local=true). Any
+    endpoint that commit()s mid-request and then runs another query would lose it,
+    leaving RLS with no scope. This event sets it whenever a new transaction
+    begins on the request's session — so the value survives across commits.
+    Postgres only; the scope is read from session.info (set by the auth dep).
+    """
+    scope = session.info.get(SCOPE_INFO_KEY)
+    if scope is None:
+        return
+    if connection.dialect.name != "postgresql":  # type: ignore[attr-defined]
+        return
+    connection.execute(  # type: ignore[attr-defined]
+        text("SELECT set_config('app.ownership_scope_id', :sid, true)"),
+        {"sid": str(scope)},
+    )
 
 
 class Base(DeclarativeBase):
