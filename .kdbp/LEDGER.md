@@ -3185,3 +3185,6 @@ VARS: 26 env vars set on gastify-api-production via CLI (env=production, DB role
 DASHBOARD REQUIRED: gastify-api-production → Settings → Source → Root Directory = `backend`, branch = `main`, Wait for CI = ON. Once set, the first deploy will migrate 001→027 as gastify_migrator and boot as gastify_app (guard passes, health 200; Firebase auth fails gracefully — placeholder creds).
 PRODUCTION WEB: gastify-web-production created but needs VITE_FIREBASE_* vars (deferred until a production Firebase project exists — P7 scope).
 DEFERRED TO P7: production Firebase project + service account, Gemini production API key, production web domain, paid-tier activation, compliance audit.
+- 2026-06-02 14:16 | Write | /home/khujta/projects/apps/gastify/tests/mobile/scripts/run-statement-maestro.sh
+- 2026-06-02 14:21 | Edit | /home/khujta/projects/apps/gastify/tests/mobile/scripts/run-maestro.sh
+- 2026-06-02 14:29 | Edit | /home/khujta/projects/apps/gastify/tests/mobile/maestro/p5-phase6-statement-reconciliation-active.yaml
