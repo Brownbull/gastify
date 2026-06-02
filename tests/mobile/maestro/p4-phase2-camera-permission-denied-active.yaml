@@ -16,10 +16,25 @@ appId: com.gastify.mobile
           point: "90%,45%"
       - waitForAnimationToEnd:
           timeout: 5000
+- tapOn:
+    text: "Continue"
+    optional: true
+- tapOn:
+    text: "Got it"
+    optional: true
 - runFlow:
     when:
       visible:
-        id: sign-in-screen
+        id: e2e-sign-in-button
+    commands:
+      - tapOn:
+          id: e2e-sign-in-button
+- waitForAnimationToEnd:
+    timeout: 10000
+- runFlow:
+    when:
+      visible:
+        id: e2e-sign-in-button
     commands:
       - tapOn:
           id: e2e-sign-in-button

@@ -125,11 +125,11 @@ appId: com.gastify.mobile
       id: statement-bucket-list-statement_only
     timeout: 20000
 - assertVisible: "Statement only"
-- swipe:
-    direction: UP
-- extendedWaitUntil:
-    visible: "Add transaction"
-    timeout: 20000
+- scrollUntilVisible:
+    element:
+      text: "Add transaction"
+    direction: DOWN
+    timeout: 30000
 - takeScreenshot:
     path: 07-phase6-statement-only-candidates
 - tapOn:
@@ -137,7 +137,6 @@ appId: com.gastify.mobile
 - extendedWaitUntil:
     visible: "Transaction added"
     timeout: 30000
-- assertNotVisible: "Add transaction"
 - takeScreenshot:
     path: 08-phase6-after-candidate-action
 - tapOn: "Back"

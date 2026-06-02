@@ -204,6 +204,22 @@ case "${MAESTRO_REINSTALL_DRIVER:-true}" in
     ;;
 esac
 
+# Pre-launch the dev-client with the Metro deep-link so the app renders the real
+# UI (not the Expo launcher). Maestro's appId-based launch opens the dev-client
+# shell, but only the deep-link URL connects it to Metro + loads the JS bundle.
+# GASTIFY_SKIP_DEV_CLIENT_LAUNCH=true skips this (for standalone/non-dev builds).
+if [[ "${GASTIFY_SKIP_DEV_CLIENT_LAUNCH:-false}" != "true" ]]; then
+  METRO_URL="${GASTIFY_METRO_URL:-http://localhost:8081}"
+  APP_ID="${GASTIFY_APP_ID:-com.gastify.mobile}"
+  DEV_CLIENT_URL="exp+gastify-mobile://expo-development-client/?url=$(printf '%s' "${METRO_URL}" | sed 's/:/%3A/g; s/\//%2F/g')"
+  "${ADB_BIN_RESOLVED}" reverse tcp:8081 tcp:8081 >/dev/null 2>&1 || true
+  "${ADB_BIN_RESOLVED}" shell am force-stop "${APP_ID}" >/dev/null 2>&1 || true
+  sleep 2
+  "${ADB_BIN_RESOLVED}" shell am start -a android.intent.action.VIEW -d "${DEV_CLIENT_URL}" "${APP_ID}" >/dev/null 2>&1 || true
+  echo "Waiting for dev-client bundle (40s)..."
+  sleep 40
+fi
+
 MAESTRO_CLI_NO_ANALYTICS=1 \
 MAESTRO_CLI_ANALYSIS_NOTIFICATION_DISABLED=true \
 "${MAESTRO_BIN}" "${MAESTRO_GLOBAL_ARGS[@]}" "${MAESTRO_TEST_ARGS[@]}" \
