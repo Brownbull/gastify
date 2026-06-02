@@ -3206,3 +3206,20 @@ TIER: ent | DRIFT: none
 TICK: ✅ (Phase 2 Review ticked)
 FIXES APPLIED: #1 JSONDecodeError guard in _request(), #2 removed dead STATEMENT_TERMINAL, #3 stale docstring URL
 LOAD TEST RESULTS: C=1 0% err p95=1677ms; C=5 0% err p95=1616ms; C=15 0.11% err p99=29442ms (pool saturation). D62 estimate validated. Full report: scripts/loadtest/CAPACITY-REPORT.md
+
+## 2026-06-02 15:45 — PUSH main -> main
+PR: — (direct push, non-app changes)
+CI: github-actions (pending)
+PROMOTION: N/A
+- 2026-06-02 18:21 | Edit | /home/khujta/projects/apps/gastify/backend/app/observability.py
+- 2026-06-02 18:21 | Edit | /home/khujta/projects/apps/gastify/backend/app/observability.py
+- 2026-06-02 18:22 | Edit | /home/khujta/projects/apps/gastify/backend/app/observability.py
+- 2026-06-02 18:22 | Edit | /home/khujta/projects/apps/gastify/backend/app/observability.py
+- 2026-06-02 18:22 | Edit | /home/khujta/projects/apps/gastify/backend/app/services/scan_worker.py
+- 2026-06-02 18:23 | Edit | /home/khujta/projects/apps/gastify/backend/app/services/scan_worker.py
+- 2026-06-02 18:23 | Edit | /home/khujta/projects/apps/gastify/backend/app/services/scan_worker.py
+- 2026-06-02 18:23 | Edit | /home/khujta/projects/apps/gastify/backend/app/db.py
+- 2026-06-02 18:23 | Edit | /home/khujta/projects/apps/gastify/backend/app/db.py
+- 2026-06-02 18:24 | Edit | /home/khujta/projects/apps/gastify/backend/app/db.py
+- 2026-06-02 18:24 | Edit | /home/khujta/projects/apps/gastify/backend/app/db.py
+- 2026-06-02 18:24 | Write | /home/khujta/projects/apps/gastify/docs/runbooks/SCALING-LEVERS.md

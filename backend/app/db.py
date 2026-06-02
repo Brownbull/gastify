@@ -1,3 +1,4 @@
+import time
 from collections.abc import AsyncGenerator
 
 import structlog
@@ -11,6 +12,7 @@ from sqlalchemy.ext.asyncio import (
 from sqlalchemy.orm import DeclarativeBase, Session
 
 from app.config import LOCAL_ENVIRONMENTS, Settings, settings
+from app.observability import metrics
 
 logger = structlog.get_logger()
 
@@ -54,7 +56,10 @@ class Base(DeclarativeBase):
 
 
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
+    start = time.monotonic()
     async with async_session() as session:
+        wait_ms = (time.monotonic() - start) * 1000
+        metrics.observe("db_pool_checkout_wait_ms", wait_ms)
         yield session
 
 

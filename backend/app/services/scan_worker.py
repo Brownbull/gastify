@@ -59,6 +59,7 @@ if TYPE_CHECKING:
 logger = structlog.get_logger()
 
 PROCESSING_TIMEOUT_S = 600
+_active_scan_count = 0
 
 
 async def _emit(
@@ -170,46 +171,54 @@ async def process_scan(
     requeue_quota_throttled_scans dispatches with no request context), the scope
     is read from the acquired scan record (scans has no RLS).
     """
+    global _active_scan_count
     log = logger.bind(scan_id=str(scan_id))
     start = time.monotonic()
 
     scan, _ = await _acquire_scan(scan_id, log)
     if scan is None:
         return False
-    if ownership_scope_id is None:
-        ownership_scope_id = scan.ownership_scope_id
 
-    scan_provider = active_scan_provider(settings)
-    if scan_provider == "fixture":
-        return await _run_e2e_fixture_pipeline(
+    _active_scan_count += 1
+    metrics.set_gauge("concurrent_active_scans", _active_scan_count)
+    metrics.track_max("concurrent_active_scans_peak", _active_scan_count)
+    try:
+        if ownership_scope_id is None:
+            ownership_scope_id = scan.ownership_scope_id
+
+        scan_provider = active_scan_provider(settings)
+        if scan_provider == "fixture":
+            return await _run_e2e_fixture_pipeline(
+                scan, scan_id, log, start, ownership_scope_id=ownership_scope_id
+            )
+        if scan_provider == "mock":
+            return await _run_mock_provider_pipeline(
+                scan, scan_id, log, start, ownership_scope_id=ownership_scope_id
+            )
+
+        boleta_result = await _try_boleta_shortcut(
             scan, scan_id, log, start, ownership_scope_id=ownership_scope_id
         )
-    if scan_provider == "mock":
-        return await _run_mock_provider_pipeline(
+        if boleta_result is not None:
+            return boleta_result
+
+        extraction = await _run_stage1(
             scan, scan_id, log, start, ownership_scope_id=ownership_scope_id
         )
+        if extraction is None:
+            return False
 
-    # Structured-boleta shortcut: if the upload carries a parseable SII timbre
-    # (TED), produce the transaction from it with 0 extraction-LLM tokens. Any
-    # miss (no barcode / unparseable) falls through to the proven vision path.
-    boleta_result = await _try_boleta_shortcut(
-        scan, scan_id, log, start, ownership_scope_id=ownership_scope_id
-    )
-    if boleta_result is not None:
-        return boleta_result
-
-    extraction = await _run_stage1(scan, scan_id, log, start, ownership_scope_id=ownership_scope_id)
-    if extraction is None:
-        return False
-
-    return await _run_stage2(
-        scan,
-        scan_id,
-        extraction,
-        log,
-        start,
-        ownership_scope_id=ownership_scope_id,
-    )
+        return await _run_stage2(
+            scan,
+            scan_id,
+            extraction,
+            log,
+            start,
+            ownership_scope_id=ownership_scope_id,
+        )
+    finally:
+        _active_scan_count -= 1
+        metrics.set_gauge("concurrent_active_scans", _active_scan_count)
 
 
 async def _try_boleta_shortcut(

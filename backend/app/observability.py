@@ -29,6 +29,15 @@ METRIC_HELP: dict[str, str] = {
     "llm_cost_usd": "LLM cost per scan in USD.",
     "queue_wait_ms": "Queue wait time before scan processing in milliseconds.",
     "thumbnail_gen_ms": "Thumbnail generation time in milliseconds.",
+    "concurrent_active_scans": "Current number of scans being processed (D62 Path-B trigger).",
+    "concurrent_active_scans_peak": (
+        "Peak concurrent active scans since process start (D62 Path-B trigger)."
+    ),
+    "db_pool_checkout_wait_ms": (
+        "DB connection pool checkout wait time in ms (D62 Path-B trigger)."
+    ),
+    "scan_error_rate_limit": "Scans that hit Gemini 429 rate limit (D62 Path-B trigger).",
+    "scan_error_quota_exceeded": "Scans throttled by Gemini quota (D62 Path-B trigger).",
 }
 
 PROMETHEUS_CONTENT_TYPE = "text/plain; version=0.0.4; charset=utf-8"
@@ -38,6 +47,7 @@ class MetricsRegistry:
     def __init__(self) -> None:
         self._lock = Lock()
         self._counters: dict[str, int] = defaultdict(int)
+        self._gauges: dict[str, float] = defaultdict(float)
         self._reservoirs: dict[str, list[float]] = defaultdict(list)
         self._hist_counts: dict[str, int] = defaultdict(int)
         self._hist_sums: dict[str, float] = defaultdict(float)
@@ -48,6 +58,15 @@ class MetricsRegistry:
     def inc(self, name: str, value: int = 1) -> None:
         with self._lock:
             self._counters[name] += value
+
+    def set_gauge(self, name: str, value: float) -> None:
+        with self._lock:
+            self._gauges[name] = value
+
+    def track_max(self, name: str, value: float) -> None:
+        with self._lock:
+            if value > self._gauges.get(name, 0):
+                self._gauges[name] = value
 
     def observe(self, name: str, value: float) -> None:
         with self._lock:
@@ -100,6 +119,7 @@ class MetricsRegistry:
         return {
             "uptime_seconds": round(time.time() - self._start_time, 1),
             "counters": dict(self._counters),
+            "gauges": dict(self._gauges),
             "histograms": histograms,
         }
 
@@ -110,6 +130,14 @@ class MetricsRegistry:
         lines.append("# HELP gastify_uptime_seconds Process uptime in seconds.")
         lines.append("# TYPE gastify_uptime_seconds gauge")
         lines.append(f"gastify_uptime_seconds {uptime}")
+
+        for name, value in sorted(self._gauges.items()):
+            prom_name = f"gastify_{name}"
+            help_text = METRIC_HELP.get(name, "")
+            if help_text:
+                lines.append(f"# HELP {prom_name} {help_text}")
+            lines.append(f"# TYPE {prom_name} gauge")
+            lines.append(f"{prom_name} {value}")
 
         for name, value in sorted(self._counters.items()):
             prom_name = f"gastify_{name}"

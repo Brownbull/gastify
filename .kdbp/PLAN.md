@@ -12,7 +12,7 @@ Path A (Phase 0): fix the Railway WebSocket-403 progress stall with a REST polli
 - **Maturity:** mvp
 - **Domain:** Chilean smart expense tracker (AI receipt scanning, multi-currency analytics, PWA + native mobile)
 - **Created:** 2026-05-30
-- **Last Updated:** 2026-05-30
+- **Last Updated:** 2026-06-02
 - **Decision basis:** ADR D62 (two-axis progress-delivery finding; Path A now, Path B Postgres-native-first + triggered)
 
 ## Phases
@@ -20,8 +20,8 @@ Path A (Phase 0): fix the Railway WebSocket-403 progress stall with a REST polli
 | # | Phase | Description | Tier | Complexity | Exec | Review | Commit | Push |
 |---|-------|-------------|------|------------|------|--------|--------|------|
 | 1 | Progress polling fallback | Add minimal backend `GET /scans/{id}` status endpoint + persist `scan.transaction_id` (the scan side lacked both — see D66); mobile hooks fall back to polling `GET /scans/{id}` + `GET /statements/{id}` when the WS fails/stalls (HYBRID: WS-primary, fallback on distress + always foreground-reconcile); reuse store `status→phase` reducers; jittered + adaptive backoff (stall threshold ≥2.5× the 15s heartbeat). | mvp | med | ✅ | ✅ | ✅ | ✅ |
-| 2 | Zero-Gemini load test + capacity validation | `httpx` async harness using `scan_provider=mock/fixture` + `statement_provider=fixture` + `e2e_scan_event_delay_ms` ($0, no LLM). Ramp concurrent active jobs + polling load; measure DB pool-wait, p95 status latency, throughput, error rate; confirm/correct the D62 estimate. Dedicated load env (mock/fixture blocked in prod). | ent | med | ✅ | ✅ | ✅ | ⬜ |
-| 3 | Path-B trigger instrumentation | Make the D62 Path-B triggers data-driven: surface metrics for peak concurrent active scans, DB pool-wait, Gemini 429 rate; document polling-safe scaling levers (pool size, uvicorn `--workers`, replicas) + the threshold to start Path B. | mvp | low | ⬜ | ⬜ | ⬜ | ⬜ |
+| 2 | Zero-Gemini load test + capacity validation | `httpx` async harness using `scan_provider=mock/fixture` + `statement_provider=fixture` + `e2e_scan_event_delay_ms` ($0, no LLM). Ramp concurrent active jobs + polling load; measure DB pool-wait, p95 status latency, throughput, error rate; confirm/correct the D62 estimate. Dedicated load env (mock/fixture blocked in prod). | ent | med | ✅ | ✅ | ✅ | ✅ |
+| 3 | Path-B trigger instrumentation | Make the D62 Path-B triggers data-driven: surface metrics for peak concurrent active scans, DB pool-wait, Gemini 429 rate; document polling-safe scaling levers (pool size, uvicorn `--workers`, replicas) + the threshold to start Path B. | mvp | low | ✅ | ⬜ | ⬜ | ⬜ |
 
 <!-- Exec is written by /gabe-execute: ⬜ not started, 🔄 in progress, ✅ complete -->
 <!-- Review/Commit/Push auto-ticked by /gabe-review, /gabe-commit, /gabe-push -->
@@ -92,7 +92,7 @@ decisions_entry: D65
 
 ## Current Phase
 
-Phase 2: Zero-Gemini load test + capacity validation
+Phase 3: Path-B trigger instrumentation
 
 ## Dependencies
 
