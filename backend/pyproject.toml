@@ -69,3 +69,9 @@ python_version = "3.12"
 strict = true
 warn_return_any = true
 warn_unused_configs = true
+
+# asyncpg ships no py.typed marker / stubs. Used directly by app/bootstrap_db.py
+# (the DB role-split provisioning, P43).
+[[tool.mypy.overrides]]
+module = ["asyncpg", "asyncpg.*"]
+ignore_missing_imports = true

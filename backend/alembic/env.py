@@ -10,7 +10,11 @@ from app.config import settings
 from app.db import Base
 
 config = context.config
-config.set_main_option("sqlalchemy.url", settings.database_url)
+# Migrations run as the privileged owner (database_admin_url) when configured, so
+# they can ALTER/CREATE/own tables + RLS policies; the runtime app role in
+# database_url is intentionally non-privileged (P43). Falls back to database_url
+# when no admin URL is set (local/dev / single-URL deployments).
+config.set_main_option("sqlalchemy.url", settings.database_admin_url or settings.database_url)
 
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)

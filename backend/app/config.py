@@ -22,6 +22,19 @@ class Settings(BaseSettings):
     database_url: str = "sqlite+aiosqlite:///../.tmp/local/gastify.db"
     database_echo: bool = False
 
+    # P43 — RLS is only enforced for NON-superuser roles. To make row-level
+    # security an effective second barrier, the RUNTIME connects via database_url
+    # as a non-superuser app role, while privileged bootstrap + migrations use
+    # database_admin_url (the superuser/owner). When database_admin_url is unset,
+    # everything uses database_url (the prior single-URL behavior; fine for local
+    # SQLite + dev). On deploy, set:
+    #   GASTIFY_DATABASE_ADMIN_URL = postgres superuser URL (migrations + bootstrap)
+    #   GASTIFY_DATABASE_URL       = gastify_app non-superuser URL (runtime)
+    #   GASTIFY_APP_DB_ROLE / GASTIFY_APP_DB_PASSWORD = the role the bootstrap ensures
+    database_admin_url: str | None = None
+    app_db_role: str | None = None
+    app_db_password: str | None = None
+
     # Audience for Firebase ID-token verification. Real envs MUST set
     # GASTIFY_FIREBASE_PROJECT_ID (gastify-staging / gastify-prod) — every
     # .env.*.example and the Railway config does. The default is a
@@ -135,6 +148,12 @@ class Settings(BaseSettings):
 
         if self.database_url.startswith("postgresql://"):
             self.database_url = self.database_url.replace(
+                "postgresql://",
+                "postgresql+asyncpg://",
+                1,
+            )
+        if self.database_admin_url and self.database_admin_url.startswith("postgresql://"):
+            self.database_admin_url = self.database_admin_url.replace(
                 "postgresql://",
                 "postgresql+asyncpg://",
                 1,

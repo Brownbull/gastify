@@ -3136,3 +3136,21 @@ FIXED:
 CLOSED (stale/already-resolved): P5 (CHANGES.jsonl git mv -> archive), P11 (obsolete mockup-plan review collision), P15 (obsolete stale-Phase-L2), P27 (readApiError already shared in apiError.ts), P35 (S23 P6 device flows green last session).
 NEW FINDING -> P43: the P32 test surfaced that the deployed app connects as the `postgres` SUPERUSER, which bypasses RLS entirely — so RLS is inert in prod. NOT a leak (app-layer .where(ownership_scope_id==...) scoping holds + GUC set per request); defense-in-depth gap. Fix = dedicated non-superuser role on Railway PG.
 VERIFY: backend 721 passed/4 skipped (2 RLS skip w/o DSN); mobile 22 passed + tsc clean; pip-audit clean.
+- 2026-06-01 23:00 | Write | /home/khujta/projects/apps/gastify/docs/runbooks/db-role-split.md
+- 2026-06-01 23:01 | Edit | /home/khujta/projects/apps/gastify/infra/railway/README.md
+- 2026-06-01 23:02 | Write | /home/khujta/projects/apps/gastify/backend/tests/test_bootstrap_db.py
+- 2026-06-01 23:06 | Edit | /home/khujta/projects/apps/gastify/backend/pyproject.toml
+
+## 2026-06-01 — P43 DB role split (RLS enforcement) — code done, awaiting per-env deploy
+FINDING (from P32): deployed app connected as the `postgres` SUPERUSER, which BYPASSES RLS — so RLS policies were silently inert in prod. Not a leak (app-layer ownership-scope filters + per-request GUC hold); defense-in-depth gap.
+DECISION: user chose bootstrap-from-startup. Migrations keep the privileged role (need DDL); only the RUNTIME drops to a non-superuser role so RLS applies. No ownership transfer needed (tables stay owned by postgres; gastify_app gets DML grants; RLS bites non-owners under FORCE).
+IMPLEMENTED:
+- app/bootstrap_db.py: idempotent provisioning of a NON-superuser gastify_app role (LOGIN NOSUPERUSER NOBYPASSRLS), schema USAGE + table/sequence CRUD + default privileges; verifies non-super (refuses otherwise); safe no-op without an admin URL (local/dev/CI unchanged). password via quote_literal (DDL can't bind-param). +5 unit tests.
+- config: database_admin_url (superuser → bootstrap+alembic) vs database_url (gastify_app → runtime) + app_db_role/app_db_password; URL normalization for both.
+- alembic/env.py routes to database_admin_url when set (fallback database_url).
+- railway.toml startCommand: `python -m app.bootstrap_db && alembic upgrade head && uvicorn`.
+- mypy override for asyncpg (no py.typed); ruff/format clean.
+PROVEN end-to-end vs a real Postgres (zonky embedded binary, no docker): bootstrap → real alembic upgrade head (→026) → re-run bootstrap idempotent → runtime as gastify_app: RLS isolates a real `transactions` row across scopes, WITH CHECK blocks cross-scope insert, role confirmed non-super, default-priv grants reached migration-created tables.
+DOCS: docs/runbooks/db-role-split.md (operator steps + rollback); env examples (staging/prod) + infra/railway/README updated.
+REMAINING (operator, off-repo, tracked in P43): set GASTIFY_DATABASE_ADMIN_URL + GASTIFY_APP_DB_ROLE/PASSWORD + point GASTIFY_DATABASE_URL at gastify_app on each Railway API service, then redeploy. Verify: gastify_app `rolsuper OR rolbypassrls` = false.
+VERIFY: backend 726 passed/4 skipped; mypy clean; ruff+format clean.
