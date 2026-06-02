@@ -3156,3 +3156,10 @@ REMAINING (operator, off-repo, tracked in P43): set GASTIFY_DATABASE_ADMIN_URL +
 VERIFY: backend 726 passed/4 skipped; mypy clean; ruff+format clean.
 - 2026-06-01 23:28 | Edit | /home/khujta/projects/apps/gastify/backend/railway.toml
 - 2026-06-01 23:46 | Edit | /home/khujta/projects/apps/gastify/infra/railway/README.md
+
+## 2026-06-01 — [12a6202] D67 DB role split + RLS boot guard (supersedes 6824baa bootstrap)
+SUPERSEDES the 6824baa P43 bootstrap (never deployed): adopts Gustify-D32 — TWO non-superuser roles (gastify_app runtime non-owner; gastify_migrator owner) + a durable lifespan guard (app/db.py assert_least_privilege_role) that refuses to boot if the runtime role is superuser/BYPASSRLS. No superuser anywhere in the app's path.
+ALSO FIXED: alembic/env.py sets a placeholder app.ownership_scope_id GUC for the migration session — FORCE-RLS FK-validation failed when migrating as the non-bypassing migrator (a real bug the superuser was masking).
+PROVEN vs real Postgres (zonky embedded): migrator owns 25 tables + migrates 001→026; gastify_app isolates a real transactions row across scopes + WITH CHECK blocks cross-scope insert + non-super; guard rejects a superuser DSN, passes gastify_app.
+DOCS: DECISIONS D67, docs/runbooks/db-role-split.md (REASSIGN OWNED + grants), env examples + README + infra/railway/README. P43 → code-done-awaiting-deploy.
+VERIFY: backend 727 passed/4 skipped; mypy + ruff + format clean.
