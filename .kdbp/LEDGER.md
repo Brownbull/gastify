@@ -3170,3 +3170,10 @@ PROVEN: P34 insights+flag gate PASSED (scan worker writes transactions under RLS
 COMPLETE CHAIN: D67 two-role split + boot guard + request-path GUC lifecycle fix (027) + worker-path scope threading. P43 -> resolved.
 ENV: new staging-e2e Railway environment (Gustify D34 parity, isolated Postgres) live + healthy. Real staging DB also role-split + healthy.
 REMAINING (dashboard): prune 3 redundant services from the new staging-e2e env (gastify-api-staging, gastify-web-staging, extra Postgres — see docs/runbooks/db-role-split.md). Retire old gastify-api-staging-e2e service in the staging env.
+
+## 2026-06-02 — Railway topology pruned (clean 3-env structure)
+STAGING env: deleted the old e2e services (gastify-api-staging-e2e + Postgres-67_W) — replaced by the dedicated staging-e2e environment. Now contains: gastify-api-staging + gastify-web-staging + Postgres.
+STAGING-E2E env: deleted redundant duplicated services (gastify-api-staging + gastify-web-staging + Postgres). Now contains: gastify-api-staging-e2e + Postgres-67_W (the isolated e2e DB).
+PRODUCTION env: skipped — placeholder-only config, no Firebase prod project / Gemini key / domain yet. Infrastructure setup deferred to P7 (Compliance + Launch Hardening).
+HEALTH CHECK post-prune: both staging (ok @027) and staging-e2e (ok @027) healthy; both on the D67 role split (gastify_app non-super, RLS enforced).
+DONE VIA: railway CLI v4.66.0 `railway service delete -s <svc> -e <env> -y` (the v4.11.0 shipped with the system lacked this command).
