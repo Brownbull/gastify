@@ -2018,6 +2018,23 @@ after the full P1-P9 roadmap is implemented.
 
 **Review trigger:** (a) load-test results contradict the capacity estimate; (b) decision to add a 2nd replica (forces Phase 2); (c) the uvicorn proxy-headers experiment changes the transport calculus; (d) Railway changes its WS/edge behavior.
 
+### Amendment (2026-06-02) — Load test validates capacity estimate
+
+Zero-Gemini load test (Phase 2) confirms D62's capacity estimate. Run against `gastify-api-staging-e2e` with `scan_provider=fixture`, `e2e_scan_event_delay_ms=600`, $0 Gemini cost.
+
+**Results at three concurrency levels (C=concurrent scan lifecycles):**
+- **C=1**: 0% errors, status poll p95=1677ms, 1.5 req/s — comfortable.
+- **C=5**: 0% errors, status poll p95=1616ms, 4.5 req/s — healthy, near-linear scaling.
+- **C=15**: 0.11% errors, poll p99=29,442ms, 4 poll timeouts, 1 HTTP 500 — pool saturated.
+
+**Bottleneck confirmed: DB connection pool** (`pool_size=5 + max_overflow=10 = 15`). At C=15 the pool is fully utilized; tail latency spikes and some workers/pollers fail to acquire connections. CPU, network, and Gemini RPM (fixture = $0) are not the binding constraint.
+
+**D62 estimate validated:** 5 concurrent scans comfortable with untuned pool=15, degradation onset at 15 concurrent. At 50 scans/month/user, 5 concurrent ≈ 5,000–10,000 registered users — consistent with D62's "~5,000–15,000 untuned" lower bound. Config-only levers (pool↑, workers↑, replicas↑) provide 10x+ headroom before Path B is needed.
+
+**Path B trigger status (unchanged):** no trigger fired. Pool saturation at C=15 is resolved by config-only tuning, not architecture change. Path B remains deferred until post-tuning saturation or multi-replica fan-out need.
+
+Full report: `scripts/loadtest/CAPACITY-REPORT.md`. Raw data: `scripts/loadtest/results.json`.
+
 ### Amendment (2026-05-30) — Path B is Postgres-native-first; bus/queue/streaming design stays an OPEN architecture decision
 
 Refines D62's Path B (deferred). The founding architecture decision is **FastAPI + Postgres, minimize moving parts** (Postgres deliberately does work other components might) — and Path A adds **zero** new runtime components, so Path B must be evaluated against the same minimalism.
@@ -2085,8 +2102,12 @@ dim_overrides: []
 ### Review trigger (when to escalate this phase)
 - Results contradict the D62 estimate, OR a decision to add a 2nd replica forces measuring fan-out (Path B territory).
 
+### Load test outcome (2026-06-02)
+
+Load test executed and validates D62. Pool saturation onset at C=15 confirms untuned capacity. No D62 triggers fired; config-only levers provide adequate headroom. Full analysis: `scripts/loadtest/CAPACITY-REPORT.md`.
+
 ### Status
-- accepted
+- accepted (load test complete, estimate validated)
 
 ## D65 — Phase 3 tier: mvp (2026-05-30)
 

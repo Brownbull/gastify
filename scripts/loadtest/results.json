@@ -1,0 +1,131 @@
+[
+  {
+    "concurrency": 1,
+    "wall_clock_s": 24.12,
+    "total_requests": 37,
+    "throughput_rps": 1.53,
+    "error_count": 0,
+    "error_rate_pct": 0.0,
+    "all": {
+      "count": 37,
+      "mean_ms": 682.4,
+      "p50_ms": 525.4,
+      "p95_ms": 1676.9,
+      "p99_ms": 2679.4,
+      "max_ms": 2679.4
+    },
+    "scan_submit": {
+      "count": 3,
+      "mean_ms": 1685.1,
+      "p50_ms": 1251.9,
+      "p95_ms": 2679.4,
+      "p99_ms": 2679.4,
+      "max_ms": 2679.4
+    },
+    "status_poll": {
+      "count": 18,
+      "mean_ms": 642.1,
+      "p50_ms": 582.2,
+      "p95_ms": 1676.9,
+      "p99_ms": 1676.9,
+      "max_ms": 1676.9
+    },
+    "health_ready": {
+      "count": 16,
+      "mean_ms": 539.8,
+      "p50_ms": 503.0,
+      "p95_ms": 873.6,
+      "p99_ms": 873.6,
+      "max_ms": 873.6
+    },
+    "errors": []
+  },
+  {
+    "concurrency": 5,
+    "wall_clock_s": 29.54,
+    "total_requests": 132,
+    "throughput_rps": 4.47,
+    "error_count": 0,
+    "error_rate_pct": 0.0,
+    "all": {
+      "count": 132,
+      "mean_ms": 755.5,
+      "p50_ms": 569.2,
+      "p95_ms": 1615.5,
+      "p99_ms": 2668.6,
+      "max_ms": 2669.1
+    },
+    "scan_submit": {
+      "count": 15,
+      "mean_ms": 1444.8,
+      "p50_ms": 1246.5,
+      "p95_ms": 2669.1,
+      "p99_ms": 2669.1,
+      "max_ms": 2669.1
+    },
+    "status_poll": {
+      "count": 98,
+      "mean_ms": 679.8,
+      "p50_ms": 522.8,
+      "p95_ms": 1615.5,
+      "p99_ms": 1687.7,
+      "max_ms": 1687.7
+    },
+    "health_ready": {
+      "count": 19,
+      "mean_ms": 602.0,
+      "p50_ms": 569.9,
+      "p95_ms": 1040.4,
+      "p99_ms": 1040.4,
+      "max_ms": 1040.4
+    },
+    "errors": []
+  },
+  {
+    "concurrency": 15,
+    "wall_clock_s": 253.59,
+    "total_requests": 899,
+    "throughput_rps": 3.55,
+    "error_count": 1,
+    "error_rate_pct": 0.11,
+    "all": {
+      "count": 899,
+      "mean_ms": 1534.6,
+      "p50_ms": 577.7,
+      "p95_ms": 3451.4,
+      "p99_ms": 29406.1,
+      "max_ms": 59685.0
+    },
+    "scan_submit": {
+      "count": 45,
+      "mean_ms": 1798.1,
+      "p50_ms": 1595.8,
+      "p95_ms": 2834.9,
+      "p99_ms": 2902.5,
+      "max_ms": 2902.5
+    },
+    "status_poll": {
+      "count": 715,
+      "mean_ms": 1656.1,
+      "p50_ms": 581.6,
+      "p95_ms": 3622.5,
+      "p99_ms": 29442.0,
+      "max_ms": 59685.0
+    },
+    "health_ready": {
+      "count": 139,
+      "mean_ms": 824.2,
+      "p50_ms": 484.9,
+      "p95_ms": 1464.1,
+      "p99_ms": 5957.6,
+      "max_ms": 29167.9
+    },
+    "errors": [
+      "scan poll e60be2ec: HTTP 500: Internal Server Error",
+      "scan c650ce89: timeout after 120 polls",
+      "scan e1d6a5a9: timeout after 120 polls",
+      "scan 0b9f148d: timeout after 120 polls",
+      "scan 19c7aba1: timeout after 120 polls"
+    ]
+  }
+]
