@@ -3223,3 +3223,14 @@ PROMOTION: N/A
 - 2026-06-02 18:24 | Edit | /home/khujta/projects/apps/gastify/backend/app/db.py
 - 2026-06-02 18:24 | Edit | /home/khujta/projects/apps/gastify/backend/app/db.py
 - 2026-06-02 18:24 | Write | /home/khujta/projects/apps/gastify/docs/runbooks/SCALING-LEVERS.md
+
+## 2026-06-02 22:31 — PUSH staging -> main (promotion)
+PR: — (fast-forward promotion)
+CI: ✅ staging green (2m13s) + ✅ main green (2m11s)
+PROMOTION: staging → main (verified: health ok, metrics endpoint live, migration @027)
+
+## 2026-06-02 22:33 — PLAN COMPLETE
+All 3 phases complete (✅×4 each):
+  Phase 1: Progress polling fallback
+  Phase 2: Zero-Gemini load test + capacity validation
+  Phase 3: Path-B trigger instrumentation
