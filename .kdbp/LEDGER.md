@@ -3163,3 +3163,10 @@ ALSO FIXED: alembic/env.py sets a placeholder app.ownership_scope_id GUC for the
 PROVEN vs real Postgres (zonky embedded): migrator owns 25 tables + migrates 001→026; gastify_app isolates a real transactions row across scopes + WITH CHECK blocks cross-scope insert + non-super; guard rejects a superuser DSN, passes gastify_app.
 DOCS: DECISIONS D67, docs/runbooks/db-role-split.md (REASSIGN OWNED + grants), env examples + README + infra/railway/README. P43 → code-done-awaiting-deploy.
 VERIFY: backend 727 passed/4 skipped; mypy + ruff + format clean.
+
+## 2026-06-02 — P43 FULLY RESOLVED: worker-scope chokepoint (Option A) + both gates GREEN
+WORKER FIX (679a8c5): threaded ownership_scope_id from the dispatching request's auth context into process_scan (+ 6 internal pipeline functions) and process_statement (+ 4 internal functions), via 6 dispatch sites (scans.py x2, scan_test_cases.py x1, statements.py x3). Each worker sets the RLS GUC via set_session_ownership_scope(db) at every session that reads/writes scope-bound tables. The scan worker falls back to scan.ownership_scope_id for the requeue path (no request context).
+PROVEN: P34 insights+flag gate PASSED (scan worker writes transactions under RLS) + statement fixture gate PASSED (statement worker reads statements + writes lines/reconciliation under RLS) — both against the new staging-e2e env (gastify_app role, non-super, RLS enforced).
+COMPLETE CHAIN: D67 two-role split + boot guard + request-path GUC lifecycle fix (027) + worker-path scope threading. P43 -> resolved.
+ENV: new staging-e2e Railway environment (Gustify D34 parity, isolated Postgres) live + healthy. Real staging DB also role-split + healthy.
+REMAINING (dashboard): prune 3 redundant services from the new staging-e2e env (gastify-api-staging, gastify-web-staging, extra Postgres — see docs/runbooks/db-role-split.md). Retire old gastify-api-staging-e2e service in the staging env.
