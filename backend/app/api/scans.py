@@ -104,7 +104,7 @@ async def submit_scan(
         compression_ms=elapsed_ms,
     )
 
-    background_tasks.add_task(process_scan, scan_id)
+    background_tasks.add_task(process_scan, scan_id, ownership_scope_id=auth.ownership_scope_id)
 
     return ScanSubmission.model_validate(scan)
 
@@ -148,7 +148,7 @@ async def trigger_process_scan(
         await db.commit()
         await db.refresh(scan)
 
-    background_tasks.add_task(process_scan, scan_id)
+    background_tasks.add_task(process_scan, scan_id, ownership_scope_id=auth.ownership_scope_id)
 
     return ScanResult.model_validate(scan)
 

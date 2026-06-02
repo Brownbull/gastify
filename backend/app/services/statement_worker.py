@@ -12,7 +12,7 @@ import structlog
 from sqlalchemy import delete, select, update
 
 from app.config import settings
-from app.db import async_session
+from app.db import async_session, set_session_ownership_scope
 from app.models.statement import (
     Statement,
     StatementLine,
@@ -62,12 +62,28 @@ async def _sleep_after_e2e_event() -> None:
     await asyncio.sleep(delay_ms / 1000)
 
 
-async def process_statement(statement_id: uuid.UUID, *, password: str | None = None) -> bool:
-    """Extract a statement PDF and persist normalized statement lines."""
+async def process_statement(
+    statement_id: uuid.UUID,
+    *,
+    password: str | None = None,
+    ownership_scope_id: uuid.UUID | None = None,
+) -> bool:
+    """Extract a statement PDF and persist normalized statement lines.
+
+    ``ownership_scope_id`` is threaded from the dispatching request so the worker
+    can set the RLS GUC for reading/writing scope-bound tables (P43). Required for
+    the least-privilege runtime role.
+    """
     log = logger.bind(statement_id=str(statement_id))
-    statement = await _acquire_statement(statement_id, log)
+    if ownership_scope_id is None:
+        log.warning(
+            "statement_worker_no_scope", hint="process_statement called without ownership_scope_id"
+        )
+    statement = await _acquire_statement(statement_id, log, ownership_scope_id=ownership_scope_id)
     if statement is None:
         return False
+    if ownership_scope_id is None:
+        ownership_scope_id = statement.ownership_scope_id
 
     await _emit(statement_id, "statement_llm_start", "llm_start", 20)
     try:
@@ -80,11 +96,11 @@ async def process_statement(statement_id: uuid.UUID, *, password: str | None = N
         )
     except Exception as exc:
         log.exception("statement_extraction_provider_failed", error=str(exc))
-        await _finish_extraction_exception(statement_id)
+        await _finish_extraction_exception(statement_id, ownership_scope_id=ownership_scope_id)
         return True
 
     if extraction.pdf_status != "readable":
-        await _finish_pdf_status(statement_id, extraction)
+        await _finish_pdf_status(statement_id, extraction, ownership_scope_id=ownership_scope_id)
         return True
 
     await _emit(
@@ -99,7 +115,7 @@ async def process_statement(statement_id: uuid.UUID, *, password: str | None = N
         },
     )
 
-    await _persist_extraction(statement_id, extraction)
+    await _persist_extraction(statement_id, extraction, ownership_scope_id=ownership_scope_id)
     await _emit(
         statement_id,
         "statement_reconciling",
@@ -107,7 +123,7 @@ async def process_statement(statement_id: uuid.UUID, *, password: str | None = N
         85,
         data={"line_count": len(extraction.lines)},
     )
-    reconciliation = await _reconcile_statement(statement_id)
+    reconciliation = await _reconcile_statement(statement_id, ownership_scope_id=ownership_scope_id)
     await _emit(
         statement_id,
         "statement_completed",
@@ -137,9 +153,14 @@ async def process_statement(statement_id: uuid.UUID, *, password: str | None = N
 
 
 async def _acquire_statement(
-    statement_id: uuid.UUID, log: structlog.stdlib.BoundLogger
+    statement_id: uuid.UUID,
+    log: structlog.stdlib.BoundLogger,
+    *,
+    ownership_scope_id: uuid.UUID | None = None,
 ) -> Statement | None:
     async with async_session() as db:
+        if ownership_scope_id is not None:
+            await set_session_ownership_scope(db, ownership_scope_id)
         row = await db.execute(select(Statement).where(Statement.id == statement_id))
         statement = row.scalar_one_or_none()
         if statement is None:
@@ -181,6 +202,8 @@ async def _acquire_statement(
 async def _finish_pdf_status(
     statement_id: uuid.UUID,
     extraction: StatementExtractionOutput,
+    *,
+    ownership_scope_id: uuid.UUID | None = None,
 ) -> None:
     if extraction.pdf_status == "password_required":
         status = StatementStatus.PASSWORD_REQUIRED
@@ -199,6 +222,8 @@ async def _finish_pdf_status(
         message = "Statement PDF could not be extracted"
 
     async with async_session() as db:
+        if ownership_scope_id is not None:
+            await set_session_ownership_scope(db, ownership_scope_id)
         await db.execute(
             update(Statement)
             .where(Statement.id == statement_id)
@@ -223,9 +248,15 @@ async def _finish_pdf_status(
     statement_dispatcher.close_statement(statement_id)
 
 
-async def _finish_extraction_exception(statement_id: uuid.UUID) -> None:
+async def _finish_extraction_exception(
+    statement_id: uuid.UUID,
+    *,
+    ownership_scope_id: uuid.UUID | None = None,
+) -> None:
     message = "Statement PDF could not be extracted"
     async with async_session() as db:
+        if ownership_scope_id is not None:
+            await set_session_ownership_scope(db, ownership_scope_id)
         await db.execute(
             update(Statement)
             .where(Statement.id == statement_id)
@@ -252,10 +283,14 @@ async def _finish_extraction_exception(statement_id: uuid.UUID) -> None:
 async def _persist_extraction(
     statement_id: uuid.UUID,
     extraction: StatementExtractionOutput,
+    *,
+    ownership_scope_id: uuid.UUID | None = None,
 ) -> None:
     statement_info = extraction.statement
     processing = extraction.processing
     async with async_session() as db:
+        if ownership_scope_id is not None:
+            await set_session_ownership_scope(db, ownership_scope_id)
         await db.execute(delete(StatementLine).where(StatementLine.statement_id == statement_id))
         row = await db.execute(select(Statement).where(Statement.id == statement_id))
         statement = row.scalar_one()
@@ -325,6 +360,12 @@ async def _persist_extraction(
         await db.commit()
 
 
-async def _reconcile_statement(statement_id: uuid.UUID) -> StatementReconciliationRun:
+async def _reconcile_statement(
+    statement_id: uuid.UUID,
+    *,
+    ownership_scope_id: uuid.UUID | None = None,
+) -> StatementReconciliationRun:
     async with async_session() as db:
+        if ownership_scope_id is not None:
+            await set_session_ownership_scope(db, ownership_scope_id)
         return await run_statement_reconciliation(db, statement_id=statement_id)

@@ -119,7 +119,7 @@ async def run_test_case(
         compression_ms=elapsed_ms,
     )
 
-    background_tasks.add_task(process_scan, scan_id)
+    background_tasks.add_task(process_scan, scan_id, ownership_scope_id=scan.ownership_scope_id)
 
     return ScanTestRunSubmission(
         id=scan.id,

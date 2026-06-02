@@ -109,7 +109,12 @@ async def upload_statement(
             await db.commit()
             await db.refresh(duplicate)
         if should_queue:
-            background_tasks.add_task(process_statement, duplicate.id, password=password)
+            background_tasks.add_task(
+                process_statement,
+                duplicate.id,
+                password=password,
+                ownership_scope_id=auth.ownership_scope_id,
+            )
             queued = True
         response.status_code = status.HTTP_200_OK
         return StatementUploadResponse(
@@ -165,7 +170,12 @@ async def upload_statement(
 
     queued = statement.status == StatementStatus.QUEUED
     if queued:
-        background_tasks.add_task(process_statement, statement.id, password=password)
+        background_tasks.add_task(
+            process_statement,
+            statement.id,
+            password=password,
+            ownership_scope_id=auth.ownership_scope_id,
+        )
 
     logger.info(
         "statement_uploaded",
@@ -292,7 +302,12 @@ async def trigger_process_statement(
     statement.error_message = None
     await db.commit()
     await db.refresh(statement)
-    background_tasks.add_task(process_statement, statement.id, password=body.password)
+    background_tasks.add_task(
+        process_statement,
+        statement.id,
+        password=body.password,
+        ownership_scope_id=auth.ownership_scope_id,
+    )
     return StatementRecordResponse.model_validate(statement)
 
 

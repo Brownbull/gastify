@@ -155,11 +155,20 @@ def _scan_complete_data(
     return data
 
 
-async def process_scan(scan_id: uuid.UUID) -> bool:
+async def process_scan(
+    scan_id: uuid.UUID,
+    *,
+    ownership_scope_id: uuid.UUID | None = None,
+) -> bool:
     """Process a single scan through the full two-stage pipeline.
 
     Returns True on success (COMPLETED or NEEDS_REVIEW), False on skip/failure.
     Idempotent: SUBMITTED starts from Stage 1, EXTRACTED resumes from Stage 2.
+
+    ``ownership_scope_id`` is threaded from the dispatching request so the worker
+    can set the RLS GUC for writing scope-bound tables (P43). When None (e.g.
+    requeue_quota_throttled_scans dispatches with no request context), the scope
+    is read from the acquired scan record (scans has no RLS).
     """
     log = logger.bind(scan_id=str(scan_id))
     start = time.monotonic()
@@ -167,25 +176,40 @@ async def process_scan(scan_id: uuid.UUID) -> bool:
     scan, _ = await _acquire_scan(scan_id, log)
     if scan is None:
         return False
+    if ownership_scope_id is None:
+        ownership_scope_id = scan.ownership_scope_id
 
     scan_provider = active_scan_provider(settings)
     if scan_provider == "fixture":
-        return await _run_e2e_fixture_pipeline(scan, scan_id, log, start)
+        return await _run_e2e_fixture_pipeline(
+            scan, scan_id, log, start, ownership_scope_id=ownership_scope_id
+        )
     if scan_provider == "mock":
-        return await _run_mock_provider_pipeline(scan, scan_id, log, start)
+        return await _run_mock_provider_pipeline(
+            scan, scan_id, log, start, ownership_scope_id=ownership_scope_id
+        )
 
     # Structured-boleta shortcut: if the upload carries a parseable SII timbre
     # (TED), produce the transaction from it with 0 extraction-LLM tokens. Any
     # miss (no barcode / unparseable) falls through to the proven vision path.
-    boleta_result = await _try_boleta_shortcut(scan, scan_id, log, start)
+    boleta_result = await _try_boleta_shortcut(
+        scan, scan_id, log, start, ownership_scope_id=ownership_scope_id
+    )
     if boleta_result is not None:
         return boleta_result
 
-    extraction = await _run_stage1(scan, scan_id, log, start)
+    extraction = await _run_stage1(scan, scan_id, log, start, ownership_scope_id=ownership_scope_id)
     if extraction is None:
         return False
 
-    return await _run_stage2(scan, scan_id, extraction, log, start)
+    return await _run_stage2(
+        scan,
+        scan_id,
+        extraction,
+        log,
+        start,
+        ownership_scope_id=ownership_scope_id,
+    )
 
 
 async def _try_boleta_shortcut(
@@ -193,6 +217,7 @@ async def _try_boleta_shortcut(
     scan_id: uuid.UUID,
     log: structlog.stdlib.BoundLogger,
     start: float,
+    ownership_scope_id: uuid.UUID | None = None,
 ) -> bool | None:
     """Attempt the structured-boleta shortcut. Returns the pipeline result when a
     boleta was handled, or None to fall through to the vision pipeline."""
@@ -213,7 +238,14 @@ async def _try_boleta_shortcut(
         return None
 
     log.info("boleta_shortcut", merchant=extraction_data.merchant_name)
-    return await _run_boleta_pipeline(scan, scan_id, log, start, extraction_data)
+    return await _run_boleta_pipeline(
+        scan,
+        scan_id,
+        log,
+        start,
+        extraction_data,
+        ownership_scope_id=ownership_scope_id,
+    )
 
 
 async def _run_boleta_pipeline(
@@ -222,6 +254,7 @@ async def _run_boleta_pipeline(
     log: structlog.stdlib.BoundLogger,
     start: float,
     extraction_data: GeminiExtractionResult,
+    ownership_scope_id: uuid.UUID | None = None,
 ) -> bool:
     """Produce a transaction from a parsed boleta TED with 0 LLM tokens, reusing
     the proven persist/math/event path (`_run_stage2` with a prebuilt result)."""
@@ -273,7 +306,15 @@ async def _run_boleta_pipeline(
         result=CategorizationResult(assignments=[]),
         usage=CategorizationUsage(input_tokens=0, output_tokens=0, latency_ms=0.0),
     )
-    return await _run_stage2(scan, scan_id, extraction, log, start, categorization=categorization)
+    return await _run_stage2(
+        scan,
+        scan_id,
+        extraction,
+        log,
+        start,
+        categorization=categorization,
+        ownership_scope_id=ownership_scope_id,
+    )
 
 
 async def _acquire_scan(
@@ -318,6 +359,7 @@ async def _run_stage1(
     scan_id: uuid.UUID,
     log: structlog.stdlib.BoundLogger,
     start: float,
+    ownership_scope_id: uuid.UUID | None = None,
 ) -> ExtractionResult | None:
     """Stage 1: Vision extraction with retry."""
     image_path = Path(scan.image_path)
@@ -384,6 +426,7 @@ async def _run_stage2(
     log: structlog.stdlib.BoundLogger,
     start: float,
     categorization: CategorizationOutput | None = None,
+    ownership_scope_id: uuid.UUID | None = None,
 ) -> bool:
     """Stage 2: Categorization → math gate → persist."""
     ext = extraction.extraction
@@ -449,10 +492,7 @@ async def _run_stage2(
 
     async with async_session() as db:
         try:
-            # Background-task session: establish the RLS scope GUC from the scan's
-            # ownership scope, else the transaction/items INSERTs violate the
-            # WITH CHECK policy under the least-privilege role (P43).
-            await set_session_ownership_scope(db, scan.ownership_scope_id)
+            await set_session_ownership_scope(db, ownership_scope_id)
             transaction = await persist_scan_result(
                 db=db,
                 scan=scan,
@@ -539,6 +579,7 @@ async def _run_e2e_fixture_pipeline(
     scan_id: uuid.UUID,
     log: structlog.stdlib.BoundLogger,
     start: float,
+    ownership_scope_id: uuid.UUID | None = None,
 ) -> bool:
     image_path = Path(scan.image_path)
     if not image_path.exists():
@@ -618,6 +659,7 @@ async def _run_e2e_fixture_pipeline(
         log,
         start,
         categorization=fixture.categorization,
+        ownership_scope_id=ownership_scope_id,
     )
 
 
@@ -626,6 +668,7 @@ async def _run_mock_provider_pipeline(
     scan_id: uuid.UUID,
     log: structlog.stdlib.BoundLogger,
     start: float,
+    ownership_scope_id: uuid.UUID | None = None,
 ) -> bool:
     image_path = Path(scan.image_path)
     if not image_path.exists():
@@ -701,6 +744,7 @@ async def _run_mock_provider_pipeline(
         log,
         start,
         categorization=fixture.categorization,
+        ownership_scope_id=ownership_scope_id,
     )
 
 
