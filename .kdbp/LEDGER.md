@@ -3177,3 +3177,11 @@ STAGING-E2E env: deleted redundant duplicated services (gastify-api-staging + ga
 PRODUCTION env: skipped — placeholder-only config, no Firebase prod project / Gemini key / domain yet. Infrastructure setup deferred to P7 (Compliance + Launch Hardening).
 HEALTH CHECK post-prune: both staging (ok @027) and staging-e2e (ok @027) healthy; both on the D67 role split (gastify_app non-super, RLS enforced).
 DONE VIA: railway CLI v4.66.0 `railway service delete -s <svc> -e <env> -y` (the v4.11.0 shipped with the system lacked this command).
+
+## 2026-06-02 — Production environment skeleton provisioned
+CREATED: Postgres-b8-I + gastify-api-production + gastify-web-production in the production Railway environment. Cleaned up 2 extra Postgres instances auto-created by `railway add`.
+ROLES: gastify_migrator + gastify_app provisioned on production Postgres (both NOSUPERUSER NOBYPASSRLS), default privileges set. Follows D67 pattern.
+VARS: 26 env vars set on gastify-api-production via CLI (env=production, DB role-split DSNs, placeholder Firebase/Gemini, FX=open.er-api, fixtures disabled, E2E disabled, test controls disabled).
+DASHBOARD REQUIRED: gastify-api-production → Settings → Source → Root Directory = `backend`, branch = `main`, Wait for CI = ON. Once set, the first deploy will migrate 001→027 as gastify_migrator and boot as gastify_app (guard passes, health 200; Firebase auth fails gracefully — placeholder creds).
+PRODUCTION WEB: gastify-web-production created but needs VITE_FIREBASE_* vars (deferred until a production Firebase project exists — P7 scope).
+DEFERRED TO P7: production Firebase project + service account, Gemini production API key, production web domain, paid-tier activation, compliance audit.
