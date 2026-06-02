@@ -1,3 +1,6 @@
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -18,10 +21,21 @@ from app.api.statement_stream import ws_router as statement_ws_router
 from app.api.statements import router as statements_router
 from app.api.transactions import router as transactions_router
 from app.config import settings
+from app.db import assert_least_privilege_role
 from app.logging import setup_logging
 from app.middleware import AccessLogMiddleware, RequestIdMiddleware
 
 setup_logging()
+
+
+@asynccontextmanager
+async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
+    # Durable RLS guard (P43): refuse to boot if the runtime DB role can bypass
+    # row-level security. Skips local + SQLite. A successful boot is proof the
+    # runtime connects as a least-privilege role.
+    await assert_least_privilege_role()
+    yield
+
 
 app = FastAPI(
     title="Gastify API",
@@ -29,6 +43,7 @@ app = FastAPI(
     description="Chilean smart expense tracker — FastAPI backend",
     docs_url="/api/docs" if settings.debug else None,
     redoc_url="/api/redoc" if settings.debug else None,
+    lifespan=lifespan,
 )
 
 app.add_middleware(AccessLogMiddleware)

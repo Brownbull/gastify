@@ -18,12 +18,11 @@ Postgres, API, fixture API, and the static SPA.
 Set these on both API services with environment-specific values:
 
 ```text
-# DB role split (RLS enforcement, P43) — see docs/runbooks/db-role-split.md.
-# Runtime uses the NON-superuser gastify_app role; bootstrap + migrations use admin.
+# Two-role DB split for RLS enforcement (P43; Gustify D32). Both NON-superuser.
+# Runtime = gastify_app (RLS applies; startup guard rejects bypass-capable roles);
+# migrations = gastify_migrator (owns tables). See docs/runbooks/db-role-split.md.
 GASTIFY_DATABASE_URL=postgresql://gastify_app:<app-pw>@<pg-host>:5432/<db>
-GASTIFY_DATABASE_ADMIN_URL=<Railway Postgres SUPERUSER URL>
-GASTIFY_APP_DB_ROLE=gastify_app
-GASTIFY_APP_DB_PASSWORD=<app-pw>
+GASTIFY_MIGRATION_DATABASE_URL=postgresql://gastify_migrator:<mig-pw>@<pg-host>:5432/<db>
 GASTIFY_FIREBASE_PROJECT_ID=<staging Firebase project>
 GASTIFY_FIREBASE_CREDENTIALS_JSON=<sealed staging service account JSON>
 GASTIFY_CORS_ORIGINS=["https://<railway-spa-domain>","http://localhost:5173","http://localhost:5174"]

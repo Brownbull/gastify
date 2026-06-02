@@ -34,7 +34,8 @@ The backend reads settings from environment variables (prefix `GASTIFY_`):
 
 | Variable | Purpose | Default |
 |---|---|---|
-| `GASTIFY_DATABASE_URL` | Database connection string | `sqlite+aiosqlite:///../.tmp/local/gastify.db` |
+| `GASTIFY_DATABASE_URL` | Runtime DB connection — least-privilege non-superuser role (RLS enforced; P43/D67) | `sqlite+aiosqlite:///../.tmp/local/gastify.db` |
+| `GASTIFY_MIGRATION_DATABASE_URL` | Migration DB connection — table-owner role for alembic. Unset → falls back to `GASTIFY_DATABASE_URL` | (optional) |
 | `GASTIFY_FIREBASE_PROJECT_ID` | Firebase project for auth | (required) |
 | `GOOGLE_API_KEY` | Google AI API key for receipt extraction when `GASTIFY_SCAN_PROVIDER=gemini` | (required for Gemini) |
 | `GASTIFY_GEMINI_MODEL` | Gemini model name | `gemini-2.5-flash-lite` |

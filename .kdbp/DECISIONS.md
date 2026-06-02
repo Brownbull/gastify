@@ -2132,3 +2132,24 @@ dim_overrides: []
 **Status:** accepted. **Review trigger:** if fallback completion UX needs inline amounts (→ option C), or if a `transaction.scan_id` direction is later preferred for analytics.
 
 > **D62 correction.** D62's Path-A description naming an existing `GET /api/v1/scans/{id}` was inaccurate; that endpoint is created here in D66. The statement endpoint (`GET /api/v1/statements/{id}`) did already exist. The two-axis finding and the rest of D62 stand.
+
+## D67 — Backend connects via split least-privilege DB roles + startup RLS guard (P43; mirrors Gustify D32) (2026-06-01)
+
+**Decision.** The backend no longer connects to Postgres as a superuser. Two dedicated **non-superuser** roles + a durable startup guard:
+- **`gastify_app`** (runtime, `GASTIFY_DATABASE_URL`) — non-owner, table CRUD only, `NOSUPERUSER NOBYPASSRLS`. Because it is a non-owner, the existing RLS policies apply to it → tenant isolation is enforced at the database, not just in app-layer query filters.
+- **`gastify_migrator`** (migrations, `GASTIFY_MIGRATION_DATABASE_URL`) — owns the tables so it can run DDL + `CREATE POLICY`, but still `NOSUPERUSER NOBYPASSRLS`.
+- **Startup guard** (`app/db.py::assert_least_privilege_role`, called from the FastAPI lifespan): queries `pg_roles` for the connected role and **raises — refusing to boot — if it is superuser or `BYPASSRLS`**. Skips local + SQLite. This is the "can never silently regress" piece: a future misconfig (e.g. `GASTIFY_DATABASE_URL` pointed back at `postgres`) fails loudly at startup instead of silently re-disabling RLS.
+
+The `postgres` superuser is used **once, operationally**, to provision the two roles (runbook), then never by the app.
+
+**Why (P43, surfaced by the P32 PostgreSQL-executed RLS test).** PostgreSQL RLS is bypassed by superusers and `BYPASSRLS` roles, and by table owners unless `FORCE ROW LEVEL SECURITY`. The deployed app connected as `postgres`, so every RLS policy was **silently inert** — RLS-as-defense-in-depth was doing nothing, and any bug/injection ran with DB god-mode. Not an active leak (app-layer `.where(ownership_scope_id == auth.ownership_scope_id)` + per-request `set_config('app.ownership_scope_id')` held), but the second barrier was absent. The sister app Gustify fixed the same latent issue as DECISIONS D32; this mirrors that pattern, adapted to Gastify.
+
+**Supersedes** the earlier P43 bootstrap approach (commit 6824baa: an `app/bootstrap_db.py` that provisioned a single app role at startup while keeping the superuser as the migration/admin URL). That was never deployed (vars never set) and still kept god-mode in the deploy path with no boot guard. Removed in favor of this two-role + guard design.
+
+**Migration interaction discovered + fixed.** FK-validation during migrations scans FORCE-RLS tables, which evaluates the policy reading `current_setting('app.ownership_scope_id')` — unset during DDL. A superuser silently bypassed this; the non-bypassing `gastify_migrator` errored. `alembic/env.py` now sets a placeholder `app.ownership_scope_id` for the migration session. (This is precisely why migrating as a superuser was dangerous — it masked the interaction.)
+
+**Proven end-to-end** against a real Postgres (zonky embedded binary): provision two non-super roles → `alembic upgrade head` as `gastify_migrator` (owns 25 tables) → runtime as `gastify_app`: RLS isolates a real `transactions` row across scopes + WITH CHECK blocks cross-scope insert + role confirmed non-super; the boot guard **rejects** a superuser DSN and **passes** the `gastify_app` DSN.
+
+**Net architecture impact.** No new runtime component. Two DB roles instead of one superuser; one env var added (`GASTIFY_MIGRATION_DATABASE_URL`); a lifespan guard. FORCE ROW LEVEL SECURITY (already present) is retained — it is what lets the owner `gastify_migrator` remain subject to policy during migration validation, and is harmless for the non-owner `gastify_app`.
+
+**Status:** code accepted + merged; **operational rollout pending** — set the two role DSNs on each Railway API service + provision the roles per `docs/runbooks/db-role-split.md`, then redeploy (the boot guard verifies it). **Review trigger:** if a future migration needs a privilege `gastify_migrator` lacks (would need an explicit GRANT, not a return to superuser).

@@ -3154,3 +3154,5 @@ PROVEN end-to-end vs a real Postgres (zonky embedded binary, no docker): bootstr
 DOCS: docs/runbooks/db-role-split.md (operator steps + rollback); env examples (staging/prod) + infra/railway/README updated.
 REMAINING (operator, off-repo, tracked in P43): set GASTIFY_DATABASE_ADMIN_URL + GASTIFY_APP_DB_ROLE/PASSWORD + point GASTIFY_DATABASE_URL at gastify_app on each Railway API service, then redeploy. Verify: gastify_app `rolsuper OR rolbypassrls` = false.
 VERIFY: backend 726 passed/4 skipped; mypy clean; ruff+format clean.
+- 2026-06-01 23:28 | Edit | /home/khujta/projects/apps/gastify/backend/railway.toml
+- 2026-06-01 23:46 | Edit | /home/khujta/projects/apps/gastify/infra/railway/README.md

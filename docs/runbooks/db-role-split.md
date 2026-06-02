@@ -1,88 +1,113 @@
-# Runbook — Database Role Split (RLS enforcement, P43)
+# Runbook — Database Role Split (RLS enforcement, P43 / Gustify D32 parity)
 
 ## Why
 
 PostgreSQL **row-level security only applies to non-superuser, non-`BYPASSRLS`
-roles**. The app historically connected to Postgres as the `postgres` superuser,
-so every `... FORCE ROW LEVEL SECURITY` policy on scope-bound tables was
-**silently inert** in production. Tenant isolation still held (the app also
-filters every query by `ownership_scope_id` and sets the per-request GUC), but
-RLS — the intended second barrier — was doing nothing.
+roles** — and table **owners** also bypass RLS unless the table has `FORCE ROW
+LEVEL SECURITY`. The app historically connected as the `postgres` superuser, so
+every RLS policy on scope-bound tables was **silently inert** in production.
+Tenant isolation still held (the app filters every query by `ownership_scope_id`
+and sets `app.ownership_scope_id` per request), but RLS — the intended
+defense-in-depth barrier — did nothing, and any bug/injection ran with DB
+god-mode.
 
-The fix splits the database connection into two roles:
+The fix uses **two dedicated NON-superuser roles** + a **startup guard**:
 
 | Role | Privilege | Used by | RLS applies? |
 |---|---|---|---|
-| **admin** (`postgres`, the Railway owner) | superuser / table owner | startup **bootstrap** + `alembic upgrade head` | n/a (bypasses by design — migrations need DDL) |
-| **app** (`gastify_app`) | non-superuser, `NOSUPERUSER NOBYPASSRLS`, table CRUD only | **uvicorn runtime** | **yes** ✓ |
+| **`gastify_migrator`** | NON-superuser, **owns** the tables, `CREATE` on schema | `alembic upgrade head` (`GASTIFY_MIGRATION_DATABASE_URL`) | bypasses as owner — fine, migrations need DDL |
+| **`gastify_app`** | NON-superuser, **non-owner**, table CRUD only | runtime uvicorn (`GASTIFY_DATABASE_URL`) | **yes** ✓ |
 
-Migrations keep using the privileged role (they create tables, policies, and own
-the schema). The runtime uses the least-privilege `gastify_app`, so RLS becomes a
-real defense-in-depth layer.
+The `postgres` superuser is used **once, operationally**, to provision these two
+roles — then never by the app at runtime or migration time.
 
-## How it works (automatic)
+### The durable guard (the "can never silently regress" part)
 
-`backend/railway.toml` start command runs three steps in order:
+`app/db.py::assert_least_privilege_role()` runs in the FastAPI lifespan. On a
+deployed Postgres it queries `pg_roles` for the connected role and **raises —
+refusing to boot — if the runtime role is superuser or has BYPASSRLS**. So a
+future misconfiguration (e.g. `GASTIFY_DATABASE_URL` pointed back at `postgres`)
+fails loudly at startup instead of silently disabling RLS. A healthy `/healthz`
+is proof the runtime connects as a least-privilege role. Skipped on local +
+SQLite (no roles).
+
+## One-time provisioning (run as the current superuser, per environment)
+
+Generate passwords with `python -c "import secrets; print(secrets.token_urlsafe(32))"`.
+**Never print or commit them — store only in Railway service variables.**
+
+```sql
+-- 1) Two non-superuser roles
+CREATE ROLE gastify_migrator LOGIN PASSWORD '<mig-pw>'
+    NOSUPERUSER NOCREATEDB NOCREATEROLE NOBYPASSRLS;
+CREATE ROLE gastify_app LOGIN PASSWORD '<app-pw>'
+    NOSUPERUSER NOCREATEDB NOCREATEROLE NOBYPASSRLS;
+
+-- 2) Schema privileges
+GRANT CREATE, USAGE ON SCHEMA public TO gastify_migrator;
+GRANT USAGE ON SCHEMA public TO gastify_app;
+
+-- 3) Transfer ownership of ALL app objects (incl. alembic_version) to the migrator.
+--    REASSIGN OWNED moves everything the current owner owns in this database.
+REASSIGN OWNED BY postgres TO gastify_migrator;
+--    (If the current owner is a different role, swap 'postgres' accordingly.
+--     On Railway the bootstrap role is typically 'postgres'.)
+
+-- 4) Runtime CRUD grants for the app role (current + future tables/sequences)
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO gastify_app;
+GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO gastify_app;
+ALTER DEFAULT PRIVILEGES FOR ROLE gastify_migrator IN SCHEMA public
+    GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO gastify_app;
+ALTER DEFAULT PRIVILEGES FOR ROLE gastify_migrator IN SCHEMA public
+    GRANT USAGE, SELECT ON SEQUENCES TO gastify_app;
+```
+
+Because `gastify_app` is a **non-owner**, the existing RLS policies apply to it
+**without** needing `FORCE RLS`. (The tables already use `FORCE ROW LEVEL
+SECURITY`, which is what lets `gastify_migrator` — the owner — still be subject to
+policy during migration FK-validation; see the migration note below.)
+
+## Repoint Railway variables (per API service) + redeploy
 
 ```
-python -m app.bootstrap_db   # idempotent: ensure gastify_app exists + grants
-&& alembic upgrade head      # runs as admin (database_admin_url)
-&& uvicorn app.main:app      # runs as gastify_app (database_url)
+GASTIFY_DATABASE_URL           = postgresql://gastify_app:<app-pw>@<host>:5432/<db>
+GASTIFY_MIGRATION_DATABASE_URL = postgresql://gastify_migrator:<mig-pw>@<host>:5432/<db>
 ```
 
-- `app/bootstrap_db.py` connects via `GASTIFY_DATABASE_ADMIN_URL` and ensures the
-  `GASTIFY_APP_DB_ROLE` exists with `LOGIN NOSUPERUSER NOBYPASSRLS`, schema
-  `USAGE`, table+sequence CRUD grants, and **default privileges** (so tables
-  created by future migrations are auto-granted). It **refuses to continue** if
-  the role somehow has superuser/bypassrls.
-- `alembic/env.py` uses `database_admin_url` when set, else falls back to
-  `database_url` (preserving the old single-URL behavior for local/dev/CI).
+Redeploy. On boot: alembic runs as `gastify_migrator`, the runtime starts as
+`gastify_app`, and the lifespan guard verifies the runtime role can't bypass RLS
+(or the boot fails).
 
-When `GASTIFY_DATABASE_ADMIN_URL` is **unset**, bootstrap is a no-op and
-everything uses `GASTIFY_DATABASE_URL` (local SQLite, dev, CI — unchanged).
+## Migration note (a real bug the superuser was masking)
 
-## Operator steps (per deployed environment)
-
-For each API service (`gastify-api-staging`, `gastify-api-staging-e2e`,
-`gastify-api-production` when it exists):
-
-1. **Pick a strong password** for `gastify_app` (store it in the Railway
-   variables only — never commit it).
-2. Set these Railway service variables:
-   ```
-   GASTIFY_DATABASE_ADMIN_URL = <the current superuser URL>   # = today's GASTIFY_DATABASE_URL
-   GASTIFY_APP_DB_ROLE        = gastify_app
-   GASTIFY_APP_DB_PASSWORD    = <strong password>
-   GASTIFY_DATABASE_URL       = postgresql://gastify_app:<strong password>@<same host>:5432/<same db>
-   ```
-   i.e. **move** today's superuser URL to `GASTIFY_DATABASE_ADMIN_URL`, and point
-   `GASTIFY_DATABASE_URL` at the new `gastify_app` role on the same host/db.
-3. **Redeploy.** On boot, `bootstrap_db` creates `gastify_app` (as the admin),
-   migrations run, then the runtime connects as `gastify_app`.
-
-> Order matters: `GASTIFY_DATABASE_ADMIN_URL` must be the superuser, because only
-> it can create the `gastify_app` role and own the tables/policies. Do not point
-> `GASTIFY_DATABASE_URL` at `gastify_app` *before* the admin URL is set, or the
-> first boot can't provision the role.
+Some migrations add/validate foreign keys on tables that already have `FORCE ROW
+LEVEL SECURITY`. The validation scan evaluates the RLS policy, which reads
+`current_setting('app.ownership_scope_id')` — **unset during DDL**. A superuser
+silently skipped this (it bypasses RLS); the non-bypassing `gastify_migrator`
+hit `unrecognized configuration parameter`. `alembic/env.py` now sets a
+placeholder `app.ownership_scope_id` for the migration session so policy
+evaluation has a value. (This is why migrating as the superuser was dangerous —
+it hid the interaction.)
 
 ## Verify after deploy
 
 ```bash
-# 1) The app still works end-to-end (it's now on the least-privilege role):
-scripts/staging/check-backend-ready.sh <api-url>          # status=ok, migration_status=current
+scripts/staging/check-backend-ready.sh <api-url>   # status=ok, migration_status=current
+#   A 200 from /healthz means the RLS boot guard passed.
 
-# 2) RLS is actually enforced — the runtime role is non-superuser:
-#    connect with the gastify_app DSN and check:
-#    SELECT rolsuper OR rolbypassrls FROM pg_roles WHERE rolname = current_user;  -- must be FALSE
+# Live connection is the least-privilege role:
+#   SELECT usename, rolsuper, rolbypassrls
+#   FROM pg_stat_activity JOIN pg_roles ON rolname = usename
+#   WHERE datname = current_database();    -- app conn = gastify_app, both FALSE
+
+# RLS is actively enforced (not inert) — re-run the P32 mechanism test against a
+# throwaway PG: backend/tests/test_rls_postgres.py (cross-tenant read blocked).
 ```
-
-The mechanism is regression-tested in `backend/tests/test_rls_postgres.py` (RLS
-isolates a non-superuser role; superusers bypass). Set `GASTIFY_TEST_PG_DSN` to a
-throwaway Postgres to run it locally.
 
 ## Rollback
 
-If anything misbehaves, set `GASTIFY_DATABASE_URL` back to the superuser URL and
-unset `GASTIFY_DATABASE_ADMIN_URL`. The app reverts to the prior single-URL
-behavior (RLS inert, but app-layer scoping still isolates tenants). No schema or
+Point `GASTIFY_DATABASE_URL` back at the superuser and unset
+`GASTIFY_MIGRATION_DATABASE_URL`. **But** the startup guard will then **refuse to
+boot** (superuser bypasses RLS) — which is the guard working as designed. To roll
+back fully you must also bypass the guard, so prefer fixing forward. No schema or
 data changes are involved — this is purely a connection-role change.

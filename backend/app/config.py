@@ -19,21 +19,20 @@ STAGING_ENVIRONMENTS = {"staging", "staging-e2e"}
 class Settings(BaseSettings):
     model_config = {"env_prefix": "GASTIFY_"}
 
+    # Runtime DB connection — the least-privilege app role (gastify_app:
+    # NON-superuser, NOBYPASSRLS, non-owner, table CRUD only) so RLS is actually
+    # enforced (P43; mirrors Gustify D32). The boot guard in app/db.py refuses to
+    # start if this role can bypass RLS.
     database_url: str = "sqlite+aiosqlite:///../.tmp/local/gastify.db"
     database_echo: bool = False
 
-    # P43 — RLS is only enforced for NON-superuser roles. To make row-level
-    # security an effective second barrier, the RUNTIME connects via database_url
-    # as a non-superuser app role, while privileged bootstrap + migrations use
-    # database_admin_url (the superuser/owner). When database_admin_url is unset,
-    # everything uses database_url (the prior single-URL behavior; fine for local
-    # SQLite + dev). On deploy, set:
-    #   GASTIFY_DATABASE_ADMIN_URL = postgres superuser URL (migrations + bootstrap)
-    #   GASTIFY_DATABASE_URL       = gastify_app non-superuser URL (runtime)
-    #   GASTIFY_APP_DB_ROLE / GASTIFY_APP_DB_PASSWORD = the role the bootstrap ensures
-    database_admin_url: str | None = None
-    app_db_role: str | None = None
-    app_db_password: str | None = None
+    # Migration DB connection — the gastify_migrator role (NON-superuser too, but
+    # OWNS the tables so it can run DDL + ALTER/CREATE POLICY). Used ONLY by
+    # alembic. When unset, alembic falls back to database_url (fine for local
+    # SQLite + single-role dev). The superuser is used once, operationally, to
+    # provision these two roles (see docs/runbooks/db-role-split.md) — never by
+    # the app at runtime or migration time.
+    migration_database_url: str | None = None
 
     # Audience for Firebase ID-token verification. Real envs MUST set
     # GASTIFY_FIREBASE_PROJECT_ID (gastify-staging / gastify-prod) — every
@@ -152,8 +151,8 @@ class Settings(BaseSettings):
                 "postgresql+asyncpg://",
                 1,
             )
-        if self.database_admin_url and self.database_admin_url.startswith("postgresql://"):
-            self.database_admin_url = self.database_admin_url.replace(
+        if self.migration_database_url and self.migration_database_url.startswith("postgresql://"):
+            self.migration_database_url = self.migration_database_url.replace(
                 "postgresql://",
                 "postgresql+asyncpg://",
                 1,
