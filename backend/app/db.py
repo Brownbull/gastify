@@ -58,6 +58,24 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
         yield session
 
 
+async def set_session_ownership_scope(session: AsyncSession, scope_id: object) -> None:
+    """Establish the RLS scope GUC on a session created OUTSIDE the request flow.
+
+    Background workers (e.g. the scan worker) open their own async_session() and
+    never pass through the auth dependency, so they have no app.ownership_scope_id
+    set — every INSERT into a scope-bound table is then rejected by the RLS
+    WITH CHECK policy under the least-privilege role (P43). Call this with the
+    known scope before writing. Stashes the scope on session.info so the
+    after_begin event re-applies it across commits; Postgres only.
+    """
+    session.info[SCOPE_INFO_KEY] = scope_id
+    if session.bind is not None and session.bind.dialect.name == "postgresql":
+        await session.execute(
+            text("SELECT set_config('app.ownership_scope_id', :sid, true)"),
+            {"sid": str(scope_id)},
+        )
+
+
 def role_can_bypass_rls(rolsuper: bool, rolbypassrls: bool) -> bool:
     """True when a Postgres role ignores row-level-security entirely.
 

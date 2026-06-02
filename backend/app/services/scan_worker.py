@@ -21,7 +21,7 @@ from sqlalchemy import select, update
 from app.agents.categorization import categorize_items
 from app.agents.extraction import ExtractionResult, extract_receipt
 from app.config import settings
-from app.db import async_session
+from app.db import async_session, set_session_ownership_scope
 from app.models.scan import Scan, ScanStatus
 from app.observability import metrics
 from app.schemas.scan import ScanCompleteData, ScanCompleteLineItem
@@ -449,6 +449,10 @@ async def _run_stage2(
 
     async with async_session() as db:
         try:
+            # Background-task session: establish the RLS scope GUC from the scan's
+            # ownership scope, else the transaction/items INSERTs violate the
+            # WITH CHECK policy under the least-privilege role (P43).
+            await set_session_ownership_scope(db, scan.ownership_scope_id)
             transaction = await persist_scan_result(
                 db=db,
                 scan=scan,
