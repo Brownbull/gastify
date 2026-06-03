@@ -1,7 +1,8 @@
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import {
   ActivityIndicator,
+  Alert,
   Button,
   Pressable,
   ScrollView,
@@ -12,7 +13,10 @@ import {
 } from "react-native";
 import { ScreenShell } from "../components/ScreenShell";
 import { useStoreCategories } from "../hooks/useCategories";
-import { useTransactions } from "../hooks/useTransactions";
+import {
+  useBatchDeleteTransactions,
+  useTransactions,
+} from "../hooks/useTransactions";
 import { categoryPath } from "../lib/categories";
 import { formatDate, formatMinorAmount } from "../lib/format";
 import type {
@@ -29,6 +33,9 @@ export function TransactionsScreen({
   navigation,
 }: TransactionsScreenProps = {}) {
   const [filters, setFilters] = useState<TransactionFilters>({});
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [selectMode, setSelectMode] = useState(false);
+  const batchDelete = useBatchDeleteTransactions();
   const {
     data,
     error,
@@ -43,6 +50,37 @@ export function TransactionsScreen({
   const transactions = data?.pages.flatMap((page) => page.data) ?? [];
   const hasFilters = Object.values(filters).some(Boolean);
 
+  const toggleSelect = useCallback((id: string) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }, []);
+
+  const exitSelectMode = useCallback(() => {
+    setSelectMode(false);
+    setSelected(new Set());
+  }, []);
+
+  function handleBatchDelete() {
+    Alert.alert(
+      "Delete transactions",
+      `Delete ${selected.size} transaction(s)? This cannot be undone.`,
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: () => {
+            batchDelete.mutate([...selected], { onSuccess: exitSelectMode });
+          },
+        },
+      ],
+    );
+  }
+
   return (
     <ScreenShell>
       <View style={styles.header} testID="transactions-screen">
@@ -52,6 +90,36 @@ export function TransactionsScreen({
           Receipt and statement activity with original and USD amounts.
         </Text>
       </View>
+
+      <View style={styles.selectToggleRow}>
+        <Pressable
+          onPress={() => (selectMode ? exitSelectMode() : setSelectMode(true))}
+          style={[styles.selectToggle, selectMode && styles.selectToggleActive]}
+          testID="select-mode-toggle"
+        >
+          <Text
+            style={[
+              styles.selectToggleText,
+              selectMode && styles.selectToggleTextActive,
+            ]}
+          >
+            {selectMode ? "Cancel" : "Select"}
+          </Text>
+        </Pressable>
+      </View>
+
+      {selectMode && selected.size > 0 && (
+        <View style={styles.batchBar} testID="batch-action-bar">
+          <Text style={styles.batchBarText}>{selected.size} selected</Text>
+          <Pressable
+            onPress={handleBatchDelete}
+            style={styles.batchDeleteButton}
+            testID="batch-delete-button"
+          >
+            <Text style={styles.batchDeleteText}>Delete</Text>
+          </Pressable>
+        </View>
+      )}
 
       <FilterPanel
         filters={filters}
@@ -88,10 +156,14 @@ export function TransactionsScreen({
           {transactions.map((transaction) => (
             <TransactionRow
               key={transaction.id}
+              isSelected={selected.has(transaction.id)}
+              selectMode={selectMode}
               onPress={() =>
-                navigation?.navigate("TransactionDetail", {
-                  transactionId: transaction.id,
-                })
+                selectMode
+                  ? toggleSelect(transaction.id)
+                  : navigation?.navigate("TransactionDetail", {
+                      transactionId: transaction.id,
+                    })
               }
               storeCategories={storeCategories}
               transaction={transaction}
@@ -267,11 +339,15 @@ function CategoryChip({
 }
 
 function TransactionRow({
+  isSelected,
   onPress,
+  selectMode,
   storeCategories,
   transaction,
 }: {
+  isSelected: boolean;
   onPress: () => void;
+  selectMode: boolean;
   storeCategories: ReturnType<typeof useStoreCategories>["data"];
   transaction: TransactionListItem;
 }) {
@@ -283,9 +359,21 @@ function TransactionRow({
     <Pressable
       accessibilityRole="button"
       onPress={onPress}
-      style={styles.transactionRow}
+      style={[
+        styles.transactionRow,
+        isSelected && styles.transactionRowSelected,
+      ]}
       testID={`transaction-row-${transaction.id}`}
     >
+      {selectMode && (
+        <View style={styles.checkboxCol}>
+          <View
+            style={[styles.checkbox, isSelected && styles.checkboxChecked]}
+          >
+            {isSelected && <Text style={styles.checkmark}>✓</Text>}
+          </View>
+        </View>
+      )}
       <View style={styles.transactionMain}>
         <Text style={styles.transactionDate}>
           {formatDate(transaction.transaction_date)}
@@ -522,5 +610,83 @@ const styles = StyleSheet.create({
     fontWeight: "800",
     marginTop: 6,
     textTransform: "capitalize",
+  },
+  selectToggleRow: {
+    alignItems: "flex-end",
+    marginBottom: 8,
+  },
+  selectToggle: {
+    borderColor: "#cbd5e1",
+    borderRadius: 8,
+    borderWidth: 1,
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+  },
+  selectToggleActive: {
+    backgroundColor: "#dbeafe",
+    borderColor: "#2563eb",
+  },
+  selectToggleText: {
+    color: "#475569",
+    fontSize: 13,
+    fontWeight: "600",
+  },
+  selectToggleTextActive: {
+    color: "#1d4ed8",
+  },
+  batchBar: {
+    alignItems: "center",
+    backgroundColor: "#dbeafe",
+    borderColor: "#2563eb",
+    borderRadius: 8,
+    borderWidth: 1,
+    flexDirection: "row",
+    gap: 12,
+    marginBottom: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+  },
+  batchBarText: {
+    color: "#1d4ed8",
+    flex: 1,
+    fontSize: 14,
+    fontWeight: "600",
+  },
+  batchDeleteButton: {
+    backgroundColor: "#ef4444",
+    borderRadius: 6,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+  },
+  batchDeleteText: {
+    color: "#ffffff",
+    fontSize: 13,
+    fontWeight: "700",
+  },
+  transactionRowSelected: {
+    backgroundColor: "#eff6ff",
+    borderColor: "#93c5fd",
+  },
+  checkboxCol: {
+    justifyContent: "center",
+    marginRight: 12,
+  },
+  checkbox: {
+    alignItems: "center",
+    borderColor: "#cbd5e1",
+    borderRadius: 4,
+    borderWidth: 2,
+    height: 22,
+    justifyContent: "center",
+    width: 22,
+  },
+  checkboxChecked: {
+    backgroundColor: "#2563eb",
+    borderColor: "#2563eb",
+  },
+  checkmark: {
+    color: "#ffffff",
+    fontSize: 14,
+    fontWeight: "700",
   },
 });

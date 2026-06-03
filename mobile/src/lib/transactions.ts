@@ -8,6 +8,8 @@ export type TransactionDetail = components["schemas"]["TransactionDetail"];
 export type TransactionUpdate = components["schemas"]["TransactionUpdate"];
 export type TransactionItemUpdate =
   components["schemas"]["TransactionItemUpdate"];
+export type BatchUpdateFields = components["schemas"]["BatchUpdateFields"];
+export type BatchResult = components["schemas"]["BatchResult"];
 export type TransactionsPage =
   components["schemas"]["PaginatedResponse_TransactionListItem_"];
 export type ItemFlagKind = NonNullable<
@@ -107,5 +109,32 @@ export async function updateItemFlags(
     throw new Error(readApiError(error, "Failed to update item flags"));
   }
 
+  return data;
+}
+
+export async function batchUpdateTransactions(
+  transactionIds: string[],
+  updates: BatchUpdateFields,
+): Promise<BatchResult> {
+  const { data, error } = await apiClient.POST(
+    "/api/v1/transactions/batch-update",
+    { body: { transaction_ids: transactionIds, updates } },
+  );
+  if (error || !data) {
+    throw new Error(readApiError(error, "Batch update failed"));
+  }
+  return data;
+}
+
+export async function batchDeleteTransactions(
+  transactionIds: string[],
+): Promise<BatchResult> {
+  const { data, error } = await apiClient.POST(
+    "/api/v1/transactions/batch-delete",
+    { body: { transaction_ids: transactionIds } },
+  );
+  if (error || !data) {
+    throw new Error(readApiError(error, "Batch delete failed"));
+  }
   return data;
 }

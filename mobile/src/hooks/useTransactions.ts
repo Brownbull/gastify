@@ -7,10 +7,13 @@ import {
 } from "@tanstack/react-query";
 import { useCallback } from "react";
 import {
+  batchDeleteTransactions,
+  batchUpdateTransactions,
   getTransaction,
   listTransactions,
   updateItemFlags,
   updateTransaction,
+  type BatchUpdateFields,
   type ItemFlagKind,
   type TransactionDetail,
   type TransactionFilters,
@@ -129,6 +132,35 @@ export function useUpdateItemFlags(transactionId: string) {
       );
     },
     onSettled: () => {
+      void queryClient.invalidateQueries({ queryKey: insightsKeys.all });
+    },
+  });
+}
+
+export function useBatchUpdateTransactions() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      transactionIds,
+      updates,
+    }: {
+      transactionIds: string[];
+      updates: BatchUpdateFields;
+    }) => batchUpdateTransactions(transactionIds, updates),
+    onSettled: () => {
+      void queryClient.invalidateQueries({ queryKey: transactionKeys.all });
+      void queryClient.invalidateQueries({ queryKey: insightsKeys.all });
+    },
+  });
+}
+
+export function useBatchDeleteTransactions() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (transactionIds: string[]) =>
+      batchDeleteTransactions(transactionIds),
+    onSettled: () => {
+      void queryClient.invalidateQueries({ queryKey: transactionKeys.all });
       void queryClient.invalidateQueries({ queryKey: insightsKeys.all });
     },
   });

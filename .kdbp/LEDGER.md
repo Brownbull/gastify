@@ -3274,3 +3274,7 @@ RUNTIME EVIDENCE:
 PR: — (fast-forward promotion)
 CI: ✅ staging green (2m16s) + ✅ main green (2m17s)
 PROMOTION: staging → main verified
+- 2026-06-02 20:35 | Edit | /home/khujta/projects/apps/gastify/web/src/hooks/useTransactions.ts
+- 2026-06-02 20:35 | Edit | /home/khujta/projects/apps/gastify/mobile/src/lib/transactions.ts
+- 2026-06-02 20:36 | Edit | /home/khujta/projects/apps/gastify/mobile/src/hooks/useTransactions.ts
+- 2026-06-02 20:36 | Edit | /home/khujta/projects/apps/gastify/mobile/src/hooks/useTransactions.ts

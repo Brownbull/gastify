@@ -5,6 +5,10 @@ import { useTransactions } from "../../hooks/useTransactions";
 
 jest.mock("../../hooks/useTransactions", () => ({
   useTransactions: jest.fn(),
+  useBatchDeleteTransactions: jest.fn(() => ({
+    mutate: jest.fn(),
+    isPending: false,
+  })),
 }));
 
 jest.mock("../../hooks/useCategories", () => ({

@@ -1,7 +1,9 @@
-import { useState, useDeferredValue } from "react";
+import { useState, useDeferredValue, useCallback } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   useTransactions,
+  useBatchDeleteTransactions,
+  useBatchUpdateTransactions,
   type TransactionFilters,
 } from "@/hooks/useTransactions";
 import { useStoreCategories } from "@/hooks/useCategories";
@@ -17,6 +19,7 @@ export const Route = createFileRoute("/transactions/")({
 function TransactionsListPage() {
   const [filters, setFilters] = useState<TransactionFilters>({});
   const deferredFilters = useDeferredValue(filters);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
 
   const {
     data,
@@ -28,6 +31,25 @@ function TransactionsListPage() {
   } = useTransactions(deferredFilters);
 
   const transactions = data?.pages.flatMap((page) => page.data) ?? [];
+
+  const toggleSelect = useCallback((id: string) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }, []);
+
+  const toggleAll = useCallback(() => {
+    setSelected((prev) =>
+      prev.size === transactions.length
+        ? new Set()
+        : new Set(transactions.map((t) => t.id)),
+    );
+  }, [transactions]);
+
+  const clearSelection = useCallback(() => setSelected(new Set()), []);
 
   return (
     <div className="space-y-6">
@@ -48,6 +70,14 @@ function TransactionsListPage() {
 
       <FilterBar filters={filters} onChange={setFilters} />
 
+      {selected.size > 0 && (
+        <BatchActionBar
+          count={selected.size}
+          selectedIds={[...selected]}
+          onDone={clearSelection}
+        />
+      )}
+
       {error && <ErrorBanner message={error.message} />}
 
       {isLoading ? (
@@ -56,7 +86,12 @@ function TransactionsListPage() {
         <EmptyState hasFilters={Object.values(filters).some(Boolean)} />
       ) : (
         <>
-          <TransactionTable transactions={transactions} />
+          <TransactionTable
+            transactions={transactions}
+            selected={selected}
+            onToggle={toggleSelect}
+            onToggleAll={toggleAll}
+          />
           {hasNextPage && (
             <div className="flex justify-center pt-2">
               <button
@@ -74,6 +109,101 @@ function TransactionsListPage() {
           )}
         </>
       )}
+    </div>
+  );
+}
+
+interface BatchActionBarProps {
+  count: number;
+  selectedIds: string[];
+  onDone: () => void;
+}
+
+function BatchActionBar({ count, selectedIds, onDone }: BatchActionBarProps) {
+  const batchDelete = useBatchDeleteTransactions();
+  const batchUpdate = useBatchUpdateTransactions();
+  const { data: categories } = useStoreCategories();
+  const [showCategoryPicker, setShowCategoryPicker] = useState(false);
+
+  async function handleDelete() {
+    if (!confirm(`Delete ${count} transaction(s)?`)) return;
+    await batchDelete.mutateAsync(selectedIds);
+    onDone();
+  }
+
+  async function handleReassign(categoryId: string) {
+    await batchUpdate.mutateAsync({
+      transactionIds: selectedIds,
+      updates: { store_category_id: categoryId },
+    });
+    setShowCategoryPicker(false);
+    onDone();
+  }
+
+  return (
+    <div
+      className="flex flex-wrap items-center gap-3 rounded-lg border px-4 py-3"
+      style={{
+        backgroundColor: "var(--primary-light)",
+        borderColor: "var(--primary)",
+      }}
+      data-testid="batch-action-bar"
+    >
+      <span className="text-sm font-medium" style={{ color: "var(--primary)" }}>
+        {count} selected
+      </span>
+
+      <button
+        onClick={() => void handleDelete()}
+        disabled={batchDelete.isPending}
+        className="rounded-md px-3 py-1.5 text-sm font-medium text-white"
+        style={{ backgroundColor: "var(--error)" }}
+        data-testid="batch-delete-button"
+      >
+        {batchDelete.isPending ? "Deleting..." : "Delete"}
+      </button>
+
+      <div className="relative">
+        <button
+          onClick={() => setShowCategoryPicker((v) => !v)}
+          className="rounded-md border px-3 py-1.5 text-sm font-medium"
+          style={{
+            borderColor: "var(--primary)",
+            color: "var(--primary)",
+          }}
+          data-testid="batch-reassign-button"
+        >
+          Reassign category
+        </button>
+        {showCategoryPicker && categories && (
+          <div
+            className="absolute left-0 top-full z-10 mt-1 max-h-60 w-56 overflow-y-auto rounded-lg border shadow-lg"
+            style={{
+              backgroundColor: "var(--surface)",
+              borderColor: "var(--border)",
+            }}
+          >
+            {categories.map((cat) => (
+              <button
+                key={cat.id}
+                onClick={() => void handleReassign(cat.id)}
+                className="block w-full px-3 py-2 text-left text-sm hover:bg-(--primary-light)"
+                style={{ color: "var(--text)" }}
+              >
+                {(cat.display_labels?.en as string) ?? cat.key}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <button
+        onClick={onDone}
+        className="ml-auto text-sm"
+        style={{ color: "var(--text-secondary)" }}
+      >
+        Cancel
+      </button>
     </div>
   );
 }
@@ -210,9 +340,19 @@ function FilterBar({ filters, onChange }: FilterBarProps) {
 
 interface TransactionTableProps {
   transactions: readonly TransactionListItem[];
+  selected: Set<string>;
+  onToggle: (id: string) => void;
+  onToggleAll: () => void;
 }
 
-function TransactionTable({ transactions }: TransactionTableProps) {
+function TransactionTable({
+  transactions,
+  selected,
+  onToggle,
+  onToggleAll,
+}: TransactionTableProps) {
+  const allSelected = transactions.length > 0 && selected.size === transactions.length;
+
   return (
     <div
       className="overflow-x-auto rounded-lg border"
@@ -227,53 +367,43 @@ function TransactionTable({ transactions }: TransactionTableProps) {
             className="border-b text-left"
             style={{ borderColor: "var(--border)" }}
           >
-            <th
-              scope="col"
-              className="px-4 py-3 font-medium"
-              style={{ color: "var(--text-muted)" }}
-            >
+            <th scope="col" className="w-10 px-3 py-3">
+              <input
+                type="checkbox"
+                checked={allSelected}
+                onChange={onToggleAll}
+                aria-label="Select all transactions"
+                data-testid="select-all-checkbox"
+              />
+            </th>
+            <th scope="col" className="px-4 py-3 font-medium" style={{ color: "var(--text-muted)" }}>
               Date
             </th>
-            <th
-              scope="col"
-              className="px-4 py-3 font-medium"
-              style={{ color: "var(--text-muted)" }}
-            >
+            <th scope="col" className="px-4 py-3 font-medium" style={{ color: "var(--text-muted)" }}>
               Merchant
             </th>
-            <th
-              scope="col"
-              className="px-4 py-3 text-right font-medium"
-              style={{ color: "var(--text-muted)" }}
-            >
+            <th scope="col" className="px-4 py-3 text-right font-medium" style={{ color: "var(--text-muted)" }}>
               Amount
             </th>
-            <th
-              scope="col"
-              className="hidden px-4 py-3 text-right font-medium sm:table-cell"
-              style={{ color: "var(--text-muted)" }}
-            >
+            <th scope="col" className="hidden px-4 py-3 text-right font-medium sm:table-cell" style={{ color: "var(--text-muted)" }}>
               USD
             </th>
-            <th
-              scope="col"
-              className="hidden px-4 py-3 text-center font-medium md:table-cell"
-              style={{ color: "var(--text-muted)" }}
-            >
+            <th scope="col" className="hidden px-4 py-3 text-center font-medium md:table-cell" style={{ color: "var(--text-muted)" }}>
               Items
             </th>
-            <th
-              scope="col"
-              className="hidden px-4 py-3 font-medium lg:table-cell"
-              style={{ color: "var(--text-muted)" }}
-            >
+            <th scope="col" className="hidden px-4 py-3 font-medium lg:table-cell" style={{ color: "var(--text-muted)" }}>
               Type
             </th>
           </tr>
         </thead>
         <tbody>
           {transactions.map((txn) => (
-            <TransactionRow key={txn.id} txn={txn} />
+            <TransactionRow
+              key={txn.id}
+              txn={txn}
+              isSelected={selected.has(txn.id)}
+              onToggle={() => onToggle(txn.id)}
+            />
           ))}
         </tbody>
       </table>
@@ -281,16 +411,34 @@ function TransactionTable({ transactions }: TransactionTableProps) {
   );
 }
 
-function TransactionRow({ txn }: { txn: TransactionListItem }) {
+interface TransactionRowProps {
+  txn: TransactionListItem;
+  isSelected: boolean;
+  onToggle: () => void;
+}
+
+function TransactionRow({ txn, isSelected, onToggle }: TransactionRowProps) {
   const isEdited =
     txn.merchant_user_edited_at != null ||
     txn.store_category_user_edited_at != null;
 
   return (
     <tr
-      className="border-b transition-colors last:border-b-0 hover:bg-[var(--primary-light)]"
-      style={{ borderColor: "var(--border)" }}
+      className="border-b transition-colors last:border-b-0 hover:bg-(--primary-light)"
+      style={{
+        borderColor: "var(--border)",
+        backgroundColor: isSelected ? "var(--primary-light)" : undefined,
+      }}
     >
+      <td className="px-3 py-3">
+        <input
+          type="checkbox"
+          checked={isSelected}
+          onChange={onToggle}
+          aria-label={`Select ${txn.merchant}`}
+          data-testid={`select-txn-${txn.id}`}
+        />
+      </td>
       <td className="px-4 py-3" style={{ color: "var(--text-secondary)" }}>
         {formatDate(txn.transaction_date)}
       </td>

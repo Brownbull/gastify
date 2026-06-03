@@ -79,6 +79,51 @@ export function useTransactions(filters: TransactionFilters = {}) {
 
 type TransactionUpdate = components["schemas"]["TransactionUpdate"];
 type TransactionDetail = components["schemas"]["TransactionDetail"];
+type BatchUpdateFields = components["schemas"]["BatchUpdateFields"];
+
+export function useBatchUpdateTransactions() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      transactionIds,
+      updates,
+    }: {
+      transactionIds: string[];
+      updates: BatchUpdateFields;
+    }) => {
+      const { data, error } = await apiClient.POST(
+        "/api/v1/transactions/batch-update",
+        { body: { transaction_ids: transactionIds, updates } },
+      );
+      if (error || !data) throw new Error("Batch update failed");
+      return data;
+    },
+    onSettled: () => {
+      void queryClient.invalidateQueries({ queryKey: transactionKeys.all });
+      void queryClient.invalidateQueries({ queryKey: insightsKeys.all });
+    },
+  });
+}
+
+export function useBatchDeleteTransactions() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (transactionIds: string[]) => {
+      const { data, error } = await apiClient.POST(
+        "/api/v1/transactions/batch-delete",
+        { body: { transaction_ids: transactionIds } },
+      );
+      if (error || !data) throw new Error("Batch delete failed");
+      return data;
+    },
+    onSettled: () => {
+      void queryClient.invalidateQueries({ queryKey: transactionKeys.all });
+      void queryClient.invalidateQueries({ queryKey: insightsKeys.all });
+    },
+  });
+}
 
 export function useUpdateTransaction(id: string) {
   const queryClient = useQueryClient();
