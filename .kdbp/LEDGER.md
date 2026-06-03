@@ -3278,3 +3278,12 @@ PROMOTION: staging → main verified
 - 2026-06-02 20:35 | Edit | /home/khujta/projects/apps/gastify/mobile/src/lib/transactions.ts
 - 2026-06-02 20:36 | Edit | /home/khujta/projects/apps/gastify/mobile/src/hooks/useTransactions.ts
 - 2026-06-02 20:36 | Edit | /home/khujta/projects/apps/gastify/mobile/src/hooks/useTransactions.ts
+
+## 2026-06-03 03:30 — PHASE 2 COMPLETE: Batch Ops + Category Management
+EXEC: multi-select checkboxes + batch action bar (Delete, Reassign Category) on web + mobile
+REVIEW: APPROVE (100/100, 0 findings)
+COMMIT: 6b210c6 feat(transactions): multi-select + batch delete/reassign
+PUSH: staging green (re-run after transient ECONNRESET) → main green
+EVIDENCE:
+  Web: tests/web-e2e/proof/batch-ops/ (4 screenshots: list, all-selected, deselected, category-picker)
+  Mobile: tests/mobile/results/runs/local/p10-batch-ops/ (4 named screenshots: list, select-mode, batch-bar, exited)
