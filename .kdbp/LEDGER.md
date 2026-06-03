@@ -3269,3 +3269,8 @@ TICK: ✅
 RUNTIME EVIDENCE:
   Web: tests/web-e2e/proof/settings/ (6 screenshots: settings-loaded, professional, mono, mono-dark, restored, sign-out)
   Mobile: tests/mobile/results/runs/local/p10-settings/screenshots/ (7 screenshots: home, settings-loaded, professional, mono, mono-dark, restored, sign-out)
+
+## 2026-06-03 00:18 — PUSH staging -> main (promotion)
+PR: — (fast-forward promotion)
+CI: ✅ staging green (2m16s) + ✅ main green (2m17s)
+PROMOTION: staging → main verified
