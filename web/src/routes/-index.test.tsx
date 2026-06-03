@@ -1,8 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Route } from "./insights";
+import { RouterProvider, createRouter, createRootRoute, createMemoryHistory } from "@tanstack/react-router";
+import { Route } from "./index";
 
 vi.mock("@/lib/api", () => ({
   apiClient: { GET: vi.fn() },
@@ -77,53 +78,51 @@ const fullPayload = {
   ],
 };
 
+// The dashboard renders <Link to="/trends">, so it needs a router context.
 function renderPage() {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   });
-  const Page = Route.options.component as () => JSX.Element;
+  const rootRoute = createRootRoute({
+    component: Route.options.component as () => JSX.Element,
+  });
+  const router = createRouter({
+    routeTree: rootRoute,
+    history: createMemoryHistory({ initialEntries: ["/"] }),
+  });
   return render(
     <QueryClientProvider client={queryClient}>
-      <Page />
+      <RouterProvider router={router as never} />
     </QueryClientProvider>,
   );
 }
 
-describe("InsightsPage", () => {
+describe("DashboardPage", () => {
   beforeEach(() => vi.clearAllMocks());
 
-  it("renders monthly summary, top categories, gravity centers, and exclusions", async () => {
+  it("renders the donut legend with the top category and its amount", async () => {
     mockGet.mockResolvedValue({ data: fullPayload, error: undefined } as never);
     renderPage();
 
-    expect(await screen.findByText("Top categories")).toBeInTheDocument();
-    // transaction dimension is the default; "Retail" is the parent label,
-    // unique to the category list ("Supermarket" also appears in gravity).
-    expect(screen.getByText("Retail")).toBeInTheDocument();
-    expect(screen.getByText("65.10%")).toBeInTheDocument();
-    // gravity-center section
+    const legend = await screen.findByTestId("donut-legend");
+    // Real rendered chart data — not just a label: category + parsed share.
+    expect(within(legend).getByText("Supermarket")).toBeInTheDocument();
+    expect(within(legend).getByText("65.1%")).toBeInTheDocument();
+    // gravity ("what's shifting") section
     expect(screen.getByText("What's shifting")).toBeInTheDocument();
-    expect(
-      screen.getByText("Up 50% vs your 3-month baseline."),
-    ).toBeInTheDocument();
-    // excluded items
-    expect(screen.getByText("Excluded by your flags")).toBeInTheDocument();
-    expect(screen.getByText(/special case \(1\)/i)).toBeInTheDocument();
+    expect(screen.getByText("Up 50% vs your 3-month baseline.")).toBeInTheDocument();
   });
 
-  it("toggles between transaction-category and item-category rollups", async () => {
+  it("toggles the donut between store and item dimensions", async () => {
     mockGet.mockResolvedValue({ data: fullPayload, error: undefined } as never);
     renderPage();
 
-    await screen.findByText("Retail");
-    expect(screen.queryByText("Meat & Seafood")).not.toBeInTheDocument();
+    const legend = await screen.findByTestId("donut-legend");
+    expect(within(legend).getByText("Supermarket")).toBeInTheDocument();
 
     await userEvent.click(screen.getByRole("button", { name: "By item" }));
 
-    expect(screen.getByText("Meat & Seafood")).toBeInTheDocument();
-    expect(
-      screen.getByText(/1 item excluded by your flags/i),
-    ).toBeInTheDocument();
+    expect(within(screen.getByTestId("donut-legend")).getByText("Meat & Seafood")).toBeInTheDocument();
   });
 
   it("shows an empty state when there are no transactions", async () => {
@@ -133,17 +132,13 @@ describe("InsightsPage", () => {
     } as never);
     renderPage();
 
-    expect(
-      await screen.findByText(/No transactions for this month yet/i),
-    ).toBeInTheDocument();
+    expect(await screen.findByTestId("dashboard-empty")).toBeInTheDocument();
   });
 
   it("shows an error state when the request fails", async () => {
     mockGet.mockResolvedValue({ data: undefined, error: { detail: "x" } } as never);
     renderPage();
 
-    expect(await screen.findByRole("alert")).toHaveTextContent(
-      "Failed to load insights",
-    );
+    expect(await screen.findByRole("alert")).toHaveTextContent("Couldn't load your data.");
   });
 });

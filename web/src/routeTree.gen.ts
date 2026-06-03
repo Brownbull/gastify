@@ -9,17 +9,22 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from "./routes/__root"
+import { Route as TrendsRouteImport } from "./routes/trends"
 import { Route as TransactionsRouteImport } from "./routes/transactions"
 import { Route as StatementsRouteImport } from "./routes/statements"
 import { Route as SignInRouteImport } from "./routes/sign-in"
 import { Route as SettingsRouteImport } from "./routes/settings"
 import { Route as ScanBatchRouteImport } from "./routes/scan-batch"
 import { Route as ScanRouteImport } from "./routes/scan"
-import { Route as InsightsRouteImport } from "./routes/insights"
 import { Route as IndexRouteImport } from "./routes/index"
 import { Route as TransactionsIndexRouteImport } from "./routes/transactions.index"
 import { Route as TransactionsTransactionIdRouteImport } from "./routes/transactions.$transactionId"
 
+const TrendsRoute = TrendsRouteImport.update({
+  id: "/trends",
+  path: "/trends",
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TransactionsRoute = TransactionsRouteImport.update({
   id: "/transactions",
   path: "/transactions",
@@ -50,11 +55,6 @@ const ScanRoute = ScanRouteImport.update({
   path: "/scan",
   getParentRoute: () => rootRouteImport,
 } as any)
-const InsightsRoute = InsightsRouteImport.update({
-  id: "/insights",
-  path: "/insights",
-  getParentRoute: () => rootRouteImport,
-} as any)
 const IndexRoute = IndexRouteImport.update({
   id: "/",
   path: "/",
@@ -74,37 +74,37 @@ const TransactionsTransactionIdRoute =
 
 export interface FileRoutesByFullPath {
   "/": typeof IndexRoute
-  "/insights": typeof InsightsRoute
   "/scan": typeof ScanRoute
   "/scan-batch": typeof ScanBatchRoute
   "/settings": typeof SettingsRoute
   "/sign-in": typeof SignInRoute
   "/statements": typeof StatementsRoute
   "/transactions": typeof TransactionsRouteWithChildren
+  "/trends": typeof TrendsRoute
   "/transactions/$transactionId": typeof TransactionsTransactionIdRoute
   "/transactions/": typeof TransactionsIndexRoute
 }
 export interface FileRoutesByTo {
   "/": typeof IndexRoute
-  "/insights": typeof InsightsRoute
   "/scan": typeof ScanRoute
   "/scan-batch": typeof ScanBatchRoute
   "/settings": typeof SettingsRoute
   "/sign-in": typeof SignInRoute
   "/statements": typeof StatementsRoute
+  "/trends": typeof TrendsRoute
   "/transactions/$transactionId": typeof TransactionsTransactionIdRoute
   "/transactions": typeof TransactionsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   "/": typeof IndexRoute
-  "/insights": typeof InsightsRoute
   "/scan": typeof ScanRoute
   "/scan-batch": typeof ScanBatchRoute
   "/settings": typeof SettingsRoute
   "/sign-in": typeof SignInRoute
   "/statements": typeof StatementsRoute
   "/transactions": typeof TransactionsRouteWithChildren
+  "/trends": typeof TrendsRoute
   "/transactions/$transactionId": typeof TransactionsTransactionIdRoute
   "/transactions/": typeof TransactionsIndexRoute
 }
@@ -112,53 +112,60 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | "/"
-    | "/insights"
     | "/scan"
     | "/scan-batch"
     | "/settings"
     | "/sign-in"
     | "/statements"
     | "/transactions"
+    | "/trends"
     | "/transactions/$transactionId"
     | "/transactions/"
   fileRoutesByTo: FileRoutesByTo
   to:
     | "/"
-    | "/insights"
     | "/scan"
     | "/scan-batch"
     | "/settings"
     | "/sign-in"
     | "/statements"
+    | "/trends"
     | "/transactions/$transactionId"
     | "/transactions"
   id:
     | "__root__"
     | "/"
-    | "/insights"
     | "/scan"
     | "/scan-batch"
     | "/settings"
     | "/sign-in"
     | "/statements"
     | "/transactions"
+    | "/trends"
     | "/transactions/$transactionId"
     | "/transactions/"
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  InsightsRoute: typeof InsightsRoute
   ScanRoute: typeof ScanRoute
   ScanBatchRoute: typeof ScanBatchRoute
   SettingsRoute: typeof SettingsRoute
   SignInRoute: typeof SignInRoute
   StatementsRoute: typeof StatementsRoute
   TransactionsRoute: typeof TransactionsRouteWithChildren
+  TrendsRoute: typeof TrendsRoute
 }
 
 declare module "@tanstack/react-router" {
   interface FileRoutesByPath {
+    "/trends": {
+      id: "/trends"
+      path: "/trends"
+      fullPath: "/trends"
+      preLoaderRoute: typeof TrendsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     "/transactions": {
       id: "/transactions"
       path: "/transactions"
@@ -201,13 +208,6 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof ScanRouteImport
       parentRoute: typeof rootRouteImport
     }
-    "/insights": {
-      id: "/insights"
-      path: "/insights"
-      fullPath: "/insights"
-      preLoaderRoute: typeof InsightsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     "/": {
       id: "/"
       path: "/"
@@ -248,13 +248,13 @@ const TransactionsRouteWithChildren = TransactionsRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  InsightsRoute: InsightsRoute,
   ScanRoute: ScanRoute,
   ScanBatchRoute: ScanBatchRoute,
   SettingsRoute: SettingsRoute,
   SignInRoute: SignInRoute,
   StatementsRoute: StatementsRoute,
   TransactionsRoute: TransactionsRouteWithChildren,
+  TrendsRoute: TrendsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

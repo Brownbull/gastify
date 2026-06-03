@@ -3366,3 +3366,10 @@ POST /scans + poll-to-terminal, post-persist review). Proven on deployed staging
 Playwright (2 saved + 1 failed) + Maestro S23 (3 saved). Plus fix(settings) GET portability.
 Next: Phase 4 — Dashboard + Charts/Trends (run /gabe-plan update to advance Current Phase).
 - 2026-06-03 09:23 | Edit | /home/khujta/projects/apps/gastify/.gitignore
+
+## 2026-06-03 — [222e47c] feat(insights): add GET /insights/series (Phase 4 T1/7)
+FINDINGS: 2 (0 critical, 0 high, 1 medium, 1 low)
+ACTIONS: 1:defer (P45 doc-drift, new /series route, follows P23) · 2:defer (P46 insights.py 1066>800, pre-existing)
+DEFERRED: +P45 (mvp/medium), +P46 (mvp/low)
+TESTS: backend 733 passed, 5 skipped (incl. 6 new test_insights_series.py); ruff+mypy clean; web+mobile tsc clean post api-types regen
+NOTE: backend-only + regenerated web/mobile api-types. Endpoint must deploy to staging-e2e before the B2 runtime proof (T7). Phase Commit column ticks at phase end after /gabe-review.

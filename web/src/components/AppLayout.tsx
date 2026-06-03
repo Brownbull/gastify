@@ -14,7 +14,7 @@ const NAV_ITEMS = [
   { to: "/scan-batch", labelKey: "nav.batchScan", icon: "🧾" },
   { to: "/statements", labelKey: "nav.statements", icon: "💳" },
   { to: "/transactions", labelKey: "nav.transactions", icon: "📋" },
-  { to: "/insights", labelKey: "nav.insights", icon: "📈" },
+  { to: "/trends", labelKey: "nav.trends", icon: "📈" },
   { to: "/settings", labelKey: "nav.settings", icon: "⚙️" },
 ] as const;
 

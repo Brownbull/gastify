@@ -45,3 +45,16 @@ Object.defineProperty(window, "scrollTo", {
   writable: true,
   configurable: true,
 });
+
+// Recharts' ResponsiveContainer observes its parent via ResizeObserver, which
+// jsdom does not implement. A no-op polyfill keeps chart components from
+// crashing in unit tests (the SVG renders at 0x0; assertions target the custom
+// HTML legend, which renders regardless of chart dimensions).
+if (typeof globalThis.ResizeObserver === "undefined") {
+  class ResizeObserverStub {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  }
+  globalThis.ResizeObserver = ResizeObserverStub as unknown as typeof ResizeObserver;
+}
