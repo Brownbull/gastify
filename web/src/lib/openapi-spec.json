@@ -1863,6 +1863,87 @@
         }
       }
     },
+    "/api/v1/insights/tree": {
+      "get": {
+        "tags": [
+          "insights"
+        ],
+        "summary": "Get Insights Tree Endpoint",
+        "operationId": "get_insights_tree_endpoint_api_v1_insights_tree_get",
+        "parameters": [
+          {
+            "name": "period",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}$",
+              "description": "Monthly period in YYYY-MM format.",
+              "title": "Period"
+            },
+            "description": "Monthly period in YYYY-MM format."
+          },
+          {
+            "name": "dimension",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "transaction_category",
+                "item_category"
+              ],
+              "type": "string",
+              "description": "transaction_category -> 4-level Industry/Store-type/Item-family/Item cross-walk tree; item_category -> 2-level Family/Item tree.",
+              "default": "transaction_category",
+              "title": "Dimension"
+            },
+            "description": "transaction_category -> 4-level Industry/Store-type/Item-family/Item cross-walk tree; item_category -> 2-level Family/Item tree."
+          },
+          {
+            "name": "currency",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 3,
+                  "maxLength": 3
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Reporting currency. Defaults to the user's default currency.",
+              "title": "Currency"
+            },
+            "description": "Reporting currency. Defaults to the user's default currency."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InsightsTreeResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/metrics": {
       "get": {
         "tags": [
@@ -2726,6 +2807,155 @@
         ],
         "title": "InsightsSeriesResponse",
         "description": "Multi-period spend series for the Trends bar/line chart (D68).\n\nOne additive read-only aggregate over a month range, bucketed by\ngranularity. Replaces a client fan-out of N monthly calls."
+      },
+      "InsightsTreeNode": {
+        "properties": {
+          "key": {
+            "type": "string",
+            "title": "Key"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "parent_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent Key"
+          },
+          "level": {
+            "type": "integer",
+            "maximum": 4.0,
+            "minimum": 1.0,
+            "title": "Level"
+          },
+          "total_minor": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Total Minor"
+          },
+          "currency": {
+            "type": "string",
+            "maxLength": 3,
+            "minLength": 3,
+            "title": "Currency"
+          },
+          "share_of_total_percent": {
+            "type": "string",
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Share Of Total Percent"
+          },
+          "transaction_count": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Transaction Count"
+          },
+          "item_count": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Item Count"
+          },
+          "excluded_total_minor": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Excluded Total Minor",
+            "default": 0
+          },
+          "children": {
+            "items": {
+              "$ref": "#/components/schemas/InsightsTreeNode"
+            },
+            "type": "array",
+            "title": "Children"
+          }
+        },
+        "type": "object",
+        "required": [
+          "key",
+          "label",
+          "level",
+          "total_minor",
+          "currency",
+          "share_of_total_percent",
+          "transaction_count",
+          "item_count"
+        ],
+        "title": "InsightsTreeNode",
+        "description": "One node of the drill-down category tree (D69).\n\nUnlike `InsightCategoryRollup`, `level` is a free 1-4 integer so the tree can\ncarry L1 industry / L3 family parent nodes (which the rollup's `Literal[2, 4]`\ncategory level rejects). `parent_key` is the key of this node's parent *in the\ntree*: for the store cross-walk tree an item-family (L3) is nested under the\nstore-type (L2) whose transactions contained it, so its `parent_key` is that\nstore-type key rather than its taxonomy family parent. `share_of_total_percent`\nis relative to the response `total_spend_minor`; clients recompute\nwithin-parent proportions from `total_minor` when rendering a drilled level."
+      },
+      "InsightsTreeResponse": {
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "insights-tree.v1",
+            "title": "Schema Version",
+            "default": "insights-tree.v1"
+          },
+          "dimension": {
+            "type": "string",
+            "enum": [
+              "transaction_category",
+              "item_category"
+            ],
+            "title": "Dimension"
+          },
+          "period_start": {
+            "type": "string",
+            "format": "date",
+            "title": "Period Start"
+          },
+          "period_end": {
+            "type": "string",
+            "format": "date",
+            "title": "Period End"
+          },
+          "currency": {
+            "type": "string",
+            "maxLength": 3,
+            "minLength": 3,
+            "title": "Currency"
+          },
+          "total_spend_minor": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Total Spend Minor"
+          },
+          "transaction_count": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Transaction Count"
+          },
+          "item_count": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Item Count"
+          },
+          "roots": {
+            "items": {
+              "$ref": "#/components/schemas/InsightsTreeNode"
+            },
+            "type": "array",
+            "title": "Roots"
+          }
+        },
+        "type": "object",
+        "required": [
+          "dimension",
+          "period_start",
+          "period_end",
+          "currency",
+          "total_spend_minor",
+          "transaction_count",
+          "item_count"
+        ],
+        "title": "InsightsTreeResponse",
+        "description": "Full drill-down category tree for one period + dimension (D69).\n\nThe client fetches this once per (period, dimension) and expands it in memory\n(zero round-trips per drill step). `dimension=\"transaction_category\"` returns\nthe 4-level store cross-walk tree (Industry -> Store-type -> Item-family ->\nItem); `dimension=\"item_category\"` returns the 2-level item tree (Family ->\nItem). No top-N truncation \u2014 every category with spend is present."
       },
       "ItemCategoryItem": {
         "properties": {

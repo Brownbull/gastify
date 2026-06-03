@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import {
   rollupToSlices,
+  treeNodesToSlices,
   parsePercent,
   categoryColorVar,
   OTHER_KEY,
@@ -8,6 +9,7 @@ import {
 import type { components } from "@/lib/api-types";
 
 type CategoryRollup = components["schemas"]["InsightCategoryRollup"];
+type TreeNode = components["schemas"]["InsightsTreeNode"];
 
 function rollup(overrides: Partial<CategoryRollup>): CategoryRollup {
   return {
@@ -91,5 +93,62 @@ describe("rollupToSlices", () => {
 
   it("returns no slices for an empty / zero-spend month", () => {
     expect(rollupToSlices([], 0)).toHaveLength(0);
+  });
+});
+
+describe("treeNodesToSlices", () => {
+  function treeNode(overrides: Partial<TreeNode>): TreeNode {
+    return {
+      key: "FreshFood",
+      label: "Fresh Food",
+      parent_key: "Supermarket",
+      level: 3,
+      total_minor: 90_000,
+      currency: "CLP",
+      share_of_total_percent: "32.55",
+      transaction_count: 2,
+      item_count: 2,
+      excluded_total_minor: 0,
+      children: [],
+      ...overrides,
+    };
+  }
+
+  it("computes percentages within the parent, not the grand total", () => {
+    const slices = treeNodesToSlices(
+      [
+        treeNode({ key: "MeatSeafood", label: "Meat & Seafood", total_minor: 60_000 }),
+        treeNode({ key: "Produce", label: "Produce", total_minor: 30_000 }),
+      ],
+      90_000, // parent total, NOT the month total
+    );
+    expect(slices.map((s) => s.label)).toEqual(["Meat & Seafood", "Produce"]);
+    expect(slices[0].percent).toBeCloseTo(66.67);
+    expect(slices[1].percent).toBeCloseTo(33.33);
+  });
+
+  it("marks nodes drillable only when they have children", () => {
+    const slices = treeNodesToSlices(
+      [
+        treeNode({ key: "FreshFood", children: [treeNode({ key: "Produce" })] }),
+        treeNode({ key: "Snacks", label: "Snacks", children: [] }),
+      ],
+      180_000,
+    );
+    expect(slices.find((s) => s.categoryKey === "FreshFood")?.drillable).toBe(true);
+    expect(slices.find((s) => s.categoryKey === "Snacks")?.drillable).toBe(false);
+  });
+
+  it("synthesizes a non-drillable Other remainder when children miss the parent total", () => {
+    const slices = treeNodesToSlices([treeNode({ total_minor: 60_000 })], 100_000);
+    const other = slices.find((s) => s.categoryKey === OTHER_KEY);
+    expect(other?.isOther).toBe(true);
+    expect(other?.drillable).toBe(false);
+    expect(other?.valueMinor).toBe(40_000);
+  });
+
+  it("adds no Other slice when children reconcile to the parent total", () => {
+    const slices = treeNodesToSlices([treeNode({ total_minor: 100_000 })], 100_000);
+    expect(slices.some((s) => s.isOther)).toBe(false);
   });
 });

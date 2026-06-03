@@ -11,11 +11,18 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.auth.deps import Auth  # noqa: TC001 - FastAPI needs runtime Annotated dependency.
 from app.db import get_db
 from app.schemas.insights import (
+    InsightDimension,
     InsightsSeriesResponse,
+    InsightsTreeResponse,
     MonthlyInsightsResponse,
     SeriesGranularity,
 )
-from app.services.insights import SERIES_MAX_MONTHS, get_insights_series, get_monthly_insights
+from app.services.insights import (
+    SERIES_MAX_MONTHS,
+    get_insights_series,
+    get_insights_tree,
+    get_monthly_insights,
+)
 
 router = APIRouter(prefix="/insights", tags=["insights"])
 
@@ -100,6 +107,41 @@ async def get_insights_series_endpoint(
         to_month=to_month,
         currency=reporting_currency,
         granularity=granularity,
+    )
+
+
+@router.get("/tree", response_model=InsightsTreeResponse)
+async def get_insights_tree_endpoint(
+    auth: Auth,
+    db: DB,
+    period: str = Query(
+        ...,
+        description="Monthly period in YYYY-MM format.",
+        pattern=r"^\d{4}-\d{2}$",
+    ),
+    dimension: InsightDimension = Query(
+        default="transaction_category",
+        description=(
+            "transaction_category -> 4-level Industry/Store-type/Item-family/Item "
+            "cross-walk tree; item_category -> 2-level Family/Item tree."
+        ),
+    ),
+    currency: str | None = Query(
+        default=None,
+        min_length=3,
+        max_length=3,
+        description="Reporting currency. Defaults to the user's default currency.",
+    ),
+) -> InsightsTreeResponse:
+    period_start = _parse_period(period)
+    reporting_currency = (currency or auth.user.default_currency).upper()
+    return await get_insights_tree(
+        db,
+        ownership_scope_id=auth.ownership_scope_id,
+        user_id=auth.user_id,
+        period_start=period_start,
+        currency=reporting_currency,
+        dimension=dimension,
     )
 
 

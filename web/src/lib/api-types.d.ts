@@ -633,6 +633,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/insights/tree": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Insights Tree Endpoint */
+        get: operations["get_insights_tree_endpoint_api_v1_insights_tree_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/metrics": {
         parameters: {
             query?: never;
@@ -1005,6 +1022,89 @@ export interface components {
             period_end: string;
             /** Points */
             points?: components["schemas"]["InsightsSeriesPoint"][];
+        };
+        /**
+         * InsightsTreeNode
+         * @description One node of the drill-down category tree (D69).
+         *
+         *     Unlike `InsightCategoryRollup`, `level` is a free 1-4 integer so the tree can
+         *     carry L1 industry / L3 family parent nodes (which the rollup's `Literal[2, 4]`
+         *     category level rejects). `parent_key` is the key of this node's parent *in the
+         *     tree*: for the store cross-walk tree an item-family (L3) is nested under the
+         *     store-type (L2) whose transactions contained it, so its `parent_key` is that
+         *     store-type key rather than its taxonomy family parent. `share_of_total_percent`
+         *     is relative to the response `total_spend_minor`; clients recompute
+         *     within-parent proportions from `total_minor` when rendering a drilled level.
+         */
+        InsightsTreeNode: {
+            /** Key */
+            key: string;
+            /** Label */
+            label: string;
+            /** Parent Key */
+            parent_key?: string | null;
+            /** Level */
+            level: number;
+            /** Total Minor */
+            total_minor: number;
+            /** Currency */
+            currency: string;
+            /** Share Of Total Percent */
+            share_of_total_percent: string;
+            /** Transaction Count */
+            transaction_count: number;
+            /** Item Count */
+            item_count: number;
+            /**
+             * Excluded Total Minor
+             * @default 0
+             */
+            excluded_total_minor: number;
+            /** Children */
+            children?: components["schemas"]["InsightsTreeNode"][];
+        };
+        /**
+         * InsightsTreeResponse
+         * @description Full drill-down category tree for one period + dimension (D69).
+         *
+         *     The client fetches this once per (period, dimension) and expands it in memory
+         *     (zero round-trips per drill step). `dimension="transaction_category"` returns
+         *     the 4-level store cross-walk tree (Industry -> Store-type -> Item-family ->
+         *     Item); `dimension="item_category"` returns the 2-level item tree (Family ->
+         *     Item). No top-N truncation — every category with spend is present.
+         */
+        InsightsTreeResponse: {
+            /**
+             * Schema Version
+             * @default insights-tree.v1
+             * @constant
+             */
+            schema_version: "insights-tree.v1";
+            /**
+             * Dimension
+             * @enum {string}
+             */
+            dimension: "transaction_category" | "item_category";
+            /**
+             * Period Start
+             * Format: date
+             */
+            period_start: string;
+            /**
+             * Period End
+             * Format: date
+             */
+            period_end: string;
+            /** Currency */
+            currency: string;
+            /** Total Spend Minor */
+            total_spend_minor: number;
+            /** Transaction Count */
+            transaction_count: number;
+            /** Item Count */
+            item_count: number;
+            /** Roots */
+            roots?: components["schemas"]["InsightsTreeNode"][];
         };
         /** ItemCategoryItem */
         ItemCategoryItem: {
@@ -3563,6 +3663,42 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["InsightsSeriesResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_insights_tree_endpoint_api_v1_insights_tree_get: {
+        parameters: {
+            query: {
+                /** @description Monthly period in YYYY-MM format. */
+                period: string;
+                /** @description transaction_category -> 4-level Industry/Store-type/Item-family/Item cross-walk tree; item_category -> 2-level Family/Item tree. */
+                dimension?: "transaction_category" | "item_category";
+                /** @description Reporting currency. Defaults to the user's default currency. */
+                currency?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InsightsTreeResponse"];
                 };
             };
             /** @description Validation Error */

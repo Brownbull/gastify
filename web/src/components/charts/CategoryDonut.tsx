@@ -42,14 +42,20 @@ export default function CategoryDonut({ slices, currency, onSliceClick }: Catego
               isAnimationActive={false}
               onClick={(entry: unknown) => {
                 const slice = entry as ChartSlice;
-                if (onSliceClick && slice && !slice.isOther) onSliceClick(slice);
+                if (onSliceClick && slice && !slice.isOther && slice.drillable !== false) {
+                  onSliceClick(slice);
+                }
               }}
             >
               {data.map((slice) => (
                 <Cell
                   key={slice.categoryKey}
                   fill={slice.colorVar}
-                  cursor={!slice.isOther && onSliceClick ? "pointer" : "default"}
+                  cursor={
+                    !slice.isOther && onSliceClick && slice.drillable !== false
+                      ? "pointer"
+                      : "default"
+                  }
                 />
               ))}
             </Pie>
@@ -71,7 +77,8 @@ export default function CategoryDonut({ slices, currency, onSliceClick }: Catego
 
       <ul className="mt-4 space-y-1.5" data-testid="donut-legend">
         {data.map((slice) => {
-          const interactive = !slice.isOther && Boolean(onSliceClick);
+          const interactive =
+            !slice.isOther && Boolean(onSliceClick) && slice.drillable !== false;
           return (
             <li key={slice.categoryKey} data-testid="donut-legend-item">
               <button

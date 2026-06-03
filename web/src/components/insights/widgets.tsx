@@ -91,6 +91,65 @@ export function DimensionToggle({
   );
 }
 
+export function DrillBreadcrumb({
+  trail,
+  onCrumb,
+  onBack,
+}: {
+  /** Ancestor crumbs from root to current level. */
+  trail: { key: string; label: string }[];
+  /** Jump to a depth: -1 = root ("All"), 0..n = a trail index. */
+  onCrumb: (depth: number) => void;
+  onBack: () => void;
+}) {
+  const { t } = useI18n();
+  return (
+    <div className="flex flex-wrap items-center gap-2" data-testid="drill-breadcrumb">
+      <button
+        type="button"
+        onClick={onBack}
+        className="rounded-md border px-2 py-1 text-xs font-medium"
+        style={{
+          borderColor: "var(--border)",
+          color: "var(--primary)",
+          backgroundColor: "var(--surface)",
+        }}
+      >
+        ‹ {t("chart.back")}
+      </button>
+      <nav className="flex flex-wrap items-center gap-1 text-xs" aria-label="Drill path">
+        <button
+          type="button"
+          onClick={() => onCrumb(-1)}
+          className="font-medium hover:underline"
+          style={{ color: "var(--text-secondary)" }}
+        >
+          {t("chart.allCategories")}
+        </button>
+        {trail.map((crumb, index) => {
+          const isLast = index === trail.length - 1;
+          return (
+            <span key={crumb.key} className="flex items-center gap-1">
+              <span aria-hidden="true" style={{ color: "var(--text-muted)" }}>
+                ›
+              </span>
+              <button
+                type="button"
+                onClick={() => onCrumb(index)}
+                aria-current={isLast ? "page" : undefined}
+                className="font-medium hover:underline"
+                style={{ color: isLast ? "var(--text)" : "var(--text-secondary)" }}
+              >
+                {crumb.label}
+              </button>
+            </span>
+          );
+        })}
+      </nav>
+    </div>
+  );
+}
+
 export function CategoryList({ rows }: { rows: CategoryRollup[] }) {
   const { t } = useI18n();
   if (rows.length === 0) {

@@ -19,6 +19,7 @@
 import type { components } from "@/lib/api-types";
 
 type CategoryRollup = components["schemas"]["InsightCategoryRollup"];
+type TreeNode = components["schemas"]["InsightsTreeNode"];
 
 export interface ChartSlice {
   /** `category_key`, or `__other__` for the synthesized remainder slice. */
@@ -32,6 +33,12 @@ export interface ChartSlice {
   /** CSS custom-property reference, e.g. `var(--chart-1)`. SVG `fill` reads it directly. */
   colorVar: string;
   isOther: boolean;
+  /**
+   * Whether tapping this slice drills into a deeper level. `undefined` (flat
+   * `rollupToSlices` output) is treated as drillable when an `onSliceClick` is
+   * wired; tree levels set it explicitly so leaf nodes stay non-interactive.
+   */
+  drillable?: boolean;
 }
 
 const SERIES_TOKENS = [
@@ -99,6 +106,49 @@ export function rollupToSlices(
       percent: (remainder / totalSpendMinor) * 100,
       colorVar: `var(${OTHER_TOKEN})`,
       isOther: true,
+    });
+  }
+
+  return slices;
+}
+
+/**
+ * Map one drill level's tree nodes into donut slices (D69). `percent` is
+ * recomputed *within the parent* (`value / parentTotalMinor`), not the grand
+ * total, so a drilled donut's proportions are correct. The "Other" remainder
+ * here is real spend that didn't reach this level's children — e.g. itemless
+ * transactions under a store-type, or uncategorized-store spend at the root —
+ * and is non-drillable. `drillable` mirrors whether a node has children.
+ */
+export function treeNodesToSlices(
+  nodes: readonly TreeNode[],
+  parentTotalMinor: number,
+): ChartSlice[] {
+  const slices: ChartSlice[] = nodes.map((node) => ({
+    categoryKey: node.key,
+    label: node.label,
+    parentKey: node.parent_key ?? "",
+    parentLabel: "",
+    valueMinor: node.total_minor,
+    percent: parentTotalMinor > 0 ? (node.total_minor / parentTotalMinor) * 100 : 0,
+    colorVar: categoryColorVar(node.key),
+    isOther: false,
+    drillable: (node.children?.length ?? 0) > 0,
+  }));
+
+  const accounted = slices.reduce((sum, slice) => sum + slice.valueMinor, 0);
+  const remainder = parentTotalMinor - accounted;
+  if (parentTotalMinor > 0 && remainder > 0) {
+    slices.push({
+      categoryKey: OTHER_KEY,
+      label: "",
+      parentKey: "",
+      parentLabel: "",
+      valueMinor: remainder,
+      percent: (remainder / parentTotalMinor) * 100,
+      colorVar: `var(${OTHER_TOKEN})`,
+      isOther: true,
+      drillable: false,
     });
   }
 

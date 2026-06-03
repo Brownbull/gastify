@@ -22,6 +22,8 @@ export const insightsKeys = {
       granularity,
       currency ?? "default",
     ] as const,
+  tree: (period: string, dimension: InsightDimension, currency?: string) =>
+    [...insightsKeys.all, "tree", period, dimension, currency ?? "default"] as const,
 };
 
 /** Current month in the `YYYY-MM` period format the insights API expects. */
@@ -90,6 +92,34 @@ export function useInsightsSeries(
 
       if (error || !data) {
         throw new Error("Failed to load spend trend");
+      }
+
+      return data;
+    },
+    staleTime: 60 * 1000,
+  });
+}
+
+/**
+ * Full drill-down category tree for one period + dimension (D69). One fetch per
+ * (period, dimension); the client expands the nested tree in memory, so a drill
+ * step costs zero round-trips. `transaction_category` yields the 4-level store
+ * cross-walk tree, `item_category` the 2-level item tree.
+ */
+export function useInsightsTree(
+  period: string,
+  dimension: InsightDimension,
+  currency?: string,
+) {
+  return useQuery({
+    queryKey: insightsKeys.tree(period, dimension, currency),
+    queryFn: async () => {
+      const { data, error } = await apiClient.GET("/api/v1/insights/tree", {
+        params: { query: { period, dimension, currency: currency ?? undefined } },
+      });
+
+      if (error || !data) {
+        throw new Error("Failed to load category tree");
       }
 
       return data;

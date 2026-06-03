@@ -25,6 +25,7 @@ SeriesGranularity = Literal["month", "quarter", "year"]
 
 INSIGHT_SCHEMA_VERSION: Literal["monthly-insights.v1"] = "monthly-insights.v1"
 INSIGHT_SERIES_SCHEMA_VERSION: Literal["insights-series.v1"] = "insights-series.v1"
+INSIGHT_TREE_SCHEMA_VERSION: Literal["insights-tree.v1"] = "insights-tree.v1"
 
 _STORE_CATEGORY_BY_KEY = {category.key: category for category in V4_STORE_CATEGORY_TAXONOMY}
 _ITEM_CATEGORY_BY_KEY = {category.key: category for category in V4_ITEM_CATEGORY_TAXONOMY}
@@ -246,6 +247,69 @@ class InsightsSeriesResponse(BaseModel):
 
     @model_validator(mode="after")
     def _validate_series_contract(self) -> "InsightsSeriesResponse":
+        if self.period_end < self.period_start:
+            raise ValueError("period_end must be on or after period_start")
+        return self
+
+
+class InsightsTreeNode(BaseModel):
+    """One node of the drill-down category tree (D69).
+
+    Unlike `InsightCategoryRollup`, `level` is a free 1-4 integer so the tree can
+    carry L1 industry / L3 family parent nodes (which the rollup's `Literal[2, 4]`
+    category level rejects). `parent_key` is the key of this node's parent *in the
+    tree*: for the store cross-walk tree an item-family (L3) is nested under the
+    store-type (L2) whose transactions contained it, so its `parent_key` is that
+    store-type key rather than its taxonomy family parent. `share_of_total_percent`
+    is relative to the response `total_spend_minor`; clients recompute
+    within-parent proportions from `total_minor` when rendering a drilled level.
+    """
+
+    key: str
+    label: str
+    parent_key: str | None = None
+    level: int = Field(ge=1, le=4)
+    total_minor: int = Field(ge=0)
+    currency: str = Field(min_length=3, max_length=3)
+    share_of_total_percent: Decimal = Field(ge=0, le=100)
+    transaction_count: int = Field(ge=0)
+    item_count: int = Field(ge=0)
+    excluded_total_minor: int = Field(default=0, ge=0)
+    children: list["InsightsTreeNode"] = Field(default_factory=list)
+
+    @field_validator("currency")
+    @classmethod
+    def _uppercase_currency(cls, value: str) -> str:
+        return value.upper()
+
+
+class InsightsTreeResponse(BaseModel):
+    """Full drill-down category tree for one period + dimension (D69).
+
+    The client fetches this once per (period, dimension) and expands it in memory
+    (zero round-trips per drill step). `dimension="transaction_category"` returns
+    the 4-level store cross-walk tree (Industry -> Store-type -> Item-family ->
+    Item); `dimension="item_category"` returns the 2-level item tree (Family ->
+    Item). No top-N truncation — every category with spend is present.
+    """
+
+    schema_version: Literal["insights-tree.v1"] = INSIGHT_TREE_SCHEMA_VERSION
+    dimension: InsightDimension
+    period_start: date
+    period_end: date
+    currency: str = Field(min_length=3, max_length=3)
+    total_spend_minor: int = Field(ge=0)
+    transaction_count: int = Field(ge=0)
+    item_count: int = Field(ge=0)
+    roots: list[InsightsTreeNode] = Field(default_factory=list)
+
+    @field_validator("currency")
+    @classmethod
+    def _uppercase_currency(cls, value: str) -> str:
+        return value.upper()
+
+    @model_validator(mode="after")
+    def _validate_tree_contract(self) -> "InsightsTreeResponse":
         if self.period_end < self.period_start:
             raise ValueError("period_end must be on or after period_start")
         return self

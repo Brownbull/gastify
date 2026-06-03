@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 from dataclasses import dataclass, field
 from datetime import date, timedelta
 from decimal import ROUND_HALF_UP, Decimal
@@ -27,6 +28,8 @@ from app.schemas.insights import (
     InsightParentLevel,
     InsightsSeriesPoint,
     InsightsSeriesResponse,
+    InsightsTreeNode,
+    InsightsTreeResponse,
     ItemInsightFlagKind,
     MonthlyInsightsResponse,
     SeriesGranularity,
@@ -52,6 +55,27 @@ _CACHE_MAX_ENTRIES = 128
 
 _STORE_CATEGORY_BY_KEY = {category.key: category for category in V4_STORE_CATEGORY_TAXONOMY}
 _ITEM_CATEGORY_BY_KEY = {category.key: category for category in V4_ITEM_CATEGORY_TAXONOMY}
+
+
+def _taxonomy_fingerprint(categories: tuple[CategoryDefinition, ...]) -> str:
+    """Order-independent digest of (key, level, parent_key) across a taxonomy.
+
+    Folded into the cache fingerprint so a category remap (a node's parent or
+    level changing) busts cached insights even though the static taxonomy lives
+    in code rather than in the rows the rest of the fingerprint hashes (D69 HIGH
+    gate). A future DB-backed taxonomy or shared cache inherits remap-busting
+    for free.
+    """
+
+    parts = sorted(
+        f"{category.key}:{category.level}:{category.parent_key or ''}" for category in categories
+    )
+    return hashlib.sha256("|".join(parts).encode("utf-8")).hexdigest()[:16]
+
+
+_TAXONOMY_VERSION_TOKEN = _taxonomy_fingerprint(
+    (*V4_STORE_CATEGORY_TAXONOMY, *V4_ITEM_CATEGORY_TAXONOMY)
+)
 
 
 @dataclass(frozen=True)
@@ -507,6 +531,343 @@ def build_insights_series_from_records(
     )
 
 
+async def get_insights_tree(
+    db: AsyncSession,
+    *,
+    ownership_scope_id: UUID,
+    period_start: date,
+    currency: str,
+    dimension: InsightDimension = "transaction_category",
+    user_id: UUID | None = None,
+) -> InsightsTreeResponse:
+    """Build the full drill-down category tree for one period + dimension (D69).
+
+    One single-month range query + in-memory aggregation. The store dimension
+    cross-walks each store-type's transactions into the item families/categories
+    they contained, yielding a 4-level Industry -> Store-type -> Family -> Item
+    tree; the item dimension yields a 2-level Family -> Item tree. No top-N
+    truncation — every category with spend is present so the client can expand
+    the whole tree in memory.
+    """
+
+    normalized_currency = currency.upper()
+    normalized_period = first_day_of_month(period_start)
+    period_end = last_day_of_month(normalized_period)
+    records = await load_insight_records_from_db(
+        db,
+        ownership_scope_id=ownership_scope_id,
+        start_date=normalized_period,
+        end_date=period_end,
+        currency=normalized_currency,
+        user_id=user_id,
+    )
+    return build_insights_tree_from_records(
+        records,
+        ownership_scope_id=ownership_scope_id,
+        period_start=normalized_period,
+        currency=normalized_currency,
+        dimension=dimension,
+    )
+
+
+def build_insights_tree_from_seed(
+    rows: tuple[InsightSeedTransaction, ...],
+    *,
+    ownership_scope_id: UUID,
+    period_start: date,
+    currency: str = "CLP",
+    dimension: InsightDimension = "transaction_category",
+) -> InsightsTreeResponse:
+    """Build the drill-down tree from the deterministic P6 fixture corpus."""
+
+    records = tuple(_record_from_seed_row(row) for row in rows)
+    return build_insights_tree_from_records(
+        records,
+        ownership_scope_id=ownership_scope_id,
+        period_start=period_start,
+        currency=currency,
+        dimension=dimension,
+    )
+
+
+def build_insights_tree_from_records(
+    records: tuple[InsightTransactionRecord, ...],
+    *,
+    ownership_scope_id: UUID,
+    period_start: date,
+    currency: str,
+    dimension: InsightDimension = "transaction_category",
+) -> InsightsTreeResponse:
+    """Build the full (untruncated) drill-down tree from normalized records.
+
+    Reuses the monthly engine's scoping, `_prepare_transaction` exclusion split,
+    and post-exclusion `included_total_minor`, so leaf totals roll up to the same
+    `total_spend_minor` as `/monthly` and `/series`.
+    """
+
+    normalized_currency = currency.upper()
+    normalized_period = first_day_of_month(period_start)
+    period_end = last_day_of_month(normalized_period)
+    scoped_records = tuple(
+        record
+        for record in records
+        if record.ownership_scope_id == ownership_scope_id
+        and record.currency.upper() == normalized_currency
+    )
+    current_records = tuple(
+        record
+        for record in scoped_records
+        if normalized_period <= record.transaction_date <= period_end
+    )
+    prepared_current = tuple(_prepare_transaction(record) for record in current_records)
+    total_spend_minor = sum(prepared.included_total_minor for prepared in prepared_current)
+    item_count = sum(len(prepared.included_items) for prepared in prepared_current)
+
+    if dimension == "transaction_category":
+        roots = _build_store_cross_walk_tree(
+            prepared_current,
+            currency=normalized_currency,
+            total_spend_minor=total_spend_minor,
+        )
+    else:
+        roots = _build_item_family_tree(
+            prepared_current,
+            currency=normalized_currency,
+            total_spend_minor=total_spend_minor,
+        )
+
+    return InsightsTreeResponse(
+        dimension=dimension,
+        period_start=normalized_period,
+        period_end=period_end,
+        currency=normalized_currency,
+        total_spend_minor=total_spend_minor,
+        transaction_count=len(current_records),
+        item_count=item_count,
+        roots=roots,
+    )
+
+
+def _build_store_cross_walk_tree(
+    prepared_transactions: tuple[_PreparedTransaction, ...],
+    *,
+    currency: str,
+    total_spend_minor: int,
+) -> list[InsightsTreeNode]:
+    """Industry (L1) -> Store-type (L2) -> Item-family (L3) -> Item (L4).
+
+    L1/L2 aggregate at the transaction level (by store category); L3/L4 are the
+    cross-walk — the item families/categories of the *items inside* each
+    store-type's transactions. The gap between an L2 total and the sum of its L3
+    children (itemless transactions) surfaces as the client donut's "Other".
+    """
+
+    industry_accumulators: dict[str, _CategoryAccumulator] = {}
+    store_accumulators: dict[str, _CategoryAccumulator] = {}
+    store_industry: dict[str, str] = {}
+    family_accumulators: dict[tuple[str, str], _CategoryAccumulator] = {}
+    item_accumulators: dict[tuple[str, str], _CategoryAccumulator] = {}
+
+    for prepared in prepared_transactions:
+        store_key = prepared.record.transaction_category_key
+        if not store_key or prepared.included_total_minor <= 0:
+            continue
+        industry_key = insight_parent_for_category("transaction_category", store_key).key
+        store_industry[store_key] = industry_key
+        _accumulate_transaction_into(
+            industry_accumulators.setdefault(industry_key, _CategoryAccumulator()), prepared
+        )
+        _accumulate_transaction_into(
+            store_accumulators.setdefault(store_key, _CategoryAccumulator()), prepared
+        )
+        for item in prepared.included_items:
+            if item.category_key is None or item.total_minor <= 0:
+                continue
+            family_key = insight_parent_for_category("item_category", item.category_key).key
+            _accumulate_item_into(
+                family_accumulators.setdefault((store_key, family_key), _CategoryAccumulator()),
+                total_minor=item.total_minor,
+                record_id=prepared.record.record_id,
+            )
+            _accumulate_item_into(
+                item_accumulators.setdefault(
+                    (store_key, item.category_key), _CategoryAccumulator()
+                ),
+                total_minor=item.total_minor,
+                record_id=prepared.record.record_id,
+            )
+
+    roots: list[InsightsTreeNode] = []
+    for industry_key, industry_accumulator in industry_accumulators.items():
+        store_children: list[InsightsTreeNode] = []
+        for store_key, store_accumulator in store_accumulators.items():
+            if store_industry[store_key] != industry_key:
+                continue
+            family_children: list[InsightsTreeNode] = []
+            for (family_store_key, family_key), family_accumulator in family_accumulators.items():
+                if family_store_key != store_key:
+                    continue
+                item_children = [
+                    _tree_node(
+                        key=item_key,
+                        parent_key=family_key,
+                        level=4,
+                        accumulator=item_accumulator,
+                        currency=currency,
+                        total_spend_minor=total_spend_minor,
+                        children=[],
+                    )
+                    for (item_store_key, item_key), item_accumulator in item_accumulators.items()
+                    if item_store_key == store_key
+                    and insight_parent_for_category("item_category", item_key).key == family_key
+                ]
+                family_children.append(
+                    _tree_node(
+                        key=family_key,
+                        parent_key=store_key,
+                        level=3,
+                        accumulator=family_accumulator,
+                        currency=currency,
+                        total_spend_minor=total_spend_minor,
+                        children=_sorted_tree_nodes(item_children),
+                    )
+                )
+            store_children.append(
+                _tree_node(
+                    key=store_key,
+                    parent_key=industry_key,
+                    level=2,
+                    accumulator=store_accumulator,
+                    currency=currency,
+                    total_spend_minor=total_spend_minor,
+                    children=_sorted_tree_nodes(family_children),
+                )
+            )
+        roots.append(
+            _tree_node(
+                key=industry_key,
+                parent_key=None,
+                level=1,
+                accumulator=industry_accumulator,
+                currency=currency,
+                total_spend_minor=total_spend_minor,
+                children=_sorted_tree_nodes(store_children),
+            )
+        )
+    return _sorted_tree_nodes(roots)
+
+
+def _build_item_family_tree(
+    prepared_transactions: tuple[_PreparedTransaction, ...],
+    *,
+    currency: str,
+    total_spend_minor: int,
+) -> list[InsightsTreeNode]:
+    """Item-family (L3) -> Item (L4) — the 2-level item-dimension tree."""
+
+    family_accumulators: dict[str, _CategoryAccumulator] = {}
+    item_accumulators: dict[str, _CategoryAccumulator] = {}
+    for prepared in prepared_transactions:
+        for item in prepared.included_items:
+            if item.category_key is None or item.total_minor <= 0:
+                continue
+            family_key = insight_parent_for_category("item_category", item.category_key).key
+            _accumulate_item_into(
+                family_accumulators.setdefault(family_key, _CategoryAccumulator()),
+                total_minor=item.total_minor,
+                record_id=prepared.record.record_id,
+            )
+            _accumulate_item_into(
+                item_accumulators.setdefault(item.category_key, _CategoryAccumulator()),
+                total_minor=item.total_minor,
+                record_id=prepared.record.record_id,
+            )
+
+    roots: list[InsightsTreeNode] = []
+    for family_key, family_accumulator in family_accumulators.items():
+        item_children = [
+            _tree_node(
+                key=item_key,
+                parent_key=family_key,
+                level=4,
+                accumulator=item_accumulator,
+                currency=currency,
+                total_spend_minor=total_spend_minor,
+                children=[],
+            )
+            for item_key, item_accumulator in item_accumulators.items()
+            if insight_parent_for_category("item_category", item_key).key == family_key
+        ]
+        roots.append(
+            _tree_node(
+                key=family_key,
+                parent_key=None,
+                level=3,
+                accumulator=family_accumulator,
+                currency=currency,
+                total_spend_minor=total_spend_minor,
+                children=_sorted_tree_nodes(item_children),
+            )
+        )
+    return _sorted_tree_nodes(roots)
+
+
+def _accumulate_transaction_into(
+    accumulator: _CategoryAccumulator, prepared: _PreparedTransaction
+) -> None:
+    accumulator.total_minor += prepared.included_total_minor
+    accumulator.item_count += len(prepared.included_items)
+    accumulator.transaction_ids.add(prepared.record.record_id)
+    accumulator.excluded_total_minor += sum(item.total_minor for item in prepared.excluded_items)
+    accumulator.excluded_item_count += len(prepared.excluded_items)
+
+
+def _accumulate_item_into(
+    accumulator: _CategoryAccumulator, *, total_minor: int, record_id: str
+) -> None:
+    accumulator.total_minor += total_minor
+    accumulator.item_count += 1
+    accumulator.transaction_ids.add(record_id)
+
+
+def _tree_node(
+    *,
+    key: str,
+    parent_key: str | None,
+    level: int,
+    accumulator: _CategoryAccumulator,
+    currency: str,
+    total_spend_minor: int,
+    children: list[InsightsTreeNode],
+) -> InsightsTreeNode:
+    category = _tree_category_for_level(level, key)
+    return InsightsTreeNode(
+        key=category.key,
+        label=category.display_labels["en"],
+        parent_key=parent_key,
+        level=level,
+        total_minor=accumulator.total_minor,
+        currency=currency,
+        share_of_total_percent=_share_percent(accumulator.total_minor, total_spend_minor),
+        transaction_count=len(accumulator.transaction_ids),
+        item_count=accumulator.item_count,
+        excluded_total_minor=accumulator.excluded_total_minor,
+        children=children,
+    )
+
+
+def _tree_category_for_level(level: int, key: str) -> CategoryDefinition:
+    lookup = _STORE_CATEGORY_BY_KEY if level in (1, 2) else _ITEM_CATEGORY_BY_KEY
+    category = lookup.get(key)
+    if category is None:
+        raise ValueError(f"{key!r} is not a valid level-{level} category key")
+    return category
+
+
+def _sorted_tree_nodes(nodes: list[InsightsTreeNode]) -> list[InsightsTreeNode]:
+    return sorted(nodes, key=lambda node: (-node.total_minor, node.label, node.key))
+
+
 def _series_bucket_key(month_start: date, granularity: SeriesGranularity) -> str:
     if granularity == "month":
         return f"{month_start.year:04d}-{month_start.month:02d}"
@@ -593,6 +954,7 @@ async def _database_fingerprint(
             str(item_row[2] or 0),
             str(flag_row[0] or 0),
             str(flag_row[1] or ""),
+            _TAXONOMY_VERSION_TOKEN,
         )
     )
 

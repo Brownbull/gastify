@@ -2,14 +2,17 @@ import { lazy, Suspense, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   currentPeriod,
+  useInsightsTree,
   useMonthlyInsights,
   type InsightDimension,
 } from "@/hooks/useInsights";
+import { useDonutDrill } from "@/hooks/useDonutDrill";
 import { useI18n } from "@/hooks/useI18n";
-import { rollupToSlices } from "@/lib/chartData";
+import { treeNodesToSlices } from "@/lib/chartData";
 import {
   SummaryStats,
   DimensionToggle,
+  DrillBreadcrumb,
   GravityCenters,
   ExcludedItems,
   InsightsSkeleton,
@@ -79,14 +82,20 @@ function DashboardPage() {
         </div>
       )}
 
-      {!isLoading && !error && data && <DashboardContent data={data} />}
+      {!isLoading && !error && data && <DashboardContent data={data} period={period} />}
     </div>
   );
 }
 
-function DashboardContent({ data }: { data: MonthlyInsights }) {
+function DashboardContent({ data, period }: { data: MonthlyInsights; period: string }) {
   const { t } = useI18n();
   const [dimension, setDimension] = useState<InsightDimension>("transaction_category");
+  const tree = useInsightsTree(period, dimension);
+  const drill = useDonutDrill(
+    tree.data?.roots ?? [],
+    tree.data?.total_spend_minor ?? 0,
+    `${period}:${dimension}`,
+  );
 
   if (data.transaction_count === 0) {
     return (
@@ -102,11 +111,12 @@ function DashboardContent({ data }: { data: MonthlyInsights }) {
     );
   }
 
-  const rows =
-    dimension === "transaction_category"
-      ? (data.top_transaction_categories ?? [])
-      : (data.top_item_categories ?? []);
-  const slices = rollupToSlices(rows, data.total_spend_minor);
+  // The donut renders the current drill level: roots (L1 industries / L3
+  // families) by default, a tapped node's children after drilling. Percentages
+  // are within-parent so each level sums to 100%.
+  const slices = tree.data
+    ? treeNodesToSlices(drill.visibleNodes, drill.parentTotalMinor)
+    : [];
 
   return (
     <div className="space-y-6">
@@ -122,9 +132,34 @@ function DashboardContent({ data }: { data: MonthlyInsights }) {
           </h2>
           <DimensionToggle dimension={dimension} onChange={setDimension} />
         </div>
-        <Suspense fallback={<ChartFallback />}>
-          <CategoryDonut slices={slices} currency={data.currency} />
-        </Suspense>
+        {drill.path.length > 0 && (
+          <div className="mb-3">
+            <DrillBreadcrumb
+              trail={drill.path.map((node) => ({ key: node.key, label: node.label }))}
+              onCrumb={drill.jumpTo}
+              onBack={drill.back}
+            />
+          </div>
+        )}
+        {tree.isLoading && <ChartFallback />}
+        {!tree.isLoading && slices.length === 0 && (
+          <p
+            className="py-8 text-center text-sm"
+            style={{ color: "var(--text-muted)" }}
+            data-testid="donut-empty"
+          >
+            {t("dashboard.empty")}
+          </p>
+        )}
+        {!tree.isLoading && slices.length > 0 && tree.data && (
+          <Suspense fallback={<ChartFallback />}>
+            <CategoryDonut
+              slices={slices}
+              currency={tree.data.currency}
+              onSliceClick={(slice) => drill.drillInto(slice.categoryKey)}
+            />
+          </Suspense>
+        )}
       </section>
 
       {(data.gravity_centers ?? []).length > 0 && (
