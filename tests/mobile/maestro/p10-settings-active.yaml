@@ -1,0 +1,125 @@
+appId: com.gastify.mobile
+---
+# P10 Settings screen journey — profile, theme switching, sign-out button.
+# Proves the Settings screen renders on Android, theme chips are tappable,
+# and sign-out is reachable from settings.
+
+- waitForAnimationToEnd:
+    timeout: 10000
+- tapOn:
+    text: "Continue"
+    optional: true
+- tapOn:
+    text: "Got it"
+    optional: true
+- runFlow:
+    when:
+      visible: "Reload"
+    commands:
+      - tapOn:
+          point: "90%,45%"
+      - waitForAnimationToEnd:
+          timeout: 5000
+- tapOn:
+    text: "Continue"
+    optional: true
+- tapOn:
+    text: "Got it"
+    optional: true
+
+# Sign in if needed
+- runFlow:
+    when:
+      visible:
+        id: e2e-sign-in-button
+    commands:
+      - tapOn:
+          id: e2e-sign-in-button
+- waitForAnimationToEnd:
+    timeout: 10000
+- runFlow:
+    when:
+      visible:
+        id: e2e-sign-in-button
+    commands:
+      - tapOn:
+          id: e2e-sign-in-button
+
+- extendedWaitUntil:
+    visible:
+      id: home-screen
+    timeout: 60000
+
+# --- Navigate to Settings ---
+- swipe:
+    direction: UP
+- extendedWaitUntil:
+    visible:
+      id: open-settings-button
+    timeout: 20000
+- takeScreenshot:
+    path: 01-home-before-settings
+- tapOn:
+    id: open-settings-button
+- waitForAnimationToEnd:
+    timeout: 5000
+
+# --- Assert Settings screen renders ---
+- assertVisible: "Profile"
+- assertVisible: "Appearance"
+- assertVisible: "Account"
+- takeScreenshot:
+    path: 02-settings-loaded
+
+# --- Theme switching: tap Professional chip ---
+- tapOn:
+    text: "Professional"
+- waitForAnimationToEnd:
+    timeout: 2000
+- takeScreenshot:
+    path: 03-theme-professional
+
+# --- Theme switching: tap Monochrome chip ---
+- tapOn:
+    text: "Monochrome"
+- waitForAnimationToEnd:
+    timeout: 2000
+- takeScreenshot:
+    path: 04-theme-mono
+
+# --- Dark mode: tap Dark chip ---
+- tapOn:
+    text: "Dark"
+- waitForAnimationToEnd:
+    timeout: 2000
+- takeScreenshot:
+    path: 05-theme-mono-dark
+
+# --- Restore: tap Normal + Light ---
+- tapOn:
+    text: "Normal"
+- waitForAnimationToEnd:
+    timeout: 1000
+- tapOn:
+    text: "Light"
+- waitForAnimationToEnd:
+    timeout: 1000
+- takeScreenshot:
+    path: 06-theme-restored
+
+# --- Sign out button visible ---
+- scrollUntilVisible:
+    element:
+      text: "Sign out"
+    direction: DOWN
+    timeout: 10000
+- assertVisible: "Sign out"
+- takeScreenshot:
+    path: 07-sign-out-visible
+
+# --- Navigate back to Home ---
+- back
+- extendedWaitUntil:
+    visible:
+      id: open-settings-button
+    timeout: 15000

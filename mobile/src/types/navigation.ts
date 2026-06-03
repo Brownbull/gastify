@@ -4,6 +4,7 @@ export type RootStackParamList = {
   Statements: undefined;
   Transactions: undefined;
   Insights: undefined;
+  Settings: undefined;
   TransactionDetail: { transactionId: string };
 };
 
