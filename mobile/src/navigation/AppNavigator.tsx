@@ -2,6 +2,8 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
 import { useAuth } from "../providers/AuthProvider";
+import { BatchCaptureScreen } from "../screens/BatchCaptureScreen";
+import { BatchReviewScreen } from "../screens/BatchReviewScreen";
 import { HomeScreen } from "../screens/HomeScreen";
 import { InsightsScreen } from "../screens/InsightsScreen";
 import { SettingsScreen } from "../screens/SettingsScreen";
@@ -58,6 +60,16 @@ export function AppNavigator() {
               name="TransactionDetail"
               component={TransactionDetailScreen}
               options={{ title: "Transaction detail" }}
+            />
+            <Stack.Screen
+              name="BatchCapture"
+              component={BatchCaptureScreen}
+              options={{ title: "Batch scan" }}
+            />
+            <Stack.Screen
+              name="BatchReview"
+              component={BatchReviewScreen}
+              options={{ title: "Review receipts" }}
             />
           </>
         ) : (

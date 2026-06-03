@@ -56,6 +56,20 @@ jest.mock("../../screens/SignInScreen", () => ({
   },
 }));
 
+jest.mock("../../screens/BatchCaptureScreen", () => ({
+  BatchCaptureScreen: () => {
+    const { Text } = require("react-native");
+    return <Text testID="batch-capture-screen">Batch capture</Text>;
+  },
+}));
+
+jest.mock("../../screens/BatchReviewScreen", () => ({
+  BatchReviewScreen: () => {
+    const { Text } = require("react-native");
+    return <Text testID="batch-review-screen">Batch review</Text>;
+  },
+}));
+
 jest.mock("@react-navigation/native", () => ({
   NavigationContainer: ({ children }: { children: ReactNode }) => children,
 }));

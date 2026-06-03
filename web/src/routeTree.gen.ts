@@ -13,6 +13,7 @@ import { Route as TransactionsRouteImport } from "./routes/transactions"
 import { Route as StatementsRouteImport } from "./routes/statements"
 import { Route as SignInRouteImport } from "./routes/sign-in"
 import { Route as SettingsRouteImport } from "./routes/settings"
+import { Route as ScanBatchRouteImport } from "./routes/scan-batch"
 import { Route as ScanRouteImport } from "./routes/scan"
 import { Route as InsightsRouteImport } from "./routes/insights"
 import { Route as IndexRouteImport } from "./routes/index"
@@ -37,6 +38,11 @@ const SignInRoute = SignInRouteImport.update({
 const SettingsRoute = SettingsRouteImport.update({
   id: "/settings",
   path: "/settings",
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ScanBatchRoute = ScanBatchRouteImport.update({
+  id: "/scan-batch",
+  path: "/scan-batch",
   getParentRoute: () => rootRouteImport,
 } as any)
 const ScanRoute = ScanRouteImport.update({
@@ -70,6 +76,7 @@ export interface FileRoutesByFullPath {
   "/": typeof IndexRoute
   "/insights": typeof InsightsRoute
   "/scan": typeof ScanRoute
+  "/scan-batch": typeof ScanBatchRoute
   "/settings": typeof SettingsRoute
   "/sign-in": typeof SignInRoute
   "/statements": typeof StatementsRoute
@@ -81,6 +88,7 @@ export interface FileRoutesByTo {
   "/": typeof IndexRoute
   "/insights": typeof InsightsRoute
   "/scan": typeof ScanRoute
+  "/scan-batch": typeof ScanBatchRoute
   "/settings": typeof SettingsRoute
   "/sign-in": typeof SignInRoute
   "/statements": typeof StatementsRoute
@@ -92,6 +100,7 @@ export interface FileRoutesById {
   "/": typeof IndexRoute
   "/insights": typeof InsightsRoute
   "/scan": typeof ScanRoute
+  "/scan-batch": typeof ScanBatchRoute
   "/settings": typeof SettingsRoute
   "/sign-in": typeof SignInRoute
   "/statements": typeof StatementsRoute
@@ -105,6 +114,7 @@ export interface FileRouteTypes {
     | "/"
     | "/insights"
     | "/scan"
+    | "/scan-batch"
     | "/settings"
     | "/sign-in"
     | "/statements"
@@ -116,6 +126,7 @@ export interface FileRouteTypes {
     | "/"
     | "/insights"
     | "/scan"
+    | "/scan-batch"
     | "/settings"
     | "/sign-in"
     | "/statements"
@@ -126,6 +137,7 @@ export interface FileRouteTypes {
     | "/"
     | "/insights"
     | "/scan"
+    | "/scan-batch"
     | "/settings"
     | "/sign-in"
     | "/statements"
@@ -138,6 +150,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   InsightsRoute: typeof InsightsRoute
   ScanRoute: typeof ScanRoute
+  ScanBatchRoute: typeof ScanBatchRoute
   SettingsRoute: typeof SettingsRoute
   SignInRoute: typeof SignInRoute
   StatementsRoute: typeof StatementsRoute
@@ -172,6 +185,13 @@ declare module "@tanstack/react-router" {
       path: "/settings"
       fullPath: "/settings"
       preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    "/scan-batch": {
+      id: "/scan-batch"
+      path: "/scan-batch"
+      fullPath: "/scan-batch"
+      preLoaderRoute: typeof ScanBatchRouteImport
       parentRoute: typeof rootRouteImport
     }
     "/scan": {
@@ -230,6 +250,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   InsightsRoute: InsightsRoute,
   ScanRoute: ScanRoute,
+  ScanBatchRoute: ScanBatchRoute,
   SettingsRoute: SettingsRoute,
   SignInRoute: SignInRoute,
   StatementsRoute: StatementsRoute,

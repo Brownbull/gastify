@@ -6,6 +6,8 @@ export type RootStackParamList = {
   Insights: undefined;
   Settings: undefined;
   TransactionDetail: { transactionId: string };
+  BatchCapture: undefined;
+  BatchReview: undefined;
 };
 
 declare global {

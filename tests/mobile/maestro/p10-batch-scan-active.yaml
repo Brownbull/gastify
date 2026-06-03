@@ -1,0 +1,117 @@
+appId: com.gastify.mobile
+---
+# P10 Batch scanning — multi-receipt capture + post-persist review on the S23.
+# Adds three receipts from the photo library (reusing the proven single-scan
+# picker interaction) and watches the batch settle. Only the `happy` fixture is
+# seeded (seed-scan-fixture.sh happy), so all three submissions resolve to the
+# deterministic staging-e2e fixture-provider "completed" outcome → 3 saved.
+# Proves on-device batch orchestration against the deployed staging-e2e backend:
+# N real multipart uploads, N async scans polled to terminal, post-persist summary.
+
+- waitForAnimationToEnd:
+    timeout: 10000
+- tapOn:
+    text: "Continue"
+    optional: true
+- tapOn:
+    text: "Got it"
+    optional: true
+- runFlow:
+    when:
+      visible:
+        id: e2e-sign-in-button
+    commands:
+      - tapOn:
+          id: e2e-sign-in-button
+- waitForAnimationToEnd:
+    timeout: 10000
+- runFlow:
+    when:
+      visible:
+        id: e2e-sign-in-button
+    commands:
+      - tapOn:
+          id: e2e-sign-in-button
+- extendedWaitUntil:
+    visible:
+      id: home-screen
+    timeout: 60000
+
+# --- Open batch capture ---
+- scrollUntilVisible:
+    element:
+      id: open-batch-scan-button
+    direction: DOWN
+    timeout: 15000
+- takeScreenshot:
+    path: 01-home-before-batch
+- tapOn:
+    id: open-batch-scan-button
+- extendedWaitUntil:
+    visible:
+      id: batch-capture-screen
+    timeout: 20000
+
+# --- Add three receipts from the library (proven single-pick, repeated) ---
+- repeat:
+    times: 3
+    commands:
+      - tapOn:
+          id: batch-library-button
+      - tapOn:
+          text: "Allow all photos"
+          optional: true
+      - tapOn:
+          text: "Allow"
+          optional: true
+      - tapOn:
+          text: "Dismiss"
+          optional: true
+      - tapOn:
+          point: "16%,50%"
+      - tapOn:
+          text: "Done"
+          optional: true
+      - waitForAnimationToEnd:
+          timeout: 3000
+- assertVisible:
+    id: batch-scan-submit-button
+- takeScreenshot:
+    path: 02-batch-queue
+
+# --- Submit the batch (N real multipart uploads) ---
+- tapOn:
+    id: batch-scan-submit-button
+- waitForAnimationToEnd:
+    timeout: 3000
+
+# --- Watch the batch settle on the review screen ---
+- extendedWaitUntil:
+    visible:
+      id: batch-review-screen
+    timeout: 20000
+- takeScreenshot:
+    path: 03-batch-processing
+- extendedWaitUntil:
+    visible:
+      id: batch-done-button
+    timeout: 120000
+- assertVisible:
+    id: batch-summary
+# Real-outcome guards: at least one receipt saved (transaction "Open" link) and no
+# item errored out on disabled test controls.
+- assertVisible:
+    id: batch-item-view
+- assertNotVisible: "Scan test controls are disabled"
+- takeScreenshot:
+    path: 04-batch-summary
+
+# --- Done returns to home ---
+- tapOn:
+    id: batch-done-button
+- extendedWaitUntil:
+    visible:
+      id: home-screen
+    timeout: 15000
+- takeScreenshot:
+    path: 05-back-home

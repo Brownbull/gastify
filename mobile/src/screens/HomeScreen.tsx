@@ -240,6 +240,15 @@ export function HomeScreen({ navigation }: HomeScreenProps = {}) {
           </View>
         </View>
 
+        <View style={styles.batchEntryRow}>
+          <Button
+            title="Scan multiple receipts"
+            testID="open-batch-scan-button"
+            onPress={() => navigation?.navigate("BatchCapture")}
+            disabled={scanLocked}
+          />
+        </View>
+
         {scanTestCases.length > 0 ? (
           <View style={styles.testCasePanel} testID="scan-test-controls-panel">
             <Text style={styles.label}>Test cases</Text>
@@ -614,6 +623,9 @@ function getVisibleScanTestCases() {
 }
 
 const styles = StyleSheet.create({
+  batchEntryRow: {
+    marginTop: 12,
+  },
   body: {
     color: "#475569",
     fontSize: 16,

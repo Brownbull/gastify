@@ -24,6 +24,7 @@
 | `.gitignore` | Git ignore | MVP |
 | `docs/**/*.md` | Project documentation | MVP |
 | `tests/**/*.{py,ts,tsx,js,jsx}` | Test files | MVP |
+| `tests/web-e2e/proof/**/*.png` | Web E2E proof screenshots (force-added past .gitignore; committed for visual regression) | MVP |
 | `scripts/**/*.{sh,py}` | Utility scripts | MVP |
 
 ### Backend (FastAPI + SQLAlchemy + Alembic + Firebase Auth)

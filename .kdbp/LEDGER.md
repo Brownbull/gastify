@@ -3287,3 +3287,51 @@ PUSH: staging green (re-run after transient ECONNRESET) → main green
 EVIDENCE:
   Web: tests/web-e2e/proof/batch-ops/ (4 screenshots: list, all-selected, deselected, category-picker)
   Mobile: tests/mobile/results/runs/local/p10-batch-ops/ (4 named screenshots: list, select-mode, batch-bar, exited)
+- 2026-06-02 23:53 | Write | /home/khujta/projects/apps/gastify/web/src/lib/batchScan.ts
+- 2026-06-02 23:53 | Write | /home/khujta/projects/apps/gastify/web/src/stores/batchScanStore.ts
+- 2026-06-02 23:55 | Write | /home/khujta/projects/apps/gastify/web/src/hooks/useBatchScan.ts
+- 2026-06-03 00:03 | Edit | /home/khujta/projects/apps/gastify/web/src/routes/settings.tsx
+- 2026-06-03 00:09 | Edit | /home/khujta/projects/apps/gastify/web/src/stores/batchScanStore.ts
+- 2026-06-03 00:09 | Edit | /home/khujta/projects/apps/gastify/web/src/stores/batchScanStore.ts
+- 2026-06-03 00:09 | Edit | /home/khujta/projects/apps/gastify/web/src/stores/batchScanStore.ts
+- 2026-06-03 00:09 | Edit | /home/khujta/projects/apps/gastify/web/src/stores/batchScanStore.ts
+- 2026-06-03 00:09 | Edit | /home/khujta/projects/apps/gastify/web/src/components/BatchScanReview.tsx
+- 2026-06-03 00:09 | Edit | /home/khujta/projects/apps/gastify/web/src/components/BatchScanReview.tsx
+- 2026-06-03 00:11 | Write | /home/khujta/projects/apps/gastify/mobile/src/stores/batchScanStore.ts
+- 2026-06-03 00:23 | Edit | /home/khujta/projects/apps/gastify/tests/web-e2e/batch-scan.spec.ts
+- 2026-06-03 00:23 | Edit | /home/khujta/projects/apps/gastify/tests/web-e2e/batch-scan.spec.ts
+- 2026-06-03 00:23 | Edit | /home/khujta/projects/apps/gastify/tests/web-e2e/batch-scan.spec.ts
+- 2026-06-03 00:51 | Write | /home/khujta/projects/apps/gastify/tests/mobile/maestro/zz-batch-explore.yaml
+- 2026-06-03 00:56 | Write | /home/khujta/projects/apps/gastify/tests/mobile/maestro/p10-batch-scan-active.yaml
+
+## 2026-06-03 01:00 — PHASE EXEC COMPLETE: Phase 3 — Batch Scanning
+TIER: mvp
+SCOPE: Frontend-only (no backend changes). Batch = N× existing POST /api/v1/scans + per-scan poll to terminal; backend auto-persists each transaction (review is post-persist).
+TASKS:
+  Web — web/src/lib/batchScan.ts, stores/batchScanStore.ts, hooks/useBatchScan.ts, components/BatchScanQueue.tsx + BatchScanReview.tsx, routes/scan-batch.tsx, AppLayout nav, i18n batch.* (es/en/pt); 15 vitest (store/lib/hook).
+  Mobile — mobile/src/lib/batchScan.ts, stores/batchScanStore.ts, hooks/useBatchScan.ts, screens/BatchCaptureScreen.tsx + BatchReviewScreen.tsx, nav types + AppNavigator + HomeScreen entry; 14 jest. Full suite 162/162 green, tsc --noEmit clean.
+RUNTIME JOURNEY EVIDENCE (B2 — deployed staging-e2e):
+  Backend: gastify-api-staging-e2e (https://gastify-api-staging-e2e-staging-e2e.up.railway.app), scan_provider=fixture; /api/v1/health 200 {"status":"ok"}.
+  Web: Playwright tests/web-e2e/batch-scan.spec.ts PASSED (14.1s). Local Vite --mode staging-e2e (working tree on ffe1fa7) → deployed backend. 3 fixtures {happy,review,failure} → 2 saved + 1 failed. Artifacts: tests/web-e2e/proof/batch-scan/{01-queue,02-processing,03-summary}.png (committed).
+  Mobile: Maestro tests/mobile/maestro/p10-batch-scan-active.yaml PASSED (1m40s) on S23 SM-S911B (192.168.1.83:5555), build dev-client-metro-staging-e2e-2026-06-03 → deployed backend. Library pick of seeded happy fixture ×3 → 3 saved transactions (Open/Discard per item). Artifacts: tests/mobile/results/{latest,runs}/staging-e2e/.../p10-batch-scan-active/ (manifest result=passed + 5 screenshots). git_rev ffe1fa7 (working tree).
+DEVIATIONS:
+  - Design (minor): plan said "review before save" — backend auto-persists, so review is post-persist (monitor → summary → tap-to-edit / discard via Phase-2 batch-delete). User-confirmed.
+  - Transport (tier-cap): mvp uses GET-poll per scan, not the ent-tier SSE/WS streaming of single-scan (D31/D34). Pruned: N hardened reconnection streams; dedicated batch endpoint.
+  - Mobile E2E path: deployed staging-e2e backend gates POST /scan-test-cases/{id}/runs OFF (scan_test_cases.py _require_test_controls 403), so the test-case batch path is unusable there; used the proven library-pick + fixture-by-hash path instead (matches single-scan e2e).
+  - Process note: first 3 Maestro runs FALSE-PASSED — assertions checked only label visibility, not outcome (summary showed 3 failed "Scan test controls are disabled"). Strengthened to assert a saved item's Open link + assertNotVisible the disabled error; re-ran to a true 3-saved pass.
+PRE-EXISTING (out of Phase 3 scope, surfaced for follow-up):
+  - web/src/routes/settings.tsx:150 calls apiClient.POST on the GET-only /api/v1/privacy/portability → data-export broken + web `tsc -b` red (activated by 2026-05-30 api-types regen). Reverted my probe; left as-is.
+  - CI gap: .github/workflows/ci.yml frontend-* jobs target working-directory: frontend (legacy Storybook app), NOT web/ (deployed Gastify web). web/ regressions ship un-gated.
+EXEC: ✅  REVIEW: ⬜  COMMIT: ⬜  PUSH: ⬜
+
+## 2026-06-03 01:05 — PHASE 3 REVIEW: Batch Scanning
+VERDICT: APPROVE
+FINDINGS: 4 total (0 critical, 0 high, 2 medium, 2 low) — all below mvp gate
+COVERAGE: MEDIUM — orchestration logic + error paths unit-tested (15 web + 14 mobile) + dual deployed staging-e2e proof; presentational components/screens untested at unit level (e2e-covered)
+CONFIDENCE: 81/100
+DEFERRED: P44 (consolidated: component/screen unit-test gaps + test-case catalog dedup + discard-failure UX)
+ALIGNMENT: ALIGNED (diff matches Phase 3 scope)
+TIER: mvp | DRIFT: none (mvp poll-based; ent-tier SSE/WS pruned)
+DECISIONS: D62 added (batch = N sequential single-scans + poll-to-terminal + post-persist review)
+OUT-OF-SCOPE OBSERVATIONS (not in diff; surfaced for follow-up): web/src/routes/settings.tsx POST-on-GET /privacy/portability (web tsc red, pre-existing); CI has no web/ jobs (frontend-* target legacy frontend/).
+TICK: ✅
