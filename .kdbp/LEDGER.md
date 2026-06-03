@@ -3381,3 +3381,28 @@ TESTS: web tsc -b clean; vitest 15 files / 59 tests pass (incl. chartData.test.t
 BUNDLE: recharts code-split into separate chunks (CategoricalChart ~270KB + CategoryDonut/SpendTimeSeries lazy) — NOT in main index chunk (D68 lazy-load requirement met)
 SCOPE: web shared chart layer (chartData.ts ChartSlice+rollupToSlices+stable palette, useInsights series+period helpers), insights widgets extracted to components/insights/widgets.tsx, CategoryDonut + SpendTimeSeries (Recharts), dashboard (index.tsx) upgraded, /trends route added, /insights route retired (nav + route + test), i18n es/en/pt.
 DEVIATION (minor): drill-to-transactions + hierarchical L1/L3 drill deferred — /transactions has no validateSearch (URL filters), and parent grouping is lossy on the top-5 cap. Dimension toggle (store/item) ships as the mvp level-nav. → PENDING follow-up.
+
+## 2026-06-03 — [78fd8fc] feat(dashboard): mobile dashboard + trends (Phase 4 T5-T6/7)
+FINDINGS: 1 (0 critical, 0 high, 0 medium, 1 low)
+ACTIONS: 1:accept (README doc-drift — mobile chart deps added; lands in Phase 4 docs pass)
+TESTS: mobile tsc --noEmit clean; jest 34 suites / 167 tests pass (incl. DashboardScreen.test + chartData.test); no mobile eslint config (CI covers via typecheck/test jobs)
+SCOPE: react-native-gifted-charts + react-native-svg + expo-linear-gradient (svg = one EAS dev-client rebuild); mobile chartData lib, useInsightsSeries hook, CategoryDonut + SpendTimeSeries (gifted-charts), DashboardScreen + TrendsScreen, nav (Insights retired -> Dashboard + Trends), HomeScreen entry repointed, jest stubs gifted-charts.
+NEXT (T7): backend+web deploy to staging-e2e via origin/staging push; EAS dev-client rebuild (e2e profile, links react-native-svg) + install on S23; web Playwright + Maestro S23 proofs asserting rendered chart data.
+- 2026-06-03 14:53 | Write | /home/khujta/projects/apps/gastify/tests/web-e2e/dashboard.spec.ts
+- 2026-06-03 15:06 | Write | /home/khujta/projects/apps/gastify/tests/mobile/maestro/p10-dashboard-active.yaml
+- 2026-06-03 15:07 | Edit | /home/khujta/projects/apps/gastify/web/vite.config.ts
+- 2026-06-03 15:08 | Edit | /home/khujta/projects/apps/gastify/web/vite.config.ts
+- 2026-06-03 15:12 | Edit | /home/khujta/projects/apps/gastify/tests/web-e2e/playwright.config.ts
+- 2026-06-03 15:12 | Edit | /home/khujta/projects/apps/gastify/web/vite.config.ts
+- 2026-06-03 15:26 | Edit | /home/khujta/projects/apps/gastify/tests/web-e2e/dashboard.spec.ts
+
+## 2026-06-03 — PHASE 4 T7 (partial): web dashboard runtime proof + recharts compat
+RECHARTS: pinned web charts 3.8.1 -> 2.15.4 (es-toolkit/compat CJS-only subpath exports crash `vite dev`, the B2 proof harness; `vite preview` not viable — test-auth gated `!PROD`). 2.15.4 lodash-based, React-19-ok, identical API, ZERO code changes. Web tsc -b + vitest 59 + build green. (D68 amendment; [[P48]] revisit v3.)
+WEB PROOF (B2 — deployed staging-e2e):
+  Backend: gastify-api-staging-e2e (scan_provider=fixture); /api/v1/health 200.
+  Seeded: scripts/staging/run-insights-api-gate.py P6 corpus (15 tx, 2026-03) PASSED; set e2e user default_currency=USD (POST /privacy/rectification) so the dashboard surfaces the seeded categorized data.
+  Playwright tests/web-e2e/dashboard.spec.ts "category donut" PASSED: local Vite --mode staging-e2e -> deployed backend. Donut at 2026-03 shows REAL categories — Supermarket $1,800 (77.8%), Gas Station, Subscription Service, Book Store; store/item dimension toggle (item: Meat&Seafood $600 25.9% + 4 more + Other). VISUALLY CONFIRMED (not a label false-pass). Artifacts: tests/web-e2e/proof/dashboard/{01-dashboard-donut,02-dashboard-by-item}.png (committed).
+PENDING in this phase:
+  - Web /trends time-series proof: blocked — /insights/series not deployed to staging-e2e (Railway autodeploy from origin/staging NOT firing; manual `railway up` retried with corrected env=staging-e2e + full-repo context). Trends test written, runs when /series lands.
+  - Mobile S23 Maestro proof: blocked — EAS dev-client rebuild (react-native-svg) stuck in Expo queue ~45min. Flow tests/mobile/maestro/p10-dashboard-active.yaml ready.
+INFRA NOTE: staging-e2e autodeploy from `staging` branch appears broken this session (no deploy fired from 78fd8fc/1f3d952); PUSH.md fallback env name was wrong (`staging` -> should be `staging-e2e`).

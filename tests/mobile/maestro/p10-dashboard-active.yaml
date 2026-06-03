@@ -1,0 +1,100 @@
+appId: com.gastify.mobile
+---
+# P10 Dashboard + Trends — category donut + spend time-series on the S23 (D68).
+# The deployed staging-e2e P6 fixtures land in 2026-03 (USD); both screens open
+# on the current month (empty), so step "‹ Prev" back to the seeded month, then
+# assert REAL rendered chart data (a seeded category label + the donut total in
+# the legend, plus the time-series), not merely that elements exist.
+#
+# Requires: dev-client rebuilt with react-native-svg (gifted-charts) + the
+# deployed staging-e2e backend serving GET /insights/series.
+
+- waitForAnimationToEnd:
+    timeout: 10000
+- tapOn:
+    text: "Continue"
+    optional: true
+- tapOn:
+    text: "Got it"
+    optional: true
+- runFlow:
+    when:
+      visible:
+        id: e2e-sign-in-button
+    commands:
+      - tapOn:
+          id: e2e-sign-in-button
+- waitForAnimationToEnd:
+    timeout: 10000
+- runFlow:
+    when:
+      visible:
+        id: e2e-sign-in-button
+    commands:
+      - tapOn:
+          id: e2e-sign-in-button
+- extendedWaitUntil:
+    visible:
+      id: home-screen
+    timeout: 60000
+
+# --- Open the dashboard ---
+- scrollUntilVisible:
+    element:
+      id: open-dashboard-button
+    direction: DOWN
+    timeout: 15000
+- takeScreenshot:
+    path: 01-home
+- tapOn:
+    id: open-dashboard-button
+- extendedWaitUntil:
+    visible:
+      id: dashboard-screen
+    timeout: 20000
+
+# --- Step back to the seeded month (current month is empty) ---
+- repeat:
+    times: 3
+    commands:
+      - tapOn:
+          text: "‹ Prev"
+      - waitForAnimationToEnd:
+          timeout: 1500
+- extendedWaitUntil:
+    visible:
+      id: donut-legend
+    timeout: 20000
+- takeScreenshot:
+    path: 02-dashboard-donut
+# Real-outcome guards: the donut center total + a seeded category in the legend.
+- assertVisible:
+    id: donut-total
+- assertVisible: "Supermarket"
+
+# --- Trends: distribution donut + spend time-series ---
+- tapOn:
+    id: dashboard-open-trends
+- extendedWaitUntil:
+    visible:
+      id: trends-screen
+    timeout: 20000
+- repeat:
+    times: 3
+    commands:
+      - tapOn:
+          text: "‹ Prev"
+      - waitForAnimationToEnd:
+          timeout: 1500
+- extendedWaitUntil:
+    visible:
+      id: donut-legend
+    timeout: 20000
+- takeScreenshot:
+    path: 03-trends-distribution
+- assertVisible:
+    id: spend-timeseries
+- assertNotVisible:
+    id: trends-no-series
+- takeScreenshot:
+    path: 04-trends-timeseries
