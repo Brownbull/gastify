@@ -3365,3 +3365,4 @@ Feature-parity Phase 3 shipped to production. Multi-receipt batch scanning on we
 POST /scans + poll-to-terminal, post-persist review). Proven on deployed staging-e2e: web
 Playwright (2 saved + 1 failed) + Maestro S23 (3 saved). Plus fix(settings) GET portability.
 Next: Phase 4 — Dashboard + Charts/Trends (run /gabe-plan update to advance Current Phase).
+- 2026-06-03 09:23 | Edit | /home/khujta/projects/apps/gastify/.gitignore

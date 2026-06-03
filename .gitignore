@@ -60,6 +60,7 @@ apps/web/storybook-static/
 .claude/settings.local.json
 .claude/logs/
 .claude/sessions/
+.claude/projects/
 
 # Codex CLI
 .codex

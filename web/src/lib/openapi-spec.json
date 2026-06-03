@@ -1769,6 +1769,100 @@
         }
       }
     },
+    "/api/v1/insights/series": {
+      "get": {
+        "tags": [
+          "insights"
+        ],
+        "summary": "Get Insights Series Endpoint",
+        "operationId": "get_insights_series_endpoint_api_v1_insights_series_get",
+        "parameters": [
+          {
+            "name": "from",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}$",
+              "description": "Inclusive start month in YYYY-MM format.",
+              "title": "From"
+            },
+            "description": "Inclusive start month in YYYY-MM format."
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}$",
+              "description": "Inclusive end month in YYYY-MM format.",
+              "title": "To"
+            },
+            "description": "Inclusive end month in YYYY-MM format."
+          },
+          {
+            "name": "granularity",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "month",
+                "quarter",
+                "year"
+              ],
+              "type": "string",
+              "description": "Bucket grain: month, quarter, or year.",
+              "default": "month",
+              "title": "Granularity"
+            },
+            "description": "Bucket grain: month, quarter, or year."
+          },
+          {
+            "name": "currency",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 3,
+                  "maxLength": 3
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Reporting currency. Defaults to the user's default currency.",
+              "title": "Currency"
+            },
+            "description": "Reporting currency. Defaults to the user's default currency."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InsightsSeriesResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/metrics": {
       "get": {
         "tags": [
@@ -2540,6 +2634,98 @@
           "explanation"
         ],
         "title": "InsightGravityCenter"
+      },
+      "InsightsSeriesPoint": {
+        "properties": {
+          "period": {
+            "type": "string",
+            "maxLength": 7,
+            "minLength": 4,
+            "title": "Period",
+            "description": "Canonical bucket label: YYYY-MM (month), YYYY-Q{n} (quarter), or YYYY (year)."
+          },
+          "period_start": {
+            "type": "string",
+            "format": "date",
+            "title": "Period Start"
+          },
+          "period_end": {
+            "type": "string",
+            "format": "date",
+            "title": "Period End"
+          },
+          "total_spend_minor": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Total Spend Minor"
+          },
+          "transaction_count": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Transaction Count"
+          }
+        },
+        "type": "object",
+        "required": [
+          "period",
+          "period_start",
+          "period_end",
+          "total_spend_minor",
+          "transaction_count"
+        ],
+        "title": "InsightsSeriesPoint",
+        "description": "One time bucket of total spend in the reporting currency.\n\n`total_spend_minor` uses the same post-exclusion semantics as\n`MonthlyInsightsResponse.total_spend_minor`, so the current-month point of a\nmonth-granularity series equals the dashboard's monthly total."
+      },
+      "InsightsSeriesResponse": {
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "insights-series.v1",
+            "title": "Schema Version",
+            "default": "insights-series.v1"
+          },
+          "granularity": {
+            "type": "string",
+            "enum": [
+              "month",
+              "quarter",
+              "year"
+            ],
+            "title": "Granularity"
+          },
+          "currency": {
+            "type": "string",
+            "maxLength": 3,
+            "minLength": 3,
+            "title": "Currency"
+          },
+          "period_start": {
+            "type": "string",
+            "format": "date",
+            "title": "Period Start"
+          },
+          "period_end": {
+            "type": "string",
+            "format": "date",
+            "title": "Period End"
+          },
+          "points": {
+            "items": {
+              "$ref": "#/components/schemas/InsightsSeriesPoint"
+            },
+            "type": "array",
+            "title": "Points"
+          }
+        },
+        "type": "object",
+        "required": [
+          "granularity",
+          "currency",
+          "period_start",
+          "period_end"
+        ],
+        "title": "InsightsSeriesResponse",
+        "description": "Multi-period spend series for the Trends bar/line chart (D68).\n\nOne additive read-only aggregate over a month range, bucketed by\ngranularity. Replaces a client fan-out of N monthly calls."
       },
       "ItemCategoryItem": {
         "properties": {

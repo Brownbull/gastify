@@ -616,6 +616,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/insights/series": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Insights Series Endpoint */
+        get: operations["get_insights_series_endpoint_api_v1_insights_series_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/metrics": {
         parameters: {
             query?: never;
@@ -925,6 +942,69 @@ export interface components {
             threshold: string;
             /** Explanation */
             explanation: string;
+        };
+        /**
+         * InsightsSeriesPoint
+         * @description One time bucket of total spend in the reporting currency.
+         *
+         *     `total_spend_minor` uses the same post-exclusion semantics as
+         *     `MonthlyInsightsResponse.total_spend_minor`, so the current-month point of a
+         *     month-granularity series equals the dashboard's monthly total.
+         */
+        InsightsSeriesPoint: {
+            /**
+             * Period
+             * @description Canonical bucket label: YYYY-MM (month), YYYY-Q{n} (quarter), or YYYY (year).
+             */
+            period: string;
+            /**
+             * Period Start
+             * Format: date
+             */
+            period_start: string;
+            /**
+             * Period End
+             * Format: date
+             */
+            period_end: string;
+            /** Total Spend Minor */
+            total_spend_minor: number;
+            /** Transaction Count */
+            transaction_count: number;
+        };
+        /**
+         * InsightsSeriesResponse
+         * @description Multi-period spend series for the Trends bar/line chart (D68).
+         *
+         *     One additive read-only aggregate over a month range, bucketed by
+         *     granularity. Replaces a client fan-out of N monthly calls.
+         */
+        InsightsSeriesResponse: {
+            /**
+             * Schema Version
+             * @default insights-series.v1
+             * @constant
+             */
+            schema_version: "insights-series.v1";
+            /**
+             * Granularity
+             * @enum {string}
+             */
+            granularity: "month" | "quarter" | "year";
+            /** Currency */
+            currency: string;
+            /**
+             * Period Start
+             * Format: date
+             */
+            period_start: string;
+            /**
+             * Period End
+             * Format: date
+             */
+            period_end: string;
+            /** Points */
+            points?: components["schemas"]["InsightsSeriesPoint"][];
         };
         /** ItemCategoryItem */
         ItemCategoryItem: {
@@ -3445,6 +3525,44 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["MonthlyInsightsResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_insights_series_endpoint_api_v1_insights_series_get: {
+        parameters: {
+            query: {
+                /** @description Inclusive start month in YYYY-MM format. */
+                from: string;
+                /** @description Inclusive end month in YYYY-MM format. */
+                to: string;
+                /** @description Bucket grain: month, quarter, or year. */
+                granularity?: "month" | "quarter" | "year";
+                /** @description Reporting currency. Defaults to the user's default currency. */
+                currency?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InsightsSeriesResponse"];
                 };
             };
             /** @description Validation Error */
