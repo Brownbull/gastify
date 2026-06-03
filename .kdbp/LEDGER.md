@@ -3350,3 +3350,18 @@ HEALTH: gastify-api-staging /api/v1/health 200; gastify-web-staging / 200 (web d
 PROMOTION: pending (staging green + healthy; awaiting user go-ahead for staging -> main production promote)
 DEPLOYMENTS: P45 (FF 2084c46 -> 1529eca)
 TICK: Push NOT ticked (staging = integration env; final Push ticks on main promote)
+
+## 2026-06-03 01:35 — PUSH staging -> main (PROMOTION)
+PR: — (remote-to-remote FF promotion origin/staging:main)
+CI: github-actions run 26865720491 (main) — 13/13 green in ~120s
+HEALTH: gastify-api-production /api/v1/health 200 (CI-gated redeploy; "Wait for CI = ON")
+PROMOTION: promoted origin/staging (1529eca) -> origin/main (FF ffe1fa7->1529eca)
+DEPLOYMENTS: P46
+TICK: Push ✅ — Phase 3 complete (Exec ✅ Review ✅ Commit ✅ Push ✅)
+
+## 2026-06-03 01:35 — PHASE 3 COMPLETE: Batch Scanning (✅×4)
+Feature-parity Phase 3 shipped to production. Multi-receipt batch scanning on web (/scan-batch)
++ native mobile (BatchCapture/BatchReview), reusing the single-scan pipeline (N sequential
+POST /scans + poll-to-terminal, post-persist review). Proven on deployed staging-e2e: web
+Playwright (2 saved + 1 failed) + Maestro S23 (3 saved). Plus fix(settings) GET portability.
+Next: Phase 4 — Dashboard + Charts/Trends (run /gabe-plan update to advance Current Phase).
