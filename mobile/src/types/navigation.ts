@@ -3,7 +3,8 @@ export type RootStackParamList = {
   Home: undefined;
   Statements: undefined;
   Transactions: undefined;
-  Insights: undefined;
+  Dashboard: undefined;
+  Trends: undefined;
   Settings: undefined;
   TransactionDetail: { transactionId: string };
   BatchCapture: undefined;

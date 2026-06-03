@@ -28,10 +28,17 @@ jest.mock("../../screens/StatementsScreen", () => ({
   },
 }));
 
-jest.mock("../../screens/InsightsScreen", () => ({
-  InsightsScreen: () => {
+jest.mock("../../screens/DashboardScreen", () => ({
+  DashboardScreen: () => {
     const { Text } = require("react-native");
-    return <Text testID="insights-screen">Insights</Text>;
+    return <Text testID="dashboard-screen">Dashboard</Text>;
+  },
+}));
+
+jest.mock("../../screens/TrendsScreen", () => ({
+  TrendsScreen: () => {
+    const { Text } = require("react-native");
+    return <Text testID="trends-screen">Trends</Text>;
   },
 }));
 

@@ -169,9 +169,9 @@ export function HomeScreen({ navigation }: HomeScreenProps = {}) {
             onPress={() => navigation?.navigate("Statements")}
           />
           <Button
-            title="Open insights"
-            testID="open-insights-button"
-            onPress={() => navigation?.navigate("Insights")}
+            title="Open dashboard"
+            testID="open-dashboard-button"
+            onPress={() => navigation?.navigate("Dashboard")}
           />
           <Button
             title="Settings"

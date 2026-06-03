@@ -3373,3 +3373,11 @@ ACTIONS: 1:defer (P45 doc-drift, new /series route, follows P23) · 2:defer (P46
 DEFERRED: +P45 (mvp/medium), +P46 (mvp/low)
 TESTS: backend 733 passed, 5 skipped (incl. 6 new test_insights_series.py); ruff+mypy clean; web+mobile tsc clean post api-types regen
 NOTE: backend-only + regenerated web/mobile api-types. Endpoint must deploy to staging-e2e before the B2 runtime proof (T7). Phase Commit column ticks at phase end after /gabe-review.
+
+## 2026-06-03 — [00279e9] feat(dashboard): rich dashboard + /trends charts (Phase 4 T2-T4/7)
+FINDINGS: 1 (0 critical, 0 high, 0 medium, 1 low)
+ACTIONS: 1:accept (README doc-drift — recharts dep added; lands in Phase 4 docs pass)
+TESTS: web tsc -b clean; vitest 15 files / 59 tests pass (incl. chartData.test.ts + repurposed -index.test.tsx); eslint clean (pre-existing react-refresh warnings only); npm run build clean
+BUNDLE: recharts code-split into separate chunks (CategoricalChart ~270KB + CategoryDonut/SpendTimeSeries lazy) — NOT in main index chunk (D68 lazy-load requirement met)
+SCOPE: web shared chart layer (chartData.ts ChartSlice+rollupToSlices+stable palette, useInsights series+period helpers), insights widgets extracted to components/insights/widgets.tsx, CategoryDonut + SpendTimeSeries (Recharts), dashboard (index.tsx) upgraded, /trends route added, /insights route retired (nav + route + test), i18n es/en/pt.
+DEVIATION (minor): drill-to-transactions + hierarchical L1/L3 drill deferred — /transactions has no validateSearch (URL filters), and parent grouping is lossy on the top-5 cap. Dimension toggle (store/item) ships as the mvp level-nav. → PENDING follow-up.

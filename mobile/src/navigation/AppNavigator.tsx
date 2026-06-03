@@ -4,9 +4,10 @@ import { ActivityIndicator, StyleSheet, View } from "react-native";
 import { useAuth } from "../providers/AuthProvider";
 import { BatchCaptureScreen } from "../screens/BatchCaptureScreen";
 import { BatchReviewScreen } from "../screens/BatchReviewScreen";
+import { DashboardScreen } from "../screens/DashboardScreen";
 import { HomeScreen } from "../screens/HomeScreen";
-import { InsightsScreen } from "../screens/InsightsScreen";
 import { SettingsScreen } from "../screens/SettingsScreen";
+import { TrendsScreen } from "../screens/TrendsScreen";
 import { SignInScreen } from "../screens/SignInScreen";
 import { StatementsScreen } from "../screens/StatementsScreen";
 import { TransactionDetailScreen } from "../screens/TransactionDetailScreen";
@@ -47,9 +48,14 @@ export function AppNavigator() {
               options={{ title: "Statements" }}
             />
             <Stack.Screen
-              name="Insights"
-              component={InsightsScreen}
-              options={{ title: "Insights" }}
+              name="Dashboard"
+              component={DashboardScreen}
+              options={{ title: "Dashboard" }}
+            />
+            <Stack.Screen
+              name="Trends"
+              component={TrendsScreen}
+              options={{ title: "Trends" }}
             />
             <Stack.Screen
               name="Settings"

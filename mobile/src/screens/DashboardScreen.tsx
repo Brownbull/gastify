@@ -2,10 +2,12 @@ import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useState } from "react";
 import { ActivityIndicator, Button, Pressable, StyleSheet, Text, View } from "react-native";
 import { ScreenShell } from "../components/ScreenShell";
+import { CategoryDonut } from "../components/charts/CategoryDonut";
 import { useMonthlyInsights } from "../hooks/useInsights";
+import { rollupToSlices } from "../lib/chartData";
 import {
   currentPeriod,
-  type InsightCategoryRollup,
+  shiftPeriod,
   type InsightDimension,
   type InsightExcludedItem,
   type InsightGravityCenter,
@@ -14,20 +16,29 @@ import {
 import { formatMinorAmount } from "../lib/format";
 import type { RootStackParamList } from "../types/navigation";
 
-type InsightsScreenProps = NativeStackScreenProps<RootStackParamList, "Insights">;
+type DashboardScreenProps = NativeStackScreenProps<RootStackParamList, "Dashboard">;
 
-export function InsightsScreen({ navigation }: Partial<InsightsScreenProps> = {}) {
+export function DashboardScreen({ navigation }: Partial<DashboardScreenProps> = {}) {
   const [period, setPeriod] = useState(() => currentPeriod());
   const { data, error, isLoading, refetch } = useMonthlyInsights(period);
 
   return (
     <ScreenShell>
-      <View style={styles.header} testID="insights-screen">
-        <Button title="Back" onPress={() => navigation?.goBack()} />
-        <Text style={styles.title}>Insights</Text>
+      <View style={styles.header} testID="dashboard-screen">
+        <View style={styles.headerTop}>
+          <Button title="Back" onPress={() => navigation?.goBack()} />
+          <Pressable
+            testID="dashboard-open-trends"
+            accessibilityRole="button"
+            onPress={() => navigation?.navigate("Trends")}
+          >
+            <Text style={styles.linkText}>Trends ›</Text>
+          </Pressable>
+        </View>
+        <Text style={styles.title}>Dashboard</Text>
         <View style={styles.periodNav}>
           <Button title="‹ Prev" onPress={() => setPeriod((p) => shiftPeriod(p, -1))} />
-          <Text style={styles.periodLabel} testID="insights-period">
+          <Text style={styles.periodLabel} testID="dashboard-period">
             {period}
           </Text>
           <Button title="Next ›" onPress={() => setPeriod((p) => shiftPeriod(p, 1))} />
@@ -35,33 +46,31 @@ export function InsightsScreen({ navigation }: Partial<InsightsScreenProps> = {}
       </View>
 
       {isLoading ? (
-        <View style={styles.centered} testID="insights-loading">
+        <View style={styles.centered} testID="dashboard-loading">
           <ActivityIndicator color="#2563eb" />
-          <Text style={styles.mutedText}>Loading insights</Text>
+          <Text style={styles.mutedText}>Loading dashboard</Text>
         </View>
       ) : null}
 
       {error ? (
-        <View style={styles.errorPanel} testID="insights-error">
-          <Text style={styles.errorTitle}>Could not load insights</Text>
+        <View style={styles.errorPanel} testID="dashboard-error">
+          <Text style={styles.errorTitle}>Could not load your data</Text>
           <Text style={styles.errorBody}>{error.message}</Text>
           <Button title="Retry" onPress={() => void refetch()} />
         </View>
       ) : null}
 
-      {!isLoading && !error && data ? <InsightsContent data={data} /> : null}
+      {!isLoading && !error && data ? <DashboardContent data={data} /> : null}
     </ScreenShell>
   );
 }
 
-function InsightsContent({ data }: { data: MonthlyInsights }) {
-  const [dimension, setDimension] = useState<InsightDimension>(
-    "transaction_category",
-  );
+function DashboardContent({ data }: { data: MonthlyInsights }) {
+  const [dimension, setDimension] = useState<InsightDimension>("transaction_category");
 
   if (data.transaction_count === 0) {
     return (
-      <View style={styles.panel} testID="insights-empty">
+      <View style={styles.panel} testID="dashboard-empty">
         <Text style={styles.mutedText}>
           No transactions this month yet. Scan a receipt to get started.
         </Text>
@@ -73,10 +82,11 @@ function InsightsContent({ data }: { data: MonthlyInsights }) {
     dimension === "transaction_category"
       ? (data.top_transaction_categories ?? [])
       : (data.top_item_categories ?? []);
+  const slices = rollupToSlices(rows, data.total_spend_minor);
 
   return (
     <View>
-      <View style={styles.statRow} testID="insights-summary">
+      <View style={styles.statRow} testID="dashboard-summary">
         <Stat label="Total spend" value={formatMinorAmount(data.total_spend_minor, data.currency)} />
         <Stat label="Transactions" value={String(data.transaction_count)} />
         <Stat label="Items" value={String(data.item_count)} />
@@ -85,15 +95,11 @@ function InsightsContent({ data }: { data: MonthlyInsights }) {
       <View style={styles.panel}>
         <Text style={styles.panelTitle}>Top categories</Text>
         <DimensionToggle dimension={dimension} onChange={setDimension} />
-        {rows.length === 0 ? (
-          <Text style={styles.mutedText}>No categories for this dimension.</Text>
-        ) : (
-          rows.map((row) => <CategoryRow key={`${row.dimension}:${row.category_key}`} row={row} />)
-        )}
+        <CategoryDonut slices={slices} currency={data.currency} />
       </View>
 
       {(data.gravity_centers ?? []).length > 0 ? (
-        <View style={styles.panel} testID="insights-gravity">
+        <View style={styles.panel} testID="dashboard-gravity">
           <Text style={styles.panelTitle}>What's shifting</Text>
           {(data.gravity_centers ?? []).map((center) => (
             <GravityRow key={`${center.dimension}:${center.category_key}`} center={center} />
@@ -102,11 +108,8 @@ function InsightsContent({ data }: { data: MonthlyInsights }) {
       ) : null}
 
       {(data.excluded_items ?? []).length > 0 ? (
-        <View style={styles.panel} testID="insights-excluded">
+        <View style={styles.panel} testID="dashboard-excluded">
           <Text style={styles.panelTitle}>Excluded by your flags</Text>
-          <Text style={styles.mutedText}>
-            These items stay on their transactions but are kept out of the totals.
-          </Text>
           {(data.excluded_items ?? []).map((item) => (
             <ExcludedRow key={item.flag_kind} item={item} />
           ))}
@@ -125,7 +128,7 @@ function Stat({ label, value }: { label: string; value: string }) {
   );
 }
 
-function DimensionToggle({
+export function DimensionToggle({
   dimension,
   onChange,
 }: {
@@ -148,7 +151,7 @@ function DimensionToggle({
             accessibilityState={{ selected: active }}
             onPress={() => onChange(option.value)}
             style={[styles.toggle, active && styles.toggleActive]}
-            testID={`insights-dimension-${option.value}`}
+            testID={`dashboard-dimension-${option.value}`}
           >
             <Text style={[styles.toggleText, active && styles.toggleTextActive]}>
               {option.label}
@@ -156,28 +159,6 @@ function DimensionToggle({
           </Pressable>
         );
       })}
-    </View>
-  );
-}
-
-function CategoryRow({ row }: { row: InsightCategoryRollup }) {
-  return (
-    <View style={styles.categoryRow}>
-      <View style={styles.categoryHeader}>
-        <Text style={styles.categoryLabel}>{row.label}</Text>
-        <Text style={styles.categoryAmount}>
-          {formatMinorAmount(row.total_minor, row.currency)}
-        </Text>
-      </View>
-      <View style={styles.barTrack}>
-        <View style={[styles.barFill, { width: `${clampPercent(row.share_of_total_percent)}%` }]} />
-      </View>
-      <Text style={styles.mutedText}>
-        {row.parent_label} · {row.share_of_total_percent}%
-        {row.excluded_item_count > 0
-          ? ` · ${row.excluded_item_count} excluded (${formatMinorAmount(row.excluded_total_minor, row.currency)})`
-          : ""}
-      </Text>
     </View>
   );
 }
@@ -213,47 +194,14 @@ function ExcludedRow({ item }: { item: InsightExcludedItem }) {
   );
 }
 
-function shiftPeriod(period: string, delta: number): string {
-  const [year, month] = period.split("-").map(Number);
-  const date = new Date(year, month - 1 + delta, 1);
-  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
-}
-
-function clampPercent(value: string): number {
-  const parsed = Number.parseFloat(value);
-  if (Number.isNaN(parsed)) return 0;
-  return Math.max(0, Math.min(100, parsed));
-}
-
 const styles = StyleSheet.create({
-  barFill: {
-    backgroundColor: "#2563eb",
-    borderRadius: 3,
-    height: 6,
-  },
-  barTrack: {
-    backgroundColor: "#e2e8f0",
-    borderRadius: 3,
-    height: 6,
-    marginVertical: 6,
-    overflow: "hidden",
-  },
   categoryAmount: {
     color: "#0f172a",
     fontVariant: ["tabular-nums"],
   },
-  categoryHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
   categoryLabel: {
     color: "#0f172a",
     fontWeight: "600",
-  },
-  categoryRow: {
-    borderTopColor: "#e2e8f0",
-    borderTopWidth: 1,
-    paddingVertical: 8,
   },
   centered: {
     alignItems: "center",
@@ -300,6 +248,15 @@ const styles = StyleSheet.create({
   header: {
     gap: 8,
     marginBottom: 12,
+  },
+  headerTop: {
+    alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  linkText: {
+    color: "#2563eb",
+    fontWeight: "600",
   },
   mutedText: {
     color: "#64748b",
