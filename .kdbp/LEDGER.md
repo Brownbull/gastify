@@ -3335,3 +3335,10 @@ TIER: mvp | DRIFT: none (mvp poll-based; ent-tier SSE/WS pruned)
 DECISIONS: D62 added (batch = N sequential single-scans + poll-to-terminal + post-persist review)
 OUT-OF-SCOPE OBSERVATIONS (not in diff; surfaced for follow-up): web/src/routes/settings.tsx POST-on-GET /privacy/portability (web tsc red, pre-existing); CI has no web/ jobs (frontend-* target legacy frontend/).
 TICK: ✅
+
+## 2026-06-03 01:15 — [4e4562a] feat(scan): multi-receipt batch scanning on web + mobile
+FINDINGS: 2 (0 critical, 1 high, 1 medium) — CHECK2 high = pre-existing settings.tsx POST-on-GET (out of diff, fixed in next commit); CHECK6 medium = P44 (this phase's accepted review deferrals)
+ACTIONS: settings.tsx → fix in next commit; P44 → keep open (accepted mvp deferral); STRUCTURE.md updated (added tests/web-e2e/proof/**/*.png pattern)
+DEFERRED: P44 (kept open)
+TICK: Commit ✅
+- 2026-06-03 01:17 | Edit | /home/khujta/projects/apps/gastify/web/src/routes/settings.tsx
