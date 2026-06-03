@@ -12,7 +12,7 @@ Feature parity with legacy BoletApp — implement missing screens and features b
 - **Maturity:** mvp
 - **Domain:** Chilean smart expense tracker (AI receipt scanning, multi-currency analytics, PWA + native mobile)
 - **Created:** 2026-06-02
-- **Last Updated:** 2026-06-03 (Phase 4 started)
+- **Last Updated:** 2026-06-03 (Phase 4 v1 donut dashboard proven both platforms; re-scoped +tree/drill-down per D69; Groups pulled forward to Phase 5)
 - **Decision basis:** APP-STATE.html audit (2026-06-02) comparing Gastify vs legacy BoletApp — 9 missing features, 5 API-only gaps. Write-first ordering per user direction.
 
 ## Phases
@@ -22,9 +22,10 @@ Feature parity with legacy BoletApp — implement missing screens and features b
 | 1 | Settings + Profile + Themes | Settings screen with sub-views: profile (name, email, currency, locale), preferences (language, date format), theme switcher (3 color themes × light/dark — ported from legacy `categoryColors/`), consent management UI (wire existing /consent API), data export (wire /privacy/portability), account actions (wipe, sign-out from settings). Web + mobile. | mvp | high | ✅ | ✅ | ✅ | ✅ |
 | 2 | Batch Ops + Category Management | Multi-select on transaction list (web + mobile) wiring existing batch-update/batch-delete APIs. Category/merchant management: view/edit/delete learned L2 store-category and L4 item-category mappings. Backend category CRUD endpoints if needed. | mvp | med | ✅ | ✅ | ✅ | ✅ |
 | 3 | Batch Scanning | Multi-receipt capture with image queue + batch review step before save. Reuses single-scan pipeline per receipt. New capture flow UI (web + mobile). | mvp | high | ✅ | ✅ | ✅ | ✅ |
-| 4 | Dashboard + Charts/Trends | Rich home dashboard replacing simple hub (treemap or category breakdown). Trends view with chart library: donut (category distribution), bar/line (time-series), drill-down by L1→L2 and L3→L4. Period navigation (month/quarter/year). | mvp | high | 🔄 | ⬜ | ⬜ | ⬜ |
-| 5 | Items View + Reports | Dedicated items/products screen: cross-transaction item search with filters (category, date, merchant). Weekly/monthly report cards with spending summaries and chart visualizations. | mvp | med | ⬜ | ⬜ | ⬜ | ⬜ |
-| 6 | Notification Center | In-app notification view: list with read/unread status, mark-read, delete. Backend notification creation hooks (scan complete, statement reconciled, etc.). Web + mobile. | mvp | low | ⬜ | ⬜ | ⬜ | ⬜ |
+| 4 | Dashboard + Charts/Trends | **v1 (done+proven both platforms):** rich home dashboard donut (category distribution) + store/item dimension toggle + period nav + "what's shifting" (web Playwright + S23 Maestro on staging-e2e). **v2 (in progress, D69):** server-aggregated `GET /insights/tree` (full L1→L2 / L3→L4 levels, no top-5 truncation) + recursive bidirectional drill-down on web + mobile (the legacy treemap UX), client expands the cached tree in memory. Bar/line time-series via `/insights/series` shipped (runtime proof deferred — staging-e2e deploy coupling). | mvp | high | 🔄 | ⬜ | ⬜ | ⬜ |
+| 5 | Groups (personal + shared) | **Pulled forward (D69).** Group model + CRUD + `OwnershipScopeMember` membership/roles; the `group_id`→RLS-GUC scope-swap so every analytics endpoint (monthly/series/tree) works per-group with zero new aggregation code; per-group dashboards; shared visibility + partial-visibility correctness + revocation via RLS. Decide D58 shared-flag semantics. Web + mobile. | ent | high | ⬜ | ⬜ | ⬜ | ⬜ |
+| 6 | Items View + Reports | Dedicated items/products screen: cross-transaction item search with filters (category, date, merchant). Weekly/monthly report cards with spending summaries and chart visualizations. | mvp | med | ⬜ | ⬜ | ⬜ | ⬜ |
+| 7 | Notification Center | In-app notification view: list with read/unread status, mark-read, delete. Backend notification creation hooks (scan complete, statement reconciled, etc.). Web + mobile. | mvp | low | ⬜ | ⬜ | ⬜ | ⬜ |
 
 <!-- Exec is written by /gabe-execute: ⬜ not started, 🔄 in progress, ✅ complete -->
 <!-- Review/Commit/Push auto-ticked by /gabe-review, /gabe-commit, /gabe-push -->
@@ -166,5 +167,6 @@ Phase 4: Dashboard + Charts/Trends
 
 - This plan covers ROADMAP phases P10-P15 (inserted before P7 launch gate).
 - Legacy reference: `boletapp/` at `/home/khujta/projects/bmad/boletapp/` — screen components, theme configs, chart implementations.
-- Groups/shared expenses remain deferred (both legacy and Gastify had "coming soon").
+- Groups/shared expenses **pulled forward** to Phase 5 (D69, 2026-06-03): the relational data model + RLS scope-swap make per-group analytics nearly free (the `group_id`→GUC swap reuses all aggregation endpoints), so groups is scheduled rather than deferred. Items+Reports → Phase 6, Notification Center → Phase 7.
+- Analytics architecture settled in D69: **server-aggregated drill-down tree** (`/insights/tree`), client expands in memory; the "pull all transactions into a client buffer" alternative was rejected (breaks shared-group RLS/privacy + re-creates the legacy client-authority failure mode).
 - APP-STATE.html audit at `docs/APP-STATE.html` documents the full feature matrix.
