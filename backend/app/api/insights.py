@@ -83,9 +83,9 @@ async def get_insights_series_endpoint(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail="'to' must be on or after 'from'",
         )
-    month_span = (to_month.year * 12 + to_month.month) - (
-        from_month.year * 12 + from_month.month
-    ) + 1
+    month_span = (
+        (to_month.year * 12 + to_month.month) - (from_month.year * 12 + from_month.month) + 1
+    )
     if month_span > SERIES_MAX_MONTHS:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,

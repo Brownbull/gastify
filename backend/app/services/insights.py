@@ -468,9 +468,7 @@ def build_insights_series_from_records(
         in_month = tuple(
             record for record in scoped_records if cursor <= record.transaction_date <= month_end
         )
-        month_total = sum(
-            _prepare_transaction(record).included_total_minor for record in in_month
-        )
+        month_total = sum(_prepare_transaction(record).included_total_minor for record in in_month)
         month_count = len(in_month)
 
         key = _series_bucket_key(cursor, granularity)
