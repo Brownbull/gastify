@@ -147,7 +147,7 @@ function DataSection() {
   async function handleExport() {
     setExporting(true);
     try {
-      const { data, error } = await apiClient.POST("/api/v1/privacy/portability");
+      const { data, error } = await apiClient.GET("/api/v1/privacy/portability");
       if (error) throw new Error(String(error));
       const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
       const url = URL.createObjectURL(blob);
