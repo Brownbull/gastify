@@ -19,6 +19,11 @@ class OwnershipScope(Base):
     # Human-readable name; populated for group scopes, NULL for personal
     # (individual/household) scopes.
     name: Mapped[str | None] = mapped_column(Text, nullable=True)
+    # Rotatable invite-link token + expiry for group scopes (NULL for personal).
+    invite_token: Mapped[str | None] = mapped_column(Text, nullable=True, unique=True)
+    invite_token_expires_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now()
     )

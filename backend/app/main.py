@@ -6,6 +6,8 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.card_aliases import router as card_aliases_router
 from app.api.consent import router as consent_router
+from app.api.groups import invites_router
+from app.api.groups import router as groups_router
 from app.api.health import router as health_router
 from app.api.insights import router as insights_router
 from app.api.metrics import router as metrics_router
@@ -71,4 +73,6 @@ app.include_router(scan_ws_router)
 app.include_router(statement_ws_router)
 app.include_router(reference_router, prefix="/api/v1")
 app.include_router(insights_router, prefix="/api/v1")
+app.include_router(groups_router, prefix="/api/v1")
+app.include_router(invites_router, prefix="/api/v1")
 app.include_router(metrics_router, prefix="/api/v1")

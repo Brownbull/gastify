@@ -70,10 +70,63 @@ END;
 $$;
 """
 
+# app_user_groups / app_group_invite_preview mirror migration 029 — cross-scope
+# readers that rely on the members table being ENABLE-but-NOT-FORCE (D71), so the
+# migrator-owned owner role can read membership across scopes.
+_CREATE_USER_GROUPS = """
+CREATE OR REPLACE FUNCTION app_user_groups(p_user_id uuid)
+RETURNS TABLE(scope_id uuid, group_name text, member_role text, member_count integer)
+LANGUAGE plpgsql VOLATILE SECURITY DEFINER SET search_path = pg_catalog, public
+AS $$
+BEGIN
+    IF p_user_id IS NULL THEN
+        RETURN;
+    END IF;
+    RETURN QUERY
+    SELECT s.id, s.name, m.role,
+           (SELECT count(*)::integer FROM ownership_scope_members m2
+            WHERE m2.ownership_scope_id = s.id)
+    FROM ownership_scope_members m
+    JOIN ownership_scopes s ON s.id = m.ownership_scope_id
+    WHERE m.user_id = p_user_id AND s.scope_type = 'group'
+    ORDER BY s.created_at;
+END;
+$$;
+"""
+
+_CREATE_INVITE_PREVIEW = """
+CREATE OR REPLACE FUNCTION app_group_invite_preview(p_token text)
+RETURNS TABLE(group_id uuid, group_name text, member_count integer, expires_at timestamptz)
+LANGUAGE plpgsql VOLATILE SECURITY DEFINER SET search_path = pg_catalog, public
+AS $$
+BEGIN
+    IF p_token IS NULL OR length(p_token) = 0 THEN
+        RETURN;
+    END IF;
+    RETURN QUERY
+    SELECT s.id, s.name,
+           (SELECT count(*)::integer FROM ownership_scope_members m
+            WHERE m.ownership_scope_id = s.id),
+           s.invite_token_expires_at
+    FROM ownership_scopes s
+    WHERE s.invite_token = p_token AND s.scope_type = 'group';
+END;
+$$;
+"""
+
 _SETUP_SQL = f"""
 DROP TABLE IF EXISTS grp_transactions CASCADE;
 DROP TABLE IF EXISTS ownership_scope_members CASCADE;
+DROP TABLE IF EXISTS ownership_scopes CASCADE;
 
+CREATE TABLE ownership_scopes (
+    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    name text,
+    scope_type text NOT NULL DEFAULT 'group',
+    invite_token text,
+    invite_token_expires_at timestamptz,
+    created_at timestamptz NOT NULL DEFAULT now()
+);
 CREATE TABLE ownership_scope_members (
     id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     ownership_scope_id uuid NOT NULL,
@@ -87,28 +140,40 @@ CREATE TABLE grp_transactions (
     label text NOT NULL
 );
 
+-- ownership_scopes has NO RLS in prod (it's the scope anchor). The members table
+-- is ENABLE-but-NOT-FORCE (D71): RLS binds the non-owner app role, but the
+-- migrator-owned owner role (which backs the SECURITY DEFINER readers) is exempt,
+-- enabling controlled cross-scope membership reads.
 ALTER TABLE ownership_scope_members ENABLE ROW LEVEL SECURITY;
-ALTER TABLE ownership_scope_members FORCE ROW LEVEL SECURITY;
 CREATE POLICY ownership_scope_members_scope_isolation ON ownership_scope_members
     USING (ownership_scope_id = {_SCOPE})
     WITH CHECK (ownership_scope_id = {_SCOPE});
 
+-- DATA tables keep FORCE — owner is bound too.
 ALTER TABLE grp_transactions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE grp_transactions FORCE ROW LEVEL SECURITY;
 CREATE POLICY grp_transactions_scope_isolation ON grp_transactions
     USING (ownership_scope_id = {_SCOPE})
     WITH CHECK (ownership_scope_id = {_SCOPE});
 
--- The tables (and below, the oracle) are owned by a NON-superuser role so FORCE
--- ROW LEVEL SECURITY binds even the owner — the whole point of the test.
+ALTER TABLE ownership_scopes OWNER TO {_OWNER_ROLE};
 ALTER TABLE ownership_scope_members OWNER TO {_OWNER_ROLE};
 ALTER TABLE grp_transactions OWNER TO {_OWNER_ROLE};
 """
 
+_FUNCTIONS = (
+    "app_is_scope_member(uuid, uuid)",
+    "app_user_groups(uuid)",
+    "app_group_invite_preview(text)",
+)
+
 _TEARDOWN_SQL = (
     "DROP TABLE IF EXISTS grp_transactions CASCADE;"
     " DROP TABLE IF EXISTS ownership_scope_members CASCADE;"
+    " DROP TABLE IF EXISTS ownership_scopes CASCADE;"
     " DROP FUNCTION IF EXISTS app_is_scope_member(uuid, uuid);"
+    " DROP FUNCTION IF EXISTS app_user_groups(uuid);"
+    " DROP FUNCTION IF EXISTS app_group_invite_preview(text);"
 )
 
 
@@ -151,12 +216,14 @@ async def _admin_setup(admin: asyncpg.Connection) -> str:
     # The caller role logs in; the owner role never connects (it backs the DEFINER).
     await admin.execute(f"ALTER ROLE {_APP_ROLE} LOGIN PASSWORD '{_APP_PASSWORD}'")
     await admin.execute(_SETUP_SQL)
-    await admin.execute(_CREATE_ORACLE)
-    await admin.execute(f"ALTER FUNCTION app_is_scope_member(uuid, uuid) OWNER TO {_OWNER_ROLE}")
-    await admin.execute("REVOKE ALL ON FUNCTION app_is_scope_member(uuid, uuid) FROM PUBLIC")
-    await admin.execute(f"GRANT EXECUTE ON FUNCTION app_is_scope_member(uuid, uuid) TO {_APP_ROLE}")
+    for ddl in (_CREATE_ORACLE, _CREATE_USER_GROUPS, _CREATE_INVITE_PREVIEW):
+        await admin.execute(ddl)
+    for fn in _FUNCTIONS:
+        await admin.execute(f"ALTER FUNCTION {fn} OWNER TO {_OWNER_ROLE}")
+        await admin.execute(f"REVOKE ALL ON FUNCTION {fn} FROM PUBLIC")
+        await admin.execute(f"GRANT EXECUTE ON FUNCTION {fn} TO {_APP_ROLE}")
     await admin.execute(
-        f"GRANT SELECT, INSERT, UPDATE, DELETE ON ownership_scope_members,"
+        f"GRANT SELECT, INSERT, UPDATE, DELETE ON ownership_scopes, ownership_scope_members,"
         f" grp_transactions TO {_APP_ROLE}"
     )
     parts = await admin.fetchrow("SELECT current_setting('port') AS port, current_database() AS db")
@@ -343,6 +410,131 @@ async def test_oracle_validates_member_under_personal_guc_and_confines() -> None
                 # Proof of confinement: a direct read still sees ZERO group rows,
                 # because the GUC is still personal_a, not group_g.
                 assert await app.fetch("SELECT label FROM grp_transactions") == []
+        finally:
+            await app.close()
+    finally:
+        await _admin_teardown(admin)
+        await admin.close()
+
+
+async def _seed_group_row(
+    app: asyncpg.Connection,
+    *,
+    group_id: uuid.UUID,
+    name: str,
+    members: list[tuple[uuid.UUID, str]],
+    token: str | None = None,
+) -> None:
+    """Insert a group scope (no RLS) + its member rows (under the group GUC)."""
+    async with app.transaction():
+        await app.execute(
+            "INSERT INTO ownership_scopes (id, name, scope_type, invite_token)"
+            " VALUES ($1, $2, 'group', $3)",
+            group_id,
+            name,
+            token,
+        )
+        await _set_scope(app, group_id)
+        for user_id, role in members:
+            await app.execute(
+                "INSERT INTO ownership_scope_members (ownership_scope_id, user_id, role)"
+                " VALUES ($1, $2, $3)",
+                group_id,
+                user_id,
+                role,
+            )
+
+
+# --- E: NO-FORCE (D71) must NOT expose members across scopes to the app role ---
+
+
+@pytest.mark.asyncio
+async def test_app_role_member_reads_isolated_under_no_force() -> None:
+    admin = await _connect_admin()
+    user_a, user_b = uuid.uuid4(), uuid.uuid4()
+    group_a, group_b = uuid.uuid4(), uuid.uuid4()
+    try:
+        app_dsn = await _admin_setup(admin)
+        app = await asyncpg.connect(app_dsn, timeout=5)
+        try:
+            await _seed_group_row(app, group_id=group_a, name="A", members=[(user_a, "owner")])
+            await _seed_group_row(app, group_id=group_b, name="B", members=[(user_b, "owner")])
+            # Dropping FORCE relaxes only the OWNER; the non-owner app role is still
+            # RLS-bound, so a direct members read sees only the current scope's rows.
+            async with app.transaction():
+                await _set_scope(app, group_a)
+                rows = await app.fetch("SELECT ownership_scope_id FROM ownership_scope_members")
+                assert {r["ownership_scope_id"] for r in rows} == {group_a}
+            async with app.transaction():
+                await _set_scope(app, group_b)
+                rows = await app.fetch("SELECT ownership_scope_id FROM ownership_scope_members")
+                assert {r["ownership_scope_id"] for r in rows} == {group_b}
+        finally:
+            await app.close()
+    finally:
+        await _admin_teardown(admin)
+        await admin.close()
+
+
+# --- F: app_user_groups returns only the PASSED user's groups, across scopes ---
+
+
+@pytest.mark.asyncio
+async def test_app_user_groups_returns_only_callers_groups() -> None:
+    admin = await _connect_admin()
+    user_a, user_b = uuid.uuid4(), uuid.uuid4()
+    group1, group2 = uuid.uuid4(), uuid.uuid4()
+    try:
+        app_dsn = await _admin_setup(admin)
+        app = await asyncpg.connect(app_dsn, timeout=5)
+        try:
+            await _seed_group_row(
+                app, group_id=group1, name="One", members=[(user_a, "owner"), (user_b, "member")]
+            )
+            await _seed_group_row(app, group_id=group2, name="Two", members=[(user_b, "owner")])
+            # GUC pointed at neither group — the reader is GUC-independent (cross-scope).
+            await _set_scope(app, uuid.uuid4())
+            a_rows = await app.fetch(
+                "SELECT scope_id, member_count FROM app_user_groups($1)", user_a
+            )
+            assert {r["scope_id"] for r in a_rows} == {group1}
+            assert a_rows[0]["member_count"] == 2
+            b_rows = await app.fetch("SELECT scope_id FROM app_user_groups($1)", user_b)
+            assert {r["scope_id"] for r in b_rows} == {group1, group2}
+        finally:
+            await app.close()
+    finally:
+        await _admin_teardown(admin)
+        await admin.close()
+
+
+# --- G: app_group_invite_preview resolves a token for a not-yet-member ---
+
+
+@pytest.mark.asyncio
+async def test_invite_preview_resolves_token_cross_scope() -> None:
+    admin = await _connect_admin()
+    owner, group_g = uuid.uuid4(), uuid.uuid4()
+    try:
+        app_dsn = await _admin_setup(admin)
+        app = await asyncpg.connect(app_dsn, timeout=5)
+        try:
+            await _seed_group_row(
+                app, group_id=group_g, name="Casa", members=[(owner, "owner")], token="tok-123"
+            )
+            await _set_scope(app, uuid.uuid4())  # bearer is NOT a member, GUC elsewhere
+            row = await app.fetchrow(
+                "SELECT group_id, group_name, member_count FROM app_group_invite_preview($1)",
+                "tok-123",
+            )
+            assert row is not None
+            assert row["group_id"] == group_g
+            assert row["group_name"] == "Casa"
+            assert row["member_count"] == 1
+            # Unknown token → empty result.
+            assert (
+                await app.fetchrow("SELECT group_id FROM app_group_invite_preview($1)", "nope")
+            ) is None
         finally:
             await app.close()
     finally:

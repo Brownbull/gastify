@@ -3516,3 +3516,17 @@ PHASE 4: Exec ✅ Review ✅ Commit ✅ Push ✅ — COMPLETE.
 FINDINGS: 9 (0 critical, 3 high, 4 medium, 2 low) — security-reviewer + python-reviewer on the 5a diff. Isolation architecture judged SOUND (validate-then-swap proven, SECURITY DEFINER + search_path pin + FORCE-RLS non-superuser owner). ALL actioned: STABLE→VOLATILE (set_config side effect), data-safe downgrade guard (refuse to narrow CHECK while group rows exist), deterministic ALTER FUNCTION OWNER TO gastify_migrator (guarded), db.bind→is-not-None, 027-dependency + user_id-stays-caller comments, +2 endpoint gate tests (/monthly+/series). ACTIONS: 9 fixed, 0 deferred from review.
 PROOF: 4 Postgres-gated isolation gates PASS on real PG (embedded pgserver, non-bypassing role) — user A cannot read group B, validate-then-swap ordering, revocation, chicken-and-egg + GUC confinement. Migration 028 applies+reverses on real PG (oracle/CHECK/name verified, provolatile=v). Full suite 760 passed; web+mobile tsc clean; api-types regenerated. CI now provisions a postgres service so these + test_rls_postgres.py RUN (not skip).
 DEFERRED: +P53 (D58-in-group data test → 5c), +P54 (mobile group UI + S23 isolation → device reconnect), +P55 (architecture.md doc-drift, mvp). PLAN: Phase 5 Exec 🔄 (5a of 5a–5e committed; phase Commit stays ⬜ until full phase done).
+- 2026-06-03 23:37 | Write | /home/khujta/projects/apps/gastify/backend/alembic/versions/029_group_membership_readers_and_invites.py
+- 2026-06-03 23:37 | Edit | /home/khujta/projects/apps/gastify/backend/app/models/user.py
+- 2026-06-03 23:37 | Write | /home/khujta/projects/apps/gastify/backend/app/schemas/groups.py
+- 2026-06-03 23:39 | Write | /home/khujta/projects/apps/gastify/backend/app/api/groups.py
+- 2026-06-03 23:39 | Edit | /home/khujta/projects/apps/gastify/backend/app/main.py
+- 2026-06-03 23:40 | Edit | /home/khujta/projects/apps/gastify/backend/app/main.py
+- 2026-06-03 23:41 | Write | /home/khujta/projects/apps/gastify/backend/tests/test_groups.py
+- 2026-06-04 00:00 | Edit | /home/khujta/projects/apps/gastify/backend/app/api/groups.py
+- 2026-06-04 00:00 | Edit | /home/khujta/projects/apps/gastify/backend/app/api/groups.py
+- 2026-06-04 00:00 | Edit | /home/khujta/projects/apps/gastify/backend/app/api/groups.py
+- 2026-06-04 00:01 | Edit | /home/khujta/projects/apps/gastify/backend/app/api/groups.py
+- 2026-06-04 00:01 | Edit | /home/khujta/projects/apps/gastify/backend/app/schemas/groups.py
+- 2026-06-04 00:01 | Edit | /home/khujta/projects/apps/gastify/backend/app/schemas/groups.py
+- 2026-06-04 00:01 | Edit | /home/khujta/projects/apps/gastify/backend/tests/test_groups.py
