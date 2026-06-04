@@ -3650,3 +3650,18 @@ SHIPS: 5e consent-gated detail (D73, migration 032) + mobile group-detail (P60c)
 
 ## 2026-06-04 19:10 — PLAN UPDATE: Current Phase advanced 5 → 6
 Phase 5 Groups COMPLETE (✅×4, MVP + 5e finish shipped to prod). Reconciled Phase 5 row (5e SHIPPED, not deferred); P62 resolved. Current Phase → Phase 6 (Items View + Reports). Next: /gabe-next.
+- 2026-06-04 15:30 | Edit | /home/khujta/projects/apps/gastify/web/src/lib/e2eAuth.ts
+- 2026-06-04 15:30 | Edit | /home/khujta/projects/apps/gastify/web/src/hooks/useAuth.tsx
+- 2026-06-04 15:30 | Edit | /home/khujta/projects/apps/gastify/web/src/hooks/useAuth.tsx
+- 2026-06-04 15:31 | Edit | /home/khujta/projects/apps/gastify/web/src/hooks/useAuth.tsx
+- 2026-06-04 15:31 | Edit | /home/khujta/projects/apps/gastify/web/src/routes/sign-in.tsx
+- 2026-06-04 15:31 | Edit | /home/khujta/projects/apps/gastify/web/src/routes/sign-in.tsx
+- 2026-06-04 15:32 | Edit | /home/khujta/projects/apps/gastify/web/.env.staging-e2e.example
+- 2026-06-04 15:44 | Edit | /home/khujta/projects/apps/gastify/tests/web-e2e/groups-multiuser.spec.ts
+- 2026-06-04 15:47 | Write | /home/khujta/projects/apps/gastify/tests/mobile/scripts/setup-multiuser-group.sh
+- 2026-06-04 15:48 | Write | /home/khujta/projects/apps/gastify/tests/mobile/maestro/p5-phase5-multiuser-active.yaml
+- 2026-06-04 15:51 | Edit | /home/khujta/projects/apps/gastify/tests/mobile/maestro/p5-phase5-multiuser-active.yaml
+
+## 2026-06-04 15:55 — [0696ccb] test(groups): multi-user (two real users) e2e on web + Android
+SCOPE: provisioned 2nd disposable staging user B (gastify-mobile-e2e-b@), used on BOTH web + mobile (same accounts, no platform-exclusive). Gated e2e sign-in-as-B (web signInWithTestAuthB + sign-in-test-auth-button-b; mobile signInWithTestUserB + e2e-sign-in-button-b) — hard-gated like the existing A button, never in prod.
+PROOFS (vs deployed staging-e2e): web Playwright groups-multiuser.spec.ts GREEN 34.9s (two browser contexts: B joins A's group via invite + sees A's shared row, not "You"; A sees B join). S23 Maestro p5-phase5-multiuser GREEN 34s (API-assisted cross-user setup + setup-multiuser-group.sh; device signs out→in as B → sees A's transaction). Closes the multi-user runtime gap (the legacy "multiple stay-in users") on BOTH platforms. web 69 vitest + mobile 190 jest.
