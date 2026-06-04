@@ -3601,3 +3601,10 @@ FINDINGS: 0 blocking. Applied 15 of 22 review findings (error-handling ×7, doub
 CHECKS: web tsc + 64 vitest green · mobile tsc + 171 jest green · web lint 0 err
 PROOF: BOTH B2 proofs RE-PROVEN GREEN on deployed staging-e2e after hardening — web Playwright groups.spec.ts 18.9s + S23 Maestro p5-phase5-groups 37s (SM-S911B/Android 16). Error UI is conditional so happy paths unchanged.
 REVIEW TICK: Phase 5 client review (workflow, WARNING) → all actionable findings fixed → review gate satisfied.
+
+## 2026-06-04 17:34 — PUSH feat/phase5-groups -> staging -> main
+PR: — (direct staging integration + FF remote-to-remote promotion)
+CI: staging run 26968423045 green · main run 26968610397 green
+PROMOTION: promoted origin/staging -> main (63ecf01, FF 8574503->63ecf01)
+DEPLOYMENTS: P47 (->staging) + P48 (staging->main promotion)
+PHASE 5 COMPLETE: all four gates green (Exec ✅ / Review ✅ / Commit ✅ / Push ✅). 5e deferred -> P62.
