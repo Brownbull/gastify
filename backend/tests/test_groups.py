@@ -285,6 +285,31 @@ async def test_admin_cannot_remove_another_admin(client, engine):
 
 
 @pytest.mark.asyncio
+async def test_admin_cannot_change_another_admin_role(client, engine):
+    """An admin cannot demote/alter a peer admin — only the owner manages admins."""
+    group_id = (await client.post("/api/v1/groups", json={"name": "Casa"})).json()["id"]
+    gid = uuid.UUID(group_id)
+    admin1_uid, admin1_scope = await _seed_user(engine, "adm1")
+    admin2_uid, _ = await _seed_user(engine, "adm2")
+    member_uid, _ = await _seed_user(engine, "plain")
+    await _add_member(engine, gid, admin1_uid, "admin")
+    await _add_member(engine, gid, admin2_uid, "admin")
+    await _add_member(engine, gid, member_uid, "member")
+
+    with _acting_as(_make_auth(admin1_uid, admin1_scope, "A1")):
+        # …cannot demote a peer admin
+        demote = await client.patch(
+            f"/api/v1/groups/{group_id}/members/{admin2_uid}", json={"role": "member"}
+        )
+        assert demote.status_code == 403
+        # …but may still promote a plain member to admin (within the cap).
+        promote = await client.patch(
+            f"/api/v1/groups/{group_id}/members/{member_uid}", json={"role": "admin"}
+        )
+        assert promote.status_code == 200
+
+
+@pytest.mark.asyncio
 async def test_member_can_leave(client, engine):
     group_id = (await client.post("/api/v1/groups", json={"name": "Casa"})).json()["id"]
     member_uid, member_scope = await _seed_user(engine, "leaver")

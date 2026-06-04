@@ -27,7 +27,9 @@ function extractInviteToken(raw: string): string {
   const trimmed = raw.trim();
   if (!trimmed) return "";
   const segments = trimmed.split(/[/\s]+/).filter(Boolean);
-  return segments[segments.length - 1] ?? "";
+  const last = segments[segments.length - 1] ?? "";
+  // Strip any ?query or #fragment so an invite URL with params still resolves.
+  return last.split(/[?#]/)[0] ?? "";
 }
 
 export function GroupsScreen({ navigation }: Partial<GroupsScreenProps> = {}) {

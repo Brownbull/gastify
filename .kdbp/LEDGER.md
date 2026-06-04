@@ -3608,3 +3608,38 @@ CI: staging run 26968423045 green · main run 26968610397 green
 PROMOTION: promoted origin/staging -> main (63ecf01, FF 8574503->63ecf01)
 DEPLOYMENTS: P47 (->staging) + P48 (staging->main promotion)
 PHASE 5 COMPLETE: all four gates green (Exec ✅ / Review ✅ / Commit ✅ / Push ✅). 5e deferred -> P62.
+- 2026-06-04 13:40 | Edit | /home/khujta/.claude/projects/-home-khujta-projects-apps-gastify/memory/project_s23_wireless_adb.md
+- 2026-06-04 13:53 | Write | /home/khujta/projects/apps/gastify/web/src/hooks/useInsights.scope.test.tsx
+
+## 2026-06-04 13:58 — [2c035f2] test(groups): P61 scope-isolation + scan-guard + GroupsScreen/ScopeBanner tests + polish
+CHECKS: web tsc + 69 vitest (+5) green · mobile tsc + 177 jest (+6) green · web lint 0 err
+SCOPE: P61 deferred review findings resolved — #1/#14/#20/#22 (test coverage, 16 tests), #9 (delete→detail cache evict), #12 (rename→activeScope sync), #3 (confirm dialogs). All unit-level, no happy-path change.
+- 2026-06-04 14:01 | Write | /home/khujta/projects/apps/gastify/mobile/src/components/ScopeSwitcher.tsx
+- 2026-06-04 14:01 | Edit | /home/khujta/projects/apps/gastify/mobile/src/screens/HomeScreen.tsx
+- 2026-06-04 14:01 | Edit | /home/khujta/projects/apps/gastify/mobile/src/screens/HomeScreen.tsx
+
+## 2026-06-04 14:03 — [eda82a6] feat(groups): mobile hub ScopeSwitcher (P60b parity)
+CHECKS: mobile tsc + 179 jest (+2) green
+SCOPE: P60(b) resolved — compact whole-app scope switcher on the home hub (mirrors web GroupSwitcher). P60 remaining: (c) invite-link + role-management mobile UI.
+
+## 2026-06-04 14:19 — [391b3bc] feat(groups): 5e backend — consent-gated member detail (D73)
+CHECKS: ruff + mypy clean · 778 backend pass (4 new 5e tests) · alembic 032 head · web+mobile api-types regenerated
+SCOPE: migration 032 (member_visibility_enabled + shares_detail) + PATCH /visibility + POST /consent + GET /{id}/transactions (consent + D72 departed-filter, app-level, no RLS change). D73 recorded.
+- 2026-06-04 14:19 | Edit | /home/khujta/projects/apps/gastify/web/src/hooks/useGroups.ts
+- 2026-06-04 14:19 | Edit | /home/khujta/projects/apps/gastify/web/src/hooks/useGroups.ts
+- 2026-06-04 14:20 | Edit | /home/khujta/projects/apps/gastify/web/src/routes/groups.tsx
+- 2026-06-04 14:20 | Edit | /home/khujta/projects/apps/gastify/web/src/routes/groups.tsx
+- 2026-06-04 14:32 | Write | /home/khujta/projects/apps/gastify/tests/mobile/maestro/p5-phase5-5e-active.yaml
+- 2026-06-04 14:42 | Edit | /home/khujta/projects/apps/gastify/tests/web-e2e/groups.spec.ts
+
+## 2026-06-04 18:50 — B2 PROOF: 5e + P60(c) GREEN on deployed staging-e2e
+DEPLOY: pushed feat/phase5-groups -> staging (591415c); staging CI 26971884793 green; Railway staging-e2e redeploy applied migration 032 (verified: /visibility in openapi, group detail returns member_visibility_enabled + viewer_shares_detail + members[].shares_detail, GET /groups/{id}/transactions 200).
+WEB: Playwright groups.spec.ts BOTH green vs deployed staging-e2e — group flow 17.9s + 5e (visibility toggle + consent + consent-gated transactions list, "You" own row) 23.4s. (Fixed: controlled-checkbox click+retry-assert, 99812a2.)
+S23: Maestro BOTH green (SM-S911B/Android 16) — p5-phase5-groups 38s (regression on hardened+detail build) + p5-phase5-5e 42s (create→Manage→generate invite [P60c]→visibility On→consent appears+On→transactions list). Toggle Pressables fire fine under Maestro (no Fabric tap issue on non-keyboard controls).
+PENDING: review running, then promote.
+- 2026-06-04 14:58 | Edit | /home/khujta/projects/apps/gastify/backend/app/api/groups.py
+
+## 2026-06-04 19:00 — PHASE 5 REVIEW: 5e consent-gated detail (authz-focused workflow)
+VERDICT: WARNING (MVP-mergeable — 0 CRITICAL; 1 HIGH + 10 LOW). 3 reviewers (python/typescript) × 5e clusters → adversarial verify; 12 raw → 11 confirmed, 1 refuted (toggle double-submit — checkbox reflects server state).
+FIXED (pre-promote): HIGH #1 update_member_role admin-lateral-movement (admin could demote a peer admin → now owner-only, mirrors remove_member) + test; LOW #2/#5/#10 (×3 corroborated) get_group leaked every member's shares_detail to non-admins → now admin-or-own only (D73) + test; LOW #6 web useLeaveGroup evicts detail+transactions cache; LOW #9 mobile extractInviteToken strips ?query/#fragment.
+DEFERRED → P63: #3 (list-filter SQL self-documentation, no live bug), #4 (index on shares_detail, perf), #7 (GroupTransactionsSection contextual states when visibility off — UX), #8 (admin sees visibility+consent both — UX), #11 (mobile role/remove double-submit — already disabled-guarded).

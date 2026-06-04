@@ -47,6 +47,30 @@ async def test_group_detail_exposes_visibility_and_consent(client, engine):
 
 
 @pytest.mark.asyncio
+async def test_non_admin_cannot_see_peer_consent_flags(client, engine):
+    """D73: a member's shares_detail is admin-only; peers see only their own."""
+    group_id = await _make_group(client)  # owner = default test user
+    a_uid, a_scope = await _seed_user(engine, "alpha")
+    b_uid, b_scope = await _seed_user(engine, "bravo")
+    await _add_member(engine, uuid.UUID(group_id), a_uid, "member")
+    await _add_member(engine, uuid.UUID(group_id), b_uid, "member")
+    with _acting_as(_make_auth(a_uid, a_scope, "A")):
+        await client.post(f"/api/v1/groups/{group_id}/consent", json={"shares_detail": True})
+
+    # B (a plain member) reads the detail: A's flag is redacted, B's own shows.
+    with _acting_as(_make_auth(b_uid, b_scope, "B")):
+        detail = (await client.get(f"/api/v1/groups/{group_id}")).json()
+    by_uid = {m["user_id"]: m for m in detail["members"]}
+    assert by_uid[str(a_uid)]["shares_detail"] is False
+    assert detail["viewer_shares_detail"] is False
+
+    # The owner (admin) still sees A's real consent flag.
+    owner_detail = (await client.get(f"/api/v1/groups/{group_id}")).json()
+    owner_by_uid = {m["user_id"]: m for m in owner_detail["members"]}
+    assert owner_by_uid[str(a_uid)]["shares_detail"] is True
+
+
+@pytest.mark.asyncio
 async def test_non_admin_cannot_toggle_visibility(client, engine):
     group_id = await _make_group(client)
     member_uid, member_scope = await _seed_user(engine, "plain")

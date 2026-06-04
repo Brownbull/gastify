@@ -119,7 +119,11 @@ export function useLeaveGroup() {
       });
       if (error) throw new Error("Failed to leave group");
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: groupKeys.list() }),
+    onSuccess: (_data, groupId) => {
+      qc.removeQueries({ queryKey: groupKeys.detail(groupId) });
+      qc.removeQueries({ queryKey: groupKeys.transactions(groupId) });
+      void qc.invalidateQueries({ queryKey: groupKeys.list() });
+    },
   });
 }
 

@@ -266,16 +266,21 @@ async def get_group(group_id: UUID, auth: Auth, db: DB) -> GroupDetail:
     )
     members: list[MemberSummary] = []
     viewer_shares_detail = False
+    # D73: a member's consent flag is admin-only governance info. Non-admins see
+    # only their OWN (also surfaced as viewer_shares_detail) — a peer's yes/no
+    # consent is hidden to avoid social pressure on the opt-in decision.
+    can_see_consent = role in _MUTATE_ROLES
     for uid, name, member_role, shares_detail in result:
+        is_self = uid == auth.user_id
         members.append(
             MemberSummary(
                 user_id=uid,
                 display_name=name,
                 role=cast("GroupRole", member_role),
-                shares_detail=bool(shares_detail),
+                shares_detail=bool(shares_detail) if (can_see_consent or is_self) else False,
             )
         )
-        if uid == auth.user_id:
+        if is_self:
             viewer_shares_detail = bool(shares_detail)
     return GroupDetail(
         id=group_id,
@@ -507,6 +512,14 @@ async def update_member_role(
     if target.role == "owner":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, detail="Cannot change the owner's role"
+        )
+    # Only the owner may change an existing admin's role — an admin cannot demote or
+    # otherwise alter a peer admin (mirrors remove_member's owner-only guard). Admins
+    # may still promote a plain member to admin (within MAX_ADMINS_PER_GROUP).
+    if target.role in _MUTATE_ROLES and role != "owner":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only the owner can change an admin's role",
         )
     if body.role == "admin" and target.role != "admin":
         admin_count = await db.scalar(
