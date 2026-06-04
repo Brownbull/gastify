@@ -1,0 +1,76 @@
+appId: com.gastify.mobile
+---
+# Phase 6 Items screen on the S23 (T6) — the on-device runtime proof that the
+# cross-transaction Items list renders real line items and deep-links to the parent
+# transaction. User A has receipt transactions with items (same data as the
+# dashboard), so the list is non-empty; tapping a row opens that transaction's
+# detail. Runs against the deployed staging-e2e backend (GET /api/v1/items, fixture
+# scan provider per D76).
+#
+# Requires: dev-client + deployed staging-e2e serving /api/v1/items.
+
+- waitForAnimationToEnd:
+    timeout: 12000
+- tapOn:
+    text: "Continue"
+    optional: true
+- tapOn:
+    text: "Got it"
+    optional: true
+
+# Reach a clean sign-in + authenticate as user A.
+- runFlow:
+    when:
+      visible:
+        id: home-screen
+    commands:
+      - scrollUntilVisible:
+          element:
+            id: sign-out-button
+      - tapOn:
+          id: sign-out-button
+      - extendedWaitUntil:
+          visible:
+            id: sign-in-screen
+          timeout: 20000
+- extendedWaitUntil:
+    visible:
+      id: e2e-sign-in-button
+    timeout: 30000
+- tapOn:
+    id: e2e-sign-in-button
+- extendedWaitUntil:
+    visible:
+      id: home-screen
+    timeout: 60000
+
+# --- Open the Items screen ---
+- scrollUntilVisible:
+    element:
+      id: open-items-button
+- tapOn:
+    id: open-items-button
+- extendedWaitUntil:
+    visible:
+      id: items-screen
+    timeout: 20000
+
+# A has receipt items → the list is non-empty (not the empty state).
+- assertNotVisible:
+    id: items-empty
+- extendedWaitUntil:
+    visible:
+      id: items-row-0
+    timeout: 20000
+- takeScreenshot:
+    path: 01-items-list
+
+# --- A row deep-links to its parent transaction detail ---
+- tapOn:
+    id: items-row-0
+- extendedWaitUntil:
+    visible:
+      id: transaction-detail-screen
+    timeout: 20000
+- takeScreenshot:
+    path: 02-item-to-transaction

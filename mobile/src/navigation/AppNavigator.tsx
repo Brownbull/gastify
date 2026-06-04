@@ -8,6 +8,7 @@ import { DashboardScreen } from "../screens/DashboardScreen";
 import { GroupDetailScreen } from "../screens/GroupDetailScreen";
 import { GroupsScreen } from "../screens/GroupsScreen";
 import { HomeScreen } from "../screens/HomeScreen";
+import { ItemsScreen } from "../screens/ItemsScreen";
 import { SettingsScreen } from "../screens/SettingsScreen";
 import { TrendsScreen } from "../screens/TrendsScreen";
 import { SignInScreen } from "../screens/SignInScreen";
@@ -58,6 +59,11 @@ export function AppNavigator() {
               name="Trends"
               component={TrendsScreen}
               options={{ title: "Trends" }}
+            />
+            <Stack.Screen
+              name="Items"
+              component={ItemsScreen}
+              options={{ title: "Items" }}
             />
             <Stack.Screen
               name="Groups"
