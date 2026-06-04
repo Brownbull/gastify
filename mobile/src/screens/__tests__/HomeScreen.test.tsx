@@ -29,6 +29,12 @@ jest.mock("../../hooks/useTransactions", () => ({
   useInvalidateTransactionsAfterScan: jest.fn(),
 }));
 
+// ScopeSwitcher (in the hub header) reads useGroups; empty list → renders null,
+// leaving the existing HomeScreen assertions untouched.
+jest.mock("../../hooks/useGroups", () => ({
+  useGroups: () => ({ data: [], isLoading: false }),
+}));
+
 jest.mock("../../lib/mobileConfig", () => ({
   mobileConfig: {
     apiBaseUrl: "http://localhost:8000",

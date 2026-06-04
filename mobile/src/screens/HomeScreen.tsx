@@ -1,6 +1,7 @@
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useEffect } from "react";
 import { ActivityIndicator, Button, Image, StyleSheet, Text, View } from "react-native";
+import { ScopeSwitcher } from "../components/ScopeSwitcher";
 import { ScreenShell } from "../components/ScreenShell";
 import { useReceiptCapture } from "../hooks/useReceiptCapture";
 import { usePushRegistration } from "../hooks/usePushRegistration";
@@ -144,6 +145,8 @@ export function HomeScreen({ navigation }: HomeScreenProps = {}) {
           typed backend client.
         </Text>
       </View>
+
+      <ScopeSwitcher />
 
       <View style={styles.panel} testID="signed-in-user-panel">
         <Text style={styles.label}>Signed in as</Text>
