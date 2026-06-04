@@ -2,13 +2,16 @@
 
 from __future__ import annotations
 
+import uuid  # noqa: TC003 - FastAPI resolves the Query(uuid.UUID) annotation at runtime.
 from datetime import date
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.auth.deps import Auth  # noqa: TC001 - FastAPI needs runtime Annotated dependency.
+# Auth is a runtime Annotated FastAPI dep (TC001); resolve_analytics_scope is a
+# plain coroutine imported on the same line, so the line-level noqa covers both.
+from app.auth.deps import Auth, resolve_analytics_scope  # noqa: TC001
 from app.db import get_db
 from app.schemas.insights import (
     InsightDimension,
@@ -44,12 +47,17 @@ async def get_monthly_insights_endpoint(
         max_length=3,
         description="Reporting currency. Defaults to the user's default currency.",
     ),
+    group_id: uuid.UUID | None = Query(
+        default=None,
+        description="Analyze a group scope you belong to; defaults to your personal scope.",
+    ),
 ) -> MonthlyInsightsResponse:
     period_start = _parse_period(period)
     reporting_currency = (currency or auth.user.default_currency).upper()
+    scope_id = await resolve_analytics_scope(db, auth, group_id)
     return await get_monthly_insights(
         db,
-        ownership_scope_id=auth.ownership_scope_id,
+        ownership_scope_id=scope_id,
         user_id=auth.user_id,
         period_start=period_start,
         currency=reporting_currency,
@@ -82,6 +90,10 @@ async def get_insights_series_endpoint(
         max_length=3,
         description="Reporting currency. Defaults to the user's default currency.",
     ),
+    group_id: uuid.UUID | None = Query(
+        default=None,
+        description="Analyze a group scope you belong to; defaults to your personal scope.",
+    ),
 ) -> InsightsSeriesResponse:
     from_month = _parse_period(range_from)
     to_month = _parse_period(range_to)
@@ -99,9 +111,10 @@ async def get_insights_series_endpoint(
             detail=f"range may not exceed {SERIES_MAX_MONTHS} months",
         )
     reporting_currency = (currency or auth.user.default_currency).upper()
+    scope_id = await resolve_analytics_scope(db, auth, group_id)
     return await get_insights_series(
         db,
-        ownership_scope_id=auth.ownership_scope_id,
+        ownership_scope_id=scope_id,
         user_id=auth.user_id,
         from_month=from_month,
         to_month=to_month,
@@ -132,12 +145,17 @@ async def get_insights_tree_endpoint(
         max_length=3,
         description="Reporting currency. Defaults to the user's default currency.",
     ),
+    group_id: uuid.UUID | None = Query(
+        default=None,
+        description="Analyze a group scope you belong to; defaults to your personal scope.",
+    ),
 ) -> InsightsTreeResponse:
     period_start = _parse_period(period)
     reporting_currency = (currency or auth.user.default_currency).upper()
+    scope_id = await resolve_analytics_scope(db, auth, group_id)
     return await get_insights_tree(
         db,
-        ownership_scope_id=auth.ownership_scope_id,
+        ownership_scope_id=scope_id,
         user_id=auth.user_id,
         period_start=period_start,
         currency=reporting_currency,

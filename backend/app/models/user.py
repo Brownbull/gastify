@@ -16,6 +16,9 @@ class OwnershipScope(Base):
         Uuid, primary_key=True, default=uuid.uuid4, server_default=func.gen_random_uuid()
     )
     scope_type: Mapped[str] = mapped_column(String, nullable=False, server_default="individual")
+    # Human-readable name; populated for group scopes, NULL for personal
+    # (individual/household) scopes.
+    name: Mapped[str | None] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now()
     )

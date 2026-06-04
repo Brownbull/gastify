@@ -145,11 +145,32 @@ jobs:
     defaults:
       run:
         working-directory: backend
+    # A throwaway Postgres so the RLS-enforced isolation tests actually RUN
+    # (test_rls_postgres.py + the Phase 5 test_group_isolation.py "user A cannot
+    # read group B" gate, D70). They self-create a NON-superuser role from this
+    # superuser admin DSN; without it the suite skips them and the isolation
+    # proof is theoretical.
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: gastify_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v4
       - run: uv sync --frozen
       - run: uv run pytest --cov=app --cov-fail-under=80
+        env:
+          GASTIFY_TEST_PG_DSN: postgresql://postgres:postgres@127.0.0.1:5432/gastify_test
       - run: uv run ruff check .
       - run: uv run ruff format --check .
 

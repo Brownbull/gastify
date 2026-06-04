@@ -3496,3 +3496,18 @@ DEFERRED: none. ALIGNMENT: ALIGNED. TIER: mvp | DRIFT: none. TICK: ✅
 
 ## 2026-06-04 — [d052fba] fix(insights): address /gabe-review findings (Phase 4 v2)
 FINDINGS: 0 (review-fix commit; re-verified backend 25 + web vitest + mobile 170 jest all green). ACTIONS: none. PLAN: Phase 4 Review ✅. Next: /gabe-push (staging→main promote needs user confirm).
+
+## 2026-06-04 — PUSH + PROMOTE: Phase 4 v2 → origin/staging → main
+STAGING: feat/phase4-dashboard-charts 6e82bff..8574503 → origin/staging. CI run 26925801335 GREEN (all jobs incl. SCA Audit — aiohttp 3.14.0). staging-e2e backend auto-redeploys the review-fix guard.
+PROMOTE: origin/main 62a7287..8574503 (fast-forward; user-authorized production promote). main now carries the full Phase 4 (v1+v2 — /insights/tree 4-level drill-down, web + mobile, B2-proven). Triggers production CI + production-service autodeploy.
+PHASE 4: Exec ✅ Review ✅ Commit ✅ Push ✅ — COMPLETE.
+- 2026-06-03 23:08 | Edit | /home/khujta/projects/apps/gastify/.github/workflows/ci.yml
+- 2026-06-03 23:17 | Edit | /home/khujta/projects/apps/gastify/backend/alembic/versions/028_group_scope_membership_oracle.py
+- 2026-06-03 23:17 | Edit | /home/khujta/projects/apps/gastify/backend/alembic/versions/028_group_scope_membership_oracle.py
+- 2026-06-03 23:17 | Edit | /home/khujta/projects/apps/gastify/backend/alembic/versions/028_group_scope_membership_oracle.py
+- 2026-06-03 23:18 | Edit | /home/khujta/projects/apps/gastify/backend/tests/test_group_isolation.py
+- 2026-06-03 23:18 | Edit | /home/khujta/projects/apps/gastify/backend/app/auth/deps.py
+- 2026-06-03 23:18 | Edit | /home/khujta/projects/apps/gastify/backend/app/auth/deps.py
+- 2026-06-03 23:18 | Edit | /home/khujta/projects/apps/gastify/backend/app/api/insights.py
+- 2026-06-03 23:18 | Edit | /home/khujta/projects/apps/gastify/backend/app/models/user.py
+- 2026-06-03 23:18 | Edit | /home/khujta/projects/apps/gastify/backend/tests/test_group_scope.py

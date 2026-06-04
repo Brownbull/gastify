@@ -1743,6 +1743,25 @@
               "title": "Currency"
             },
             "description": "Reporting currency. Defaults to the user's default currency."
+          },
+          {
+            "name": "group_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Analyze a group scope you belong to; defaults to your personal scope.",
+              "title": "Group Id"
+            },
+            "description": "Analyze a group scope you belong to; defaults to your personal scope."
           }
         ],
         "responses": {
@@ -1837,6 +1856,25 @@
               "title": "Currency"
             },
             "description": "Reporting currency. Defaults to the user's default currency."
+          },
+          {
+            "name": "group_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Analyze a group scope you belong to; defaults to your personal scope.",
+              "title": "Group Id"
+            },
+            "description": "Analyze a group scope you belong to; defaults to your personal scope."
           }
         ],
         "responses": {
@@ -1918,6 +1956,25 @@
               "title": "Currency"
             },
             "description": "Reporting currency. Defaults to the user's default currency."
+          },
+          {
+            "name": "group_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Analyze a group scope you belong to; defaults to your personal scope.",
+              "title": "Group Id"
+            },
+            "description": "Analyze a group scope you belong to; defaults to your personal scope."
           }
         ],
         "responses": {
@@ -2887,7 +2944,7 @@
           "item_count"
         ],
         "title": "InsightsTreeNode",
-        "description": "One node of the drill-down category tree (D69).\n\nUnlike `InsightCategoryRollup`, `level` is a free 1-4 integer so the tree can\ncarry L1 industry / L3 family parent nodes (which the rollup's `Literal[2, 4]`\ncategory level rejects). `parent_key` is the key of this node's parent *in the\ntree*: for the store cross-walk tree an item-family (L3) is nested under the\nstore-type (L2) whose transactions contained it, so its `parent_key` is that\nstore-type key rather than its taxonomy family parent. `share_of_total_percent`\nis relative to the response `total_spend_minor`; clients recompute\nwithin-parent proportions from `total_minor` when rendering a drilled level."
+        "description": "One node of the drill-down category tree (D69).\n\nUnlike `InsightCategoryRollup`, `level` is a free 1-4 integer so the tree can\ncarry L1 industry / L3 family parent nodes (which the rollup's `Literal[2, 4]`\ncategory level rejects). `parent_key` is the key of this node's parent *in the\ntree*: for the store cross-walk tree an item-family (L3) is nested under the\nstore-type (L2) whose transactions contained it, so its `parent_key` is that\nstore-type key rather than its taxonomy family parent. `share_of_total_percent`\nis relative to the response `total_spend_minor`; clients recompute\nwithin-parent proportions from `total_minor` when rendering a drilled level.\n\n`excluded_total_minor` is populated only at the transaction-aggregated levels\n(store L1/L2 / item-dimension roots); it is always 0 at the item-level\ncross-walk depths (store L3/L4), where excluded items have already been\nremoved before aggregation. Do not read it as \"nothing excluded\" at depth."
       },
       "InsightsTreeResponse": {
         "properties": {
