@@ -3643,3 +3643,7 @@ PENDING: review running, then promote.
 VERDICT: WARNING (MVP-mergeable — 0 CRITICAL; 1 HIGH + 10 LOW). 3 reviewers (python/typescript) × 5e clusters → adversarial verify; 12 raw → 11 confirmed, 1 refuted (toggle double-submit — checkbox reflects server state).
 FIXED (pre-promote): HIGH #1 update_member_role admin-lateral-movement (admin could demote a peer admin → now owner-only, mirrors remove_member) + test; LOW #2/#5/#10 (×3 corroborated) get_group leaked every member's shares_detail to non-admins → now admin-or-own only (D73) + test; LOW #6 web useLeaveGroup evicts detail+transactions cache; LOW #9 mobile extractInviteToken strips ?query/#fragment.
 DEFERRED → P63: #3 (list-filter SQL self-documentation, no live bug), #4 (index on shares_detail, perf), #7 (GroupTransactionsSection contextual states when visibility off — UX), #8 (admin sees visibility+consent both — UX), #11 (mobile role/remove double-submit — already disabled-guarded).
+
+## 2026-06-04 19:05 — PUSH feat/phase5-groups -> staging -> main (Phase 5 finish: P60c + 5e)
+CI: staging 26973259186 green · main 26973588226 green. PROMOTION: origin/staging -> main (cc4f302, FF, 9 commits). DEPLOYMENTS: P49 + P50.
+SHIPS: 5e consent-gated detail (D73, migration 032) + mobile group-detail (P60c) + P61 tests + P60b switcher. Review (authz workflow, 0 CRITICAL; HIGH + 4 LOW fixed, rest -> P63). Both B2 proofs green. Prod verified live.
