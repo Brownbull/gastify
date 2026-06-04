@@ -3595,3 +3595,9 @@ FINDINGS: 22 (0 critical, 0 high, 8 medium, 14 low). Themes: (a) 6× silent muta
 COVERAGE: MEDIUM — group flow has B2 e2e on both platforms (web Playwright + S23 Maestro on deployed staging-e2e) but unit-test gaps on scope isolation.
 ALIGNMENT: ALIGNED (client matches D70/D72). TIER: ent | DRIFT: none.
 TICK: pending fix-vs-defer decision
+
+## 2026-06-04 13:27 — [b5281bb] fix(groups): harden Phase 5 client (post-review hardening pass)
+FINDINGS: 0 blocking. Applied 15 of 22 review findings (error-handling ×7, double-submit ×2, D70 mobile scan-guard ×2, scope persistence+reset ×2, TrendsScreen banner, leave testID). Deferred P61 (test-coverage #1/#14/#20/#22 + polish #3/#9/#12). P60(a)+(d) resolved.
+CHECKS: web tsc + 64 vitest green · mobile tsc + 171 jest green · web lint 0 err
+PROOF: BOTH B2 proofs RE-PROVEN GREEN on deployed staging-e2e after hardening — web Playwright groups.spec.ts 18.9s + S23 Maestro p5-phase5-groups 37s (SM-S911B/Android 16). Error UI is conditional so happy paths unchanged.
+REVIEW TICK: Phase 5 client review (workflow, WARNING) → all actionable findings fixed → review gate satisfied.
