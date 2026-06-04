@@ -13,6 +13,7 @@ import {
   type TextInputProps,
 } from "react-native";
 import { ScreenShell } from "../components/ScreenShell";
+import { ShareToGroupButton } from "../components/ShareToGroupButton";
 import { useItemCategories, useStoreCategories } from "../hooks/useCategories";
 import {
   useTransaction,
@@ -125,6 +126,8 @@ export function TransactionDetailScreen({
             : ""}
         </Text>
       </View>
+
+      <ShareToGroupButton transactionId={transactionId} />
 
       {mutation.error ? (
         <View style={styles.errorPanel} testID="transaction-mutation-error">

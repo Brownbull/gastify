@@ -48,9 +48,10 @@ export function periodWindow(
 export async function getMonthlyInsights(
   period: string,
   currency?: string,
+  groupId?: string,
 ): Promise<MonthlyInsights> {
   const { data, error } = await apiClient.GET("/api/v1/insights/monthly", {
-    params: { query: { period, currency: currency || undefined } },
+    params: { query: { period, currency: currency || undefined, group_id: groupId } },
   });
 
   if (error || !data) {
@@ -65,9 +66,12 @@ export async function getInsightsSeries(
   to: string,
   granularity: SeriesGranularity = "month",
   currency?: string,
+  groupId?: string,
 ): Promise<InsightsSeries> {
   const { data, error } = await apiClient.GET("/api/v1/insights/series", {
-    params: { query: { from, to, granularity, currency: currency || undefined } },
+    params: {
+      query: { from, to, granularity, currency: currency || undefined, group_id: groupId },
+    },
   });
 
   if (error || !data) {
@@ -87,9 +91,10 @@ export async function getInsightsTree(
   period: string,
   dimension: InsightDimension,
   currency?: string,
+  groupId?: string,
 ): Promise<InsightsTree> {
   const { data, error } = await apiClient.GET("/api/v1/insights/tree", {
-    params: { query: { period, dimension, currency: currency || undefined } },
+    params: { query: { period, dimension, currency: currency || undefined, group_id: groupId } },
   });
 
   if (error || !data) {

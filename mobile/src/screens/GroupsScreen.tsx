@@ -1,0 +1,166 @@
+import { useState } from "react";
+import type { NativeStackScreenProps } from "@react-navigation/native-stack";
+import {
+  ActivityIndicator,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
+import { useCreateGroup, useGroups, useLeaveGroup } from "../hooks/useGroups";
+import type { GroupSummary } from "../lib/groups";
+import { useScopeStore } from "../stores/scopeStore";
+import type { RootStackParamList } from "../types/navigation";
+
+type GroupsScreenProps = NativeStackScreenProps<RootStackParamList, "Groups">;
+
+export function GroupsScreen({ navigation }: Partial<GroupsScreenProps> = {}) {
+  const { data: groups, isLoading } = useGroups();
+  const activeScope = useScopeStore((s) => s.activeScope);
+  const setActiveScope = useScopeStore((s) => s.setActiveScope);
+  const createGroup = useCreateGroup();
+  const [name, setName] = useState("");
+
+  function openGroup(group: GroupSummary) {
+    setActiveScope({ kind: "group", id: group.id, name: group.name });
+    navigation?.navigate("Dashboard");
+  }
+
+  return (
+    <ScrollView contentContainerStyle={styles.container} testID="groups-screen">
+      <Text style={styles.title}>Groups</Text>
+      <Text style={styles.subtitle}>Share spending with your household or team.</Text>
+
+      <View style={styles.scopeRow}>
+        <Text style={styles.scopeLabel}>
+          {activeScope.kind === "group" ? `Viewing: ${activeScope.name}` : "Viewing: Personal"}
+        </Text>
+        {activeScope.kind === "group" && (
+          <Pressable
+            testID="scope-personal-button"
+            style={styles.linkBtn}
+            onPress={() => setActiveScope({ kind: "personal" })}
+          >
+            <Text style={styles.linkBtnText}>Back to personal</Text>
+          </Pressable>
+        )}
+      </View>
+
+      <View style={styles.createRow}>
+        <TextInput
+          testID="create-group-input"
+          value={name}
+          onChangeText={setName}
+          placeholder="Group name"
+          maxLength={60}
+          style={styles.input}
+        />
+        <Pressable
+          testID="create-group-button"
+          disabled={createGroup.isPending || !name.trim()}
+          style={[styles.primaryBtn, (!name.trim() || createGroup.isPending) && styles.disabled]}
+          onPress={() =>
+            createGroup.mutate(name.trim(), { onSuccess: () => setName("") })
+          }
+        >
+          <Text style={styles.primaryBtnText}>Create</Text>
+        </Pressable>
+      </View>
+
+      {isLoading && <ActivityIndicator testID="groups-loading" />}
+      {groups && groups.length === 0 && (
+        <Text style={styles.empty}>You have no groups yet. Create one to get started.</Text>
+      )}
+
+      {groups?.map((group) => (
+        <GroupCard key={group.id} group={group} onOpen={() => openGroup(group)} />
+      ))}
+    </ScrollView>
+  );
+}
+
+function GroupCard({ group, onOpen }: { group: GroupSummary; onOpen: () => void }) {
+  const leaveGroup = useLeaveGroup();
+  const activeScope = useScopeStore((s) => s.activeScope);
+  const setActiveScope = useScopeStore((s) => s.setActiveScope);
+
+  return (
+    <View style={styles.card} testID={`group-card-${group.name}`}>
+      <View style={styles.cardBody}>
+        <Text style={styles.cardTitle}>🏠 {group.name}</Text>
+        <Text style={styles.cardMeta}>
+          {group.member_count} members · {group.role}
+        </Text>
+      </View>
+      <View style={styles.cardActions}>
+        <Pressable
+          testID={`group-open-${group.name}`}
+          style={styles.smallBtn}
+          onPress={onOpen}
+        >
+          <Text style={styles.smallBtnText}>View dashboard</Text>
+        </Pressable>
+        <Pressable
+          style={styles.linkBtn}
+          onPress={() =>
+            leaveGroup.mutate(group.id, {
+              onSuccess: () => {
+                if (activeScope.kind === "group" && activeScope.id === group.id) {
+                  setActiveScope({ kind: "personal" });
+                }
+              },
+            })
+          }
+        >
+          <Text style={styles.linkBtnText}>Leave</Text>
+        </Pressable>
+      </View>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { padding: 16, gap: 12 },
+  title: { fontSize: 22, fontWeight: "700", color: "#111827" },
+  subtitle: { fontSize: 13, color: "#6b7280" },
+  scopeRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingVertical: 4,
+  },
+  scopeLabel: { fontSize: 14, fontWeight: "600", color: "#2563eb" },
+  createRow: { flexDirection: "row", gap: 8, alignItems: "center" },
+  input: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: "#d1d5db",
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    fontSize: 14,
+  },
+  primaryBtn: { backgroundColor: "#2563eb", borderRadius: 8, paddingHorizontal: 16, paddingVertical: 10 },
+  primaryBtnText: { color: "white", fontWeight: "600", fontSize: 14 },
+  disabled: { opacity: 0.5 },
+  empty: { fontSize: 13, color: "#6b7280", paddingVertical: 8 },
+  card: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    borderWidth: 1,
+    borderColor: "#e5e7eb",
+    borderRadius: 12,
+    padding: 14,
+  },
+  cardBody: { flex: 1 },
+  cardTitle: { fontSize: 15, fontWeight: "600", color: "#111827" },
+  cardMeta: { fontSize: 12, color: "#6b7280", marginTop: 2 },
+  cardActions: { flexDirection: "row", gap: 8, alignItems: "center" },
+  smallBtn: { backgroundColor: "#dbeafe", borderRadius: 8, paddingHorizontal: 10, paddingVertical: 8 },
+  smallBtnText: { color: "#2563eb", fontWeight: "600", fontSize: 12 },
+  linkBtn: { paddingHorizontal: 4, paddingVertical: 8 },
+  linkBtnText: { color: "#6b7280", fontSize: 12, fontWeight: "600" },
+});

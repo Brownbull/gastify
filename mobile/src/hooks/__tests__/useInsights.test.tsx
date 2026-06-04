@@ -3,6 +3,7 @@ import { renderHook, waitFor } from "@testing-library/react-native";
 import type { ReactNode } from "react";
 import { useMonthlyInsights, insightsKeys } from "../useInsights";
 import { useUpdateItemFlags, transactionKeys } from "../useTransactions";
+import { useScopeStore } from "../../stores/scopeStore";
 
 jest.mock("../../lib/insights", () => ({
   getMonthlyInsights: jest.fn(),
@@ -64,7 +65,19 @@ describe("useMonthlyInsights", () => {
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(result.current.data?.total_spend_minor).toBe(276_500);
-    expect(mockGetInsights).toHaveBeenCalledWith("2026-03", undefined);
+    expect(mockGetInsights).toHaveBeenCalledWith("2026-03", undefined, undefined);
+  });
+
+  it("scopes the query to the active group (D70 whole-app switch)", async () => {
+    useScopeStore.getState().setActiveScope({ kind: "group", id: "grp-1", name: "Casa" });
+    mockGetInsights.mockResolvedValue(monthly);
+    const { result } = renderHook(() => useMonthlyInsights("2026-03"), {
+      wrapper: Wrapper,
+    });
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expect(mockGetInsights).toHaveBeenCalledWith("2026-03", undefined, "grp-1");
+    useScopeStore.getState().reset();
   });
 });
 

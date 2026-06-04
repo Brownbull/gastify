@@ -13,6 +13,14 @@ jest.mock("../../hooks/useTransactions", () => ({
   useUpdateItemFlags: jest.fn(),
 }));
 
+// ShareToGroupButton (rendered by the detail screen) pulls in group hooks; stub
+// them so the screen test stays focused and needs no QueryClientProvider. With no
+// groups, the button renders null.
+jest.mock("../../hooks/useGroups", () => ({
+  useGroups: () => ({ data: [] }),
+  useShareTransaction: () => ({ mutate: jest.fn(), isPending: false, isSuccess: false }),
+}));
+
 jest.mock("../../hooks/useCategories", () => ({
   useItemCategories: jest.fn(),
   useStoreCategories: jest.fn(),

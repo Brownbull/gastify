@@ -24,9 +24,21 @@ import {
   type MonthlyInsights,
 } from "../lib/insights";
 import { formatMinorAmount } from "../lib/format";
+import { useScopeStore } from "../stores/scopeStore";
 import type { RootStackParamList } from "../types/navigation";
 
 type DashboardScreenProps = NativeStackScreenProps<RootStackParamList, "Dashboard">;
+
+/** Shows which scope the dashboard is reading (D70) — personal vs a named group. */
+function ScopeBanner() {
+  const activeScope = useScopeStore((s) => s.activeScope);
+  if (activeScope.kind !== "group") return null;
+  return (
+    <Text style={styles.scopeBanner} testID="dashboard-scope-banner">
+      🏠 Viewing group: {activeScope.name}
+    </Text>
+  );
+}
 
 export function DashboardScreen({ navigation }: Partial<DashboardScreenProps> = {}) {
   const [period, setPeriod] = useState(() => currentPeriod());
@@ -46,6 +58,7 @@ export function DashboardScreen({ navigation }: Partial<DashboardScreenProps> = 
           </Pressable>
         </View>
         <Text style={styles.title}>Dashboard</Text>
+        <ScopeBanner />
         <View style={styles.periodNav}>
           <Button title="‹ Prev" onPress={() => setPeriod((p) => shiftPeriod(p, -1))} />
           <Text style={styles.periodLabel} testID="dashboard-period">
@@ -441,6 +454,12 @@ const styles = StyleSheet.create({
     color: "#0f172a",
     fontSize: 24,
     fontWeight: "700",
+  },
+  scopeBanner: {
+    color: "#2563eb",
+    fontSize: 13,
+    fontWeight: "600",
+    marginTop: 4,
   },
   toggle: {
     borderColor: "#cbd5e1",

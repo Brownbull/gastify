@@ -5,6 +5,7 @@ export type RootStackParamList = {
   Transactions: undefined;
   Dashboard: undefined;
   Trends: undefined;
+  Groups: undefined;
   Settings: undefined;
   TransactionDetail: { transactionId: string };
   BatchCapture: undefined;

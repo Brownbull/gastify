@@ -1,0 +1,89 @@
+appId: com.gastify.mobile
+---
+# P5 Phase 5 GROUPS — whole-app scope switch on the S23 (D70/D71).
+# Proves the mobile group flow end to end against the deployed staging-e2e backend:
+# create a group -> open its dashboard (the global scope switches to the group) ->
+# the dashboard's scope banner confirms it is reading the GROUP scope -> switch back
+# to Personal. The server validates membership + swaps the RLS GUC per request
+# (D71); backend isolation (user A cannot read group B) is proven by the
+# Postgres-gated pytest suite — this is the user-facing S23 runtime proof.
+#
+# Requires: dev-client + the deployed staging-e2e backend serving /api/v1/groups.
+
+- waitForAnimationToEnd:
+    timeout: 10000
+- tapOn:
+    text: "Continue"
+    optional: true
+- tapOn:
+    text: "Got it"
+    optional: true
+- runFlow:
+    when:
+      visible:
+        id: e2e-sign-in-button
+    commands:
+      - tapOn:
+          id: e2e-sign-in-button
+- extendedWaitUntil:
+    visible:
+      id: home-screen
+    timeout: 60000
+
+# --- Open the Groups screen ---
+- scrollUntilVisible:
+    element:
+      id: open-groups-button
+- tapOn:
+    id: open-groups-button
+- extendedWaitUntil:
+    visible:
+      id: groups-screen
+    timeout: 20000
+
+# --- Create a group ---
+- tapOn:
+    id: create-group-input
+- inputText: "S23 Casa"
+- tapOn:
+    id: create-group-button
+- extendedWaitUntil:
+    visible:
+      id: "group-card-S23 Casa"
+    timeout: 20000
+
+# --- Switch the whole-app scope to the group (opens its dashboard) ---
+- tapOn:
+    id: "group-open-S23 Casa"
+- extendedWaitUntil:
+    visible:
+      id: dashboard-screen
+    timeout: 20000
+# The scope banner proves the dashboard is reading the GROUP scope, not personal.
+- extendedWaitUntil:
+    visible:
+      id: dashboard-scope-banner
+    timeout: 20000
+- assertVisible:
+    text: ".*Viewing group: S23 Casa.*"
+
+# --- Switch back to Personal: the banner disappears ---
+- back  # Dashboard -> Groups
+- extendedWaitUntil:
+    visible:
+      id: groups-screen
+    timeout: 20000
+- tapOn:
+    id: scope-personal-button
+- back  # Groups -> Home
+- scrollUntilVisible:
+    element:
+      id: open-dashboard-button
+- tapOn:
+    id: open-dashboard-button
+- extendedWaitUntil:
+    visible:
+      id: dashboard-screen
+    timeout: 20000
+- assertNotVisible:
+    id: dashboard-scope-banner
