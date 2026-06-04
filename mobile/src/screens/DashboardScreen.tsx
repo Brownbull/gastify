@@ -1,10 +1,20 @@
+import { useFocusEffect } from "@react-navigation/native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { useState } from "react";
-import { ActivityIndicator, Button, Pressable, StyleSheet, Text, View } from "react-native";
+import { useCallback, useRef, useState } from "react";
+import {
+  ActivityIndicator,
+  BackHandler,
+  Button,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import { ScreenShell } from "../components/ScreenShell";
 import { CategoryDonut } from "../components/charts/CategoryDonut";
-import { useMonthlyInsights } from "../hooks/useInsights";
-import { rollupToSlices } from "../lib/chartData";
+import { useDonutDrill } from "../hooks/useDonutDrill";
+import { useInsightsTree, useMonthlyInsights } from "../hooks/useInsights";
+import { treeNodesToSlices } from "../lib/chartData";
 import {
   currentPeriod,
   shiftPeriod,
@@ -60,13 +70,36 @@ export function DashboardScreen({ navigation }: Partial<DashboardScreenProps> = 
         </View>
       ) : null}
 
-      {!isLoading && !error && data ? <DashboardContent data={data} /> : null}
+      {!isLoading && !error && data ? <DashboardContent data={data} period={period} /> : null}
     </ScreenShell>
   );
 }
 
-function DashboardContent({ data }: { data: MonthlyInsights }) {
+function DashboardContent({ data, period }: { data: MonthlyInsights; period: string }) {
   const [dimension, setDimension] = useState<InsightDimension>("transaction_category");
+  const tree = useInsightsTree(period, dimension);
+  const drill = useDonutDrill(
+    tree.data?.roots ?? [],
+    tree.data?.total_spend_minor ?? 0,
+    `${period}:${dimension}`,
+  );
+
+  // Android hardware back pops the drill path before leaving the screen.
+  const drillRef = useRef(drill);
+  drillRef.current = drill;
+  useFocusEffect(
+    useCallback(() => {
+      const onBack = () => {
+        if (drillRef.current.path.length > 0) {
+          drillRef.current.back();
+          return true;
+        }
+        return false;
+      };
+      const sub = BackHandler.addEventListener("hardwareBackPress", onBack);
+      return () => sub.remove();
+    }, []),
+  );
 
   if (data.transaction_count === 0) {
     return (
@@ -78,11 +111,12 @@ function DashboardContent({ data }: { data: MonthlyInsights }) {
     );
   }
 
-  const rows =
-    dimension === "transaction_category"
-      ? (data.top_transaction_categories ?? [])
-      : (data.top_item_categories ?? []);
-  const slices = rollupToSlices(rows, data.total_spend_minor);
+  // The donut renders the current drill level: roots (L1 industries / L3
+  // families) by default, a tapped node's children after drilling. Percentages
+  // are within-parent so each level sums to 100%.
+  const slices = tree.data
+    ? treeNodesToSlices(drill.visibleNodes, drill.parentTotalMinor)
+    : [];
 
   return (
     <View>
@@ -95,7 +129,28 @@ function DashboardContent({ data }: { data: MonthlyInsights }) {
       <View style={styles.panel}>
         <Text style={styles.panelTitle}>Top categories</Text>
         <DimensionToggle dimension={dimension} onChange={setDimension} />
-        <CategoryDonut slices={slices} currency={data.currency} />
+        {drill.path.length > 0 ? (
+          <DrillBreadcrumb
+            trail={drill.path.map((node) => ({ key: node.key, label: node.label }))}
+            onCrumb={drill.jumpTo}
+            onBack={drill.back}
+          />
+        ) : null}
+        {tree.isLoading ? (
+          <View style={styles.centered} testID="dashboard-tree-loading">
+            <ActivityIndicator color="#2563eb" />
+          </View>
+        ) : slices.length === 0 ? (
+          <Text style={styles.mutedText} testID="dashboard-tree-empty">
+            No categories this month yet.
+          </Text>
+        ) : (
+          <CategoryDonut
+            slices={slices}
+            currency={tree.data?.currency ?? data.currency}
+            onSlicePress={(slice) => drill.drillInto(slice.categoryKey)}
+          />
+        )}
       </View>
 
       {(data.gravity_centers ?? []).length > 0 ? (
@@ -163,6 +218,44 @@ export function DimensionToggle({
   );
 }
 
+function DrillBreadcrumb({
+  trail,
+  onCrumb,
+  onBack,
+}: {
+  trail: { key: string; label: string }[];
+  onCrumb: (depth: number) => void;
+  onBack: () => void;
+}) {
+  return (
+    <View style={styles.breadcrumb} testID="drill-breadcrumb">
+      <Pressable
+        testID="drill-back"
+        accessibilityRole="button"
+        onPress={onBack}
+        style={styles.crumbBack}
+      >
+        <Text style={styles.linkText}>‹ Back</Text>
+      </Pressable>
+      <Pressable accessibilityRole="button" onPress={() => onCrumb(-1)}>
+        <Text style={styles.crumbText}>All</Text>
+      </Pressable>
+      {trail.map((crumb, index) => (
+        <View key={crumb.key} style={styles.crumbWrap}>
+          <Text style={styles.crumbSep}>›</Text>
+          <Pressable accessibilityRole="button" onPress={() => onCrumb(index)}>
+            <Text
+              style={[styles.crumbText, index === trail.length - 1 ? styles.crumbCurrent : null]}
+            >
+              {crumb.label}
+            </Text>
+          </Pressable>
+        </View>
+      ))}
+    </View>
+  );
+}
+
 function GravityRow({ center }: { center: InsightGravityCenter }) {
   const growing = center.direction === "growth";
   return (
@@ -195,6 +288,13 @@ function ExcludedRow({ item }: { item: InsightExcludedItem }) {
 }
 
 const styles = StyleSheet.create({
+  breadcrumb: {
+    alignItems: "center",
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 6,
+    marginBottom: 8,
+  },
   categoryAmount: {
     color: "#0f172a",
     fontVariant: ["tabular-nums"],
@@ -207,6 +307,26 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 8,
     paddingVertical: 32,
+  },
+  crumbBack: {
+    marginRight: 4,
+  },
+  crumbCurrent: {
+    color: "#0f172a",
+    fontWeight: "700",
+  },
+  crumbSep: {
+    color: "#94a3b8",
+    marginRight: 4,
+  },
+  crumbText: {
+    color: "#64748b",
+    fontSize: 13,
+    fontWeight: "600",
+  },
+  crumbWrap: {
+    alignItems: "center",
+    flexDirection: "row",
   },
   errorBody: {
     color: "#7f1d1d",

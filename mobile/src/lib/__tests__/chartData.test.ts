@@ -1,11 +1,12 @@
 import {
   rollupToSlices,
+  treeNodesToSlices,
   parsePercent,
   colorIndexForKey,
   OTHER_KEY,
   SERIES_PALETTE_SIZE,
 } from "../chartData";
-import type { InsightCategoryRollup } from "../insights";
+import type { InsightCategoryRollup, InsightsTreeNode } from "../insights";
 
 function rollup(overrides: Partial<InsightCategoryRollup>): InsightCategoryRollup {
   return {
@@ -70,5 +71,52 @@ describe("rollupToSlices", () => {
 
   it("returns nothing for a zero-spend month", () => {
     expect(rollupToSlices([], 0)).toHaveLength(0);
+  });
+});
+
+describe("treeNodesToSlices", () => {
+  function treeNode(over: Partial<InsightsTreeNode>): InsightsTreeNode {
+    return {
+      key: "FreshFood",
+      label: "Fresh Food",
+      parent_key: "Supermarket",
+      level: 3,
+      total_minor: 90_000,
+      currency: "CLP",
+      share_of_total_percent: "32.55",
+      transaction_count: 2,
+      item_count: 2,
+      excluded_total_minor: 0,
+      children: [],
+      ...over,
+    };
+  }
+
+  it("computes percentages within the parent, not the grand total", () => {
+    const slices = treeNodesToSlices(
+      [
+        treeNode({ key: "MeatSeafood", label: "Meat & Seafood", total_minor: 60_000 }),
+        treeNode({ key: "Produce", label: "Produce", total_minor: 30_000 }),
+      ],
+      90_000,
+    );
+    expect(slices[0].percent).toBeCloseTo(66.67);
+    expect(slices[1].percent).toBeCloseTo(33.33);
+  });
+
+  it("marks nodes drillable only when they have children, and Other never", () => {
+    const slices = treeNodesToSlices(
+      [
+        treeNode({ key: "FreshFood", children: [treeNode({ key: "Produce" })] }),
+        treeNode({ key: "Snacks", label: "Snacks", total_minor: 40_000, children: [] }),
+      ],
+      160_000,
+    );
+    expect(slices.find((s) => s.categoryKey === "FreshFood")?.drillable).toBe(true);
+    expect(slices.find((s) => s.categoryKey === "Snacks")?.drillable).toBe(false);
+    const other = slices.find((s) => s.categoryKey === OTHER_KEY);
+    expect(other?.isOther).toBe(true);
+    expect(other?.drillable).toBe(false);
+    expect(other?.valueMinor).toBe(30_000);
   });
 });

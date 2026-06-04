@@ -7,7 +7,7 @@
  * palette INDEX (0-5) so the chart components can map it to the active theme's
  * `chartN` hex — keeping a category's color stable across months.
  */
-import type { InsightCategoryRollup } from "./insights";
+import type { InsightCategoryRollup, InsightsTreeNode } from "./insights";
 
 export const SERIES_PALETTE_SIZE = 6;
 export const OTHER_KEY = "__other__";
@@ -22,6 +22,8 @@ export interface ChartSlice {
   /** 0-5 index into the theme chart palette; -1 for the "Other" slice. */
   colorIndex: number;
   isOther: boolean;
+  /** Whether tapping descends a level. `undefined` (flat rollups) = drillable when wired. */
+  drillable?: boolean;
 }
 
 export function parsePercent(value: string): number {
@@ -66,6 +68,48 @@ export function rollupToSlices(
       percent: (remainder / totalSpendMinor) * 100,
       colorIndex: -1,
       isOther: true,
+    });
+  }
+
+  return slices;
+}
+
+/**
+ * Map one drill level's tree nodes into donut slices (D69 — mirrors web). The
+ * `percent` is within-parent (`value / parentTotalMinor`), and the "Other"
+ * remainder is real spend that didn't reach this level's children (itemless
+ * transactions / uncategorized stores), non-drillable. `drillable` mirrors
+ * whether a node has children.
+ */
+export function treeNodesToSlices(
+  nodes: readonly InsightsTreeNode[],
+  parentTotalMinor: number,
+): ChartSlice[] {
+  const slices: ChartSlice[] = nodes.map((node) => ({
+    categoryKey: node.key,
+    label: node.label,
+    parentKey: node.parent_key ?? "",
+    parentLabel: "",
+    valueMinor: node.total_minor,
+    percent: parentTotalMinor > 0 ? (node.total_minor / parentTotalMinor) * 100 : 0,
+    colorIndex: colorIndexForKey(node.key),
+    isOther: false,
+    drillable: (node.children?.length ?? 0) > 0,
+  }));
+
+  const accounted = slices.reduce((sum, slice) => sum + slice.valueMinor, 0);
+  const remainder = parentTotalMinor - accounted;
+  if (parentTotalMinor > 0 && remainder > 0) {
+    slices.push({
+      categoryKey: OTHER_KEY,
+      label: "",
+      parentKey: "",
+      parentLabel: "",
+      valueMinor: remainder,
+      percent: (remainder / parentTotalMinor) * 100,
+      colorIndex: -1,
+      isOther: true,
+      drillable: false,
     });
   }
 

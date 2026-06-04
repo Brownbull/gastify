@@ -13,6 +13,8 @@ export type InsightDimension = "transaction_category" | "item_category";
 export type SeriesGranularity = "month" | "quarter" | "year";
 export type InsightsSeries = components["schemas"]["InsightsSeriesResponse"];
 export type InsightsSeriesPoint = components["schemas"]["InsightsSeriesPoint"];
+export type InsightsTree = components["schemas"]["InsightsTreeResponse"];
+export type InsightsTreeNode = components["schemas"]["InsightsTreeNode"];
 
 /** Current month in the `YYYY-MM` period format the insights API expects. */
 export function currentPeriod(now: Date = new Date()): string {
@@ -70,6 +72,28 @@ export async function getInsightsSeries(
 
   if (error || !data) {
     throw new Error(readApiError(error, "Failed to load spend trend"));
+  }
+
+  return data;
+}
+
+/**
+ * Full drill-down category tree for one period + dimension (D69). One fetch per
+ * (period, dimension); the client expands the nested tree in memory. The store
+ * dimension returns the 4-level Industry/Store-type/Item-family/Item cross-walk;
+ * the item dimension returns the 2-level Family/Item tree.
+ */
+export async function getInsightsTree(
+  period: string,
+  dimension: InsightDimension,
+  currency?: string,
+): Promise<InsightsTree> {
+  const { data, error } = await apiClient.GET("/api/v1/insights/tree", {
+    params: { query: { period, dimension, currency: currency || undefined } },
+  });
+
+  if (error || !data) {
+    throw new Error(readApiError(error, "Failed to load category tree"));
   }
 
   return data;

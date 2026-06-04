@@ -5,7 +5,7 @@
  * assertable rendered-data surface for the Maestro proof (Maestro reads Text
  * nodes, not SVG arcs).
  */
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, Pressable, StyleSheet } from "react-native";
 import { PieChart } from "react-native-gifted-charts";
 import { useTheme } from "../../providers/ThemeProvider";
 import { formatMinorAmount } from "../../lib/format";
@@ -14,9 +14,11 @@ import type { ChartSlice } from "../../lib/chartData";
 interface CategoryDonutProps {
   slices: ChartSlice[];
   currency: string;
+  /** Fires for drillable, non-"Other" slices — descends one tree level (D69). */
+  onSlicePress?: (slice: ChartSlice) => void;
 }
 
-export function CategoryDonut({ slices, currency }: CategoryDonutProps) {
+export function CategoryDonut({ slices, currency, onSlicePress }: CategoryDonutProps) {
   const { colors } = useTheme();
   const palette = [
     colors.chart1,
@@ -28,11 +30,16 @@ export function CategoryDonut({ slices, currency }: CategoryDonutProps) {
   ];
   const colorFor = (slice: ChartSlice) =>
     slice.isOther ? colors.textTertiary : palette[slice.colorIndex % palette.length];
+  const isInteractive = (slice: ChartSlice) =>
+    Boolean(onSlicePress) && !slice.isOther && slice.drillable !== false;
 
   const total = slices.reduce((sum, slice) => sum + slice.valueMinor, 0);
   const pieData = slices.map((slice) => ({
     value: slice.valueMinor,
     color: colorFor(slice),
+    onPress: () => {
+      if (isInteractive(slice)) onSlicePress?.(slice);
+    },
   }));
 
   return (
@@ -61,23 +68,33 @@ export function CategoryDonut({ slices, currency }: CategoryDonutProps) {
       </View>
 
       <View testID="donut-legend" style={styles.legend}>
-        {slices.map((slice) => (
-          <View key={slice.categoryKey} testID="donut-legend-item" style={styles.legendRow}>
-            <View style={[styles.swatch, { backgroundColor: colorFor(slice) }]} />
-            <Text
-              style={[styles.legendLabel, { color: colors.textPrimary }]}
-              numberOfLines={1}
+        {slices.map((slice) => {
+          const interactive = isInteractive(slice);
+          return (
+            <Pressable
+              key={slice.categoryKey}
+              testID="donut-legend-item"
+              accessibilityRole="button"
+              disabled={!interactive}
+              onPress={() => interactive && onSlicePress?.(slice)}
+              style={styles.legendRow}
             >
-              {slice.isOther ? "Other" : slice.label}
-            </Text>
-            <Text style={[styles.legendAmount, { color: colors.textPrimary }]}>
-              {formatMinorAmount(slice.valueMinor, currency)}
-            </Text>
-            <Text style={[styles.legendPct, { color: colors.textTertiary }]}>
-              {slice.percent.toFixed(1)}%
-            </Text>
-          </View>
-        ))}
+              <View style={[styles.swatch, { backgroundColor: colorFor(slice) }]} />
+              <Text
+                style={[styles.legendLabel, { color: colors.textPrimary }]}
+                numberOfLines={1}
+              >
+                {slice.isOther ? "Other" : slice.label}
+              </Text>
+              <Text style={[styles.legendAmount, { color: colors.textPrimary }]}>
+                {formatMinorAmount(slice.valueMinor, currency)}
+              </Text>
+              <Text style={[styles.legendPct, { color: colors.textTertiary }]}>
+                {slice.percent.toFixed(1)}%
+              </Text>
+            </Pressable>
+          );
+        })}
       </View>
     </View>
   );

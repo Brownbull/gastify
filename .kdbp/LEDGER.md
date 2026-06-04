@@ -3445,3 +3445,37 @@ B2 WEB GATE: SATISFIED. Mobile drill UI + S23 Maestro proof DEFERRED per user di
 ## 2026-06-03 — [e47beb2] test(insights): B2 web proof for /insights/tree 4-level drill-down on staging-e2e
 FINDINGS: 0 (test/docs/proof diff — no app source changed; lint/types/tests N/A). ACTIONS: none.
 DEFERRED: P50 (mobile drill+S23), P51 (statement e2e Phase 5), P52 (Dockerfile from pyproject not uv.lock). PLAN: Phase 4 Exec ✅ (web B2-proven; mobile deferred).
+- 2026-06-03 21:28 | Edit | /home/khujta/projects/apps/gastify/mobile/src/lib/insights.ts
+- 2026-06-03 21:28 | Edit | /home/khujta/projects/apps/gastify/mobile/src/lib/insights.ts
+- 2026-06-03 21:28 | Edit | /home/khujta/projects/apps/gastify/mobile/src/hooks/insightsKeys.ts
+- 2026-06-03 21:28 | Edit | /home/khujta/projects/apps/gastify/mobile/src/hooks/useInsights.ts
+- 2026-06-03 21:28 | Edit | /home/khujta/projects/apps/gastify/mobile/src/hooks/useInsights.ts
+- 2026-06-03 21:28 | Edit | /home/khujta/projects/apps/gastify/mobile/src/lib/chartData.ts
+- 2026-06-03 21:29 | Edit | /home/khujta/projects/apps/gastify/mobile/src/lib/chartData.ts
+- 2026-06-03 21:29 | Write | /home/khujta/projects/apps/gastify/mobile/src/hooks/useDonutDrill.ts
+- 2026-06-03 21:29 | Edit | /home/khujta/projects/apps/gastify/mobile/src/components/charts/CategoryDonut.tsx
+- 2026-06-03 21:29 | Edit | /home/khujta/projects/apps/gastify/mobile/src/components/charts/CategoryDonut.tsx
+- 2026-06-03 21:30 | Edit | /home/khujta/projects/apps/gastify/mobile/src/screens/DashboardScreen.tsx
+- 2026-06-03 21:30 | Edit | /home/khujta/projects/apps/gastify/mobile/src/screens/DashboardScreen.tsx
+- 2026-06-03 21:31 | Edit | /home/khujta/projects/apps/gastify/mobile/src/screens/DashboardScreen.tsx
+- 2026-06-03 21:31 | Edit | /home/khujta/projects/apps/gastify/mobile/src/screens/DashboardScreen.tsx
+- 2026-06-03 21:31 | Edit | /home/khujta/projects/apps/gastify/mobile/src/screens/DashboardScreen.tsx
+- 2026-06-03 21:31 | Edit | /home/khujta/projects/apps/gastify/mobile/src/screens/DashboardScreen.tsx
+- 2026-06-03 21:39 | Write | /home/khujta/projects/apps/gastify/tests/mobile/maestro/p10-dashboard-drill-active.yaml
+
+## 2026-06-04 — B2 RUNTIME PROOF (mobile/S23): Phase 4 v2 /insights/tree drill-down on deployed staging-e2e
+DEVICE: Samsung S23 (192.168.1.83:5555, wireless ADB via WSL native-linux platform-tools). dev-client com.gastify.mobile = the existing v1 EAS build — NO rebuild (drill is JS-only over v1's react-native-svg/gifted-charts native modules). Metro: `adb reverse tcp:8081` + `expo start --dev-client` (CI mode), bundle loaded (1442 modules). App signed in as gastify-mobile-e2e@gastify-staging.test, EXPO_PUBLIC_API_BASE_URL=https://gastify-api-staging-e2e-staging-e2e.up.railway.app (the deployed backend serving /insights/tree).
+PROOF: Maestro tests/mobile/maestro/p10-dashboard-drill-active.yaml — [Passed] 58s. Strong distinct-label asserts (deep labels only exist after drilling); exact-match regex disambiguates the L2 store-type from the breadcrumb crumb.
+OUTCOMES (real deployed data, 2026-03, total $2,315.00, VISUALLY CONFIRMED across 5 device screenshots):
+  L1 industries: Supermarkets $1,800 (77.8%) · Transport and Vehicle $240 · Services and Finance $180 · Specialty Stores $95.
+  L1→L2 (tap Supermarkets): breadcrumb "All › Supermarkets", store-type level.
+  L2→L3 CROSS-WALK (tap Supermarket): breadcrumb "All › Supermarkets › Supermarket", Fresh Food $900 (50%) + Packaged Food $900 (50%).
+  L3→L4 (tap Fresh Food): breadcrumb "… › Supermarket › Fresh Food", Meat and Seafood $600 (66.7%) + Produce $300 (33.3%).
+  roll-up (tap All): back to $2,315 industries. Matches the web proof exactly. Android hardware-back also pops the drill path (useFocusEffect + BackHandler).
+ARTIFACTS (gitignored per policy): tests/mobile/results/.../p10-dashboard-drill-active/screenshots/{01..05}.png. Inspected per the B2 weak-assertion guard.
+CODE: mobile drill mirrors web — useInsightsTree + useDonutDrill + treeNodesToSlices + CategoryDonut onSlicePress (gifted-charts per-slice onPress + Pressable legend) + DrillBreadcrumb + Android BackHandler. tsc clean, 170 jest pass.
+B2 MOBILE GATE: SATISFIED. Phase 4 v2 fully proven on BOTH platforms. Closes P50.
+- 2026-06-03 21:50 | Write | /tmp/gastify-mobile-commit.txt
+
+## 2026-06-04 — [27d115f] feat(mobile): recursive donut drill-down + S23 B2 proof (Phase 4 v2)
+FINDINGS: 0 (mobile tsc clean, 170 jest pass; no backend/web change). ACTIONS: none. CLOSES: P50. PLAN: Phase 4 v2 proven both platforms (Exec ✅ Commit ✅).

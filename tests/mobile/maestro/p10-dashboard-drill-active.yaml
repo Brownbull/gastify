@@ -1,0 +1,112 @@
+appId: com.gastify.mobile
+---
+# P10 Dashboard DRILL-DOWN — 4-level cross-walk on the S23 (D69).
+# The deployed staging-e2e P6 fixtures land in 2026-03 (USD). The donut opens at
+# the L1 industry level; drill Industry -> Store-type -> Item-family -> Item and
+# roll up via the breadcrumb, asserting REAL labels at each level. The deep
+# labels (Fresh Food / Meat and Seafood) only exist after drilling, so they are
+# strong proof of the cross-walk — not weak element-presence checks.
+#
+# Requires: dev-client with react-native-svg (gifted-charts) + the deployed
+# staging-e2e backend serving GET /insights/tree.
+
+- waitForAnimationToEnd:
+    timeout: 10000
+- tapOn:
+    text: "Continue"
+    optional: true
+- tapOn:
+    text: "Got it"
+    optional: true
+- runFlow:
+    when:
+      visible:
+        id: e2e-sign-in-button
+    commands:
+      - tapOn:
+          id: e2e-sign-in-button
+- waitForAnimationToEnd:
+    timeout: 10000
+- runFlow:
+    when:
+      visible:
+        id: e2e-sign-in-button
+    commands:
+      - tapOn:
+          id: e2e-sign-in-button
+- extendedWaitUntil:
+    visible:
+      id: home-screen
+    timeout: 60000
+
+# --- Open the dashboard ---
+- scrollUntilVisible:
+    element:
+      id: open-dashboard-button
+    direction: DOWN
+    timeout: 15000
+- tapOn:
+    id: open-dashboard-button
+- extendedWaitUntil:
+    visible:
+      id: dashboard-screen
+    timeout: 20000
+
+# --- Step back to the seeded month (current month is empty) ---
+- repeat:
+    times: 3
+    commands:
+      - tapOn:
+          text: "‹ Prev"
+      - waitForAnimationToEnd:
+          timeout: 1500
+- extendedWaitUntil:
+    visible:
+      id: donut-legend
+    timeout: 45000
+- assertVisible:
+    id: donut-total
+
+# --- L1: industry level (deployed data: Supermarkets dominates) ---
+- assertVisible: "Supermarkets"
+- takeScreenshot:
+    path: 01-L1-industries
+
+# --- L1 -> L2: drill into the Supermarkets industry ---
+- tapOn: "Supermarkets"
+- extendedWaitUntil:
+    visible:
+      id: drill-breadcrumb
+    timeout: 20000
+- takeScreenshot:
+    path: 02-L2-storetype
+
+# --- L2 -> L3 cross-walk: item families bought at supermarkets ---
+# Exact match so it taps the L2 store-type legend item, not the "Supermarkets"
+# breadcrumb crumb.
+- tapOn:
+    text: "^Supermarket$"
+- extendedWaitUntil:
+    visible: "Fresh Food"
+    timeout: 20000
+- assertVisible: "Packaged Food"
+- takeScreenshot:
+    path: 03-L3-families
+
+# --- L3 -> L4: items within the Fresh Food family ---
+- tapOn: "Fresh Food"
+- extendedWaitUntil:
+    visible: "Meat and Seafood"
+    timeout: 20000
+- assertVisible: "Produce"
+- takeScreenshot:
+    path: 04-L4-items
+
+# --- Roll up to the root via the breadcrumb "All" ---
+- tapOn:
+    text: "^All$"
+- extendedWaitUntil:
+    visible: "Supermarkets"
+    timeout: 20000
+- takeScreenshot:
+    path: 05-rolled-up
