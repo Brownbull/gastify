@@ -687,6 +687,29 @@ export interface paths {
         patch: operations["rename_group_api_v1_groups__group_id__patch"];
         trace?: never;
     };
+    "/api/v1/groups/{group_id}/icon": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Set Group Icon
+         * @description Owner/admin sets the group avatar — emoji icon + accent color (D75).
+         *
+         *     The change propagates to every member because the avatar lives on the shared
+         *     ownership_scopes row (all members read the same group on GET /groups + detail).
+         */
+        patch: operations["set_group_icon_api_v1_groups__group_id__icon_patch"];
+        trace?: never;
+    };
     "/api/v1/groups/{group_id}/visibility": {
         parameters: {
             query?: never;
@@ -1116,6 +1139,24 @@ export interface components {
              * @default false
              */
             viewer_shares_detail: boolean;
+            /** Icon */
+            icon?: string | null;
+            /** Color */
+            color?: string | null;
+        };
+        /**
+         * GroupIconUpdate
+         * @description Set the group avatar (D75): emoji icon + accent color. Owner/admin only.
+         *
+         *     Both fields are optional and independent; an explicit null clears that field
+         *     back to the client default, and clearing both (icon=null, color=null) is valid.
+         *     Color is a #RGB / #RRGGBB hex string.
+         */
+        GroupIconUpdate: {
+            /** Icon */
+            icon?: string | null;
+            /** Color */
+            color?: string | null;
         };
         /** GroupRename */
         GroupRename: {
@@ -1141,6 +1182,10 @@ export interface components {
             role: "owner" | "admin" | "member";
             /** Member Count */
             member_count: number;
+            /** Icon */
+            icon?: string | null;
+            /** Color */
+            color?: string | null;
         };
         /**
          * GroupTransactionRow
@@ -2505,6 +2550,11 @@ export interface components {
             /** Thumbnail Gen Ms */
             thumbnail_gen_ms?: number | null;
             /**
+             * Is Shared
+             * @default false
+             */
+            is_shared: boolean;
+            /**
              * Items
              * @default []
              */
@@ -2742,6 +2792,11 @@ export interface components {
              * @default 0
              */
             item_count: number;
+            /**
+             * Is Shared
+             * @default false
+             */
+            is_shared: boolean;
             /**
              * Created At
              * Format: date-time
@@ -4282,6 +4337,41 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["GroupSummary"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    set_group_icon_api_v1_groups__group_id__icon_patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                group_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GroupIconUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GroupDetail"];
                 };
             };
             /** @description Validation Error */

@@ -1,0 +1,108 @@
+appId: com.gastify.mobile
+---
+# D75 group avatar on the S23 — the device runtime proof that the avatar picker
+# renders and is settable on a real device. Owner A creates a group, opens its
+# detail, picks an emoji + accent color, saves, and sees the avatar render. The
+# cross-user PROPAGATION (member B sees A's exact emoji) is proven on web Playwright
+# (groups-hardening.spec.ts); the lock-on-share render is proven on web + mobile
+# jest + backend pytest. This flow is the on-device D75 render proof.
+#
+# Requires: dev-client + deployed staging-e2e backend serving PATCH /groups/{id}/icon.
+# The 5-group cap means the runner should clear A's groups first (setup-multiuser-
+# group.sh does this); a fresh "S23 Avatar" group is created each run.
+
+- waitForAnimationToEnd:
+    timeout: 12000
+- tapOn:
+    text: "Continue"
+    optional: true
+- tapOn:
+    text: "Got it"
+    optional: true
+
+# A prior run may have left a session signed in (possibly as user B). Sign out so we
+# reach a clean sign-in screen and authenticate as user A (the owner).
+- runFlow:
+    when:
+      visible:
+        id: home-screen
+    commands:
+      - scrollUntilVisible:
+          element:
+            id: sign-out-button
+      - tapOn:
+          id: sign-out-button
+      - extendedWaitUntil:
+          visible:
+            id: sign-in-screen
+          timeout: 20000
+- extendedWaitUntil:
+    visible:
+      id: e2e-sign-in-button
+    timeout: 30000
+- tapOn:
+    id: e2e-sign-in-button
+- extendedWaitUntil:
+    visible:
+      id: home-screen
+    timeout: 60000
+
+# --- Open Groups + create a fresh group ---
+- scrollUntilVisible:
+    element:
+      id: open-groups-button
+- tapOn:
+    id: open-groups-button
+- extendedWaitUntil:
+    visible:
+      id: groups-screen
+    timeout: 20000
+- tapOn:
+    id: create-group-input
+- inputText: "S23 Avatar"
+# Submit via the IME "done" key — Maestro's injected touch does not reliably fire
+# this Pressable's onPress under RN New Architecture (see p5-phase5-groups notes).
+- pressKey: Enter
+- extendedWaitUntil:
+    visible:
+      id: "group-card-S23 Avatar"
+    timeout: 20000
+
+# --- Open the group detail + set its avatar (emoji + color) ---
+- tapOn:
+    id: "group-manage-S23 Avatar"
+- extendedWaitUntil:
+    visible:
+      id: group-detail-screen
+    timeout: 20000
+- scrollUntilVisible:
+    element:
+      id: group-avatar-section
+- tapOn:
+    id: "group-icon-choice-🛒"
+- tapOn:
+    id: "group-color-choice-#10b981"
+- takeScreenshot:
+    path: 01-avatar-picked
+- tapOn:
+    id: group-avatar-save
+- waitForAnimationToEnd:
+    timeout: 5000
+# The avatar disc renders (no save error); capture the on-device artifact.
+- assertVisible:
+    id: group-avatar
+- takeScreenshot:
+    path: 02-avatar-saved
+
+# --- Persistence: go back to the list; the card shows the saved avatar ---
+- back
+- extendedWaitUntil:
+    visible:
+      id: groups-screen
+    timeout: 20000
+- assertVisible:
+    id: "group-card-S23 Avatar"
+- assertVisible:
+    id: group-avatar
+- takeScreenshot:
+    path: 03-avatar-on-card

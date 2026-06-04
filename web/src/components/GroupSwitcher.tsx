@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
+import { GroupAvatar } from "@/components/GroupAvatar";
 import { useGroups } from "@/hooks/useGroups";
 import { useI18n } from "@/hooks/useI18n";
 import { useUiStore } from "@/stores/uiStore";
@@ -36,6 +37,8 @@ export function GroupSwitcher() {
     return () => document.removeEventListener("mousedown", onClick);
   }, [open]);
 
+  const activeGroup =
+    activeScope.kind === "group" ? groups?.find((g) => g.id === activeScope.id) : undefined;
   const label =
     activeScope.kind === "group" ? activeScope.name : t("group.personal");
 
@@ -52,7 +55,11 @@ export function GroupSwitcher() {
         style={{ borderColor: "var(--border)", color: "var(--text-secondary)" }}
       >
         <span className="flex min-w-0 items-center gap-2">
-          <span aria-hidden>{activeScope.kind === "group" ? "🏠" : "👤"}</span>
+          {activeScope.kind === "group" ? (
+            <GroupAvatar icon={activeGroup?.icon} color={activeGroup?.color} size={20} />
+          ) : (
+            <span aria-hidden>👤</span>
+          )}
           <span className="truncate font-medium">{label}</span>
         </span>
         <span aria-hidden style={{ color: "var(--text-muted)" }}>
@@ -87,7 +94,7 @@ export function GroupSwitcher() {
             <ScopeOption
               key={group.id}
               label={group.name}
-              icon="🏠"
+              icon={<GroupAvatar icon={group.icon} color={group.color} size={20} />}
               meta={`${group.member_count} ${t("group.members")}`}
               selected={activeScope.kind === "group" && activeScope.id === group.id}
               onSelect={() => {
@@ -112,7 +119,7 @@ export function GroupSwitcher() {
 
 interface ScopeOptionProps {
   label: string;
-  icon: string;
+  icon: ReactNode;
   meta?: string;
   selected: boolean;
   onSelect: () => void;

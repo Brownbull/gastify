@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
+import { GroupAvatar } from "./GroupAvatar";
 import { useGroups } from "../hooks/useGroups";
 import { useScopeStore } from "../stores/scopeStore";
 
@@ -55,14 +56,15 @@ export function ScopeSwitcher() {
               <Pressable
                 key={group.id}
                 testID={`scope-option-${group.name}`}
-                style={styles.option}
+                style={[styles.option, styles.optionRow]}
                 onPress={() => {
                   setActiveScope({ kind: "group", id: group.id, name: group.name });
                   setOpen(false);
                 }}
               >
+                <GroupAvatar icon={group.icon} color={group.color} size={20} />
                 <Text style={[styles.optionText, active && styles.optionActive]}>
-                  🏠 {group.name}
+                  {group.name}
                 </Text>
               </Pressable>
             );
@@ -97,6 +99,7 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
   option: { paddingHorizontal: 12, paddingVertical: 10, borderTopWidth: 1, borderTopColor: "#f1f5f9" },
+  optionRow: { flexDirection: "row", alignItems: "center", gap: 8 },
   optionText: { color: "#334155", fontSize: 14 },
   optionActive: { color: "#2563eb", fontWeight: "700" },
 });

@@ -125,4 +125,14 @@ describe("GroupsScreen", () => {
 
     expect(navigate).toHaveBeenCalledWith("GroupDetail", { groupId: "g1" });
   });
+
+  it("renders the group's avatar on its card (D75)", () => {
+    setList({
+      data: [{ id: "g1", name: "Casa", role: "owner", member_count: 1, icon: "🛒", color: "#0ea5e9" }],
+    });
+    render(<GroupsScreen />);
+
+    expect(screen.getByTestId("group-avatar")).toBeTruthy();
+    expect(screen.getByText("🛒")).toBeTruthy();
+  });
 });

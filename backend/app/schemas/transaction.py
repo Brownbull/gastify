@@ -177,6 +177,8 @@ class TransactionListItem(BaseModel):
     recurrence_confidence: Decimal | None = None
     recurrence_user_edited_at: datetime | None = None
     item_count: int = 0
+    # D74: True once shared into a group → renders a lock badge in the list.
+    is_shared: bool = False
     created_at: datetime
     updated_at: datetime
 
@@ -225,6 +227,8 @@ class TransactionDetail(BaseModel):
     llm_latency_ms: int | None = None
     queue_wait_ms: int | None = None
     thumbnail_gen_ms: int | None = None
+    # D74: True once shared into a group → content fields are locked client-side.
+    is_shared: bool = False
     items: list[TransactionItemResponse] = []
     images: list[TransactionImageResponse] = []
     created_at: datetime

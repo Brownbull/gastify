@@ -11,6 +11,10 @@ jest.mock("../../hooks/useInsights", () => ({
   useInsightsTree: jest.fn(),
 }));
 
+// The Dashboard renders ScopeBanner, which reads the groups list (D75) to show the
+// active group's avatar. Stub it so the screen needs no QueryClientProvider.
+jest.mock("../../hooks/useGroups", () => ({ useGroups: () => ({ data: [] }) }));
+
 // The real ThemeProvider renders null until an async SecureStore read resolves;
 // stub it to render children synchronously with a fixed palette so sync queries
 // see the rendered legend.

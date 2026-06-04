@@ -108,6 +108,7 @@ const transaction = {
   llm_latency_ms: null,
   queue_wait_ms: null,
   thumbnail_gen_ms: null,
+  is_shared: false,
   items: [
     {
       id: "item-1",
@@ -225,5 +226,73 @@ describe("TransactionDetailScreen", () => {
     fireEvent.press(screen.getByText("Dismiss"));
 
     expect(reset).toHaveBeenCalled();
+  });
+
+  it("does not lock content when the transaction is not shared (D74)", () => {
+    const screen = render(
+      <TransactionDetailScreen
+        route={{ params: { transactionId: "txn-1" } } as never}
+      />,
+    );
+
+    expect(screen.queryByTestId("shared-lock-banner")).toBeNull();
+    expect(screen.queryByTestId("shared-lock-badge")).toBeNull();
+    // Editors remain interactive.
+    expect(screen.getByText("Save merchant")).toBeTruthy();
+  });
+
+  it("locks content and shows the lock banner + badge when shared (D74)", () => {
+    jest.mocked(useTransaction).mockReturnValue({
+      data: { ...transaction, is_shared: true },
+      error: null,
+      isLoading: false,
+      refetch: jest.fn(),
+    } as never);
+
+    const screen = render(
+      <TransactionDetailScreen
+        route={{ params: { transactionId: "txn-1" } } as never}
+      />,
+    );
+
+    expect(screen.getByTestId("shared-lock-banner")).toBeTruthy();
+    expect(screen.getByTestId("shared-lock-badge")).toBeTruthy();
+    expect(
+      screen.getByText(/its contents are locked/),
+    ).toBeTruthy();
+
+    // Content editors collapse to read-only — the Save buttons disappear.
+    expect(screen.queryByText("Save merchant")).toBeNull();
+    expect(screen.queryByText("Save date")).toBeNull();
+    expect(screen.queryByTestId("transaction-item-0-save-button")).toBeNull();
+    // Read-only merchant text still shows the value.
+    expect(screen.getByTestId("transaction-edit-merchant")).toBeTruthy();
+  });
+
+  it("keeps per-item flag chips editable while content is locked (D74)", () => {
+    const flagMutate = jest.fn();
+    jest.mocked(useUpdateItemFlags).mockReturnValue({
+      error: null,
+      isPending: false,
+      mutate: flagMutate,
+      reset: jest.fn(),
+    } as never);
+    jest.mocked(useTransaction).mockReturnValue({
+      data: { ...transaction, is_shared: true },
+      error: null,
+      isLoading: false,
+      refetch: jest.fn(),
+    } as never);
+
+    const screen = render(
+      <TransactionDetailScreen
+        route={{ params: { transactionId: "txn-1" } } as never}
+      />,
+    );
+
+    // The ItemFlagChips control stays rendered (and its toggles fire the flags
+    // endpoint, which never touches locked receipt content).
+    fireEvent.press(screen.getByTestId("item-flag-item-1-urgency"));
+    expect(flagMutate).toHaveBeenCalledWith({ itemId: "item-1", flags: ["urgency"] });
   });
 });

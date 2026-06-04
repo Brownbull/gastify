@@ -14,9 +14,15 @@ import {
   useGroupTransactions,
   useRemoveMember,
   useSetGroupConsent,
+  useSetGroupIcon,
   useSetGroupVisibility,
   useUpdateMemberRole,
 } from "../hooks/useGroups";
+import {
+  GROUP_COLOR_CHOICES,
+  GROUP_ICON_CHOICES,
+  GroupAvatar,
+} from "../components/GroupAvatar";
 import type { GroupDetail, MemberSummary } from "../lib/groups";
 import { formatMinorAmount } from "../lib/format";
 import type { RootStackParamList } from "../types/navigation";
@@ -68,8 +74,12 @@ function GroupDetailContent({ detail, groupId }: { detail: GroupDetail; groupId:
 
   return (
     <View style={styles.body}>
-      <Text style={styles.title}>{detail.name}</Text>
+      <View style={styles.titleRow}>
+        <GroupAvatar icon={detail.icon} color={detail.color} size={40} />
+        <Text style={styles.title}>{detail.name}</Text>
+      </View>
 
+      {canManage ? <AvatarSection detail={detail} groupId={groupId} /> : null}
       <MemberRoster detail={detail} groupId={groupId} />
       {canManage ? <InviteSection groupId={groupId} /> : null}
       {canManage ? <VisibilitySection detail={detail} groupId={groupId} /> : null}
@@ -77,6 +87,79 @@ function GroupDetailContent({ detail, groupId }: { detail: GroupDetail; groupId:
         <ConsentControl detail={detail} groupId={groupId} />
       ) : null}
       <GroupTransactionsSection groupId={groupId} />
+    </View>
+  );
+}
+
+// D75: owner/admin sets the group avatar (emoji icon + accent color). The change
+// propagates to every member because the avatar lives on the shared group row.
+function AvatarSection({ detail, groupId }: { detail: GroupDetail; groupId: string }) {
+  const setIcon = useSetGroupIcon(groupId);
+  const [icon, setIcon_] = useState<string | null>(detail.icon ?? null);
+  const [color, setColor] = useState<string | null>(detail.color ?? null);
+  const dirty = icon !== (detail.icon ?? null) || color !== (detail.color ?? null);
+
+  return (
+    <View style={styles.panel} testID="group-avatar-section">
+      <View style={styles.avatarHeader}>
+        <GroupAvatar icon={icon} color={color} size={40} />
+        <Text style={styles.panelTitle}>Group avatar</Text>
+      </View>
+
+      <View style={styles.iconGrid}>
+        {GROUP_ICON_CHOICES.map((choice) => {
+          const active = icon === choice;
+          return (
+            <Pressable
+              key={choice}
+              testID={`group-icon-choice-${choice}`}
+              accessibilityRole="button"
+              accessibilityState={{ selected: active }}
+              style={[styles.iconChoice, active && styles.iconChoiceActive]}
+              onPress={() => setIcon_(choice)}
+            >
+              <Text style={styles.iconChoiceText}>{choice}</Text>
+            </Pressable>
+          );
+        })}
+      </View>
+
+      <View style={styles.colorGrid}>
+        {GROUP_COLOR_CHOICES.map((choice) => {
+          const active = color === choice;
+          return (
+            <Pressable
+              key={choice}
+              testID={`group-color-choice-${choice}`}
+              accessibilityRole="button"
+              accessibilityLabel={choice}
+              accessibilityState={{ selected: active }}
+              style={[
+                styles.colorChoice,
+                { backgroundColor: choice },
+                active && styles.colorChoiceActive,
+              ]}
+              onPress={() => setColor(choice)}
+            />
+          );
+        })}
+      </View>
+
+      <Pressable
+        testID="group-avatar-save"
+        disabled={!dirty || setIcon.isPending}
+        style={[styles.primaryBtn, (!dirty || setIcon.isPending) && styles.disabled]}
+        onPress={() => setIcon.mutate({ icon, color })}
+      >
+        <Text style={styles.primaryBtnText}>
+          {setIcon.isPending ? "Saving…" : "Save avatar"}
+        </Text>
+      </Pressable>
+      {setIcon.isError ? (
+        <Text style={styles.error} testID="group-avatar-error">
+          Could not update the group avatar. Please try again.
+        </Text>
+      ) : null}
     </View>
   );
 }
@@ -316,8 +399,18 @@ function GroupTransactionsSection({ groupId }: { groupId: string }) {
 }
 
 const styles = StyleSheet.create({
+  avatarHeader: { alignItems: "center", flexDirection: "row", gap: 12 },
   body: { gap: 12 },
   centered: { alignItems: "center", gap: 8, paddingVertical: 24 },
+  colorChoice: {
+    borderColor: "#e2e8f0",
+    borderRadius: 14,
+    borderWidth: 1,
+    height: 28,
+    width: 28,
+  },
+  colorChoiceActive: { borderColor: "#0f172a", borderWidth: 3 },
+  colorGrid: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
   container: { gap: 12, padding: 16 },
   dangerText: { color: "#b91c1c", fontSize: 12, fontWeight: "600" },
   disabled: { opacity: 0.5 },
@@ -333,6 +426,16 @@ const styles = StyleSheet.create({
   },
   errorTitle: { color: "#b91c1c", fontWeight: "700" },
   headerTop: { flexDirection: "row", justifyContent: "space-between" },
+  iconChoice: {
+    borderColor: "#cbd5e1",
+    borderRadius: 8,
+    borderWidth: 1,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+  },
+  iconChoiceActive: { backgroundColor: "#dbeafe", borderColor: "#2563eb" },
+  iconChoiceText: { fontSize: 20 },
+  iconGrid: { flexDirection: "row", flexWrap: "wrap", gap: 6 },
   inviteBox: { gap: 4, marginTop: 8 },
   inviteToken: {
     color: "#0f172a",
@@ -380,7 +483,8 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
   },
   smallBtnText: { color: "#2563eb", fontSize: 12, fontWeight: "600" },
-  title: { color: "#0f172a", fontSize: 24, fontWeight: "700" },
+  title: { color: "#0f172a", flexShrink: 1, fontSize: 24, fontWeight: "700" },
+  titleRow: { alignItems: "center", flexDirection: "row", gap: 12 },
   toggle: {
     alignSelf: "flex-start",
     borderColor: "#cbd5e1",

@@ -67,25 +67,52 @@ function TransactionDetailPage() {
 
   if (!txn) return null;
 
+  // D74: once shared into a group, the receipt's CONTENT is locked (the group keeps
+  // a snapshot). Item flags, card pairing and recurrence stay editable elsewhere.
+  const locked = txn.is_shared;
+
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
         <BackLink />
         <div>
-          <EditableText
-            value={txn.merchant}
-            onSave={(v) => mutation.mutate({ merchant: v })}
-            className="text-2xl font-semibold"
-            editedAt={txn.merchant_user_edited_at}
-          />
+          <div className="flex items-center gap-2">
+            <EditableText
+              value={txn.merchant}
+              onSave={(v) => mutation.mutate({ merchant: v })}
+              className="text-2xl font-semibold"
+              editedAt={txn.merchant_user_edited_at}
+              locked={locked}
+            />
+            {locked && <SharedLockBadge />}
+          </div>
           <EditableDate
             value={txn.transaction_date}
             onSave={(v) => mutation.mutate({ transaction_date: v })}
+            locked={locked}
           />
         </div>
       </div>
 
       <ShareToGroupButton transactionId={transactionId} />
+
+      {locked && (
+        <div
+          data-testid="shared-lock-banner"
+          className="flex items-start gap-2 rounded-lg border px-4 py-3 text-sm"
+          style={{
+            borderColor: "var(--primary)",
+            backgroundColor: "var(--primary-light)",
+            color: "var(--primary)",
+          }}
+        >
+          <span aria-hidden>🔒</span>
+          <span>
+            This transaction is shared to a group, so its contents are locked. You can
+            still flag items, pair a card, or mark it recurrent.
+          </span>
+        </div>
+      )}
 
       {mutation.error && (
         <div
@@ -110,7 +137,11 @@ function TransactionDetailPage() {
         </div>
       )}
 
-      <SummaryCard txn={txn} onCategoryChange={(id) => mutation.mutate({ store_category_id: id })} />
+      <SummaryCard
+        txn={txn}
+        locked={locked}
+        onCategoryChange={(id) => mutation.mutate({ store_category_id: id })}
+      />
 
       {flagMutation.error && (
         <div
@@ -162,11 +193,26 @@ function BackLink() {
   );
 }
 
+function SharedLockBadge() {
+  return (
+    <span
+      data-testid="shared-lock-badge"
+      className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium"
+      style={{ color: "var(--primary)", backgroundColor: "var(--primary-light)" }}
+      title="Shared to a group — contents locked"
+    >
+      🔒 Shared
+    </span>
+  );
+}
+
 function SummaryCard({
   txn,
+  locked,
   onCategoryChange,
 }: {
   txn: TransactionDetail;
+  locked: boolean;
   onCategoryChange: (id: string) => void;
 }) {
   const isEdited =
@@ -229,6 +275,7 @@ function SummaryCard({
         value={txn.store_category_id ?? undefined}
         onSave={onCategoryChange}
         editedAt={txn.store_category_user_edited_at}
+        locked={locked}
       />
 
       <Field label="Receipt type">
@@ -609,10 +656,12 @@ function EditableCategory({
   value,
   onSave,
   editedAt,
+  locked = false,
 }: {
   value?: string;
   onSave: (value: string) => void;
   editedAt?: string | null;
+  locked?: boolean;
 }) {
   const { data: categories } = useStoreCategories();
   const match = categories?.find((c) => c.id === value);
@@ -620,6 +669,14 @@ function EditableCategory({
     (match?.display_labels?.en as string | undefined) ??
     match?.key ??
     (value ? "Unknown" : "—");
+
+  if (locked) {
+    return (
+      <Field label="Category">
+        <span style={{ color: "var(--text)" }}>{currentLabel}</span>
+      </Field>
+    );
+  }
 
   return (
     <Field label="Category">
@@ -665,11 +722,13 @@ function EditableText({
   onSave,
   className = "",
   editedAt,
+  locked = false,
 }: {
   value: string;
   onSave: (value: string) => void;
   className?: string;
   editedAt?: string | null;
+  locked?: boolean;
 }) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(value);
@@ -679,6 +738,14 @@ function EditableText({
   if (prevValue !== value) {
     setPrevValue(value);
     setDraft(value);
+  }
+
+  if (locked) {
+    return (
+      <span className={`${className} px-1`} style={{ color: "var(--text)" }}>
+        {value}
+      </span>
+    );
   }
 
   useEffect(() => {
@@ -745,9 +812,11 @@ function EditableText({
 function EditableDate({
   value,
   onSave,
+  locked = false,
 }: {
   value: string;
   onSave: (value: string) => void;
+  locked?: boolean;
 }) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(value);
@@ -757,6 +826,14 @@ function EditableDate({
   if (prevValue !== value) {
     setPrevValue(value);
     setDraft(value);
+  }
+
+  if (locked) {
+    return (
+      <span className="px-1 text-sm" style={{ color: "var(--text-secondary)" }}>
+        {formatDate(value)}
+      </span>
+    );
   }
 
   useEffect(() => {

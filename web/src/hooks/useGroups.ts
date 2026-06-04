@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api";
 import { insightsKeys } from "@/hooks/useInsights";
+import { transactionKeys } from "@/hooks/useTransactions";
 import { useUiStore } from "@/stores/uiStore";
 import type { components } from "@/lib/api-types";
 
@@ -78,6 +79,30 @@ export function useRenameGroup(groupId: string) {
       }
       void qc.invalidateQueries({ queryKey: groupKeys.list() });
       void qc.invalidateQueries({ queryKey: groupKeys.detail(groupId) });
+    },
+  });
+}
+
+export function useSetGroupIcon(groupId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (vars: { icon: string | null; color: string | null }) => {
+      const { data, error } = await apiClient.PATCH("/api/v1/groups/{group_id}/icon", {
+        params: { path: { group_id: groupId } },
+        body: { icon: vars.icon, color: vars.color },
+      });
+      if (error || !data) throw new Error("Failed to update group avatar");
+      return data;
+    },
+    onSuccess: (data) => {
+      qc.setQueryData(groupKeys.detail(groupId), data);
+      // Patch the list cache directly so the card + switcher avatars update
+      // immediately (the list has a 30s staleTime), then reconcile in the
+      // background.
+      qc.setQueryData<GroupSummary[]>(groupKeys.list(), (old) =>
+        old?.map((g) => (g.id === groupId ? { ...g, icon: data.icon, color: data.color } : g)),
+      );
+      void qc.invalidateQueries({ queryKey: groupKeys.list() });
     },
   });
 }
@@ -256,6 +281,9 @@ export function useShareTransaction() {
       // The group's analytics now include the shared spend.
       void qc.invalidateQueries({ queryKey: insightsKeys.all });
       void qc.invalidateQueries({ queryKey: groupKeys.all });
+      // D74: the source is now is_shared=true → refetch it so the detail view shows
+      // the content-lock (banner + read-only editors) without a manual reload.
+      void qc.invalidateQueries({ queryKey: transactionKeys.all });
     },
   });
 }

@@ -15,6 +15,7 @@ import {
   useJoinInvite,
   useLeaveGroup,
 } from "../hooks/useGroups";
+import { GroupAvatar } from "../components/GroupAvatar";
 import type { GroupSummary } from "../lib/groups";
 import { useScopeStore } from "../stores/scopeStore";
 import type { RootStackParamList } from "../types/navigation";
@@ -190,7 +191,10 @@ function GroupCard({
     <View testID={`group-card-${group.name}`}>
       <View style={styles.card}>
         <View style={styles.cardBody}>
-          <Text style={styles.cardTitle}>🏠 {group.name}</Text>
+          <View style={styles.cardTitleRow}>
+            <GroupAvatar icon={group.icon} color={group.color} size={28} />
+            <Text style={styles.cardTitle}>{group.name}</Text>
+          </View>
           <Text style={styles.cardMeta}>
             {group.member_count} members · {group.role}
           </Text>
@@ -284,7 +288,8 @@ const styles = StyleSheet.create({
     padding: 14,
   },
   cardBody: { flex: 1 },
-  cardTitle: { fontSize: 15, fontWeight: "600", color: "#111827" },
+  cardTitleRow: { flexDirection: "row", alignItems: "center", gap: 8 },
+  cardTitle: { fontSize: 15, fontWeight: "600", color: "#111827", flexShrink: 1 },
   cardMeta: { fontSize: 12, color: "#6b7280", marginTop: 2 },
   cardActions: { flexDirection: "row", gap: 8, alignItems: "center" },
   smallBtn: { backgroundColor: "#dbeafe", borderRadius: 8, paddingHorizontal: 10, paddingVertical: 8 },

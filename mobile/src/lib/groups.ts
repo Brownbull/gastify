@@ -116,6 +116,22 @@ export async function setGroupVisibility(
   return data;
 }
 
+export async function setGroupIcon(
+  groupId: string,
+  icon: string | null,
+  color: string | null,
+): Promise<GroupDetail> {
+  const { data, error } = await apiClient.PATCH(
+    "/api/v1/groups/{group_id}/icon",
+    {
+      params: { path: { group_id: groupId } },
+      body: { icon, color },
+    },
+  );
+  if (error || !data) throw new Error(readApiError(error, "Failed to update group avatar"));
+  return data;
+}
+
 export async function setGroupConsent(
   groupId: string,
   sharesDetail: boolean,

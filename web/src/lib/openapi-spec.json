@@ -2193,6 +2193,60 @@
         }
       }
     },
+    "/api/v1/groups/{group_id}/icon": {
+      "patch": {
+        "tags": [
+          "groups"
+        ],
+        "summary": "Set Group Icon",
+        "description": "Owner/admin sets the group avatar \u2014 emoji icon + accent color (D75).\n\nThe change propagates to every member because the avatar lives on the shared\nownership_scopes row (all members read the same group on GET /groups + detail).",
+        "operationId": "set_group_icon_api_v1_groups__group_id__icon_patch",
+        "parameters": [
+          {
+            "name": "group_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Group Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GroupIconUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupDetail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/groups/{group_id}/visibility": {
       "patch": {
         "tags": [
@@ -3282,6 +3336,28 @@
             "type": "boolean",
             "title": "Viewer Shares Detail",
             "default": false
+          },
+          "icon": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Icon"
+          },
+          "color": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Color"
           }
         },
         "type": "object",
@@ -3293,6 +3369,38 @@
           "members"
         ],
         "title": "GroupDetail"
+      },
+      "GroupIconUpdate": {
+        "properties": {
+          "icon": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 16
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Icon"
+          },
+          "color": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 9
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Color"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "GroupIconUpdate",
+        "description": "Set the group avatar (D75): emoji icon + accent color. Owner/admin only.\n\nBoth fields are optional and independent; an explicit null clears that field\nback to the client default, and clearing both (icon=null, color=null) is valid.\nColor is a #RGB / #RRGGBB hex string."
       },
       "GroupRename": {
         "properties": {
@@ -3333,6 +3441,28 @@
           "member_count": {
             "type": "integer",
             "title": "Member Count"
+          },
+          "icon": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Icon"
+          },
+          "color": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Color"
           }
         },
         "type": "object",
@@ -7210,6 +7340,11 @@
             ],
             "title": "Thumbnail Gen Ms"
           },
+          "is_shared": {
+            "type": "boolean",
+            "title": "Is Shared",
+            "default": false
+          },
           "items": {
             "items": {
               "$ref": "#/components/schemas/TransactionItemResponse"
@@ -8017,6 +8152,11 @@
             "type": "integer",
             "title": "Item Count",
             "default": 0
+          },
+          "is_shared": {
+            "type": "boolean",
+            "title": "Is Shared",
+            "default": false
           },
           "created_at": {
             "type": "string",

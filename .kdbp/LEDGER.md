@@ -3669,3 +3669,15 @@ PROOFS (vs deployed staging-e2e): web Playwright groups-multiuser.spec.ts GREEN 
 ## 2026-06-04 19:45 — PUSH feat/phase5-groups -> staging -> main (multi-user e2e)
 CI: staging 26975979942 green · main 26976163246 green. PROMOTION: origin/staging -> main (33dbecf, FF). DEPLOYMENTS: P51 + P52. Prod health 200.
 SHIPS: multi-user (two real users) group e2e on web + Android (shared A/B accounts) — gated sign-in-as-B + two proofs (web Playwright two-context + S23 Maestro). No backend change.
+- 2026-06-04 16:03 | Write | /home/khujta/.claude/projects/-home-khujta-projects-apps-gastify/memory/project_multiuser_e2e_users.md
+- 2026-06-04 16:04 | Edit | /home/khujta/.claude/projects/-home-khujta-projects-apps-gastify/memory/MEMORY.md
+- 2026-06-04 17:05 | Edit | /home/khujta/projects/apps/gastify/backend/app/api/transactions.py
+- 2026-06-04 17:05 | Edit | /home/khujta/projects/apps/gastify/backend/app/schemas/groups.py
+- 2026-06-04 17:05 | Edit | /home/khujta/projects/apps/gastify/web/src/hooks/useGroups.ts
+- 2026-06-04 17:05 | Edit | /home/khujta/projects/apps/gastify/web/src/hooks/useGroups.ts
+- 2026-06-04 17:05 | Edit | /home/khujta/projects/apps/gastify/web/src/hooks/useGroups.ts
+- 2026-06-04 17:06 | Edit | /home/khujta/projects/apps/gastify/mobile/src/hooks/useGroups.ts
+- 2026-06-04 17:06 | Edit | /home/khujta/projects/apps/gastify/mobile/src/hooks/useGroups.ts
+- 2026-06-04 17:06 | Edit | /home/khujta/projects/apps/gastify/mobile/src/hooks/useGroups.ts
+- 2026-06-04 17:07 | Edit | /home/khujta/projects/apps/gastify/backend/tests/test_group_hardening.py
+- 2026-06-04 17:12 | Write | /tmp/gastify-d74-d75-commit.txt

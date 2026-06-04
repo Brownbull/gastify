@@ -30,6 +30,7 @@ from app.schemas.groups import (
     ConsentUpdate,
     GroupCreate,
     GroupDetail,
+    GroupIconUpdate,
     GroupRename,
     GroupRole,
     GroupSummary,
@@ -215,8 +216,26 @@ async def _restore_personal_scope(db: AsyncSession, auth: Auth) -> None:
 @router.get("", response_model=list[GroupSummary])
 async def list_groups(auth: Auth, db: DB) -> list[GroupSummary]:
     rows = await _user_group_rows(db, auth.user_id)
+    # ownership_scopes has no RLS, so the avatar (icon/color) reads directly under
+    # any GUC — fetch them for the resolved groups in one pass (D75).
+    scope_ids = [gid for gid, *_ in rows]
+    avatars: dict[UUID, tuple[str | None, str | None]] = {}
+    if scope_ids:
+        avatar_rows = await db.execute(
+            select(OwnershipScope.id, OwnershipScope.icon, OwnershipScope.color).where(
+                OwnershipScope.id.in_(scope_ids)
+            )
+        )
+        avatars = {row[0]: (row[1], row[2]) for row in avatar_rows}
     return [
-        GroupSummary(id=gid, name=name, role=cast("GroupRole", role), member_count=count)
+        GroupSummary(
+            id=gid,
+            name=name,
+            role=cast("GroupRole", role),
+            member_count=count,
+            icon=avatars.get(gid, (None, None))[0],
+            color=avatars.get(gid, (None, None))[1],
+        )
         for gid, name, role, count in rows
     ]
 
@@ -246,13 +265,18 @@ async def get_group(group_id: UUID, auth: Auth, db: DB) -> GroupDetail:
     role = await _resolve_membership(db, auth, group_id)
     scope_row = (
         await db.execute(
-            select(OwnershipScope.name, OwnershipScope.member_visibility_enabled).where(
-                OwnershipScope.id == group_id
-            )
+            select(
+                OwnershipScope.name,
+                OwnershipScope.member_visibility_enabled,
+                OwnershipScope.icon,
+                OwnershipScope.color,
+            ).where(OwnershipScope.id == group_id)
         )
     ).first()
     scope_name = scope_row[0] if scope_row else ""
     visibility_enabled = bool(scope_row[1]) if scope_row else False
+    icon = scope_row[2] if scope_row else None
+    color = scope_row[3] if scope_row else None
     result = await db.execute(
         select(
             OwnershipScopeMember.user_id,
@@ -290,6 +314,8 @@ async def get_group(group_id: UUID, auth: Auth, db: DB) -> GroupDetail:
         members=members,
         member_visibility_enabled=visibility_enabled,
         viewer_shares_detail=viewer_shares_detail,
+        icon=icon,
+        color=color,
     )
 
 
@@ -307,7 +333,32 @@ async def rename_group(group_id: UUID, body: GroupRename, auth: Auth, db: DB) ->
         .where(OwnershipScopeMember.ownership_scope_id == group_id)
     )
     await db.commit()
-    return GroupSummary(id=group_id, name=body.name, role=role, member_count=int(count or 0))
+    return GroupSummary(
+        id=group_id,
+        name=body.name,
+        role=role,
+        member_count=int(count or 0),
+        icon=scope.icon,
+        color=scope.color,
+    )
+
+
+@router.patch("/{group_id}/icon", response_model=GroupDetail)
+async def set_group_icon(group_id: UUID, body: GroupIconUpdate, auth: Auth, db: DB) -> GroupDetail:
+    """Owner/admin sets the group avatar — emoji icon + accent color (D75).
+
+    The change propagates to every member because the avatar lives on the shared
+    ownership_scopes row (all members read the same group on GET /groups + detail).
+    """
+    role = await _resolve_membership(db, auth, group_id)
+    _require_role(role, _MUTATE_ROLES)
+    scope = await db.get(OwnershipScope, group_id)
+    if scope is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Group not found")
+    scope.icon = body.icon
+    scope.color = body.color
+    await db.commit()
+    return await get_group(group_id, auth, db)
 
 
 @router.patch("/{group_id}/visibility", response_model=GroupDetail)
@@ -612,8 +663,8 @@ async def share_transaction(
             status_code=status.HTTP_409_CONFLICT,
             detail="Transaction already shared to this group",
         ) from None
-    # Response fields are read from the in-memory copy (no DB I/O), so the personal
-    # scope can be restored immediately after commit before any further work.
+    # Build the response while the GUC is still the group (copy.* refresh under the
+    # group scope; source.id is the PK so it needs no refresh).
     response = SharedTransactionResponse(
         id=copy.id,
         group_id=group_id,
@@ -622,7 +673,13 @@ async def share_transaction(
         currency=copy.currency,
         shared_from_transaction_id=source.id,
     )
+    # D74: lock the source now that a snapshot copy exists. The UPDATE targets the
+    # PERSONAL source row, so it must run under the personal GUC — RLS would reject
+    # touching it while the GUC still points at the group. Restore personal first,
+    # then set the flag (this refreshes the source under the personal scope) + commit.
     await _restore_personal_scope(db, auth)
+    source.is_shared = True
+    await db.commit()
     return response
 
 

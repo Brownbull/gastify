@@ -1,10 +1,14 @@
 """Group (shared ownership scope) schemas — Phase 5b."""
 
+import re
 from datetime import date, datetime
 from typing import Literal
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
+
+# Accent color for a group avatar: a #RGB or #RRGGBB hex string (D75).
+_HEX_COLOR = re.compile(r"#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})")
 
 GroupRole = Literal["owner", "admin", "member"]
 # Roles a membership can be SET to via the role-update endpoint (you never
@@ -34,6 +38,40 @@ class GroupRename(_GroupNameBody):
     pass
 
 
+class GroupIconUpdate(BaseModel):
+    """Set the group avatar (D75): emoji icon + accent color. Owner/admin only.
+
+    Both fields are optional and independent; an explicit null clears that field
+    back to the client default, and clearing both (icon=null, color=null) is valid.
+    Color is a #RGB / #RRGGBB hex string.
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    icon: str | None = Field(default=None, max_length=16)
+    color: str | None = Field(default=None, max_length=9)
+
+    @field_validator("icon")
+    @classmethod
+    def _strip_icon(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        normalized = value.strip()
+        return normalized or None
+
+    @field_validator("color")
+    @classmethod
+    def _check_color(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        normalized = value.strip()
+        if not normalized:
+            return None
+        if not _HEX_COLOR.fullmatch(normalized):
+            raise ValueError("color must be a hex code like #4F46E5")
+        return normalized.lower()
+
+
 class GroupSummary(BaseModel):
     """One row of GET /groups — the caller's groups + their role + size."""
 
@@ -43,6 +81,9 @@ class GroupSummary(BaseModel):
     name: str
     role: GroupRole
     member_count: int
+    # D75: group avatar (emoji + accent hex). NULL → client renders the default.
+    icon: str | None = None
+    color: str | None = None
 
 
 class MemberSummary(BaseModel):
@@ -66,6 +107,9 @@ class GroupDetail(BaseModel):
     # 5e (D73): group-level visibility request (admin-set) + the viewer's own consent.
     member_visibility_enabled: bool = False
     viewer_shares_detail: bool = False
+    # D75: group avatar (emoji + accent hex). NULL → client renders the default.
+    icon: str | None = None
+    color: str | None = None
 
 
 class RoleUpdate(BaseModel):

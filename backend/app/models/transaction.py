@@ -97,6 +97,13 @@ class Transaction(Base):
         Uuid, ForeignKey("users.id"), nullable=True
     )
     shared_from_transaction_id: Mapped[uuid.UUID | None] = mapped_column(Uuid, nullable=True)
+    # D74: set True on a PERSONAL source once it is shared into any group. A shared
+    # source is CONTENT-LOCKED — merchant/category/items/amounts/currency/date become
+    # immutable so the group's snapshot copy stays honest. Tangential ops (card
+    # pairing, recurrence, personal item flags) and delete remain allowed. Permanent.
+    is_shared: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=False, server_default="false"
+    )
     transaction_date: Mapped[date] = mapped_column(Date, nullable=False)
     transaction_time: Mapped[time | None] = mapped_column(Time, nullable=True)
     merchant: Mapped[str] = mapped_column(Text, nullable=False)

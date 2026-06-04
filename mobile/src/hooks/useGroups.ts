@@ -10,12 +10,15 @@ import {
   listGroups,
   removeMember,
   setGroupConsent,
+  setGroupIcon,
   setGroupVisibility,
   shareTransaction,
   updateMemberRole,
   type AssignableRole,
+  type GroupSummary,
 } from "../lib/groups";
 import { insightsKeys } from "./insightsKeys";
+import { transactionKeys } from "./useTransactions";
 
 export const groupKeys = {
   all: ["groups"] as const,
@@ -114,6 +117,23 @@ export function useSetGroupVisibility(groupId: string) {
   });
 }
 
+export function useSetGroupIcon(groupId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (vars: { icon: string | null; color: string | null }) =>
+      setGroupIcon(groupId, vars.icon, vars.color),
+    onSuccess: (data) => {
+      qc.setQueryData(groupKeys.detail(groupId), data);
+      // Patch the list cache directly so the card + scope avatars update at once
+      // (the list has a 30s staleTime), then reconcile in the background.
+      qc.setQueryData<GroupSummary[]>(groupKeys.list(), (old) =>
+        old?.map((g) => (g.id === groupId ? { ...g, icon: data.icon, color: data.color } : g)),
+      );
+      void qc.invalidateQueries({ queryKey: groupKeys.list() });
+    },
+  });
+}
+
 export function useSetGroupConsent(groupId: string) {
   const qc = useQueryClient();
   return useMutation({
@@ -141,6 +161,9 @@ export function useShareTransaction() {
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: insightsKeys.all });
       void qc.invalidateQueries({ queryKey: groupKeys.all });
+      // D74: the source is now is_shared=true → refetch it so the detail screen
+      // shows the content-lock (banner + read-only editors) without a manual reload.
+      void qc.invalidateQueries({ queryKey: transactionKeys.all });
     },
   });
 }

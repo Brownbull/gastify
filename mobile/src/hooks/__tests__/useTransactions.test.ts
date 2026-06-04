@@ -58,6 +58,7 @@ const baseDetail: TransactionDetail = {
   llm_latency_ms: null,
   queue_wait_ms: null,
   thumbnail_gen_ms: null,
+  is_shared: false,
   items: [
     {
       id: "item-1",
@@ -115,6 +116,7 @@ const baseListItem: TransactionListItem = {
   recurrence_confidence: null,
   recurrence_user_edited_at: null,
   item_count: 1,
+  is_shared: false,
   created_at: "2026-05-10T12:00:00Z",
   updated_at: "2026-05-10T12:00:00Z",
 };

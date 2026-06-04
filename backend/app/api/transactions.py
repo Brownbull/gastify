@@ -53,6 +53,27 @@ router = APIRouter(prefix="/transactions", tags=["transactions"])
 
 DB = Annotated[AsyncSession, Depends(get_db)]
 
+# D74: receipt-content fields frozen once a transaction is shared into a group.
+# Anything NOT in this set (card_alias_id, recurrence_*) stays editable so the
+# owner can still pair the txn to a card or mark it recurrent. Item edits are
+# blocked separately (body.items); personal item flags use their own endpoint.
+_CONTENT_LOCKED_FIELDS = frozenset(
+    {
+        "merchant",
+        "store_category_id",
+        "transaction_date",
+        "transaction_time",
+        "total_minor",
+        "discount_total_minor",
+        "gross_total_minor",
+        "reconstructed_total_minor",
+        "currency",
+        "receipt_type",
+        "country",
+        "city",
+    }
+)
+
 
 @router.get("", response_model=PaginatedResponse[TransactionListItem])
 async def list_transactions(
@@ -150,6 +171,7 @@ async def list_transactions(
                 recurrence_confidence=txn.recurrence_confidence,
                 recurrence_user_edited_at=txn.recurrence_user_edited_at,
                 item_count=item_counts.get(txn.id, 0),
+                is_shared=txn.is_shared,
                 created_at=txn.created_at,
                 updated_at=txn.updated_at,
             )
@@ -309,6 +331,20 @@ async def update_transaction(
     now = datetime.now(UTC)
     update_data = body.model_dump(exclude_unset=True, exclude={"items"})
     original_merchant = txn.merchant
+
+    # D74: a source shared into a group is content-locked — its group copy is a
+    # point-in-time snapshot, so the receipt's contents must not change underneath
+    # it. Block content fields + item edits; still allow tangential ops (card
+    # pairing, recurrence) here and personal item flags via the flags endpoint.
+    locks_content = bool(_CONTENT_LOCKED_FIELDS.intersection(update_data)) or body.items is not None
+    if txn.is_shared and locks_content:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=(
+                "This transaction is shared to a group and locked for content edits. "
+                "You can still pair it to a card or mark it recurrent."
+            ),
+        )
 
     if "merchant" in update_data:
         txn.merchant = update_data["merchant"]
@@ -540,6 +576,28 @@ async def batch_update_transactions(
 
     if not set_values:
         return BatchResult(count=0)
+
+    # D74: batch-update only ever sets content fields (merchant, store_category_id),
+    # so it must honour the shared-source content-lock exactly like the single PATCH.
+    # If ANY targeted transaction is shared into a group, reject the whole batch
+    # (409) rather than silently skipping rows — mirrors update_transaction's lock.
+    shared_count = await db.scalar(
+        select(func.count())
+        .select_from(Transaction)
+        .where(
+            Transaction.id.in_(body.transaction_ids),
+            Transaction.ownership_scope_id == auth.ownership_scope_id,
+            Transaction.is_shared.is_(True),
+        )
+    )
+    if int(shared_count or 0) > 0:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=(
+                "Some selected transactions are shared to a group and locked for "
+                "content edits. Deselect them to continue."
+            ),
+        )
 
     set_values["updated_at"] = now
 

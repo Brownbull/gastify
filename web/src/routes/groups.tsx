@@ -10,11 +10,17 @@ import {
   useLeaveGroup,
   useRemoveMember,
   useSetGroupConsent,
+  useSetGroupIcon,
   useSetGroupVisibility,
   useUpdateMemberRole,
   type GroupDetail,
   type GroupSummary,
 } from "@/hooks/useGroups";
+import {
+  GROUP_COLOR_CHOICES,
+  GROUP_ICON_CHOICES,
+  GroupAvatar,
+} from "@/components/GroupAvatar";
 import { useI18n } from "@/hooks/useI18n";
 import { useUiStore } from "@/stores/uiStore";
 import { formatMinorAmount } from "@/lib/format";
@@ -142,13 +148,16 @@ function GroupCard({
       className="flex items-center justify-between gap-3 rounded-xl border p-4"
       style={{ borderColor: "var(--border)", backgroundColor: "var(--surface)" }}
     >
-      <div className="min-w-0">
-        <p className="truncate font-semibold" style={{ color: "var(--text-primary)" }}>
-          🏠 {group.name}
-        </p>
-        <p className="text-xs" style={{ color: "var(--text-muted)" }}>
-          {group.member_count} {t("group.members")} · {t(ROLE_KEYS[group.role])}
-        </p>
+      <div className="flex min-w-0 items-center gap-3">
+        <GroupAvatar icon={group.icon} color={group.color} size={36} />
+        <div className="min-w-0">
+          <p className="truncate font-semibold" style={{ color: "var(--text-primary)" }}>
+            {group.name}
+          </p>
+          <p className="text-xs" style={{ color: "var(--text-muted)" }}>
+            {group.member_count} {t("group.members")} · {t(ROLE_KEYS[group.role])}
+          </p>
+        </div>
       </div>
       <div className="flex shrink-0 gap-2">
         <button
@@ -206,6 +215,7 @@ function GroupDetailPanel({ groupId }: { groupId: string }) {
       className="mt-2 space-y-4 rounded-xl border p-4"
       style={{ borderColor: "var(--border)", backgroundColor: "var(--surface)" }}
     >
+      {canManage && <AvatarSection detail={detail} groupId={groupId} />}
       {canManage && <InviteSection groupId={groupId} />}
       <MemberRoster detail={detail} groupId={groupId} />
       {canManage && <VisibilitySection detail={detail} groupId={groupId} />}
@@ -214,6 +224,79 @@ function GroupDetailPanel({ groupId }: { groupId: string }) {
       )}
       <GroupTransactionsSection groupId={groupId} />
       <GroupActions detail={detail} groupId={groupId} />
+    </div>
+  );
+}
+
+// D75: owner/admin sets the group avatar (emoji icon + accent color). The change
+// propagates to every member because the avatar lives on the shared group row.
+function AvatarSection({ detail, groupId }: { detail: GroupDetail; groupId: string }) {
+  const { t } = useI18n();
+  const setIcon = useSetGroupIcon(groupId);
+  const [icon, setIcon_] = useState<string | null>(detail.icon ?? null);
+  const [color, setColor] = useState<string | null>(detail.color ?? null);
+  const dirty = icon !== (detail.icon ?? null) || color !== (detail.color ?? null);
+
+  return (
+    <div className="space-y-2" data-testid="group-avatar-section">
+      <div className="flex items-center gap-3">
+        <GroupAvatar icon={icon} color={color} size={40} />
+        <h3 className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>
+          {t("group.avatarTitle")}
+        </h3>
+      </div>
+      <div className="flex flex-wrap gap-1">
+        {GROUP_ICON_CHOICES.map((choice) => (
+          <button
+            key={choice}
+            type="button"
+            data-testid={`group-icon-choice-${choice}`}
+            aria-pressed={icon === choice}
+            onClick={() => setIcon_(choice)}
+            className="rounded-lg border px-2 py-1 text-lg"
+            style={{
+              borderColor: icon === choice ? "var(--primary)" : "var(--border)",
+              backgroundColor: icon === choice ? "var(--primary-light)" : "transparent",
+            }}
+          >
+            {choice}
+          </button>
+        ))}
+      </div>
+      <div className="flex flex-wrap gap-2">
+        {GROUP_COLOR_CHOICES.map((choice) => (
+          <button
+            key={choice}
+            type="button"
+            data-testid={`group-color-choice-${choice}`}
+            aria-pressed={color === choice}
+            aria-label={choice}
+            onClick={() => setColor(choice)}
+            className="h-6 w-6 rounded-full border"
+            style={{
+              backgroundColor: choice,
+              outline: color === choice ? "2px solid var(--text-primary)" : "none",
+              outlineOffset: "1px",
+              borderColor: "var(--border)",
+            }}
+          />
+        ))}
+      </div>
+      <button
+        type="button"
+        data-testid="group-avatar-save"
+        disabled={!dirty || setIcon.isPending}
+        onClick={() => setIcon.mutate({ icon, color })}
+        className="rounded-lg px-3 py-1.5 text-xs font-medium disabled:opacity-50"
+        style={{ backgroundColor: "var(--primary)", color: "white" }}
+      >
+        {t("group.avatarSave")}
+      </button>
+      {setIcon.isError && (
+        <p className="text-xs" role="alert" style={{ color: "var(--danger, #dc2626)" }}>
+          {t("group.avatarError")}
+        </p>
+      )}
     </div>
   );
 }

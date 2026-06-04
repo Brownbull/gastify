@@ -113,12 +113,23 @@ export function TransactionDetailScreen({
     );
   }
 
+  // D74: once shared into a group, the receipt's CONTENT is locked (the group keeps
+  // a snapshot). Item flags, card pairing and recurrence stay editable elsewhere.
+  const locked = transaction.is_shared;
+
   return (
     <ScreenShell>
       <View style={styles.header} testID="transaction-detail-screen">
         <Button title="Back" onPress={() => navigation?.goBack()} />
         <Text style={styles.eyebrow}>{formatDate(transaction.transaction_date)}</Text>
-        <Text style={styles.title}>{transaction.merchant}</Text>
+        <View style={styles.titleRow}>
+          <Text style={styles.title}>{transaction.merchant}</Text>
+          {locked ? (
+            <View style={styles.sharedBadge} testID="shared-lock-badge">
+              <Text style={styles.sharedBadgeText}>🔒 Shared</Text>
+            </View>
+          ) : null}
+        </View>
         <Text style={styles.body}>
           {formatMinorAmount(transaction.total_minor, transaction.currency)}
           {transaction.amount_usd_minor != null
@@ -128,6 +139,16 @@ export function TransactionDetailScreen({
       </View>
 
       <ShareToGroupButton transactionId={transactionId} />
+
+      {locked ? (
+        <View style={styles.lockBanner} testID="shared-lock-banner">
+          <Text style={styles.lockIcon}>🔒</Text>
+          <Text style={styles.lockText}>
+            This transaction is shared to a group, so its contents are locked. You can
+            still flag items, pair a card, or mark it recurrent.
+          </Text>
+        </View>
+      ) : null}
 
       {mutation.error ? (
         <View style={styles.errorPanel} testID="transaction-mutation-error">
@@ -141,6 +162,7 @@ export function TransactionDetailScreen({
 
       <TransactionEditor
         disabled={mutation.isPending}
+        locked={locked}
         onSave={save}
         storeCategories={storeCategories}
         transaction={transaction}
@@ -160,6 +182,7 @@ export function TransactionDetailScreen({
         flagPending={flagMutation.isPending}
         itemCategories={itemCategories}
         items={transaction.items}
+        locked={locked}
         onSaveItem={(item) => save({ items: [item] })}
         onToggleFlag={toggleFlag}
       />
@@ -257,11 +280,13 @@ function SummaryPanel({
 
 function TransactionEditor({
   disabled,
+  locked,
   onSave,
   storeCategories,
   transaction,
 }: {
   disabled: boolean;
+  locked: boolean;
   onSave: (body: TransactionUpdate) => void;
   storeCategories: ReturnType<typeof useStoreCategories>["data"];
   transaction: TransactionDetail;
@@ -285,6 +310,31 @@ function TransactionEditor({
       onSave({ transaction_date: dateDraft });
     }
   };
+
+  // D74: when shared, the content editors collapse to read-only static text — the
+  // group keeps a snapshot, so the source can no longer change merchant/date/category.
+  if (locked) {
+    return (
+      <View style={styles.panel} testID="transaction-edit-panel">
+        <Text style={styles.panelTitle}>Transaction details</Text>
+        <ReadOnlyField
+          label="Merchant"
+          testID="transaction-edit-merchant"
+          value={transaction.merchant}
+        />
+        <ReadOnlyField
+          label="Date"
+          testID="transaction-edit-date"
+          value={formatDate(transaction.transaction_date)}
+        />
+        <ReadOnlyField
+          label="Store category"
+          testID="transaction-store-category"
+          value={categoryPath(storeCategories, transaction.store_category_id)}
+        />
+      </View>
+    );
+  }
 
   return (
     <View style={styles.panel} testID="transaction-edit-panel">
@@ -334,6 +384,7 @@ function LineItemsPanel({
   flagPending,
   itemCategories,
   items,
+  locked,
   onSaveItem,
   onToggleFlag,
 }: {
@@ -342,6 +393,7 @@ function LineItemsPanel({
   flagPending: boolean;
   itemCategories: ReturnType<typeof useItemCategories>["data"];
   items: TransactionDetail["items"];
+  locked: boolean;
   onSaveItem: (item: TransactionItemUpdate) => void;
   onToggleFlag: (
     item: TransactionDetail["items"][number],
@@ -362,6 +414,7 @@ function LineItemsPanel({
           itemIndex={index}
           item={item}
           itemCategories={itemCategories}
+          locked={locked}
           onSave={onSaveItem}
           onToggleFlag={onToggleFlag}
         />
@@ -377,6 +430,7 @@ function LineItemEditor({
   item,
   itemIndex,
   itemCategories,
+  locked,
   onSave,
   onToggleFlag,
 }: {
@@ -386,6 +440,7 @@ function LineItemEditor({
   item: TransactionDetail["items"][number];
   itemIndex: number;
   itemCategories: ReturnType<typeof useItemCategories>["data"];
+  locked: boolean;
   onSave: (item: TransactionItemUpdate) => void;
   onToggleFlag: (
     item: TransactionDetail["items"][number],
@@ -438,6 +493,30 @@ function LineItemEditor({
       onSave(next);
     }
   };
+
+  // D74: when shared, the line item's content is read-only (the group holds a
+  // snapshot). The per-item personal flag chips stay editable — they're a separate
+  // endpoint that never touches the locked receipt content.
+  if (locked) {
+    return (
+      <View style={styles.itemEditor} testID={`transaction-item-${item.id}`}>
+        <View style={styles.itemHeader}>
+          <View style={styles.itemNameBlock}>
+            <Text style={styles.itemTitle}>{item.name}</Text>
+            <Text style={styles.mutedText}>
+              {item.qty != null ? `${item.qty} qty - ` : ""}
+              {formatMinorAmount(item.total_price_minor, currency)}
+            </Text>
+          </View>
+        </View>
+        <ItemFlagChips
+          item={item}
+          disabled={flagPending}
+          onToggleFlag={onToggleFlag}
+        />
+      </View>
+    );
+  }
 
   return (
     <View style={styles.itemEditor} testID={`transaction-item-${item.id}`}>
@@ -600,6 +679,25 @@ function FieldInput({
   );
 }
 
+function ReadOnlyField({
+  label,
+  testID,
+  value,
+}: {
+  label: string;
+  testID: string;
+  value: string;
+}) {
+  return (
+    <View style={styles.inputGroup}>
+      <Text style={styles.label}>{label}</Text>
+      <Text style={styles.readOnlyValue} testID={testID}>
+        {value}
+      </Text>
+    </View>
+  );
+}
+
 function Metric({ label, value }: { label: string; value: string }) {
   return (
     <View style={styles.metric}>
@@ -750,6 +848,27 @@ const styles = StyleSheet.create({
     gap: 10,
     padding: 24,
   },
+  lockBanner: {
+    alignItems: "flex-start",
+    backgroundColor: "#eff6ff",
+    borderColor: "#2563eb",
+    borderRadius: 8,
+    borderWidth: 1,
+    flexDirection: "row",
+    gap: 8,
+    marginBottom: 16,
+    padding: 12,
+  },
+  lockIcon: {
+    fontSize: 15,
+  },
+  lockText: {
+    color: "#1d4ed8",
+    flex: 1,
+    fontSize: 13,
+    fontWeight: "600",
+    lineHeight: 18,
+  },
   metric: {
     backgroundColor: "#f8fafc",
     borderRadius: 8,
@@ -786,11 +905,27 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontWeight: "800",
   },
+  readOnlyValue: {
+    color: "#0f172a",
+    fontSize: 15,
+    fontWeight: "700",
+  },
   receiptImage: {
     backgroundColor: "#e2e8f0",
     borderRadius: 8,
     height: 96,
     width: 96,
+  },
+  sharedBadge: {
+    backgroundColor: "#dbeafe",
+    borderRadius: 9999,
+    paddingHorizontal: 10,
+    paddingVertical: 3,
+  },
+  sharedBadgeText: {
+    color: "#1d4ed8",
+    fontSize: 12,
+    fontWeight: "800",
   },
   textInput: {
     backgroundColor: "#f8fafc",
@@ -807,6 +942,12 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: "800",
     letterSpacing: 0,
+  },
+  titleRow: {
+    alignItems: "center",
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
   },
   warningBox: {
     backgroundColor: "#fffbeb",

@@ -6,6 +6,7 @@ jest.mock("../../hooks/useGroups", () => ({
   useCreateInvite: jest.fn(),
   useUpdateMemberRole: jest.fn(),
   useRemoveMember: jest.fn(),
+  useSetGroupIcon: jest.fn(),
   useSetGroupVisibility: jest.fn(),
   useSetGroupConsent: jest.fn(),
   useGroupTransactions: jest.fn(),
@@ -16,6 +17,7 @@ import {
   useCreateInvite,
   useUpdateMemberRole,
   useRemoveMember,
+  useSetGroupIcon,
   useSetGroupVisibility,
   useSetGroupConsent,
   useGroupTransactions,
@@ -25,6 +27,7 @@ const mockGroup = jest.mocked(useGroup);
 const mockCreateInvite = jest.mocked(useCreateInvite);
 const mockUpdateRole = jest.mocked(useUpdateMemberRole);
 const mockRemoveMember = jest.mocked(useRemoveMember);
+const mockSetIcon = jest.mocked(useSetGroupIcon);
 const mockSetVisibility = jest.mocked(useSetGroupVisibility);
 const mockSetConsent = jest.mocked(useSetGroupConsent);
 const mockTransactions = jest.mocked(useGroupTransactions);
@@ -77,6 +80,7 @@ describe("GroupDetailScreen", () => {
     mockCreateInvite.mockReturnValue(mutation());
     mockUpdateRole.mockReturnValue(mutation());
     mockRemoveMember.mockReturnValue(mutation());
+    mockSetIcon.mockReturnValue(mutation());
     mockSetVisibility.mockReturnValue(mutation());
     mockSetConsent.mockReturnValue(mutation());
     mockTransactions.mockReturnValue(query({ data: [] }));
@@ -164,6 +168,28 @@ describe("GroupDetailScreen", () => {
     expect(within(row).getByText("Jumbo")).toBeTruthy();
     // "Beto" also appears in the roster; scope to the txn row's contributor label.
     expect(within(row).getByText("Beto")).toBeTruthy();
+  });
+
+  it("shows the avatar picker to owners and saves the picked icon + color (D75)", () => {
+    const mutate = jest.fn();
+    mockSetIcon.mockReturnValue(mutation({ mutate }));
+    renderScreen();
+
+    expect(screen.getByTestId("group-avatar-section")).toBeTruthy();
+    // Avatar appears in the title header and the picker preview.
+    expect(screen.getAllByTestId("group-avatar").length).toBeGreaterThan(0);
+
+    fireEvent.press(screen.getByTestId("group-icon-choice-🎉"));
+    fireEvent.press(screen.getByTestId("group-color-choice-#10b981"));
+    fireEvent.press(screen.getByTestId("group-avatar-save"));
+
+    expect(mutate).toHaveBeenCalledWith({ icon: "🎉", color: "#10b981" });
+  });
+
+  it("hides the avatar picker from non-admin members (D75)", () => {
+    mockGroup.mockReturnValue(query({ data: detailFixture({ role: "member" }) }));
+    renderScreen();
+    expect(screen.queryByTestId("group-avatar-section")).toBeNull();
   });
 
   it("surfaces the loading and error states for the group detail", () => {
