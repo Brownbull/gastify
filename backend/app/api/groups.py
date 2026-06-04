@@ -340,9 +340,7 @@ async def set_member_consent(
 
 
 @router.get("/{group_id}/transactions", response_model=list[GroupTransactionRow])
-async def list_group_transactions(
-    group_id: UUID, auth: Auth, db: DB
-) -> list[GroupTransactionRow]:
+async def list_group_transactions(group_id: UUID, auth: Auth, db: DB) -> list[GroupTransactionRow]:
     """Consent-gated list of the group's shared transactions (5e/D73 + D72).
 
     A row shows iff it is the viewer's OWN share, OR the group enabled member

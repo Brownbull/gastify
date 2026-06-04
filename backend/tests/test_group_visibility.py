@@ -53,9 +53,7 @@ async def test_non_admin_cannot_toggle_visibility(client, engine):
     await _add_member(engine, uuid.UUID(group_id), member_uid, "member")
 
     with _acting_as(_make_auth(member_uid, member_scope, "Pl")):
-        resp = await client.patch(
-            f"/api/v1/groups/{group_id}/visibility", json={"enabled": True}
-        )
+        resp = await client.patch(f"/api/v1/groups/{group_id}/visibility", json={"enabled": True})
     assert resp.status_code == 403
 
 
