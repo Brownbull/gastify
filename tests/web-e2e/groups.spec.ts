@@ -113,10 +113,13 @@ test("5e: admin visibility + member consent + consent-gated transactions list", 
   await expect(list).toBeVisible();
   await expect(list.getByText(/You|Tú|Você/)).toBeVisible({ timeout: 15_000 });
 
-  // Admin enables member visibility + opts their own detail in — toggles persist.
-  await page.getByTestId("group-visibility-toggle").check();
+  // Admin enables member visibility. The checkbox is controlled — its checked
+  // state only flips after the async mutation writes the updated detail back to
+  // cache — so click + retry-assert rather than check() (which verifies sync).
+  await page.getByTestId("group-visibility-toggle").click();
   await expect(page.getByTestId("group-visibility-toggle")).toBeChecked();
-  await page.getByTestId("group-consent-toggle").check();
+  // The consent control appears once visibility is on; the member opts in.
+  await page.getByTestId("group-consent-toggle").click();
   await expect(page.getByTestId("group-consent-toggle")).toBeChecked();
 
   // The own shared row is still listed after enabling visibility + consent.
