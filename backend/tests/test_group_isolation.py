@@ -83,7 +83,7 @@ BEGIN
         RETURN;
     END IF;
     RETURN QUERY
-    SELECT s.id, s.name, m.role,
+    SELECT s.id, s.name::text, m.role::text,
            (SELECT count(*)::integer FROM ownership_scope_members m2
             WHERE m2.ownership_scope_id = s.id)
     FROM ownership_scope_members m
@@ -104,7 +104,7 @@ BEGIN
         RETURN;
     END IF;
     RETURN QUERY
-    SELECT s.id, s.name,
+    SELECT s.id, s.name::text,
            (SELECT count(*)::integer FROM ownership_scope_members m
             WHERE m.ownership_scope_id = s.id),
            s.invite_token_expires_at
@@ -131,7 +131,10 @@ CREATE TABLE ownership_scope_members (
     id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     ownership_scope_id uuid NOT NULL,
     user_id uuid NOT NULL,
-    role text NOT NULL DEFAULT 'owner',
+    -- varchar (NOT text) to mirror the real schema (migration 001 String), so the
+    -- readers' RETURNS TABLE(... text) casts are exercised — a text column here
+    -- would hide the DatatypeMismatchError that 031 fixes.
+    role varchar NOT NULL DEFAULT 'owner',
     UNIQUE (ownership_scope_id, user_id)
 );
 CREATE TABLE grp_transactions (
