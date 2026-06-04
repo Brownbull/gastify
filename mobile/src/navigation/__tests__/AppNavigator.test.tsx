@@ -111,6 +111,7 @@ describe("AppNavigator", () => {
       loading: true,
       signInWithGoogle: jest.fn(),
       signInWithTestUser: jest.fn(),
+      signInWithTestUserB: jest.fn(),
       signOut: jest.fn(),
       user: null,
     });
@@ -126,6 +127,7 @@ describe("AppNavigator", () => {
       loading: false,
       signInWithGoogle: jest.fn(),
       signInWithTestUser: jest.fn(),
+      signInWithTestUserB: jest.fn(),
       signOut: jest.fn(),
       user: null,
     });
@@ -141,6 +143,7 @@ describe("AppNavigator", () => {
       loading: false,
       signInWithGoogle: jest.fn(),
       signInWithTestUser: jest.fn(),
+      signInWithTestUserB: jest.fn(),
       signOut: jest.fn(),
       user: { uid: "firebase-uid" } as never,
     });

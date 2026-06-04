@@ -231,6 +231,7 @@ function InviteSection({ groupId }: { groupId: string }) {
       {!link ? (
         <button
           type="button"
+          data-testid="generate-invite-button"
           onClick={() => createInvite.mutate()}
           disabled={createInvite.isPending}
           className="rounded-lg px-3 py-2 text-sm font-medium disabled:opacity-50"
@@ -475,7 +476,11 @@ function GroupTransactionsSection({ groupId }: { groupId: string }) {
             </p>
           )}
           {txns?.map((txn) => (
-            <div key={txn.id} className="flex items-center justify-between gap-2 text-sm">
+            <div
+              key={txn.id}
+              data-testid="group-txn-row"
+              className="flex items-center justify-between gap-2 text-sm"
+            >
               <span className="truncate" style={{ color: "var(--text-primary)" }}>
                 {txn.merchant}
                 <span className="ml-2 text-xs" style={{ color: "var(--text-muted)" }}>

@@ -1,0 +1,85 @@
+appId: com.gastify.mobile
+---
+# P5 multi-user — TWO real users on the S23. Single device = one session, so the
+# cross-user state is set up via the API by tests/mobile/scripts/setup-multiuser-group.sh
+# (user A creates "S23 MultiU", shares a transaction, invites user B who joins,
+# enables member visibility + opts in). THIS flow then signs in as user B on the
+# real device and verifies B sees user A's shared transaction — a transaction B did
+# not create. Proves cross-user rendering on-device against the deployed staging-e2e
+# backend. Run setup-multiuser-group.sh FIRST (the run-multiuser-maestro wrapper does).
+#
+# Requires: dev-client + e2e-sign-in-button-b (EXPO_PUBLIC_E2E_AUTH_EMAIL_B set).
+
+- waitForAnimationToEnd:
+    timeout: 12000
+- tapOn:
+    text: "Continue"
+    optional: true
+- tapOn:
+    text: "Got it"
+    optional: true
+
+# A previous run may have left a session signed in (e.g. as user A). Sign out
+# first so we reach a clean sign-in screen and authenticate as user B.
+- runFlow:
+    when:
+      visible:
+        id: home-screen
+    commands:
+      - scrollUntilVisible:
+          element:
+            id: sign-out-button
+      - tapOn:
+          id: sign-out-button
+      - extendedWaitUntil:
+          visible:
+            id: sign-in-screen
+          timeout: 20000
+
+# --- Sign in as user B (the SECOND test account) ---
+- extendedWaitUntil:
+    visible:
+      id: e2e-sign-in-button-b
+    timeout: 30000
+- tapOn:
+    id: e2e-sign-in-button-b
+- extendedWaitUntil:
+    visible:
+      id: home-screen
+    timeout: 60000
+
+# --- Open the group A invited B into ---
+- scrollUntilVisible:
+    element:
+      id: open-groups-button
+- tapOn:
+    id: open-groups-button
+- extendedWaitUntil:
+    visible:
+      id: groups-screen
+    timeout: 20000
+- extendedWaitUntil:
+    visible:
+      id: "group-card-S23 MultiU"
+    timeout: 20000
+- tapOn:
+    id: "group-manage-S23 MultiU"
+- extendedWaitUntil:
+    visible:
+      id: group-detail-screen
+    timeout: 20000
+
+# --- B opens the consent-gated transactions list and sees A's shared transaction ---
+- scrollUntilVisible:
+    element:
+      id: group-transactions-toggle
+- tapOn:
+    id: group-transactions-toggle
+- extendedWaitUntil:
+    visible:
+      id: group-transactions
+    timeout: 20000
+# B contributed nothing, so a non-empty list means B is seeing A's shared row —
+# a transaction created by the OTHER user, rendered on B's device.
+- assertNotVisible:
+    id: group-transactions-empty

@@ -32,6 +32,8 @@ interface AuthContextValue extends AuthState {
   signInWithGoogle: () => Promise<void>;
   /** E2E-only: present when the gated test-auth path is enabled (never in prod). */
   signInWithTestAuth: (() => Promise<void>) | null;
+  /** E2E-only: second test user (B) for multi-user e2e; null when B not configured. */
+  signInWithTestAuthB: (() => Promise<void>) | null;
   signOut: () => Promise<void>;
 }
 
@@ -113,16 +115,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  async function signInWithTestAuth() {
-    if (!e2eAuthConfig.enabled) return;
+  async function signInWithTestUser(email: string, password: string) {
+    if (!e2eAuthConfig.enabled || !email) return;
     setState((prev) => ({ ...prev, error: null }));
     try {
-      await signInWithEmailAndPassword(auth, e2eAuthConfig.email, e2eAuthConfig.password);
+      await signInWithEmailAndPassword(auth, email, password);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Test sign-in failed";
       setState((prev) => ({ ...prev, error: message }));
     }
   }
+  const signInWithTestAuth = () =>
+    signInWithTestUser(e2eAuthConfig.email, e2eAuthConfig.password);
+  const signInWithTestAuthB = () =>
+    signInWithTestUser(e2eAuthConfig.emailB, e2eAuthConfig.passwordB);
 
   async function signOut() {
     try {
@@ -141,6 +147,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         ...state,
         signInWithGoogle,
         signInWithTestAuth: e2eAuthConfig.enabled ? signInWithTestAuth : null,
+        signInWithTestAuthB:
+          e2eAuthConfig.enabled && e2eAuthConfig.emailB ? signInWithTestAuthB : null,
         signOut,
       }}
     >

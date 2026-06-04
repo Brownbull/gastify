@@ -11,4 +11,9 @@ export const e2eAuthConfig = {
     !import.meta.env.PROD && import.meta.env.VITE_E2E_AUTH_ENABLED === "true",
   email: (import.meta.env.VITE_E2E_AUTH_EMAIL as string | undefined) ?? "",
   password: (import.meta.env.VITE_E2E_AUTH_PASSWORD as string | undefined) ?? "",
+  // Second disposable test user (B), for multi-user group/share e2e. The same B
+  // account is used on web + mobile (no platform-exclusive accounts). Empty when
+  // not configured — the "Use test auth (B)" button only appears when B is set.
+  emailB: (import.meta.env.VITE_E2E_AUTH_EMAIL_B as string | undefined) ?? "",
+  passwordB: (import.meta.env.VITE_E2E_AUTH_PASSWORD_B as string | undefined) ?? "",
 } as const;

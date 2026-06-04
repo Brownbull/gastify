@@ -8,7 +8,8 @@ export const Route = createFileRoute("/sign-in")({
 });
 
 function SignInPage() {
-  const { user, loading, error, signInWithGoogle, signInWithTestAuth } = useAuth();
+  const { user, loading, error, signInWithGoogle, signInWithTestAuth, signInWithTestAuthB } =
+    useAuth();
   const { t } = useI18n();
   const navigate = useNavigate();
 
@@ -87,6 +88,17 @@ function SignInPage() {
             style={{ borderColor: "var(--border)", color: "var(--text)" }}
           >
             Use test auth
+          </button>
+        )}
+
+        {signInWithTestAuthB && (
+          <button
+            onClick={signInWithTestAuthB}
+            data-testid="sign-in-test-auth-button-b"
+            className="flex w-full items-center justify-center gap-3 rounded-lg border px-4 py-3 text-sm font-medium transition-colors hover:bg-(--primary-light)"
+            style={{ borderColor: "var(--border)", color: "var(--text)" }}
+          >
+            Use test auth (B)
           </button>
         )}
       </div>

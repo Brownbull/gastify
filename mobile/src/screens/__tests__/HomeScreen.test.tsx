@@ -68,6 +68,7 @@ describe("HomeScreen", () => {
       loading: false,
       signInWithGoogle: jest.fn(),
       signInWithTestUser: jest.fn(),
+      signInWithTestUserB: jest.fn(),
       signOut,
       user: {
         uid: "firebase-uid",

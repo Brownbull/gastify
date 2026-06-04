@@ -54,6 +54,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       process.env.EXPO_PUBLIC_FIREBASE_AUTH_EMULATOR_HOST ?? "",
     e2eAuthEmail: process.env.EXPO_PUBLIC_E2E_AUTH_EMAIL ?? "",
     e2eAuthPassword: process.env.EXPO_PUBLIC_E2E_AUTH_PASSWORD ?? "",
+    // Second disposable test user (B) for multi-user group/share e2e.
+    e2eAuthEmailB: process.env.EXPO_PUBLIC_E2E_AUTH_EMAIL_B ?? "",
+    e2eAuthPasswordB: process.env.EXPO_PUBLIC_E2E_AUTH_PASSWORD_B ?? "",
     scanTestControlsEnabled,
   },
   ios: {

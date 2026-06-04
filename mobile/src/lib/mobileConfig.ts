@@ -10,6 +10,8 @@ interface MobileExtraConfig {
   firebaseAuthEmulatorHost?: string;
   e2eAuthEmail?: string;
   e2eAuthPassword?: string;
+  e2eAuthEmailB?: string;
+  e2eAuthPasswordB?: string;
   scanTestControlsEnabled?: boolean;
 }
 
@@ -25,6 +27,8 @@ export const mobileConfig = {
   firebaseAuthEmulatorHost: extra.firebaseAuthEmulatorHost ?? "",
   e2eAuthEmail: extra.e2eAuthEmail ?? "",
   e2eAuthPassword: extra.e2eAuthPassword ?? "",
+  e2eAuthEmailB: extra.e2eAuthEmailB ?? "",
+  e2eAuthPasswordB: extra.e2eAuthPasswordB ?? "",
   scanTestControlsEnabled:
     extra.scanTestControlsEnabled === true &&
     normalizeAppEnvironment(extra.appEnvironment) !== "production",

@@ -4,7 +4,7 @@ import { mobileConfig } from "../lib/mobileConfig";
 import { useAuth } from "../providers/AuthProvider";
 
 export function SignInScreen() {
-  const { error, signInWithGoogle, signInWithTestUser } = useAuth();
+  const { error, signInWithGoogle, signInWithTestUser, signInWithTestUserB } = useAuth();
 
   return (
     <ScreenShell>
@@ -32,6 +32,13 @@ export function SignInScreen() {
             testID="e2e-sign-in-button"
             onPress={() => void signInWithTestUser()}
           />
+          {mobileConfig.e2eAuthEmailB ? (
+            <Button
+              title="Use test auth (B)"
+              testID="e2e-sign-in-button-b"
+              onPress={() => void signInWithTestUserB()}
+            />
+          ) : null}
         </View>
       ) : null}
     </ScreenShell>

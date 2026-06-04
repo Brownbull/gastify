@@ -16,6 +16,7 @@ jest.mock("../../lib/mobileConfig", () => ({
 describe("SignInScreen", () => {
   const signInWithGoogle = jest.fn();
   const signInWithTestUser = jest.fn();
+  const signInWithTestUserB = jest.fn();
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -24,6 +25,7 @@ describe("SignInScreen", () => {
       loading: false,
       signInWithGoogle,
       signInWithTestUser,
+      signInWithTestUserB,
       signOut: jest.fn(),
       user: null,
     });
@@ -46,6 +48,7 @@ describe("SignInScreen", () => {
       loading: false,
       signInWithGoogle,
       signInWithTestUser,
+      signInWithTestUserB,
       signOut: jest.fn(),
       user: null,
     });

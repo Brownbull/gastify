@@ -32,6 +32,7 @@ interface AuthState {
 interface AuthContextValue extends AuthState {
   signInWithGoogle: () => Promise<void>;
   signInWithTestUser: () => Promise<void>;
+  signInWithTestUserB: () => Promise<void>;
   signOut: () => Promise<void>;
 }
 
@@ -172,6 +173,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             ...prev,
             loading: false,
             error: err instanceof Error ? err.message : "Test sign-in failed",
+          }));
+        }
+      },
+      signInWithTestUserB: async () => {
+        setState((prev) => ({ ...prev, error: null }));
+        try {
+          if (
+            !mobileConfig.e2eAuthEnabled ||
+            !mobileConfig.e2eAuthEmailB ||
+            !mobileConfig.e2eAuthPasswordB
+          ) {
+            throw new Error("E2E auth (B) is not configured");
+          }
+
+          configureE2EFirebaseAuth();
+          await auth().signInWithEmailAndPassword(
+            mobileConfig.e2eAuthEmailB,
+            mobileConfig.e2eAuthPasswordB,
+          );
+        } catch (err: unknown) {
+          setState((prev) => ({
+            ...prev,
+            loading: false,
+            error: err instanceof Error ? err.message : "Test sign-in (B) failed",
           }));
         }
       },
