@@ -28,7 +28,11 @@ export function ShareToGroupButton({ transactionId }: { transactionId: string })
       </span>
       <select
         value={groupId}
-        onChange={(event) => setGroupId(event.target.value)}
+        onChange={(event) => {
+          // Re-arm the button for a new target after a prior success/error.
+          if (share.isSuccess || share.isError) share.reset();
+          setGroupId(event.target.value);
+        }}
         aria-label={t("group.shareToGroup")}
         className="rounded-lg border bg-transparent px-2 py-1 text-sm"
         style={{ borderColor: "var(--border)", color: "var(--text-secondary)" }}
@@ -42,13 +46,19 @@ export function ShareToGroupButton({ transactionId }: { transactionId: string })
       </select>
       <button
         type="button"
-        disabled={!groupId || share.isPending}
+        disabled={!groupId || share.isPending || share.isSuccess}
         onClick={() => share.mutate({ groupId, transactionId })}
         className="rounded-lg px-3 py-1.5 text-sm font-medium disabled:opacity-50"
         style={{ backgroundColor: "var(--primary)", color: "white" }}
       >
         {share.isSuccess ? t("group.shared") : t("group.share")}
       </button>
+      {share.isError && (
+        <span className="text-xs" role="alert" data-testid="share-error"
+              style={{ color: "var(--danger, #dc2626)" }}>
+          {t("group.shareError")}
+        </span>
+      )}
     </div>
   );
 }

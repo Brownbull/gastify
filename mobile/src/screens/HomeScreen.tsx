@@ -13,6 +13,7 @@ import {
   type ScanResultData,
   type ScanPhase,
 } from "../stores/scanStore";
+import { useScopeStore } from "../stores/scopeStore";
 import { useSessionStore } from "../stores/sessionStore";
 import type { RootStackParamList } from "../types/navigation";
 
@@ -121,6 +122,8 @@ export function HomeScreen({ navigation }: HomeScreenProps = {}) {
     useReceiptCapture();
 
   const scanLocked = phase !== "idle" && phase !== "failed" && phase !== "complete";
+  // D70: scanning is personal-only — block capture while a group scope is active.
+  const isGroupScope = useScopeStore((s) => s.activeScope.kind === "group");
   const scanTestCases = getVisibleScanTestCases();
   const resultTransactionId =
     typeof result?.transaction_id === "string" ? result.transaction_id : null;
@@ -226,13 +229,19 @@ export function HomeScreen({ navigation }: HomeScreenProps = {}) {
           {isUploading ? <ActivityIndicator color="#2563eb" /> : null}
         </View>
 
+        {isGroupScope ? (
+          <Text style={styles.personalOnlyNotice} testID="personal-only-notice">
+            Scanning is personal-only. Switch back to Personal to scan receipts.
+          </Text>
+        ) : null}
+
         <View style={styles.buttonRow}>
           <View style={styles.buttonCell}>
             <Button
               title="Open camera"
               testID="scan-camera-button"
               onPress={() => void captureFromCamera()}
-              disabled={scanLocked}
+              disabled={scanLocked || isGroupScope}
             />
           </View>
           <View style={styles.buttonCell}>
@@ -240,7 +249,7 @@ export function HomeScreen({ navigation }: HomeScreenProps = {}) {
               title="Choose image"
               testID="scan-library-button"
               onPress={() => void chooseFromLibrary()}
-              disabled={scanLocked}
+              disabled={scanLocked || isGroupScope}
             />
           </View>
         </View>
@@ -250,7 +259,7 @@ export function HomeScreen({ navigation }: HomeScreenProps = {}) {
             title="Scan multiple receipts"
             testID="open-batch-scan-button"
             onPress={() => navigation?.navigate("BatchCapture")}
-            disabled={scanLocked}
+            disabled={scanLocked || isGroupScope}
           />
         </View>
 
@@ -630,6 +639,14 @@ function getVisibleScanTestCases() {
 const styles = StyleSheet.create({
   batchEntryRow: {
     marginTop: 12,
+  },
+  personalOnlyNotice: {
+    color: "#92400e",
+    backgroundColor: "#fef3c7",
+    borderRadius: 8,
+    fontSize: 13,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
   },
   body: {
     color: "#475569",

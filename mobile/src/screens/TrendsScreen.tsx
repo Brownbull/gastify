@@ -1,6 +1,7 @@
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useState } from "react";
 import { ActivityIndicator, Button, Pressable, StyleSheet, Text, View } from "react-native";
+import { ScopeBanner } from "../components/ScopeBanner";
 import { ScreenShell } from "../components/ScreenShell";
 import { CategoryDonut } from "../components/charts/CategoryDonut";
 import { SpendTimeSeries } from "../components/charts/SpendTimeSeries";
@@ -48,6 +49,7 @@ export function TrendsScreen({ navigation }: Partial<TrendsScreenProps> = {}) {
       <View style={styles.header} testID="trends-screen">
         <Button title="Back" onPress={() => navigation?.goBack()} />
         <Text style={styles.title}>Trends</Text>
+        <ScopeBanner />
         <View style={styles.periodNav}>
           <Button title="‹ Prev" onPress={() => setPeriod((p) => shiftPeriod(p, -1))} />
           <Text style={styles.periodLabel} testID="trends-period">

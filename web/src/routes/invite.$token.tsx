@@ -85,6 +85,12 @@ function InvitePage() {
                 </button>
               </div>
             )}
+
+            {joinInvite.isError && (
+              <p data-testid="invite-join-error" role="alert" style={{ color: "var(--danger, #dc2626)" }}>
+                {t("invite.joinError")}
+              </p>
+            )}
           </>
         )}
       </div>

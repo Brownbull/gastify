@@ -3579,3 +3579,19 @@ DEFERRED: none
 - 2026-06-04 12:10 | Edit | /home/khujta/projects/apps/gastify/mobile/src/screens/GroupsScreen.tsx
 - 2026-06-04 12:10 | Edit | /home/khujta/projects/apps/gastify/mobile/src/screens/GroupsScreen.tsx
 - 2026-06-04 12:10 | Edit | /home/khujta/projects/apps/gastify/tests/mobile/maestro/p5-phase5-groups-active.yaml
+
+## 2026-06-04 12:17 — [d9663b0] fix(groups): mobile keyboard-submit create + S23 Maestro proof green
+FINDINGS: 0 blocking (P54 resolved; P60 mobile-parity remains open, low/non-blocking at mvp)
+CHECKS: mobile tsc clean · 171 jest green · no mobile lint script
+PROOF: S23 Maestro p5-phase5-groups-active PASSED 37s on DEPLOYED staging-e2e (SM-S911B/Android 16, wireless adb 192.168.1.83:5555) — sign-in→home→Groups→create "S23 Casa" (IME submit)→whole-app scope switch→group scope banner "Viewing group: S23 Casa"→back to Personal. Both B2 proofs now green (web 222c2b6 + mobile d9663b0).
+ROOT-CAUSE: RN New-Arch (Fabric) swallows Maestro instrumentation-injected taps on the create Pressable (real finger/adb tap works); fixed via onSubmitEditing IME-submit path (handleCreate reads e.nativeEvent.text). Also: stale CI-mode Metro served pre-5d/pre-fix bundles → required --clear restarts.
+DEFERRED: none new
+- 2026-06-04 12:21 | Write | /tmp/p5-client-review.js
+
+## 2026-06-04 12:35 — PHASE 5 REVIEW: Groups (personal+shared) — client surface (5d web+mobile)
+VERDICT: WARNING (MVP-mergeable — 0 CRITICAL, 0 HIGH; 8 MEDIUM + 14 LOW polish/test debt)
+METHOD: multi-agent workflow — 6 area reviewers (typescript-reviewer) × dimensions → adversarial verify each finding (skeptic, refute-by-default). 48 agents, 42 raw → 22 confirmed, 20 refuted (ALL 4 claimed HIGH refuted vs real code + backend RLS: insightsKeys.all cross-scope leak, double-submit-share-HIGH, stale-scope-pre-reconcile, BatchCapture-guard — none real).
+FINDINGS: 22 (0 critical, 0 high, 8 medium, 14 low). Themes: (a) 6× silent mutation/fetch error swallow [violates user rule "never silently swallow errors"] — web join + share, mobile create/leave/list/share; (b) double-submit guards (web share #4, mobile leave #19); (c) D70 mobile scan-guard parity (HomeScreen/BatchCapture not blocked in group scope — already P60a, LOW); (d) test-coverage gaps (scope-isolation hook tests, GroupsScreen, ScopeBanner); (e) polish (rename→activeScope name sync, delete→detail cache evict, TrendsScreen banner, confirm dialogs, scopeStore persistence [P60d]/reset-on-signout).
+COVERAGE: MEDIUM — group flow has B2 e2e on both platforms (web Playwright + S23 Maestro on deployed staging-e2e) but unit-test gaps on scope isolation.
+ALIGNMENT: ALIGNED (client matches D70/D72). TIER: ent | DRIFT: none.
+TICK: pending fix-vs-defer decision

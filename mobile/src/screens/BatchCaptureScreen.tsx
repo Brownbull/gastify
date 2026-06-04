@@ -9,6 +9,7 @@ import {
   stageBatchInputs,
   type BatchScanInput,
 } from "../stores/batchScanStore";
+import { useScopeStore } from "../stores/scopeStore";
 import type { RootStackParamList } from "../types/navigation";
 
 const MAX_BATCH = 10;
@@ -54,6 +55,9 @@ type BatchCaptureProps = Partial<
 export function BatchCaptureScreen({ navigation }: BatchCaptureProps = {}) {
   const [inputs, setInputs] = useState<readonly BatchScanInput[]>([]);
   const [error, setError] = useState<string | null>(null);
+  // D70: scanning is personal-only. Defense-in-depth in case the screen is
+  // reached while a group scope is active (the HomeScreen entry is also disabled).
+  const isGroupScope = useScopeStore((s) => s.activeScope.kind === "group");
 
   const remaining = MAX_BATCH - inputs.length;
   const testCases = visibleScanTestCases();
@@ -122,6 +126,21 @@ export function BatchCaptureScreen({ navigation }: BatchCaptureProps = {}) {
     stageBatchInputs(inputs);
     navigation?.navigate("BatchReview");
   }, [inputs, navigation]);
+
+  if (isGroupScope) {
+    return (
+      <ScreenShell>
+        <View style={styles.header} testID="batch-capture-screen">
+          <Text style={styles.eyebrow}>Gastify mobile</Text>
+          <Text style={styles.title}>Batch scan</Text>
+          <Text style={styles.body} testID="personal-only-notice">
+            Scanning is personal-only. Switch back to Personal to scan receipts.
+          </Text>
+          <Button title="Back" onPress={() => navigation?.goBack()} />
+        </View>
+      </ScreenShell>
+    );
+  }
 
   return (
     <ScreenShell>

@@ -21,6 +21,7 @@ import { configureE2EFirebaseAuth } from "../lib/e2eFirebaseAuth";
 import { configureGoogleSignIn } from "../lib/googleSignIn";
 import { mobileConfig } from "../lib/mobileConfig";
 import { unregisterCurrentPushToken } from "../lib/pushNotifications";
+import { hydrateActiveScope, useScopeStore } from "../stores/scopeStore";
 
 interface AuthState {
   user: FirebaseAuthTypes.User | null;
@@ -63,6 +64,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       if (!firebaseUser) {
         await clearMobileSession();
+        // Drop any group scope so it never leaks into the next signed-in account.
+        useScopeStore.getState().reset();
         if (!isCurrentAuthEvent()) return;
         setState({ user: null, loading: false, error: null });
         return;
@@ -75,6 +78,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         );
         if (!tokenApplied || !isCurrentAuthEvent()) return;
         setState({ user: firebaseUser, loading: false, error: null });
+        // Restore the user's last group scope (shape-validated; personal otherwise).
+        void hydrateActiveScope();
       } catch (err: unknown) {
         if (!isCurrentAuthEvent()) return;
         await clearMobileSession();
@@ -190,6 +195,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
 
         await clearMobileSession();
+        useScopeStore.getState().reset();
         setState({ user: null, loading: false, error: null });
       },
     }),

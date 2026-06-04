@@ -35,6 +35,11 @@ export function ShareToGroupButton({ transactionId }: { transactionId: string })
           Shared
         </Text>
       )}
+      {share.isError && (
+        <Text style={styles.err} testID="share-error">
+          Could not share — it may already be in that group.
+        </Text>
+      )}
     </View>
   );
 }
@@ -53,4 +58,5 @@ const styles = StyleSheet.create({
   btnText: { color: "white", fontWeight: "600", fontSize: 13 },
   disabled: { opacity: 0.5 },
   ok: { color: "#16a34a", fontSize: 12, fontWeight: "600" },
+  err: { color: "#b91c1c", fontSize: 12, fontWeight: "600" },
 });

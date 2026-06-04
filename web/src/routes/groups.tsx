@@ -80,40 +80,43 @@ function CreateGroupForm() {
   const createGroup = useCreateGroup();
 
   return (
-    <form
-      data-testid="create-group-form"
-      onSubmit={(event) => {
-        event.preventDefault();
-        const trimmed = name.trim();
-        if (!trimmed) return;
-        createGroup.mutate(trimmed, { onSuccess: () => setName("") });
-      }}
-      className="flex gap-2 rounded-xl border p-3"
-      style={{ borderColor: "var(--border)", backgroundColor: "var(--surface)" }}
-    >
-      <input
-        value={name}
-        onChange={(event) => setName(event.target.value)}
-        placeholder={t("group.namePlaceholder")}
-        aria-label={t("group.namePlaceholder")}
-        maxLength={60}
-        className="flex-1 rounded-lg border bg-transparent px-3 py-2 text-sm"
-        style={{ borderColor: "var(--border)", color: "var(--text-primary)" }}
-      />
-      <button
-        type="submit"
-        disabled={createGroup.isPending || !name.trim()}
-        className="rounded-lg px-4 py-2 text-sm font-medium disabled:opacity-50"
-        style={{ backgroundColor: "var(--primary)", color: "white" }}
+    <div className="space-y-1">
+      <form
+        data-testid="create-group-form"
+        onSubmit={(event) => {
+          event.preventDefault();
+          const trimmed = name.trim();
+          if (!trimmed) return;
+          createGroup.mutate(trimmed, { onSuccess: () => setName("") });
+        }}
+        className="flex gap-2 rounded-xl border p-3"
+        style={{ borderColor: "var(--border)", backgroundColor: "var(--surface)" }}
       >
-        {t("group.create")}
-      </button>
+        <input
+          value={name}
+          onChange={(event) => setName(event.target.value)}
+          placeholder={t("group.namePlaceholder")}
+          aria-label={t("group.namePlaceholder")}
+          maxLength={60}
+          className="flex-1 rounded-lg border bg-transparent px-3 py-2 text-sm"
+          style={{ borderColor: "var(--border)", color: "var(--text-primary)" }}
+        />
+        <button
+          type="submit"
+          disabled={createGroup.isPending || !name.trim()}
+          className="rounded-lg px-4 py-2 text-sm font-medium disabled:opacity-50"
+          style={{ backgroundColor: "var(--primary)", color: "white" }}
+        >
+          {t("group.create")}
+        </button>
+      </form>
       {createGroup.isError && (
-        <span className="sr-only" role="alert">
+        <p className="px-1 text-sm" role="alert" data-testid="create-group-error"
+           style={{ color: "var(--danger, #dc2626)" }}>
           {t("group.createError")}
-        </span>
+        </p>
       )}
-    </form>
+    </div>
   );
 }
 
@@ -170,7 +173,27 @@ function GroupCard({
 }
 
 function GroupDetailPanel({ groupId }: { groupId: string }) {
-  const { data: detail } = useGroup(groupId);
+  const { t } = useI18n();
+  const { data: detail, isLoading, isError } = useGroup(groupId);
+  if (isLoading) {
+    return (
+      <p className="mt-2 px-1 text-sm" style={{ color: "var(--text-muted)" }}>
+        …
+      </p>
+    );
+  }
+  if (isError) {
+    return (
+      <p
+        className="mt-2 px-1 text-sm"
+        role="alert"
+        data-testid="group-detail-error"
+        style={{ color: "var(--danger, #dc2626)" }}
+      >
+        {t("group.loadError")}
+      </p>
+    );
+  }
   if (!detail) return null;
   const canManage = detail.role === "owner" || detail.role === "admin";
 
@@ -333,6 +356,16 @@ function GroupActions({ detail, groupId }: { detail: GroupDetail; groupId: strin
         >
           {t("group.delete")}
         </button>
+      )}
+      {(leaveGroup.isError || deleteGroup.isError) && (
+        <p
+          className="basis-full text-xs"
+          role="alert"
+          data-testid="group-action-error"
+          style={{ color: "var(--danger, #dc2626)" }}
+        >
+          {leaveGroup.isError ? t("group.leaveError") : t("group.deleteError")}
+        </p>
       )}
     </div>
   );
