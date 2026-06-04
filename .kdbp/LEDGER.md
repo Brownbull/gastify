@@ -3723,3 +3723,7 @@ DEPLOY: pushed 0d43c8a->3dfdd2d to origin/staging (8 commits: items endpoint + D
 WEB (Playwright vs live backend): items.spec.ts GREEN 7.0s — /items lists real line items; a no-match search collapses to items-empty-filtered; clearing the chip restores rows; a row deep-links to /transactions/<id>.
 S23 (Maestro on SM-S911B vs live backend): p11-items-active GREEN 34s — A opens Items (open-items-button) -> non-empty list (items-row-0) -> tap row -> transaction-detail-screen. Artifact: tests/mobile/results/runs/staging-e2e/20260604T230401Z-staging-e2e-p11-items-active/.
 STATE: Phase 6 Items vertical T1-T6 complete + B2-proven both platforms. Exec stays 🔄 (Reports T7-T10 remain). backend 808 / web 76 / mobile 206 all green.
+
+## 2026-06-04 19:10 — PUSH feat/phase6-items-reports -> staging -> main (Items vertical + D76)
+CI: staging 26984577616 green · main 26985038471 green. PROMOTION: origin/staging at f9270f5 -> main (FF 0d43c8a->f9270f5, 9 commits). DEPLOYMENTS: P55 (staging-e2e) + P56 (promotion). Railway production deployed (no migration); prod openapi serves /api/v1/items; prod smoke /items 401 + /items?search 401. D76 safe on prod (app started; production=gemini passes the REAL_LLM guard).
+SHIPS: Phase 6 Items vertical (T1-T6) — GET /api/v1/items + web /items screen + mobile ItemsScreen, B2-proven both platforms (web Playwright 7.0s + S23 Maestro 34s). D76 Gemini env policy (mock in staging-e2e, real in staging+production, enforced by environment). Phase 6 Exec stays 🔄 (Reports T7-T10 remain).
