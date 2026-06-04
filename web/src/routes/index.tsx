@@ -8,6 +8,7 @@ import {
 } from "@/hooks/useInsights";
 import { useDonutDrill } from "@/hooks/useDonutDrill";
 import { useI18n } from "@/hooks/useI18n";
+import { useUiStore } from "@/stores/uiStore";
 import { treeNodesToSlices } from "@/lib/chartData";
 import {
   SummaryStats,
@@ -34,9 +35,19 @@ function DashboardPage() {
   const [period, setPeriod] = useState(() => currentPeriod());
   const { data, isLoading, error } = useMonthlyInsights(period);
   const atCurrent = period >= currentPeriod();
+  const activeScope = useUiStore((s) => s.activeScope);
 
   return (
     <div className="space-y-6">
+      {activeScope.kind === "group" && (
+        <p
+          data-testid="dashboard-scope-banner"
+          className="rounded-lg px-3 py-2 text-sm font-semibold"
+          style={{ backgroundColor: "var(--primary-light)", color: "var(--primary)" }}
+        >
+          🏠 {t("group.activeBanner")}: {activeScope.name}
+        </p>
+      )}
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-2xl font-semibold" style={{ color: "var(--text)" }}>

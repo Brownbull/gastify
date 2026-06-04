@@ -43,28 +43,42 @@ test("group flow: create, share, switch scope, isolation, scan blocked", async (
   await share.getByRole("button").click();
   await expect(share.getByRole("button")).toHaveText(/Compartido|Shared/, { timeout: 15_000 });
 
-  // 3. Switch the global scope to the group and land on the dashboard.
-  await page.getByTestId("group-switcher").first().click();
-  await page.getByRole("option", { name: new RegExp(GROUP_NAME) }).click();
+  // 3. Personal dashboard at the seeded month: the fixtures total is shown and
+  // there is NO group banner (personal scope).
   await page.goto("/");
   await page.getByLabel("Month", { exact: true }).fill(SEEDED_MONTH);
+  await page.getByTestId("total-spend").waitFor({ state: "visible", timeout: 20_000 });
+  await expect(page.getByTestId("dashboard-scope-banner")).toHaveCount(0);
+  const personalTotal = await readTotalSpend(page);
+  expect(personalTotal).toBeGreaterThan(0);
 
-  // The dashboard now reads the GROUP scope — its total is the shared spend only,
-  // strictly less than the personal total (isolation: group != personal).
-  const groupTotal = await readTotalSpend(page);
-  expect(groupTotal).toBeGreaterThan(0);
+  // 4. Switch the WHOLE-APP scope to the group. The dashboard re-scopes: the banner
+  // names the group, and at the seeded month it shows the group's OWN data — NOT
+  // the personal fixtures. The freshly-shared spend lands in another month, so the
+  // group has no 2026-03 spend → the empty state proves isolation (group != personal).
+  await page.getByTestId("group-switcher").first().click();
+  await page
+    .getByRole("listbox")
+    .getByRole("option", { name: new RegExp(GROUP_NAME) })
+    .click();
+  await page.goto("/");
+  await page.getByLabel("Month", { exact: true }).fill(SEEDED_MONTH);
+  await expect(page.getByTestId("dashboard-scope-banner")).toContainText(GROUP_NAME, {
+    timeout: 20_000,
+  });
+  await expect(page.getByTestId("dashboard-empty")).toBeVisible({ timeout: 20_000 });
 
-  // 4. Scanning is blocked in group mode (D70 — scan is personal-only).
+  // 5. Scanning is blocked in group mode (D70 — scan is personal-only).
   await page.goto("/scan");
   await expect(page.getByTestId("personal-only-notice")).toBeVisible({ timeout: 10_000 });
 
-  // 5. Back to Personal — the dashboard restores the full personal total (> group).
+  // 6. Back to Personal — the banner disappears and the full personal total returns.
   await page.getByTestId("group-switcher").first().click();
-  await page.getByRole("option", { name: /Personal/ }).click();
+  await page.getByRole("listbox").getByRole("option", { name: /Personal/ }).click();
   await page.goto("/");
   await page.getByLabel("Month", { exact: true }).fill(SEEDED_MONTH);
-  const personalTotal = await readTotalSpend(page);
-  expect(personalTotal).toBeGreaterThan(groupTotal);
+  await expect(page.getByTestId("dashboard-scope-banner")).toHaveCount(0);
+  expect(await readTotalSpend(page)).toBe(personalTotal);
 });
 
 /** Read the dashboard's total-spend figure as a number of minor units-ish integer. */
