@@ -140,6 +140,10 @@ function DashboardContent({ data, period }: { data: MonthlyInsights; period: str
           <View style={styles.centered} testID="dashboard-tree-loading">
             <ActivityIndicator color="#2563eb" />
           </View>
+        ) : tree.isError ? (
+          <Text style={styles.errorBody} testID="dashboard-tree-error">
+            Could not load your categories.
+          </Text>
         ) : slices.length === 0 ? (
           <Text style={styles.mutedText} testID="dashboard-tree-empty">
             No categories this month yet.
@@ -232,12 +236,17 @@ function DrillBreadcrumb({
       <Pressable
         testID="drill-back"
         accessibilityRole="button"
+        accessibilityLabel="Back one level"
         onPress={onBack}
         style={styles.crumbBack}
       >
         <Text style={styles.linkText}>‹ Back</Text>
       </Pressable>
-      <Pressable accessibilityRole="button" onPress={() => onCrumb(-1)}>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel="All categories"
+        onPress={() => onCrumb(-1)}
+      >
         <Text style={styles.crumbText}>All</Text>
       </Pressable>
       {trail.map((crumb, index) => (

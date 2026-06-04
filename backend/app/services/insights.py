@@ -648,6 +648,17 @@ def build_insights_tree_from_records(
     )
 
 
+def _parent_key_or_none(dimension: InsightDimension, category_key: str) -> str | None:
+    """Parent category key for a leaf, or None if the key/parent is not in the
+    static taxonomy. Lets the tree builders skip an orphaned category instead of
+    500-ing the whole endpoint on a future dangling-parent taxonomy edit."""
+
+    try:
+        return insight_parent_for_category(dimension, category_key).key
+    except ValueError:
+        return None
+
+
 def _build_store_cross_walk_tree(
     prepared_transactions: tuple[_PreparedTransaction, ...],
     *,
@@ -667,12 +678,15 @@ def _build_store_cross_walk_tree(
     store_industry: dict[str, str] = {}
     family_accumulators: dict[tuple[str, str], _CategoryAccumulator] = {}
     item_accumulators: dict[tuple[str, str], _CategoryAccumulator] = {}
+    item_family: dict[str, str] = {}
 
     for prepared in prepared_transactions:
         store_key = prepared.record.transaction_category_key
         if not store_key or prepared.included_total_minor <= 0:
             continue
-        industry_key = insight_parent_for_category("transaction_category", store_key).key
+        industry_key = _parent_key_or_none("transaction_category", store_key)
+        if industry_key is None:
+            continue
         store_industry[store_key] = industry_key
         _accumulate_transaction_into(
             industry_accumulators.setdefault(industry_key, _CategoryAccumulator()), prepared
@@ -683,7 +697,10 @@ def _build_store_cross_walk_tree(
         for item in prepared.included_items:
             if item.category_key is None or item.total_minor <= 0:
                 continue
-            family_key = insight_parent_for_category("item_category", item.category_key).key
+            family_key = _parent_key_or_none("item_category", item.category_key)
+            if family_key is None:
+                continue
+            item_family[item.category_key] = family_key
             _accumulate_item_into(
                 family_accumulators.setdefault((store_key, family_key), _CategoryAccumulator()),
                 total_minor=item.total_minor,
@@ -718,8 +735,7 @@ def _build_store_cross_walk_tree(
                         children=[],
                     )
                     for (item_store_key, item_key), item_accumulator in item_accumulators.items()
-                    if item_store_key == store_key
-                    and insight_parent_for_category("item_category", item_key).key == family_key
+                    if item_store_key == store_key and item_family[item_key] == family_key
                 ]
                 family_children.append(
                     _tree_node(
@@ -767,11 +783,15 @@ def _build_item_family_tree(
 
     family_accumulators: dict[str, _CategoryAccumulator] = {}
     item_accumulators: dict[str, _CategoryAccumulator] = {}
+    item_family: dict[str, str] = {}
     for prepared in prepared_transactions:
         for item in prepared.included_items:
             if item.category_key is None or item.total_minor <= 0:
                 continue
-            family_key = insight_parent_for_category("item_category", item.category_key).key
+            family_key = _parent_key_or_none("item_category", item.category_key)
+            if family_key is None:
+                continue
+            item_family[item.category_key] = family_key
             _accumulate_item_into(
                 family_accumulators.setdefault(family_key, _CategoryAccumulator()),
                 total_minor=item.total_minor,
@@ -796,7 +816,7 @@ def _build_item_family_tree(
                 children=[],
             )
             for item_key, item_accumulator in item_accumulators.items()
-            if insight_parent_for_category("item_category", item_key).key == family_key
+            if item_family[item_key] == family_key
         ]
         roots.append(
             _tree_node(
@@ -843,7 +863,7 @@ def _tree_node(
     category = _tree_category_for_level(level, key)
     return InsightsTreeNode(
         key=category.key,
-        label=category.display_labels["en"],
+        label=category.display_labels.get("en", category.key),
         parent_key=parent_key,
         level=level,
         total_minor=accumulator.total_minor,

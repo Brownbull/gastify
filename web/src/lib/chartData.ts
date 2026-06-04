@@ -128,6 +128,8 @@ export function treeNodesToSlices(
     categoryKey: node.key,
     label: node.label,
     parentKey: node.parent_key ?? "",
+    // Tree nodes carry parent_key but no denormalized parent label, so parentLabel
+    // is intentionally empty here (the breadcrumb derives ancestor labels instead).
     parentLabel: "",
     valueMinor: node.total_minor,
     percent: parentTotalMinor > 0 ? (node.total_minor / parentTotalMinor) * 100 : 0,

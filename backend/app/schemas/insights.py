@@ -263,6 +263,11 @@ class InsightsTreeNode(BaseModel):
     store-type key rather than its taxonomy family parent. `share_of_total_percent`
     is relative to the response `total_spend_minor`; clients recompute
     within-parent proportions from `total_minor` when rendering a drilled level.
+
+    `excluded_total_minor` is populated only at the transaction-aggregated levels
+    (store L1/L2 / item-dimension roots); it is always 0 at the item-level
+    cross-walk depths (store L3/L4), where excluded items have already been
+    removed before aggregation. Do not read it as "nothing excluded" at depth.
     """
 
     key: str

@@ -108,6 +108,7 @@ export function DrillBreadcrumb({
       <button
         type="button"
         onClick={onBack}
+        aria-label={t("chart.back")}
         className="rounded-md border px-2 py-1 text-xs font-medium"
         style={{
           borderColor: "var(--border)",

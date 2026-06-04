@@ -142,7 +142,17 @@ function DashboardContent({ data, period }: { data: MonthlyInsights; period: str
           </div>
         )}
         {tree.isLoading && <ChartFallback />}
-        {!tree.isLoading && slices.length === 0 && (
+        {!tree.isLoading && tree.isError && (
+          <p
+            className="py-8 text-center text-sm"
+            style={{ color: "var(--negative-primary)" }}
+            role="alert"
+            data-testid="donut-error"
+          >
+            {t("dashboard.loadError")}
+          </p>
+        )}
+        {!tree.isLoading && !tree.isError && slices.length === 0 && (
           <p
             className="py-8 text-center text-sm"
             style={{ color: "var(--text-muted)" }}
@@ -151,7 +161,7 @@ function DashboardContent({ data, period }: { data: MonthlyInsights; period: str
             {t("dashboard.empty")}
           </p>
         )}
-        {!tree.isLoading && slices.length > 0 && tree.data && (
+        {!tree.isLoading && !tree.isError && slices.length > 0 && tree.data && (
           <Suspense fallback={<ChartFallback />}>
             <CategoryDonut
               slices={slices}

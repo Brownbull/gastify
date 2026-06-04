@@ -3479,3 +3479,20 @@ B2 MOBILE GATE: SATISFIED. Phase 4 v2 fully proven on BOTH platforms. Closes P50
 
 ## 2026-06-04 — [27d115f] feat(mobile): recursive donut drill-down + S23 B2 proof (Phase 4 v2)
 FINDINGS: 0 (mobile tsc clean, 170 jest pass; no backend/web change). ACTIONS: none. CLOSES: P50. PLAN: Phase 4 v2 proven both platforms (Exec ✅ Commit ✅).
+- 2026-06-03 22:01 | Edit | /home/khujta/projects/apps/gastify/backend/app/services/insights.py
+- 2026-06-03 22:02 | Edit | /home/khujta/projects/apps/gastify/backend/app/services/insights.py
+- 2026-06-03 22:02 | Edit | /home/khujta/projects/apps/gastify/backend/app/services/insights.py
+- 2026-06-03 22:02 | Edit | /home/khujta/projects/apps/gastify/backend/app/services/insights.py
+- 2026-06-03 22:02 | Edit | /home/khujta/projects/apps/gastify/backend/app/services/insights.py
+- 2026-06-03 22:02 | Edit | /home/khujta/projects/apps/gastify/backend/app/schemas/insights.py
+
+## 2026-06-04 — PHASE 4 REVIEW: Dashboard + Charts/Trends (v2)
+VERDICT: APPROVE
+FINDINGS: 7 (0 critical, 1 high, 3 medium, 3 low) — ALL FIXED in this pass. 2 parallel reviewers (python-reviewer + typescript-reviewer) on the cfc0202..HEAD diff. No security/data-integrity issues; auth scoping, cross-walk math, recursive DTO, drill state machine, rules-of-hooks all clean.
+COVERAGE: HIGH (11 + 64 + 170 unit + B2 dual-platform staging-e2e proof). CONFIDENCE: 79 → ~100/100.
+FIXES: #1[HIGH] `_parent_key_or_none` guard + item→family cache (skips orphaned categories instead of 500-ing; removes the redundant assembly re-call); #2[MED] `tree.isError` state web+mobile (error message vs misleading empty-state); #3/#4[MED] breadcrumb a11y (web aria-label / mobile accessibilityLabel); #5[LOW] excluded_total_minor L1/L2-only docstring; #6[LOW] `display_labels.get("en", key)` fallback; #7[LOW] parentLabel intentional-empty comment. None change the proven happy-path → B2 proof stays valid. Re-verified: backend 25 insights tests + ruff/mypy clean; web tsc+vitest+build; mobile tsc+170 jest.
+DEFERRED: none. ALIGNMENT: ALIGNED. TIER: mvp | DRIFT: none. TICK: ✅
+- 2026-06-03 22:07 | Write | /tmp/gastify-reviewfix-commit.txt
+
+## 2026-06-04 — [d052fba] fix(insights): address /gabe-review findings (Phase 4 v2)
+FINDINGS: 0 (review-fix commit; re-verified backend 25 + web vitest + mobile 170 jest all green). ACTIONS: none. PLAN: Phase 4 Review ✅. Next: /gabe-push (staging→main promote needs user confirm).
