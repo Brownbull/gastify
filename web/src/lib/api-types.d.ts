@@ -705,6 +705,31 @@ export interface paths {
         patch: operations["update_member_role_api_v1_groups__group_id__members__member_user_id__patch"];
         trace?: never;
     };
+    "/api/v1/groups/{group_id}/share": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Share Transaction
+         * @description Copy one of the caller's PERSONAL transactions into a group they belong to.
+         *
+         *     Read the source under the caller's personal GUC (RLS shows only their own),
+         *     validate group membership, THEN swap to the group scope and insert the copy
+         *     (WITH CHECK passes because the GUC now equals the group). The original stays
+         *     personal; scanning remains personal-only (D70).
+         */
+        post: operations["share_transaction_api_v1_groups__group_id__share_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/groups/{group_id}/invite": {
         parameters: {
             query?: never;
@@ -1650,6 +1675,41 @@ export interface components {
              * Format: date-time
              */
             submitted_at: string;
+        };
+        /** ShareRequest */
+        ShareRequest: {
+            /**
+             * Transaction Id
+             * Format: uuid
+             */
+            transaction_id: string;
+        };
+        /**
+         * SharedTransactionResponse
+         * @description The new group-scoped copy created by a share.
+         */
+        SharedTransactionResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Group Id
+             * Format: uuid
+             */
+            group_id: string;
+            /** Merchant */
+            merchant: string;
+            /** Total Minor */
+            total_minor: number;
+            /** Currency */
+            currency: string;
+            /**
+             * Shared From Transaction Id
+             * Format: uuid
+             */
+            shared_from_transaction_id: string;
         };
         /** StatementAmountCandidate */
         StatementAmountCandidate: {
@@ -4138,6 +4198,41 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["MemberSummary"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    share_transaction_api_v1_groups__group_id__share_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                group_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ShareRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SharedTransactionResponse"];
                 };
             };
             /** @description Validation Error */

@@ -18,12 +18,13 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import func, select, text
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import aliased
+from sqlalchemy.orm import aliased, selectinload
 
 # Auth is a runtime Annotated FastAPI dep (TC001); the two helpers are called at
 # runtime — the line-level noqa keeps Auth importable for FastAPI's resolution.
 from app.auth.deps import Auth, _is_scope_member, _set_postgres_ownership_scope  # noqa: TC001
 from app.db import get_db
+from app.models.transaction import Transaction, TransactionItem
 from app.models.user import OwnershipScope, OwnershipScopeMember, User
 from app.schemas.groups import (
     GroupCreate,
@@ -36,6 +37,52 @@ from app.schemas.groups import (
     JoinResponse,
     MemberSummary,
     RoleUpdate,
+    SharedTransactionResponse,
+    ShareRequest,
+)
+
+# Spend fields a share copies verbatim; telemetry (llm_*/scan_*), personal
+# provenance (mapping ids, user-edit timestamps, card alias, thumbnail), and
+# per-user flags are intentionally NOT carried into the group copy (D70).
+_TXN_COPY_FIELDS = (
+    "transaction_date",
+    "transaction_time",
+    "merchant",
+    # `alias` is intentionally NOT copied — it's the sharer's private label and
+    # would leak a personal annotation to all members (data minimization, D70).
+    "store_category_id",
+    "store_category_source",
+    "store_category_confidence",
+    "total_minor",
+    "discount_total_minor",
+    "gross_total_minor",
+    "reconstructed_total_minor",
+    "currency",
+    "amount_usd_minor",
+    "fx_rate_to_usd",
+    "fx_captured_at",
+    "receipt_type",
+    "country",
+    "city",
+    "recurrence_kind",
+    "recurrence_interval",
+    "term_current",
+    "term_total",
+    "recurrence_label",
+    "recurrence_source",
+    "recurrence_confidence",
+)
+_ITEM_COPY_FIELDS = (
+    "name",
+    "qty",
+    "unit_price_minor",
+    "total_price_minor",
+    "discount_minor",
+    "discount_label",
+    "item_category_id",
+    "subcategory",
+    "category_source",
+    "sort_order",
 )
 
 router = APIRouter(prefix="/groups", tags=["groups"])
@@ -156,6 +203,12 @@ def _require_role(role: str, allowed: tuple[str, ...]) -> None:
         )
 
 
+async def _restore_personal_scope(db: AsyncSession, auth: Auth) -> None:
+    """Re-point the session GUC at the caller's personal scope after a deliberate
+    write-swap (create/join/share), so nothing later in the request runs grouped."""
+    await _set_postgres_ownership_scope(db, auth.ownership_scope_id)
+
+
 @router.get("", response_model=list[GroupSummary])
 async def list_groups(auth: Auth, db: DB) -> list[GroupSummary]:
     rows = await _user_group_rows(db, auth.user_id)
@@ -179,9 +232,9 @@ async def create_group(body: GroupCreate, auth: Auth, db: DB) -> GroupSummary:
     await _set_postgres_ownership_scope(db, scope.id)
     db.add(OwnershipScopeMember(ownership_scope_id=scope.id, user_id=auth.user_id, role="owner"))
     await db.commit()
-    # Restore the caller's personal scope — the swap above was only to satisfy the
-    # member INSERT's WITH CHECK; don't leave the session pointing at the new group.
-    await _set_postgres_ownership_scope(db, auth.ownership_scope_id)
+    # The swap above was only to satisfy the member INSERT's WITH CHECK; don't
+    # leave the session pointing at the new group.
+    await _restore_personal_scope(db, auth)
     return GroupSummary(id=scope.id, name=body.name, role="owner", member_count=1)
 
 
@@ -319,6 +372,91 @@ async def update_member_role(
     return MemberSummary(user_id=member_user_id, display_name=display_name, role=body.role)
 
 
+def _copy_transaction(source: Transaction, *, group_id: UUID, user_id: UUID) -> Transaction:
+    """Build a group-scoped copy of a personal transaction (spend fields + items)."""
+    copy = Transaction(
+        ownership_scope_id=group_id,
+        shared_by_user_id=user_id,
+        shared_from_transaction_id=source.id,
+        **{field: getattr(source, field) for field in _TXN_COPY_FIELDS},
+    )
+    copy.items = [
+        # is_flagged is reset (NOT copied): a group copy starts unflagged — the
+        # source's personal flags do not cross into the shared scope (D70).
+        TransactionItem(
+            is_flagged=False, **{field: getattr(item, field) for field in _ITEM_COPY_FIELDS}
+        )
+        for item in source.items
+    ]
+    return copy
+
+
+@router.post(
+    "/{group_id}/share",
+    status_code=status.HTTP_201_CREATED,
+    response_model=SharedTransactionResponse,
+)
+async def share_transaction(
+    group_id: UUID, body: ShareRequest, auth: Auth, db: DB
+) -> SharedTransactionResponse:
+    """Copy one of the caller's PERSONAL transactions into a group they belong to.
+
+    Read the source under the caller's personal GUC (RLS shows only their own),
+    validate group membership, THEN swap to the group scope and insert the copy
+    (WITH CHECK passes because the GUC now equals the group). The original stays
+    personal; scanning remains personal-only (D70).
+    """
+    source = (
+        await db.execute(
+            select(Transaction)
+            .where(Transaction.id == body.transaction_id)
+            .options(selectinload(Transaction.items))
+        )
+    ).scalar_one_or_none()
+    if source is None or source.ownership_scope_id != auth.ownership_scope_id:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Transaction not found")
+    if not await _is_scope_member(db, auth.user_id, group_id):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Group not found")
+
+    await _set_postgres_ownership_scope(db, group_id)
+    already = await db.scalar(
+        select(Transaction.id).where(
+            Transaction.ownership_scope_id == group_id,
+            Transaction.shared_from_transaction_id == source.id,
+        )
+    )
+    if already is not None:
+        await _restore_personal_scope(db, auth)
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Transaction already shared to this group",
+        )
+    copy = _copy_transaction(source, group_id=group_id, user_id=auth.user_id)
+    db.add(copy)
+    try:
+        await db.commit()
+    except IntegrityError:
+        # Raced a concurrent share (the unique (scope, shared_from) constraint).
+        await db.rollback()
+        await _restore_personal_scope(db, auth)
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Transaction already shared to this group",
+        ) from None
+    # Response fields are read from the in-memory copy (no DB I/O), so the personal
+    # scope can be restored immediately after commit before any further work.
+    response = SharedTransactionResponse(
+        id=copy.id,
+        group_id=group_id,
+        merchant=copy.merchant,
+        total_minor=copy.total_minor,
+        currency=copy.currency,
+        shared_from_transaction_id=source.id,
+    )
+    await _restore_personal_scope(db, auth)
+    return response
+
+
 @router.post("/{group_id}/invite", response_model=InviteResponse)
 async def create_invite(group_id: UUID, auth: Auth, db: DB) -> InviteResponse:
     role = await _resolve_membership(db, auth, group_id)
@@ -382,6 +520,7 @@ async def join_via_invite(token: str, auth: Auth, db: DB) -> JoinResponse:
         .where(OwnershipScopeMember.ownership_scope_id == group_id)
     )
     if int(live_count or 0) >= MAX_MEMBERS_PER_GROUP:
+        await _restore_personal_scope(db, auth)
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail=f"Group is full ({MAX_MEMBERS_PER_GROUP} members)",
@@ -393,7 +532,7 @@ async def join_via_invite(token: str, auth: Auth, db: DB) -> JoinResponse:
         await db.rollback()  # raced another join → already a member, which is fine
     # Restore the caller's personal scope (the swap above was a deliberate,
     # token-authorized write; don't leave the session pointing at the group).
-    await _set_postgres_ownership_scope(db, auth.ownership_scope_id)
+    await _restore_personal_scope(db, auth)
     return JoinResponse(id=group_id, name=name)
 
 

@@ -2300,6 +2300,60 @@
         }
       }
     },
+    "/api/v1/groups/{group_id}/share": {
+      "post": {
+        "tags": [
+          "groups"
+        ],
+        "summary": "Share Transaction",
+        "description": "Copy one of the caller's PERSONAL transactions into a group they belong to.\n\nRead the source under the caller's personal GUC (RLS shows only their own),\nvalidate group membership, THEN swap to the group scope and insert the copy\n(WITH CHECK passes because the GUC now equals the group). The original stays\npersonal; scanning remains personal-only (D70).",
+        "operationId": "share_transaction_api_v1_groups__group_id__share_post",
+        "parameters": [
+          {
+            "name": "group_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Group Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ShareRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SharedTransactionResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/groups/{group_id}/invite": {
       "post": {
         "tags": [
@@ -4496,6 +4550,63 @@
           "submitted_at"
         ],
         "title": "ScanSubmission"
+      },
+      "ShareRequest": {
+        "properties": {
+          "transaction_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Transaction Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "transaction_id"
+        ],
+        "title": "ShareRequest"
+      },
+      "SharedTransactionResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "group_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Group Id"
+          },
+          "merchant": {
+            "type": "string",
+            "title": "Merchant"
+          },
+          "total_minor": {
+            "type": "integer",
+            "title": "Total Minor"
+          },
+          "currency": {
+            "type": "string",
+            "title": "Currency"
+          },
+          "shared_from_transaction_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Shared From Transaction Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "group_id",
+          "merchant",
+          "total_minor",
+          "currency",
+          "shared_from_transaction_id"
+        ],
+        "title": "SharedTransactionResponse",
+        "description": "The new group-scoped copy created by a share."
       },
       "StatementAmountCandidate": {
         "properties": {

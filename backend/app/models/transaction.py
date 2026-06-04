@@ -77,6 +77,12 @@ class Transaction(Base):
             "(recurrence_confidence >= 0 AND recurrence_confidence <= 1)",
             name="ck_transactions_recurrence_confidence_range",
         ),
+        # A source can be shared into a given group at most once (NULLs exempt).
+        UniqueConstraint(
+            "ownership_scope_id",
+            "shared_from_transaction_id",
+            name="uq_transactions_scope_shared_from",
+        ),
     )
 
     id: Mapped[uuid.UUID] = mapped_column(
@@ -85,6 +91,12 @@ class Transaction(Base):
     ownership_scope_id: Mapped[uuid.UUID] = mapped_column(
         Uuid, ForeignKey("ownership_scopes.id"), nullable=False, index=True
     )
+    # Share-to-group provenance (D70): contributor + source txn id. NULL unless
+    # this row is a group copy of a personal transaction.
+    shared_by_user_id: Mapped[uuid.UUID | None] = mapped_column(
+        Uuid, ForeignKey("users.id"), nullable=True
+    )
+    shared_from_transaction_id: Mapped[uuid.UUID | None] = mapped_column(Uuid, nullable=True)
     transaction_date: Mapped[date] = mapped_column(Date, nullable=False)
     transaction_time: Mapped[time | None] = mapped_column(Time, nullable=True)
     merchant: Mapped[str] = mapped_column(Text, nullable=False)

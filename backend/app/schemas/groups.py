@@ -85,3 +85,22 @@ class InvitePreview(BaseModel):
 class JoinResponse(BaseModel):
     id: UUID
     name: str
+
+
+class ShareRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    transaction_id: UUID
+
+
+class SharedTransactionResponse(BaseModel):
+    """The new group-scoped copy created by a share."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
+    group_id: UUID
+    merchant: str
+    total_minor: int
+    currency: str
+    shared_from_transaction_id: UUID
