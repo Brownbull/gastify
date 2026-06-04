@@ -28,8 +28,21 @@ export function GroupsScreen({ navigation }: Partial<GroupsScreenProps> = {}) {
     navigation?.navigate("Dashboard");
   }
 
+  // Shared by the Create button and the keyboard "done" action. Reads the raw
+  // value (not just controlled state) so submitting via the IME action works
+  // even if a controlled-state update is mid-flight.
+  function handleCreate(raw: string) {
+    const trimmed = raw.trim();
+    if (!trimmed || createGroup.isPending) return;
+    createGroup.mutate(trimmed, { onSuccess: () => setName("") });
+  }
+
   return (
-    <ScrollView contentContainerStyle={styles.container} testID="groups-screen">
+    <ScrollView
+      contentContainerStyle={styles.container}
+      keyboardShouldPersistTaps="handled"
+      testID="groups-screen"
+    >
       <Text style={styles.title}>Groups</Text>
       <Text style={styles.subtitle}>Share spending with your household or team.</Text>
 
@@ -55,15 +68,15 @@ export function GroupsScreen({ navigation }: Partial<GroupsScreenProps> = {}) {
           onChangeText={setName}
           placeholder="Group name"
           maxLength={60}
+          returnKeyType="done"
+          onSubmitEditing={(e) => handleCreate(e.nativeEvent.text)}
           style={styles.input}
         />
         <Pressable
           testID="create-group-button"
           disabled={createGroup.isPending || !name.trim()}
           style={[styles.primaryBtn, (!name.trim() || createGroup.isPending) && styles.disabled]}
-          onPress={() =>
-            createGroup.mutate(name.trim(), { onSuccess: () => setName("") })
-          }
+          onPress={() => handleCreate(name)}
         >
           <Text style={styles.primaryBtnText}>Create</Text>
         </Pressable>

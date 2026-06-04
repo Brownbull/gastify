@@ -45,8 +45,12 @@ appId: com.gastify.mobile
 - tapOn:
     id: create-group-input
 - inputText: "S23 Casa"
-- tapOn:
-    id: create-group-button
+# Submit via the keyboard "done" action (onSubmitEditing) rather than tapping the
+# Create button. Maestro's instrumentation-injected touch does not reliably fire
+# this Pressable's onPress under RN's New Architecture (a real finger / adb tap
+# does), whereas the IME key event is dispatched reliably. This also exercises a
+# genuine UX path: a user can press "done" to create the group.
+- pressKey: Enter
 - extendedWaitUntil:
     visible:
       id: "group-card-S23 Casa"

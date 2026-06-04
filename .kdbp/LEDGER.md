@@ -3567,3 +3567,15 @@ DEFERRED to parity (P60): mobile scan-disable in group mode, header switcher, in
 NEXT: staging-e2e deploy -> run BOTH runtime proofs (web Playwright groups.spec.ts + S23 Maestro p5-phase5-groups) on one deploy -> push staging + promote (prior auth). Also proven this session: delete_group removes ONLY group copies, not personal originals (test_delete_group_keeps_personal_originals). PLAN: Phase 5 Exec 🔄 (5a-5d code + tests done both platforms; runtime proofs + deploy pending).
 - 2026-06-04 11:19 | Edit | /home/khujta/projects/apps/gastify/tests/web-e2e/groups.spec.ts
 - 2026-06-04 11:19 | Edit | /home/khujta/projects/apps/gastify/tests/web-e2e/groups.spec.ts
+
+## 2026-06-04 11:31 — [222c2b6] test(groups): prove web group scope flow on staging-e2e + dashboard banner
+FINDINGS: 0 (0 critical, 0 high, 0 medium, 0 low)
+CHECKS: lint 0-err (58 pre-existing warn) · tsc clean · 64 vitest + 1 Playwright e2e green
+PROOF: web group flow GREEN 19.6s vs deployed staging-e2e — create→share→switch→banner+isolation→scan-blocked(D70)→restored; /groups 200, DELETE group 204 (migration 031 live)
+DEFERRED: none
+- 2026-06-04 11:48 | Edit | /home/khujta/projects/apps/gastify/mobile/src/screens/GroupsScreen.tsx
+- 2026-06-04 12:01 | Edit | /home/khujta/projects/apps/gastify/tests/mobile/maestro/p5-phase5-groups-active.yaml
+- 2026-06-04 12:06 | Edit | /home/khujta/projects/apps/gastify/tests/mobile/maestro/p5-phase5-groups-active.yaml
+- 2026-06-04 12:10 | Edit | /home/khujta/projects/apps/gastify/mobile/src/screens/GroupsScreen.tsx
+- 2026-06-04 12:10 | Edit | /home/khujta/projects/apps/gastify/mobile/src/screens/GroupsScreen.tsx
+- 2026-06-04 12:10 | Edit | /home/khujta/projects/apps/gastify/tests/mobile/maestro/p5-phase5-groups-active.yaml
