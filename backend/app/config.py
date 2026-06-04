@@ -14,6 +14,10 @@ ALLOWED_STATEMENT_PROVIDERS = {"auto", "codex-pdf-text", "fixture", "gemini"}
 LOCAL_ENVIRONMENTS = {"local"}
 DEPLOYED_ENVIRONMENTS = {"staging", "staging-e2e", "production"}
 STAGING_ENVIRONMENTS = {"staging", "staging-e2e"}
+# D76: where Gemini runs FOR REAL (production-like). `staging-e2e` is deliberately
+# excluded — it always runs Gemini as a deterministic mock/fixture so e2e tests +
+# screenshots reproduce exactly and cost $0.
+REAL_LLM_ENVIRONMENTS = {"staging", "production"}
 
 
 class Settings(BaseSettings):
@@ -163,20 +167,27 @@ class Settings(BaseSettings):
             raise ValueError(
                 f"GASTIFY_SCAN_PROVIDER must be one of {', '.join(sorted(ALLOWED_SCAN_PROVIDERS))}"
             )
-        if self.e2e_scan_fixtures_enabled and (
-            environment == "staging-e2e" or scan_provider == "gemini"
-        ):
-            scan_provider = "fixture"
-        self.scan_provider = scan_provider
-
         statement_provider = self.statement_provider.strip().lower()
         if statement_provider not in ALLOWED_STATEMENT_PROVIDERS:
             raise ValueError(
                 "GASTIFY_STATEMENT_PROVIDER must be one of "
                 f"{', '.join(sorted(ALLOWED_STATEMENT_PROVIDERS))}"
             )
-        if self.e2e_scan_fixtures_enabled and environment == "staging-e2e":
+
+        # --- LLM provider environment policy (D76) ---
+        # `staging-e2e` is ALWAYS deterministic: Gemini runs as a fixture/mock for
+        # BOTH receipt scanning and statement extraction, so e2e tests + screenshots
+        # reproduce exactly and cost $0. This is forced by ENVIRONMENT, not by a
+        # flag, so a stray GASTIFY_SCAN_PROVIDER=gemini (or a missing flag) can never
+        # leak real Gemini into the e2e environment. `staging` + `production` run
+        # REAL Gemini (production-like) — mock/fixture providers are refused there.
+        if environment == "staging-e2e":
+            scan_provider = "fixture"
             statement_provider = "fixture"
+        elif self.e2e_scan_fixtures_enabled and scan_provider == "gemini":
+            # Local/dev opt-in: substitute fixtures for real Gemini on request.
+            scan_provider = "fixture"
+        self.scan_provider = scan_provider
         self.statement_provider = statement_provider
 
         if environment == "local" and scan_provider != "mock":
@@ -185,10 +196,14 @@ class Settings(BaseSettings):
             raise ValueError("local runtime requires SQLite")
         if self.e2e_scan_fixtures_enabled and environment == "production":
             raise ValueError("E2E scan fixtures cannot be enabled in production")
-        if environment == "production" and scan_provider in {"fixture", "mock"}:
-            raise ValueError("Mock or fixture scan providers cannot be enabled in production")
-        if environment == "production" and statement_provider == "fixture":
-            raise ValueError("Fixture statement provider cannot be enabled in production")
+        if environment in REAL_LLM_ENVIRONMENTS and scan_provider in {"fixture", "mock"}:
+            raise ValueError(
+                f"{environment} runs real Gemini — mock/fixture scan providers are not allowed"
+            )
+        if environment in REAL_LLM_ENVIRONMENTS and statement_provider == "fixture":
+            raise ValueError(
+                f"{environment} runs real Gemini — the fixture statement provider is not allowed"
+            )
         if environment == "production" and self.e2e_auth_enabled:
             raise ValueError("E2E auth cannot be enabled in production")
         if environment == "production" and self.scan_test_controls_enabled:

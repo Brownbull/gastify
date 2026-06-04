@@ -39,11 +39,54 @@ def test_legacy_e2e_fixture_flag_selects_fixture_provider():
 
 
 def test_scan_provider_forbidden_in_production():
-    with pytest.raises(ValidationError, match="Mock or fixture scan providers"):
+    with pytest.raises(ValidationError, match="mock/fixture scan providers are not allowed"):
         Settings(environment="production", scan_provider="mock")
 
-    with pytest.raises(ValidationError, match="Mock or fixture scan providers"):
+    with pytest.raises(ValidationError, match="mock/fixture scan providers are not allowed"):
         Settings(environment="production", scan_provider="fixture")
+
+
+def test_staging_e2e_always_mocks_gemini_by_environment(tmp_path):
+    """D76: staging-e2e forces fixture/mock for BOTH scan + statement WITHOUT any
+    flag — determinism is enforced by environment, not GASTIFY_E2E_SCAN_FIXTURES."""
+    settings = Settings(
+        environment="staging-e2e",
+        database_url="postgresql+asyncpg://postgres:postgres@localhost:5432/gastify",
+        # no e2e_scan_fixtures_enabled, no scan_provider override
+    )
+    assert settings.scan_provider == "fixture"
+    assert settings.statement_provider == "fixture"
+
+
+def test_staging_e2e_coerces_real_gemini_to_fixture():
+    """D76: even an explicit GASTIFY_SCAN_PROVIDER=gemini can never leak real Gemini
+    into the e2e env — it is coerced to fixture."""
+    settings = Settings(
+        environment="staging-e2e",
+        database_url="postgresql+asyncpg://postgres:postgres@localhost:5432/gastify",
+        scan_provider="gemini",
+        statement_provider="gemini",
+    )
+    assert settings.scan_provider == "fixture"
+    assert settings.statement_provider == "fixture"
+
+
+def test_staging_runs_real_gemini_like_production():
+    """D76: staging behaves like production — mock/fixture providers are refused so
+    Gemini runs for real."""
+    with pytest.raises(ValidationError, match="mock/fixture scan providers are not allowed"):
+        Settings(
+            environment="staging",
+            database_url="postgresql+asyncpg://postgres:postgres@localhost:5432/gastify",
+            scan_provider="fixture",
+        )
+    with pytest.raises(ValidationError, match="fixture statement provider is not allowed"):
+        Settings(
+            environment="staging",
+            database_url="postgresql+asyncpg://postgres:postgres@localhost:5432/gastify",
+            scan_provider="gemini",
+            statement_provider="fixture",
+        )
 
 
 def test_statement_provider_allows_auto_and_gemini_modes():
