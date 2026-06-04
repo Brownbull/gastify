@@ -10,6 +10,7 @@ from app.api.groups import invites_router
 from app.api.groups import router as groups_router
 from app.api.health import router as health_router
 from app.api.insights import router as insights_router
+from app.api.items import router as items_router
 from app.api.metrics import router as metrics_router
 from app.api.privacy import router as privacy_router
 from app.api.push_tokens import router as push_tokens_router
@@ -61,6 +62,7 @@ app.add_middleware(
 app.include_router(health_router, prefix="/api/v1")
 app.include_router(card_aliases_router, prefix="/api/v1")
 app.include_router(transactions_router, prefix="/api/v1")
+app.include_router(items_router, prefix="/api/v1")
 app.include_router(consent_router, prefix="/api/v1")
 app.include_router(privacy_router, prefix="/api/v1")
 app.include_router(push_tokens_router, prefix="/api/v1")

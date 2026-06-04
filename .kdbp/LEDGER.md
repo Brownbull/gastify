@@ -3702,3 +3702,8 @@ S23 (Maestro on SM-S911B vs deployed staging-e2e): p5b-txn-lock-active GREEN 52s
 ## 2026-06-04 17:47 — PUSH feat/phase5-groups -> staging -> main (D74 lock + D75 avatar)
 CI: staging 26980004271 green · main 26981591064 green. PROMOTION: origin/staging at 0d43c8a -> main (FF 33dbecf->0d43c8a). DEPLOYMENTS: P53 (staging-e2e) + P54 (promotion). Railway production applied migration 033; prod openapi serves /api/v1/groups/{id}/icon + is_shared; prod smoke /groups 401 + PATCH /icon 401.
 SHIPS: D74 transaction lock-on-share (content immutable once shared on PATCH + batch-update; card-pair/recurrence/flags still allowed; delete allowed) + D75 group avatar (emoji+color, owner/admin, propagates to members). Phase 5 "trickiest feature, test thoroughly" hardening pass. ALL 5 runtime proofs green (web ×3 + S23 ×2) + adversarial review (1 CRITICAL batch-lock fixed pre-promote).
+
+## 2026-06-04 17:55 — PHASE 6 EXEC START: Items View + Reports
+ROUTE: /gabe-next routed Phase 6 (Exec ⬜) -> /gabe-execute; Exec set 🔄.
+DESIGN: phase6-design workflow (4 parallel readers vs legacy boletapp Items/Reports + current gastify conventions -> synthesized 10-task plan). Only NEW backend = GET /api/v1/items (reuses PaginatedResponse + cursor + resolve_analytics_scope group-RLS); Reports reuses /insights/series + /insights/monthly + Phase 4 charts (zero new backend/charts). Task breakdown T1-T10 written to PLAN Phase 6 detail. Key DEFERs: flat item list (no client AggregatedItem grouping), cursor/infinite-scroll, weekly-from-monthly-series (no ISO-week bucket), CSV export.
+NEXT: build T1 (backend items endpoint + schema + pytest), then T2 (regen types).

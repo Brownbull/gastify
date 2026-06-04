@@ -163,6 +163,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/items": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Items */
+        get: operations["list_items_api_v1_items_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/consent": {
         parameters: {
             query?: never;
@@ -1521,6 +1538,52 @@ export interface components {
             /** Sort Order */
             sort_order: number;
         };
+        /**
+         * ItemListRow
+         * @description One line item with its parent transaction's context (GET /api/v1/items).
+         */
+        ItemListRow: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Name */
+            name: string;
+            /** Qty */
+            qty?: number | null;
+            /** Total Minor */
+            total_minor: number;
+            /** Currency */
+            currency: string;
+            /** Item Category Id */
+            item_category_id?: string | null;
+            /** Item Category Key */
+            item_category_key?: string | null;
+            /** Store Category Id */
+            store_category_id?: string | null;
+            /** Store Category Key */
+            store_category_key?: string | null;
+            /**
+             * Transaction Id
+             * Format: uuid
+             */
+            transaction_id: string;
+            /**
+             * Transaction Date
+             * Format: date
+             */
+            transaction_date: string;
+            /** Transaction Time */
+            transaction_time?: string | null;
+            /** Merchant */
+            merchant: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
         /** JoinResponse */
         JoinResponse: {
             /**
@@ -1585,6 +1648,18 @@ export interface components {
             gravity_centers?: components["schemas"]["InsightGravityCenter"][];
             /** Excluded Items */
             excluded_items?: components["schemas"]["InsightExcludedItemSummary"][];
+        };
+        /** PaginatedResponse[ItemListRow] */
+        PaginatedResponse_ItemListRow_: {
+            /** Data */
+            data: components["schemas"]["ItemListRow"][];
+            /** Cursor */
+            cursor?: string | null;
+            /**
+             * Has More
+             * @default false
+             */
+            has_more: boolean;
         };
         /** PaginatedResponse[TransactionListItem] */
         PaginatedResponse_TransactionListItem_: {
@@ -3364,6 +3439,45 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["BatchResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_items_api_v1_items_get: {
+        parameters: {
+            query?: {
+                cursor?: string | null;
+                limit?: number;
+                search?: string | null;
+                item_category_id?: string | null;
+                store_category_id?: string | null;
+                merchant?: string | null;
+                date_from?: string | null;
+                date_to?: string | null;
+                group_id?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedResponse_ItemListRow_"];
                 };
             };
             /** @description Validation Error */
