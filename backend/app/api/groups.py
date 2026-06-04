@@ -15,7 +15,7 @@ from typing import Annotated, cast
 from uuid import UUID  # noqa: TC003 - FastAPI resolves UUID path/param annotations at runtime.
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy import func, select, text
+from sqlalchemy import func, or_, select, text
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import aliased, selectinload
@@ -27,11 +27,13 @@ from app.db import get_db
 from app.models.transaction import Transaction, TransactionItem
 from app.models.user import OwnershipScope, OwnershipScopeMember, User
 from app.schemas.groups import (
+    ConsentUpdate,
     GroupCreate,
     GroupDetail,
     GroupRename,
     GroupRole,
     GroupSummary,
+    GroupTransactionRow,
     InvitePreview,
     InviteResponse,
     JoinResponse,
@@ -39,6 +41,7 @@ from app.schemas.groups import (
     RoleUpdate,
     SharedTransactionResponse,
     ShareRequest,
+    VisibilityUpdate,
 )
 
 # Spend fields a share copies verbatim; telemetry (llm_*/scan_*), personal
@@ -241,23 +244,47 @@ async def create_group(body: GroupCreate, auth: Auth, db: DB) -> GroupSummary:
 @router.get("/{group_id}", response_model=GroupDetail)
 async def get_group(group_id: UUID, auth: Auth, db: DB) -> GroupDetail:
     role = await _resolve_membership(db, auth, group_id)
-    scope_name = await db.scalar(select(OwnershipScope.name).where(OwnershipScope.id == group_id))
+    scope_row = (
+        await db.execute(
+            select(OwnershipScope.name, OwnershipScope.member_visibility_enabled).where(
+                OwnershipScope.id == group_id
+            )
+        )
+    ).first()
+    scope_name = scope_row[0] if scope_row else ""
+    visibility_enabled = bool(scope_row[1]) if scope_row else False
     result = await db.execute(
-        select(OwnershipScopeMember.user_id, User.display_name, OwnershipScopeMember.role)
+        select(
+            OwnershipScopeMember.user_id,
+            User.display_name,
+            OwnershipScopeMember.role,
+            OwnershipScopeMember.shares_detail,
+        )
         .join(User, User.id == OwnershipScopeMember.user_id)
         .where(OwnershipScopeMember.ownership_scope_id == group_id)
         .order_by(OwnershipScopeMember.created_at)
     )
-    members = [
-        MemberSummary(user_id=uid, display_name=name, role=cast("GroupRole", member_role))
-        for uid, name, member_role in result
-    ]
+    members: list[MemberSummary] = []
+    viewer_shares_detail = False
+    for uid, name, member_role, shares_detail in result:
+        members.append(
+            MemberSummary(
+                user_id=uid,
+                display_name=name,
+                role=cast("GroupRole", member_role),
+                shares_detail=bool(shares_detail),
+            )
+        )
+        if uid == auth.user_id:
+            viewer_shares_detail = bool(shares_detail)
     return GroupDetail(
         id=group_id,
         name=scope_name or "",
         role=role,
         member_count=len(members),
         members=members,
+        member_visibility_enabled=visibility_enabled,
+        viewer_shares_detail=viewer_shares_detail,
     )
 
 
@@ -276,6 +303,97 @@ async def rename_group(group_id: UUID, body: GroupRename, auth: Auth, db: DB) ->
     )
     await db.commit()
     return GroupSummary(id=group_id, name=body.name, role=role, member_count=int(count or 0))
+
+
+@router.patch("/{group_id}/visibility", response_model=GroupDetail)
+async def set_member_visibility(
+    group_id: UUID, body: VisibilityUpdate, auth: Auth, db: DB
+) -> GroupDetail:
+    """Admin toggles whether members may expose individual transactions (5e/D73)."""
+    role = await _resolve_membership(db, auth, group_id)
+    _require_role(role, _MUTATE_ROLES)
+    scope = await db.get(OwnershipScope, group_id)
+    if scope is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Group not found")
+    scope.member_visibility_enabled = body.enabled
+    await db.commit()
+    return await get_group(group_id, auth, db)
+
+
+@router.post("/{group_id}/consent", response_model=GroupDetail)
+async def set_member_consent(
+    group_id: UUID, body: ConsentUpdate, auth: Auth, db: DB
+) -> GroupDetail:
+    """A member opts their own shared transactions in/out of the group list (5e/D73)."""
+    await _resolve_membership(db, auth, group_id)  # any member; validates + swaps GUC
+    member = await db.scalar(
+        select(OwnershipScopeMember).where(
+            OwnershipScopeMember.ownership_scope_id == group_id,
+            OwnershipScopeMember.user_id == auth.user_id,
+        )
+    )
+    if member is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Group not found")
+    member.shares_detail = body.shares_detail
+    await db.commit()
+    return await get_group(group_id, auth, db)
+
+
+@router.get("/{group_id}/transactions", response_model=list[GroupTransactionRow])
+async def list_group_transactions(
+    group_id: UUID, auth: Auth, db: DB
+) -> list[GroupTransactionRow]:
+    """Consent-gated list of the group's shared transactions (5e/D73 + D72).
+
+    A row shows iff it is the viewer's OWN share, OR the group enabled member
+    visibility AND the contributor is a CURRENT member who opted in (shares_detail).
+    The INNER JOIN on the sharer's current membership drops departed contributors'
+    rows (D72) — they stay in the aggregates (/insights/*) but not in this list.
+    """
+    await _resolve_membership(db, auth, group_id)
+    visibility_enabled = await db.scalar(
+        select(OwnershipScope.member_visibility_enabled).where(OwnershipScope.id == group_id)
+    )
+    sharer = aliased(OwnershipScopeMember)
+    if visibility_enabled:
+        consent_visible = or_(
+            Transaction.shared_by_user_id == auth.user_id,
+            sharer.shares_detail.is_(True),
+        )
+    else:
+        consent_visible = Transaction.shared_by_user_id == auth.user_id
+    rows = await db.execute(
+        select(
+            Transaction.id,
+            Transaction.transaction_date,
+            Transaction.merchant,
+            Transaction.total_minor,
+            Transaction.currency,
+            Transaction.shared_by_user_id,
+            User.display_name,
+        )
+        .join(sharer, sharer.user_id == Transaction.shared_by_user_id)
+        .join(User, User.id == Transaction.shared_by_user_id)
+        .where(
+            Transaction.ownership_scope_id == group_id,
+            sharer.ownership_scope_id == group_id,
+            consent_visible,
+        )
+        .order_by(Transaction.transaction_date.desc(), Transaction.id)
+    )
+    return [
+        GroupTransactionRow(
+            id=row[0],
+            transaction_date=row[1],
+            merchant=row[2] or "",
+            total_minor=row[3],
+            currency=row[4],
+            shared_by_user_id=row[5],
+            shared_by_name=row[6],
+            is_own=(row[5] == auth.user_id),
+        )
+        for row in rows
+    ]
 
 
 @router.delete("/{group_id}", status_code=status.HTTP_204_NO_CONTENT)

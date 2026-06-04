@@ -2193,6 +2193,162 @@
         }
       }
     },
+    "/api/v1/groups/{group_id}/visibility": {
+      "patch": {
+        "tags": [
+          "groups"
+        ],
+        "summary": "Set Member Visibility",
+        "description": "Admin toggles whether members may expose individual transactions (5e/D73).",
+        "operationId": "set_member_visibility_api_v1_groups__group_id__visibility_patch",
+        "parameters": [
+          {
+            "name": "group_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Group Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VisibilityUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupDetail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/groups/{group_id}/consent": {
+      "post": {
+        "tags": [
+          "groups"
+        ],
+        "summary": "Set Member Consent",
+        "description": "A member opts their own shared transactions in/out of the group list (5e/D73).",
+        "operationId": "set_member_consent_api_v1_groups__group_id__consent_post",
+        "parameters": [
+          {
+            "name": "group_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Group Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConsentUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupDetail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/groups/{group_id}/transactions": {
+      "get": {
+        "tags": [
+          "groups"
+        ],
+        "summary": "List Group Transactions",
+        "description": "Consent-gated list of the group's shared transactions (5e/D73 + D72).\n\nA row shows iff it is the viewer's OWN share, OR the group enabled member\nvisibility AND the contributor is a CURRENT member who opted in (shares_detail).\nThe INNER JOIN on the sharer's current membership drops departed contributors'\nrows (D72) \u2014 they stay in the aggregates (/insights/*) but not in this list.",
+        "operationId": "list_group_transactions_api_v1_groups__group_id__transactions_get",
+        "parameters": [
+          {
+            "name": "group_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Group Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GroupTransactionRow"
+                  },
+                  "title": "Response List Group Transactions Api V1 Groups  Group Id  Transactions Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/groups/{group_id}/members/{member_user_id}": {
       "delete": {
         "tags": [
@@ -2989,6 +3145,21 @@
         ],
         "title": "ConsentResponse"
       },
+      "ConsentUpdate": {
+        "properties": {
+          "shares_detail": {
+            "type": "boolean",
+            "title": "Shares Detail"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "shares_detail"
+        ],
+        "title": "ConsentUpdate",
+        "description": "A member's opt-in/opt-out to show their own shared transactions (5e)."
+      },
       "DataAccessResponse": {
         "properties": {
           "user": {
@@ -3101,6 +3272,16 @@
             },
             "type": "array",
             "title": "Members"
+          },
+          "member_visibility_enabled": {
+            "type": "boolean",
+            "title": "Member Visibility Enabled",
+            "default": false
+          },
+          "viewer_shares_detail": {
+            "type": "boolean",
+            "title": "Viewer Shares Detail",
+            "default": false
           }
         },
         "type": "object",
@@ -3163,6 +3344,64 @@
         ],
         "title": "GroupSummary",
         "description": "One row of GET /groups \u2014 the caller's groups + their role + size."
+      },
+      "GroupTransactionRow": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "transaction_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Transaction Date"
+          },
+          "merchant": {
+            "type": "string",
+            "title": "Merchant"
+          },
+          "total_minor": {
+            "type": "integer",
+            "title": "Total Minor"
+          },
+          "currency": {
+            "type": "string",
+            "title": "Currency"
+          },
+          "shared_by_user_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Shared By User Id"
+          },
+          "shared_by_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Shared By Name"
+          },
+          "is_own": {
+            "type": "boolean",
+            "title": "Is Own"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "transaction_date",
+          "merchant",
+          "total_minor",
+          "currency",
+          "shared_by_user_id",
+          "is_own"
+        ],
+        "title": "GroupTransactionRow",
+        "description": "One row of GET /groups/{id}/transactions \u2014 a consent-visible shared txn."
       },
       "HTTPValidationError": {
         "properties": {
@@ -3790,6 +4029,11 @@
               "member"
             ],
             "title": "Role"
+          },
+          "shares_detail": {
+            "type": "boolean",
+            "title": "Shares Detail",
+            "default": false
           }
         },
         "type": "object",
@@ -8162,6 +8406,21 @@
           "type"
         ],
         "title": "ValidationError"
+      },
+      "VisibilityUpdate": {
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "title": "Enabled"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "enabled"
+        ],
+        "title": "VisibilityUpdate",
+        "description": "Admin toggles whether members may expose individual transactions (5e)."
       }
     }
   }

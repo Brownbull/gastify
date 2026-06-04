@@ -3,7 +3,7 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import DateTime, ForeignKey, String, Text, UniqueConstraint, Uuid, func
+from sqlalchemy import Boolean, DateTime, ForeignKey, String, Text, UniqueConstraint, Uuid, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db import Base
@@ -23,6 +23,12 @@ class OwnershipScope(Base):
     invite_token: Mapped[str | None] = mapped_column(Text, nullable=True, unique=True)
     invite_token_expires_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True), nullable=True
+    )
+    # 5e (D73): when an admin enables this, members who opt in (shares_detail)
+    # expose their individual shared transactions in the group list. Off = the
+    # group shows aggregates only (the 5d default). Aggregates ignore this flag.
+    member_visibility_enabled: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=False, server_default="false"
     )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now()
@@ -72,6 +78,11 @@ class OwnershipScopeMember(Base):
     )
     user_id: Mapped[uuid.UUID] = mapped_column(Uuid, ForeignKey("users.id"), nullable=False)
     role: Mapped[str] = mapped_column(String, nullable=False, server_default="owner")
+    # 5e (D73): this member's opt-in consent to expose their shared transactions
+    # individually when the group's member_visibility_enabled is on. Default decline.
+    shares_detail: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=False, server_default="false"
+    )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now()
     )

@@ -687,6 +687,71 @@ export interface paths {
         patch: operations["rename_group_api_v1_groups__group_id__patch"];
         trace?: never;
     };
+    "/api/v1/groups/{group_id}/visibility": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Set Member Visibility
+         * @description Admin toggles whether members may expose individual transactions (5e/D73).
+         */
+        patch: operations["set_member_visibility_api_v1_groups__group_id__visibility_patch"];
+        trace?: never;
+    };
+    "/api/v1/groups/{group_id}/consent": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Set Member Consent
+         * @description A member opts their own shared transactions in/out of the group list (5e/D73).
+         */
+        post: operations["set_member_consent_api_v1_groups__group_id__consent_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/groups/{group_id}/transactions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Group Transactions
+         * @description Consent-gated list of the group's shared transactions (5e/D73 + D72).
+         *
+         *     A row shows iff it is the viewer's OWN share, OR the group enabled member
+         *     visibility AND the contributor is a CURRENT member who opted in (shares_detail).
+         *     The INNER JOIN on the sharer's current membership drops departed contributors'
+         *     rows (D72) — they stay in the aggregates (/insights/*) but not in this list.
+         */
+        get: operations["list_group_transactions_api_v1_groups__group_id__transactions_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/groups/{group_id}/members/{member_user_id}": {
         parameters: {
             query?: never;
@@ -978,6 +1043,14 @@ export interface components {
              */
             updated_at: string;
         };
+        /**
+         * ConsentUpdate
+         * @description A member's opt-in/opt-out to show their own shared transactions (5e).
+         */
+        ConsentUpdate: {
+            /** Shares Detail */
+            shares_detail: boolean;
+        };
         /** DataAccessResponse */
         DataAccessResponse: {
             user: components["schemas"]["UserDataExport"];
@@ -1033,6 +1106,16 @@ export interface components {
             member_count: number;
             /** Members */
             members: components["schemas"]["MemberSummary"][];
+            /**
+             * Member Visibility Enabled
+             * @default false
+             */
+            member_visibility_enabled: boolean;
+            /**
+             * Viewer Shares Detail
+             * @default false
+             */
+            viewer_shares_detail: boolean;
         };
         /** GroupRename */
         GroupRename: {
@@ -1058,6 +1141,37 @@ export interface components {
             role: "owner" | "admin" | "member";
             /** Member Count */
             member_count: number;
+        };
+        /**
+         * GroupTransactionRow
+         * @description One row of GET /groups/{id}/transactions — a consent-visible shared txn.
+         */
+        GroupTransactionRow: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Transaction Date
+             * Format: date
+             */
+            transaction_date: string;
+            /** Merchant */
+            merchant: string;
+            /** Total Minor */
+            total_minor: number;
+            /** Currency */
+            currency: string;
+            /**
+             * Shared By User Id
+             * Format: uuid
+             */
+            shared_by_user_id: string;
+            /** Shared By Name */
+            shared_by_name?: string | null;
+            /** Is Own */
+            is_own: boolean;
         };
         /** HTTPValidationError */
         HTTPValidationError: {
@@ -1386,6 +1500,11 @@ export interface components {
              * @enum {string}
              */
             role: "owner" | "admin" | "member";
+            /**
+             * Shares Detail
+             * @default false
+             */
+            shares_detail: boolean;
         };
         /** MonthlyInsightsResponse */
         MonthlyInsightsResponse: {
@@ -2712,6 +2831,14 @@ export interface components {
             input?: unknown;
             /** Context */
             ctx?: Record<string, never>;
+        };
+        /**
+         * VisibilityUpdate
+         * @description Admin toggles whether members may expose individual transactions (5e).
+         */
+        VisibilityUpdate: {
+            /** Enabled */
+            enabled: boolean;
         };
     };
     responses: never;
@@ -4155,6 +4282,107 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["GroupSummary"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    set_member_visibility_api_v1_groups__group_id__visibility_patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                group_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["VisibilityUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GroupDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    set_member_consent_api_v1_groups__group_id__consent_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                group_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ConsentUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GroupDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_group_transactions_api_v1_groups__group_id__transactions_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                group_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GroupTransactionRow"][];
                 };
             };
             /** @description Validation Error */

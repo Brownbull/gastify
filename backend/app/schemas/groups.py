@@ -1,6 +1,6 @@
 """Group (shared ownership scope) schemas — Phase 5b."""
 
-from datetime import datetime
+from datetime import date, datetime
 from typing import Literal
 from uuid import UUID
 
@@ -51,6 +51,8 @@ class MemberSummary(BaseModel):
     user_id: UUID
     display_name: str | None = None
     role: GroupRole
+    # 5e (D73): this member's opt-in to show their shared transactions individually.
+    shares_detail: bool = False
 
 
 class GroupDetail(BaseModel):
@@ -61,12 +63,46 @@ class GroupDetail(BaseModel):
     role: GroupRole
     member_count: int
     members: list[MemberSummary]
+    # 5e (D73): group-level visibility request (admin-set) + the viewer's own consent.
+    member_visibility_enabled: bool = False
+    viewer_shares_detail: bool = False
 
 
 class RoleUpdate(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     role: AssignableRole
+
+
+class VisibilityUpdate(BaseModel):
+    """Admin toggles whether members may expose individual transactions (5e)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    enabled: bool
+
+
+class ConsentUpdate(BaseModel):
+    """A member's opt-in/opt-out to show their own shared transactions (5e)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    shares_detail: bool
+
+
+class GroupTransactionRow(BaseModel):
+    """One row of GET /groups/{id}/transactions — a consent-visible shared txn."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
+    transaction_date: date
+    merchant: str
+    total_minor: int
+    currency: str
+    shared_by_user_id: UUID
+    shared_by_name: str | None = None
+    is_own: bool
 
 
 class InviteResponse(BaseModel):

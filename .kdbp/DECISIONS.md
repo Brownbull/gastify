@@ -2294,3 +2294,16 @@ The `postgres` superuser is used **once, operationally**, to provision the two r
 **Why.** A group's spending history shouldn't silently shrink when someone leaves — the aggregates reflect what the group actually spent over time. But an ex-member's individual line items shouldn't keep appearing as live, attributable transactions once they're gone. Keeping the `shared_by_user_id` column (never NULLed on leave) is what lets the list filter on "current member?" while the aggregate ignores it.
 
 **Status:** accepted. Extends D70 (share-to-group) + the 5e consent-gated detail model (the same `shared_by_user_id`-vs-current-membership filter governs both "whose rows show in the list" and "departed members' rows hidden"). **Affects:** 5e group transactions list (must apply the current-member filter); no schema change (uses existing `shared_by_user_id`).
+
+## D73 — 5e consent-gated member detail: opt-in per member, two flags + an app-level list filter (no new RLS) (2026-06-04)
+
+**Decision (user direction, 2026-06-04).** Implements the D70 "showing the transaction of other users can be asked by the group, configured by the admin(s), and each user can accept or decline" promise with an **opt-in, privacy-first** model:
+- **Group flag** `ownership_scopes.member_visibility_enabled` (bool, default `false`). An owner/admin turns it on to *request* that members expose their individual transactions. Off by default → group shows aggregates only (the 5d behaviour).
+- **Per-member flag** `ownership_scope_members.shares_detail` (bool, default `false`). Each member must **explicitly ACCEPT** (opt-in) before *their* shared rows appear individually to others. Default decline; a member can flip it back any time.
+- **Group transactions-list endpoint** (`GET /groups/{id}/transactions`) shows a shared row iff: `shared_by_user_id == viewer` (your own, always) **OR** (`member_visibility_enabled` AND the sharer is a **current** member AND `sharer.shares_detail`). Departed contributors' rows are excluded (D72) but **aggregates are unchanged** — the consent/membership filter applies **only to the list**, never to `/insights/*` (monthly/series/tree still sum every group row).
+
+**Why app-level filter, not RLS.** The rows are already group-scoped by the D70 RLS GUC swap; 5e only decides *which group rows to surface in the list view*. That is presentation, not isolation — a `WHERE` clause in the endpoint, not a policy change. Keeps D3 intact (no policy widened) and avoids modelling per-viewer consent in RLS (which would need per-(viewer,sharer) policy state). Admins see each member's consent status via the group detail; non-admins see the toggle + their own consent control.
+
+**Endpoints.** `PATCH /groups/{id}` gains `member_visibility_enabled` (admin-only); `POST /groups/{id}/consent {shares_detail}` (any member, self); `GET /groups/{id}/transactions` (filtered list). `GroupDetail` returns `member_visibility_enabled` + the viewer's `shares_detail`; `MemberSummary` returns each member's `shares_detail` (for admins).
+
+**Status:** accepted. Implements D70 (consent-gated detail) + honours D72 (departed-contributor list filter). **Affects:** migration 032 (two bool columns), `api/groups.py` (3 endpoints), `schemas/groups.py`, web + mobile group UI, openapi types regen.
