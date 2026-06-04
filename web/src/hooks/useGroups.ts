@@ -7,6 +7,7 @@ import type { components } from "@/lib/api-types";
 export type GroupSummary = components["schemas"]["GroupSummary"];
 export type GroupDetail = components["schemas"]["GroupDetail"];
 export type InvitePreview = components["schemas"]["InvitePreview"];
+export type GroupTransactionRow = components["schemas"]["GroupTransactionRow"];
 export type GroupRole = GroupSummary["role"];
 type AssignableRole = components["schemas"]["RoleUpdate"]["role"];
 
@@ -14,6 +15,7 @@ export const groupKeys = {
   all: ["groups"] as const,
   list: () => [...groupKeys.all, "list"] as const,
   detail: (id: string) => [...groupKeys.all, "detail", id] as const,
+  transactions: (id: string) => [...groupKeys.all, "transactions", id] as const,
   invite: (token: string) => ["invites", token] as const,
 };
 
@@ -182,6 +184,56 @@ export function useJoinInvite() {
       return data;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: groupKeys.list() }),
+  });
+}
+
+export function useSetGroupVisibility(groupId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (enabled: boolean) => {
+      const { data, error } = await apiClient.PATCH("/api/v1/groups/{group_id}/visibility", {
+        params: { path: { group_id: groupId } },
+        body: { enabled },
+      });
+      if (error || !data) throw new Error("Failed to update visibility");
+      return data;
+    },
+    onSuccess: (data) => {
+      qc.setQueryData(groupKeys.detail(groupId), data);
+      void qc.invalidateQueries({ queryKey: groupKeys.transactions(groupId) });
+    },
+  });
+}
+
+export function useSetGroupConsent(groupId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (sharesDetail: boolean) => {
+      const { data, error } = await apiClient.POST("/api/v1/groups/{group_id}/consent", {
+        params: { path: { group_id: groupId } },
+        body: { shares_detail: sharesDetail },
+      });
+      if (error || !data) throw new Error("Failed to update consent");
+      return data;
+    },
+    onSuccess: (data) => {
+      qc.setQueryData(groupKeys.detail(groupId), data);
+      void qc.invalidateQueries({ queryKey: groupKeys.transactions(groupId) });
+    },
+  });
+}
+
+export function useGroupTransactions(groupId: string, enabled = true) {
+  return useQuery({
+    queryKey: groupKeys.transactions(groupId),
+    enabled: Boolean(groupId) && enabled,
+    queryFn: async () => {
+      const { data, error } = await apiClient.GET("/api/v1/groups/{group_id}/transactions", {
+        params: { path: { group_id: groupId } },
+      });
+      if (error || !data) throw new Error("Failed to load group transactions");
+      return data;
+    },
   });
 }
 

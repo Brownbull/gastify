@@ -6,14 +6,18 @@ import {
   useDeleteGroup,
   useGroup,
   useGroups,
+  useGroupTransactions,
   useLeaveGroup,
   useRemoveMember,
+  useSetGroupConsent,
+  useSetGroupVisibility,
   useUpdateMemberRole,
   type GroupDetail,
   type GroupSummary,
 } from "@/hooks/useGroups";
 import { useI18n } from "@/hooks/useI18n";
 import { useUiStore } from "@/stores/uiStore";
+import { formatMinorAmount } from "@/lib/format";
 
 export const Route = createFileRoute("/groups")({
   component: GroupsPage,
@@ -204,6 +208,11 @@ function GroupDetailPanel({ groupId }: { groupId: string }) {
     >
       {canManage && <InviteSection groupId={groupId} />}
       <MemberRoster detail={detail} groupId={groupId} />
+      {canManage && <VisibilitySection detail={detail} groupId={groupId} />}
+      {detail.member_visibility_enabled && (
+        <ConsentControl detail={detail} groupId={groupId} />
+      )}
+      <GroupTransactionsSection groupId={groupId} />
       <GroupActions detail={detail} groupId={groupId} />
     </div>
   );
@@ -370,6 +379,115 @@ function GroupActions({ detail, groupId }: { detail: GroupDetail; groupId: strin
         >
           {leaveGroup.isError ? t("group.leaveError") : t("group.deleteError")}
         </p>
+      )}
+    </div>
+  );
+}
+
+// 5e (D73): admin requests that members expose individual transactions.
+function VisibilitySection({ detail, groupId }: { detail: GroupDetail; groupId: string }) {
+  const { t } = useI18n();
+  const setVisibility = useSetGroupVisibility(groupId);
+  return (
+    <div className="space-y-1 border-t pt-3" style={{ borderColor: "var(--border)" }}>
+      <label className="flex items-center justify-between gap-3 text-sm">
+        <span style={{ color: "var(--text-secondary)" }}>{t("group.visibilityLabel")}</span>
+        <input
+          type="checkbox"
+          data-testid="group-visibility-toggle"
+          checked={detail.member_visibility_enabled}
+          disabled={setVisibility.isPending}
+          onChange={(event) => setVisibility.mutate(event.target.checked)}
+        />
+      </label>
+      <p className="text-xs" style={{ color: "var(--text-muted)" }}>
+        {t("group.visibilityHint")}
+      </p>
+      {setVisibility.isError && (
+        <p className="text-xs" role="alert" style={{ color: "var(--danger, #dc2626)" }}>
+          {t("group.visibilityError")}
+        </p>
+      )}
+    </div>
+  );
+}
+
+// 5e (D73): a member opts their own shared transactions in/out of the list.
+function ConsentControl({ detail, groupId }: { detail: GroupDetail; groupId: string }) {
+  const { t } = useI18n();
+  const setConsent = useSetGroupConsent(groupId);
+  return (
+    <div className="space-y-1">
+      <label className="flex items-center justify-between gap-3 text-sm">
+        <span style={{ color: "var(--text-secondary)" }}>{t("group.consentLabel")}</span>
+        <input
+          type="checkbox"
+          data-testid="group-consent-toggle"
+          checked={detail.viewer_shares_detail}
+          disabled={setConsent.isPending}
+          onChange={(event) => setConsent.mutate(event.target.checked)}
+        />
+      </label>
+      {setConsent.isError && (
+        <p className="text-xs" role="alert" style={{ color: "var(--danger, #dc2626)" }}>
+          {t("group.consentError")}
+        </p>
+      )}
+    </div>
+  );
+}
+
+// 5e (D73): consent-gated list of the group's shared transactions.
+function GroupTransactionsSection({ groupId }: { groupId: string }) {
+  const { t } = useI18n();
+  const [show, setShow] = useState(false);
+  const { data: txns, isLoading, isError } = useGroupTransactions(groupId, show);
+  return (
+    <div className="space-y-2 border-t pt-3" style={{ borderColor: "var(--border)" }}>
+      <button
+        type="button"
+        data-testid="group-transactions-toggle"
+        onClick={() => setShow((value) => !value)}
+        className="text-xs font-medium"
+        style={{ color: "var(--primary)" }}
+      >
+        {show ? t("group.hideTransactions") : t("group.viewTransactions")}
+      </button>
+      {show && (
+        <div data-testid="group-transactions" className="space-y-1">
+          {isLoading && (
+            <p className="text-xs" style={{ color: "var(--text-muted)" }}>
+              …
+            </p>
+          )}
+          {isError && (
+            <p className="text-xs" role="alert" style={{ color: "var(--danger, #dc2626)" }}>
+              {t("group.transactionsError")}
+            </p>
+          )}
+          {txns && txns.length === 0 && (
+            <p
+              className="text-xs"
+              data-testid="group-transactions-empty"
+              style={{ color: "var(--text-muted)" }}
+            >
+              {t("group.transactionsEmpty")}
+            </p>
+          )}
+          {txns?.map((txn) => (
+            <div key={txn.id} className="flex items-center justify-between gap-2 text-sm">
+              <span className="truncate" style={{ color: "var(--text-primary)" }}>
+                {txn.merchant}
+                <span className="ml-2 text-xs" style={{ color: "var(--text-muted)" }}>
+                  {txn.is_own ? t("group.youLabel") : txn.shared_by_name}
+                </span>
+              </span>
+              <span className="shrink-0 text-xs" style={{ color: "var(--text-secondary)" }}>
+                {formatMinorAmount(txn.total_minor, txn.currency)}
+              </span>
+            </div>
+          ))}
+        </div>
       )}
     </div>
   );
