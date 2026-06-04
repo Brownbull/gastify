@@ -3727,3 +3727,24 @@ STATE: Phase 6 Items vertical T1-T6 complete + B2-proven both platforms. Exec st
 ## 2026-06-04 19:10 — PUSH feat/phase6-items-reports -> staging -> main (Items vertical + D76)
 CI: staging 26984577616 green · main 26985038471 green. PROMOTION: origin/staging at f9270f5 -> main (FF 0d43c8a->f9270f5, 9 commits). DEPLOYMENTS: P55 (staging-e2e) + P56 (promotion). Railway production deployed (no migration); prod openapi serves /api/v1/items; prod smoke /items 401 + /items?search 401. D76 safe on prod (app started; production=gemini passes the REAL_LLM guard).
 SHIPS: Phase 6 Items vertical (T1-T6) — GET /api/v1/items + web /items screen + mobile ItemsScreen, B2-proven both platforms (web Playwright 7.0s + S23 Maestro 34s). D76 Gemini env policy (mock in staging-e2e, real in staging+production, enforced by environment). Phase 6 Exec stays 🔄 (Reports T7-T10 remain).
+- 2026-06-04 19:20 | Write | /home/khujta/projects/apps/gastify/mobile/src/lib/reports.ts
+- 2026-06-04 19:21 | Write | /home/khujta/projects/apps/gastify/mobile/src/screens/ReportsScreen.tsx
+- 2026-06-04 19:21 | Edit | /home/khujta/projects/apps/gastify/mobile/src/types/navigation.ts
+- 2026-06-04 19:21 | Edit | /home/khujta/projects/apps/gastify/mobile/src/navigation/AppNavigator.tsx
+- 2026-06-04 19:21 | Edit | /home/khujta/projects/apps/gastify/mobile/src/navigation/AppNavigator.tsx
+- 2026-06-04 19:21 | Edit | /home/khujta/projects/apps/gastify/mobile/src/screens/HomeScreen.tsx
+- 2026-06-04 19:21 | Edit | /home/khujta/projects/apps/gastify/mobile/src/navigation/__tests__/AppNavigator.test.tsx
+- 2026-06-04 19:22 | Write | /home/khujta/projects/apps/gastify/mobile/src/screens/__tests__/ReportsScreen.test.tsx
+- 2026-06-04 19:22 | Edit | /home/khujta/projects/apps/gastify/mobile/src/screens/__tests__/ReportsScreen.test.tsx
+- 2026-06-04 19:23 | Edit | /home/khujta/projects/apps/gastify/mobile/src/screens/__tests__/ReportsScreen.test.tsx
+- 2026-06-04 19:23 | Edit | /home/khujta/projects/apps/gastify/mobile/src/screens/__tests__/ReportsScreen.test.tsx
+- 2026-06-04 19:23 | Write | /home/khujta/projects/apps/gastify/mobile/src/screens/__tests__/ReportsScreen.scope.test.tsx
+- 2026-06-04 19:24 | Write | /home/khujta/projects/apps/gastify/mobile/src/lib/__tests__/reports.test.ts
+- 2026-06-04 19:32 | Edit | /home/khujta/projects/apps/gastify/mobile/src/lib/reports.ts
+- 2026-06-04 19:32 | Edit | /home/khujta/projects/apps/gastify/mobile/src/lib/reports.ts
+
+## 2026-06-04 19:40 — PHASE 6 REPORTS PROOFS GREEN (T8 web + T10 S23) — Phase 6 COMPLETE
+WEB (Playwright vs deployed staging-e2e): reports.spec.ts GREEN 8.4s — /reports renders monthly cards (real totals), auto-focuses the latest month with spend, its category breakdown donut renders, card selection refocuses. Reports reuses /insights/series + /insights/monthly + Phase 4 CategoryDonut (zero new backend).
+S23 (Maestro on SM-S911B vs deployed staging-e2e): p12-reports-active GREEN 35s — A opens Reports (open-reports-button) -> non-empty monthly cards (reports-card-0) -> expand keeps the screen alive. Artifact: tests/mobile/results/runs/staging-e2e/20260604T233644Z-staging-e2e-p12-reports-active/. (ADB daemon dropped the wireless device mid-run once; reconnected 192.168.1.83:5555 + reran green.)
+REVIEW: adversarial 3-dim reports-review workflow -> 1 finding (trend zero-baseline divergence: mobile showed 100% where web shows no percent). FIXED: mobile computeTrend now reports a zero baseline as `up` with hasBaseline:false (no percent), matching web (undefined percent, no divide-by-zero). The reviewer's cited "web" file (frontend/src/types/report.ts) does not exist here — the real divergence was percent-display only (direction was already consistent).
+STATE: Phase 6 (Items + Reports) COMPLETE + B2-proven both platforms. PLAN Exec/Review/Commit ✅. backend 808 / web 79 / mobile 225. Items already in prod (P56); Reports completes the phase -> promote.
