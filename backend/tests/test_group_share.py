@@ -174,7 +174,8 @@ async def test_delete_group_keeps_personal_originals(client, engine):
     )
     assert shared.status_code == 201
     async with _sf(engine)() as s:
-        assert await s.scalar(select(func.count()).select_from(Transaction)) == 3  # 2 personal + 1 copy
+        # 2 personal originals (sharer's + bystander's) + 1 group copy.
+        assert await s.scalar(select(func.count()).select_from(Transaction)) == 3
 
     assert (await client.delete(f"/api/v1/groups/{group_id}")).status_code == 204
 
