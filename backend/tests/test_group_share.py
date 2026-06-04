@@ -157,6 +157,43 @@ async def test_shared_spend_appears_in_group_analytics(client, engine):
 
 
 @pytest.mark.asyncio
+async def test_delete_group_keeps_personal_originals(client, engine):
+    """Deleting a group removes ONLY its shared COPIES (ownership_scope_id == group);
+    the personal originals — and any other scope's transactions — are untouched."""
+    group_id = (await client.post("/api/v1/groups", json={"name": "Casa"})).json()["id"]
+    txn_id = await _seed_personal_txn(engine, total_minor=50_000)
+    # A second user's unrelated personal transaction (must also survive).
+    bystander = uuid.uuid4()
+    async with _sf(engine)() as s:
+        s.add(OwnershipScope(id=bystander, scope_type="individual"))
+        await s.commit()
+    bystander_txn = await _seed_personal_txn(engine, scope_id=bystander, total_minor=9_000)
+
+    shared = await client.post(
+        f"/api/v1/groups/{group_id}/share", json={"transaction_id": str(txn_id)}
+    )
+    assert shared.status_code == 201
+    async with _sf(engine)() as s:
+        assert await s.scalar(select(func.count()).select_from(Transaction)) == 3  # 2 personal + 1 copy
+
+    assert (await client.delete(f"/api/v1/groups/{group_id}")).status_code == 204
+
+    async with _sf(engine)() as s:
+        # The group copy is gone…
+        group_count = await s.scalar(
+            select(func.count())
+            .select_from(Transaction)
+            .where(Transaction.ownership_scope_id == uuid.UUID(group_id))
+        )
+        assert group_count == 0
+        # …but BOTH personal originals survive, in their own scopes.
+        original = await s.get(Transaction, txn_id)
+        assert original is not None and original.ownership_scope_id == TEST_SCOPE_ID
+        other = await s.get(Transaction, bystander_txn)
+        assert other is not None and other.ownership_scope_id == bystander
+
+
+@pytest.mark.asyncio
 async def test_shared_transactions_remain_in_statistics_after_sharer_leaves(client, engine):
     """A departed member's shared spend stays in the group's STATISTICS (D70 caveat):
     leaving removes the membership row, never the shared transactions."""
