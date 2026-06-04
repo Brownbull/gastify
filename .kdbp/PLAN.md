@@ -12,7 +12,7 @@ Feature parity with legacy BoletApp — implement missing screens and features b
 - **Maturity:** mvp
 - **Domain:** Chilean smart expense tracker (AI receipt scanning, multi-currency analytics, PWA + native mobile)
 - **Created:** 2026-06-02
-- **Last Updated:** 2026-06-04 (Phase 4 v2 Exec ✅ — `/insights/tree` 4-level cross-walk drill B2-proven on deployed staging-e2e on BOTH web (Playwright) + S23 mobile (Maestro 58s), screenshot-verified. Deploy unblocked via Railway Root Directory `/`→`backend` + aiohttp CVE fix. P50 resolved. Next: /gabe-review)
+- **Last Updated:** 2026-06-04 (Phase 5 Groups COMPLETE ✅×4 + the full 5e finish shipped — consent-gated member detail (D73, migration 032) + mobile group-detail (P60c) + P61 tests + P60b switcher, reviewed (authz workflow, 0 CRITICAL) + B2-proven both platforms, promoted staging→main P50, prod verified. Current Phase advanced 5→6. Next: /gabe-next on Phase 6 Items View + Reports.)
 - **Decision basis:** APP-STATE.html audit (2026-06-02) comparing Gastify vs legacy BoletApp — 9 missing features, 5 API-only gaps. Write-first ordering per user direction.
 
 ## Phases
@@ -23,7 +23,7 @@ Feature parity with legacy BoletApp — implement missing screens and features b
 | 2 | Batch Ops + Category Management | Multi-select on transaction list (web + mobile) wiring existing batch-update/batch-delete APIs. Category/merchant management: view/edit/delete learned L2 store-category and L4 item-category mappings. Backend category CRUD endpoints if needed. | mvp | med | ✅ | ✅ | ✅ | ✅ |
 | 3 | Batch Scanning | Multi-receipt capture with image queue + batch review step before save. Reuses single-scan pipeline per receipt. New capture flow UI (web + mobile). | mvp | high | ✅ | ✅ | ✅ | ✅ |
 | 4 | Dashboard + Charts/Trends | **v1 (done+proven both platforms):** rich home dashboard donut (category distribution) + store/item dimension toggle + period nav + "what's shifting" (web Playwright + S23 Maestro on staging-e2e). **v2 (in progress, D69):** server-aggregated `GET /insights/tree` (full L1→L2 / L3→L4 levels, no top-5 truncation) + recursive bidirectional drill-down on web + mobile (the legacy treemap UX), client expands the cached tree in memory. Bar/line time-series via `/insights/series` shipped (runtime proof deferred — staging-e2e deploy coupling). **v2 web DONE + B2-proven on deployed staging-e2e (2026-06-03): full 4-level cross-walk drill Industry→Store-type→Family→Item + breadcrumb roll-up, real data, screenshot-verified.** Mobile drill UI built + S23 Maestro proof GREEN on deployed staging-e2e (2026-06-04, p10-dashboard-drill-active 58s) — fully proven on BOTH platforms (P50 resolved). /gabe-review APPROVE (7 findings, all fixed). Pushed origin/staging + promoted staging→main (2026-06-04). | mvp | high | ✅ | ✅ | ✅ | ✅ |
-| 5 | Groups (personal + shared) | **Pulled forward (D69).** Group model + CRUD + `OwnershipScopeMember` membership/roles; the `group_id`→RLS-GUC scope-swap so every analytics endpoint (monthly/series/tree) works per-group with zero new aggregation code; per-group dashboards; shared visibility + partial-visibility correctness + revocation via RLS. Decide D58 shared-flag semantics. Web + mobile. **MVP shipped + B2-proven both platforms (web Playwright + S23 Maestro on deployed staging-e2e, 2026-06-04); reviewed (workflow, 0 blocking) + hardened. 5e (consent-gated member detail + member-filtered txn list per D72) deferred → P62. Promoted staging→main 2026-06-04 (P48); prod CI green.** | ent | high | ✅ | ✅ | ✅ | ✅ |
+| 5 | Groups (personal + shared) | **Pulled forward (D69).** Group model + CRUD + `OwnershipScopeMember` membership/roles; the `group_id`→RLS-GUC scope-swap so every analytics endpoint (monthly/series/tree) works per-group with zero new aggregation code; per-group dashboards; shared visibility + partial-visibility correctness + revocation via RLS. Decide D58 shared-flag semantics. Web + mobile. **MVP shipped + B2-proven both platforms (web Playwright + S23 Maestro on deployed staging-e2e, 2026-06-04); reviewed (workflow, 0 blocking) + hardened. 5e (consent-gated member detail + member-filtered txn list per D72) SHIPPED 2026-06-04 (D73 opt-in model, migration 032; web + mobile group-detail; authz-reviewed; B2-proven; P62 resolved). Mobile parity P60(b)+(c) shipped. Promoted staging→main twice (P48 MVP + P50 finish); prod verified.** | ent | high | ✅ | ✅ | ✅ | ✅ |
 | 6 | Items View + Reports | Dedicated items/products screen: cross-transaction item search with filters (category, date, merchant). Weekly/monthly report cards with spending summaries and chart visualizations. | mvp | med | ⬜ | ⬜ | ⬜ | ⬜ |
 | 7 | Notification Center | In-app notification view: list with read/unread status, mark-read, delete. Backend notification creation hooks (scan complete, statement reconciled, etc.). Web + mobile. | mvp | low | ⬜ | ⬜ | ⬜ | ⬜ |
 
@@ -164,7 +164,7 @@ suppressed_dims_count: 0
 
 ## Current Phase
 
-Phase 5: Groups (personal + shared)
+Phase 6: Items View + Reports
 
 ## Dependencies
 

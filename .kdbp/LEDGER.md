@@ -3647,3 +3647,6 @@ DEFERRED → P63: #3 (list-filter SQL self-documentation, no live bug), #4 (inde
 ## 2026-06-04 19:05 — PUSH feat/phase5-groups -> staging -> main (Phase 5 finish: P60c + 5e)
 CI: staging 26973259186 green · main 26973588226 green. PROMOTION: origin/staging -> main (cc4f302, FF, 9 commits). DEPLOYMENTS: P49 + P50.
 SHIPS: 5e consent-gated detail (D73, migration 032) + mobile group-detail (P60c) + P61 tests + P60b switcher. Review (authz workflow, 0 CRITICAL; HIGH + 4 LOW fixed, rest -> P63). Both B2 proofs green. Prod verified live.
+
+## 2026-06-04 19:10 — PLAN UPDATE: Current Phase advanced 5 → 6
+Phase 5 Groups COMPLETE (✅×4, MVP + 5e finish shipped to prod). Reconciled Phase 5 row (5e SHIPPED, not deferred); P62 resolved. Current Phase → Phase 6 (Items View + Reports). Next: /gabe-next.
