@@ -301,7 +301,10 @@ function MemberRoster({ detail, groupId }: { detail: GroupDetail; groupId: strin
                   </button>
                   <button
                     type="button"
-                    onClick={() => removeMember.mutate(member.user_id)}
+                    onClick={() => {
+                      if (!window.confirm(t("group.confirmRemoveMember"))) return;
+                      removeMember.mutate(member.user_id);
+                    }}
                     style={{ color: "var(--danger, #dc2626)" }}
                   >
                     {t("group.removeMember")}
@@ -343,14 +346,15 @@ function GroupActions({ detail, groupId }: { detail: GroupDetail; groupId: strin
       {detail.role === "owner" && (
         <button
           type="button"
-          onClick={() =>
+          onClick={() => {
+            if (!window.confirm(t("group.confirmDelete"))) return;
             deleteGroup.mutate(groupId, {
               onSuccess: () => {
                 resetScopeIfActive();
                 void navigate({ to: "/groups" });
               },
-            })
-          }
+            });
+          }}
           className="text-xs font-medium"
           style={{ color: "var(--danger, #dc2626)" }}
         >

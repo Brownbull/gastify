@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api";
 import { insightsKeys } from "@/hooks/useInsights";
+import { useUiStore } from "@/stores/uiStore";
 import type { components } from "@/lib/api-types";
 
 export type GroupSummary = components["schemas"]["GroupSummary"];
@@ -67,7 +68,12 @@ export function useRenameGroup(groupId: string) {
       if (error || !data) throw new Error("Failed to rename group");
       return data;
     },
-    onSuccess: () => {
+    onSuccess: (_data, name) => {
+      // Keep the active-scope label in sync if the renamed group is in view.
+      const scope = useUiStore.getState().activeScope;
+      if (scope.kind === "group" && scope.id === groupId) {
+        useUiStore.getState().setActiveScope({ kind: "group", id: groupId, name });
+      }
       void qc.invalidateQueries({ queryKey: groupKeys.list() });
       void qc.invalidateQueries({ queryKey: groupKeys.detail(groupId) });
     },
@@ -83,7 +89,10 @@ export function useDeleteGroup() {
       });
       if (error) throw new Error("Failed to delete group");
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: groupKeys.list() }),
+    onSuccess: (_data, groupId) => {
+      qc.removeQueries({ queryKey: groupKeys.detail(groupId) });
+      void qc.invalidateQueries({ queryKey: groupKeys.list() });
+    },
   });
 }
 
