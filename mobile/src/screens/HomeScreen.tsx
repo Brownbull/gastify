@@ -185,6 +185,11 @@ export function HomeScreen({ navigation }: HomeScreenProps = {}) {
             onPress={() => navigation?.navigate("Items")}
           />
           <Button
+            title="Open reports"
+            testID="open-reports-button"
+            onPress={() => navigation?.navigate("Reports")}
+          />
+          <Button
             title="Open groups"
             testID="open-groups-button"
             onPress={() => navigation?.navigate("Groups")}
