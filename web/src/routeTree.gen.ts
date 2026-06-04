@@ -16,6 +16,7 @@ import { Route as SignInRouteImport } from "./routes/sign-in"
 import { Route as SettingsRouteImport } from "./routes/settings"
 import { Route as ScanBatchRouteImport } from "./routes/scan-batch"
 import { Route as ScanRouteImport } from "./routes/scan"
+import { Route as ReportsRouteImport } from "./routes/reports"
 import { Route as ItemsRouteImport } from "./routes/items"
 import { Route as GroupsRouteImport } from "./routes/groups"
 import { Route as IndexRouteImport } from "./routes/index"
@@ -58,6 +59,11 @@ const ScanRoute = ScanRouteImport.update({
   path: "/scan",
   getParentRoute: () => rootRouteImport,
 } as any)
+const ReportsRoute = ReportsRouteImport.update({
+  id: "/reports",
+  path: "/reports",
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ItemsRoute = ItemsRouteImport.update({
   id: "/items",
   path: "/items",
@@ -94,6 +100,7 @@ export interface FileRoutesByFullPath {
   "/": typeof IndexRoute
   "/groups": typeof GroupsRoute
   "/items": typeof ItemsRoute
+  "/reports": typeof ReportsRoute
   "/scan": typeof ScanRoute
   "/scan-batch": typeof ScanBatchRoute
   "/settings": typeof SettingsRoute
@@ -109,6 +116,7 @@ export interface FileRoutesByTo {
   "/": typeof IndexRoute
   "/groups": typeof GroupsRoute
   "/items": typeof ItemsRoute
+  "/reports": typeof ReportsRoute
   "/scan": typeof ScanRoute
   "/scan-batch": typeof ScanBatchRoute
   "/settings": typeof SettingsRoute
@@ -124,6 +132,7 @@ export interface FileRoutesById {
   "/": typeof IndexRoute
   "/groups": typeof GroupsRoute
   "/items": typeof ItemsRoute
+  "/reports": typeof ReportsRoute
   "/scan": typeof ScanRoute
   "/scan-batch": typeof ScanBatchRoute
   "/settings": typeof SettingsRoute
@@ -141,6 +150,7 @@ export interface FileRouteTypes {
     | "/"
     | "/groups"
     | "/items"
+    | "/reports"
     | "/scan"
     | "/scan-batch"
     | "/settings"
@@ -156,6 +166,7 @@ export interface FileRouteTypes {
     | "/"
     | "/groups"
     | "/items"
+    | "/reports"
     | "/scan"
     | "/scan-batch"
     | "/settings"
@@ -170,6 +181,7 @@ export interface FileRouteTypes {
     | "/"
     | "/groups"
     | "/items"
+    | "/reports"
     | "/scan"
     | "/scan-batch"
     | "/settings"
@@ -186,6 +198,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   GroupsRoute: typeof GroupsRoute
   ItemsRoute: typeof ItemsRoute
+  ReportsRoute: typeof ReportsRoute
   ScanRoute: typeof ScanRoute
   ScanBatchRoute: typeof ScanBatchRoute
   SettingsRoute: typeof SettingsRoute
@@ -245,6 +258,13 @@ declare module "@tanstack/react-router" {
       path: "/scan"
       fullPath: "/scan"
       preLoaderRoute: typeof ScanRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    "/reports": {
+      id: "/reports"
+      path: "/reports"
+      fullPath: "/reports"
+      preLoaderRoute: typeof ReportsRouteImport
       parentRoute: typeof rootRouteImport
     }
     "/items": {
@@ -310,6 +330,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   GroupsRoute: GroupsRoute,
   ItemsRoute: ItemsRoute,
+  ReportsRoute: ReportsRoute,
   ScanRoute: ScanRoute,
   ScanBatchRoute: ScanBatchRoute,
   SettingsRoute: SettingsRoute,

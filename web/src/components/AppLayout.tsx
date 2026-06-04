@@ -17,6 +17,7 @@ const NAV_ITEMS = [
   { to: "/transactions", labelKey: "nav.transactions", icon: "📋" },
   { to: "/items", labelKey: "nav.items", icon: "🛒" },
   { to: "/trends", labelKey: "nav.trends", icon: "📈" },
+  { to: "/reports", labelKey: "nav.reports", icon: "📑" },
   { to: "/groups", labelKey: "nav.groups", icon: "🏠" },
   { to: "/settings", labelKey: "nav.settings", icon: "⚙️" },
 ] as const;

@@ -1,0 +1,40 @@
+import { test, expect, type Page } from "@playwright/test";
+
+/**
+ * Web Reports screen runtime proof (Phase 6 T8) against deployed staging-e2e.
+ * Reports reuses the already-deployed /insights/series + /insights/monthly (no new
+ * backend). User A has months of spend, so the monthly report cards render with real
+ * totals and the screen auto-focuses the latest month with spend — whose category
+ * breakdown donut renders.
+ */
+
+async function signIn(page: Page, buttonTestId: string): Promise<void> {
+  await page.goto("/sign-in");
+  await page.getByTestId(buttonTestId).click();
+  await expect(page).toHaveURL(/\/$/, { timeout: 30_000 });
+}
+
+test("Reports screen renders monthly cards + the period breakdown donut", async ({ browser }) => {
+  const ctx = await browser.newContext();
+  const page = await ctx.newPage();
+
+  try {
+    await signIn(page, "sign-in-test-auth-button");
+    await page.goto("/reports");
+    await expect(page.getByTestId("reports-screen")).toBeVisible({ timeout: 15_000 });
+
+    // A has months of series data → at least one monthly report card renders.
+    await expect(page.getByTestId("reports-card").first()).toBeVisible({ timeout: 15_000 });
+
+    // The screen auto-focuses the latest month WITH spend, so its category breakdown
+    // donut renders (the same donut the dashboard/trends use, fed by /insights/monthly).
+    await expect(page.getByTestId("donut-legend")).toBeVisible({ timeout: 15_000 });
+
+    // Selecting a different card re-focuses without breaking the screen.
+    const cards = page.getByTestId("reports-card");
+    await cards.nth(Math.min(1, (await cards.count()) - 1)).click();
+    await expect(page.getByTestId("reports-screen")).toBeVisible();
+  } finally {
+    await ctx.close();
+  }
+});
