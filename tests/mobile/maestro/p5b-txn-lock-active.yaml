@@ -1,0 +1,120 @@
+appId: com.gastify.mobile
+---
+# D74 transaction lock-on-share on the S23 — the on-device runtime proof that a
+# shared transaction's CONTENT is locked in the real UI. Owner A creates a group,
+# opens a personal transaction, shares it into the group, and the detail re-renders
+# with the lock: the lock banner + "shared" badge appear and the editable merchant
+# field collapses to read-only (its edit testID disappears). This also exercises the
+# share->refetch cache fix (useShareTransaction invalidates the txn detail so the
+# lock shows without a manual reload). Cross-user + avatar are proven separately
+# (web Playwright groups-hardening + S23 p5b-group-avatar).
+#
+# Requires: dev-client + deployed staging-e2e backend (PATCH lock + is_shared).
+# Re-run-safe: is_shared is permanent, so a re-run opens an already-locked txn and
+# still asserts the locked render. Clear A's groups first (5-group cap).
+
+- waitForAnimationToEnd:
+    timeout: 12000
+- tapOn:
+    text: "Continue"
+    optional: true
+- tapOn:
+    text: "Got it"
+    optional: true
+
+# Reach a clean sign-in + authenticate as user A (the owner/sharer).
+- runFlow:
+    when:
+      visible:
+        id: home-screen
+    commands:
+      - scrollUntilVisible:
+          element:
+            id: sign-out-button
+      - tapOn:
+          id: sign-out-button
+      - extendedWaitUntil:
+          visible:
+            id: sign-in-screen
+          timeout: 20000
+- extendedWaitUntil:
+    visible:
+      id: e2e-sign-in-button
+    timeout: 30000
+- tapOn:
+    id: e2e-sign-in-button
+- extendedWaitUntil:
+    visible:
+      id: home-screen
+    timeout: 60000
+
+# --- Create the group to share into ---
+- scrollUntilVisible:
+    element:
+      id: open-groups-button
+- tapOn:
+    id: open-groups-button
+- extendedWaitUntil:
+    visible:
+      id: groups-screen
+    timeout: 20000
+- tapOn:
+    id: create-group-input
+- inputText: "S23 Lock"
+- pressKey: Enter
+- extendedWaitUntil:
+    visible:
+      id: "group-card-S23 Lock"
+    timeout: 20000
+- back
+
+# --- Open a personal transaction's detail (stay in Personal scope) ---
+- scrollUntilVisible:
+    element:
+      id: open-ledger-button
+- tapOn:
+    id: open-ledger-button
+- extendedWaitUntil:
+    visible:
+      id: transactions-screen
+    timeout: 20000
+- extendedWaitUntil:
+    visible:
+      id: "transaction-row-.*"
+    timeout: 20000
+- tapOn:
+    id: "transaction-row-.*"
+- extendedWaitUntil:
+    visible:
+      id: transaction-detail-screen
+    timeout: 20000
+
+# --- Share it into the group; the share control sits on the detail ---
+- scrollUntilVisible:
+    element:
+      id: share-to-group
+- tapOn:
+    id: "share-to-S23 Lock"
+- extendedWaitUntil:
+    visible:
+      id: share-success
+    timeout: 20000
+- takeScreenshot:
+    path: 01-shared
+
+# --- The detail refetches (cache fix) and renders the content-lock ---
+- extendedWaitUntil:
+    visible:
+      id: shared-lock-banner
+    timeout: 20000
+- assertVisible:
+    id: shared-lock-badge
+# Read-only proof: the merchant collapses to a ReadOnlyField, so its Save button is
+# gone — the content can no longer be edited (the editable panel renders the Save
+# button; the locked read-only panel does not).
+- assertNotVisible:
+    id: transaction-save-merchant-button
+- assertVisible:
+    text: "Transaction details"
+- takeScreenshot:
+    path: 02-content-locked
