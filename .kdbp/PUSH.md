@@ -35,7 +35,7 @@ Edit values directly or rerun `/gabe-push --reconfigure` to redo the interview.
 
 | Setting | Value |
 |---------|-------|
-| known_branches | main, staging, rebuild/fe-dashboard-batch-01, rebuild/be-phase-01 |
+| known_branches | main, staging, feat/phase6-items-reports, rebuild/fe-dashboard-batch-01 |
 | on_extra | prompt |
 
 ## Decisions log
