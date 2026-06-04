@@ -3418,3 +3418,30 @@ ARCHITECTURE: D69 recorded — adopt-hybrid (server-aggregated drill-down tree +
 6 Phase-4 commits on origin/staging: 222e47c (backend /series) · 00279e9 (web dashboard+trends) · 78fd8fc (mobile screens) · 1f3d952 (ruff format) · f68f9bb (recharts 2.x + web donut proof) · cfc0202 (D69 + plan re-scope).
 NOTE: CI triggers on the staging push, but Railway autodeploy is NOT firing this session (staging-e2e tracks main; both staging services last deployed at the 01:35 main-promote). So this push updates the git record + runs CI but does NOT redeploy staging-e2e. Promote to main deferred — Phase 4 is now bigger (v2 /insights/tree + drill-down per D69 still to build); production promote needs user go-ahead per the push flow.
 PHASE 4 STATE: Exec 🔄 (v1 donut dashboard done + proven both platforms; v2 tree/drill-down + the deferred /series runtime proof remain). Review/Commit/Push ⬜.
+
+## 2026-06-03 — [e819b9c] feat(insights): GET /insights/tree 4-level cross-walk + dashboard drill-down
+PHASE: 4 v2 (Dashboard + Charts/Trends) — Exec 🔄 (web code complete; deployed staging-e2e runtime proof still pending per B2).
+CHECKS: ✅ lint (web eslint 0 err / 50 pre-existing react-refresh warns; backend ruff clean) · ✅ types (mypy + web tsc -b) · ✅ tests (backend 744 pass / 5 skip; web 64 pass) · coverage+shape skipped (mvp).
+FINDINGS: 1 (medium doc-drift: new @router.get("/tree") with no docs/ update — same class as P45). ACTIONS: 1:defer → +P49. SUPERSEDED: P47 (lossy client drill) resolved by D69 server tree.
+SCOPE: 19 files, +1969/-68. Backend: schemas/services/api insights.py + test_insights_tree.py (11 tests, cross-walk + scope isolation + D58 exclusion + recursive HTTP serialization + fingerprint-token regression). Web: useInsightsTree + useDonutDrill + treeNodesToSlices + DrillBreadcrumb + CategoryDonut `drillable` + recursive dashboard donut (full L1→L4 drill test). Generated: web+mobile api-types (byte-identical, recursive `children` type clean). DECISIONS: D69 amendment (full 4-level cross-walk chosen by user over one-level-deep; in-memory cross-walk = same single query; index gate already satisfied by 001 → NO migration; fingerprint taxonomy-version token; tree uncached MVP; S23 mobile proof deferred).
+NEXT: deploy /insights/tree to staging-e2e (deploy path to confirm w/ user — autodeploy didn't fire last session; redeploy rebuilds from connected branch) → thorough web Playwright proof asserting a real industry label + drilled store-type/family/item + breadcrumb → Exec ✅ → /gabe-review. Mobile drill UI + S23 Maestro deferred per user (this session web-only).
+- 2026-06-03 17:54 | Write | /home/khujta/projects/apps/gastify/tests/web-e2e/dashboard.spec.ts
+- 2026-06-03 21:08 | Edit | /home/khujta/projects/apps/gastify/tests/web-e2e/capture-proof.spec.ts
+
+## 2026-06-03 — B2 RUNTIME PROOF (web): Phase 4 v2 /insights/tree drill-down on deployed staging-e2e
+DEPLOY: gastify-api-staging-e2e = SUCCESS, branch=staging, commit=6e82bff (e819b9c /tree 4-level cross-walk + aiohttp CVE fix). ROOT CAUSE of the long deploy block, now fixed: the service Root Directory was "/", so Railway's railpack built the REPO ROOT — found the root package.json (mockup/Playwright harness), inferred a Node app, and died ("no start command"), never seeing backend/railway.toml + backend/Dockerfile. Every branch deploy failed for this reason (incl. an old-main deploy). Fix = Root Directory "/" → "backend". Secondary block earlier: Railway "Wait for CI" + a newly-published aiohttp advisory failing SCA Audit → fixed by bumping aiohttp 3.13.5→3.14.0 (6e82bff); CI then fully green.
+PROOF: Playwright tests/web-e2e/dashboard.spec.ts, local `vite --mode staging-e2e` → deployed backend (fixture provider, $0), CI=1 fresh server. Suite: 23 passed; the dashboard drill test GREEN.
+OUTCOMES (real deployed e2e data — March 2026 USD, gastify-mobile-e2e@gastify-staging.test, total $2,315.00, 7 txns), VISUALLY CONFIRMED across 5 screenshots:
+  L1 industries: Supermarkets $1,800 (77.8%) · Transport and Vehicle $240 (10.4%) · Services and Finance $180 (7.8%) · Specialty Stores $95 (4.1%).
+  L1→L2 (tap Supermarkets): breadcrumb "All categories › Supermarkets", donut $1,800, Supermarket 100%.
+  L2→L3 CROSS-WALK (tap Supermarket): breadcrumb "…› Supermarket", Fresh Food $900 (50%) + Packaged Food $900 (50%) — item-families nested under a store-type.
+  L3→L4 (tap Fresh Food): breadcrumb "…› Supermarket › Fresh Food", Meat and Seafood $600 (66.7%) + Produce $300 (33.3%).
+  roll-up ("All categories"): back to $2,315 industries. Within-parent % correct at every level.
+ARTIFACTS: tests/web-e2e/proof/dashboard/{01-L1-industries,02-L2-storetype,03-L3-families,04-L4-items,05-rolled-up,06-by-item}.png + 07-09 trends (committed, force-added). Screenshots inspected per the B2 weak-assertion guard.
+PRE-EXISTING e2e FAILURES (NOT Phase 4 v2): insights.spec.ts + capture-proof "insights monthly view" targeted the /insights route DELETED in v1 (00279e9) → insights.spec.ts removed, capture-proof repointed to dashboard /. Statement-reconciliation web tests (capture-proof + statement-reconcile.spec.ts) time out on "Coverage" (Phase 5 statement flow; staging-e2e fixture provider) → PENDING, unrelated to this phase.
+B2 WEB GATE: SATISFIED. Mobile drill UI + S23 Maestro proof DEFERRED per user direction (2026-06-03).
+- 2026-06-03 21:12 | Write | /tmp/gastify-proof-commit.txt
+
+## 2026-06-03 — [e47beb2] test(insights): B2 web proof for /insights/tree 4-level drill-down on staging-e2e
+FINDINGS: 0 (test/docs/proof diff — no app source changed; lint/types/tests N/A). ACTIONS: none.
+DEFERRED: P50 (mobile drill+S23), P51 (statement e2e Phase 5), P52 (Dockerfile from pyproject not uv.lock). PLAN: Phase 4 Exec ✅ (web B2-proven; mobile deferred).

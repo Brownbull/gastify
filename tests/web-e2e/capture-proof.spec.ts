@@ -44,13 +44,15 @@ test("proof: transaction edit marker", async ({ page }) => {
   await shot(page, "02-transaction-edited");
 });
 
-test("proof: insights monthly view", async ({ page }) => {
+test("proof: dashboard monthly view", async ({ page }) => {
+  // The /insights route was retired in v1 (D68) — its rollups live on the
+  // dashboard (/), now backed by the recursive drill-down tree (D69).
   await signIn(page);
-  await page.goto("/insights");
-  await page.getByLabel("Insights month").fill("2026-05");
+  await page.goto("/");
+  await page.getByLabel("Month", { exact: true }).fill("2026-03");
   await expect(page.getByText("Total spend")).toBeVisible({ timeout: 30_000 });
   await page.getByRole("button", { name: "By item" }).click();
-  await shot(page, "03-insights-by-item");
+  await shot(page, "03-dashboard-by-item");
 });
 
 test("proof: statement reconciliation buckets", async ({ page }) => {
