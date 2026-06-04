@@ -3530,3 +3530,8 @@ DEFERRED: +P53 (D58-in-group data test → 5c), +P54 (mobile group UI + S23 isol
 - 2026-06-04 00:01 | Edit | /home/khujta/projects/apps/gastify/backend/app/schemas/groups.py
 - 2026-06-04 00:01 | Edit | /home/khujta/projects/apps/gastify/backend/app/schemas/groups.py
 - 2026-06-04 00:01 | Edit | /home/khujta/projects/apps/gastify/backend/tests/test_groups.py
+
+## 2026-06-04 — [82d91a0] feat(groups): group CRUD + roles + invite-links (Phase 5b)
+FINDINGS: ~16 across 2 reviewers (security + python; 0 critical). NO-FORCE relaxation (D71) judged SOUND by security review (precise owner-vs-non-owner RLS semantics; test E proves gastify_app stays isolated). FIXED: member-cap race in join (scope-row FOR UPDATE + re-count in the write txn), last-admin leave guard (role in owner|admin, not just owner), GUC restore after create/join, app_user_groups trust-boundary comment, GroupDetail from_attributes, validator base extraction, +4 coverage tests (admin-removes-admin 403, member self-leave 204, join-path group cap 409, invite rotation invalidates old token).
+PROOF: migration 029 applies AND reverses on real PG (downgrade FORCE-restore + admin-guard); members ENABLE-not-FORCE verified (relforcerowsecurity=f); 3 SECURITY DEFINER readers present; PG isolation A–G pass (E: NO-FORCE app-role isolation, F: app_user_groups caller-scoped, G: invite preview cross-scope). Full suite 777 passed; mypy + ruff clean; web+mobile api-types regenerated (/groups + /invites).
+DEFERRED: +P56 (one-owner-per-group DB index — would constrain owner-transfer), +P57 (minor hardening bundle: scope_type filter, 201 conventions, db.bind→get_bind, _is_postgres consolidation, resolver round-trips). Doc-drift deferred under P55. PLAN: Phase 5 Exec 🔄 (5a+5b of 5a–5e committed).
