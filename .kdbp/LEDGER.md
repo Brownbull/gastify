@@ -3707,3 +3707,8 @@ SHIPS: D74 transaction lock-on-share (content immutable once shared on PATCH + b
 ROUTE: /gabe-next routed Phase 6 (Exec ⬜) -> /gabe-execute; Exec set 🔄.
 DESIGN: phase6-design workflow (4 parallel readers vs legacy boletapp Items/Reports + current gastify conventions -> synthesized 10-task plan). Only NEW backend = GET /api/v1/items (reuses PaginatedResponse + cursor + resolve_analytics_scope group-RLS); Reports reuses /insights/series + /insights/monthly + Phase 4 charts (zero new backend/charts). Task breakdown T1-T10 written to PLAN Phase 6 detail. Key DEFERs: flat item list (no client AggregatedItem grouping), cursor/infinite-scroll, weekly-from-monthly-series (no ISO-week bucket), CSV export.
 NEXT: build T1 (backend items endpoint + schema + pytest), then T2 (regen types).
+
+## 2026-06-04 18:05 — [455f2b3] feat(items): GET /api/v1/items (Phase 6 T1+T2)
+SCOPE: Phase 6 foundation. T1 — new app/api/items.py + app/schemas/items.py (ItemListRow) + registered in main.py + tests/test_items.py (8 tests: flat list, search/item-cat/merchant/date filters, 3-part cursor paging WITHIN a multi-item txn, group member sees shared items, non-member 404). Reuses PaginatedResponse + resolve_analytics_scope (group RLS for free). 3-part cursor "<date>|<txn_id>|<item_id>" fixes the same-txn page-boundary skip a 2-part cursor would cause. T2 — regenerated openapi types (web + mobile, ItemListRow typed).
+GATE: ✅ ruff · ✅ mypy + tsc×2 · ✅ pytest (backend 805, +8) · structure ✅ · doc-drift /items route ACCEPTED (openapi regen = API doc).
+NEXT: T3-T10 — web useItems + items route + vitest + Playwright proof; mobile lib/items + ItemsScreen + jest + S23 Maestro; then Reports (web+mobile, reuse insights+charts) + proofs. Exec stays 🔄.
