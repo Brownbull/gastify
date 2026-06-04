@@ -5,6 +5,7 @@ import { useAuth } from "../providers/AuthProvider";
 import { BatchCaptureScreen } from "../screens/BatchCaptureScreen";
 import { BatchReviewScreen } from "../screens/BatchReviewScreen";
 import { DashboardScreen } from "../screens/DashboardScreen";
+import { GroupDetailScreen } from "../screens/GroupDetailScreen";
 import { GroupsScreen } from "../screens/GroupsScreen";
 import { HomeScreen } from "../screens/HomeScreen";
 import { SettingsScreen } from "../screens/SettingsScreen";
@@ -62,6 +63,11 @@ export function AppNavigator() {
               name="Groups"
               component={GroupsScreen}
               options={{ title: "Groups" }}
+            />
+            <Stack.Screen
+              name="GroupDetail"
+              component={GroupDetailScreen}
+              options={{ title: "Group" }}
             />
             <Stack.Screen
               name="Settings"

@@ -9,19 +9,35 @@ import {
   TextInput,
   View,
 } from "react-native";
-import { useCreateGroup, useGroups, useLeaveGroup } from "../hooks/useGroups";
+import {
+  useCreateGroup,
+  useGroups,
+  useJoinInvite,
+  useLeaveGroup,
+} from "../hooks/useGroups";
 import type { GroupSummary } from "../lib/groups";
 import { useScopeStore } from "../stores/scopeStore";
 import type { RootStackParamList } from "../types/navigation";
 
 type GroupsScreenProps = NativeStackScreenProps<RootStackParamList, "Groups">;
 
+// Accept either a raw invite token or a full ".../invite/<token>" URL and
+// reduce it to the bare token — the last non-empty path/whitespace segment.
+function extractInviteToken(raw: string): string {
+  const trimmed = raw.trim();
+  if (!trimmed) return "";
+  const segments = trimmed.split(/[/\s]+/).filter(Boolean);
+  return segments[segments.length - 1] ?? "";
+}
+
 export function GroupsScreen({ navigation }: Partial<GroupsScreenProps> = {}) {
   const { data: groups, isLoading, isError, error, refetch } = useGroups();
   const activeScope = useScopeStore((s) => s.activeScope);
   const setActiveScope = useScopeStore((s) => s.setActiveScope);
   const createGroup = useCreateGroup();
+  const joinInvite = useJoinInvite();
   const [name, setName] = useState("");
+  const [inviteInput, setInviteInput] = useState("");
 
   function openGroup(group: GroupSummary) {
     setActiveScope({ kind: "group", id: group.id, name: group.name });
@@ -35,6 +51,14 @@ export function GroupsScreen({ navigation }: Partial<GroupsScreenProps> = {}) {
     const trimmed = raw.trim();
     if (!trimmed || createGroup.isPending) return;
     createGroup.mutate(trimmed, { onSuccess: () => setName("") });
+  }
+
+  // Reads the raw value (like handleCreate) so the IME "done" action works even
+  // mid-flight. Accepts a raw token or an invite URL.
+  function handleJoin(raw: string) {
+    const token = extractInviteToken(raw);
+    if (!token || joinInvite.isPending) return;
+    joinInvite.mutate(token, { onSuccess: () => setInviteInput("") });
   }
 
   return (
@@ -87,6 +111,39 @@ export function GroupsScreen({ navigation }: Partial<GroupsScreenProps> = {}) {
         </Text>
       )}
 
+      <View style={styles.joinSection}>
+        <Text style={styles.sectionLabel}>Join by invite</Text>
+        <View style={styles.createRow}>
+          <TextInput
+            testID="join-invite-input"
+            value={inviteInput}
+            onChangeText={setInviteInput}
+            placeholder="Invite token or link"
+            autoCapitalize="none"
+            autoCorrect={false}
+            returnKeyType="done"
+            onSubmitEditing={(e) => handleJoin(e.nativeEvent.text)}
+            style={styles.input}
+          />
+          <Pressable
+            testID="join-invite-button"
+            disabled={joinInvite.isPending || !inviteInput.trim()}
+            style={[
+              styles.primaryBtn,
+              (!inviteInput.trim() || joinInvite.isPending) && styles.disabled,
+            ]}
+            onPress={() => handleJoin(inviteInput)}
+          >
+            <Text style={styles.primaryBtnText}>Join</Text>
+          </Pressable>
+        </View>
+        {joinInvite.isError && (
+          <Text style={styles.error} testID="join-invite-error">
+            Could not join with that invite. Please check the token and try again.
+          </Text>
+        )}
+      </View>
+
       {isLoading && <ActivityIndicator testID="groups-loading" />}
       {isError && (
         <View style={styles.errorPanel} testID="groups-error">
@@ -103,13 +160,26 @@ export function GroupsScreen({ navigation }: Partial<GroupsScreenProps> = {}) {
       )}
 
       {groups?.map((group) => (
-        <GroupCard key={group.id} group={group} onOpen={() => openGroup(group)} />
+        <GroupCard
+          key={group.id}
+          group={group}
+          onOpen={() => openGroup(group)}
+          onManage={() => navigation?.navigate("GroupDetail", { groupId: group.id })}
+        />
       ))}
     </ScrollView>
   );
 }
 
-function GroupCard({ group, onOpen }: { group: GroupSummary; onOpen: () => void }) {
+function GroupCard({
+  group,
+  onOpen,
+  onManage,
+}: {
+  group: GroupSummary;
+  onOpen: () => void;
+  onManage: () => void;
+}) {
   const leaveGroup = useLeaveGroup();
   const activeScope = useScopeStore((s) => s.activeScope);
   const setActiveScope = useScopeStore((s) => s.setActiveScope);
@@ -130,6 +200,13 @@ function GroupCard({ group, onOpen }: { group: GroupSummary; onOpen: () => void 
             onPress={onOpen}
           >
             <Text style={styles.smallBtnText}>View dashboard</Text>
+          </Pressable>
+          <Pressable
+            testID={`group-manage-${group.name}`}
+            style={styles.smallBtn}
+            onPress={onManage}
+          >
+            <Text style={styles.smallBtnText}>Manage</Text>
           </Pressable>
           <Pressable
             testID={`group-leave-${group.name}`}
@@ -170,6 +247,8 @@ const styles = StyleSheet.create({
   },
   scopeLabel: { fontSize: 14, fontWeight: "600", color: "#2563eb" },
   createRow: { flexDirection: "row", gap: 8, alignItems: "center" },
+  joinSection: { gap: 6 },
+  sectionLabel: { fontSize: 14, fontWeight: "600", color: "#111827" },
   input: {
     flex: 1,
     borderWidth: 1,

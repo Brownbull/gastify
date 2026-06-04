@@ -1,0 +1,100 @@
+appId: com.gastify.mobile
+---
+# P5 5e + P60(c) — mobile group management + consent-gated detail on the S23.
+# Proves, against the deployed staging-e2e backend: create a group -> open its
+# Manage (detail) screen -> generate an invite (P60c) -> an admin enables member
+# visibility (5e/D73) -> the per-member consent control appears + opts in -> the
+# consent-gated transactions list opens. Backend consent/membership filtering is
+# proven by the Postgres-gated pytest suite + the web Playwright proof (which also
+# asserts a shared row); this is the user-facing mobile runtime proof.
+#
+# Requires: dev-client + the deployed staging-e2e backend with migration 032.
+
+- waitForAnimationToEnd:
+    timeout: 10000
+- tapOn:
+    text: "Continue"
+    optional: true
+- tapOn:
+    text: "Got it"
+    optional: true
+- runFlow:
+    when:
+      visible:
+        id: e2e-sign-in-button
+    commands:
+      - tapOn:
+          id: e2e-sign-in-button
+- extendedWaitUntil:
+    visible:
+      id: home-screen
+    timeout: 60000
+
+# --- Open Groups + create a group ---
+- scrollUntilVisible:
+    element:
+      id: open-groups-button
+- tapOn:
+    id: open-groups-button
+- extendedWaitUntil:
+    visible:
+      id: groups-screen
+    timeout: 20000
+- tapOn:
+    id: create-group-input
+- inputText: "S23 5e Casa"
+# Submit via the keyboard "done" action (onSubmitEditing) — see p5-phase5-groups.
+- pressKey: Enter
+- extendedWaitUntil:
+    visible:
+      id: "group-card-S23 5e Casa"
+    timeout: 20000
+
+# --- Open the group's Manage (detail) screen (P60c) ---
+- tapOn:
+    id: "group-manage-S23 5e Casa"
+- extendedWaitUntil:
+    visible:
+      id: group-detail-screen
+    timeout: 20000
+
+# --- P60(c): generate an invite token ---
+- scrollUntilVisible:
+    element:
+      id: generate-invite-button
+- tapOn:
+    id: generate-invite-button
+- extendedWaitUntil:
+    visible:
+      id: invite-token
+    timeout: 20000
+
+# --- 5e: admin enables member visibility; the consent control then appears ---
+- scrollUntilVisible:
+    element:
+      id: visibility-toggle
+- tapOn:
+    id: visibility-toggle
+- extendedWaitUntil:
+    visible:
+      id: consent-toggle
+    timeout: 20000
+- assertVisible:
+    text: ".*Visibility: On.*"
+
+# --- 5e: this member opts their own detail in ---
+- tapOn:
+    id: consent-toggle
+- assertVisible:
+    text: ".*Sharing details: On.*"
+
+# --- 5e: the consent-gated transactions list opens ---
+- scrollUntilVisible:
+    element:
+      id: group-transactions-toggle
+- tapOn:
+    id: group-transactions-toggle
+- extendedWaitUntil:
+    visible:
+      id: group-transactions
+    timeout: 20000

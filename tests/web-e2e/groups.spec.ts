@@ -81,6 +81,48 @@ test("group flow: create, share, switch scope, isolation, scan blocked", async (
   expect(await readTotalSpend(page)).toBe(personalTotal);
 });
 
+test("5e: admin visibility + member consent + consent-gated transactions list", async ({
+  page,
+}) => {
+  await signIn(page);
+  const groupName = `E2E 5e ${Date.now()}`;
+
+  // Create a group + share a personal transaction into it (the contributor row).
+  await page.goto("/groups");
+  const form = page.getByTestId("create-group-form");
+  await form.getByRole("textbox").fill(groupName);
+  await form.getByRole("button").click();
+  await expect(page.getByText(groupName)).toBeVisible({ timeout: 15_000 });
+
+  await page.goto("/transactions");
+  await page.locator("a[href^='/transactions/']").first().click();
+  const share = page.getByTestId("share-to-group");
+  await expect(share).toBeVisible({ timeout: 15_000 });
+  await share.getByRole("combobox").selectOption({ label: groupName });
+  await share.getByRole("button").click();
+  await expect(share.getByRole("button")).toHaveText(/Compartido|Shared/, { timeout: 15_000 });
+
+  // Open the group's detail panel (the per-card expand button carries aria-expanded).
+  await page.goto("/groups");
+  const card = page.locator("li", { hasText: groupName });
+  await card.locator('button[aria-expanded="false"]').click();
+
+  // Default: the transactions list shows only the owner's OWN row (visibility off).
+  await page.getByTestId("group-transactions-toggle").click();
+  const list = page.getByTestId("group-transactions");
+  await expect(list).toBeVisible();
+  await expect(list.getByText(/You|Tú|Você/)).toBeVisible({ timeout: 15_000 });
+
+  // Admin enables member visibility + opts their own detail in — toggles persist.
+  await page.getByTestId("group-visibility-toggle").check();
+  await expect(page.getByTestId("group-visibility-toggle")).toBeChecked();
+  await page.getByTestId("group-consent-toggle").check();
+  await expect(page.getByTestId("group-consent-toggle")).toBeChecked();
+
+  // The own shared row is still listed after enabling visibility + consent.
+  await expect(list.getByText(/You|Tú|Você/)).toBeVisible();
+});
+
 /** Read the dashboard's total-spend figure as a number of minor units-ish integer. */
 async function readTotalSpend(page: Page): Promise<number> {
   const el = page.getByTestId("total-spend");

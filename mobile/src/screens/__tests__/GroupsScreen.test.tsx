@@ -6,13 +6,20 @@ jest.mock("../../hooks/useGroups", () => ({
   useGroups: jest.fn(),
   useCreateGroup: jest.fn(),
   useLeaveGroup: jest.fn(),
+  useJoinInvite: jest.fn(),
 }));
 
-import { useGroups, useCreateGroup, useLeaveGroup } from "../../hooks/useGroups";
+import {
+  useGroups,
+  useCreateGroup,
+  useLeaveGroup,
+  useJoinInvite,
+} from "../../hooks/useGroups";
 
 const mockGroups = jest.mocked(useGroups);
 const mockCreate = jest.mocked(useCreateGroup);
 const mockLeave = jest.mocked(useLeaveGroup);
+const mockJoin = jest.mocked(useJoinInvite);
 
 function setList(over: Record<string, unknown> = {}) {
   mockGroups.mockReturnValue({
@@ -32,6 +39,7 @@ describe("GroupsScreen", () => {
     setList();
     mockCreate.mockReturnValue({ mutate: jest.fn(), isPending: false, isError: false } as never);
     mockLeave.mockReturnValue({ mutate: jest.fn(), isPending: false, isError: false } as never);
+    mockJoin.mockReturnValue({ mutate: jest.fn(), isPending: false, isError: false } as never);
   });
 
   it("does not create a group when the name is blank", () => {
@@ -76,5 +84,45 @@ describe("GroupsScreen", () => {
     setList({ isError: true, error: { message: "boom" } });
     render(<GroupsScreen />);
     expect(screen.getByTestId("groups-error")).toBeTruthy();
+  });
+
+  it("joins by invite with the extracted token from a raw token", () => {
+    const mutate = jest.fn();
+    mockJoin.mockReturnValue({ mutate, isPending: false, isError: false } as never);
+    render(<GroupsScreen />);
+
+    fireEvent.changeText(screen.getByTestId("join-invite-input"), "  abc123  ");
+    fireEvent.press(screen.getByTestId("join-invite-button"));
+
+    expect(mutate).toHaveBeenCalledWith(
+      "abc123",
+      expect.objectContaining({ onSuccess: expect.any(Function) }),
+    );
+  });
+
+  it("extracts the token from a full invite URL", () => {
+    const mutate = jest.fn();
+    mockJoin.mockReturnValue({ mutate, isPending: false, isError: false } as never);
+    render(<GroupsScreen />);
+
+    fireEvent.changeText(
+      screen.getByTestId("join-invite-input"),
+      "https://app.gastify.cl/invite/tok-xyz",
+    );
+    fireEvent.press(screen.getByTestId("join-invite-button"));
+
+    expect(mutate).toHaveBeenCalledWith("tok-xyz", expect.anything());
+  });
+
+  it("navigates to the group detail screen from the Manage button", () => {
+    setList({
+      data: [{ id: "g1", name: "Casa", role: "owner", member_count: 1 }],
+    });
+    const navigate = jest.fn();
+    render(<GroupsScreen navigation={{ navigate } as never} />);
+
+    fireEvent.press(screen.getByTestId("group-manage-Casa"));
+
+    expect(navigate).toHaveBeenCalledWith("GroupDetail", { groupId: "g1" });
   });
 });
