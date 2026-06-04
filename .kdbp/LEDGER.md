@@ -3543,3 +3543,8 @@ DEFERRED: +P56 (one-owner-per-group DB index — would constrain owner-transfer)
 - 2026-06-04 00:25 | Edit | /home/khujta/projects/apps/gastify/backend/app/api/groups.py
 - 2026-06-04 00:25 | Edit | /home/khujta/projects/apps/gastify/backend/app/api/groups.py
 - 2026-06-04 00:25 | Edit | /home/khujta/projects/apps/gastify/backend/app/api/groups.py
+
+## 2026-06-04 — [49ea08f] feat(groups): share-to-group (Phase 5c)
+FINDINGS: 5 (security-reviewer; 0 critical/high). Read-personal/write-group flow judged SOUND (source loaded + items eager-loaded under personal GUC BEFORE the swap; membership validated before swap; no lazy-load after; WITH CHECK covered generically by test_rls_postgres). FIXED: restore personal GUC on the 409 path + immediately after commit (via _restore_personal_scope, applied to create/join/share); UNIQUE(ownership_scope_id, shared_from_transaction_id) + IntegrityError→409 (race-safe dedup); dropped  from the copy (data-minimization — private label).
+PROOF: migration 030 applies+reverses on real PG (unique index present); shared spend appears in the group's /insights/monthly end-to-end; full suite 782 passed; ruff+mypy clean; api-types regenerated (/share). Root-caused a SQLite test quirk (Boolean server_default "false" reads back True) → copy now sets is_flagged=False explicitly (also the correct D70 semantic).
+DEFERRED: +P58 (dedicated PG integration test for the share flow — generic WITH CHECK proof + SQLite logic adequate meanwhile). PLAN: Phase 5 Exec 🔄 (5a+5b+5c of 5a–5e committed).
