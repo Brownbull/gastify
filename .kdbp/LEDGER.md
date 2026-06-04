@@ -3665,3 +3665,7 @@ Phase 5 Groups COMPLETE (✅×4, MVP + 5e finish shipped to prod). Reconciled Ph
 ## 2026-06-04 15:55 — [0696ccb] test(groups): multi-user (two real users) e2e on web + Android
 SCOPE: provisioned 2nd disposable staging user B (gastify-mobile-e2e-b@), used on BOTH web + mobile (same accounts, no platform-exclusive). Gated e2e sign-in-as-B (web signInWithTestAuthB + sign-in-test-auth-button-b; mobile signInWithTestUserB + e2e-sign-in-button-b) — hard-gated like the existing A button, never in prod.
 PROOFS (vs deployed staging-e2e): web Playwright groups-multiuser.spec.ts GREEN 34.9s (two browser contexts: B joins A's group via invite + sees A's shared row, not "You"; A sees B join). S23 Maestro p5-phase5-multiuser GREEN 34s (API-assisted cross-user setup + setup-multiuser-group.sh; device signs out→in as B → sees A's transaction). Closes the multi-user runtime gap (the legacy "multiple stay-in users") on BOTH platforms. web 69 vitest + mobile 190 jest.
+
+## 2026-06-04 19:45 — PUSH feat/phase5-groups -> staging -> main (multi-user e2e)
+CI: staging 26975979942 green · main 26976163246 green. PROMOTION: origin/staging -> main (33dbecf, FF). DEPLOYMENTS: P51 + P52. Prod health 200.
+SHIPS: multi-user (two real users) group e2e on web + Android (shared A/B accounts) — gated sign-in-as-B + two proofs (web Playwright two-context + S23 Maestro). No backend change.
