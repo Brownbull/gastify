@@ -705,6 +705,29 @@ export interface paths {
         patch: operations["update_member_role_api_v1_groups__group_id__members__member_user_id__patch"];
         trace?: never;
     };
+    "/api/v1/groups/{group_id}/leave": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Leave Group
+         * @description Leave a group as the authenticated caller (no member id needed client-side).
+         *
+         *     The last owner/admin cannot leave — it would strand the group with no
+         *     management surface; promote another admin first.
+         */
+        post: operations["leave_group_api_v1_groups__group_id__leave_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/groups/{group_id}/share": {
         parameters: {
             query?: never;
@@ -4199,6 +4222,35 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["MemberSummary"];
                 };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    leave_group_api_v1_groups__group_id__leave_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                group_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Validation Error */
             422: {

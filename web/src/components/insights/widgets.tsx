@@ -19,7 +19,7 @@ export function SummaryStats({ data }: { data: MonthlyInsights }) {
   const { t } = useI18n();
   return (
     <div className="grid gap-4 sm:grid-cols-3">
-      <Stat label={t("dashboard.totalSpend")}>
+      <Stat label={t("dashboard.totalSpend")} testId="total-spend">
         {formatMinorAmount(data.total_spend_minor, data.currency)}
       </Stat>
       <Stat label={t("dashboard.transactions")}>
@@ -30,7 +30,15 @@ export function SummaryStats({ data }: { data: MonthlyInsights }) {
   );
 }
 
-function Stat({ label, children }: { label: string; children: ReactNode }) {
+function Stat({
+  label,
+  children,
+  testId,
+}: {
+  label: string;
+  children: ReactNode;
+  testId?: string;
+}) {
   return (
     <div
       className="rounded-lg border p-4"
@@ -40,6 +48,7 @@ function Stat({ label, children }: { label: string; children: ReactNode }) {
         {label}
       </p>
       <p
+        data-testid={testId}
         className="mt-1 text-xl font-semibold tabular-nums"
         style={{ color: "var(--text)" }}
       >

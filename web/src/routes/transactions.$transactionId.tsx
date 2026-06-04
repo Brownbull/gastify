@@ -8,6 +8,7 @@ import {
 } from "@/hooks/useTransactions";
 import { useStoreCategories } from "@/hooks/useCategories";
 import { formatMinorAmount, formatDate } from "@/lib/format";
+import { ShareToGroupButton } from "@/components/ShareToGroupButton";
 import type { components } from "@/lib/api-types";
 
 type TransactionDetail = components["schemas"]["TransactionDetail"];
@@ -83,6 +84,8 @@ function TransactionDetailPage() {
           />
         </div>
       </div>
+
+      <ShareToGroupButton transactionId={transactionId} />
 
       {mutation.error && (
         <div

@@ -282,6 +282,18 @@ async def rename_group(group_id: UUID, body: GroupRename, auth: Auth, db: DB) ->
 async def delete_group(group_id: UUID, auth: Auth, db: DB) -> None:
     role = await _resolve_membership(db, auth, group_id)
     _require_role(role, ("owner",))
+    # NOTE: this is DELETE-the-whole-group — distinct from a member LEAVING. When a
+    # member leaves, their shared transactions remain in the group's statistics
+    # (D70); but deleting the group removes the group entirely, so its shared
+    # transactions go with it (and would otherwise FK-block the scope delete). Items
+    # /images/flags cascade via their ON DELETE CASCADE FKs to transactions.
+    group_txns = (
+        (await db.execute(select(Transaction).where(Transaction.ownership_scope_id == group_id)))
+        .scalars()
+        .all()
+    )
+    for txn in group_txns:
+        await db.delete(txn)
     members = (
         (
             await db.execute(
@@ -299,6 +311,7 @@ async def delete_group(group_id: UUID, auth: Auth, db: DB) -> None:
     if scope is not None:
         await db.delete(scope)
     await db.commit()
+    await _restore_personal_scope(db, auth)
 
 
 @router.delete("/{group_id}/members/{member_user_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -332,6 +345,33 @@ async def remove_member(group_id: UUID, member_user_id: UUID, auth: Auth, db: DB
             )
     await db.delete(target)
     await db.commit()
+    await _restore_personal_scope(db, auth)
+
+
+@router.post("/{group_id}/leave", status_code=status.HTTP_204_NO_CONTENT)
+async def leave_group(group_id: UUID, auth: Auth, db: DB) -> None:
+    """Leave a group as the authenticated caller (no member id needed client-side).
+
+    The last owner/admin cannot leave — it would strand the group with no
+    management surface; promote another admin first.
+    """
+    role = await _resolve_membership(db, auth, group_id)
+    if role in _MUTATE_ROLES and not await _has_other_admin(db, group_id, auth.user_id):
+        await _restore_personal_scope(db, auth)
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Promote another admin before leaving",
+        )
+    target = await db.scalar(
+        select(OwnershipScopeMember).where(
+            OwnershipScopeMember.ownership_scope_id == group_id,
+            OwnershipScopeMember.user_id == auth.user_id,
+        )
+    )
+    if target is not None:
+        await db.delete(target)
+        await db.commit()
+    await _restore_personal_scope(db, auth)
 
 
 @router.patch("/{group_id}/members/{member_user_id}", response_model=MemberSummary)

@@ -16,9 +16,11 @@ import { Route as SignInRouteImport } from "./routes/sign-in"
 import { Route as SettingsRouteImport } from "./routes/settings"
 import { Route as ScanBatchRouteImport } from "./routes/scan-batch"
 import { Route as ScanRouteImport } from "./routes/scan"
+import { Route as GroupsRouteImport } from "./routes/groups"
 import { Route as IndexRouteImport } from "./routes/index"
 import { Route as TransactionsIndexRouteImport } from "./routes/transactions.index"
 import { Route as TransactionsTransactionIdRouteImport } from "./routes/transactions.$transactionId"
+import { Route as InviteTokenRouteImport } from "./routes/invite.$token"
 
 const TrendsRoute = TrendsRouteImport.update({
   id: "/trends",
@@ -55,6 +57,11 @@ const ScanRoute = ScanRouteImport.update({
   path: "/scan",
   getParentRoute: () => rootRouteImport,
 } as any)
+const GroupsRoute = GroupsRouteImport.update({
+  id: "/groups",
+  path: "/groups",
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: "/",
   path: "/",
@@ -71,9 +78,15 @@ const TransactionsTransactionIdRoute =
     path: "/$transactionId",
     getParentRoute: () => TransactionsRoute,
   } as any)
+const InviteTokenRoute = InviteTokenRouteImport.update({
+  id: "/invite/$token",
+  path: "/invite/$token",
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   "/": typeof IndexRoute
+  "/groups": typeof GroupsRoute
   "/scan": typeof ScanRoute
   "/scan-batch": typeof ScanBatchRoute
   "/settings": typeof SettingsRoute
@@ -81,23 +94,27 @@ export interface FileRoutesByFullPath {
   "/statements": typeof StatementsRoute
   "/transactions": typeof TransactionsRouteWithChildren
   "/trends": typeof TrendsRoute
+  "/invite/$token": typeof InviteTokenRoute
   "/transactions/$transactionId": typeof TransactionsTransactionIdRoute
   "/transactions/": typeof TransactionsIndexRoute
 }
 export interface FileRoutesByTo {
   "/": typeof IndexRoute
+  "/groups": typeof GroupsRoute
   "/scan": typeof ScanRoute
   "/scan-batch": typeof ScanBatchRoute
   "/settings": typeof SettingsRoute
   "/sign-in": typeof SignInRoute
   "/statements": typeof StatementsRoute
   "/trends": typeof TrendsRoute
+  "/invite/$token": typeof InviteTokenRoute
   "/transactions/$transactionId": typeof TransactionsTransactionIdRoute
   "/transactions": typeof TransactionsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   "/": typeof IndexRoute
+  "/groups": typeof GroupsRoute
   "/scan": typeof ScanRoute
   "/scan-batch": typeof ScanBatchRoute
   "/settings": typeof SettingsRoute
@@ -105,6 +122,7 @@ export interface FileRoutesById {
   "/statements": typeof StatementsRoute
   "/transactions": typeof TransactionsRouteWithChildren
   "/trends": typeof TrendsRoute
+  "/invite/$token": typeof InviteTokenRoute
   "/transactions/$transactionId": typeof TransactionsTransactionIdRoute
   "/transactions/": typeof TransactionsIndexRoute
 }
@@ -112,6 +130,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | "/"
+    | "/groups"
     | "/scan"
     | "/scan-batch"
     | "/settings"
@@ -119,22 +138,26 @@ export interface FileRouteTypes {
     | "/statements"
     | "/transactions"
     | "/trends"
+    | "/invite/$token"
     | "/transactions/$transactionId"
     | "/transactions/"
   fileRoutesByTo: FileRoutesByTo
   to:
     | "/"
+    | "/groups"
     | "/scan"
     | "/scan-batch"
     | "/settings"
     | "/sign-in"
     | "/statements"
     | "/trends"
+    | "/invite/$token"
     | "/transactions/$transactionId"
     | "/transactions"
   id:
     | "__root__"
     | "/"
+    | "/groups"
     | "/scan"
     | "/scan-batch"
     | "/settings"
@@ -142,12 +165,14 @@ export interface FileRouteTypes {
     | "/statements"
     | "/transactions"
     | "/trends"
+    | "/invite/$token"
     | "/transactions/$transactionId"
     | "/transactions/"
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  GroupsRoute: typeof GroupsRoute
   ScanRoute: typeof ScanRoute
   ScanBatchRoute: typeof ScanBatchRoute
   SettingsRoute: typeof SettingsRoute
@@ -155,6 +180,7 @@ export interface RootRouteChildren {
   StatementsRoute: typeof StatementsRoute
   TransactionsRoute: typeof TransactionsRouteWithChildren
   TrendsRoute: typeof TrendsRoute
+  InviteTokenRoute: typeof InviteTokenRoute
 }
 
 declare module "@tanstack/react-router" {
@@ -208,6 +234,13 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof ScanRouteImport
       parentRoute: typeof rootRouteImport
     }
+    "/groups": {
+      id: "/groups"
+      path: "/groups"
+      fullPath: "/groups"
+      preLoaderRoute: typeof GroupsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     "/": {
       id: "/"
       path: "/"
@@ -229,6 +262,13 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof TransactionsTransactionIdRouteImport
       parentRoute: typeof TransactionsRoute
     }
+    "/invite/$token": {
+      id: "/invite/$token"
+      path: "/invite/$token"
+      fullPath: "/invite/$token"
+      preLoaderRoute: typeof InviteTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -248,6 +288,7 @@ const TransactionsRouteWithChildren = TransactionsRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  GroupsRoute: GroupsRoute,
   ScanRoute: ScanRoute,
   ScanBatchRoute: ScanBatchRoute,
   SettingsRoute: SettingsRoute,
@@ -255,6 +296,7 @@ const rootRouteChildren: RootRouteChildren = {
   StatementsRoute: StatementsRoute,
   TransactionsRoute: TransactionsRouteWithChildren,
   TrendsRoute: TrendsRoute,
+  InviteTokenRoute: InviteTokenRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

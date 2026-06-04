@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
+import { GroupSwitcher } from "@/components/GroupSwitcher";
 import { useAuth } from "@/hooks/useAuth";
 import { useI18n } from "@/hooks/useI18n";
 import { SUPPORTED_LOCALES, type SupportedLocale } from "@/lib/i18n";
@@ -15,6 +16,7 @@ const NAV_ITEMS = [
   { to: "/statements", labelKey: "nav.statements", icon: "💳" },
   { to: "/transactions", labelKey: "nav.transactions", icon: "📋" },
   { to: "/trends", labelKey: "nav.trends", icon: "📈" },
+  { to: "/groups", labelKey: "nav.groups", icon: "🏠" },
   { to: "/settings", labelKey: "nav.settings", icon: "⚙️" },
 ] as const;
 
@@ -45,10 +47,11 @@ function Sidebar() {
         borderColor: "var(--border)",
       }}
     >
-      <div className="p-6">
+      <div className="space-y-3 p-6 pb-3">
         <h1 className="text-xl font-bold" style={{ color: "var(--primary)" }}>
           {t("app.name")}
         </h1>
+        <GroupSwitcher />
       </div>
       <nav className="flex-1 space-y-1 px-3">
         {NAV_ITEMS.map((item) => (
@@ -130,6 +133,9 @@ function MobileHeader() {
             {t("auth.signOut")}
           </button>
         </div>
+      </div>
+      <div className="mt-2">
+        <GroupSwitcher />
       </div>
     </header>
   );

@@ -2300,6 +2300,43 @@
         }
       }
     },
+    "/api/v1/groups/{group_id}/leave": {
+      "post": {
+        "tags": [
+          "groups"
+        ],
+        "summary": "Leave Group",
+        "description": "Leave a group as the authenticated caller (no member id needed client-side).\n\nThe last owner/admin cannot leave \u2014 it would strand the group with no\nmanagement surface; promote another admin first.",
+        "operationId": "leave_group_api_v1_groups__group_id__leave_post",
+        "parameters": [
+          {
+            "name": "group_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Group Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/groups/{group_id}/share": {
       "post": {
         "tags": [

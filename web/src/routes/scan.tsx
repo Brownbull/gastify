@@ -7,6 +7,8 @@ import { ScanResult } from "@/components/ScanResult";
 import { useScanUpload } from "@/hooks/useScanUpload";
 import { useScanStream } from "@/hooks/useScanStream";
 import { useScanStore } from "@/stores/scanStore";
+import { PersonalOnlyNotice } from "@/components/PersonalOnlyNotice";
+import { useUiStore } from "@/stores/uiStore";
 
 export const Route = createFileRoute("/scan")({
   component: ScanPage,
@@ -16,6 +18,7 @@ function ScanPage() {
   const phase = useScanStore((s) => s.phase);
   const { upload, isUploading } = useScanUpload();
   useScanStream();
+  const inGroupMode = useUiStore((s) => s.activeScope.kind === "group");
 
   const handleFileSelected = useCallback(
     (file: File) => {
@@ -38,6 +41,8 @@ function ScanPage() {
     phase === "verified";
   const showResult = phase === "complete";
   const showError = phase === "failed";
+
+  if (inGroupMode) return <PersonalOnlyNotice />;
 
   return (
     <div className="mx-auto max-w-xl space-y-6">

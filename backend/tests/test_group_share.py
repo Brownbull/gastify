@@ -14,13 +14,14 @@ import uuid
 from datetime import date
 
 import pytest
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from sqlalchemy.orm import selectinload
 
 from app.models.transaction import Transaction, TransactionItem
 from app.models.user import OwnershipScope
 from tests.conftest import TEST_SCOPE_ID, TEST_USER_ID
+from tests.test_groups import _acting_as, _add_member, _make_auth, _seed_user
 
 
 def _sf(engine):
@@ -153,3 +154,35 @@ async def test_shared_spend_appears_in_group_analytics(client, engine):
     assert group.json()["total_spend_minor"] == 73_500
     # The personal scope still has its own (un-shared) copy too — both exist.
     assert personal.json()["total_spend_minor"] == 73_500
+
+
+@pytest.mark.asyncio
+async def test_shared_transactions_remain_in_statistics_after_sharer_leaves(client, engine):
+    """A departed member's shared spend stays in the group's STATISTICS (D70 caveat):
+    leaving removes the membership row, never the shared transactions."""
+    group_id = (await client.post("/api/v1/groups", json={"name": "Casa"})).json()["id"]
+    sharer_uid, sharer_scope = await _seed_user(engine, "sharer")
+    await _add_member(engine, uuid.UUID(group_id), sharer_uid, "member")
+    txn_id = await _seed_personal_txn(engine, scope_id=sharer_scope, total_minor=42_000)
+
+    with _acting_as(_make_auth(sharer_uid, sharer_scope, "Sh")):
+        shared = await client.post(
+            f"/api/v1/groups/{group_id}/share", json={"transaction_id": str(txn_id)}
+        )
+        assert shared.status_code == 201
+        left = await client.post(f"/api/v1/groups/{group_id}/leave")
+        assert left.status_code == 204
+
+    # The owner still sees the shared spend in the group's monthly statistics.
+    group_monthly = await client.get(
+        "/api/v1/insights/monthly", params={"period": "2026-03", "group_id": group_id}
+    )
+    assert group_monthly.json()["total_spend_minor"] == 42_000
+    # The copy still physically exists in the group scope.
+    async with _sf(engine)() as s:
+        count = await s.scalar(
+            select(func.count())
+            .select_from(Transaction)
+            .where(Transaction.ownership_scope_id == uuid.UUID(group_id))
+        )
+        assert count == 1

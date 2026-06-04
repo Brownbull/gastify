@@ -1,29 +1,53 @@
 import { useQuery } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api";
+import { useUiStore } from "@/stores/uiStore";
 
 export type InsightDimension = "transaction_category" | "item_category";
 export type SeriesGranularity = "month" | "quarter" | "year";
 
+/** The active group id (undefined = personal) that scopes every insights query. */
+function useActiveGroupId(): string | undefined {
+  return useUiStore((s) =>
+    s.activeScope.kind === "group" ? s.activeScope.id : undefined,
+  );
+}
+
+const scopeKey = (groupId?: string) => groupId ?? "personal";
+
 export const insightsKeys = {
   all: ["insights"] as const,
-  monthly: (period: string, currency?: string) =>
-    [...insightsKeys.all, "monthly", period, currency ?? "default"] as const,
+  monthly: (period: string, currency?: string, groupId?: string) =>
+    [...insightsKeys.all, "monthly", scopeKey(groupId), period, currency ?? "default"] as const,
   series: (
     from: string,
     to: string,
     granularity: SeriesGranularity,
     currency?: string,
+    groupId?: string,
   ) =>
     [
       ...insightsKeys.all,
       "series",
+      scopeKey(groupId),
       from,
       to,
       granularity,
       currency ?? "default",
     ] as const,
-  tree: (period: string, dimension: InsightDimension, currency?: string) =>
-    [...insightsKeys.all, "tree", period, dimension, currency ?? "default"] as const,
+  tree: (
+    period: string,
+    dimension: InsightDimension,
+    currency?: string,
+    groupId?: string,
+  ) =>
+    [
+      ...insightsKeys.all,
+      "tree",
+      scopeKey(groupId),
+      period,
+      dimension,
+      currency ?? "default",
+    ] as const,
 };
 
 /** Current month in the `YYYY-MM` period format the insights API expects. */
@@ -59,11 +83,12 @@ export function periodWindow(
 }
 
 export function useMonthlyInsights(period: string, currency?: string) {
+  const groupId = useActiveGroupId();
   return useQuery({
-    queryKey: insightsKeys.monthly(period, currency),
+    queryKey: insightsKeys.monthly(period, currency, groupId),
     queryFn: async () => {
       const { data, error } = await apiClient.GET("/api/v1/insights/monthly", {
-        params: { query: { period, currency: currency ?? undefined } },
+        params: { query: { period, currency: currency ?? undefined, group_id: groupId } },
       });
 
       if (error || !data) {
@@ -83,11 +108,14 @@ export function useInsightsSeries(
   granularity: SeriesGranularity = "month",
   currency?: string,
 ) {
+  const groupId = useActiveGroupId();
   return useQuery({
-    queryKey: insightsKeys.series(from, to, granularity, currency),
+    queryKey: insightsKeys.series(from, to, granularity, currency, groupId),
     queryFn: async () => {
       const { data, error } = await apiClient.GET("/api/v1/insights/series", {
-        params: { query: { from, to, granularity, currency: currency ?? undefined } },
+        params: {
+          query: { from, to, granularity, currency: currency ?? undefined, group_id: groupId },
+        },
       });
 
       if (error || !data) {
@@ -111,11 +139,14 @@ export function useInsightsTree(
   dimension: InsightDimension,
   currency?: string,
 ) {
+  const groupId = useActiveGroupId();
   return useQuery({
-    queryKey: insightsKeys.tree(period, dimension, currency),
+    queryKey: insightsKeys.tree(period, dimension, currency, groupId),
     queryFn: async () => {
       const { data, error } = await apiClient.GET("/api/v1/insights/tree", {
-        params: { query: { period, dimension, currency: currency ?? undefined } },
+        params: {
+          query: { period, dimension, currency: currency ?? undefined, group_id: groupId },
+        },
       });
 
       if (error || !data) {

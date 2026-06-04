@@ -5,6 +5,8 @@ import { BatchScanReview } from "@/components/BatchScanReview";
 import { useBatchScan } from "@/hooks/useBatchScan";
 import { useBatchScanStore } from "@/stores/batchScanStore";
 import { useI18n } from "@/hooks/useI18n";
+import { PersonalOnlyNotice } from "@/components/PersonalOnlyNotice";
+import { useUiStore } from "@/stores/uiStore";
 
 export const Route = createFileRoute("/scan-batch")({
   component: BatchScanPage,
@@ -23,6 +25,7 @@ function BatchScanPage() {
   const phase = useBatchScanStore((s) => s.phase);
   const items = useBatchScanStore((s) => s.items);
   const { start, discard, retry } = useBatchScan();
+  const inGroupMode = useUiStore((s) => s.activeScope.kind === "group");
 
   const [queued, setQueued] = useState<readonly QueuedFile[]>([]);
   const urlsRef = useRef<Set<string>>(new Set());
@@ -84,6 +87,8 @@ function BatchScanPage() {
     setQueued([]);
     useBatchScanStore.getState().reset();
   }, [revokeAll]);
+
+  if (inGroupMode) return <PersonalOnlyNotice />;
 
   return (
     <div className="mx-auto max-w-xl space-y-6" data-testid="batch-scan-page">
