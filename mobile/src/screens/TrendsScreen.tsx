@@ -20,6 +20,9 @@ import type { RootStackParamList } from "../types/navigation";
 type TrendsScreenProps = NativeStackScreenProps<RootStackParamList, "Trends">;
 
 const WINDOW_MONTHS: Record<SeriesGranularity, number> = {
+  // Trends exposes month/quarter/year only; `week` exists for the shared type
+  // (used by Reports) — Trends never requests it.
+  week: 3,
   month: 6,
   quarter: 12,
   year: 24,

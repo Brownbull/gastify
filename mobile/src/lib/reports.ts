@@ -59,6 +59,9 @@ export function periodLabel(point: { period: string; period_start: string }): st
   const quarter = /^(\d{4})-Q([1-4])$/.exec(point.period);
   if (quarter) return `Q${quarter[2]} ${quarter[1]}`;
 
+  const week = /^(\d{4})-W(\d{2})$/.exec(point.period);
+  if (week) return `W${Number(week[2])} ${week[1]}`;
+
   const month = /^(\d{4})-(\d{2})$/.exec(point.period);
   if (month) {
     const monthIndex = Number(month[2]) - 1;

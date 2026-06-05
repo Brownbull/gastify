@@ -1350,7 +1350,7 @@ export interface components {
         InsightsSeriesPoint: {
             /**
              * Period
-             * @description Canonical bucket label: YYYY-MM (month), YYYY-Q{n} (quarter), or YYYY (year).
+             * @description Canonical bucket label: YYYY-Www (week), YYYY-MM (month), YYYY-Q{n} (quarter), or YYYY (year).
              */
             period: string;
             /**
@@ -1386,7 +1386,7 @@ export interface components {
              * Granularity
              * @enum {string}
              */
-            granularity: "month" | "quarter" | "year";
+            granularity: "week" | "month" | "quarter" | "year";
             /** Currency */
             currency: string;
             /**
@@ -4246,7 +4246,7 @@ export interface operations {
                 /** @description Inclusive end month in YYYY-MM format. */
                 to: string;
                 /** @description Bucket grain: month, quarter, or year. */
-                granularity?: "month" | "quarter" | "year";
+                granularity?: "week" | "month" | "quarter" | "year";
                 /** @description Reporting currency. Defaults to the user's default currency. */
                 currency?: string | null;
                 /** @description Analyze a group scope you belong to; defaults to your personal scope. */

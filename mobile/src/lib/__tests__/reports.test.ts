@@ -71,7 +71,8 @@ describe("periodLabel", () => {
     );
   });
 
-  it("formats quarter + year buckets (D77 granularity)", () => {
+  it("formats week + quarter + year buckets (D77 granularity)", () => {
+    expect(periodLabel({ period: "2026-W23", period_start: "2026-06-01" })).toBe("W23 2026");
     expect(periodLabel({ period: "2026-Q1", period_start: "2026-01-01" })).toBe("Q1 2026");
     expect(periodLabel({ period: "2026", period_start: "2026-01-01" })).toBe("2026");
   });

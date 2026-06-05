@@ -10,7 +10,7 @@ export type InsightGravityCenter =
 export type InsightExcludedItem =
   components["schemas"]["InsightExcludedItemSummary"];
 export type InsightDimension = "transaction_category" | "item_category";
-export type SeriesGranularity = "month" | "quarter" | "year";
+export type SeriesGranularity = "week" | "month" | "quarter" | "year";
 export type InsightsSeries = components["schemas"]["InsightsSeriesResponse"];
 export type InsightsSeriesPoint = components["schemas"]["InsightsSeriesPoint"];
 export type InsightsTree = components["schemas"]["InsightsTreeResponse"];

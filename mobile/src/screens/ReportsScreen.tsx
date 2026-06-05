@@ -28,6 +28,7 @@ type ReportsScreenProps = NativeStackScreenProps<RootStackParamList, "Reports">;
  * mirrors the mobile Trends screen window sizing (D77).
  */
 const WINDOW_MONTHS: Record<SeriesGranularity, number> = {
+  week: 3,
   month: 6,
   quarter: 12,
   year: 24,
@@ -35,6 +36,7 @@ const WINDOW_MONTHS: Record<SeriesGranularity, number> = {
 
 /** Per-granularity heading for the report card section. */
 const SECTION_TITLE: Record<SeriesGranularity, string> = {
+  week: "Weekly",
   month: "Monthly",
   quarter: "Quarterly",
   year: "Yearly",
@@ -245,6 +247,7 @@ function GranularityToggle({
   onChange: (value: SeriesGranularity) => void;
 }) {
   const options: { value: SeriesGranularity; label: string }[] = [
+    { value: "week", label: "Week" },
     { value: "month", label: "Month" },
     { value: "quarter", label: "Quarter" },
     { value: "year", label: "Year" },

@@ -44,6 +44,11 @@ test("Reports screen renders monthly cards + the period breakdown donut", async 
     await page.getByTestId("reports-granularity-year").click();
     await expect(page.getByTestId("reports-card").first()).toBeVisible({ timeout: 15_000 });
 
+    // #2: weekly buckets (the new backend ISO-week granularity) render too.
+    await page.getByTestId("reports-granularity-week").click();
+    await expect(page.getByTestId("reports-breakdown")).toHaveCount(0);
+    await expect(page.getByTestId("reports-card").first()).toBeVisible({ timeout: 15_000 });
+
     // Back to monthly restores the breakdown.
     await page.getByTestId("reports-granularity-month").click();
     await expect(page.getByTestId("reports-breakdown")).toBeVisible({ timeout: 15_000 });

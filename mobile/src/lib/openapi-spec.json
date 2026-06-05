@@ -2004,6 +2004,7 @@
             "required": false,
             "schema": {
               "enum": [
+                "week",
                 "month",
                 "quarter",
                 "year"
@@ -3950,10 +3951,10 @@
         "properties": {
           "period": {
             "type": "string",
-            "maxLength": 7,
+            "maxLength": 8,
             "minLength": 4,
             "title": "Period",
-            "description": "Canonical bucket label: YYYY-MM (month), YYYY-Q{n} (quarter), or YYYY (year)."
+            "description": "Canonical bucket label: YYYY-Www (week), YYYY-MM (month), YYYY-Q{n} (quarter), or YYYY (year)."
           },
           "period_start": {
             "type": "string",
@@ -3998,6 +3999,7 @@
           "granularity": {
             "type": "string",
             "enum": [
+              "week",
               "month",
               "quarter",
               "year"

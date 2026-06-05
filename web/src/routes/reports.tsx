@@ -22,6 +22,7 @@ const CategoryDonut = lazy(() => import("@/components/charts/CategoryDonut"));
 
 /** Months of report-card history per granularity (≤ backend 24-month cap). */
 const WINDOW_MONTHS: Record<SeriesGranularity, number> = {
+  week: 3,
   month: 6,
   quarter: 12,
   year: 24,
@@ -29,6 +30,7 @@ const WINDOW_MONTHS: Record<SeriesGranularity, number> = {
 
 /** Section heading per granularity. */
 const SECTION_KEY = {
+  week: "reports.weekly",
   month: "reports.monthly",
   quarter: "reports.quarterly",
   year: "reports.yearly",
@@ -89,10 +91,12 @@ export function toReportCards(points: readonly SeriesPoint[]): ReportCard[] {
 }
 
 function periodLabel(period: string): string {
-  // Canonical series keys: YYYY (year), YYYY-Q{n} (quarter), YYYY-MM (month).
+  // Canonical series keys: YYYY (year), YYYY-Q{n} (quarter), YYYY-Www (week), YYYY-MM.
   if (/^\d{4}$/.test(period)) return period;
   const quarter = /^(\d{4})-Q([1-4])$/.exec(period);
   if (quarter) return `Q${quarter[2]} ${quarter[1]}`;
+  const week = /^(\d{4})-W(\d{2})$/.exec(period);
+  if (week) return `W${Number(week[2])} ${week[1]}`;
   const [year, month] = period.split("-");
   if (!month) return period;
   return new Date(Number(year), Number(month) - 1, 1).toLocaleDateString(undefined, {
@@ -291,6 +295,7 @@ function GranularityToggle({
 }) {
   const { t } = useI18n();
   const options: { value: SeriesGranularity; label: string }[] = [
+    { value: "week", label: t("trends.granularity.week") },
     { value: "month", label: t("trends.granularity.month") },
     { value: "quarter", label: t("trends.granularity.quarter") },
     { value: "year", label: t("trends.granularity.year") },

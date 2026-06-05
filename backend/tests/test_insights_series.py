@@ -4,8 +4,9 @@ Series totals are cross-checked against the locked monthly engine so the
 current-month point of a month-granularity series equals the dashboard total.
 """
 
+import re
 import uuid
-from datetime import date
+from datetime import date, timedelta
 
 from app.services.insights import (
     build_insights_series_from_seed,
@@ -86,6 +87,37 @@ def test_year_series_sums_the_three_months():
     assert point.total_spend_minor == sum(_monthly_total(month) for month in _SEED_MONTHS)
     assert point.period_start == date(2026, 1, 1)
     assert point.period_end == date(2026, 3, 31)
+
+
+def test_week_series_buckets_by_iso_week():
+    """D77 #2: week granularity buckets records by ISO week (Monday-start). The
+    window covers all seed records (Jan-Mar), so weekly totals sum to the same
+    spend as the three monthly buckets — weeks just slice it finer."""
+    response = build_insights_series_from_seed(
+        P6_INSIGHTS_SEED_CORPUS,
+        ownership_scope_id=P6_PRIMARY_SCOPE_ID,
+        period_start=date(2026, 1, 1),
+        period_end=date(2026, 3, 31),
+        granularity="week",
+    )
+
+    assert response.granularity == "week"
+    assert response.points
+    assert all(re.fullmatch(r"\d{4}-W\d{2}", point.period) for point in response.points)
+    for point in response.points:
+        assert point.period_start.weekday() == 0  # Monday-start
+        assert point.period_end == point.period_start + timedelta(days=6)
+    # Weeks tile the window contiguously (each starts 7 days after the previous).
+    for prev, nxt in zip(response.points, response.points[1:], strict=False):
+        assert nxt.period_start == prev.period_start + timedelta(days=7)
+    # Weekly totals re-sum to the monthly spend (same records, finer buckets).
+    assert sum(point.total_spend_minor for point in response.points) == sum(
+        _monthly_total(month) for month in _SEED_MONTHS
+    )
+    assert sum(point.transaction_count for point in response.points) == sum(
+        _monthly_count(month) for month in _SEED_MONTHS
+    )
+    assert any(point.total_spend_minor > 0 for point in response.points)
 
 
 def test_empty_months_emit_zero_points_so_the_line_shows_gaps():

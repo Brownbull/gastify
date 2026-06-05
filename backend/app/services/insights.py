@@ -485,6 +485,17 @@ def build_insights_series_from_records(
         and record.currency.upper() == normalized_currency
     )
 
+    # Weeks don't nest inside months, so they bypass the per-month accumulation and
+    # bucket the records directly by ISO week (Monday-start). The window is the same
+    # month range; the frontend keeps it short (the cards list is one row per week).
+    if granularity == "week":
+        return _build_weekly_series(
+            scoped_records,
+            period_start=period_start,
+            period_end=period_end,
+            currency=normalized_currency,
+        )
+
     buckets: dict[str, _SeriesBucketAccumulator] = {}
     cursor = start
     while cursor <= last_month:
@@ -886,6 +897,50 @@ def _tree_category_for_level(level: int, key: str) -> CategoryDefinition:
 
 def _sorted_tree_nodes(nodes: list[InsightsTreeNode]) -> list[InsightsTreeNode]:
     return sorted(nodes, key=lambda node: (-node.total_minor, node.label, node.key))
+
+
+def _build_weekly_series(
+    scoped_records: tuple[InsightTransactionRecord, ...],
+    *,
+    period_start: date,
+    period_end: date,
+    currency: str,
+) -> InsightsSeriesResponse:
+    """Bucket records by ISO week (Monday-start) over [period_start, period_end].
+
+    One point per week touched by the range, including zero-spend weeks (so the
+    cards show gaps). The bucket key is the ISO year+week (`YYYY-Www`), which the
+    clients format as `Week n, YYYY`. Per-week totals use the same post-exclusion
+    `included_total_minor` semantics as the month/quarter/year path.
+    """
+    start_monday = period_start - timedelta(days=period_start.weekday())
+    end_monday = period_end - timedelta(days=period_end.weekday())
+    points: list[InsightsSeriesPoint] = []
+    cursor = start_monday
+    while cursor <= end_monday:
+        week_end = cursor + timedelta(days=6)
+        in_week = tuple(
+            record for record in scoped_records if cursor <= record.transaction_date <= week_end
+        )
+        week_total = sum(_prepare_transaction(record).included_total_minor for record in in_week)
+        iso_year, iso_week, _ = cursor.isocalendar()
+        points.append(
+            InsightsSeriesPoint(
+                period=f"{iso_year:04d}-W{iso_week:02d}",
+                period_start=cursor,
+                period_end=week_end,
+                total_spend_minor=week_total,
+                transaction_count=len(in_week),
+            )
+        )
+        cursor += timedelta(days=7)
+    return InsightsSeriesResponse(
+        granularity="week",
+        currency=currency,
+        period_start=start_monday,
+        period_end=end_monday + timedelta(days=6),
+        points=points,
+    )
 
 
 def _series_bucket_key(month_start: date, granularity: SeriesGranularity) -> str:

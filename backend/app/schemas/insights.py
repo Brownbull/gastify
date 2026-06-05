@@ -21,7 +21,7 @@ InsightCategoryLevel = Literal[2, 4]
 InsightParentLevel = Literal[1, 3]
 GravityDirection = Literal["growth", "shrink"]
 ItemInsightFlagKind = Literal["urgency", "special_case"]
-SeriesGranularity = Literal["month", "quarter", "year"]
+SeriesGranularity = Literal["week", "month", "quarter", "year"]
 
 INSIGHT_SCHEMA_VERSION: Literal["monthly-insights.v1"] = "monthly-insights.v1"
 INSIGHT_SERIES_SCHEMA_VERSION: Literal["insights-series.v1"] = "insights-series.v1"
@@ -211,8 +211,11 @@ class InsightsSeriesPoint(BaseModel):
 
     period: str = Field(
         min_length=4,
-        max_length=7,
-        description="Canonical bucket label: YYYY-MM (month), YYYY-Q{n} (quarter), or YYYY (year).",
+        max_length=8,
+        description=(
+            "Canonical bucket label: YYYY-Www (week), YYYY-MM (month), "
+            "YYYY-Q{n} (quarter), or YYYY (year)."
+        ),
     )
     period_start: date
     period_end: date
