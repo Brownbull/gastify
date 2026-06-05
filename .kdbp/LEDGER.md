@@ -3753,3 +3753,12 @@ STATE: Phase 6 (Items + Reports) COMPLETE + B2-proven both platforms. PLAN Exec/
 CI: staging green · main 26986473933 green. PROMOTION: origin/staging at 465a814 -> main (FF f9270f5->465a814, 4 commits). DEPLOYMENTS: P57. Railway production no-op backend redeploy (Reports is pure frontend); prod smoke /insights/monthly 401 + /items 401 (backend up + auth-gated).
 SHIPS: web /reports + mobile ReportsScreen — period spending report cards (monthly total + count + client-side trend%), reuse /insights/series + /insights/monthly + Phase 4 donut (zero new backend). Adversarial review fix (trend zero-baseline) pre-promote. B2-proven both platforms (web 8.4s + S23 35s).
 PHASE 6 (Items View + Reports) COMPLETE in production — Exec/Review/Commit/Push ✅. Items vertical (T1-T6, P56) + Reports vertical (T7-T10, P57) + D76. Next phase: 7 Notification Center.
+- 2026-06-04 19:59 | Edit | /home/khujta/projects/apps/gastify/mobile/src/lib/reports.ts
+- 2026-06-04 19:59 | Edit | /home/khujta/projects/apps/gastify/mobile/src/screens/ReportsScreen.tsx
+- 2026-06-04 19:59 | Edit | /home/khujta/projects/apps/gastify/web/src/routes/reports.tsx
+- 2026-06-04 19:59 | Edit | /home/khujta/projects/apps/gastify/mobile/src/screens/ReportsScreen.tsx
+
+## 2026-06-04 20:10 — Phase 6 Reports #1: month/quarter/year granularity toggle (D77)
+SCOPE: Reports gains a Month/Quarter/Year toggle (frontend-only, reuses /insights/series granularity + the Trends toggle pattern). The toggle drives the report cards; the category-breakdown donut stays month-only (no quarterly/annual category rollup) — shown only at month granularity. periodLabel formats YYYY-MM / YYYY-Q{n} / YYYY. Web routes/reports.tsx + mobile ReportsScreen.tsx (mobile granularity agent rate-limited mid-task → finished by hand: toggle UI, SECTION_TITLE heading, showBreakdown gating, fixed the stale periodLabel test).
+GATES: web tsc clean + 80 vitest (+ granularity toggle test); mobile tsc clean + 226 jest (+ granularity toggle test).
+PROOF: web Playwright reports.spec GREEN 13.1s vs deployed staging-e2e — switch to quarter/year buckets (real data) hides the month-only breakdown + still renders cards; back to month restores it. S23 mobile Maestro DEFERRED (user disconnecting the device) — mobile covered by jest. Closes 4/5 legacy report periods (month/quarter/year + the monthly "this month" summary). #2 (week/weekly) needs a backend week bucket — next.

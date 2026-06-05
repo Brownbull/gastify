@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react-native";
+import { fireEvent, render, screen } from "@testing-library/react-native";
 import { ReportsScreen } from "../ReportsScreen";
 
 // ReportsScreen renders ScopeBanner, which reads the groups list (D75); stub it
@@ -97,6 +97,25 @@ describe("ReportsScreen", () => {
     // also appears in the "This month so far" summary card, so match >= 1.
     expect(screen.getAllByText("April 2026").length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText("February 2026")).toBeTruthy();
+  });
+
+  it("switches the requested series granularity via the toggle (D77)", () => {
+    setSeries();
+    render(<ReportsScreen />);
+
+    // Defaults to monthly + shows the month-only breakdown summary card.
+    const monthCall = mockSeries.mock.calls.at(-1) as unknown[];
+    expect(monthCall?.[2]).toBe("month");
+    expect(screen.queryByTestId("reports-current-month")).toBeTruthy();
+
+    fireEvent.press(screen.getByTestId("reports-granularity-quarter"));
+
+    // Now requests quarterly buckets, and the month-only summary card is gone.
+    const quarterCall = mockSeries.mock.calls.at(-1) as unknown[];
+    expect(quarterCall?.[2]).toBe("quarter");
+    expect(screen.queryByTestId("reports-current-month")).toBeNull();
+    // Cards still render at the new granularity.
+    expect(screen.getByTestId("reports-card-0")).toBeTruthy();
   });
 
   it("classifies the trend up/down/flat against the previous period", () => {

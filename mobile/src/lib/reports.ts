@@ -45,23 +45,32 @@ const MONTH_NAMES = [
 ] as const;
 
 /**
- * Render a series bucket as a human label. Months become `March 2026`; quarter
- * (`2026-Q1`) and year (`2026`) buckets fall back to their canonical key so the
- * same helper serves every granularity without a date parse that could drift.
+ * Render a series bucket as a human label, driven off the canonical `period`
+ * key so every granularity formats correctly:
+ * - month   (`2026-03`)   → `March 2026`
+ * - quarter (`2026-Q1`)   → `Q1 2026`
+ * - year    (`2026`)      → `2026`
+ *
+ * The label keys on `period` rather than `period_start` because a quarter
+ * bucket's start (`2026-01-01`) would otherwise read as a month ("January
+ * 2026"). Unrecognised keys fall back verbatim so the helper never throws.
  */
 export function periodLabel(point: { period: string; period_start: string }): string {
-  const month = monthFromStart(point.period_start);
-  if (month) return month;
-  return point.period;
-}
+  const quarter = /^(\d{4})-Q([1-4])$/.exec(point.period);
+  if (quarter) return `Q${quarter[2]} ${quarter[1]}`;
 
-function monthFromStart(periodStart: string): string | null {
-  const match = /^(\d{4})-(\d{2})/.exec(periodStart);
-  if (!match) return null;
-  const year = Number(match[1]);
-  const monthIndex = Number(match[2]) - 1;
-  if (monthIndex < 0 || monthIndex > 11) return null;
-  return `${MONTH_NAMES[monthIndex]} ${year}`;
+  const month = /^(\d{4})-(\d{2})$/.exec(point.period);
+  if (month) {
+    const monthIndex = Number(month[2]) - 1;
+    if (monthIndex >= 0 && monthIndex <= 11) {
+      return `${MONTH_NAMES[monthIndex]} ${month[1]}`;
+    }
+  }
+
+  const year = /^(\d{4})$/.exec(point.period);
+  if (year) return year[1];
+
+  return point.period;
 }
 
 /**

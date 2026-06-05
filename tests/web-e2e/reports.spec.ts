@@ -34,6 +34,19 @@ test("Reports screen renders monthly cards + the period breakdown donut", async 
     const cards = page.getByTestId("reports-card");
     await cards.nth(Math.min(1, (await cards.count()) - 1)).click();
     await expect(page.getByTestId("reports-screen")).toBeVisible();
+
+    // D77: the granularity toggle re-buckets the cards. Quarterly + yearly hide the
+    // month-only breakdown and still render period cards from real data.
+    await page.getByTestId("reports-granularity-quarter").click();
+    await expect(page.getByTestId("reports-breakdown")).toHaveCount(0);
+    await expect(page.getByTestId("reports-card").first()).toBeVisible({ timeout: 15_000 });
+
+    await page.getByTestId("reports-granularity-year").click();
+    await expect(page.getByTestId("reports-card").first()).toBeVisible({ timeout: 15_000 });
+
+    // Back to monthly restores the breakdown.
+    await page.getByTestId("reports-granularity-month").click();
+    await expect(page.getByTestId("reports-breakdown")).toBeVisible({ timeout: 15_000 });
   } finally {
     await ctx.close();
   }

@@ -11,6 +11,7 @@ import {
   periodWindow,
   shiftPeriod,
   type InsightDimension,
+  type SeriesGranularity,
 } from "../lib/insights";
 import {
   seriesHasNoSpend,
@@ -21,22 +22,43 @@ import type { RootStackParamList } from "../types/navigation";
 
 type ReportsScreenProps = NativeStackScreenProps<RootStackParamList, "Reports">;
 
-/** Months of history the monthly report list spans, ending at the active period. */
-const REPORT_WINDOW_MONTHS = 6;
+/**
+ * Months of history the report list spans per granularity, ending at the active
+ * period. Coarser buckets reach further back (the backend caps at 24 months) —
+ * mirrors the mobile Trends screen window sizing (D77).
+ */
+const WINDOW_MONTHS: Record<SeriesGranularity, number> = {
+  month: 6,
+  quarter: 12,
+  year: 24,
+};
+
+/** Per-granularity heading for the report card section. */
+const SECTION_TITLE: Record<SeriesGranularity, string> = {
+  month: "Monthly",
+  quarter: "Quarterly",
+  year: "Yearly",
+};
 
 export function ReportsScreen({ navigation }: Partial<ReportsScreenProps> = {}) {
   const [period, setPeriod] = useState(() => currentPeriod());
-  const window = periodWindow(period, REPORT_WINDOW_MONTHS);
-  const series = useInsightsSeries(window.from, window.to, "month");
+  const [granularity, setGranularity] = useState<SeriesGranularity>("month");
+  const window = periodWindow(period, WINDOW_MONTHS[granularity]);
+  const series = useInsightsSeries(window.from, window.to, granularity);
 
   const points = series.data?.points ?? [];
   const cards = seriesToReportCards(points);
   const currency = series.data?.currency ?? "CLP";
   const hasNoSpend = series.data ? seriesHasNoSpend(points) : false;
 
-  // The newest point in the window is the "current month so far" summary; it is
-  // the same data the first monthly card carries, surfaced separately because
-  // /insights/series has no week granularity (D-Phase6 weekly note).
+  // The category-breakdown donut is a month-only affordance: the backend has no
+  // quarterly/annual category rollup, so the expandable donut shows only when the
+  // cards are monthly buckets (D77).
+  const showBreakdown = granularity === "month";
+
+  // The newest point in the window is the "current period so far" summary; it is
+  // the same data the first card carries, surfaced separately because
+  // /insights/series has no finer-than-month grain (D-Phase6 weekly note).
   const currentCard = cards.length > 0 ? cards[0] : null;
 
   return (
@@ -52,6 +74,7 @@ export function ReportsScreen({ navigation }: Partial<ReportsScreenProps> = {}) 
           </Text>
           <Button title="Next ›" onPress={() => setPeriod((p) => shiftPeriod(p, 1))} />
         </View>
+        <GranularityToggle granularity={granularity} onChange={setGranularity} />
       </View>
 
       {series.isLoading ? (
@@ -77,7 +100,7 @@ export function ReportsScreen({ navigation }: Partial<ReportsScreenProps> = {}) 
         </View>
       ) : null}
 
-      {!series.isLoading && !series.error && !hasNoSpend && currentCard ? (
+      {!series.isLoading && !series.error && !hasNoSpend && currentCard && showBreakdown ? (
         <View style={styles.weeklyPanel} testID="reports-current-month">
           <Text style={styles.sectionEyebrow}>This month so far</Text>
           <Text style={styles.weeklyLabel}>{currentCard.label}</Text>
@@ -92,13 +115,14 @@ export function ReportsScreen({ navigation }: Partial<ReportsScreenProps> = {}) 
 
       {!series.isLoading && !series.error && !hasNoSpend ? (
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Monthly</Text>
+          <Text style={styles.sectionTitle}>{SECTION_TITLE[granularity]}</Text>
           {cards.map((card, index) => (
             <PeriodReportCard
               key={card.period}
               card={card}
               currency={currency}
               index={index}
+              expandable={showBreakdown}
             />
           ))}
         </View>
@@ -111,12 +135,39 @@ function PeriodReportCard({
   card,
   currency,
   index,
+  expandable,
 }: {
   card: ReportCard;
   currency: string;
   index: number;
+  expandable: boolean;
 }) {
   const [expanded, setExpanded] = useState(false);
+  const header = (
+    <>
+      <View style={styles.cardHeaderMain}>
+        <Text style={styles.cardLabel}>{card.label}</Text>
+        <Text style={styles.cardCount}>{card.transactionCount} transactions</Text>
+      </View>
+      <View style={styles.cardHeaderRight}>
+        <Text style={styles.cardAmount}>
+          {formatMinorAmount(card.totalSpendMinor, currency)}
+        </Text>
+        <TrendIndicator card={card} index={index} />
+      </View>
+    </>
+  );
+
+  // The breakdown donut is month-only (no quarterly/annual category rollup, D77),
+  // so quarter/year cards render as a static row with no expand affordance.
+  if (!expandable) {
+    return (
+      <View style={[styles.card, styles.cardHeader]} testID={`reports-card-${index}`}>
+        {header}
+      </View>
+    );
+  }
+
   return (
     <View style={styles.card} testID={`reports-card-${index}`}>
       <Pressable
@@ -124,16 +175,7 @@ function PeriodReportCard({
         onPress={() => setExpanded((value) => !value)}
         style={styles.cardHeader}
       >
-        <View style={styles.cardHeaderMain}>
-          <Text style={styles.cardLabel}>{card.label}</Text>
-          <Text style={styles.cardCount}>{card.transactionCount} transactions</Text>
-        </View>
-        <View style={styles.cardHeaderRight}>
-          <Text style={styles.cardAmount}>
-            {formatMinorAmount(card.totalSpendMinor, currency)}
-          </Text>
-          <TrendIndicator card={card} index={index} />
-        </View>
+        {header}
       </Pressable>
 
       {expanded ? <PeriodBreakdown period={card.period} /> : null}
@@ -191,6 +233,41 @@ function PeriodBreakdown({ period }: { period: string }) {
       ) : (
         <Text style={styles.mutedText}>No category breakdown for this month.</Text>
       )}
+    </View>
+  );
+}
+
+function GranularityToggle({
+  granularity,
+  onChange,
+}: {
+  granularity: SeriesGranularity;
+  onChange: (value: SeriesGranularity) => void;
+}) {
+  const options: { value: SeriesGranularity; label: string }[] = [
+    { value: "month", label: "Month" },
+    { value: "quarter", label: "Quarter" },
+    { value: "year", label: "Year" },
+  ];
+  return (
+    <View style={styles.toggleRow} accessibilityRole="tablist">
+      {options.map((option) => {
+        const active = option.value === granularity;
+        return (
+          <Pressable
+            key={option.value}
+            accessibilityRole="button"
+            accessibilityState={{ selected: active }}
+            onPress={() => onChange(option.value)}
+            style={[styles.toggle, active && styles.toggleActive]}
+            testID={`reports-granularity-${option.value}`}
+          >
+            <Text style={[styles.toggleText, active && styles.toggleTextActive]}>
+              {option.label}
+            </Text>
+          </Pressable>
+        );
+      })}
     </View>
   );
 }

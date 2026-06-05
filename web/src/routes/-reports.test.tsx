@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   RouterProvider,
@@ -100,6 +101,24 @@ describe("/reports", () => {
     expect(screen.getAllByTestId("reports-card")).toHaveLength(2);
     // 100 -> 200 is an up month.
     expect(screen.getByTestId("reports-trend-up")).toBeInTheDocument();
+  });
+
+  it("switches the requested series granularity via the toggle (D77)", async () => {
+    mockMonthly.mockReturnValue(monthly(200));
+    mockSeries.mockReturnValue(seriesOf([{ period: "2026-03", total: 200, count: 4 }]));
+    renderPage();
+    await screen.findByTestId("reports-screen");
+
+    // Default monthly → the month-only breakdown section is present.
+    expect(mockSeries.mock.calls.at(-1)?.[2]).toBe("month");
+    expect(screen.getByTestId("reports-breakdown")).toBeInTheDocument();
+
+    await userEvent.click(screen.getByTestId("reports-granularity-quarter"));
+
+    // Now requests quarterly buckets and the month-only breakdown is gone.
+    expect(mockSeries.mock.calls.at(-1)?.[2]).toBe("quarter");
+    expect(screen.queryByTestId("reports-breakdown")).not.toBeInTheDocument();
+    expect(screen.getAllByTestId("reports-card").length).toBeGreaterThanOrEqual(1);
   });
 
   it("shows the empty state when there is no spend", async () => {

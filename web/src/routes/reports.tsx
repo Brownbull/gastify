@@ -6,6 +6,7 @@ import {
   useInsightsSeries,
   useMonthlyInsights,
   type InsightDimension,
+  type SeriesGranularity,
 } from "@/hooks/useInsights";
 import { useI18n } from "@/hooks/useI18n";
 import { rollupToSlices } from "@/lib/chartData";
@@ -19,8 +20,19 @@ import {
 
 const CategoryDonut = lazy(() => import("@/components/charts/CategoryDonut"));
 
-/** Months of trend history shown as report cards (≤ backend 24-month cap). */
-const HISTORY_MONTHS = 6;
+/** Months of report-card history per granularity (≤ backend 24-month cap). */
+const WINDOW_MONTHS: Record<SeriesGranularity, number> = {
+  month: 6,
+  quarter: 12,
+  year: 24,
+};
+
+/** Section heading per granularity. */
+const SECTION_KEY = {
+  month: "reports.monthly",
+  quarter: "reports.quarterly",
+  year: "reports.yearly",
+} as const satisfies Record<SeriesGranularity, string>;
 
 export const Route = createFileRoute("/reports")({
   component: ReportsPage,
@@ -77,6 +89,10 @@ export function toReportCards(points: readonly SeriesPoint[]): ReportCard[] {
 }
 
 function periodLabel(period: string): string {
+  // Canonical series keys: YYYY (year), YYYY-Q{n} (quarter), YYYY-MM (month).
+  if (/^\d{4}$/.test(period)) return period;
+  const quarter = /^(\d{4})-Q([1-4])$/.exec(period);
+  if (quarter) return `Q${quarter[2]} ${quarter[1]}`;
   const [year, month] = period.split("-");
   if (!month) return period;
   return new Date(Number(year), Number(month) - 1, 1).toLocaleDateString(undefined, {
@@ -90,25 +106,30 @@ function ReportsPage() {
   const [period, setPeriod] = useState(() => currentPeriod());
   const [autoFocused, setAutoFocused] = useState(false);
   const [dimension, setDimension] = useState<InsightDimension>("transaction_category");
+  const [granularity, setGranularity] = useState<SeriesGranularity>("month");
   const atCurrent = period >= currentPeriod();
+  // The category-breakdown donut is month-only (the backend has no quarterly/annual
+  // category rollup, D77), so it shows only when the cards are monthly buckets.
+  const isMonthly = granularity === "month";
 
-  const window = periodWindow(period, HISTORY_MONTHS);
-  const series = useInsightsSeries(window.from, window.to, "month");
+  const window = periodWindow(period, WINDOW_MONTHS[granularity]);
+  const series = useInsightsSeries(window.from, window.to, granularity);
   const monthly = useMonthlyInsights(period);
 
   const cards = useMemo(() => toReportCards(series.data?.points ?? []), [series.data]);
   const hasSpend = cards.some((c) => c.total > 0);
 
-  // On first load, focus the most-recent month that actually has spend (better than
-  // an empty current month) — also makes the breakdown deterministic for the proof.
+  // On first load (monthly only), focus the most-recent month that actually has
+  // spend so the breakdown is meaningful. Quarter/year card periods aren't months,
+  // so the donut never targets them.
   useEffect(() => {
-    if (autoFocused || !series.data) return;
+    if (autoFocused || !series.data || !isMonthly) return;
     const latestWithSpend = cards.find((c) => c.total > 0);
     if (latestWithSpend && latestWithSpend.period !== period) {
       setPeriod(latestWithSpend.period);
     }
     setAutoFocused(true);
-  }, [series.data, cards, autoFocused, period]);
+  }, [series.data, cards, autoFocused, period, isMonthly]);
 
   const rows =
     dimension === "transaction_category"
@@ -128,37 +149,43 @@ function ReportsPage() {
             {t("reports.subtitle")}
           </p>
         </div>
-        <PeriodStepper period={period} atCurrent={atCurrent} onChange={setPeriod} />
+        <div className="flex items-center gap-2">
+          <GranularityToggle value={granularity} onChange={setGranularity} />
+          <PeriodStepper period={period} atCurrent={atCurrent} onChange={setPeriod} />
+        </div>
       </header>
 
-      {/* Breakdown for the focused period */}
-      <section
-        className="rounded-lg border p-5"
-        style={{ backgroundColor: "var(--surface)", borderColor: "var(--border)" }}
-      >
-        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-          <h2 className="text-sm font-semibold" style={{ color: "var(--text)" }}>
-            {periodLabel(period)}
-          </h2>
-          <DimensionToggle dimension={dimension} onChange={setDimension} />
-        </div>
-        {monthly.isLoading && <InsightsSkeleton />}
-        {!monthly.isLoading && !hasDistribution && (
-          <p className="py-8 text-center text-sm" style={{ color: "var(--text-muted)" }}>
-            {t("reports.empty")}
-          </p>
-        )}
-        {!monthly.isLoading && hasDistribution && monthly.data && (
-          <Suspense fallback={<ChartFallback />}>
-            <CategoryDonut slices={slices} currency={monthly.data.currency} />
-          </Suspense>
-        )}
-      </section>
+      {/* Category breakdown for the focused MONTH (month granularity only) */}
+      {isMonthly && (
+        <section
+          data-testid="reports-breakdown"
+          className="rounded-lg border p-5"
+          style={{ backgroundColor: "var(--surface)", borderColor: "var(--border)" }}
+        >
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <h2 className="text-sm font-semibold" style={{ color: "var(--text)" }}>
+              {periodLabel(period)}
+            </h2>
+            <DimensionToggle dimension={dimension} onChange={setDimension} />
+          </div>
+          {monthly.isLoading && <InsightsSkeleton />}
+          {!monthly.isLoading && !hasDistribution && (
+            <p className="py-8 text-center text-sm" style={{ color: "var(--text-muted)" }}>
+              {t("reports.empty")}
+            </p>
+          )}
+          {!monthly.isLoading && hasDistribution && monthly.data && (
+            <Suspense fallback={<ChartFallback />}>
+              <CategoryDonut slices={slices} currency={monthly.data.currency} />
+            </Suspense>
+          )}
+        </section>
+      )}
 
-      {/* Monthly report cards (the trend history) */}
+      {/* Report cards at the selected granularity (the trend history) */}
       <section className="space-y-2" data-testid="reports-monthly-section">
         <h2 className="text-sm font-semibold" style={{ color: "var(--text)" }}>
-          {t("reports.monthly")}
+          {t(SECTION_KEY[granularity])}
         </h2>
         {series.isLoading ? (
           <InsightsSkeleton />
@@ -178,9 +205,9 @@ function ReportsPage() {
               <ReportCardView
                 key={card.period}
                 card={card}
-                focused={card.period === period}
-                currency={monthly.data?.currency ?? "CLP"}
-                onSelect={() => setPeriod(card.period)}
+                focused={isMonthly && card.period === period}
+                currency={series.data?.currency ?? "CLP"}
+                onSelect={isMonthly ? () => setPeriod(card.period) : undefined}
               />
             ))}
           </ul>
@@ -199,7 +226,8 @@ function ReportCardView({
   card: ReportCard;
   focused: boolean;
   currency: string;
-  onSelect: () => void;
+  // Undefined for quarter/year cards — they have no month-only breakdown to focus.
+  onSelect?: () => void;
 }) {
   const { t } = useI18n();
   return (
@@ -207,6 +235,7 @@ function ReportCardView({
       <button
         type="button"
         data-testid="reports-card"
+        disabled={!onSelect}
         onClick={onSelect}
         aria-pressed={focused}
         className="flex w-full items-center justify-between gap-3 rounded-lg border p-4 text-left transition-colors hover:bg-(--primary-light)"
@@ -250,5 +279,48 @@ function TrendChip({ trend, deltaPct }: { trend: Trend; deltaPct: number | null 
       <span aria-hidden>{arrow}</span>
       {pct}
     </span>
+  );
+}
+
+function GranularityToggle({
+  value,
+  onChange,
+}: {
+  value: SeriesGranularity;
+  onChange: (value: SeriesGranularity) => void;
+}) {
+  const { t } = useI18n();
+  const options: { value: SeriesGranularity; label: string }[] = [
+    { value: "month", label: t("trends.granularity.month") },
+    { value: "quarter", label: t("trends.granularity.quarter") },
+    { value: "year", label: t("trends.granularity.year") },
+  ];
+  return (
+    <div
+      className="inline-flex rounded-lg border p-0.5 text-xs"
+      style={{ borderColor: "var(--border)" }}
+      role="group"
+      aria-label="Report granularity"
+    >
+      {options.map((option) => {
+        const active = option.value === value;
+        return (
+          <button
+            key={option.value}
+            type="button"
+            data-testid={`reports-granularity-${option.value}`}
+            aria-pressed={active}
+            onClick={() => onChange(option.value)}
+            className="rounded-md px-3 py-1 font-medium transition-colors"
+            style={{
+              backgroundColor: active ? "var(--primary-light)" : "transparent",
+              color: active ? "var(--primary)" : "var(--text-secondary)",
+            }}
+          >
+            {option.label}
+          </button>
+        );
+      })}
+    </div>
   );
 }
