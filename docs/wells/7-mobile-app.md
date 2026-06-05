@@ -10,140 +10,109 @@
 
 ## Purpose
 
-Native mobile client for Android and iOS, built with Expo/React Native. Shares
-the same FastAPI backend as [G6 Web Portal](6-web-portal.md) via an identical OpenAPI-generated
-type layer. Adds native-only capabilities: camera-based receipt capture,
-WebSocket scan progress (instead of SSE), secure keystore token storage, and
-push notifications via Expo/FCM/APNS. Built with EAS for dev, staging, and
-production profiles.
+Native mobile client for Android and iOS, built with Expo/React Native and EAS. Shares the same FastAPI backend as [G6 Web Portal](6-web-portal.md) via an identical OpenAPI-generated type layer. Adds native-only capabilities: camera-based receipt capture, WebSocket scan progress (instead of SSE), secure keystore token storage, and push notifications via Expo/FCM/APNS. Built with EAS for dev, staging, staging-e2e, and production profiles.
 
-## Files
+## Key Components
 
-### Entry + Navigation (`mobile/src/`)
-
-| File | Role |
-|------|------|
-| `src/App.tsx` | Root component — wraps the app in `SafeAreaProvider` + `AppProviders`. |
-| `src/index.js` | Expo entry point — registers the root component. |
-| `src/navigation/AppNavigator.tsx` | React Navigation stack navigator — defines screen hierarchy (SignIn → Home → Transactions → TransactionDetail). |
-| `src/providers/AppProviders.tsx` | Provider tree — composes `AuthProvider` + `QueryClientProvider`. |
-| `src/providers/AuthProvider.tsx` | Auth context — Firebase Google Sign-In, token refresh, session state. Wraps auth flow for the entire app. |
-
-### Screens (`mobile/src/screens/`)
-
-| File | Role |
-|------|------|
-| `screens/SignInScreen.tsx` | Login screen — Google Sign-In button, loading state, error display. |
-| `screens/HomeScreen.tsx` | Main dashboard (26KB) — receipt capture trigger, recent scans, credit balance, category breakdown. |
-| `screens/TransactionsScreen.tsx` | Transaction list (13KB) — paginated, filterable, pull-to-refresh. |
-| `screens/TransactionDetailScreen.tsx` | Single transaction detail (20KB) — line items, images, inline editing, processing metadata. |
-
-### Hooks (`mobile/src/hooks/`)
-
-| File | Role |
-|------|------|
-| `hooks/useReceiptCapture.ts` | Camera capture — Expo ImagePicker integration for receipt photos. |
-| `hooks/useScanUpload.ts` | Upload handler — multipart form submission to `POST /scans` with auth token. |
-| `hooks/useScanProgressSocket.ts` | WebSocket progress — connects to `WS /ws/scans/{id}`, parses events, drives scan UI. |
-| `hooks/useTransactions.ts` | Transaction CRUD (8.6KB) — TanStack Query mutations, list/detail fetching, optimistic updates. |
-| `hooks/useCategories.ts` | Category fetching — loads reference data from `/reference`. |
-| `hooks/usePushRegistration.ts` | Push notification registration — Expo token retrieval + `POST /push-tokens`. |
-
-### State Stores (`mobile/src/stores/`)
-
-| File | Role |
-|------|------|
-| `stores/scanStore.ts` | Zustand store (6.8KB) — scan session lifecycle: idle → uploading → streaming → complete/error. Tracks scan ID, progress events, and result data. |
-| `stores/sessionStore.ts` | Session/auth state — current user, token, login status. |
-| `stores/pushRegistrationStore.ts` | Push registration state — token, permission status, last registration date. |
-
-### Utilities (`mobile/src/lib/`)
-
-| File | Role |
-|------|------|
-| `lib/api.ts` | openapi-fetch client instance — typed API calls, identical contract to web. |
-| `lib/api-types.d.ts` | Auto-generated TypeScript types from OpenAPI spec, including statement fallback evidence and recurrence fields. |
-| `lib/openapi-spec.json` | OpenAPI specification shared with web. |
-| `lib/mobileConfig.ts` | Mobile-specific config — API base URL, environment detection, feature flags. |
-| `lib/secureAuthToken.ts` | Secure token storage via `expo-secure-store` — persists Firebase token across app restarts. |
-| `lib/authSession.ts` | Session management — token refresh, expiry handling, logout cleanup. |
-| `lib/googleSignIn.ts` | Google Sign-In setup — `@react-native-google-signin` configuration. |
-| `lib/scanUpload.ts` | Low-level upload logic (4.3KB) — multipart construction, progress tracking, retry. |
-| `lib/scanProgressSocket.ts` | WebSocket client (6.5KB) — connection lifecycle, reconnection, event parsing. Consumed by `useScanProgressSocket` hook. |
-| `lib/scanTestCases.ts` | Test case fetching — loads curated test cases from backend for dev builds. |
-| `lib/pushNotifications.ts` | Push notification setup (3.9KB) — Expo notification permissions, token retrieval, channel configuration. |
-| `lib/transactions.ts` | Transaction API helpers — list, detail, update, delete wrappers over openapi-fetch. |
-| `lib/categories.ts` | Category API helpers — store/item category fetching. |
-| `lib/queryClient.ts` | TanStack Query client config — stale time, retry policy (matches web). |
-| `lib/format.ts` | Formatting utilities — locale-aware currency display, date formatting. |
-| `lib/apiError.ts` | API error handler — typed error parsing from response bodies. |
-| `lib/e2eFirebaseAuth.ts` | E2E testing auth — special auth flow for Maestro/Detox test runs. |
-
-### Components (`mobile/src/components/`)
-
-| File | Role |
-|------|------|
-| `components/ScreenShell.tsx` | Screen wrapper — safe area insets, consistent padding, scroll handling. |
-
-### Types (`mobile/src/types/`)
-
-| File | Role |
-|------|------|
-| `types/navigation.ts` | React Navigation type definitions — screen param lists for type-safe navigation. |
-
-### Config Files (root)
-
-| File | Role |
-|------|------|
-| `mobile/app.config.ts` | Expo config — app name, bundle ID, splash screen, EAS project ID, plugins. |
-| `mobile/eas.json` | EAS build profiles — dev, staging, staging-e2e, production. |
-| `mobile/jest.config.js` | Jest config — React Native preset, module name mapping, setup files. |
-| `mobile/GoogleService-Info.plist` | Firebase iOS config. |
-| `mobile/google-services.json` | Firebase Android config. |
+| Component | Role |
+|-----------|------|
+| `App.tsx` + `AppNavigator.tsx` | Root SafeAreaProvider + React Navigation stack; auth guard at navigator level. |
+| `AuthProvider.tsx` | Firebase Auth context; Google Sign-In, token refresh, session state, sign-out isolation. |
+| Screens (15 total) | SignIn, Home, Transactions, TransactionDetail, Dashboard, Trends, Items, Reports, Groups, GroupDetail, Statements, BatchCapture, BatchReview, Settings. Each scope-aware and query-driven. |
+| `scanStore` (Zustand, 6.8KB) | Scan lifecycle: idle→uploading→submitted→processing→extracting→categorizing→verified→complete/failed. Phase, event log, result data, error state, connection status. |
+| `scopeStore` (Zustand + SecureStore) | Active scope (personal or group{id,name}). Persisted so group choice survives app restart; reset on sign-out. Implements D70/D72 scope isolation. |
+| `sessionStore`, `pushRegistrationStore`, `batchScanStore` | Auth state, push token lifecycle, batch hand-off state. |
+| `lib/api.ts` + `lib/api-types.d.ts` | openapi-fetch client; auto-generated types from backend OpenAPI spec. Identical contract to web. |
+| `ScanProgressSocket` (6.5KB) | WebSocket client for `/ws/scans/{id}`. Exponential backoff reconnection (1–30s, max 5 retries), terminal event detection, status callbacks. |
+| `ProgressFallback` | Hybrid transport: REST poll (`GET /scans/{id}`) engages while WS stalls; auto-disengages on reconnect. |
+| `secureAuthToken.ts` + `googleSignIn.ts` | Token persisted to device keystore (WHEN_UNLOCKED_THIS_DEVICE_ONLY); Firebase refresh; Google Sign-In. |
+| `pushNotifications.ts` | Expo notification permission, FCM/APNS token retrieval, Android channel setup, registration lifecycle. |
+| `useInsights`, `useGroups`, `useTransactions` hooks | TanStack Query wrappers; scope-aware via active scope store; cache invalidation on mutations. |
+| `BatchCaptureScreen` + `BatchReviewScreen` | N-scan workflow: hand-off inputs via `batchScanStore`, review is post-persist (status monitor → summary → per-item edit/discard). |
+| `StatementsScreen` | PDF upload, WebSocket reconciliation progress, 5 buckets (matched/statement-only/receipt-only/ambiguous/failed). |
 
 ## Key Decisions
 
-### 2026-05-18 — WebSocket for scan progress (not SSE)
+### D38 (P4-Ph1) — Mobile scaffold + auth = Ent
 
-React Native lacks native `EventSource` support. The WebSocket path
-(`/ws/scans/{id}`) supports bidirectional messages, enabling cancel-scan
-control messages. Web uses SSE because browsers handle reconnection natively.
+Native keystore (expo-secure-store) + Firebase Auth + typed API client are non-negotiable. MVP AsyncStorage would leak tokens if device is rooted or app sandbox compromised. Ent baseline is cheaper than retrofitting auth.
 
-### 2026-05-18 — Secure token storage via expo-secure-store
+### D39 (P4-Ph2) — Camera scan + WebSocket progress = Ent
 
-Firebase auth tokens are stored in the device keystore (`expo-secure-store`)
-rather than AsyncStorage. Prevents token theft if the device is rooted or the
-app sandbox is compromised. Token is loaded on app start from secure store
-before any API call.
+Native camera/file picker and WebSocket reconnection are core exit-signal behavior. Manual reload after disconnect fails the mobile receipt loop. Hybrid transport (WS primary + REST fallback) handles network loss.
 
-### 2026-05-20 — Shared OpenAPI types between web and mobile
+### D40 (P4-Ph3) — Mobile ledger + edit = Ent
 
-Both `web/src/lib/api-types.d.ts` and `mobile/src/lib/api-types.d.ts` are
-generated from the same OpenAPI spec. This guarantees type parity between
-clients without a shared npm package. The spec lives in each client's `lib/`
-directory and is regenerated when the backend schema changes.
+Optimistic rollback + user_edited_at precedence preserve REQ-13 when scan completion and manual edits race. TanStack Query cache invalidation is baseline for shared scan/edit state.
 
-### 2026-05-27 — Android will consume the same statement contracts
+### D41 (P4-Ph4) — Sign-out isolation + push registration = Ent
 
-The mobile generated API layer now has the P5 statement fallback evidence,
-usage metadata, and transaction recurrence fields needed for the Android
-statement reconciliation journey. iOS runtime proof remains deferred; Android
-and web are the active validation surfaces for the next phases.
+Platform keystore/query/cache/image purge and device token lifecycle are REQ-14/REQ-25 load-bearing. Three-layer eviction: Firebase + native keystore + TanStack Query + Zustand reset.
 
-## Key Diagrams
+### D42 (P4-Ph5) — Mobile E2E journey + edge tests = Ent
 
-### Screen Navigation and Data Flow
+Device-level proof required for keystore, cache eviction, native camera, WebSocket lifecycle. Maestro is primary runner (Detox fallback). D43 + D47 amendments: S23 physical device (avoids WSL emulator churn), Android only (iOS deferred post-roadmap).
+
+### D43 (P4 amendment) — Android E2E execution pivots to S23 USB
+
+Avoids emulator RAM/CPU competition and ADB instability. Proves native risks: camera permission, SecureStore behavior, app cache eviction, push permission, real device networking.
+
+### D44 (P4 Phase 2D) — Receipt prompt v2-dev.9 accepted with review-warning risks
+
+Correct final totals despite minor item name/category/quantity gaps. Runtime must surface review warnings and preserve receipt order for image comparison.
+
+### D47 (P5 amendment) — iOS runtime testing deferred post-roadmap
+
+Current P5 closure on Android/S23 only. iOS TestFlight infrastructure revisited after P1–P9 roadmap complete. Framework code (Firebase, Expo) supports both; device-level proof pending.
+
+### D52 (P5-Ph6) — Android statement reconciliation flow = Ent
+
+Native file picker, WebSocket progress, cache isolation, S23 runtime proof required. iOS deferred by D47.
+
+### D60 (P6-Ph5) — Android insights + flag review flow = Ent
+
+S23 proves native cache cleanup on sign-out, flag mutation, category drilldowns. Item flags are personal privacy markers; aggregate exclusion does not leak into future shared contexts.
+
+### D62 (Feature-parity P3 batch) — Batch scanning = MVP (N sequential single-scans + GET-poll + post-persist review)
+
+Backend auto-persists each scan into a transaction. Review happens after save (monitor → summary of saved/needs-review/failed → per-item open/edit/discard). GET-poll (not N reconnecting WS streams) keeps batch within MVP tier; Reconnection is Ent (D31/D34).
+
+### D70/D72 (P7 amendments, active in mobile) — Scope isolation + RLS scope-swap
+
+scopeStore (Zustand + SecureStore) holds active scope (personal or group{id,name}). Persisted across restarts; reset on sign-out. Every insights/group/transaction query passes ownership_scope_id; server enforces RLS policies. Personal-only scanning (BatchCapture disabled for groups, D70).
+
+## Invariants
+
+1. **Scope isolation**: Active scope scopes all insights/dashboard/transaction queries. Personal-only scanning. Reset on sign-out prevents leak to next account.
+2. **Auth token security**: Firebase tokens in device keystore only (WHEN_UNLOCKED_THIS_DEVICE_ONLY). Cleared on sign-out and app uninstall.
+3. **WebSocket resilience**: Scan progress auto-reconnects (1–30s exp backoff, max 5 retries). Terminal events stop client. Hybrid fallback to REST poll bridges stalls.
+4. **Optimistic updates**: Transaction edits use TanStack Query optimistic mutations. Rollback on error preserves server as source of truth. user_edited_at precedence across scan completion + manual edit races.
+5. **Cache eviction on sign-out**: Keystore token + query client caches + Zustand stores (scan, scope, session, push) + group scope all cleared. No residual local data leaks.
+6. **Native permission handling**: Camera denied, push denied, media denied, file validation errors surface graceful UX. No silent failures.
+7. **Batch POST-persist review**: Backend auto-persists each scan in batch. Mobile review is post-persist (status monitor → summary → per-item edit/discard/retry).
+8. **RLS scope swap**: Every insights/group/transaction query carries ownership_scope_id via auth context. Server enforces row-level security policies.
+9. **Test determinism**: Receipt extraction test cases are backend-seeded (happy/review/failure locally; supermarket/restaurant/gas/thousands on staging). E2E auth uses special test credentials configured at build time.
+
+## Screens Navigation and Data Flow
 
 ```mermaid
 flowchart TD
   app["App.tsx"] --> providers["AppProviders<br/>Auth + Query"]
   providers --> nav["AppNavigator<br/>React Navigation"]
   nav --> signin["SignInScreen"]
-  nav --> home["HomeScreen"]
-  nav --> txn_list["TransactionsScreen"]
-  nav --> txn_detail["TransactionDetailScreen"]
+  nav --> home["HomeScreen<br/>receipt capture trigger"]
+  nav --> txn_list["TransactionsScreen<br/>paginated list"]
+  nav --> txn_detail["TransactionDetailScreen<br/>edit + sharing"]
+  nav --> dashboard["DashboardScreen<br/>monthly insights"]
+  nav --> trends["TrendsScreen<br/>multi-granularity"]
+  nav --> items["ItemsScreen<br/>flagged items"]
+  nav --> reports["ReportsScreen<br/>period spending"]
+  nav --> groups["GroupsScreen<br/>list + invite"]
+  nav --> statements["StatementsScreen<br/>PDF reconciliation"]
+  nav --> batch_capture["BatchCaptureScreen<br/>N-scan input"]
+  nav --> batch_review["BatchReviewScreen<br/>post-persist review"]
 
-  home --> capture["useReceiptCapture<br/>camera"]
+  home --> capture["useReceiptCapture<br/>camera picker"]
   home --> upload["useScanUpload<br/>POST /scans"]
   home --> socket["useScanProgressSocket<br/>WebSocket"]
   home --> scan_store["scanStore<br/>Zustand"]
@@ -151,68 +120,49 @@ flowchart TD
   txn_list --> txn_hook["useTransactions<br/>list + mutations"]
   txn_detail --> txn_hook
 
+  dashboard --> monthly["useMonthlyInsights<br/>with activeScope"]
+  dashboard --> scope_banner["ScopeBanner<br/>personal/group switch"]
+
+  trends --> series["useInsightsSeries<br/>multi-granularity"]
+  reports --> series
+
+  groups --> group_hook["useGroups<br/>list + mutations"]
+  batch_review --> batch_hook["useBatchScan<br/>polling orchestration"]
+
   upload --> api["lib/api.ts<br/>openapi-fetch"]
   socket --> ws["lib/scanProgressSocket.ts<br/>WebSocket client"]
   txn_hook --> api
 
   signin --> auth["AuthProvider<br/>Google Sign-In"]
   auth --> secure["lib/secureAuthToken.ts<br/>expo-secure-store"]
-  auth --> google["lib/googleSignIn.ts"]
+  auth --> scope["scopeStore<br/>Zustand + SecureStore"]
 
   api -->|"typed HTTP"| backend[["G1 API Core"]]
   ws -->|"WebSocket"| backend
 
   classDef screen fill:#e8f1ff,stroke:#1f5fbf,color:#10233f;
   classDef hook fill:#fff4cc,stroke:#9a6b00,color:#2b2300;
+  classDef store fill:#f0e6ff,stroke:#6f42c1,color:#2b1650;
   classDef infra fill:#eef2f7,stroke:#475467,color:#101828;
   classDef external fill:#e7f6ec,stroke:#1f7a3f,color:#0b2f18;
-  class app,providers,nav,signin,home,txn_list,txn_detail screen;
-  class capture,upload,socket,txn_hook,auth,scan_store hook;
-  class api,ws,secure,google infra;
+  class app,providers,nav,signin,home,txn_list,txn_detail,dashboard,trends,items,reports,groups,statements,batch_capture,batch_review screen;
+  class capture,upload,socket,txn_hook,monthly,series,auth,group_hook,batch_hook hook;
+  class scan_store,scope,scope_banner store;
+  class api,ws,secure infra;
   class backend external;
 ```
 
-### Mobile vs. Web Architecture Comparison
+## Mobile vs. Web Comparison
 
-```mermaid
-flowchart LR
-  subgraph mobile["Mobile (G7)"]
-    m_nav["React Navigation<br/>stack"]
-    m_auth["AuthProvider<br/>Google Sign-In"]
-    m_scan["WebSocket<br/>scan progress"]
-    m_token["expo-secure-store<br/>token storage"]
-    m_camera["ImagePicker<br/>native camera"]
-  end
-
-  subgraph web["Web (G6)"]
-    w_nav["TanStack Router<br/>file-based"]
-    w_auth["useAuth hook<br/>Firebase SDK"]
-    w_scan["SSE EventSource<br/>scan progress"]
-    w_token["sessionIsolation<br/>in-memory"]
-    w_upload["FileUpload<br/>drag-and-drop"]
-  end
-
-  subgraph shared["Shared Contracts"]
-    api_types["api-types.d.ts<br/>OpenAPI generated"]
-    query["TanStack Query<br/>same cache strategy"]
-    zustand["Zustand stores<br/>same shape"]
-  end
-
-  mobile --> shared
-  web --> shared
-  shared -->|"identical HTTP"| backend[["G1 API Core"]]
-
-  classDef mob fill:#e8f1ff,stroke:#1f5fbf,color:#10233f;
-  classDef webstyle fill:#fff4cc,stroke:#9a6b00,color:#2b2300;
-  classDef common fill:#eef2f7,stroke:#475467,color:#101828;
-  classDef ext fill:#e7f6ec,stroke:#1f7a3f,color:#0b2f18;
-  class m_nav,m_auth,m_scan,m_token,m_camera mob;
-  class w_nav,w_auth,w_scan,w_token,w_upload webstyle;
-  class api_types,query,zustand common;
-  class backend ext;
-```
-
-## Topics (auto-appended)
-
-<!-- /gabe-teach topics appends verified topic summaries here on first run. -->
-<!-- Do not edit the structure below this line; edit individual entries freely. -->
+| Aspect | Mobile (G7) | Web (G6) |
+|--------|------------|---------|
+| Navigation | React Navigation stack | TanStack Router (file-based) |
+| Auth | Firebase Auth + @react-native-google-signin | Firebase Auth SDK (browser) |
+| Scan progress | WebSocket `/ws/scans/{id}` with reconnection | SSE EventSource `/scans/{id}/events` |
+| Token storage | expo-secure-store (device keystore) | in-memory + sessionStorage isolation |
+| File capture | Native ImagePicker (camera/library) | Drag-and-drop + browser FileInput |
+| Real-time | Hybrid WS + REST poll fallback | SSE only (browser handles reconnect) |
+| Push notifications | Expo Notifications + FCM/APNS registration | Service Worker + Web Push API (N/A for MVP) |
+| API types | Auto-generated from OpenAPI spec | Auto-generated from same OpenAPI spec |
+| Cache | TanStack Query + Zustand scoped stores | TanStack Query + zustand uiStore |
+| Scope isolation | scopeStore (Zustand + SecureStore) | uiStore (Zustand in-memory) |

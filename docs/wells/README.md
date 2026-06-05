@@ -8,6 +8,10 @@ and how it connects to other wells.
 The numbering is stable and referenced throughout documentation, commit
 messages, and code comments.
 
+For the top-level map of how the wells fit together (system overview, request
+flow, cross-cutting invariants, data model, environments), see
+[../architecture.md](../architecture.md).
+
 | # | Name | One-liner | Doc |
 |---|------|-----------|-----|
 | G1 | [API Core](1-api-core.md) | FastAPI entry, config, DB session, routes, observability | `backend/app/main.py`, `backend/app/api/**` |

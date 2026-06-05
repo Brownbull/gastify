@@ -10,118 +10,155 @@
 
 ## Purpose
 
-G5 owns the boundary between gastify and every external service. Firebase for
-auth tokens, Gemini for AI extraction, a third-party FX API for currency
-rates, and PDF parsing for statement import. Each integration is wrapped in a
-single file that other wells import — no well calls an external API directly.
-Retry policies, error classification, and response repair live here so
-downstream code never handles raw HTTP failures.
+Like diplomatic embassies, each external service gets exactly one doorway gastify controls. G5 wraps Firebase Auth, Google Gemini (vision + PDF extraction), Open Exchange Rates FX API, and PDF parsing (PyMuPDF) so the rest of the system never imports an external SDK directly. Retry policies, error classification, response repair, and provider selection all live here. Downstream wells ask G5 for "the current user," "today's USD rate," or "extract this receipt," and G5 handles the flaky HTTP, the malformed JSON, the temporary API timeout—insulating domain logic from infrastructure brittleness.
 
-**Note:** There is no `integrations/` directory in the current codebase. The
-integration logic is distributed across purpose-specific files. This well
-tracks those files as a logical grouping — the "one doorway" per external
-service.
+## Key Components
 
-## Files
+### Authentication — Firebase Admin SDK
 
-| File | External Service | Role |
-|------|-----------------|------|
-| `auth/firebase.py` | Firebase Admin SDK | Singleton `_get_firebase_app()`. Validates JWT tokens. Exports `CurrentUser`, `FirebaseUser`. The only file that imports `firebase_admin`. |
-| `services/fx.py` | FX Rate API | `get_fx_rate()` with lazy read-through DB cache. `compute_usd_shadow()` for USD-equivalent amounts. Exponential backoff retry (`_FX_MAX_RETRIES=3`, `_FX_BASE_DELAY_S`). Wraps the external HTTP call so callers never see raw requests errors. |
-| `services/provider_retry.py` | Gemini / AI providers | `retry_provider_call()` — generic exponential backoff with transient/permanent error classification. Used by all three G4 agents (`extraction`, `categorization`, `store_categorization`). |
-| `services/scan_providers.py` | Gemini / Mock / Fixture | `active_scan_provider()` — returns the active provider mode (`fixture`, `gemini`, `mock`). `mock_case_for_scan()` — deterministic local fixture selection. Abstracts away which backend actually processes a scan. |
-| `services/json_repair.py` | Gemini output | `repair_json()` — recovers valid JSON from malformed LLM responses (markdown fences, unquoted keys, trailing commas, comments). Shields G4 agents from raw Gemini formatting quirks. |
-| `services/statement_pdf_evidence.py` | PDF files (PyMuPDF) | Generic text/row evidence extraction for deterministic statement routing and Gemini fallback input. |
-| `services/statement_routing.py` | PDF files (PyMuPDF) | Known-layout deterministic statement parser and routing decision layer for CMR, Edwards, and Scotiabank-style statements. |
-| `services/statement_profile_fallback.py` | Gemini fallback | Unknown-layout profile fallback: Gemini maps fields/row ranges, deterministic code applies them to compact row evidence. |
-| `prompt_lab/statement/cases.py` | PDF files (pypdf) | Legacy statement corpus discovery and text extraction support for private prompt-lab fixtures. |
+**File:** `backend/app/auth/firebase.py`
 
-### Cross-well Consumers
+- **Initialization:** Singleton `_get_firebase_app()` loads credentials from file path, JSON env var, or Application Default (gcloud auth)
+- **Token verification:** `get_current_user(request: Request) → FirebaseUser` extracts Bearer token from Authorization header, verifies JWT signature, returns `FirebaseUser(uid, email, name)`
+- **Dependency injection:** Exports `CurrentUser = Annotated[FirebaseUser, Depends(get_current_user)]` for FastAPI route guards
+- **Fail-closed:** Invalid/expired tokens → HTTPException 401; Firebase project ID defaults to `gastify-local` (non-existent) so production must set GASTIFY_FIREBASE_PROJECT_ID or auth fails immediately
 
-| Integration File | Consumed By |
-|-----------------|-------------|
-| `auth/firebase.py` | [G3](3-identity-ownership.md) `auth/deps.py`, [G1](1-api-core.md) `api/scan_stream.py` (WebSocket JWT verify) |
-| `services/fx.py` | [G4](4-scan-pipeline.md) `services/persist_scan.py`, [G1](1-api-core.md) `api/transactions.py` |
-| `services/provider_retry.py` | [G4](4-scan-pipeline.md) `agents/extraction.py`, `agents/categorization.py`, `agents/store_categorization.py` |
-| `services/scan_providers.py` | [G4](4-scan-pipeline.md) `services/scan_worker.py`, [G1](1-api-core.md) `api/scan_test_cases.py` |
-| `services/json_repair.py` | [G4](4-scan-pipeline.md) `agents/extraction.py` |
-| `services/statement_pdf_evidence.py` | [G4](4-scan-pipeline.md) `services/statement_worker.py`, `prompt_lab/statement/*` |
-| `services/statement_routing.py` | [G4](4-scan-pipeline.md) `services/statement_worker.py`, `prompt_lab/statement/*` |
-| `services/statement_profile_fallback.py` | [G4](4-scan-pipeline.md) `services/statement_worker.py`, `agents/statement_extraction.py` |
+### FX Rate API — Open Exchange Rates
+
+**File:** `backend/app/services/fx.py`
+
+- **Lazy read-through cache:** `get_fx_rate(db, from_currency, to_currency, rate_date) → FxResult` checks PostgreSQL first (PK: date+from+to), fetches external API on miss via open.er-api
+- **Structural idempotency:** INSERT ON CONFLICT DO NOTHING dedupes cold-start races (two simultaneous requests for the same rate result in ≤1 external call, no data corruption)
+- **Conversion helper:** `compute_usd_shadow(total_minor, from_exponent, fx_rate) → int` handles currency exponent mismatch (CLP exp=0, USD exp=2)
+- **Retry policy:** 3s timeout, 3x attempts with exponential backoff (0.5s, 1s, 2s); raises FxServiceError after exhaustion
+
+### AI Provider Retry — Generic Backoff Loop
+
+**File:** `backend/app/services/provider_retry.py`
+
+- **Shared mechanism:** `retry_provider_call(operation, operation_name, max_attempts, base_delay_seconds, sleep) → T` wraps async operations with exponential backoff
+- **Error classification:** Permanent errors (bad API key, malformed request) raised immediately; transient errors (timeout, 503) retried. Classification delegated to `scan_errors.py` so each domain defines "transient"
+- **Configurability:** max_attempts + delay configurable per call or via `settings.gemini_max_retries` + `settings.gemini_retry_delay_seconds`
+- **Used by:** All three G4 agents (extraction, categorization, store_categorization) + statement extraction agents
+
+### Provider Selection — Mock/Fixture/Gemini
+
+**File:** `backend/app/services/scan_providers.py` + `backend/app/config.py` (validators)
+
+- **Runtime resolution:** `active_scan_provider(settings) → str` returns the active provider name; respects `GASTIFY_SCAN_PROVIDER` env var or legacy `GASTIFY_E2E_SCAN_FIXTURES_ENABLED` flag
+- **Deterministic fixture selection:** `mock_case_for_scan(filename) → E2EScanFixtureCase` picks happy/review/failure cases by filename token matching (enables per-test control)
+- **Environment enforcement (D76):** `staging-e2e` unconditionally forces scan + statement providers to `fixture` (deterministic e2e, $0 cost); `staging` + `production` refuse `mock`/`fixture` (real Gemini guaranteed); checked at initialization in `config.py` validators
+- **Impact:** Prevents real Gemini leakage into e2e tests; enables cheap reproducible screenshots
+
+### JSON Repair — Gemini Output Recovery
+
+**File:** `backend/app/services/json_repair.py`
+
+- **Patterns fixed:** Markdown code fences (```json ... ```), line/block comments, unquoted property keys, single-quoted strings, trailing commas
+- **Strategy:** Strip fences → remove comments → requote keys → replace quotes → remove trailing commas
+- **Fallback:** `parse_json_with_repair(text) → Any` tries native json.loads first, then repairs, then raises original error if all fail
+- **Security:** 512 KB input limit (ReDoS mitigation)
+
+### PDF Evidence Extraction — PyMuPDF Adapter
+
+**File:** `backend/app/services/statement_pdf_evidence.py`
+
+- **Inspector:** `extract_statement_pdf_evidence(path, password) → StatementPdfEvidence` uses PyMuPDF to extract text layer, layout words, row groups; detects encrypted PDFs, password errors, read failures
+- **Privacy:** Immutable `StatementPdfEvidence` guarantees no raw PDF bytes, no passwords, no decryption artifacts in `.provider_payload()` sent to Gemini
+- **Evidence schema:** Versioned (`statement-pdf-evidence.v1`); captures page count, text char/line/word/row counts, checksums, warnings
+
+### Statement Deterministic Routing — PyMuPDF + Regex
+
+**File:** `backend/app/services/statement_routing.py`
+
+- **Known issuers:** CMR, Edwards, Scotiabank; each has a custom regex/layout parser
+- **Quality gate:** `deterministic_quality_passed(decision: StatementRoutingDecision) → bool` checks confidence ≥ 0.8 (configurable)
+- **Output:** `StatementRoutingDecision(issuer, parser_id, confidence, reasons, fallback_required)` — if fallback_required, Gemini profile-inference path activates
+- **Word-layout analysis:** Extracts columns by x-coordinate + regex patterns (dates, amounts, descriptions)
+
+### Statement Layout Profile Fallback — Gemini Inference
+
+**File:** `backend/app/services/statement_profile_fallback.py`
+
+- **Compact evidence:** `build_statement_compact_evidence(pdf_evidence) → StatementCompactEvidence` produces schema-versioned input for Gemini profile inference
+- **Profile application:** `apply_statement_layout_profile(evidence, profile) → StatementExtractionOutput` applies inferred field positions to compact row evidence
+- **Result:** Deterministic column extraction without another full PDF parse; schema-versioned for reproducibility
+
+### Runtime Configuration — Provider & Prompt Guards
+
+**File:** `backend/app/config.py`
+
+- **LLM policy enforcement:** `_normalize_and_guard_runtime_modes()` validator checks environment + provider combination; forces `staging-e2e` to `fixture`, blocks real providers in production if accidentally set to mock
+- **Prompt validation:** Every configured prompt ID checked against prompt registry + environment constraints (dev-only prompts blocked in production)
+- **Defaults:** `scan_provider=mock` (local), `statement_provider=auto` (codex-pdf-text → fallback to Gemini if text extraction fails)
+
+### Extraction Agent — Receipt Vision
+
+**File:** `backend/app/agents/extraction.py`
+
+- **Agent:** PydanticAI `Agent[None, RawGeminiExtractionResult]` with configurable system prompt + model
+- **Pipeline:** Image bytes → `retry_provider_call(agent.run(...))` → JSON repair → coalesce → log metrics
+- **Output:** `ExtractionResult(extraction, usage, raw_extraction, prompt_id, model_name)`
+
+### Statement Extraction Agent — PDF + Profile Fallback
+
+**File:** `backend/app/agents/statement_extraction.py`
+
+- **Main path:** PDF bytes → `extract_statement_with_gemini()` → Gemini agent via retry_provider_call → coalesce
+- **Profile path:** Unknown layout → `infer_statement_layout_profile_with_gemini()` → returns layout schema → apply to evidence
+- **Output:** `StatementAgentResult(extraction, usage, prompt_id, model_name, input_mode)`
 
 ## Key Decisions
 
-### 2026-04-22 — No dedicated integrations/ directory
+**D2 (2026-04-23):** FX cache is lazy read-through, per-pair-per-day, write-once via INSERT ON CONFLICT. Eliminates need for background scheduler; structural idempotency dedupes cold-start race at zero code cost.
 
-External service wrappers live next to the domain they serve (`auth/` for
-Firebase, `services/` for FX and AI provider retry). This avoids an
-artificial layer between the domain and the adapter. The trade-off: integration
-files are scattered, but each is discoverable from the well that calls it.
-This G5 well doc serves as the cross-reference index.
+**D29 (2026-05-07):** Receipt extraction (vision + structured output + idempotency + dead-letter) at Enterprise tier. Three red-lines fire simultaneously: LLM output consumed by code (not regex), money debit requires idempotency, silent scan loss unrecoverable.
 
-### 2026-04-22 — FX rates cached write-once in PostgreSQL
+**D30 (2026-05-07):** Categorization + math gate at Enterprise tier. Structured output red-line fires again (V4 binding); typed error classification drives distinct recovery paths (needs_review vs retry vs dead-letter).
 
-`services/fx.py` writes each `(date, from, to)` rate to `FxRate` on first
-fetch and never updates it. Subsequent requests hit the DB cache. Avoids
-external API calls on every transaction save. The cache is per-date, so
-historical rates are preserved.
+**D31 (2026-05-07):** Scan progress streaming at Enterprise. Real-time.Reconnection red-line: user-facing stream, MVP manual reload fails UX centerpiece. Dual transport SSE+WebSocket required.
 
-### 2026-05-18 — Provider retry is generic, error classification is per-domain
+**D44 (2026-05-20):** Accept receipt prompt v2-dev.9. Minor-review risks (discrepancies in math, item count, discount) acceptable IF app surfaces warnings + preserves item order for image comparison.
 
-`provider_retry.py` handles the retry loop (backoff, max attempts). Error
-classification (transient vs. permanent) is done by `scan_errors.py` in G4.
-This keeps the retry mechanism reusable while letting each domain define what
-"transient" means.
+**D45 (2026-05-20):** Scan review signals stay in G4 (extraction, postprocessing, math reconciliation). Warning computation belongs in pipeline, not a separate well.
 
-## Key Diagrams
+**D55 (2026-05-25):** Statement Gemini prompt lab + coalesce gate at Enterprise. Live provider extraction quality needs statement-only Gemini runner, no-cache evidence, coalesce diagnostics before promotion to production.
 
-### External Service Boundaries
+**D76 (2026-06-04):** Gemini provider selection by ENVIRONMENT, not flag. `staging-e2e` → fixture (deterministic, $0); `staging` + `production` → real Gemini (production-like). Enforced at initialization (config.py validators), preventing real-Gemini leakage into e2e tests even if GASTIFY_SCAN_PROVIDER=gemini is set by mistake.
 
-```mermaid
-flowchart TD
-  subgraph gastify["gastify backend"]
-    fb["auth/firebase.py<br/>Firebase Admin"]
-    fx["services/fx.py<br/>FX rate cache"]
-    retry["services/provider_retry.py<br/>AI retry policy"]
-    providers["services/scan_providers.py<br/>provider selection"]
-    repair["services/json_repair.py<br/>JSON recovery"]
-    pdf["prompt_lab/statement/cases.py<br/>PDF extraction"]
-  end
+## Invariants
 
-  fb <-->|"JWT verify"| firebase_ext(("Firebase Auth"))
-  fx <-->|"HTTP GET rate"| fx_ext(("FX Rate API"))
-  retry <-->|"Gemini API calls"| gemini_ext(("Google Gemini"))
-  providers -->|"selects"| retry
-  repair -->|"fixes output from"| gemini_ext
-  pdf <-->|"pypdf read"| pdf_ext(("PDF files"))
+**Single doorway per service:** No well directly imports Firebase, google.generativeai, httpx for FX, or fitz (PyMuPDF). All external calls route through G5 adapters.
 
-  classDef internal fill:#e8f1ff,stroke:#1f5fbf,color:#10233f;
-  classDef external fill:#fde2e2,stroke:#b42318,color:#3b0b08;
-  class fb,fx,retry,providers,repair,pdf internal;
-  class firebase_ext,fx_ext,gemini_ext,pdf_ext external;
-```
+**Firebase fail-closed:** HTTPException 401 on invalid/expired tokens. Default project ID `gastify-local` (non-existent) ensures production must explicitly set GASTIFY_FIREBASE_PROJECT_ID or tokens cannot verify.
 
-### Who Calls What
+**FX cache is immutable:** INSERT ON CONFLICT DO NOTHING makes (date, from_currency, to_currency) the canonical key. Subsequent reads always see the first-written rate for that day—no UPDATE, no cache invalidation logic.
 
-```mermaid
-flowchart LR
-  g3["G3 auth/deps.py"] --> fb["auth/firebase.py"]
-  g1_stream["G1 api/scan_stream.py"] --> fb
-  g4_persist["G4 persist_scan.py"] --> fx["services/fx.py"]
-  g1_txn["G1 api/transactions.py"] --> fx
-  g4_ext["G4 agents/extraction.py"] --> retry["services/provider_retry.py"]
-  g4_cat["G4 agents/categorization.py"] --> retry
-  g4_scat["G4 agents/store_cat.py"] --> retry
-  g4_ext --> repair["services/json_repair.py"]
-  g4_worker["G4 scan_worker.py"] --> providers["services/scan_providers.py"]
+**Error classification separates concerns:** Retry loop (provider_retry.py) knows only exponential backoff + max attempts. Domain-specific error classification (scan_errors.py) decides transient vs permanent. Keeps the mechanism generic, the domain-specific logic localized.
 
-  classDef g5 fill:#e8f1ff,stroke:#1f5fbf,color:#10233f;
-  classDef caller fill:#eef2f7,stroke:#475467,color:#101828;
-  class fb,fx,retry,repair,providers g5;
-  class g3,g1_stream,g1_txn,g4_persist,g4_ext,g4_cat,g4_scat,g4_worker caller;
-```
+**Provider selection is environment-locked:** `staging-e2e` fixture mode is forced at initialization, not by a flag. Even GASTIFY_SCAN_PROVIDER=gemini cannot override it. Prevents accidental real Gemini in tests.
 
-## Topics (auto-appended)
+**JSON repair is conservative:** Fixes known Gemini malformation (fences, comments, quotes, commas) but does not reshape structure or migrate schemas. If repair fails, original error raised so upstream can classify it.
 
-<!-- /gabe-teach topics appends verified topic summaries here on first run. -->
-<!-- Do not edit the structure below this line; edit individual entries freely. -->
+**Statement evidence is PCI-safe:** Raw PDF bytes, passwords, and decryption state never reach Gemini. Only structured row evidence + metadata shipped to LLM.
+
+**Prompt configuration is validated at boot:** Every receipt/statement/categorization prompt ID checked against registry + environment constraints. Production cannot accidentally load a dev-only prompt version.
+
+## Shipped State (Phase 6)
+
+**Production live:**
+- Firebase token validation (auth/firebase.py) — active in G3 auth/deps.py + G1 api/scan_stream.py WebSocket JWT verify
+- FX cache + retry (services/fx.py) — live on production PostgreSQL; structural idempotency proven; backup/restore included in P1 snapshot
+- Receipt extraction + JSON repair (agents/extraction.py + json_repair.py) — production scans all receipts through Gemini
+- Categorization + math gate (agents/categorization.py, D30 typed errors) — live; error classification routing to needs_review/retry/dead-letter working
+- Scan progress streaming (provider_retry.py + scan_stream) — SSE + WebSocket reconnection live across web + mobile
+- Statement PDF extraction (agents/statement_extraction.py + statement_routing.py + statement_pdf_evidence.py) — operational; deterministic parsers (CMR, Edwards, Scotiabank) + Gemini fallback for unknown layouts; profile inference (D55) tested on private corpus
+- Provider selection policy (D76) — enforced: staging-e2e runs fixture (deterministic e2e), staging+production run real Gemini
+- All 5 Gemini prompt labs — receipt extraction, statement extraction, statement layout profile, item categorization, store categorization; all configurable at runtime per settings; gemini-2.5-flash-lite model
+
+**No known issues.**
+
+**Deferred (post-Phase 6):**
+- Redis SETNX dedupe for FX cold-start race (D2) — structural idempotency deemed sufficient for scope-of-one
+- Multi-model cascade (D29 fallback-chain) — deferred until second LLM provider justified
+- Provider-side rate-limiting (D2) — scope-of-one volume acceptable; escalate on first 429

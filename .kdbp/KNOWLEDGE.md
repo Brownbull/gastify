@@ -34,6 +34,8 @@
 | G6 | Web Portal | React + Vite + Zustand + TanStack Query + Ladle. Responsive SPA. | "Shopfront window — desktop or phone browser, same storefront." | `web/**`, `tests/web/**` | `docs/wells/6-web-portal.md` | 0 / 0 / 0 |
 | G7 | Mobile App | React Native + Expo + EAS + Detox + Jest. Android + iOS single codebase. Native camera, bidirectional streaming, keystore. | "Pocket version — native camera, offline-tolerant, same shared backend." | `mobile/**`, `tests/mobile/**` | `docs/wells/7-mobile-app.md` | 0 / 0 / 0 |
 
+<!-- 2026-06-05 housekeeping: all 7 `docs/wells/N-*.md` deep-dives + the top-level `docs/architecture.md` map + `docs/STATUS.md` were authored from a 7-agent well-mapping pass over the live codebase (Phase 6 shipped state). These are reference docs, NOT Socratic verification — the Topics table below is still empty and every well's count stays 0 / 0 / 0 until a `/gabe-teach` quiz run records verified topics. Do not read the populated docs as "verified knowledge". -->
+
 ## Topic Classes
 
 | Class | Question it answers | Source |

@@ -12,7 +12,7 @@ Feature parity with legacy BoletApp — implement missing screens and features b
 - **Maturity:** mvp
 - **Domain:** Chilean smart expense tracker (AI receipt scanning, multi-currency analytics, PWA + native mobile)
 - **Created:** 2026-06-02
-- **Last Updated:** 2026-06-04 (Phase 5 Groups COMPLETE ✅×4 + the full 5e finish shipped — consent-gated member detail (D73, migration 032) + mobile group-detail (P60c) + P61 tests + P60b switcher, reviewed (authz workflow, 0 CRITICAL) + B2-proven both platforms, promoted staging→main P50, prod verified. Current Phase advanced 5→6. Next: /gabe-next on Phase 6 Items View + Reports.)
+- **Last Updated:** 2026-06-05 (Phase 6 Items View + Reports COMPLETE ✅×4 + shipped to prod — items endpoint + cross-transaction Items screen (P56), period-spending Reports screen reusing /insights (P57), and the Reports granularity toggle month/quarter/year + NEW ISO-week granularity (D77, P58). Also D74 transaction lock-on-share + D75 group avatar (Phase 5 hardening), D76 Gemini mock-in-staging-e2e by environment. Current Phase advanced 6→7. S23 mobile Reports-granularity Maestro proof deferred (P64, device offline). Next: Phase 7 Notification Center. Housekeeping pass (docs/wells/architecture/status) 2026-06-05.)
 - **Decision basis:** APP-STATE.html audit (2026-06-02) comparing Gastify vs legacy BoletApp — 9 missing features, 5 API-only gaps. Write-first ordering per user direction.
 
 ## Phases
@@ -177,7 +177,7 @@ suppressed_dims_count: 0
 
 ## Current Phase
 
-Phase 6: Items View + Reports
+Phase 7: Notification Center
 
 ## Dependencies
 

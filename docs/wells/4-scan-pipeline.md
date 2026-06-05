@@ -10,21 +10,15 @@
 
 ## Purpose
 
-G4 owns the receipt scan path: image extraction, deterministic cleanup,
-categorization, math reconciliation, prompt-lab evidence, and runtime review
-signals. The well exists to keep AI uncertainty contained behind typed
-contracts instead of letting prompt behavior leak directly into the ledger or
-UI.
+Receipt translator — photo in, line-items out, hallucinations caught at gate.
 
-Credit-card statement scanning is adjacent but separate. Its PDF ingestion,
-statement-line extraction, statement-to-receipt matching, and statement-only
-transaction candidates are documented in `prompt-testing/STATEMENT-PIPELINE.md`
-and implemented through the `statement_*` services rather than the receipt
-coalescing/math-gate path.
+G4 owns the receipt scan path: image extraction, deterministic cleanup, categorization, math reconciliation, prompt-lab evidence, and runtime review signals. The well exists to keep AI uncertainty contained behind typed contracts instead of letting prompt behavior leak directly into the ledger or UI.
 
-## Files
+Credit-card statement scanning is adjacent but separate. Its PDF ingestion, statement-line extraction, statement-to-receipt matching, and statement-only transaction candidates are implemented through the `statement_*` services.
 
-### Pipeline Orchestration
+## Key Components
+
+**Pipeline Orchestration**
 
 | File | Role |
 |------|------|
@@ -33,16 +27,16 @@ coalescing/math-gate path.
 | `services/scan_errors.py` | `ScanErrorCode` enum + `classify_error()` — categorizes failures as transient (retry) or permanent (abort). `PermanentScanError` exception. |
 | `services/scan_providers.py` | Provider abstraction: `active_scan_provider()` returns `fixture`, `gemini`, or `mock`. `mock_case_for_scan()` selects deterministic local fixtures by filename. |
 
-### AI Agents (`backend/app/agents/`)
+**AI Agents** (`backend/app/agents/`)
 
 | File | Role |
 |------|------|
 | `agents/extraction.py` | **Stage 1** — PydanticAI vision agent. Sends receipt image to Gemini, receives `GeminiExtractionResult`, applies `coalesce_extraction()` + `json_repair`. Uses `provider_retry` for transient failures. |
 | `agents/categorization.py` | **Stage 2** — PydanticAI text-only agent. Maps extracted line items to V4 L4 taxonomy categories. Text-only call (no image re-send) for cost and security. |
 | `agents/store_categorization.py` | **Stage 3** — PydanticAI text-only agent. Maps merchant name to V4 L2 Business Type using item categories as evidence. Called during persistence. |
-| `agents/usage.py` | Compatibility helper for extracting token usage from PydanticAI result objects across API shape variations. |
+| `agents/usage.py` | Compatibility helper for extracting token usage from PydanticAI result objects. |
 
-### Post-Processing Services
+**Post-Processing Services**
 
 | File | Role |
 |------|------|
@@ -57,7 +51,7 @@ coalescing/math-gate path.
 | `services/receipt_validation_policy.py` | `ReceiptValidationPolicy` dataclass (version `2026-05-20.v1`) — centralized thresholds for math gate and reconstruction discrepancy checks. |
 | `services/mappings.py` | `remember_merchant_mapping()`, `remember_item_mapping()`, `batch_lookup_*()` — persistent user memory for merchant/item categorization shortcuts. |
 
-### Scan Testing Infrastructure
+**Scan Testing Infrastructure**
 
 | File | Role |
 |------|------|
@@ -68,7 +62,7 @@ coalescing/math-gate path.
 | `services/statement_reconciliation.py` | Deterministic statement-to-receipt matcher: date/amount/merchant/card-alias tolerance, idempotent persisted verdicts, buckets, and coverage metric. |
 | `services/statement_events.py` | In-memory statement progress dispatcher for SSE subscribers. |
 
-### Prompt System (`backend/app/prompts/`)
+**Prompt System** (`backend/app/prompts/`)
 
 | File | Role |
 |------|------|
@@ -81,7 +75,7 @@ coalescing/math-gate path.
 | `prompts/statement/extraction.py` | Credit card statement extraction prompt (`STATEMENT_EXTRACTION_CURRENT`) for P5 feature. |
 | `prompts/values.py` | Shared prompt variables: `SUPPORTED_RECEIPT_CURRENCY_CODES`, `ZERO_DECIMAL_RECEIPT_CURRENCY_CODES`. Re-exports taxonomy rendering from `reference/categories.py`. |
 
-### Prompt Lab (`backend/app/prompt_lab/`)
+**Prompt Lab** (`backend/app/prompt_lab/`)
 
 | File | Role |
 |------|------|
@@ -104,26 +98,33 @@ coalescing/math-gate path.
 
 ## Key Decisions
 
-### 2026-05-20 — Review warnings stay in G4 unless they become contracts
+**D28 (2026-05-07):** Image compression (resize-on-write) is Enterprise tier — load-bearing for Gemini input quality, bandwidth, and thumbnail generation.
 
-Runtime scan warnings are computed in one helper inside the scan pipeline from
-raw extraction, processed extraction, and the math verdict. The helper does not
-depend on prompt-lab baselines because live scans have no expected receipt.
+**D29 (2026-05-07):** Vision extraction is Enterprise tier — three red-lines: structured output (code consumes LLM result), idempotency (scan deducts credits), dead-letter (dropped scan = data loss).
 
-The only cross-well touches are real contracts: G2 Data Model stores
-`scan_review_level` and `scan_review_signals` on transactions, and G1 API Core
-exposes those fields through `scan_complete` plus transaction list/detail
-responses.
+**D30 (2026-05-07):** Categorization + math gate is Enterprise tier — structured output red-line fires again; typed errors drive distinct downstream behavior.
 
-### 2026-05-20 — Receipt order remains the canonical correction view
+**D31 (2026-05-07):** Scan streaming (SSE+WS) is Enterprise tier — real-time reconnection red-line; user-facing stream must auto-reconnect on disconnect.
 
-`TransactionItem.sort_order` remains the load-bearing item order for comparing
-the extracted list against the receipt image. Category grouping is a secondary
-view over the same rows, not a replacement for receipt order.
+**D44 (2026-05-20):** Receipt prompt v2-dev.9 accepted as current state — correct final totals, zero significant failures; remaining strict failures treated as reviewable issues, not blockers, provided runtime surfaces warnings.
 
-## Key Diagrams
+**D45 (2026-05-20):** Runtime scan review signals stay inside G4 — computation belongs to the scan pipeline, not a separate well. Persisted to `Transaction` schema; exposed via G1 API contract.
 
-### Pipeline Flow
+**D62 (2026-05-30):** Feature-parity batch scanning = N sequential single-scans + per-scan GET-poll to terminal + post-persist review; tier mvp — polling fallback reuses existing endpoints without batch streaming infrastructure.
+
+**D66 (2026-05-30):** Add `GET /scans/{id}` + persist `scan.transaction_id` — mobile poll fallback requires persisted link from scan to result transaction, not just in-process dispatcher snapshot.
+
+## Invariants
+
+- **Structured output is load-bearing** — All LLM stages use PydanticAI `output_type=` with Pydantic schemas. No regex parsing.
+- **Math gate is fail-closed** — Scans failing reconciliation (discrepancy > 1 minor unit) route to `NEEDS_REVIEW`, not silent completion.
+- **Receipt order is canonical** — `TransactionItem.sort_order` preserves extracted order for user image comparison; category grouping is secondary.
+- **Image compression is idempotent** — Same input always produces same JPEG (1200×1600 @ 80%), enabling deterministic fixtures.
+- **Review signals computed from runtime evidence only** — No prompt-lab baselines (live scans have no expected receipt). Derived from raw extraction, processed extraction, and math verdict.
+- **Provider abstraction enables fixture testing** — `active_scan_provider()` switches between `fixture`, `mock`, `gemini` without code changes.
+- **Streams are user-initiated, not scheduled** — Scans submitted on-demand via `POST /scans`. ~7 events per scan, terminating at completion or error.
+
+## Diagram
 
 ```mermaid
 flowchart TD
@@ -152,46 +153,3 @@ flowchart TD
   class math decision;
   class g1,g2 contract;
 ```
-
-### Agent Dependency Graph
-
-```mermaid
-flowchart LR
-  ext["agents/extraction.py"] --> prompts_r["prompts/receipt/extraction.py"]
-  ext --> coalesce["services/coalesce.py"]
-  ext --> retry["services/provider_retry.py"]
-  ext --> repair["services/json_repair.py"]
-
-  cat["agents/categorization.py"] --> prompts_i["prompts/receipt/item_categorization.py"]
-  cat --> retry
-
-  scat["agents/store_categorization.py"] --> prompts_s["prompts/receipt/store_categorization.py"]
-  scat --> retry
-
-  prompts_r --> vals["prompts/values.py"]
-  prompts_i --> vals
-  prompts_s --> vals
-  vals --> ref["reference/categories.py<br/>V4 taxonomy"]
-
-  classDef agent fill:#e8f1ff,stroke:#1f5fbf,color:#10233f;
-  classDef prompt fill:#fff4cc,stroke:#9a6b00,color:#2b2300;
-  classDef svc fill:#eef2f7,stroke:#475467,color:#101828;
-  class ext,cat,scat agent;
-  class prompts_r,prompts_i,prompts_s,vals,ref prompt;
-  class coalesce,retry,repair svc;
-```
-
-## Gravity Boundaries
-
-| Boundary | Rule |
-| --- | --- |
-| G4 default | Keep orchestration, coalescing, math, prompt-lab evidence, and review-signal computation here. |
-| [G2](2-data-model.md) crossing | Only for persisted schema/transaction columns. |
-| [G1](1-api-core.md) crossing | Only for API and stream payload contracts. |
-| [G5](5-integrations.md) crossing | FX service and Firebase auth are G5; G4 calls them as external services. |
-| Split rule | Add helpers only when they reduce real complexity. |
-
-## Topics (auto-appended)
-
-<!-- /gabe-teach topics appends verified topic summaries here on first run. -->
-<!-- Do not edit the structure below this line; edit individual entries freely. -->
