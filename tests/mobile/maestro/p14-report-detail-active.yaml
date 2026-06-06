@@ -58,17 +58,19 @@ appId: com.gastify.mobile
       id: reports-card-0
     timeout: 20000
 
-# Expand the newest month card, then open the full grouped breakdown detail screen.
+# Expand a recent month with categorised spend (card-0 is the current month, which
+# may be empty mid-month; card-1 is the most recent COMPLETED month → has data), then
+# open the full grouped breakdown detail screen.
 - tapOn:
-    id: reports-card-0
+    id: reports-card-1
 - waitForAnimationToEnd:
     timeout: 3000
 - scrollUntilVisible:
     element:
-      id: open-report-detail-0
+      id: open-report-detail-1
     centerElement: true
 - tapOn:
-    id: open-report-detail-0
+    id: open-report-detail-1
 - extendedWaitUntil:
     visible:
       id: report-detail-screen
