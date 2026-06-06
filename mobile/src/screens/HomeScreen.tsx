@@ -4,6 +4,7 @@ import { ActivityIndicator, Button, Image, StyleSheet, Text, View } from "react-
 import { ScopeSwitcher } from "../components/ScopeSwitcher";
 import { ScreenShell } from "../components/ScreenShell";
 import { useReceiptCapture } from "../hooks/useReceiptCapture";
+import { useUnreadCount } from "../hooks/useNotifications";
 import { usePushRegistration } from "../hooks/usePushRegistration";
 import { useScanProgressSocket } from "../hooks/useScanProgressSocket";
 import { useInvalidateTransactionsAfterScan } from "../hooks/useTransactions";
@@ -109,6 +110,7 @@ export function HomeScreen({ navigation }: HomeScreenProps = {}) {
   const invalidateTransactionsAfterScan = useInvalidateTransactionsAfterScan();
   const signedInUser = useSessionStore((state) => state.signedInUser);
   const pushRegistration = usePushRegistration();
+  const { data: unreadCount = 0 } = useUnreadCount();
   const phase = useScanStore((state) => state.phase);
   const selectedAsset = useScanStore((state) => state.selectedAsset);
   const connectionStatus = useScanStore((state) => state.connectionStatus);
@@ -188,6 +190,15 @@ export function HomeScreen({ navigation }: HomeScreenProps = {}) {
             title="Open reports"
             testID="open-reports-button"
             onPress={() => navigation?.navigate("Reports")}
+          />
+          <Button
+            title={
+              unreadCount > 0
+                ? `Open notifications (${unreadCount})`
+                : "Open notifications"
+            }
+            testID="open-notifications-button"
+            onPress={() => navigation?.navigate("Notifications")}
           />
           <Button
             title="Open groups"

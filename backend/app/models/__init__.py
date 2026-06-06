@@ -4,6 +4,7 @@ from app.models.consent import AuditEvent, ConsentRecord, ProcessingRegister
 from app.models.credit import CreditBalance
 from app.models.fx import FxRate
 from app.models.mapping import CategoryMapping, MerchantMapping
+from app.models.notification import Notification
 from app.models.reference import Currency, ItemCategory, StoreCategory
 from app.models.scan import Scan, ScanStatus
 from app.models.statement import (
@@ -36,6 +37,7 @@ __all__ = [
     "ItemCategory",
     "MerchantMapping",
     "MobilePushToken",
+    "Notification",
     "OwnershipScope",
     "OwnershipScopeMember",
     "ProcessingRegister",

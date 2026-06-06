@@ -12,6 +12,7 @@ from app.api.health import router as health_router
 from app.api.insights import router as insights_router
 from app.api.items import router as items_router
 from app.api.metrics import router as metrics_router
+from app.api.notifications import router as notifications_router
 from app.api.privacy import router as privacy_router
 from app.api.push_tokens import router as push_tokens_router
 from app.api.reference import router as reference_router
@@ -66,6 +67,7 @@ app.include_router(items_router, prefix="/api/v1")
 app.include_router(consent_router, prefix="/api/v1")
 app.include_router(privacy_router, prefix="/api/v1")
 app.include_router(push_tokens_router, prefix="/api/v1")
+app.include_router(notifications_router, prefix="/api/v1")
 app.include_router(scans_router, prefix="/api/v1")
 app.include_router(scan_test_cases_router, prefix="/api/v1", include_in_schema=False)
 app.include_router(scan_stream_router, prefix="/api/v1")

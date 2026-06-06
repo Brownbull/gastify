@@ -1,0 +1,76 @@
+appId: com.gastify.mobile
+---
+# Phase 7 Notification Center on the S23 (D78) — the on-device runtime proof that the
+# user-global notification feed lists a real (seeded) notification and that the delete
+# mutation clears it. The staging seed inserts one deterministic unread notification
+# for user A, so the feed is non-empty; deleting the only row reaches the empty state.
+# Runs against deployed staging-e2e (GET/DELETE /api/v1/notifications).
+#
+# Requires: dev-client + deployed staging-e2e + the seed having run.
+
+- waitForAnimationToEnd:
+    timeout: 12000
+- tapOn:
+    text: "Continue"
+    optional: true
+- tapOn:
+    text: "Got it"
+    optional: true
+
+# Reach a clean sign-in + authenticate as user A.
+- runFlow:
+    when:
+      visible:
+        id: home-screen
+    commands:
+      - scrollUntilVisible:
+          element:
+            id: sign-out-button
+      - tapOn:
+          id: sign-out-button
+      - extendedWaitUntil:
+          visible:
+            id: sign-in-screen
+          timeout: 20000
+- extendedWaitUntil:
+    visible:
+      id: e2e-sign-in-button
+    timeout: 30000
+- tapOn:
+    id: e2e-sign-in-button
+- extendedWaitUntil:
+    visible:
+      id: home-screen
+    timeout: 60000
+
+# --- Open the Notifications screen ---
+- scrollUntilVisible:
+    element:
+      id: open-notifications-button
+- tapOn:
+    id: open-notifications-button
+- extendedWaitUntil:
+    visible:
+      id: notifications-screen
+    timeout: 20000
+
+# The seed gives user A one notification → not the empty state, and the first row
+# renders with real data (title from the backend).
+- assertNotVisible:
+    id: notifications-empty
+- extendedWaitUntil:
+    visible:
+      id: notifications-row-0
+    timeout: 20000
+- takeScreenshot:
+    path: 01-notifications-list
+
+# --- Delete the only row → the feed reaches the empty state (mutation proof) ---
+- tapOn:
+    id: notifications-delete-0
+- extendedWaitUntil:
+    visible:
+      id: notifications-empty
+    timeout: 20000
+- takeScreenshot:
+    path: 02-notifications-empty

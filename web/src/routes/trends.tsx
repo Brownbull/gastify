@@ -22,6 +22,9 @@ const SpendTimeSeries = lazy(() => import("@/components/charts/SpendTimeSeries")
 
 /** Months of history to fetch per granularity (≤ backend 24-month cap). */
 const WINDOW_MONTHS: Record<SeriesGranularity, number> = {
+  // Trends offers month/quarter/year in its toggle; `week` is in the shared
+  // SeriesGranularity (Reports uses it, D77) so the map stays exhaustive.
+  week: 3,
   month: 6,
   quarter: 12,
   year: 24,

@@ -9,6 +9,7 @@ import { GroupDetailScreen } from "../screens/GroupDetailScreen";
 import { GroupsScreen } from "../screens/GroupsScreen";
 import { HomeScreen } from "../screens/HomeScreen";
 import { ItemsScreen } from "../screens/ItemsScreen";
+import { NotificationsScreen } from "../screens/NotificationsScreen";
 import { ReportsScreen } from "../screens/ReportsScreen";
 import { SettingsScreen } from "../screens/SettingsScreen";
 import { TrendsScreen } from "../screens/TrendsScreen";
@@ -70,6 +71,11 @@ export function AppNavigator() {
               name="Reports"
               component={ReportsScreen}
               options={{ title: "Reports" }}
+            />
+            <Stack.Screen
+              name="Notifications"
+              component={NotificationsScreen}
+              options={{ title: "Notifications" }}
             />
             <Stack.Screen
               name="Groups"

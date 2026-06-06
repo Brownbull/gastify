@@ -35,6 +35,11 @@ jest.mock("../../hooks/useGroups", () => ({
   useGroups: () => ({ data: [], isLoading: false }),
 }));
 
+// The hub's "Open notifications" entry reads the unread count (D78).
+jest.mock("../../hooks/useNotifications", () => ({
+  useUnreadCount: () => ({ data: 0 }),
+}));
+
 jest.mock("../../lib/mobileConfig", () => ({
   mobileConfig: {
     apiBaseUrl: "http://localhost:8000",

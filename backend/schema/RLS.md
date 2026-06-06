@@ -62,6 +62,7 @@ CREATE POLICY scope_write ON <table>
 | `line_items` | Scoped (via transaction) | Scoped | Mutable fields | DENY | Cascade from transaction |
 | `statement_lines` | Scoped | Scoped | Mutable fields | DENY | |
 | `card_aliases` | Scoped | Scoped | Scoped | Scoped | REQ-09 |
+| `notifications` | Own (`user_id`, personal scope) | Via scan/statement worker + service | `read_at` only (mark-read / mark-all) | Own | Phase 7 user-global feed (D78); personal-scope-bound, never group; direct `notifications_scope_isolation` policy w/ 027 fail-safe GUC form (migration 034) |
 | `consent_records` | Own scope | Via API path | DENY | DENY | Write-only via consent endpoint |
 | `processing_register` | Own scope (read-only) | DENY | DENY | DENY | Written by backend on consent change |
 | `reconciliation_matches` | Scoped | Scoped | DENY | DENY | |

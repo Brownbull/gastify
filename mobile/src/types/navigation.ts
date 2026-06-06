@@ -7,6 +7,7 @@ export type RootStackParamList = {
   Trends: undefined;
   Items: undefined;
   Reports: undefined;
+  Notifications: undefined;
   Groups: undefined;
   GroupDetail: { groupId: string };
   Settings: undefined;

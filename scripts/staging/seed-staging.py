@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import json
 import os
 import uuid
 from dataclasses import dataclass
@@ -118,6 +119,7 @@ async def _reset_user(conn, user: SeedUser) -> None:  # type: ignore[no-untyped-
         {"scope_id": user.scope_id},
     )
     for table in (
+        "notifications",
         "scans",
         "transactions",
         "credit_balances",
@@ -213,6 +215,28 @@ async def _seed_user(conn, user: SeedUser) -> None:  # type: ignore[no-untyped-d
             "transaction_date": date(2026, 5, 18),
             "merchant": f"{user.display_name} Seed Merchant",
             "total_minor": 12990,
+        },
+    )
+    # Phase 7 (D78): one deterministic notification so the web/mobile notification
+    # proofs have a stable row to list / mark-read / delete. Personal-scope-bound,
+    # deep-linked to the seeded transaction. GUC is already set to user.scope_id.
+    await conn.execute(
+        text(
+            "INSERT INTO notifications "
+            "(id, ownership_scope_id, user_id, kind, title, body, data) "
+            "VALUES (:id, :scope_id, :user_id, 'scan_complete', :title, :body, "
+            ":data::jsonb) "
+            "ON CONFLICT (id) DO NOTHING"
+        ),
+        {
+            "id": uuid.uuid5(NS, f"{user.key}.notification.seed"),
+            "scope_id": user.scope_id,
+            "user_id": user.user_id,
+            "title": "Boleta escaneada",
+            "body": "Tu boleta de prueba se guardó.",
+            "data": json.dumps(
+                {"transaction_id": str(uuid.uuid5(NS, f"{user.key}.transaction.seed"))}
+            ),
         },
     )
 

@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import { GroupSwitcher } from "@/components/GroupSwitcher";
+import { NotificationBell } from "@/components/NotificationBell";
 import { useAuth } from "@/hooks/useAuth";
 import { useI18n } from "@/hooks/useI18n";
 import { SUPPORTED_LOCALES, type SupportedLocale } from "@/lib/i18n";
@@ -18,6 +19,7 @@ const NAV_ITEMS = [
   { to: "/items", labelKey: "nav.items", icon: "🛒" },
   { to: "/trends", labelKey: "nav.trends", icon: "📈" },
   { to: "/reports", labelKey: "nav.reports", icon: "📑" },
+  { to: "/notifications", labelKey: "nav.notifications", icon: "🔔" },
   { to: "/groups", labelKey: "nav.groups", icon: "🏠" },
   { to: "/settings", labelKey: "nav.settings", icon: "⚙️" },
 ] as const;
@@ -50,9 +52,12 @@ function Sidebar() {
       }}
     >
       <div className="space-y-3 p-6 pb-3">
-        <h1 className="text-xl font-bold" style={{ color: "var(--primary)" }}>
-          {t("app.name")}
-        </h1>
+        <div className="flex items-center justify-between gap-2">
+          <h1 className="text-xl font-bold" style={{ color: "var(--primary)" }}>
+            {t("app.name")}
+          </h1>
+          <NotificationBell />
+        </div>
         <GroupSwitcher />
       </div>
       <nav className="flex-1 space-y-1 px-3">
@@ -121,6 +126,7 @@ function MobileHeader() {
           )}
         </div>
         <div className="flex shrink-0 items-center gap-2">
+          <NotificationBell />
           <LocaleSelect
             label={t("locale.label")}
             locale={locale}

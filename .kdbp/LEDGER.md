@@ -3794,3 +3794,19 @@ FLOWS: p12-reports-active PASSED 34s (cards render). p12-reports-granularity-act
 EVIDENCE: week ISO-buckets show real spend (W20 $388.47, W21 $270.44/76txns); year 2026 $7,283.91/94txns; month May $658.91/79, March $2,315. D77 week granularity proven on-device.
 ARTIFACTS: tests/mobile/results/runs/staging-e2e/p64-reports-20260606T010823Z/attempts/{r1,r3}/ (7+6 screenshots, report.html, maestro.log).
 NEW FLOW: tests/mobile/maestro/p12-reports-granularity-active.yaml (committed). P64 -> resolved.
+- 2026-06-05 21:21 | Write | /tmp/gastify-p64-commit.txt
+- 2026-06-05 21:51 | Edit | /home/khujta/projects/apps/gastify/web/src/hooks/useInsights.ts
+- 2026-06-05 22:04 | Edit | /home/khujta/projects/apps/gastify/scripts/staging/seed-staging.py
+- 2026-06-05 22:04 | Edit | /home/khujta/projects/apps/gastify/scripts/staging/seed-staging.py
+- 2026-06-05 22:04 | Edit | /home/khujta/projects/apps/gastify/scripts/staging/seed-staging.py
+- 2026-06-05 22:05 | Write | /home/khujta/projects/apps/gastify/tests/web-e2e/notifications.spec.ts
+- 2026-06-05 22:05 | Write | /home/khujta/projects/apps/gastify/tests/mobile/maestro/p13-notifications-active.yaml
+- 2026-06-05 22:17 | Write | /home/khujta/projects/apps/gastify/web/src/hooks/useNotifications.ts
+- 2026-06-05 22:17 | Write | /home/khujta/projects/apps/gastify/mobile/src/hooks/useNotifications.ts
+- 2026-06-05 22:17 | Edit | /home/khujta/projects/apps/gastify/backend/app/api/notifications.py
+- 2026-06-05 22:18 | Edit | /home/khujta/projects/apps/gastify/backend/tests/test_notifications.py
+- 2026-06-05 22:18 | Edit | /home/khujta/projects/apps/gastify/mobile/src/hooks/__tests__/useNotifications.test.tsx
+- 2026-06-05 22:18 | Edit | /home/khujta/projects/apps/gastify/mobile/src/hooks/__tests__/useNotifications.test.tsx
+- 2026-06-05 22:19 | Edit | /home/khujta/projects/apps/gastify/mobile/src/hooks/__tests__/useNotifications.test.tsx
+- 2026-06-05 22:19 | Edit | /home/khujta/projects/apps/gastify/web/src/hooks/useNotifications.test.tsx
+- 2026-06-05 22:19 | Edit | /home/khujta/projects/apps/gastify/web/src/hooks/useNotifications.test.tsx

@@ -21,6 +21,7 @@ from app.models.statement import (
     StatementStatus,
 )
 from app.schemas.statement import StatementEvent, StatementExtractionOutput
+from app.services.notifications import notify_statement_reconciled
 from app.services.statement_events import statement_dispatcher
 from app.services.statement_extraction import extract_statement_pdf
 from app.services.statement_reconciliation import run_statement_reconciliation
@@ -142,6 +143,13 @@ async def process_statement(
                 else None
             ),
         },
+    )
+    # Phase 7 (D78): user-global statement_reconciled notification (failure-isolated).
+    await notify_statement_reconciled(
+        ownership_scope_id=ownership_scope_id,
+        statement_id=statement_id,
+        matched_count=reconciliation.matched_count,
+        total_count=len(extraction.lines),
     )
     statement_dispatcher.close_statement(statement_id)
     log.info(

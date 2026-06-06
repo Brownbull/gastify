@@ -3,7 +3,7 @@ import { apiClient } from "@/lib/api";
 import { useUiStore } from "@/stores/uiStore";
 
 export type InsightDimension = "transaction_category" | "item_category";
-export type SeriesGranularity = "month" | "quarter" | "year";
+export type SeriesGranularity = "week" | "month" | "quarter" | "year";
 
 /** The active group id (undefined = personal) that scopes every insights query. */
 function useActiveGroupId(): string | undefined {

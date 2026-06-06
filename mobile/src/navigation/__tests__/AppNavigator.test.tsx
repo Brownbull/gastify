@@ -56,6 +56,13 @@ jest.mock("../../screens/ReportsScreen", () => ({
   },
 }));
 
+jest.mock("../../screens/NotificationsScreen", () => ({
+  NotificationsScreen: () => {
+    const { Text } = require("react-native");
+    return <Text testID="notifications-screen">Notifications</Text>;
+  },
+}));
+
 jest.mock("../../screens/GroupsScreen", () => ({
   GroupsScreen: () => {
     const { Text } = require("react-native");

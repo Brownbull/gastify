@@ -28,6 +28,7 @@ from app.schemas.scan import ScanCompleteData, ScanCompleteLineItem
 from app.services.boleta import BoletaParseError, decode_boleta_barcode, parse_ted_payload
 from app.services.llm_costs import estimate_llm_cost_usd
 from app.services.math_gate import reconcile
+from app.services.notifications import notify_scan_terminal
 from app.services.persist_scan import persist_scan_result
 from app.services.scan_e2e_fixtures import E2EScanFixtureCase, fixture_case_for_scan_image
 from app.services.scan_errors import (
@@ -551,6 +552,15 @@ async def _run_stage2(
             ),
         )
         metrics.inc("scans_success")
+        # Phase 7 (D78): user-global in-app notification. Failure-isolated — never
+        # breaks the (already-committed) scan. Covers all providers since every
+        # pipeline converges here.
+        await notify_scan_terminal(
+            ownership_scope_id=ownership_scope_id,
+            scan_id=scan_id,
+            transaction_id=transaction.id,
+            needs_review=False,
+        )
     else:
         await _needs_review_scan(scan_id, verdict.discrepancy_minor_units)
         await _emit(
@@ -568,6 +578,13 @@ async def _run_stage2(
             ),
         )
         metrics.inc("scans_needs_review")
+        # Phase 7 (D78): scan_needs_review notification (failure-isolated).
+        await notify_scan_terminal(
+            ownership_scope_id=ownership_scope_id,
+            scan_id=scan_id,
+            transaction_id=transaction.id,
+            needs_review=True,
+        )
 
     dispatcher.close_scan(scan_id)
 
