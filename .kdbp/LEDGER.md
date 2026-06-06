@@ -3860,3 +3860,22 @@ TIERS: mvp × 3, ent × 0, scale × 0 | PROTOTYPES: 0
 DECISIONS: D79 → D81 (3 phase tier decisions logged)
 SLICES: 1) detail overlay + grouped store/item breakdown + drill [FE, reuse /insights/tree+CategoryDonut]; 2) persona insight + highlights [mostly FE, reuse gravity_centers]; 3) quarter/year breakdown + per-category trend [only net-new backend, lifts D77]. Each phase web+mobile, gated on web Playwright + S23 Maestro proofs. ROADMAP scope-addition (add via /gabe-scope-addition when greenlit).
 HTML_ARTIFACT: none
+- 2026-06-05 23:58 | Write | /tmp/gastify-reportsv2-plan-commit.txt
+- 2026-06-06 00:29 | Edit | /home/khujta/projects/apps/gastify/tests/web-e2e/report-detail.spec.ts
+- 2026-06-06 00:29 | Edit | /home/khujta/projects/apps/gastify/tests/mobile/maestro/p14-report-detail-active.yaml
+- 2026-06-06 00:33 | Write | /tmp/gastify-reports-v2-p1-commit.txt
+
+## 2026-06-06 00:34 — [0f6ce0a] feat(reports): Reports v2 Phase 1 — report detail + grouped breakdown
+FINDINGS: review by typescript-reviewer + code-reviewer (0 CRITICAL); 3 HIGH + key MEDIUMs fixed pre-commit.
+SHIPS: tap a month report -> detail (web overlay / mobile screen) with hierarchical store + item grouped breakdown (donut + group cards) from /insights/tree (D69) + "view transactions" drill (new /transactions validateSearch {dateFrom,dateTo}; resolves P47). Pure FE, no migration.
+GATES: tsc + biome clean; web vitest 98, mobile jest 238. PLAN Phase 1 Review + Commit ticked.
+NEXT: deploy staging-e2e -> B2 proofs (report-detail.spec.ts web + p14-report-detail-active.yaml S23) -> promote (Exec + Push tick).
+- 2026-06-06 00:39 | Edit | /home/khujta/projects/apps/gastify/web/src/components/reports/ReportDetailOverlay.tsx
+- 2026-06-06 00:39 | Edit | /home/khujta/projects/apps/gastify/mobile/src/screens/ReportDetailScreen.tsx
+- 2026-06-06 00:41 | Write | /tmp/gastify-reports-p1-msgfix.txt
+
+## 2026-06-06 00:58 — Reports v2 Phase 1 PROMOTED to production (P62) ✅
+PROMOTE: FF main 6091311→170f784 (3 commits: feat 0f6ce0a + fix e07ed2c + test 170f784). Main CI 27053151426 green. PURE FRONTEND (no migration; /insights/tree already live D69 — API unchanged, web rebuilt for the overlay).
+SHIPS: legacy "Resumen" report-detail rebuild (web overlay / mobile screen) — tap a month -> hierarchical store + item grouped breakdown (donut + group cards) + "view transactions" drill (new /transactions validateSearch; resolved P47). Month-only (D77); Phase 3 lifts to quarter/year.
+B2 PROOFS (deployed staging-e2e): web Playwright report-detail 11.3s + reports 12.0s; S23 Maestro p14 58s (SM-S911B — genuine on-device breakdown). In-proof fixes: empty-dimension message + mobile flow taps the most-recent completed month.
+PHASE 1 COMPLETE: Exec/Review/Commit/Push ✅×4. Current Phase -> 2 (persona insight + highlights).
