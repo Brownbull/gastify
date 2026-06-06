@@ -12,7 +12,7 @@ Reports v2 — rebuild the legacy BoletApp "Resumen" report **detail** experienc
 - **Maturity:** mvp
 - **Domain:** Chilean smart expense tracker (AI receipt scanning, multi-currency analytics, PWA + native mobile)
 - **Created:** 2026-06-05
-- **Last Updated:** 2026-06-06 (Phase 1 — Report Detail Overlay + grouped breakdown — COMPLETE ✅×4 + shipped to production (D79, P61/P62). Tap a month report → web overlay / mobile ReportDetailScreen with the hierarchical store + item grouped breakdown (donut + group cards) from `/insights/tree` (D69) + "view transactions" drill (new `/transactions` validateSearch {dateFrom,dateTo}; resolved PENDING P47). Pure frontend, no migration. Reviewed (typescript + code reviewer, 0 CRITICAL; 3 HIGH + MEDIUMs fixed); web vitest 98 / mobile jest 238; B2-proven both platforms on deployed staging-e2e (web Playwright + S23 Maestro p14). In-proof fixes: empty-dimension message ("No categories in this period.") + mobile flow taps the most-recent completed month. Current Phase advanced 1→2. Prior: plan authored 2026-06-05 — Reports v2 ROADMAP scope-addition, legacy "Resumen" rebuild; backend already ships /insights/tree + gravity_centers + week series, so Slices 1+2 are FE assembly, only Slice 3 needs new backend.)
+- **Last Updated:** 2026-06-06 (Phase 2 — Persona insight + highlights — COMPLETE ✅×4 + shipped to production (D80, P63/P64). A shared buildReportInsight(monthly, card) → persona insight sentence + highlights ("trophies") in the report detail (web overlay + mobile screen), from /insights/monthly gravity_centers + top categories + the card trend; ported from the legacy reportInsights decision tree + Chilean seasonal copy (web i18n es/en/pt; mobile English). Adversarial review workflow (4 dims, 24 raw → 15 confirmed, all HIGH + impactful MEDIUM fixed). B2-proven both platforms (web Playwright + S23 Maestro p14 — S23 auto-locked mid-session; user unlocked it for the proof). Current Phase advanced 2→3. Pure frontend (only Phase 3 needs backend). Prior: Phase 1 — Report Detail Overlay + grouped breakdown — COMPLETE ✅×4 + shipped to production (D79, P61/P62). Tap a month report → web overlay / mobile ReportDetailScreen with the hierarchical store + item grouped breakdown (donut + group cards) from `/insights/tree` (D69) + "view transactions" drill (new `/transactions` validateSearch {dateFrom,dateTo}; resolved PENDING P47). Pure frontend, no migration. Reviewed (typescript + code reviewer, 0 CRITICAL; 3 HIGH + MEDIUMs fixed); web vitest 98 / mobile jest 238; B2-proven both platforms on deployed staging-e2e (web Playwright + S23 Maestro p14). In-proof fixes: empty-dimension message ("No categories in this period.") + mobile flow taps the most-recent completed month. Current Phase advanced 1→2. Prior: plan authored 2026-06-05 — Reports v2 ROADMAP scope-addition, legacy "Resumen" rebuild; backend already ships /insights/tree + gravity_centers + week series, so Slices 1+2 are FE assembly, only Slice 3 needs new backend.)
 - **Decision basis:** Legacy reports gap analysis (2026-06-05, in LEDGER) comparing `boletapp/src/features/reports/` vs gastify `web/src/routes/reports.tsx` + `mobile/src/screens/ReportsScreen.tsx`. Legacy-parity-as-reference (rebuild the feel, don't gold-plate). This is a ROADMAP scope-addition (not yet on the roadmap) — add via `/gabe-scope-addition` when greenlit; sits after P15, around/before P16.
 
 ## Phases
@@ -20,7 +20,7 @@ Reports v2 — rebuild the legacy BoletApp "Resumen" report **detail** experienc
 | # | Phase | Description | Tier | Complexity | Exec | Review | Commit | Push |
 |---|-------|-------------|------|------------|------|--------|--------|------|
 | 1 | Report Detail Overlay + grouped breakdown | Tap a period report card → a detail overlay/screen with store-group cards + item-group cards (from `/insights/tree`) each with a `CategoryDonut`, plus a "view transactions" drill into the filtered transactions list. Reuses existing tree + donut — no new backend. Web + mobile. | mvp | high | ✅ | ✅ | ✅ | ✅ |
-| 2 | Persona insight + highlights | Add a Rosa-friendly insight sentence + a highlights ("trophies") block to the detail view — biggest category rise/drop, category leader, dominant/diverse patterns — sourced from `/insights/monthly` `gravity_centers` + the period series; Chilean seasonal copy (verano / fiestas patrias / fin de año) as frontend strings. Port `reportInsights.ts` logic. Web + mobile. | mvp | med | ⬜ | ⬜ | ⬜ | ⬜ |
+| 2 | Persona insight + highlights | Add a Rosa-friendly insight sentence + a highlights ("trophies") block to the detail view — biggest category rise/drop, category leader, dominant/diverse patterns — sourced from `/insights/monthly` `gravity_centers` + the period series; Chilean seasonal copy (verano / fiestas patrias / fin de año) as frontend strings. Port `reportInsights.ts` logic. Web + mobile. | mvp | med | ✅ | ✅ | ✅ | ✅ |
 | 3 | Quarter/Year breakdowns + per-category trend | The only net-new backend: generalize the `/insights/tree` + `/insights/monthly` category rollups to **quarter/year** periods (lifts the D77 month-only limit) and expose **per-category current-vs-prior trend**; render the legacy trend sparklines + colored % in the group cards. Web + mobile. | mvp | high | ⬜ | ⬜ | ⬜ | ⬜ |
 
 <!-- Exec is written by /gabe-execute: ⬜ not started, 🔄 in progress, ✅ complete -->
@@ -113,7 +113,14 @@ decisions_entry: D81
 
 ## Current Phase
 
-Phase 2: Persona insight + highlights
+Phase 3: Quarter/Year breakdowns + per-category trend
+
+(Phase 2 — Persona insight + highlights — COMPLETE ✅×4, shipped to production
+2026-06-06 (D80). A shared buildReportInsight(monthly, card) → insight sentence +
+highlights, from /insights/monthly gravity_centers + top categories + trend, ported
+from the legacy reportInsights decision tree with Chilean seasonal copy. Web i18n
+(es/en/pt) + mobile English. Adversarial-reviewed (15 findings triaged). B2-proven
+both platforms. Phase 3 is the only net-new backend.)
 
 (Phase 1 — Report Detail Overlay + grouped breakdown — COMPLETE ✅×4, shipped to
 production 2026-06-06. Tap a month report → web overlay / mobile screen with the

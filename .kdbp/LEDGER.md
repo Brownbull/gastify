@@ -3879,3 +3879,29 @@ PROMOTE: FF main 6091311→170f784 (3 commits: feat 0f6ce0a + fix e07ed2c + test
 SHIPS: legacy "Resumen" report-detail rebuild (web overlay / mobile screen) — tap a month -> hierarchical store + item grouped breakdown (donut + group cards) + "view transactions" drill (new /transactions validateSearch; resolved P47). Month-only (D77); Phase 3 lifts to quarter/year.
 B2 PROOFS (deployed staging-e2e): web Playwright report-detail 11.3s + reports 12.0s; S23 Maestro p14 58s (SM-S911B — genuine on-device breakdown). In-proof fixes: empty-dimension message + mobile flow taps the most-recent completed month.
 PHASE 1 COMPLETE: Exec/Review/Commit/Push ✅×4. Current Phase -> 2 (persona insight + highlights).
+- 2026-06-06 09:21 | Write | /home/khujta/projects/apps/gastify/web/src/lib/reportInsights.ts
+- 2026-06-06 09:21 | Edit | /home/khujta/projects/apps/gastify/web/src/lib/reportInsights.ts
+- 2026-06-06 09:22 | Edit | /home/khujta/projects/apps/gastify/web/src/lib/i18n.ts
+- 2026-06-06 09:22 | Edit | /home/khujta/projects/apps/gastify/web/src/lib/i18n.ts
+- 2026-06-06 09:22 | Edit | /home/khujta/projects/apps/gastify/web/src/lib/i18n.ts
+- 2026-06-06 09:23 | Edit | /home/khujta/projects/apps/gastify/web/src/components/reports/ReportDetailOverlay.tsx
+- 2026-06-06 09:23 | Edit | /home/khujta/projects/apps/gastify/web/src/components/reports/ReportDetailOverlay.tsx
+- 2026-06-06 09:23 | Edit | /home/khujta/projects/apps/gastify/web/src/components/reports/ReportDetailOverlay.tsx
+- 2026-06-06 09:54 | Edit | /home/khujta/projects/apps/gastify/web/src/lib/reportInsights.ts
+- 2026-06-06 09:54 | Edit | /home/khujta/projects/apps/gastify/mobile/src/lib/reportInsights.ts
+- 2026-06-06 09:54 | Edit | /home/khujta/projects/apps/gastify/web/src/lib/reportInsights.test.ts
+- 2026-06-06 09:55 | Edit | /home/khujta/projects/apps/gastify/mobile/src/lib/__tests__/reportInsights.test.ts
+- 2026-06-06 09:58 | Write | /tmp/gastify-reports-v2-p2-commit.txt
+
+## 2026-06-06 09:58 — [828938b] feat(reports): Reports v2 Phase 2 — persona insight + highlights
+FINDINGS: adversarial review workflow (4 dims, each finding verified): 24 raw -> 15 confirmed (5 HIGH, 9 MEDIUM, 1 LOW). All HIGH + impactful MEDIUM fixed; 4 dismissed with reasoning. Plus in-proof fix: skip vanished categories (current 0) so the headline is not a misleading "fell 100%" misleading category-vanished headline).
+SHIPS: persona insight sentence + highlights block in the report detail (web overlay + mobile screen), from /insights/monthly gravity_centers + top categories + the card trend. Pure FE, no backend. Ported from legacy reportInsights decision tree + Chilean seasonal copy (web i18n es/en/pt; mobile English).
+GATES: tsc + biome clean; web vitest 112, mobile jest 246. PLAN Phase 2 Review + Commit ticked.
+NEXT: deploy staging-e2e -> S23 p14 proof (web Playwright already GREEN) -> promote (Exec + Push tick).
+
+## 2026-06-06 10:19 — Reports v2 Phase 2 PROMOTED to production (P64) ✅
+PROMOTE: FF main 170f784→828938b. Main CI green. PURE FRONTEND (no migration; /insights/monthly already live — API unchanged).
+SHIPS: persona insight sentence + highlights block in the report detail (web overlay + mobile screen), from /insights/monthly gravity_centers + top categories + the card trend. Ported from legacy reportInsights decision tree + Chilean seasonal copy (web i18n es/en/pt; mobile English).
+REVIEW: adversarial workflow (4 dims, each finding verified) — 24 raw, 15 confirmed; all HIGH + impactful MEDIUM fixed, 4 dismissed with reasoning. In-proof fix: skip vanished categories (current 0) so the headline is not a misleading "fell 100 percent".
+B2 PROOFS (deployed staging-e2e): web Playwright report-detail GREEN (insight + Top-category trophy) + S23 Maestro p14 GREEN 1m4s (SM-S911B). DEVICE NOTE: S23 auto-locked mid-session (secure keyguard); user unlocked it so the S23 proof ran pre-promote (full B2 kept).
+PHASE 2 COMPLETE: Exec/Review/Commit/Push ✅×4. Current Phase -> 3 (quarter/year breakdowns + per-category trend — the only net-new backend).
