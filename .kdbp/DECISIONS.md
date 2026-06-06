@@ -2349,3 +2349,30 @@ The `postgres` superuser is used **once, operationally**, to provision the two r
 **Deferred.** Group-share notification **kinds** (e.g. someone shared a txn to your group) and **fan-out to all group members**: in a group scope a scan/statement has one dispatching user, so MVP notifies **only** that user (`created_by_user_id = auth.user_id`); fan-out is a group-share concern, deferred with the rest of the group-share kinds (widen `ck_notifications_kind` in a later migration). Statement re-reconciliation may emit a duplicate notification (accept for MVP; dedupe later if noisy). S23 Maestro proof tracked separately.
 
 **Why.** A notification feed must be account-level, not scope-level — threading `group_id` would imply a scope-awareness the feed doesn't have and pointlessly split the cache. Binding to the personal scope keeps it D3-safe (standard direct-scope policy on the new table, no policy widening), D67/P43-safe (027 fail-safe GUC form), and D70-consistent (notifications deliberately do **not** participate in the group scope-swap). **Status:** accepted, in progress. **Affects:** `models/notification.py`, `alembic/versions/034_notifications.py`, `schemas/notifications.py`, `services/notifications.py` + `scan_worker.py`/`statement_worker.py` hooks (+ `scans.py`/`statements.py` dispatch threading), `api/notifications.py` + `main.py`, `backend/schema/RLS.md`, openapi regen, web (`useNotifications` + `routes/notifications.tsx` + `NotificationBell` + i18n), mobile (`lib/notifications.ts` + `useNotifications` + `NotificationsScreen` + nav).
+
+## D79 — Reports v2 Phase 1 tier: mvp (2026-06-05)
+
+**Phase:** Report Detail Overlay + grouped breakdown
+**Types:** [user-facing, web, native-mobile, data-view, analytics]
+**Tier chosen:** mvp
+**Prototype:** no
+**Reason:** default MVP pick per U2 — a read-only detail surface assembled over the EXISTING `/insights/tree` + `CategoryDonut`; no new backend, no migration. Legacy-parity-as-reference (rebuild the feel, don't gold-plate).
+**Δ deferred by tier choice:** enterprise edge-case polish (empty/zero-period overlays, deep ARIA on the new modal), Scale interactive/export affordances. Acceptable at scope-of-one MVP. **Review trigger:** escalate the overlay's a11y when the app does a Scale accessibility pass. **Status:** accepted.
+
+## D80 — Reports v2 Phase 2 tier: mvp (2026-06-05)
+
+**Phase:** Persona insight + highlights
+**Types:** [user-facing, web, native-mobile, analytics]
+**Tier chosen:** mvp
+**Prototype:** no
+**Reason:** default MVP pick per U2 — a presentational insight string + highlights derived from data `/insights/monthly` `gravity_centers` already returns; ported thresholds + seasonal copy from legacy `reportInsights.ts`. Mostly frontend.
+**Δ deferred by tier choice:** richer ML-style insight ranking / personalization (Scale). MVP keeps it data-grounded (only asserts what `gravity_centers` supports). **Review trigger:** revisit if users find the copy generic. **Status:** accepted.
+
+## D81 — Reports v2 Phase 3 tier: mvp (2026-06-05)
+
+**Phase:** Quarter/Year breakdowns + per-category trend
+**Types:** [analytics, data, user-facing, web, native-mobile]
+**Tier chosen:** mvp
+**Prototype:** no
+**Reason:** default MVP pick per U2 — additive read-only analytics aggregation that generalizes the existing month rollup to quarter/year + exposes a per-category prior-period trend; no migration. Lifts the D77 month-only breakdown limit.
+**Δ deferred by tier choice:** per-tenant rollup caching / materialized aggregates (Scale — scope-of-one volume makes per-request aggregation fine). **Review trigger:** add caching on the first quarter/year-breakdown latency signal. **Status:** accepted.

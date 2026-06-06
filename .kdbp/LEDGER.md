@@ -3848,3 +3848,15 @@ GAP: prior Phase 7 device proof only exercised scan_complete; statement_reconcil
 CREATE: scripts/staging/run-statement-fixture-gate.py reconciled a statement as user A on deployed staging-e2e (reconciliation_status completed, matched 1 / statement-only 1, statement_id e823e7e6) -> notify_statement_reconciled fired -> "Cartola conciliada" notification.
 PROOF: NEW tests/mobile/maestro/p13-statement-notification-active.yaml PASSED 37s (SM-S911B) — opens notifications, asserts the statement notification renders. Screenshot: "Cartola conciliada" + body "Tu cartola se concilió: 1 de 2 coinciden." (real counts) + clean date. Artifact: tests/mobile/results/runs/staging-e2e/p13-statement-notif-20260606T034841Z/.
 COVERAGE: scan_complete + statement_reconciled device-proven; scan_needs_review shares the scan hook + render path (unit-covered).
+- 2026-06-05 23:51 | Write | /tmp/gastify-stmt-notif-commit.txt
+
+## 2026-06-05 23:58 — PLAN COMPLETED: Feature parity with legacy BoletApp (Phases 1–7)
+ARCHIVE: .kdbp/archive/completed_PLAN_2026-06-05_feature-parity-boletapp.md
+PHASES COMPLETED: 7 of 7 (all shipped to production)
+
+## 2026-06-05 23:58 — PLAN CREATED: Reports v2 — rebuild the legacy "Resumen" report detail experience
+PHASES: 3 | COMPLEXITY: high | MATURITY: mvp
+TIERS: mvp × 3, ent × 0, scale × 0 | PROTOTYPES: 0
+DECISIONS: D79 → D81 (3 phase tier decisions logged)
+SLICES: 1) detail overlay + grouped store/item breakdown + drill [FE, reuse /insights/tree+CategoryDonut]; 2) persona insight + highlights [mostly FE, reuse gravity_centers]; 3) quarter/year breakdown + per-category trend [only net-new backend, lifts D77]. Each phase web+mobile, gated on web Playwright + S23 Maestro proofs. ROADMAP scope-addition (add via /gabe-scope-addition when greenlit).
+HTML_ARTIFACT: none
