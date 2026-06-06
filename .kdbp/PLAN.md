@@ -12,7 +12,7 @@ Reports v2 — rebuild the legacy BoletApp "Resumen" report **detail** experienc
 - **Maturity:** mvp
 - **Domain:** Chilean smart expense tracker (AI receipt scanning, multi-currency analytics, PWA + native mobile)
 - **Created:** 2026-06-05
-- **Last Updated:** 2026-06-06 (Phase 2 — Persona insight + highlights — COMPLETE ✅×4 + shipped to production (D80, P63/P64). A shared buildReportInsight(monthly, card) → persona insight sentence + highlights ("trophies") in the report detail (web overlay + mobile screen), from /insights/monthly gravity_centers + top categories + the card trend; ported from the legacy reportInsights decision tree + Chilean seasonal copy (web i18n es/en/pt; mobile English). Adversarial review workflow (4 dims, 24 raw → 15 confirmed, all HIGH + impactful MEDIUM fixed). B2-proven both platforms (web Playwright + S23 Maestro p14 — S23 auto-locked mid-session; user unlocked it for the proof). Current Phase advanced 2→3. Pure frontend (only Phase 3 needs backend). Prior: Phase 1 — Report Detail Overlay + grouped breakdown — COMPLETE ✅×4 + shipped to production (D79, P61/P62). Tap a month report → web overlay / mobile ReportDetailScreen with the hierarchical store + item grouped breakdown (donut + group cards) from `/insights/tree` (D69) + "view transactions" drill (new `/transactions` validateSearch {dateFrom,dateTo}; resolved PENDING P47). Pure frontend, no migration. Reviewed (typescript + code reviewer, 0 CRITICAL; 3 HIGH + MEDIUMs fixed); web vitest 98 / mobile jest 238; B2-proven both platforms on deployed staging-e2e (web Playwright + S23 Maestro p14). In-proof fixes: empty-dimension message ("No categories in this period.") + mobile flow taps the most-recent completed month. Current Phase advanced 1→2. Prior: plan authored 2026-06-05 — Reports v2 ROADMAP scope-addition, legacy "Resumen" rebuild; backend already ships /insights/tree + gravity_centers + week series, so Slices 1+2 are FE assembly, only Slice 3 needs new backend.)
+- **Last Updated:** 2026-06-06 (Phase 3 — Quarter/Year breakdowns — COMPLETE ✅×4 + shipped to production (D81, P65/P66). **ALL Reports v2 phases (1–3) done + in prod.** The range-based /insights/tree + /monthly now accept YYYY-MM / YYYY-Qn / YYYY (month behavior byte-identical); the report detail opens for quarter/year cards with the grouped breakdown + a quarter-aware insight (trend gated to month so quarter/year aren't mislabeled "vs last month"). Adversarial review workflow (4 dims incl. security-reviewer; 16 raw → 12 confirmed, 2 HIGH fixed: year baseline over-read + the "vs last month" mislabel). backend 827 (6 new quarter/year tests, month unchanged) / web 117 / mobile 247. B2-proven both platforms (web month+quarter + S23 p14 month + p15 quarter — the S23 re-locked twice mid-session; user unlocked it for the proofs). A backend slice, so the deployed backend had to STABILIZE before the FE proofs were valid. Per-category trend sparklines descoped → PENDING P66. Current Phase advanced 3→done. Next: ROADMAP P16 (Compliance + Launch Hardening). Prior: Phase 2 — Persona insight + highlights — COMPLETE ✅×4 + shipped to production (D80, P63/P64). A shared buildReportInsight(monthly, card) → persona insight sentence + highlights ("trophies") in the report detail (web overlay + mobile screen), from /insights/monthly gravity_centers + top categories + the card trend; ported from the legacy reportInsights decision tree + Chilean seasonal copy (web i18n es/en/pt; mobile English). Adversarial review workflow (4 dims, 24 raw → 15 confirmed, all HIGH + impactful MEDIUM fixed). B2-proven both platforms (web Playwright + S23 Maestro p14 — S23 auto-locked mid-session; user unlocked it for the proof). Current Phase advanced 2→3. Pure frontend (only Phase 3 needs backend). Prior: Phase 1 — Report Detail Overlay + grouped breakdown — COMPLETE ✅×4 + shipped to production (D79, P61/P62). Tap a month report → web overlay / mobile ReportDetailScreen with the hierarchical store + item grouped breakdown (donut + group cards) from `/insights/tree` (D69) + "view transactions" drill (new `/transactions` validateSearch {dateFrom,dateTo}; resolved PENDING P47). Pure frontend, no migration. Reviewed (typescript + code reviewer, 0 CRITICAL; 3 HIGH + MEDIUMs fixed); web vitest 98 / mobile jest 238; B2-proven both platforms on deployed staging-e2e (web Playwright + S23 Maestro p14). In-proof fixes: empty-dimension message ("No categories in this period.") + mobile flow taps the most-recent completed month. Current Phase advanced 1→2. Prior: plan authored 2026-06-05 — Reports v2 ROADMAP scope-addition, legacy "Resumen" rebuild; backend already ships /insights/tree + gravity_centers + week series, so Slices 1+2 are FE assembly, only Slice 3 needs new backend.)
 - **Decision basis:** Legacy reports gap analysis (2026-06-05, in LEDGER) comparing `boletapp/src/features/reports/` vs gastify `web/src/routes/reports.tsx` + `mobile/src/screens/ReportsScreen.tsx`. Legacy-parity-as-reference (rebuild the feel, don't gold-plate). This is a ROADMAP scope-addition (not yet on the roadmap) — add via `/gabe-scope-addition` when greenlit; sits after P15, around/before P16.
 
 ## Phases
@@ -21,7 +21,7 @@ Reports v2 — rebuild the legacy BoletApp "Resumen" report **detail** experienc
 |---|-------|-------------|------|------------|------|--------|--------|------|
 | 1 | Report Detail Overlay + grouped breakdown | Tap a period report card → a detail overlay/screen with store-group cards + item-group cards (from `/insights/tree`) each with a `CategoryDonut`, plus a "view transactions" drill into the filtered transactions list. Reuses existing tree + donut — no new backend. Web + mobile. | mvp | high | ✅ | ✅ | ✅ | ✅ |
 | 2 | Persona insight + highlights | Add a Rosa-friendly insight sentence + a highlights ("trophies") block to the detail view — biggest category rise/drop, category leader, dominant/diverse patterns — sourced from `/insights/monthly` `gravity_centers` + the period series; Chilean seasonal copy (verano / fiestas patrias / fin de año) as frontend strings. Port `reportInsights.ts` logic. Web + mobile. | mvp | med | ✅ | ✅ | ✅ | ✅ |
-| 3 | Quarter/Year breakdowns + per-category trend | The only net-new backend: generalize the `/insights/tree` + `/insights/monthly` category rollups to **quarter/year** periods (lifts the D77 month-only limit) and expose **per-category current-vs-prior trend**; render the legacy trend sparklines + colored % in the group cards. Web + mobile. | mvp | high | ⬜ | ⬜ | ⬜ | ⬜ |
+| 3 | Quarter/Year breakdowns + per-category trend | The only net-new backend: generalize the `/insights/tree` + `/insights/monthly` category rollups to **quarter/year** periods (lifts the D77 month-only limit). Detail opens for quarter/year cards with the grouped breakdown + insight. Web + mobile. (Per-category trend **sparklines** descoped to a follow-up — see PENDING.) | mvp | high | ✅ | ✅ | ✅ | ✅ |
 
 <!-- Exec is written by /gabe-execute: ⬜ not started, 🔄 in progress, ✅ complete -->
 <!-- Review/Commit/Push auto-ticked by /gabe-review, /gabe-commit, /gabe-push -->
@@ -113,14 +113,21 @@ decisions_entry: D81
 
 ## Current Phase
 
-Phase 3: Quarter/Year breakdowns + per-category trend
+ALL Reports v2 phases (1–3) COMPLETE + in production.
 
-(Phase 2 — Persona insight + highlights — COMPLETE ✅×4, shipped to production
-2026-06-06 (D80). A shared buildReportInsight(monthly, card) → insight sentence +
-highlights, from /insights/monthly gravity_centers + top categories + trend, ported
-from the legacy reportInsights decision tree with Chilean seasonal copy. Web i18n
-(es/en/pt) + mobile English. Adversarial-reviewed (15 findings triaged). B2-proven
-both platforms. Phase 3 is the only net-new backend.)
+Reports v2 rebuilt the legacy "Resumen" report-detail experience: Phase 1 (grouped
+store/item breakdown + drill), Phase 2 (persona insight + highlights), Phase 3
+(quarter/year periods — the D77 lift). All B2-proven both platforms + shipped to prod
+2026-06-06. The per-category trend **sparklines** were descoped from Phase 3 to a
+follow-up (PENDING). Next roadmap item is ROADMAP **P16 — Compliance + Launch
+Hardening**; run `/gabe-plan` to open it when ready.
+
+(Phase 3 — Quarter/Year breakdowns — COMPLETE ✅×4, shipped 2026-06-06 (D81). The
+range-based /insights/tree + /monthly now accept YYYY-MM / YYYY-Qn / YYYY (month
+behavior byte-identical); the detail opens for quarter/year cards with the grouped
+breakdown + a quarter-aware insight. Adversarial review (12 findings, 2 HIGH fixed:
+year baseline over-read + the "vs last month" mislabel). B2-proven both platforms —
+the S23 re-locked twice mid-session; the user unlocked it for the proofs.)
 
 (Phase 1 — Report Detail Overlay + grouped breakdown — COMPLETE ✅×4, shipped to
 production 2026-06-06. Tap a month report → web overlay / mobile screen with the

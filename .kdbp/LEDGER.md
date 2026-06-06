@@ -3905,3 +3905,36 @@ SHIPS: persona insight sentence + highlights block in the report detail (web ove
 REVIEW: adversarial workflow (4 dims, each finding verified) — 24 raw, 15 confirmed; all HIGH + impactful MEDIUM fixed, 4 dismissed with reasoning. In-proof fix: skip vanished categories (current 0) so the headline is not a misleading "fell 100 percent".
 B2 PROOFS (deployed staging-e2e): web Playwright report-detail GREEN (insight + Top-category trophy) + S23 Maestro p14 GREEN 1m4s (SM-S911B). DEVICE NOTE: S23 auto-locked mid-session (secure keyguard); user unlocked it so the S23 proof ran pre-promote (full B2 kept).
 PHASE 2 COMPLETE: Exec/Review/Commit/Push ✅×4. Current Phase -> 3 (quarter/year breakdowns + per-category trend — the only net-new backend).
+- 2026-06-06 10:46 | Edit | /home/khujta/projects/apps/gastify/web/src/routes/reports.tsx
+- 2026-06-06 11:03 | Edit | /home/khujta/projects/apps/gastify/backend/app/services/insights.py
+- 2026-06-06 11:03 | Edit | /home/khujta/projects/apps/gastify/backend/app/api/insights.py
+- 2026-06-06 11:03 | Edit | /home/khujta/projects/apps/gastify/web/src/lib/reportInsights.ts
+- 2026-06-06 11:04 | Edit | /home/khujta/projects/apps/gastify/mobile/src/lib/reportInsights.ts
+- 2026-06-06 11:04 | Edit | /home/khujta/projects/apps/gastify/web/src/routes/reports.tsx
+- 2026-06-06 11:05 | Edit | /home/khujta/projects/apps/gastify/mobile/src/screens/ReportDetailScreen.tsx
+- 2026-06-06 11:05 | Edit | /home/khujta/projects/apps/gastify/web/src/components/reports/ReportDetailOverlay.tsx
+- 2026-06-06 11:05 | Edit | /home/khujta/projects/apps/gastify/web/src/routes/reports.tsx
+- 2026-06-06 11:06 | Edit | /home/khujta/projects/apps/gastify/mobile/src/screens/ReportsScreen.tsx
+- 2026-06-06 11:06 | Edit | /home/khujta/projects/apps/gastify/mobile/src/screens/ReportsScreen.tsx
+- 2026-06-06 11:11 | Edit | /home/khujta/projects/apps/gastify/tests/web-e2e/report-detail.spec.ts
+- 2026-06-06 11:12 | Write | /home/khujta/projects/apps/gastify/tests/mobile/maestro/p15-report-detail-quarter-active.yaml
+- 2026-06-06 11:12 | Write | /tmp/gastify-reports-v2-p3-fe.txt
+
+## 2026-06-06 11:13 — [9d68f2a + 876b14d] feat: Reports v2 Phase 3 — quarter/year report detail
+FINDINGS: adversarial review workflow (4 dims incl. security-reviewer; 16 raw -> 12 confirmed, 2 HIGH). Both HIGH fixed (year /monthly baseline over-read + wasted fingerprint; trend insight gated to month so quarter/year are not mislabeled "vs last month"), + periodDateRange NaN guard, year-0 regex, stale-comment cleanups.
+SHIPS: /insights/tree + /monthly accept YYYY-MM / YYYY-Qn / YYYY (range-based, month behavior byte-identical); the report detail (web overlay + mobile screen) opens for month/quarter/year cards with the grouped breakdown + the Phase 2 insight. Week cards stay flat. Lifts the D77 month-only limit.
+DESCOPED: the per-category trend SPARKLINES (colored %/mini-SVG on the group cards) — deferred to a follow-up (P66). The quarter/year BREAKDOWN (the substantive D77 lift) shipped.
+GATES: backend 827 (6 new quarter/year tests, month unchanged); web vitest 117, mobile jest 247; ruff/mypy/biome/tsc clean. PLAN Phase 3 Review + Commit ticked.
+NEXT: deploy staging-e2e -> B2 proofs (web Playwright report-detail incl. quarter test + S23 Maestro p15-quarter) -> promote.
+
+PENDING: P66 added — per-category trend sparklines on the report-detail group cards (descoped from Phase 3).
+
+## 2026-06-06 12:04 — Reports v2 Phase 3 PROMOTED to production (P66) ✅ — COMPLETES Reports v2
+PROMOTE: FF main 828938b→8cd5e03 (3 commits). Prod CI 27066919127 green. BACKEND slice — Railway production redeployed the insights service.
+PROD VERIFY: quarter pattern STABLY LIVE (/insights/tree?period=2026-Q1 → 401 after the redeploy settled; 422 = old) + /health 200. Polled to STABLE (3 consecutive) because the redeploy transiently serves the prior deploy.
+SHIPS: /insights/tree + /monthly accept month/quarter/year (range-based, month byte-identical); the report detail opens for quarter/year cards with the grouped breakdown + a quarter-aware insight. Lifts the D77 month-only limit end to end.
+REVIEW: adversarial workflow (4 dims incl. security-reviewer) — 16 raw, 12 confirmed; 2 HIGH fixed (year /monthly baseline over-read + wasted fingerprint; trend insight gated to month so quarter/year are not mislabeled "vs last month").
+B2 PROOFS (deployed staging-e2e): web Playwright report-detail GREEN (month + quarter) + S23 Maestro p14 (month) + p15-report-detail-quarter GREEN 51s (SM-S911B). DEVICE: the S23 re-locked twice during the backend redeploys; user unlocked it for the proofs (full B2 kept).
+CI HICCUP: first staging CI failed (openapi drift from the period-description change + ruff E501 on the new test) — fixed by regen web+mobile openapi + ruff format (8cd5e03).
+DESCOPED: per-category trend SPARKLINES → PENDING P66 (the quarter/year breakdown — the substantive D77 lift — shipped).
+ALL REPORTS v2 PHASES (1-3) COMPLETE + in production. Next: ROADMAP P16 (Compliance + Launch Hardening).
