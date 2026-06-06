@@ -31,8 +31,14 @@ type TransactionsScreenProps = Partial<
 
 export function TransactionsScreen({
   navigation,
+  route,
 }: TransactionsScreenProps = {}) {
-  const [filters, setFilters] = useState<TransactionFilters>({});
+  // Seed the filter from nav params (the Reports "view transactions" drill), then
+  // it's local component state.
+  const [filters, setFilters] = useState<TransactionFilters>(() => ({
+    dateFrom: route?.params?.dateFrom,
+    dateTo: route?.params?.dateTo,
+  }));
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [selectMode, setSelectMode] = useState(false);
   const batchDelete = useBatchDeleteTransactions();

@@ -2,11 +2,23 @@ export type RootStackParamList = {
   SignIn: undefined;
   Home: undefined;
   Statements: undefined;
-  Transactions: undefined;
+  // Optional date-range filter so a Reports "view transactions" drill can
+  // pre-filter the list (mobile equivalent of the web validateSearch).
+  Transactions: { dateFrom?: string; dateTo?: string } | undefined;
   Dashboard: undefined;
   Trends: undefined;
   Items: undefined;
   Reports: undefined;
+  ReportDetail: {
+    period: string;
+    label: string;
+    totalMinor: number;
+    count: number;
+    currency: string;
+    trendDirection: "up" | "down" | "flat";
+    trendPercent: number;
+    hasBaseline: boolean;
+  };
   Notifications: undefined;
   Groups: undefined;
   GroupDetail: { groupId: string };

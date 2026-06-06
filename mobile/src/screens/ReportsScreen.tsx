@@ -125,6 +125,21 @@ export function ReportsScreen({ navigation }: Partial<ReportsScreenProps> = {}) 
               currency={currency}
               index={index}
               expandable={showBreakdown}
+              onOpenDetail={
+                showBreakdown
+                  ? (c) =>
+                      navigation?.navigate("ReportDetail", {
+                        period: c.period,
+                        label: c.label,
+                        totalMinor: c.totalSpendMinor,
+                        count: c.transactionCount,
+                        currency,
+                        trendDirection: c.trend.direction,
+                        trendPercent: c.trend.percent,
+                        hasBaseline: c.trend.hasBaseline,
+                      })
+                  : undefined
+              }
             />
           ))}
         </View>
@@ -138,11 +153,13 @@ function PeriodReportCard({
   currency,
   index,
   expandable,
+  onOpenDetail,
 }: {
   card: ReportCard;
   currency: string;
   index: number;
   expandable: boolean;
+  onOpenDetail?: (card: ReportCard) => void;
 }) {
   const [expanded, setExpanded] = useState(false);
   const header = (
@@ -180,7 +197,16 @@ function PeriodReportCard({
         {header}
       </Pressable>
 
-      {expanded ? <PeriodBreakdown period={card.period} /> : null}
+      {expanded ? (
+        <>
+          <PeriodBreakdown period={card.period} />
+          <Button
+            title="View full breakdown"
+            testID={`open-report-detail-${index}`}
+            onPress={() => onOpenDetail?.(card)}
+          />
+        </>
+      ) : null}
     </View>
   );
 }

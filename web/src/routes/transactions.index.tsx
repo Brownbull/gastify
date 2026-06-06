@@ -12,12 +12,28 @@ import type { components } from "@/lib/api-types";
 
 type TransactionListItem = components["schemas"]["TransactionListItem"];
 
+/** URL search for deep-linking the list pre-filtered (e.g. the Reports "view
+ *  transactions" drill seeds a period's date range). */
+interface TransactionsSearch {
+  dateFrom?: string;
+  dateTo?: string;
+}
+
 export const Route = createFileRoute("/transactions/")({
+  validateSearch: (search: Record<string, unknown>): TransactionsSearch => ({
+    dateFrom: typeof search.dateFrom === "string" ? search.dateFrom : undefined,
+    dateTo: typeof search.dateTo === "string" ? search.dateTo : undefined,
+  }),
   component: TransactionsListPage,
 });
 
 function TransactionsListPage() {
-  const [filters, setFilters] = useState<TransactionFilters>({});
+  const search = Route.useSearch();
+  // Seed the filter from the URL (drill-in), then it's local component state.
+  const [filters, setFilters] = useState<TransactionFilters>(() => ({
+    dateFrom: search.dateFrom,
+    dateTo: search.dateTo,
+  }));
   const deferredFilters = useDeferredValue(filters);
   const [selected, setSelected] = useState<Set<string>>(new Set());
 

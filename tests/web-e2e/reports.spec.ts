@@ -30,10 +30,13 @@ test("Reports screen renders monthly cards + the period breakdown donut", async 
     // donut renders (the same donut the dashboard/trends use, fed by /insights/monthly).
     await expect(page.getByTestId("donut-legend")).toBeVisible({ timeout: 15_000 });
 
-    // Selecting a different card re-focuses without breaking the screen.
+    // Reports v2 Phase 1: tapping a month card opens the detail overlay; close it
+    // before continuing with the granularity toggles.
     const cards = page.getByTestId("reports-card");
     await cards.nth(Math.min(1, (await cards.count()) - 1)).click();
-    await expect(page.getByTestId("reports-screen")).toBeVisible();
+    await expect(page.getByTestId("report-detail-overlay")).toBeVisible({ timeout: 15_000 });
+    await page.getByTestId("report-detail-close").click();
+    await expect(page.getByTestId("report-detail-overlay")).toHaveCount(0);
 
     // D77: the granularity toggle re-buckets the cards. Quarterly + yearly hide the
     // month-only breakdown and still render period cards from real data.

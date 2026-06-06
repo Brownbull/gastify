@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect, useMemo, useState } from "react";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import {
   currentPeriod,
   periodWindow,
@@ -19,6 +19,18 @@ import {
 } from "@/components/insights/widgets";
 
 const CategoryDonut = lazy(() => import("@/components/charts/CategoryDonut"));
+const ReportDetailOverlay = lazy(() =>
+  import("@/components/reports/ReportDetailOverlay").then((m) => ({
+    default: m.ReportDetailOverlay,
+  })),
+);
+
+/** A month period (YYYY-MM) → its first/last calendar day, for the txn drill. */
+function monthRange(period: string): { from: string; to: string } {
+  const [y, m] = period.split("-").map(Number);
+  const lastDay = new Date(y, m, 0).getDate();
+  return { from: `${period}-01`, to: `${period}-${String(lastDay).padStart(2, "0")}` };
+}
 
 /** Months of report-card history per granularity (≤ backend 24-month cap). */
 const WINDOW_MONTHS: Record<SeriesGranularity, number> = {
@@ -111,6 +123,8 @@ function ReportsPage() {
   const [autoFocused, setAutoFocused] = useState(false);
   const [dimension, setDimension] = useState<InsightDimension>("transaction_category");
   const [granularity, setGranularity] = useState<SeriesGranularity>("month");
+  const [detailCard, setDetailCard] = useState<ReportCard | null>(null);
+  const navigate = useNavigate();
   const atCurrent = period >= currentPeriod();
   // The category-breakdown donut is month-only (the backend has no quarterly/annual
   // category rollup, D77), so it shows only when the cards are monthly buckets.
@@ -211,12 +225,30 @@ function ReportsPage() {
                 card={card}
                 focused={isMonthly && card.period === period}
                 currency={series.data?.currency ?? "CLP"}
-                onSelect={isMonthly ? () => setPeriod(card.period) : undefined}
+                onSelect={isMonthly ? () => setDetailCard(card) : undefined}
               />
             ))}
           </ul>
         )}
       </section>
+
+      {detailCard && (
+        <Suspense fallback={null}>
+          <ReportDetailOverlay
+            card={{
+              ...detailCard,
+              periodLabel: periodLabel(detailCard.period),
+              currency: series.data?.currency ?? "CLP",
+            }}
+            onClose={() => setDetailCard(null)}
+            onViewTransactions={(p) => {
+              const { from, to } = monthRange(p);
+              setDetailCard(null);
+              void navigate({ to: "/transactions", search: { dateFrom: from, dateTo: to } });
+            }}
+          />
+        </Suspense>
+      )}
     </div>
   );
 }
