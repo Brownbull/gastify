@@ -3778,3 +3778,19 @@ STATE: D77 complete — all 5 legacy report periods (week/weekly + monthly + qua
 - 2026-06-05 10:03 | Write | /home/khujta/projects/apps/gastify/docs/architecture.md
 - 2026-06-05 10:04 | Edit | /home/khujta/projects/apps/gastify/docs/wells/README.md
 - 2026-06-05 10:06 | Write | /home/khujta/projects/apps/gastify/docs/STATUS.md
+- 2026-06-05 10:09 | Write | /tmp/gastify-housekeeping-commit.txt
+
+## 2026-06-05 10:10 — [63b245c] docs(kdbp): architecture map + STATUS + wells deep-dives
+FINDINGS: 1 (0 critical, 0 high, 0 medium, 1 low) — P55 doc-drift on docs/architecture.md (non-blocking at mvp)
+ACTIONS: resolved P55 (rewrite documents D70 scope-swap + oracle + scope_type=group + insights group_id)
+DEFERRED: none
+SCOPE-BYPASS: ROADMAP.md direct edit (P6 active→completed phase-completion sync + v1.4 frontmatter/changelog) — Scope-Bypass-Audit:true; not a scope addition/pivot
+NOTE: docs + KDBP only, no source touched. PLAN→Phase 7. S23 reports-granularity Maestro still deferred (P64).
+- 2026-06-05 21:14 | Edit | /home/khujta/projects/apps/gastify/tests/mobile/maestro/p12-reports-granularity-active.yaml
+
+## 2026-06-05 21:20 — S23 Maestro proof: Phase 6 Reports granularity (P64 RESOLVED)
+DEVICE: SM-S911B (Android), wireless ADB 192.168.1.83:5555; Metro dev-client + adb reverse :8081; deployed staging-e2e API.
+FLOWS: p12-reports-active PASSED 34s (cards render). p12-reports-granularity-active (NEW) PASSED 1m1s — month->week->quarter->year->month toggle, all render real data.
+EVIDENCE: week ISO-buckets show real spend (W20 $388.47, W21 $270.44/76txns); year 2026 $7,283.91/94txns; month May $658.91/79, March $2,315. D77 week granularity proven on-device.
+ARTIFACTS: tests/mobile/results/runs/staging-e2e/p64-reports-20260606T010823Z/attempts/{r1,r3}/ (7+6 screenshots, report.html, maestro.log).
+NEW FLOW: tests/mobile/maestro/p12-reports-granularity-active.yaml (committed). P64 -> resolved.
