@@ -12,7 +12,7 @@ rendering is a deferred refinement (D78).
 """
 
 import uuid
-from typing import Any
+from typing import Any, cast
 
 import structlog
 from sqlalchemy import select
@@ -59,8 +59,9 @@ async def _resolve_scope_owner_user_id(
     db: AsyncSession, ownership_scope_id: uuid.UUID
 ) -> uuid.UUID | None:
     """The user whose PERSONAL scope this is (``users.ownership_scope_id`` is 1:1)."""
-    return await db.scalar(
-        select(User.id).where(User.ownership_scope_id == ownership_scope_id)
+    return cast(
+        "uuid.UUID | None",
+        await db.scalar(select(User.id).where(User.ownership_scope_id == ownership_scope_id)),
     )
 
 

@@ -146,9 +146,7 @@ async def test_cursor_pagination(client, engine, user_a):
     page1 = (await client.get("/api/v1/notifications", params={"limit": 2})).json()
     assert len(page1["data"]) == 2 and page1["has_more"] is True
     page2 = (
-        await client.get(
-            "/api/v1/notifications", params={"limit": 2, "cursor": page1["cursor"]}
-        )
+        await client.get("/api/v1/notifications", params={"limit": 2, "cursor": page1["cursor"]})
     ).json()
     assert len(page2["data"]) == 1 and page2["has_more"] is False
     seen = {n["title"] for n in page1["data"]} | {n["title"] for n in page2["data"]}

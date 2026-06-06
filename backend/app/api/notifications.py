@@ -11,7 +11,7 @@ A foreign notification id is 404 (anti-enumeration), never 403.
 from __future__ import annotations
 
 from datetime import UTC, datetime
-from typing import TYPE_CHECKING, Annotated, cast
+from typing import TYPE_CHECKING, Annotated, Any, cast
 from uuid import UUID  # noqa: TC003 - FastAPI resolves path annotations at runtime.
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
@@ -59,6 +59,8 @@ async def list_notifications(
         # rather than 500ing (datetime.fromisoformat / UUID would otherwise raise).
         parts = cursor.split("|", 1)
         if len(parts) == 2:
+            c_created: datetime | None
+            c_id: UUID | None
             try:
                 c_created = datetime.fromisoformat(parts[0])
                 c_id = UUID(parts[1])
@@ -78,9 +80,7 @@ async def list_notifications(
         rows = rows[:limit]
 
     data = [NotificationRow.model_validate(n) for n in rows]
-    next_cursor = (
-        f"{rows[-1].created_at.isoformat()}|{rows[-1].id}" if has_more and rows else None
-    )
+    next_cursor = f"{rows[-1].created_at.isoformat()}|{rows[-1].id}" if has_more and rows else None
     return PaginatedResponse(data=data, cursor=next_cursor, has_more=has_more)
 
 
@@ -107,9 +107,7 @@ async def mark_notification_read(
         )
     )
     if notification is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Notification not found"
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Notification not found")
     if notification.read_at is None:
         notification.read_at = datetime.now(UTC)
         await db.commit()
@@ -121,7 +119,7 @@ async def mark_notification_read(
 async def mark_all_notifications_read(auth: Auth, db: DB) -> MarkAllReadResponse:
     now = datetime.now(UTC)
     result = cast(
-        "CursorResult",
+        "CursorResult[Any]",
         await db.execute(
             update(Notification)
             .where(
@@ -148,8 +146,6 @@ async def delete_notification(
         )
     )
     if notification is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Notification not found"
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Notification not found")
     await db.delete(notification)
     await db.commit()

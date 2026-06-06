@@ -3810,3 +3810,11 @@ NEW FLOW: tests/mobile/maestro/p12-reports-granularity-active.yaml (committed). 
 - 2026-06-05 22:19 | Edit | /home/khujta/projects/apps/gastify/mobile/src/hooks/__tests__/useNotifications.test.tsx
 - 2026-06-05 22:19 | Edit | /home/khujta/projects/apps/gastify/web/src/hooks/useNotifications.test.tsx
 - 2026-06-05 22:19 | Edit | /home/khujta/projects/apps/gastify/web/src/hooks/useNotifications.test.tsx
+
+## 2026-06-05 22:31 — [ad11e42] feat(notifications): Phase 7 Notification Center (D78)
+FINDINGS: gate green — ruff clean, tsc clean (web+mobile), tests 821 backend / 92 web / 235 mobile. CHECK6 P24 (scan_worker review-warning, pre-existing) skipped — unrelated. CHECK7 doc-drift (new route + wells) accepted (documented in D78).
+SCOPE: 41 files. Backend notifications table+migration 034 (027 fail-safe RLS) + 5 endpoints + failure-isolated scan/statement create hooks (D78 user-global, personal-scope-bound). Web vertical (hooks/route/bell/i18n). Mobile vertical (lib/hooks/screen/nav). + latent week tsc bug fixed (D77).
+REVIEW: adversarial workflow (13 agents, 4 dimensions) — 4 confirmed findings fixed (conditional optimistic bell badge web+mobile, malformed-cursor->first-page not 500, mark-all onMutate) + regression tests. 5 findings refuted (incl. cross-tenant isolation — verified correct).
+DEPLOY: pushed origin HEAD:staging (4ca691b..ad11e42) -> Railway staging-e2e (migration 034) + CI. NEXT: seed + web Playwright + S23 Maestro proofs, then promote.
+PLAN: Phase 7 Review+Commit ticked; Exec stays in-progress until runtime proofs green.
+- 2026-06-05 22:36 | Write | /home/khujta/projects/apps/gastify/tests/web-e2e/notifications.spec.ts
