@@ -171,7 +171,7 @@ function GroupBreakdown({
         </p>
       ) : !hasData ? (
         <p className="py-6 text-center text-sm" style={{ color: "var(--text-muted)" }}>
-          {t("reports.empty")}
+          {t("reports.detail.noBreakdown")}
         </p>
       ) : (
         <>

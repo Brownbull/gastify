@@ -110,7 +110,7 @@ function GroupBreakdown({
       ) : tree.error ? (
         <Text style={styles.mutedText}>Could not load the breakdown.</Text>
       ) : roots.length === 0 ? (
-        <Text style={styles.mutedText}>No spending in this period.</Text>
+        <Text style={styles.mutedText}>No categories in this period.</Text>
       ) : (
         <>
           <CategoryDonut slices={slices} currency={currency} />
