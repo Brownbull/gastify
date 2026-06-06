@@ -3841,3 +3841,10 @@ PROD VERIFY: /api/v1/health 200; openapi serves all 5 /api/v1/notifications path
 PHASE 7 COMPLETE: Exec/Review/Commit/Push ✅×4. All PLAN phases 1–7 done + in prod. ROADMAP P15 → completed; next is P16 (Compliance + Launch Hardening).
 DEFERRED: P65 (pre-existing VirtualizedList-in-ScrollView RN dev warning, ScreenShell+FlatList).
 - 2026-06-05 23:30 | Write | /tmp/gastify-phase7-wrapup-commit.txt
+- 2026-06-05 23:32 | Edit | /home/khujta/.claude/projects/-home-khujta-projects-apps-gastify/memory/project_s23_wireless_adb.md
+
+## 2026-06-05 23:51 — S23 proof: statement_reconciled notification kind (Phase 7 gap closed)
+GAP: prior Phase 7 device proof only exercised scan_complete; statement_reconciled was unit-only.
+CREATE: scripts/staging/run-statement-fixture-gate.py reconciled a statement as user A on deployed staging-e2e (reconciliation_status completed, matched 1 / statement-only 1, statement_id e823e7e6) -> notify_statement_reconciled fired -> "Cartola conciliada" notification.
+PROOF: NEW tests/mobile/maestro/p13-statement-notification-active.yaml PASSED 37s (SM-S911B) — opens notifications, asserts the statement notification renders. Screenshot: "Cartola conciliada" + body "Tu cartola se concilió: 1 de 2 coinciden." (real counts) + clean date. Artifact: tests/mobile/results/runs/staging-e2e/p13-statement-notif-20260606T034841Z/.
+COVERAGE: scan_complete + statement_reconciled device-proven; scan_needs_review shares the scan hook + render path (unit-covered).

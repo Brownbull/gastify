@@ -1,0 +1,71 @@
+appId: com.gastify.mobile
+---
+# Phase 7 (D78): the statement_reconciled notification kind on the S23 — closes the
+# gap where only scan_complete was device-proven. The backend statement fixture gate
+# (scripts/staging/run-statement-fixture-gate.py) reconciles a statement as user A,
+# which fires notify_statement_reconciled → a "Cartola conciliada" notification. This
+# flow opens the feed on-device and asserts that statement notification renders.
+# Runs against deployed staging-e2e.
+#
+# Precursor (creates the notification): the statement fixture gate must have run for
+# user A before this flow.
+
+- waitForAnimationToEnd:
+    timeout: 12000
+- tapOn:
+    text: "Continue"
+    optional: true
+- tapOn:
+    text: "Got it"
+    optional: true
+
+# Reach a clean sign-in + authenticate as user A.
+- runFlow:
+    when:
+      visible:
+        id: home-screen
+    commands:
+      - scrollUntilVisible:
+          element:
+            id: sign-out-button
+      - tapOn:
+          id: sign-out-button
+      - extendedWaitUntil:
+          visible:
+            id: sign-in-screen
+          timeout: 20000
+- extendedWaitUntil:
+    visible:
+      id: e2e-sign-in-button
+    timeout: 30000
+- tapOn:
+    id: e2e-sign-in-button
+- extendedWaitUntil:
+    visible:
+      id: home-screen
+    timeout: 60000
+
+# --- Open the Notifications screen ---
+- scrollUntilVisible:
+    element:
+      id: open-notifications-button
+    centerElement: true
+- waitForAnimationToEnd:
+    timeout: 2000
+- tapOn:
+    id: open-notifications-button
+- extendedWaitUntil:
+    visible:
+      id: notifications-screen
+    timeout: 20000
+
+# The statement_reconciled notification (title "Cartola conciliada") renders on-device.
+- assertNotVisible:
+    id: notifications-empty
+- scrollUntilVisible:
+    element:
+      text: "Cartola conciliada"
+- assertVisible:
+    text: "Cartola conciliada"
+- takeScreenshot:
+    path: 01-statement-notification
