@@ -25,11 +25,26 @@ from app.services.insights import (
     get_insights_series,
     get_insights_tree,
     get_monthly_insights,
+    parse_report_period,
 )
 
 router = APIRouter(prefix="/insights", tags=["insights"])
 
 DB = Annotated[AsyncSession, Depends(get_db)]
+
+# A report period: YYYY-MM (month), YYYY-Qn (quarter), or YYYY (year). Quarter/year
+# aggregate the constituent months (D77 lift); month is the original behavior.
+_REPORT_PERIOD_PATTERN = r"^\d{4}(-(0[1-9]|1[0-2]|Q[1-4]))?$"
+
+
+def _parse_report_range(value: str) -> tuple[date, date]:
+    try:
+        return parse_report_period(value)
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="period must be YYYY-MM, YYYY-Qn, or YYYY",
+        ) from exc
 
 
 @router.get("/monthly", response_model=MonthlyInsightsResponse)
@@ -38,8 +53,8 @@ async def get_monthly_insights_endpoint(
     db: DB,
     period: str = Query(
         ...,
-        description="Monthly period in YYYY-MM format.",
-        pattern=r"^\d{4}-\d{2}$",
+        description="Report period: YYYY-MM (month), YYYY-Qn (quarter), or YYYY (year).",
+        pattern=_REPORT_PERIOD_PATTERN,
     ),
     currency: str | None = Query(
         default=None,
@@ -52,7 +67,7 @@ async def get_monthly_insights_endpoint(
         description="Analyze a group scope you belong to; defaults to your personal scope.",
     ),
 ) -> MonthlyInsightsResponse:
-    period_start = _parse_period(period)
+    period_start, period_end = _parse_report_range(period)
     reporting_currency = (currency or auth.user.default_currency).upper()
     scope_id = await resolve_analytics_scope(db, auth, group_id)
     return await get_monthly_insights(
@@ -61,6 +76,7 @@ async def get_monthly_insights_endpoint(
         user_id=auth.user_id,
         period_start=period_start,
         currency=reporting_currency,
+        period_end=period_end,
     )
 
 
@@ -129,8 +145,8 @@ async def get_insights_tree_endpoint(
     db: DB,
     period: str = Query(
         ...,
-        description="Monthly period in YYYY-MM format.",
-        pattern=r"^\d{4}-\d{2}$",
+        description="Report period: YYYY-MM (month), YYYY-Qn (quarter), or YYYY (year).",
+        pattern=_REPORT_PERIOD_PATTERN,
     ),
     dimension: InsightDimension = Query(
         default="transaction_category",
@@ -150,7 +166,7 @@ async def get_insights_tree_endpoint(
         description="Analyze a group scope you belong to; defaults to your personal scope.",
     ),
 ) -> InsightsTreeResponse:
-    period_start = _parse_period(period)
+    period_start, period_end = _parse_report_range(period)
     reporting_currency = (currency or auth.user.default_currency).upper()
     scope_id = await resolve_analytics_scope(db, auth, group_id)
     return await get_insights_tree(
@@ -160,6 +176,7 @@ async def get_insights_tree_endpoint(
         period_start=period_start,
         currency=reporting_currency,
         dimension=dimension,
+        period_end=period_end,
     )
 
 

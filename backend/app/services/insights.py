@@ -195,23 +195,31 @@ async def get_monthly_insights(
     currency: str,
     user_id: UUID | None = None,
     cache: MonthlyInsightsCache | None = MONTHLY_INSIGHTS_CACHE,
+    period_end: date | None = None,
 ) -> MonthlyInsightsResponse:
-    """Build monthly insights for one ownership scope from persisted transactions."""
+    """Build monthly insights for one ownership scope from persisted transactions.
+
+    `period_end` defaults to month-end (unchanged month behavior); pass a quarter/year
+    end to aggregate that range (D77 lift). The month cache is bypassed for non-month
+    periods — its key is period_start-based and can't distinguish granularities.
+    """
 
     normalized_period = first_day_of_month(period_start)
     normalized_currency = currency.upper()
+    range_end = period_end if period_end is not None else last_day_of_month(normalized_period)
+    is_single_month = range_end == last_day_of_month(normalized_period)
+    effective_cache = cache if is_single_month else None
     baseline_start = shift_months(normalized_period, -_BASELINE_MONTHS)
-    period_end = last_day_of_month(normalized_period)
     fingerprint = await _database_fingerprint(
         db,
         ownership_scope_id=ownership_scope_id,
         user_id=user_id,
         start_date=baseline_start,
-        end_date=period_end,
+        end_date=range_end,
     )
 
-    if cache is not None:
-        cached = cache.get(
+    if effective_cache is not None:
+        cached = effective_cache.get(
             ownership_scope_id=ownership_scope_id,
             user_id=user_id,
             period_start=normalized_period,
@@ -225,7 +233,7 @@ async def get_monthly_insights(
         db,
         ownership_scope_id=ownership_scope_id,
         start_date=baseline_start,
-        end_date=period_end,
+        end_date=range_end,
         currency=normalized_currency,
         user_id=user_id,
     )
@@ -234,9 +242,10 @@ async def get_monthly_insights(
         ownership_scope_id=ownership_scope_id,
         period_start=normalized_period,
         currency=normalized_currency,
+        period_end=range_end,
     )
-    if cache is not None:
-        cache.set(
+    if effective_cache is not None:
+        effective_cache.set(
             ownership_scope_id=ownership_scope_id,
             user_id=user_id,
             period_start=normalized_period,
@@ -330,12 +339,20 @@ def build_monthly_insights_from_records(
     ownership_scope_id: UUID,
     period_start: date,
     currency: str,
+    period_end: date | None = None,
 ) -> MonthlyInsightsResponse:
-    """Build top-category and gravity-center output from normalized records."""
+    """Build top-category and gravity-center output from normalized records.
+
+    `period_end` defaults to the end of `period_start`'s month (unchanged month
+    behavior). Pass it to aggregate a quarter/year range (D77 lift); gravity centers
+    (a per-category month-vs-baseline signal) are computed for single-month periods
+    only — for quarter/year the top-category rollups still aggregate over the range.
+    """
 
     normalized_period = first_day_of_month(period_start)
     normalized_currency = currency.upper()
-    period_end = last_day_of_month(normalized_period)
+    range_end = period_end if period_end is not None else last_day_of_month(normalized_period)
+    is_single_month = range_end == last_day_of_month(normalized_period)
     scoped_records = tuple(
         record
         for record in records
@@ -345,7 +362,7 @@ def build_monthly_insights_from_records(
     current_records = tuple(
         record
         for record in scoped_records
-        if normalized_period <= record.transaction_date <= period_end
+        if normalized_period <= record.transaction_date <= range_end
     )
 
     prepared_current = tuple(_prepare_transaction(record) for record in current_records)
@@ -367,7 +384,7 @@ def build_monthly_insights_from_records(
     )
 
     gravity_centers: list[InsightGravityCenter] = []
-    if current_records:
+    if current_records and is_single_month:
         gravity_centers = _gravity_centers(
             scoped_records,
             period_start=normalized_period,
@@ -376,7 +393,7 @@ def build_monthly_insights_from_records(
 
     return MonthlyInsightsResponse(
         period_start=normalized_period,
-        period_end=period_end,
+        period_end=range_end,
         currency=normalized_currency,
         total_spend_minor=total_spend_minor,
         transaction_count=len(current_records),
@@ -550,6 +567,7 @@ async def get_insights_tree(
     currency: str,
     dimension: InsightDimension = "transaction_category",
     user_id: UUID | None = None,
+    period_end: date | None = None,
 ) -> InsightsTreeResponse:
     """Build the full drill-down category tree for one period + dimension (D69).
 
@@ -563,12 +581,12 @@ async def get_insights_tree(
 
     normalized_currency = currency.upper()
     normalized_period = first_day_of_month(period_start)
-    period_end = last_day_of_month(normalized_period)
+    range_end = period_end if period_end is not None else last_day_of_month(normalized_period)
     records = await load_insight_records_from_db(
         db,
         ownership_scope_id=ownership_scope_id,
         start_date=normalized_period,
-        end_date=period_end,
+        end_date=range_end,
         currency=normalized_currency,
         user_id=user_id,
     )
@@ -578,6 +596,7 @@ async def get_insights_tree(
         period_start=normalized_period,
         currency=normalized_currency,
         dimension=dimension,
+        period_end=range_end,
     )
 
 
@@ -608,17 +627,20 @@ def build_insights_tree_from_records(
     period_start: date,
     currency: str,
     dimension: InsightDimension = "transaction_category",
+    period_end: date | None = None,
 ) -> InsightsTreeResponse:
     """Build the full (untruncated) drill-down tree from normalized records.
 
     Reuses the monthly engine's scoping, `_prepare_transaction` exclusion split,
     and post-exclusion `included_total_minor`, so leaf totals roll up to the same
-    `total_spend_minor` as `/monthly` and `/series`.
+    `total_spend_minor` as `/monthly` and `/series`. `period_end` defaults to the
+    end of `period_start`'s month (unchanged month behavior); pass it explicitly to
+    span a quarter/year range (D77 lift).
     """
 
     normalized_currency = currency.upper()
     normalized_period = first_day_of_month(period_start)
-    period_end = last_day_of_month(normalized_period)
+    range_end = period_end if period_end is not None else last_day_of_month(normalized_period)
     scoped_records = tuple(
         record
         for record in records
@@ -628,7 +650,7 @@ def build_insights_tree_from_records(
     current_records = tuple(
         record
         for record in scoped_records
-        if normalized_period <= record.transaction_date <= period_end
+        if normalized_period <= record.transaction_date <= range_end
     )
     prepared_current = tuple(_prepare_transaction(record) for record in current_records)
     total_spend_minor = sum(prepared.included_total_minor for prepared in prepared_current)
@@ -650,7 +672,7 @@ def build_insights_tree_from_records(
     return InsightsTreeResponse(
         dimension=dimension,
         period_start=normalized_period,
-        period_end=period_end,
+        period_end=range_end,
         currency=normalized_currency,
         total_spend_minor=total_spend_minor,
         transaction_count=len(current_records),
@@ -950,6 +972,33 @@ def _series_bucket_key(month_start: date, granularity: SeriesGranularity) -> str
         quarter = (month_start.month - 1) // 3 + 1
         return f"{month_start.year:04d}-Q{quarter}"
     return f"{month_start.year:04d}"
+
+
+def parse_report_period(value: str) -> tuple[date, date]:
+    """Parse a report-period key → (period_start, period_end) inclusive range.
+
+    Accepts the three granularity key formats the series emits (D77):
+    `YYYY` (year), `YYYY-Qn` (quarter), `YYYY-MM` (month). Lifts the D77
+    month-only limit so the tree + monthly rollups can span a quarter/year.
+    Raises ValueError on a malformed key.
+    """
+    if len(value) == 4 and value.isdigit():
+        year = int(value)
+        return date(year, 1, 1), date(year, 12, 31)
+    if len(value) == 7 and value[4:6] == "-Q":
+        year = int(value[:4])
+        quarter = int(value[6])
+        if quarter < 1 or quarter > 4:
+            raise ValueError(f"quarter out of range: {value}")
+        start_month = (quarter - 1) * 3 + 1
+        start = date(year, start_month, 1)
+        return start, last_day_of_month(date(year, start_month + 2, 1))
+    if len(value) == 7 and value[4] == "-":
+        year = int(value[:4])
+        month = int(value[5:7])
+        start = date(year, month, 1)
+        return start, last_day_of_month(start)
+    raise ValueError(f"unrecognized period: {value}")
 
 
 def first_day_of_month(value: date) -> date:
