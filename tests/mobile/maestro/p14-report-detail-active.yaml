@@ -103,10 +103,13 @@ appId: com.gastify.mobile
 - assertVisible:
     id: report-detail-item
 
-# Drill into the period's filtered transactions.
+# Drill into the period's filtered transactions. "View transactions" sits ABOVE the
+# store/item breakdowns, so scroll UP to reach it (the breakdown scroll above moved past
+# it — now that "By store" is populated the screen is tall enough for it to leave view).
 - scrollUntilVisible:
     element:
       id: report-detail-view-transactions
+    direction: UP
     centerElement: true
 - tapOn:
     id: report-detail-view-transactions
