@@ -29,11 +29,30 @@ const TREND = {
   flat: { color: "#64748b", glyph: "▬" },
 } as const;
 
-/** A month period (YYYY-MM) → first/last calendar day, for the txn drill. */
-function monthRange(period: string): { from: string; to: string } {
-  const [y, m] = period.split("-").map(Number);
-  const lastDay = new Date(y, m, 0).getDate();
-  return { from: `${period}-01`, to: `${period}-${String(lastDay).padStart(2, "0")}` };
+const iso = (y: number, m: number, d: number) =>
+  `${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+
+/** A report period (YYYY-MM month, YYYY-Qn quarter, YYYY year) → first/last
+ *  calendar day, for the txn drill. */
+function periodDateRange(period: string): { from: string; to: string } {
+  if (/^\d{4}$/.test(period)) {
+    const y = Number(period);
+    return { from: iso(y, 1, 1), to: iso(y, 12, 31) };
+  }
+  const q = /^(\d{4})-Q([1-4])$/.exec(period);
+  if (q) {
+    const y = Number(q[1]);
+    const startMonth = (Number(q[2]) - 1) * 3 + 1;
+    const endMonth = startMonth + 2;
+    return { from: iso(y, startMonth, 1), to: iso(y, endMonth, new Date(y, endMonth, 0).getDate()) };
+  }
+  const m = /^(\d{4})-(0[1-9]|1[0-2])$/.exec(period);
+  if (m) {
+    const y = Number(m[1]);
+    const month = Number(m[2]);
+    return { from: iso(y, month, 1), to: iso(y, month, new Date(y, month, 0).getDate()) };
+  }
+  throw new Error(`unsupported report period: ${period}`);
 }
 
 /** No prior period → no trend signal for the insight. */
@@ -92,7 +111,7 @@ export function ReportDetailScreen({ route, navigation }: Props = {}) {
           title="View transactions"
           testID="report-detail-view-transactions"
           onPress={() => {
-            const { from, to } = monthRange(period);
+            const { from, to } = periodDateRange(period);
             navigation?.navigate("Transactions", { dateFrom: from, dateTo: to });
           }}
         />

@@ -121,6 +121,23 @@ describe("buildReportInsight", () => {
     expect(div.insight).toEqual({ kind: "diverse", count: 4 });
   });
 
+  it("does not emit a month-worded trend insight for a quarter/year period (Phase 3)", () => {
+    // A big trend on a quarter card must NOT produce "...vs last month" — it falls
+    // through to dominant/diverse (here neither fires → null).
+    const quarter = buildReportInsight(
+      { gravity_centers: [], top_transaction_categories: [cat("A", "20")], top_item_categories: [] },
+      { period: "2026-Q1", trend: "up", deltaPct: 30 },
+    );
+    expect(quarter.insight?.kind).not.toBe("trendUp");
+    expect(quarter.insight?.kind).not.toBe("trendDown");
+    // The same big trend on a MONTH card still emits the trend insight (unchanged).
+    const month = buildReportInsight(
+      { gravity_centers: [], top_transaction_categories: [cat("A", "20")], top_item_categories: [] },
+      { period: "2026-03", trend: "up", deltaPct: 30 },
+    );
+    expect(month.insight).toEqual({ kind: "trendUp", percent: 30 });
+  });
+
   it("returns no insight when nothing is notable", () => {
     const { insight, highlights } = buildReportInsight(
       { gravity_centers: [], top_transaction_categories: [] },

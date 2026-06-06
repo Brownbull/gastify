@@ -57,7 +57,10 @@ export function buildReportInsight(
   // Fall back to item categories when the store dimension is uncategorised.
   const txnCats = monthly.top_transaction_categories ?? [];
   const topCats = txnCats.length > 0 ? txnCats : (monthly.top_item_categories ?? []);
-  const monthIndex = Number(card.period.split("-")[1]) - 1;
+  // Month periods are YYYY-MM; quarter (YYYY-Qn) + year (YYYY) must not borrow the
+  // month-worded trend / seasonal copy ("vs last month").
+  const isMonth = /^\d{4}-\d{2}$/.test(card.period);
+  const monthIndex = isMonth ? Number(card.period.split("-")[1]) - 1 : -1;
   const holiday = holidayForMonth(monthIndex);
   const strongest = ranked[0];
 
@@ -72,9 +75,9 @@ export function buildReportInsight(
             holiday: strongest.pct > 20 ? holiday : null,
           }
         : { kind: "categoryDrop", category: strongest.gc.label, percent: Math.round(Math.abs(strongest.pct)) };
-  } else if (card.trend === "down" && (card.deltaPct ?? 0) < -15) {
+  } else if (isMonth && card.trend === "down" && (card.deltaPct ?? 0) < -15) {
     insight = { kind: "trendDown", percent: Math.round(Math.abs(card.deltaPct ?? 0)) };
-  } else if (card.trend === "up" && (card.deltaPct ?? 0) > 15) {
+  } else if (isMonth && card.trend === "up" && (card.deltaPct ?? 0) > 15) {
     insight = { kind: "trendUp", percent: Math.round(card.deltaPct ?? 0) };
   } else if (topCats[0] && Number.parseFloat(topCats[0].share_of_total_percent) >= 45) {
     insight = {

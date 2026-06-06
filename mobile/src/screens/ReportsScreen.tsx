@@ -53,10 +53,11 @@ export function ReportsScreen({ navigation }: Partial<ReportsScreenProps> = {}) 
   const currency = series.data?.currency ?? "CLP";
   const hasNoSpend = series.data ? seriesHasNoSpend(points) : false;
 
-  // The category-breakdown donut is a month-only affordance: the backend has no
-  // quarterly/annual category rollup, so the expandable donut shows only when the
-  // cards are monthly buckets (D77).
+  // The top focused-period donut stays month-only. Report cards open the detail
+  // breakdown for month/quarter/year (Phase 3 lifted the D77 limit on /insights/tree
+  // + /monthly); weeks have no category rollup so they stay flat rows.
   const showBreakdown = granularity === "month";
+  const detailEligible = granularity !== "week";
 
   // The newest point in the window is the "current period so far" summary; it is
   // the same data the first card carries, surfaced separately because
@@ -124,9 +125,9 @@ export function ReportsScreen({ navigation }: Partial<ReportsScreenProps> = {}) 
               card={card}
               currency={currency}
               index={index}
-              expandable={showBreakdown}
+              expandable={detailEligible}
               onOpenDetail={
-                showBreakdown
+                detailEligible
                   ? (c) =>
                       navigation?.navigate("ReportDetail", {
                         period: c.period,
@@ -177,8 +178,9 @@ function PeriodReportCard({
     </>
   );
 
-  // The breakdown donut is month-only (no quarterly/annual category rollup, D77),
-  // so quarter/year cards render as a static row with no expand affordance.
+  // Week cards have no category rollup, so they render as a static non-expandable
+  // row; month/quarter/year cards are expandable (Phase 3 lifted the D77 limit),
+  // opening the inline donut + the full detail breakdown.
   if (!expandable) {
     return (
       <View style={[styles.card, styles.cardHeader]} testID={`reports-card-${index}`}>
@@ -259,7 +261,7 @@ function PeriodBreakdown({ period }: { period: string }) {
       ) : slices.length > 0 && monthly.data ? (
         <CategoryDonut slices={slices} currency={monthly.data.currency} />
       ) : (
-        <Text style={styles.mutedText}>No category breakdown for this month.</Text>
+        <Text style={styles.mutedText}>No category breakdown for this period.</Text>
       )}
     </View>
   );

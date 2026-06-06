@@ -1,0 +1,86 @@
+appId: com.gastify.mobile
+---
+# Reports v2 Phase 3 — the QUARTER-card report detail on the S23. Switching to
+# quarterly buckets, a quarter card now opens the detail with the grouped breakdown
+# aggregated over the quarter's three months (Phase 3 lifted the D77 month-only limit
+# on /insights/tree + /monthly). Runs against deployed staging-e2e.
+
+- waitForAnimationToEnd:
+    timeout: 12000
+- tapOn:
+    text: "Continue"
+    optional: true
+- tapOn:
+    text: "Got it"
+    optional: true
+
+# Reach a clean sign-in + authenticate as user A.
+- runFlow:
+    when:
+      visible:
+        id: home-screen
+    commands:
+      - scrollUntilVisible:
+          element:
+            id: sign-out-button
+      - tapOn:
+          id: sign-out-button
+      - extendedWaitUntil:
+          visible:
+            id: sign-in-screen
+          timeout: 20000
+- extendedWaitUntil:
+    visible:
+      id: e2e-sign-in-button
+    timeout: 30000
+- tapOn:
+    id: e2e-sign-in-button
+- extendedWaitUntil:
+    visible:
+      id: home-screen
+    timeout: 60000
+
+# --- Open Reports + switch to quarterly buckets ---
+- scrollUntilVisible:
+    element:
+      id: open-reports-button
+- tapOn:
+    id: open-reports-button
+- extendedWaitUntil:
+    visible:
+      id: reports-screen
+    timeout: 20000
+- tapOn:
+    id: reports-granularity-quarter
+- waitForAnimationToEnd:
+    timeout: 3000
+- extendedWaitUntil:
+    visible:
+      id: reports-card-0
+    timeout: 20000
+
+# Expand the current quarter card → open the full grouped breakdown detail screen.
+- tapOn:
+    id: reports-card-0
+- waitForAnimationToEnd:
+    timeout: 3000
+- scrollUntilVisible:
+    element:
+      id: open-report-detail-0
+    centerElement: true
+- tapOn:
+    id: open-report-detail-0
+- extendedWaitUntil:
+    visible:
+      id: report-detail-screen
+    timeout: 20000
+
+# The quarter grouped breakdown renders (aggregated over the quarter's three months).
+- assertVisible:
+    id: report-detail-store
+- scrollUntilVisible:
+    element:
+      id: report-detail-group
+    centerElement: true
+- takeScreenshot:
+    path: 01-quarter-detail

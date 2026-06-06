@@ -34,7 +34,7 @@ DB = Annotated[AsyncSession, Depends(get_db)]
 
 # A report period: YYYY-MM (month), YYYY-Qn (quarter), or YYYY (year). Quarter/year
 # aggregate the constituent months (D77 lift); month is the original behavior.
-_REPORT_PERIOD_PATTERN = r"^\d{4}(-(0[1-9]|1[0-2]|Q[1-4]))?$"
+_REPORT_PERIOD_PATTERN = r"^[1-9]\d{3}(-(0[1-9]|1[0-2]|Q[1-4]))?$"
 
 
 def _parse_report_range(value: str) -> tuple[date, date]:

@@ -15,8 +15,9 @@ const CategoryDonut = lazy(() => import("@/components/charts/CategoryDonut"));
 type TreeNode = components["schemas"]["InsightsTreeNode"];
 
 export interface ReportDetailCard {
-  /** A month key (YYYY-MM). The detail overlay opens for month reports only — the
-   *  /insights/tree is month-keyed (D77); quarter/year breakdowns arrive in Phase 3. */
+  /** A report period key (YYYY-MM month, YYYY-Qn quarter, or YYYY year). The detail
+   *  overlay opens for month/quarter/year (Phase 3 lifted the D77 month-only limit on
+   *  /insights/tree + /monthly); week cards are excluded at the call site. */
   period: string;
   periodLabel: string;
   total: number;

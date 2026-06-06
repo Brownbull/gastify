@@ -57,3 +57,37 @@ test("Report detail overlay shows the grouped store + item breakdown and drills 
     await ctx.close();
   }
 });
+
+test("Report detail opens for a QUARTER card with the grouped breakdown (Phase 3, D77 lift)", async ({
+  browser,
+}, testInfo) => {
+  const ctx = await browser.newContext();
+  const page = await ctx.newPage();
+
+  try {
+    await signIn(page);
+    await page.goto("/reports");
+    await expect(page.getByTestId("reports-screen")).toBeVisible({ timeout: 15_000 });
+
+    // Switch to quarterly buckets — quarter cards now open the detail (the tree +
+    // monthly rollups span the quarter's three months).
+    await page.getByTestId("reports-granularity-quarter").click();
+    const quarterCard = page.getByTestId("reports-card").first();
+    await expect(quarterCard).toBeVisible({ timeout: 15_000 });
+    await quarterCard.click();
+
+    await expect(page.getByTestId("report-detail-overlay")).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByTestId("report-detail-store")).toBeVisible();
+    await expect(page.getByTestId("report-detail-item")).toBeVisible();
+    // The grouped breakdown renders for the quarter (aggregated over its months).
+    await expect(page.getByTestId("report-detail-group").first()).toBeVisible({ timeout: 15_000 });
+    await page.screenshot({ path: testInfo.outputPath("03-quarter-detail.png"), fullPage: true });
+
+    // The drill spans the full quarter date range.
+    await page.getByTestId("report-detail-view-transactions").click();
+    await expect(page).toHaveURL(/dateFrom=\d{4}-\d{2}-\d{2}/, { timeout: 15_000 });
+    await expect(page).toHaveURL(/dateTo=\d{4}-\d{2}-\d{2}/);
+  } finally {
+    await ctx.close();
+  }
+});

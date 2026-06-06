@@ -65,6 +65,19 @@ describe("buildReportInsight (mobile)", () => {
     expect(insight).toEqual({ kind: "categoryRise", category: "Restaurant", percent: 30, holiday: null });
   });
 
+  it("does not emit a month-worded trend insight for a quarter period (Phase 3)", () => {
+    const quarter = buildReportInsight(
+      { gravity_centers: [], top_transaction_categories: [cat("A", "20")], top_item_categories: [] },
+      { period: "2026-Q1", trend: "up", deltaPct: 30 },
+    );
+    expect(quarter.insight?.kind).not.toBe("trendUp");
+    const month = buildReportInsight(
+      { gravity_centers: [], top_transaction_categories: [cat("A", "20")], top_item_categories: [] },
+      { period: "2026-03", trend: "up", deltaPct: 30 },
+    );
+    expect(month.insight).toEqual({ kind: "trendUp", percent: 30 });
+  });
+
   it("falls back to item categories for the leader when stores are uncategorised", () => {
     const { highlights } = buildReportInsight(
       { gravity_centers: [], top_transaction_categories: [], top_item_categories: [cat("Fresh Food", "62")] },

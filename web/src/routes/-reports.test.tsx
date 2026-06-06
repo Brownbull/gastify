@@ -14,7 +14,7 @@ vi.mock("@/hooks/useInsights", async (importOriginal) => {
   return { ...actual, useMonthlyInsights: vi.fn(), useInsightsSeries: vi.fn() };
 });
 
-import { Route, toReportCards } from "./reports";
+import { Route, toReportCards, periodDateRange } from "./reports";
 import { useMonthlyInsights, useInsightsSeries } from "@/hooks/useInsights";
 
 const mockMonthly = vi.mocked(useMonthlyInsights);
@@ -131,5 +131,26 @@ describe("/reports", () => {
     );
     renderPage();
     expect(await screen.findByTestId("reports-empty")).toBeInTheDocument();
+  });
+});
+
+describe("periodDateRange", () => {
+  it("computes the calendar range for a month", () => {
+    expect(periodDateRange("2026-02")).toEqual({ from: "2026-02-01", to: "2026-02-28" });
+    expect(periodDateRange("2024-02")).toEqual({ from: "2024-02-01", to: "2024-02-29" }); // leap
+  });
+
+  it("computes the calendar range for a quarter", () => {
+    expect(periodDateRange("2026-Q1")).toEqual({ from: "2026-01-01", to: "2026-03-31" });
+    expect(periodDateRange("2026-Q4")).toEqual({ from: "2026-10-01", to: "2026-12-31" });
+  });
+
+  it("computes the calendar range for a year", () => {
+    expect(periodDateRange("2026")).toEqual({ from: "2026-01-01", to: "2026-12-31" });
+  });
+
+  it("throws on an unsupported period (e.g. a week key) instead of NaN dates", () => {
+    expect(() => periodDateRange("2026-W01")).toThrow();
+    expect(() => periodDateRange("nope")).toThrow();
   });
 });

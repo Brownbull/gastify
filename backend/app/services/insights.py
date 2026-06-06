@@ -209,16 +209,22 @@ async def get_monthly_insights(
     range_end = period_end if period_end is not None else last_day_of_month(normalized_period)
     is_single_month = range_end == last_day_of_month(normalized_period)
     effective_cache = cache if is_single_month else None
-    baseline_start = shift_months(normalized_period, -_BASELINE_MONTHS)
-    fingerprint = await _database_fingerprint(
-        db,
-        ownership_scope_id=ownership_scope_id,
-        user_id=user_id,
-        start_date=baseline_start,
-        end_date=range_end,
+    # The trailing baseline window (for gravity centers) + the fingerprint (the cache
+    # key) are only needed for single-month periods; quarter/year skip both — no extra
+    # baseline read and no wasted fingerprint query when the cache is bypassed.
+    db_start = (
+        shift_months(normalized_period, -_BASELINE_MONTHS) if is_single_month else normalized_period
     )
 
+    fingerprint = ""
     if effective_cache is not None:
+        fingerprint = await _database_fingerprint(
+            db,
+            ownership_scope_id=ownership_scope_id,
+            user_id=user_id,
+            start_date=db_start,
+            end_date=range_end,
+        )
         cached = effective_cache.get(
             ownership_scope_id=ownership_scope_id,
             user_id=user_id,
@@ -232,7 +238,7 @@ async def get_monthly_insights(
     records = await load_insight_records_from_db(
         db,
         ownership_scope_id=ownership_scope_id,
-        start_date=baseline_start,
+        start_date=db_start,
         end_date=range_end,
         currency=normalized_currency,
         user_id=user_id,

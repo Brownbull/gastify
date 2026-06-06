@@ -25,11 +25,32 @@ const ReportDetailOverlay = lazy(() =>
   })),
 );
 
-/** A month period (YYYY-MM) → its first/last calendar day, for the txn drill. */
-function monthRange(period: string): { from: string; to: string } {
-  const [y, m] = period.split("-").map(Number);
-  const lastDay = new Date(y, m, 0).getDate();
-  return { from: `${period}-01`, to: `${period}-${String(lastDay).padStart(2, "0")}` };
+const iso = (y: number, m: number, d: number) =>
+  `${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+
+/** A report period (YYYY-MM month, YYYY-Qn quarter, YYYY year) → its first/last
+ *  calendar day, for the "view transactions" drill. */
+export function periodDateRange(period: string): { from: string; to: string } {
+  if (/^\d{4}$/.test(period)) {
+    const y = Number(period);
+    return { from: iso(y, 1, 1), to: iso(y, 12, 31) };
+  }
+  const q = /^(\d{4})-Q([1-4])$/.exec(period);
+  if (q) {
+    const y = Number(q[1]);
+    const startMonth = (Number(q[2]) - 1) * 3 + 1;
+    const endMonth = startMonth + 2;
+    return { from: iso(y, startMonth, 1), to: iso(y, endMonth, new Date(y, endMonth, 0).getDate()) };
+  }
+  const m = /^(\d{4})-(0[1-9]|1[0-2])$/.exec(period);
+  if (m) {
+    const y = Number(m[1]);
+    const month = Number(m[2]);
+    return { from: iso(y, month, 1), to: iso(y, month, new Date(y, month, 0).getDate()) };
+  }
+  // No silent NaN dates for an unsupported key (e.g. a week "YYYY-Www") — the
+  // detail/drill only ever passes month/quarter/year (week is gated at the call site).
+  throw new Error(`unsupported report period: ${period}`);
 }
 
 /** Months of report-card history per granularity (≤ backend 24-month cap). */
@@ -126,8 +147,9 @@ function ReportsPage() {
   const [detailCard, setDetailCard] = useState<ReportCard | null>(null);
   const navigate = useNavigate();
   const atCurrent = period >= currentPeriod();
-  // The category-breakdown donut is month-only (the backend has no quarterly/annual
-  // category rollup, D77), so it shows only when the cards are monthly buckets.
+  // The inline focused-period donut intentionally stays month-only (the period stepper
+  // works in month granularity); quarter/year cards open the full detail breakdown
+  // instead (Phase 3 lifted the D77 limit so the tree/monthly span any period).
   const isMonthly = granularity === "month";
 
   const window = periodWindow(period, WINDOW_MONTHS[granularity]);
@@ -236,7 +258,7 @@ function ReportsPage() {
                 card={card}
                 focused={isMonthly && card.period === period}
                 currency={series.data?.currency ?? "CLP"}
-                onSelect={isMonthly ? () => setDetailCard(card) : undefined}
+                onSelect={granularity === "week" ? undefined : () => setDetailCard(card)}
               />
             ))}
           </ul>
@@ -249,7 +271,7 @@ function ReportsPage() {
             card={overlayCard}
             onClose={() => setDetailCard(null)}
             onViewTransactions={(p) => {
-              const { from, to } = monthRange(p);
+              const { from, to } = periodDateRange(p);
               setDetailCard(null);
               void navigate({ to: "/transactions", search: { dateFrom: from, dateTo: to } });
             }}
