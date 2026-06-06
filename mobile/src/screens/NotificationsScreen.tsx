@@ -17,7 +17,7 @@ import {
   useNotifications,
   useUnreadCount,
 } from "../hooks/useNotifications";
-import { formatDate } from "../lib/format";
+import { formatTimestamp } from "../lib/format";
 import type { Notification } from "../lib/notifications";
 import type { RootStackParamList } from "../types/navigation";
 
@@ -173,7 +173,7 @@ function NotificationRow({
             {notification.body}
           </Text>
         ) : null}
-        <Text style={styles.rowDate}>{formatDate(notification.created_at)}</Text>
+        <Text style={styles.rowDate}>{formatTimestamp(notification.created_at)}</Text>
       </View>
       <View style={styles.rowActions}>
         <Button title="Delete" testID={`notifications-delete-${index}`} onPress={onDelete} />

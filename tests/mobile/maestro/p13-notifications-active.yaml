@@ -44,9 +44,14 @@ appId: com.gastify.mobile
     timeout: 60000
 
 # --- Open the Notifications screen ---
+# centerElement so the button (near the bottom of the hub, just after Reports) is
+# fully in view before tapping — a bottom-edge partial-visibility tap mis-registers.
 - scrollUntilVisible:
     element:
       id: open-notifications-button
+    centerElement: true
+- waitForAnimationToEnd:
+    timeout: 2000
 - tapOn:
     id: open-notifications-button
 - extendedWaitUntil:

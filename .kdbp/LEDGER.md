@@ -3818,3 +3818,19 @@ REVIEW: adversarial workflow (13 agents, 4 dimensions) — 4 confirmed findings 
 DEPLOY: pushed origin HEAD:staging (4ca691b..ad11e42) -> Railway staging-e2e (migration 034) + CI. NEXT: seed + web Playwright + S23 Maestro proofs, then promote.
 PLAN: Phase 7 Review+Commit ticked; Exec stays in-progress until runtime proofs green.
 - 2026-06-05 22:36 | Write | /home/khujta/projects/apps/gastify/tests/web-e2e/notifications.spec.ts
+- 2026-06-05 22:44 | Write | /tmp/gastify-phase7-fix-commit.txt
+- 2026-06-05 23:01 | Edit | /home/khujta/projects/apps/gastify/web/src/lib/format.ts
+- 2026-06-05 23:01 | Edit | /home/khujta/projects/apps/gastify/web/src/routes/notifications.tsx
+- 2026-06-05 23:01 | Edit | /home/khujta/projects/apps/gastify/web/src/routes/notifications.tsx
+- 2026-06-05 23:02 | Edit | /home/khujta/projects/apps/gastify/mobile/src/screens/NotificationsScreen.tsx
+- 2026-06-05 23:02 | Edit | /home/khujta/projects/apps/gastify/mobile/src/screens/NotificationsScreen.tsx
+- 2026-06-05 23:07 | Write | /tmp/gastify-phase7-polish-commit.txt
+- 2026-06-05 23:09 | Edit | /home/khujta/projects/apps/gastify/tests/mobile/maestro/p13-notifications-active.yaml
+
+## 2026-06-05 23:11 — Phase 7 Notification Center B2 proofs GREEN (deployed staging-e2e) + date fix
+DEPLOY: ad11e42..ddc8cf5 on staging; CI green (after ruff-format+mypy fix); Railway staging-e2e deployed migration 034 + /api/v1/notifications.
+WEB: tests/web-e2e/notifications.spec (hook-fire) PASSED 13.2s — fixture scan fires scan_complete hook -> notification created -> list (unread, bell badge 1) -> mark-read -> delete. Screenshot date "Jun 5, 2026, 11:03 PM".
+S23: real device scan (p4-phase2-scan-upload-happy 47s) fires the hook -> p13-notifications-active PASSED 37s (SM-S911B vs deployed staging-e2e) — list the scan notification + delete. centerElement scroll fix (bottom-edge tap mis-registered). Date "Jun 5, 2026, 11:06 PM".
+FIX: notification created_at rendered "Invalid Date" (formatDate appends T00:00:00 to a full ISO) — web added formatTimestamp + mobile used existing formatTimestamp. Re-proven on both.
+DEFERRED: P65 VirtualizedList-in-ScrollView RN dev warning (ScreenShell+FlatList, pre-existing cross-screen since Phase 6 Items).
+NEXT: commit date fix + proofs, then promote staging->main.

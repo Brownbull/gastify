@@ -8,7 +8,7 @@ import {
   type NotificationRow,
 } from "@/hooks/useNotifications";
 import { useI18n } from "@/hooks/useI18n";
-import { formatDate } from "@/lib/format";
+import { formatTimestamp } from "@/lib/format";
 
 export const Route = createFileRoute("/notifications")({
   component: NotificationsPage,
@@ -151,7 +151,7 @@ function NotificationCard({ notification }: { notification: NotificationRow }) {
           </p>
         )}
         <p className="mt-0.5 text-xs" style={{ color: "var(--text-muted)" }}>
-          {formatDate(notification.created_at)}
+          {formatTimestamp(notification.created_at)}
         </p>
       </div>
       <div className="flex shrink-0 items-center gap-2">
