@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import {
   LOCALE_STORAGE_KEY,
   getPreferredLocale,
+  messages,
   negotiateLocale,
   setPreferredLocale,
   translate,
@@ -32,5 +33,12 @@ describe("i18n", () => {
     setPreferredLocale("pt");
 
     expect(window.localStorage.getItem(LOCALE_STORAGE_KEY)).toBe("pt");
+  });
+
+  it("every locale defines the same key set (no missing translation falls back to the raw key)", () => {
+    const enKeys = Object.keys(messages.en).sort();
+    for (const locale of ["es", "pt"] as const) {
+      expect(Object.keys(messages[locale]).sort()).toEqual(enKeys);
+    }
   });
 });

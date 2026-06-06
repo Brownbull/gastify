@@ -1,8 +1,13 @@
-import { Suspense, lazy, useEffect, useRef } from "react";
-import { useInsightsTree, type InsightDimension } from "@/hooks/useInsights";
+import { Suspense, lazy, useEffect, useMemo, useRef } from "react";
+import { useInsightsTree, useMonthlyInsights, type InsightDimension } from "@/hooks/useInsights";
 import { useI18n } from "@/hooks/useI18n";
 import { treeNodesToSlices } from "@/lib/chartData";
 import { formatMinorAmount } from "@/lib/format";
+import {
+  buildReportInsight,
+  renderReportInsight,
+  type ReportHighlight,
+} from "@/lib/reportInsights";
 import type { components } from "@/lib/api-types";
 
 const CategoryDonut = lazy(() => import("@/components/charts/CategoryDonut"));
@@ -85,6 +90,8 @@ export function ReportDetailOverlay({ card, onClose, onViewTransactions }: Repor
 
         <Hero card={card} />
 
+        <InsightBlock card={card} />
+
         <button
           data-testid="report-detail-view-transactions"
           onClick={() => onViewTransactions(card.period)}
@@ -132,6 +139,67 @@ function Hero({ card }: { card: ReportDetailCard }) {
           {arrow}
           {card.deltaPct != null ? ` ${Math.abs(card.deltaPct).toFixed(1)}%` : ""}
         </p>
+      )}
+    </div>
+  );
+}
+
+/** Persona insight sentence + highlights ("trophies"), sourced from the month's
+ *  `/insights/monthly` gravity_centers + top categories (Phase 2). */
+function InsightBlock({ card }: { card: ReportDetailCard }) {
+  const { t } = useI18n();
+  const monthly = useMonthlyInsights(card.period);
+  const { insight, highlights } = useMemo(
+    () =>
+      monthly.data
+        ? buildReportInsight(monthly.data, card)
+        : { insight: null, highlights: [] as ReportHighlight[] },
+    [monthly.data, card],
+  );
+
+  if (!insight && highlights.length === 0) return null;
+  const highlightLabel: Record<ReportHighlight["key"], string> = {
+    leader: t("reports.highlight.leader"),
+    rise: t("reports.highlight.rise"),
+    drop: t("reports.highlight.drop"),
+  };
+
+  return (
+    <div data-testid="report-detail-insight" className="space-y-3">
+      {insight && (
+        <div
+          className="rounded-xl border p-4"
+          style={{ borderColor: "var(--border)", backgroundColor: "var(--surface)" }}
+        >
+          <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: "var(--text-muted)" }}>
+            💡 {t("reports.insight.title")}
+          </p>
+          <p className="mt-1 text-sm" style={{ color: "var(--text)" }}>
+            {renderReportInsight(insight, t)}
+          </p>
+        </div>
+      )}
+      {highlights.length > 0 && (
+        <div>
+          <p className="mb-2 text-sm font-semibold" style={{ color: "var(--text)" }}>
+            {t("reports.highlights.title")}
+          </p>
+          <ul className="space-y-1.5">
+            {highlights.map((h) => (
+              <li
+                key={h.key}
+                data-testid={`report-detail-highlight-${h.key}`}
+                className="flex items-center justify-between gap-3 rounded-lg border px-3 py-2 text-sm"
+                style={{ borderColor: "var(--border)", backgroundColor: "var(--surface)" }}
+              >
+                <span style={{ color: "var(--text-muted)" }}>{highlightLabel[h.key]}</span>
+                <span className="font-medium" style={{ color: "var(--text)" }}>
+                  {h.category} · {h.metric}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
     </div>
   );

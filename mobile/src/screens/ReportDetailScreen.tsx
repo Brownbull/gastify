@@ -1,4 +1,5 @@
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { useMemo } from "react";
 import {
   ActivityIndicator,
   Button,
@@ -8,10 +9,16 @@ import {
 } from "react-native";
 import { ScreenShell } from "../components/ScreenShell";
 import { CategoryDonut } from "../components/charts/CategoryDonut";
-import { useInsightsTree } from "../hooks/useInsights";
+import { useInsightsTree, useMonthlyInsights } from "../hooks/useInsights";
 import { treeNodesToSlices } from "../lib/chartData";
 import { formatMinorAmount } from "../lib/format";
 import type { InsightDimension, InsightsTreeNode } from "../lib/insights";
+import {
+  buildReportInsight,
+  renderReportInsight,
+  HIGHLIGHT_LABEL,
+  type ReportHighlight,
+} from "../lib/reportInsights";
 import type { RootStackParamList } from "../types/navigation";
 
 type Props = Partial<NativeStackScreenProps<RootStackParamList, "ReportDetail">>;
@@ -27,6 +34,14 @@ function monthRange(period: string): { from: string; to: string } {
   const [y, m] = period.split("-").map(Number);
   const lastDay = new Date(y, m, 0).getDate();
   return { from: `${period}-01`, to: `${period}-${String(lastDay).padStart(2, "0")}` };
+}
+
+/** No prior period → no trend signal for the insight. */
+function trendDir(
+  direction: "up" | "down" | "flat",
+  hasBaseline: boolean,
+): "up" | "down" | "flat" | null {
+  return hasBaseline ? direction : null;
 }
 
 /**
@@ -66,6 +81,12 @@ export function ReportDetailScreen({ route, navigation }: Props = {}) {
             </Text>
           ) : null}
         </View>
+
+        <InsightBlock
+          period={period}
+          trend={trendDir(params.trendDirection, params.hasBaseline)}
+          deltaPct={params.trendPercent}
+        />
 
         <Button
           title="View transactions"
@@ -157,6 +178,52 @@ function GroupCard({
   );
 }
 
+/** Persona insight sentence + highlights, from the month's gravity_centers (Phase 2). */
+function InsightBlock({
+  period,
+  trend,
+  deltaPct,
+}: {
+  period: string;
+  trend: "up" | "down" | "flat" | null;
+  deltaPct: number | null;
+}) {
+  const monthly = useMonthlyInsights(period);
+  const { insight, highlights } = useMemo(
+    () =>
+      monthly.data
+        ? buildReportInsight(monthly.data, { period, trend, deltaPct })
+        : { insight: null, highlights: [] as ReportHighlight[] },
+    [monthly.data, period, trend, deltaPct],
+  );
+
+  if (!insight && highlights.length === 0) return null;
+
+  return (
+    <View testID="report-detail-insight" style={styles.insightWrap}>
+      {insight ? (
+        <View style={styles.insightCard}>
+          <Text style={styles.insightLabel}>💡 In short</Text>
+          <Text style={styles.insightText}>{renderReportInsight(insight)}</Text>
+        </View>
+      ) : null}
+      {highlights.length > 0 ? (
+        <View>
+          <Text style={styles.sectionTitle}>Highlights</Text>
+          {highlights.map((h) => (
+            <View key={h.key} testID={`report-detail-highlight-${h.key}`} style={styles.highlightRow}>
+              <Text style={styles.highlightLabel}>{HIGHLIGHT_LABEL[h.key]}</Text>
+              <Text style={styles.highlightValue}>
+                {h.category} · {h.metric}
+              </Text>
+            </View>
+          ))}
+        </View>
+      ) : null}
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
   centered: { alignItems: "center", padding: 24 },
   childAmount: { color: "#0f172a", fontSize: 13 },
@@ -193,6 +260,30 @@ const styles = StyleSheet.create({
   heroAmount: { color: "#0f172a", fontSize: 28, fontWeight: "800" },
   heroMeta: { color: "#64748b", fontSize: 13, marginTop: 4 },
   heroTrend: { fontSize: 14, fontWeight: "700", marginTop: 8 },
+  highlightLabel: { color: "#64748b", fontSize: 13 },
+  highlightRow: {
+    alignItems: "center",
+    backgroundColor: "#ffffff",
+    borderColor: "#e2e8f0",
+    borderRadius: 8,
+    borderWidth: 1,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 6,
+    padding: 10,
+  },
+  highlightValue: { color: "#0f172a", fontSize: 13, fontWeight: "700" },
+  insightCard: {
+    backgroundColor: "#f8fafc",
+    borderColor: "#e2e8f0",
+    borderRadius: 10,
+    borderWidth: 1,
+    marginBottom: 8,
+    padding: 14,
+  },
+  insightLabel: { color: "#64748b", fontSize: 11, fontWeight: "700", textTransform: "uppercase" },
+  insightText: { color: "#0f172a", fontSize: 14, marginTop: 4 },
+  insightWrap: { marginBottom: 4 },
   mutedText: { color: "#64748b", fontSize: 14, padding: 16, textAlign: "center" },
   section: { marginTop: 16 },
   sectionTitle: { color: "#0f172a", fontSize: 16, fontWeight: "800", marginBottom: 8 },

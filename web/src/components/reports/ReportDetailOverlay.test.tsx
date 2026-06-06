@@ -2,7 +2,10 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
-vi.mock("@/hooks/useInsights", () => ({ useInsightsTree: vi.fn() }));
+vi.mock("@/hooks/useInsights", () => ({
+  useInsightsTree: vi.fn(),
+  useMonthlyInsights: vi.fn(() => ({ data: undefined })),
+}));
 vi.mock("@/components/charts/CategoryDonut", () => ({
   default: () => <div data-testid="donut" />,
 }));

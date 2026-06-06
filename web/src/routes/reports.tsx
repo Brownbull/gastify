@@ -137,6 +137,17 @@ function ReportsPage() {
   const cards = useMemo(() => toReportCards(series.data?.points ?? []), [series.data]);
   const hasSpend = cards.some((c) => c.total > 0);
 
+  // Stabilise the overlay card so the detail view's per-month insight memoizes
+  // (a fresh object literal each render would defeat the InsightBlock useMemo).
+  const detailCurrency = series.data?.currency ?? "CLP";
+  const overlayCard = useMemo(
+    () =>
+      detailCard
+        ? { ...detailCard, periodLabel: periodLabel(detailCard.period), currency: detailCurrency }
+        : null,
+    [detailCard, detailCurrency],
+  );
+
   // On first load (monthly only), focus the most-recent month that actually has
   // spend so the breakdown is meaningful. Quarter/year card periods aren't months,
   // so the donut never targets them.
@@ -232,14 +243,10 @@ function ReportsPage() {
         )}
       </section>
 
-      {detailCard && (
+      {overlayCard && (
         <Suspense fallback={null}>
           <ReportDetailOverlay
-            card={{
-              ...detailCard,
-              periodLabel: periodLabel(detailCard.period),
-              currency: series.data?.currency ?? "CLP",
-            }}
+            card={overlayCard}
             onClose={() => setDetailCard(null)}
             onViewTransactions={(p) => {
               const { from, to } = monthRange(p);

@@ -76,6 +76,15 @@ appId: com.gastify.mobile
       id: report-detail-screen
     timeout: 20000
 
+# Phase 2: the insight block renders (at least the "Top category" trophy — the
+# leader falls back to item categories when stores are uncategorised).
+- scrollUntilVisible:
+    element:
+      id: report-detail-insight
+    centerElement: true
+- assertVisible:
+    id: report-detail-highlight-leader
+
 # The hierarchical grouped breakdown renders (store section + group cards).
 - assertVisible:
     id: report-detail-store

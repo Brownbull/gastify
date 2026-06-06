@@ -36,6 +36,11 @@ test("Report detail overlay shows the grouped store + item breakdown and drills 
     await expect(page.getByTestId("report-detail-store")).toBeVisible();
     await expect(page.getByTestId("report-detail-item")).toBeVisible();
 
+    // Phase 2: the insight block renders — at minimum the "Top category" trophy
+    // (the leader falls back to item categories when stores are uncategorised).
+    await expect(page.getByTestId("report-detail-insight")).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByTestId("report-detail-highlight-leader")).toBeVisible();
+
     // The store breakdown renders hierarchical group cards (parent group + child rows).
     await expect(page.getByTestId("report-detail-group").first()).toBeVisible({ timeout: 15_000 });
     await page.screenshot({ path: testInfo.outputPath("01-report-detail-overlay.png"), fullPage: true });

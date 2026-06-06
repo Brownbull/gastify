@@ -1,7 +1,10 @@
 import { render, fireEvent } from "@testing-library/react-native";
 import { ReportDetailScreen } from "../ReportDetailScreen";
 
-jest.mock("../../hooks/useInsights", () => ({ useInsightsTree: jest.fn() }));
+jest.mock("../../hooks/useInsights", () => ({
+  useInsightsTree: jest.fn(),
+  useMonthlyInsights: jest.fn(() => ({ data: undefined })),
+}));
 jest.mock("../../components/charts/CategoryDonut", () => ({
   CategoryDonut: () => null,
 }));
