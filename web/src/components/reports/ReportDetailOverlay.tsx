@@ -1,4 +1,5 @@
 import { Suspense, lazy, useEffect, useMemo, useRef } from "react";
+import { Sparkline } from "@/components/charts/Sparkline";
 import { useInsightsTree, useMonthlyInsights, type InsightDimension } from "@/hooks/useInsights";
 import { useI18n } from "@/hooks/useI18n";
 import { treeNodesToSlices } from "@/lib/chartData";
@@ -218,7 +219,9 @@ function GroupBreakdown({
   testId: string;
 }) {
   const { t } = useI18n();
-  const tree = useInsightsTree(period, dimension);
+  // include_series=true: the report detail is the only consumer that wants the
+  // per-root within-period series for the group-card sparklines.
+  const tree = useInsightsTree(period, dimension, undefined, true);
   const roots = tree.data?.roots ?? [];
   const total = tree.data?.total_spend_minor ?? 0;
   const currency = tree.data?.currency ?? "CLP";
@@ -279,12 +282,20 @@ function GroupCard({
         <span className="truncate font-medium" style={{ color: "var(--text)" }}>
           {node.label}
         </span>
-        <span className="shrink-0 text-sm font-semibold tabular-nums" style={{ color: "var(--text)" }}>
-          {formatMinorAmount(node.total_minor, currency)}
-          <span className="ml-2 text-xs font-normal" style={{ color: "var(--text-muted)" }}>
-            {pct.toFixed(0)}%
+        <div className="flex shrink-0 items-center gap-2">
+          {node.series && node.series.length > 1 && (
+            <Sparkline
+              points={node.series.map((point) => point.total_spend_minor)}
+              ariaLabel={`${node.label} spend trend over the period`}
+            />
+          )}
+          <span className="text-sm font-semibold tabular-nums" style={{ color: "var(--text)" }}>
+            {formatMinorAmount(node.total_minor, currency)}
+            <span className="ml-2 text-xs font-normal" style={{ color: "var(--text-muted)" }}>
+              {pct.toFixed(0)}%
+            </span>
           </span>
-        </span>
+        </div>
       </div>
       {children.length > 0 && (
         <ul className="mt-2 space-y-1 border-t pt-2" style={{ borderColor: "var(--border)" }}>

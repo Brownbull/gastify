@@ -39,6 +39,7 @@ export const insightsKeys = {
     dimension: InsightDimension,
     currency?: string,
     groupId?: string,
+    includeSeries?: boolean,
   ) =>
     [
       ...insightsKeys.all,
@@ -47,6 +48,7 @@ export const insightsKeys = {
       period,
       dimension,
       currency ?? "default",
+      includeSeries ? "series" : "no-series",
     ] as const,
 };
 
@@ -138,14 +140,21 @@ export function useInsightsTree(
   period: string,
   dimension: InsightDimension,
   currency?: string,
+  includeSeries = false,
 ) {
   const groupId = useActiveGroupId();
   return useQuery({
-    queryKey: insightsKeys.tree(period, dimension, currency, groupId),
+    queryKey: insightsKeys.tree(period, dimension, currency, groupId, includeSeries),
     queryFn: async () => {
       const { data, error } = await apiClient.GET("/api/v1/insights/tree", {
         params: {
-          query: { period, dimension, currency: currency ?? undefined, group_id: groupId },
+          query: {
+            period,
+            dimension,
+            currency: currency ?? undefined,
+            group_id: groupId,
+            include_series: includeSeries,
+          },
         },
       });
 

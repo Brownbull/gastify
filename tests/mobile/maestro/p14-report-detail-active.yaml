@@ -92,6 +92,9 @@ appId: com.gastify.mobile
     element:
       id: report-detail-group
     centerElement: true
+# P66: a within-period trend sparkline renders on the group headers.
+- assertVisible:
+    id: report-detail-sparkline
 - takeScreenshot:
     path: 01-report-detail
 

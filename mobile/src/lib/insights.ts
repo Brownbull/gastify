@@ -92,9 +92,18 @@ export async function getInsightsTree(
   dimension: InsightDimension,
   currency?: string,
   groupId?: string,
+  includeSeries = false,
 ): Promise<InsightsTree> {
   const { data, error } = await apiClient.GET("/api/v1/insights/tree", {
-    params: { query: { period, dimension, currency: currency || undefined, group_id: groupId } },
+    params: {
+      query: {
+        period,
+        dimension,
+        currency: currency || undefined,
+        group_id: groupId,
+        include_series: includeSeries,
+      },
+    },
   });
 
   if (error || !data) {

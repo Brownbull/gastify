@@ -574,6 +574,7 @@ async def get_insights_tree(
     dimension: InsightDimension = "transaction_category",
     user_id: UUID | None = None,
     period_end: date | None = None,
+    include_series: bool = False,
 ) -> InsightsTreeResponse:
     """Build the full drill-down category tree for one period + dimension (D69).
 
@@ -603,6 +604,7 @@ async def get_insights_tree(
         currency=normalized_currency,
         dimension=dimension,
         period_end=range_end,
+        include_series=include_series,
     )
 
 
@@ -634,6 +636,7 @@ def build_insights_tree_from_records(
     currency: str,
     dimension: InsightDimension = "transaction_category",
     period_end: date | None = None,
+    include_series: bool = False,
 ) -> InsightsTreeResponse:
     """Build the full (untruncated) drill-down tree from normalized records.
 
@@ -674,6 +677,15 @@ def build_insights_tree_from_records(
             currency=normalized_currency,
             total_spend_minor=total_spend_minor,
         )
+
+    if include_series:
+        series_map = _build_root_node_series(
+            prepared_current,
+            dimension=dimension,
+            period_start=normalized_period,
+            period_end=range_end,
+        )
+        roots = [root.model_copy(update={"series": series_map.get(root.key)}) for root in roots]
 
     return InsightsTreeResponse(
         dimension=dimension,
@@ -869,6 +881,105 @@ def _build_item_family_tree(
             )
         )
     return _sorted_tree_nodes(roots)
+
+
+def _node_sub_buckets(period_start: date, period_end: date) -> list[tuple[str, date, date]]:
+    """Ordered (key, start, end) sub-period buckets WITHIN [period_start, period_end]
+    for the per-node sparkline series: ISO weeks (Monday-start) for a single month,
+    else calendar months. Empty buckets are kept by the caller so the line shows gaps."""
+
+    buckets: list[tuple[str, date, date]] = []
+    if period_end == last_day_of_month(period_start):  # single month -> weekly
+        cursor = period_start - timedelta(days=period_start.weekday())
+        end_monday = period_end - timedelta(days=period_end.weekday())
+        while cursor <= end_monday:
+            iso_year, iso_week, _ = cursor.isocalendar()
+            buckets.append((f"{iso_year:04d}-W{iso_week:02d}", cursor, cursor + timedelta(days=6)))
+            cursor += timedelta(days=7)
+        return buckets
+    cursor = first_day_of_month(period_start)  # quarter/year -> monthly
+    last_month = first_day_of_month(period_end)
+    while cursor <= last_month:
+        buckets.append((_series_bucket_key(cursor, "month"), cursor, last_day_of_month(cursor)))
+        cursor = shift_months(cursor, 1)
+    return buckets
+
+
+def _build_root_node_series(
+    prepared_transactions: tuple[_PreparedTransaction, ...],
+    *,
+    dimension: InsightDimension,
+    period_start: date,
+    period_end: date,
+) -> dict[str, list[InsightsSeriesPoint]]:
+    """Per-ROOT (top-level node) sub-period spend series within the viewed period.
+
+    Store roots bucket transaction `included_total_minor` by industry; item roots
+    bucket item `total_minor` by family — the same root resolution the tree builders
+    use, so a root's series sums to its node total. Zero-spend buckets are emitted so
+    the sparkline shows the true shape. Only roots are keyed (placement: parent groups).
+
+    `prepared_transactions` are expected to be the tree's `current_records` (already
+    filtered to [period_start, period_end]); the loop re-clamps to that window anyway,
+    so a stray out-of-period row can never skew a bucket — the ISO-week buckets of a
+    single month straddle the month edges, so the bucket span is wider than the period.
+    """
+
+    buckets = _node_sub_buckets(period_start, period_end)
+    if not buckets:
+        return {}
+    totals: dict[str, list[int]] = {}
+    record_ids: dict[str, list[set[str]]] = {}
+
+    def _bucket_index(when: date) -> int | None:
+        for index, (_, b_start, b_end) in enumerate(buckets):
+            if b_start <= when <= b_end:
+                return index
+        return None
+
+    def _add(root_key: str, index: int, amount: int, record_id: str) -> None:
+        if root_key not in totals:
+            totals[root_key] = [0] * len(buckets)
+            record_ids[root_key] = [set() for _ in buckets]
+        totals[root_key][index] += amount
+        record_ids[root_key][index].add(record_id)
+
+    for prepared in prepared_transactions:
+        when = prepared.record.transaction_date
+        if when < period_start or when > period_end:
+            continue  # defensive: keep the series within the viewed period
+        index = _bucket_index(when)
+        if index is None:
+            continue
+        record_id = prepared.record.record_id
+        if dimension == "transaction_category":
+            store_key = prepared.record.transaction_category_key
+            if not store_key or prepared.included_total_minor <= 0:
+                continue
+            root_key = _parent_key_or_none("transaction_category", store_key)
+            if root_key is not None:
+                _add(root_key, index, prepared.included_total_minor, record_id)
+            continue
+        for item in prepared.included_items:
+            if item.category_key is None or item.total_minor <= 0:
+                continue
+            root_key = _parent_key_or_none("item_category", item.category_key)
+            if root_key is not None:
+                _add(root_key, index, item.total_minor, record_id)
+
+    return {
+        root_key: [
+            InsightsSeriesPoint(
+                period=key,
+                period_start=b_start,
+                period_end=b_end,
+                total_spend_minor=totals[root_key][index],
+                transaction_count=len(record_ids[root_key][index]),
+            )
+            for index, (key, b_start, b_end) in enumerate(buckets)
+        ]
+        for root_key in totals
+    }
 
 
 def _accumulate_transaction_into(

@@ -284,6 +284,17 @@ class InsightsTreeNode(BaseModel):
     item_count: int = Field(ge=0)
     excluded_total_minor: int = Field(default=0, ge=0)
     children: list["InsightsTreeNode"] = Field(default_factory=list)
+    series: list[InsightsSeriesPoint] | None = Field(
+        default=None,
+        description=(
+            "Sub-period spend series WITHIN [period_start, period_end] for this node — "
+            "feeds the report-detail trend sparklines. Populated only on top-level "
+            "(root) nodes, and only when the tree is requested with include_series=true; "
+            "None otherwise. A single-month period buckets by ISO week; a quarter/year "
+            "period buckets by calendar month. Zero-spend buckets are kept so the line "
+            "shows the true shape over the period."
+        ),
+    )
 
     @field_validator("currency")
     @classmethod

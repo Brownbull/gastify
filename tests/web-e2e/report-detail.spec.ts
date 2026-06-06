@@ -43,6 +43,8 @@ test("Report detail overlay shows the grouped store + item breakdown and drills 
 
     // The store breakdown renders hierarchical group cards (parent group + child rows).
     await expect(page.getByTestId("report-detail-group").first()).toBeVisible({ timeout: 15_000 });
+    // P66: a within-period trend sparkline renders on the group headers (month → weekly buckets).
+    await expect(page.getByTestId("report-detail-sparkline").first()).toBeVisible();
     await page.screenshot({ path: testInfo.outputPath("01-report-detail-overlay.png"), fullPage: true });
 
     // Drill: "view transactions" navigates to the list pre-filtered by the period's date range.

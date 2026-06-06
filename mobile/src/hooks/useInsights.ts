@@ -43,11 +43,12 @@ export function useInsightsTree(
   period: string,
   dimension: InsightDimension,
   currency?: string,
+  includeSeries = false,
 ) {
   const groupId = useActiveGroupId();
   return useQuery({
-    queryKey: insightsKeys.tree(period, dimension, currency, groupId),
-    queryFn: () => getInsightsTree(period, dimension, currency, groupId),
+    queryKey: insightsKeys.tree(period, dimension, currency, groupId, includeSeries),
+    queryFn: () => getInsightsTree(period, dimension, currency, groupId, includeSeries),
     staleTime: 60 * 1000,
   });
 }

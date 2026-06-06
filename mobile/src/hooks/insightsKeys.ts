@@ -28,7 +28,13 @@ export const insightsKeys = {
       granularity,
       currency ?? "default",
     ] as const,
-  tree: (period: string, dimension: string, currency?: string, groupId?: string) =>
+  tree: (
+    period: string,
+    dimension: string,
+    currency?: string,
+    groupId?: string,
+    includeSeries?: boolean,
+  ) =>
     [
       ...insightsKeys.all,
       "tree",
@@ -36,5 +42,6 @@ export const insightsKeys = {
       period,
       dimension,
       currency ?? "default",
+      includeSeries ? "series" : "no-series",
     ] as const,
 };

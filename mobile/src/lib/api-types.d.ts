@@ -1531,6 +1531,11 @@ export interface components {
             excluded_total_minor: number;
             /** Children */
             children?: components["schemas"]["InsightsTreeNode"][];
+            /**
+             * Series
+             * @description Sub-period spend series WITHIN [period_start, period_end] for this node — feeds the report-detail trend sparklines. Populated only on top-level (root) nodes, and only when the tree is requested with include_series=true; None otherwise. A single-month period buckets by ISO week; a quarter/year period buckets by calendar month. Zero-spend buckets are kept so the line shows the true shape over the period.
+             */
+            series?: components["schemas"]["InsightsSeriesPoint"][] | null;
         };
         /**
          * InsightsTreeResponse
@@ -4557,6 +4562,8 @@ export interface operations {
                 currency?: string | null;
                 /** @description Analyze a group scope you belong to; defaults to your personal scope. */
                 group_id?: string | null;
+                /** @description Attach a within-period sub-bucket spend series to each top-level (root) node, for the report-detail trend sparklines. Off by default to keep the tree lean for consumers that only drill (dashboard/trends). */
+                include_series?: boolean;
             };
             header?: never;
             path?: never;

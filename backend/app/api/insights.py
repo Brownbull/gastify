@@ -165,6 +165,14 @@ async def get_insights_tree_endpoint(
         default=None,
         description="Analyze a group scope you belong to; defaults to your personal scope.",
     ),
+    include_series: bool = Query(
+        default=False,
+        description=(
+            "Attach a within-period sub-bucket spend series to each top-level (root) "
+            "node, for the report-detail trend sparklines. Off by default to keep the "
+            "tree lean for consumers that only drill (dashboard/trends)."
+        ),
+    ),
 ) -> InsightsTreeResponse:
     period_start, period_end = _parse_report_range(period)
     reporting_currency = (currency or auth.user.default_currency).upper()
@@ -177,6 +185,7 @@ async def get_insights_tree_endpoint(
         currency=reporting_currency,
         dimension=dimension,
         period_end=period_end,
+        include_series=include_series,
     )
 
 

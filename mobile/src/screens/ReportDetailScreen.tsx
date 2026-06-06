@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { ScreenShell } from "../components/ScreenShell";
 import { CategoryDonut } from "../components/charts/CategoryDonut";
+import { Sparkline } from "../components/charts/Sparkline";
 import { useInsightsTree, useMonthlyInsights } from "../hooks/useInsights";
 import { treeNodesToSlices } from "../lib/chartData";
 import { formatMinorAmount } from "../lib/format";
@@ -134,7 +135,9 @@ function GroupBreakdown({
   title: string;
   testID: string;
 }) {
-  const tree = useInsightsTree(period, dimension);
+  // include_series=true: the report detail wants the per-root within-period series for
+  // the group-card sparklines (the only consumer that does).
+  const tree = useInsightsTree(period, dimension, undefined, true);
   const roots = tree.data?.roots ?? [];
   const total = tree.data?.total_spend_minor ?? 0;
   const currency = tree.data?.currency ?? "CLP";
@@ -180,10 +183,15 @@ function GroupCard({
         <Text numberOfLines={1} style={styles.groupLabel}>
           {node.label}
         </Text>
-        <Text style={styles.groupAmount}>
-          {formatMinorAmount(node.total_minor, currency)}
-          <Text style={styles.groupPct}> {pct.toFixed(0)}%</Text>
-        </Text>
+        <View style={styles.groupHeaderRight}>
+          {node.series && node.series.length > 1 ? (
+            <Sparkline points={node.series.map((point) => point.total_spend_minor)} />
+          ) : null}
+          <Text style={styles.groupAmount}>
+            {formatMinorAmount(node.total_minor, currency)}
+            <Text style={styles.groupPct}> {pct.toFixed(0)}%</Text>
+          </Text>
+        </View>
       </View>
       {children.map((child) => (
         <View key={child.key} style={styles.childRow}>
@@ -266,6 +274,7 @@ const styles = StyleSheet.create({
     padding: 12,
   },
   groupHeader: { alignItems: "center", flexDirection: "row", justifyContent: "space-between" },
+  groupHeaderRight: { alignItems: "center", flexDirection: "row", gap: 6 },
   groupLabel: { color: "#0f172a", flex: 1, fontSize: 15, fontWeight: "800", paddingRight: 8 },
   groupPct: { color: "#64748b", fontSize: 12, fontWeight: "400" },
   header: { gap: 8, marginBottom: 16 },
