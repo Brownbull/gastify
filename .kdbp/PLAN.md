@@ -12,7 +12,7 @@ Feature parity with legacy BoletApp — implement missing screens and features b
 - **Maturity:** mvp
 - **Domain:** Chilean smart expense tracker (AI receipt scanning, multi-currency analytics, PWA + native mobile)
 - **Created:** 2026-06-02
-- **Last Updated:** 2026-06-05 (Phase 6 Items View + Reports COMPLETE ✅×4 + shipped to prod — items endpoint + cross-transaction Items screen (P56), period-spending Reports screen reusing /insights (P57), and the Reports granularity toggle month/quarter/year + NEW ISO-week granularity (D77, P58). Also D74 transaction lock-on-share + D75 group avatar (Phase 5 hardening), D76 Gemini mock-in-staging-e2e by environment. Current Phase advanced 6→7. S23 mobile Reports-granularity Maestro proof deferred (P64, device offline). Next: Phase 7 Notification Center. Housekeeping pass (docs/wells/architecture/status) 2026-06-05.)
+- **Last Updated:** 2026-06-05 (Phase 7 Notification Center COMPLETE ✅×4 + shipped to prod (D78, P59/P60) — new `notifications` table + migration 034 (deny-by-default RLS, 027 fail-safe form) + 5 endpoints (user-global, personal-scope-bound, 404 anti-enum) + failure-isolated scan/statement create hooks; web vertical (hooks/route/NotificationBell/i18n) + mobile vertical (lib/hooks/NotificationsScreen/nav). 13-agent adversarial review → 4 findings fixed. B2-proven both platforms via the hook-fire path (web Playwright + S23 Maestro real device scan → notification). Also fixed a latent `week` SeriesGranularity tsc bug (D77). **ALL PLAN PHASES 1–7 COMPLETE + in production.** P64 (Reports-granularity S23 proof) resolved on device reconnect; P65 (VirtualizedList dev warning) deferred. Next: ROADMAP P16 Compliance + Launch Hardening. Prior: P64 reports-granularity proof + housekeeping (docs/wells/architecture/status) 2026-06-05.)
 - **Decision basis:** APP-STATE.html audit (2026-06-02) comparing Gastify vs legacy BoletApp — 9 missing features, 5 API-only gaps. Write-first ordering per user direction.
 
 ## Phases
@@ -25,7 +25,7 @@ Feature parity with legacy BoletApp — implement missing screens and features b
 | 4 | Dashboard + Charts/Trends | **v1 (done+proven both platforms):** rich home dashboard donut (category distribution) + store/item dimension toggle + period nav + "what's shifting" (web Playwright + S23 Maestro on staging-e2e). **v2 (in progress, D69):** server-aggregated `GET /insights/tree` (full L1→L2 / L3→L4 levels, no top-5 truncation) + recursive bidirectional drill-down on web + mobile (the legacy treemap UX), client expands the cached tree in memory. Bar/line time-series via `/insights/series` shipped (runtime proof deferred — staging-e2e deploy coupling). **v2 web DONE + B2-proven on deployed staging-e2e (2026-06-03): full 4-level cross-walk drill Industry→Store-type→Family→Item + breadcrumb roll-up, real data, screenshot-verified.** Mobile drill UI built + S23 Maestro proof GREEN on deployed staging-e2e (2026-06-04, p10-dashboard-drill-active 58s) — fully proven on BOTH platforms (P50 resolved). /gabe-review APPROVE (7 findings, all fixed). Pushed origin/staging + promoted staging→main (2026-06-04). | mvp | high | ✅ | ✅ | ✅ | ✅ |
 | 5 | Groups (personal + shared) | **Pulled forward (D69).** Group model + CRUD + `OwnershipScopeMember` membership/roles; the `group_id`→RLS-GUC scope-swap so every analytics endpoint (monthly/series/tree) works per-group with zero new aggregation code; per-group dashboards; shared visibility + partial-visibility correctness + revocation via RLS. Decide D58 shared-flag semantics. Web + mobile. **MVP shipped + B2-proven both platforms (web Playwright + S23 Maestro on deployed staging-e2e, 2026-06-04); reviewed (workflow, 0 blocking) + hardened. 5e (consent-gated member detail + member-filtered txn list per D72) SHIPPED 2026-06-04 (D73 opt-in model, migration 032; web + mobile group-detail; authz-reviewed; B2-proven; P62 resolved). Mobile parity P60(b)+(c) shipped. Promoted staging→main twice (P48 MVP + P50 finish); prod verified.** | ent | high | ✅ | ✅ | ✅ | ✅ |
 | 6 | Items View + Reports | Dedicated items/products screen: cross-transaction item search with filters (category, date, merchant). Weekly/monthly report cards with spending summaries and chart visualizations. | mvp | med | ✅ | ✅ | ✅ | ✅ |
-| 7 | Notification Center | In-app notification view: list with read/unread status, mark-read, delete. Backend notification creation hooks (scan complete, statement reconciled, etc.). Web + mobile. | mvp | low | 🔄 | ✅ | ✅ | ⬜ |
+| 7 | Notification Center | In-app notification view: list with read/unread status, mark-read, delete. Backend notification creation hooks (scan complete, statement reconciled, etc.). Web + mobile. | mvp | low | ✅ | ✅ | ✅ | ✅ |
 
 <!-- Exec is written by /gabe-execute: ⬜ not started, 🔄 in progress, ✅ complete -->
 <!-- Review/Commit/Push auto-ticked by /gabe-review, /gabe-commit, /gabe-push -->
@@ -177,7 +177,10 @@ suppressed_dims_count: 0
 
 ## Current Phase
 
-Phase 7: Notification Center
+All PLAN phases (1–7) COMPLETE + in production. Phase 7 (Notification Center, D78)
+shipped to production 2026-06-05 (Exec/Review/Commit/Push ✅×4). The next phase is
+ROADMAP **P16 — Compliance + Launch Hardening** (not yet decomposed into a PLAN);
+run `/gabe-plan` to open it when ready.
 
 ## Dependencies
 

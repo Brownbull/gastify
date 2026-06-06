@@ -12,7 +12,7 @@ phase_count: 15
 # ROADMAP — Gastify
 
 > **Derived from `.kdbp/SCOPE.md`.** Medium-inertia. Updates on any `/gabe-scope-change` (addition, pivot, addition-of-phase, removal-of-phase) or on phase completion.
-> Status: **finalized v1.4** (2026-06-05). Foundation phases P1–P6 complete; feature-parity phases P10–P14 (Settings, Batch Ops, Batch Scanning, Dashboard/Charts, Items+Reports) all shipped to production. **Groups (personal+shared)** was pulled forward (D69) and shipped as PLAN Phase 5 — it has no standalone ROADMAP row but lives between P13 (Dashboard) and P14 (Items+Reports) in execution order. P15 (Notification Center = PLAN Phase 7) is the next active phase; P16 (Compliance + Launch Hardening) follows. The fine-grained execution plan is `.kdbp/PLAN.md` (PLAN Phases 1–7 ≈ ROADMAP P10–P15 + Groups).
+> Status: **finalized v1.4** (2026-06-05). Foundation phases P1–P6 complete; feature-parity phases P10–P14 (Settings, Batch Ops, Batch Scanning, Dashboard/Charts, Items+Reports) all shipped to production. **Groups (personal+shared)** was pulled forward (D69) and shipped as PLAN Phase 5 — it has no standalone ROADMAP row but lives between P13 (Dashboard) and P14 (Items+Reports) in execution order. P15 (Notification Center = PLAN Phase 7) shipped to production 2026-06-05 (D78). P16 (Compliance + Launch Hardening) is the next phase — all feature-parity phases (P10–P15 + Groups) are now complete. The fine-grained execution plan is `.kdbp/PLAN.md` (PLAN Phases 1–7 ≈ ROADMAP P10–P15 + Groups).
 
 ## §1 How to read this file
 
@@ -38,7 +38,7 @@ phase_count: 15
 | P12 | **Batch Scanning** | Multi-receipt capture with image queue + batch review before save. Reuses single-scan pipeline per receipt. | P2 | P11 | Feature parity | completed |
 | P13 | **Dashboard + Charts/Trends** | Rich home dashboard (treemap/category breakdown). Trends view with charts (donut, bar, line) + drill-down + period navigation. | P10 | P14 | Feature parity | completed |
 | P14 | **Items View + Reports** | Dedicated cross-transaction item search. Weekly/monthly report cards with spending summaries and charts (month/quarter/year/week granularity — D77). | P13 | — | Feature parity | completed |
-| P15 | **Notification Center** | In-app notification view (list, read/unread, mark-read, delete). Backend notification hooks. | P2 | — | Feature parity | pending |
+| P15 | **Notification Center** | In-app notification view (list, read/unread, mark-read, delete). Backend notification hooks. | P2 | — | Feature parity | completed |
 | P16 | **Compliance + Launch Hardening** | Four-jurisdiction regulatory readiness validated (Law 21.719, GDPR, PIPEDA, CCPA/CPRA) + launch infra + cutover drill. Paid-tier LLM pre-commit in place. Monetization plumbing live. | P1–P15 | — | Consolidates + audits REQ-20, REQ-21 | pending |
 | P17 | **Structured-Boleta Shortcut** | Chilean electronic-boleta QR/CAF parser bypasses the vision LLM for structured receipts — cuts per-scan cost on SII-Resolution-52/2026 electronic boletas. Nice-to-have, post-MVP. | P2, P16 | P18 | REQ-26 | pending |
 | P18 | **Cohort Benchmarking (DP-engineered)** | Consent-gated cohort aggregation with k ≥ 20 floor, ε ≤ 1 DP noise, sensitive-category suppression, revocation-aware recompute. Unlocks SC-11 / JTBD-05. Post-MVP. | P1, P6, P16 | P17 | REQ-27 | pending |

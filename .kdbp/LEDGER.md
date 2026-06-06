@@ -3834,3 +3834,10 @@ S23: real device scan (p4-phase2-scan-upload-happy 47s) fires the hook -> p13-no
 FIX: notification created_at rendered "Invalid Date" (formatDate appends T00:00:00 to a full ISO) — web added formatTimestamp + mobile used existing formatTimestamp. Re-proven on both.
 DEFERRED: P65 VirtualizedList-in-ScrollView RN dev warning (ScreenShell+FlatList, pre-existing cross-screen since Phase 6 Items).
 NEXT: commit date fix + proofs, then promote staging->main.
+
+## 2026-06-05 23:29 — Phase 7 Notification Center (D78) PROMOTED to production (P60) ✅
+PROMOTE: FF main 4ca691b→6091311 (6 commits). Prod CI 27051189394 green. Railway production applied migration 034.
+PROD VERIFY: /api/v1/health 200; openapi serves all 5 /api/v1/notifications paths; smoke notifications + unread-count + mark-all-read all 401 (deployed + auth-gated).
+PHASE 7 COMPLETE: Exec/Review/Commit/Push ✅×4. All PLAN phases 1–7 done + in prod. ROADMAP P15 → completed; next is P16 (Compliance + Launch Hardening).
+DEFERRED: P65 (pre-existing VirtualizedList-in-ScrollView RN dev warning, ScreenShell+FlatList).
+- 2026-06-05 23:30 | Write | /tmp/gastify-phase7-wrapup-commit.txt
