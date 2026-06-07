@@ -99,7 +99,7 @@ class RectificationResponse(BaseModel):
 
 class ErasureResponse(BaseModel):
     consents_revoked: int
-    transactions_anonymized: int
+    transactions_deleted: int
     user_anonymized: bool
     audit_event_id: UUID
     erased_at: datetime

@@ -1186,7 +1186,7 @@
           "privacy"
         ],
         "summary": "Erasure",
-        "description": "GDPR Art 17 / Law 21.719 / CCPA \u2014 right to erasure.\n\nSoft-delete: anonymizes PII in user profile, transactions, items, images;\nrevokes all consents. Does not hard-delete rows (audit trail per D4).",
+        "description": "GDPR Art 17 / Law 21.719 / CCPA \u2014 right to erasure.\n\nHard-delete (D89, amends D4): the user's own data \u2014 transactions, items, images,\nitem-flags \u2014 is genuinely removed, and all consents are revoked. The User row\nsurvives only as a scrubbed shell (PII anonymized) because the ``dsr_erasure``\naudit event FKs to it; that PII-free event is the durable proof of processing\nD4 requires. Group copies the user shared elsewhere are handled by D82's group\nvoid, not here.",
         "operationId": "erasure_api_v1_privacy_erasure_post",
         "responses": {
           "200": {
@@ -3640,9 +3640,9 @@
             "type": "integer",
             "title": "Consents Revoked"
           },
-          "transactions_anonymized": {
+          "transactions_deleted": {
             "type": "integer",
-            "title": "Transactions Anonymized"
+            "title": "Transactions Deleted"
           },
           "user_anonymized": {
             "type": "boolean",
@@ -3662,7 +3662,7 @@
         "type": "object",
         "required": [
           "consents_revoked",
-          "transactions_anonymized",
+          "transactions_deleted",
           "user_anonymized",
           "audit_event_id",
           "erased_at"

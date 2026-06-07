@@ -28,7 +28,7 @@ from app.schemas.consent import (
 )
 from app.services.consent import (
     anonymize_user_profile,
-    anonymize_user_transactions,
+    delete_user_transactions,
     list_consents,
     log_audit_event,
     revoke_all_consents,
@@ -157,8 +157,12 @@ async def rectification(
 async def erasure(request: Request, auth: Auth, db: DB) -> ErasureResponse:
     """GDPR Art 17 / Law 21.719 / CCPA — right to erasure.
 
-    Soft-delete: anonymizes PII in user profile, transactions, items, images;
-    revokes all consents. Does not hard-delete rows (audit trail per D4).
+    Hard-delete (D89, amends D4): the user's own data — transactions, items, images,
+    item-flags — is genuinely removed, and all consents are revoked. The User row
+    survives only as a scrubbed shell (PII anonymized) because the ``dsr_erasure``
+    audit event FKs to it; that PII-free event is the durable proof of processing
+    D4 requires. Group copies the user shared elsewhere are handled by D82's group
+    void, not here.
     """
     now = datetime.now(UTC)
     ip = request.client.host if request.client else None
@@ -169,10 +173,9 @@ async def erasure(request: Request, auth: Auth, db: DB) -> ErasureResponse:
         user_id=auth.user_id,
     )
 
-    txn_anonymized = await anonymize_user_transactions(
+    txn_deleted = await delete_user_transactions(
         db,
         ownership_scope_id=auth.ownership_scope_id,
-        user_id=auth.user_id,
     )
 
     await anonymize_user_profile(db, user_id=auth.user_id)
@@ -186,7 +189,7 @@ async def erasure(request: Request, auth: Auth, db: DB) -> ErasureResponse:
         details=json.dumps(
             {
                 "consents_revoked": consents_revoked,
-                "transactions_anonymized": txn_anonymized,
+                "transactions_deleted": txn_deleted,
                 "user_anonymized": True,
             }
         ),
@@ -198,13 +201,13 @@ async def erasure(request: Request, auth: Auth, db: DB) -> ErasureResponse:
         extra={
             "user_id": str(auth.user_id),
             "consents_revoked": consents_revoked,
-            "transactions_anonymized": txn_anonymized,
+            "transactions_deleted": txn_deleted,
         },
     )
 
     return ErasureResponse(
         consents_revoked=consents_revoked,
-        transactions_anonymized=txn_anonymized,
+        transactions_deleted=txn_deleted,
         user_anonymized=True,
         audit_event_id=event.id,
         erased_at=now,

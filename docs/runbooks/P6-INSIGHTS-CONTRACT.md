@@ -158,8 +158,9 @@ Runtime behavior:
   preserving their totals in `excluded_items`.
 - The monthly insights cache fingerprint includes current-user item flags, so
   flag create/update/remove operations invalidate stale aggregate output.
-- Privacy erasure removes the erasing user's flag rows along with existing
-  transaction anonymization.
+- Privacy erasure HARD-DELETES the erasing user's transactions, items, images, and
+  flag rows (D89, amends D4); only a scrubbed User shell + the PII-free `dsr_erasure`
+  audit event survive. (Earlier behavior anonymized the rows in place.)
 
 ## Staging API Gate
 

@@ -296,12 +296,24 @@ async def revoke_all_consents(
     return len(records)
 
 
-async def anonymize_user_transactions(
+async def delete_user_transactions(
     db: AsyncSession,
     *,
     ownership_scope_id: uuid.UUID,
-    user_id: uuid.UUID,
 ) -> int:
+    """Hard-delete the user's own transaction data (D89, amends D4).
+
+    The rows are removed, not anonymized in place, to honor D82's "delete
+    everything". The PII-free ``dsr_erasure`` audit event remains the durable proof
+    of processing (D4's requirement), and the User row survives as a scrubbed shell
+    because the audit event FKs to ``user_id`` (see ``anonymize_user_profile``).
+
+    ``ownership_scope_id`` is the caller's PERSONAL scope: ``auth.ownership_scope_id``
+    is never a swapped group scope — the D69/D70 read swap goes through
+    ``resolve_scope`` and does not rebind base auth — so every row deleted here is the
+    erasing user's own. Group copies the user shared into OTHER scopes are not touched
+    here; D82's group void handles those.
+    """
     from app.models.transaction import (
         Transaction,
         TransactionImage,
@@ -309,46 +321,31 @@ async def anonymize_user_transactions(
         TransactionItemFlag,
     )
 
-    stmt = (
-        update(Transaction)
-        .where(Transaction.ownership_scope_id == ownership_scope_id)
-        .values(
-            merchant="[REDACTED]",
-            alias=None,
-            thumbnail_url=None,
-            city=None,
-            country=None,
-        )
-    )
-    result = cast("CursorResult[Any]", await db.execute(stmt))
-    txn_count = result.rowcount or 0
-
     scope_txn_ids = select(Transaction.id).where(
         Transaction.ownership_scope_id == ownership_scope_id
     )
 
-    await db.execute(
-        update(TransactionItem)
-        .where(TransactionItem.transaction_id.in_(scope_txn_ids))
-        .values(name="[REDACTED]", subcategory=None)
-    )
-
-    await db.execute(
-        update(TransactionImage)
-        .where(TransactionImage.transaction_id.in_(scope_txn_ids))
-        .values(image_url="[REDACTED]")
-    )
-    # Item flags are user-private annotations: a DSR erasure deletes only the
-    # requesting user's own flags, never co-scope members'. user_id is required
-    # (not optional) so no caller can accidentally widen this to a scope-wide wipe.
+    # Delete children before parents (explicit FK order — robust on SQLite where
+    # ON DELETE CASCADE needs PRAGMA foreign_keys=ON; PG enforces CASCADE natively).
+    # In a personal ownership scope every flag is the erasing user's own.
     await db.execute(
         delete(TransactionItemFlag).where(
-            TransactionItemFlag.ownership_scope_id == ownership_scope_id,
-            TransactionItemFlag.user_id == user_id,
+            TransactionItemFlag.ownership_scope_id == ownership_scope_id
         )
     )
-
-    return txn_count
+    await db.execute(
+        delete(TransactionItem).where(TransactionItem.transaction_id.in_(scope_txn_ids))
+    )
+    await db.execute(
+        delete(TransactionImage).where(TransactionImage.transaction_id.in_(scope_txn_ids))
+    )
+    result = cast(
+        "CursorResult[Any]",
+        await db.execute(
+            delete(Transaction).where(Transaction.ownership_scope_id == ownership_scope_id)
+        ),
+    )
+    return result.rowcount or 0
 
 
 async def anonymize_user_profile(

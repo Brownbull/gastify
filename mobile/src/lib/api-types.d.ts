@@ -318,8 +318,12 @@ export interface paths {
          * Erasure
          * @description GDPR Art 17 / Law 21.719 / CCPA — right to erasure.
          *
-         *     Soft-delete: anonymizes PII in user profile, transactions, items, images;
-         *     revokes all consents. Does not hard-delete rows (audit trail per D4).
+         *     Hard-delete (D89, amends D4): the user's own data — transactions, items, images,
+         *     item-flags — is genuinely removed, and all consents are revoked. The User row
+         *     survives only as a scrubbed shell (PII anonymized) because the ``dsr_erasure``
+         *     audit event FKs to it; that PII-free event is the durable proof of processing
+         *     D4 requires. Group copies the user shared elsewhere are handled by D82's group
+         *     void, not here.
          */
         post: operations["erasure_api_v1_privacy_erasure_post"];
         delete?: never;
@@ -1193,8 +1197,8 @@ export interface components {
         ErasureResponse: {
             /** Consents Revoked */
             consents_revoked: number;
-            /** Transactions Anonymized */
-            transactions_anonymized: number;
+            /** Transactions Deleted */
+            transactions_deleted: number;
             /** User Anonymized */
             user_anonymized: boolean;
             /**

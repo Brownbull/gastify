@@ -70,7 +70,7 @@ async def test_rectification_logs_audit_event(client):
 
 
 @pytest.mark.asyncio
-async def test_erasure_revokes_consents_and_anonymizes(client):
+async def test_erasure_revokes_consents_and_hard_deletes(client):
     await client.post(
         "/api/v1/consent/analytics/grant",
         json={"jurisdiction": "CL"},
@@ -84,7 +84,7 @@ async def test_erasure_revokes_consents_and_anonymizes(client):
     assert resp.status_code == 200
     data = resp.json()
     assert data["consents_revoked"] == 2
-    assert data["transactions_anonymized"] == 0
+    assert data["transactions_deleted"] == 0
     assert data["audit_event_id"] is not None
     assert data["erased_at"] is not None
 
@@ -136,8 +136,9 @@ async def test_erasure_then_access_shows_empty_consents(client):
 
 
 @pytest.mark.asyncio
-async def test_erasure_anonymizes_all_pii(client, engine):
-    """Verify erasure redacts transaction fields, items, images, and user profile."""
+async def test_erasure_hard_deletes_all_data(client, engine):
+    """Verify erasure HARD-DELETES the user's transactions/items/images/flags (D89,
+    amends D4) and leaves only a scrubbed User shell (the audit-event FK anchor)."""
     from app.models.transaction import (
         Transaction,
         TransactionImage,
@@ -204,23 +205,17 @@ async def test_erasure_anonymizes_all_pii(client, engine):
     resp = await client.post("/api/v1/privacy/erasure")
     assert resp.status_code == 200
     data = resp.json()
-    assert data["transactions_anonymized"] == 1
+    assert data["transactions_deleted"] == 1
     assert data["user_anonymized"] is True
 
     async with session_factory() as session:
         from app.models.user import User
 
+        # Transaction (+ its items, images, flags) are GONE — not redacted in place.
         txn_row = (
             await session.execute(select(Transaction).where(Transaction.id == txn_id))
-        ).scalar_one()
-        assert txn_row.merchant == "[REDACTED]"
-        assert txn_row.country is None
-        assert txn_row.city is None
-        assert txn_row.thumbnail_url is None
-
-        user_row = (await session.execute(select(User).where(User.id == TEST_USER_ID))).scalar_one()
-        assert user_row.display_name == "[REDACTED]"
-        assert user_row.email is None
+        ).scalar_one_or_none()
+        assert txn_row is None
 
         items = (
             (
@@ -231,9 +226,7 @@ async def test_erasure_anonymizes_all_pii(client, engine):
             .scalars()
             .all()
         )
-        for item in items:
-            assert item.name == "[REDACTED]"
-            assert item.subcategory is None
+        assert items == []
 
         flags = (
             (
@@ -257,8 +250,13 @@ async def test_erasure_anonymizes_all_pii(client, engine):
             .scalars()
             .all()
         )
-        for img in images:
-            assert img.image_url == "[REDACTED]"
+        assert images == []
+
+        # The User row survives as a scrubbed shell — the dsr_erasure audit event
+        # FKs to user_id, so the row stays but its PII is anonymized.
+        user_row = (await session.execute(select(User).where(User.id == TEST_USER_ID))).scalar_one()
+        assert user_row.display_name == "[REDACTED]"
+        assert user_row.email is None
 
 
 @pytest.mark.asyncio
