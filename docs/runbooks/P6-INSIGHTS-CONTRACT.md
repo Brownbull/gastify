@@ -106,6 +106,36 @@ Runtime behavior:
   requested month plus the trailing baseline window, so transaction or item
   edits invalidate stale monthly output.
 
+## Phase 4 Runtime API — series + drill-down tree (D68/D69/D77, P66)
+
+D68/D69 added two more authenticated, ownership-scoped insights routes; D77 generalized
+their `period` from month-only to month/quarter/year; P66 added an optional per-node
+sparkline series to the tree.
+
+```text
+GET /api/v1/insights/series?from_month=YYYY-MM&to_month=YYYY-MM&granularity=week|month|quarter|year&currency=CLP
+GET /api/v1/insights/tree?period=YYYY-MM|YYYY-Qn|YYYY&dimension=transaction_category|item_category&include_series=false&currency=CLP
+```
+
+- `/series` (D68): one additive range read bucketed by `granularity` into a spend
+  time-series — the O(1)-request replacement for a client fan-out of N monthly calls.
+  Each point carries `period`, `period_start/end`, `total_spend_minor`, and
+  `transaction_count`, using the same post-exclusion `included_total_minor` as
+  `/monthly`. Zero-spend buckets are emitted so the line shows gaps.
+- `/tree` (D69): the full untruncated drill-down category tree for one `period` +
+  `dimension`. `transaction_category` yields the 4-level Industry → Store-type →
+  Item-family → Item store cross-walk; `item_category` the 2-level Family → Item tree.
+  Fetched once; the client expands it in memory (zero round-trips per drill).
+- `period` (D77): both `/tree` and `/monthly` accept `YYYY-MM` (month), `YYYY-Qn`
+  (quarter), or `YYYY` (year); a malformed key returns 422. Month behavior is unchanged.
+  Gravity centers remain a single-month-vs-baseline signal (omitted for quarter/year).
+- `include_series` (P66, `/tree` only): when `true`, each top-level (root) node carries
+  a within-period sub-bucket spend `series` (a single month → ISO weeks; quarter/year →
+  calendar months) for the report-detail trend sparklines. Off by default to keep the
+  tree lean for the dashboard/trends consumers that only drill.
+- All routes are ownership-scoped through the Firebase-auth dependency and accept an
+  optional `group_id` to analyze a group scope you belong to.
+
 ## Phase 3 Item Flag Semantics
 
 Phase 3 promotes item flags from fixture-only `is_flagged` compatibility into a
