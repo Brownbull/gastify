@@ -97,7 +97,5 @@ def downgrade() -> None:
         "DROP POLICY IF EXISTS group_stat_tombstones_scope_isolation ON group_stat_tombstones"
     )
     op.drop_index("idx_group_stat_tombstones_scope_period", table_name="group_stat_tombstones")
-    op.drop_index(
-        "ix_group_stat_tombstones_ownership_scope_id", table_name="group_stat_tombstones"
-    )
+    op.drop_index("ix_group_stat_tombstones_ownership_scope_id", table_name="group_stat_tombstones")
     op.drop_table("group_stat_tombstones")

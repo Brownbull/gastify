@@ -4055,3 +4055,14 @@ PHASE: 1 — DSR | TASK: T4/6 — account-delete → group void/tombstone + revo
 - 2026-06-07 14:34 | Edit | /home/khujta/projects/apps/gastify/backend/app/api/groups.py
 - 2026-06-07 14:34 | Write | /home/khujta/projects/apps/gastify/backend/tests/test_group_leave_void.py
 - 2026-06-07 14:37 | Write | /tmp/gastify-t5-commit.txt
+
+## 2026-06-07 14:38 — [d2e9b06] feat(groups): group-leave keep-vs-delete choice for shared data (P16 T5)
+FINDINGS: 0 (0 critical, 0 high, 0 medium, 0 low) — 1 ruff import-sort auto-fixed in-loop
+ACTIONS: none — all checks green; openapi regenerated (leave gains ?delete_shared); extracted tombstone_member_shares (DRY across T4+T5)
+CHECKS: lint ✅ types ✅ tests ✅ (846 passed/12 skipped) shape ✅ deferred ✅ docs ✅ structure ✅
+NOTE: backend keep-vs-delete CHOICE is live + proven API-level (4 SQLite fixtures: keep→stats intact (D72), delete→voided (member_removed_data), scoped-to-one-group, member's own data untouched). The web/mobile leave-delete CONFIRM PROMPT (surface ?delete_shared to the user) is a UX follow-up → +P68. admin remove_member always keeps (choice is the member's, not the admin's). T6 proves the void+choice on deployed staging-e2e next.
+PHASE: 1 — DSR | TASK: T5/6 — group-leave keep-vs-delete choice | EXEC 🔄 (T6 remains — staging proof gates ✅)
+- 2026-06-07 14:45 | Edit | /home/khujta/projects/apps/gastify/scripts/staging/run-dsr-staging-gate.py
+- 2026-06-07 14:45 | Edit | /home/khujta/projects/apps/gastify/scripts/staging/run-dsr-staging-gate.py
+- 2026-06-07 14:45 | Edit | /home/khujta/projects/apps/gastify/scripts/staging/run-dsr-staging-gate.py
+- 2026-06-07 14:57 | Edit | /home/khujta/projects/apps/gastify/mobile/src/lib/__tests__/reports.test.ts

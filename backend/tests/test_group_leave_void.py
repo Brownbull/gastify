@@ -18,7 +18,6 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from app.models.transaction import Transaction, TransactionItem
-from tests.conftest import TEST_SCOPE_ID
 from tests.test_groups import _acting_as, _add_member, _make_auth, _seed_user
 
 
@@ -116,16 +115,16 @@ async def test_leave_delete_is_scoped_to_the_left_group_only(client, engine):
     # A second group B also shares into.
     group2 = (await client.post("/api/v1/groups", json={"name": "Oficina"})).json()["id"]
     await _add_member(engine, uuid.UUID(group2), b_uid, "member")
-    txn2 = await _seed_personal_txn(engine, scope_id=b_scope, when=date(2026, 3, 20), total_minor=9_000)
+    txn2 = await _seed_personal_txn(
+        engine, scope_id=b_scope, when=date(2026, 3, 20), total_minor=9_000
+    )
     with _acting_as(_make_auth(b_uid, b_scope, "B")):
         assert (
             await client.post(f"/api/v1/groups/{group2}/share", json={"transaction_id": str(txn2)})
         ).status_code == 201
         # Leave only group1, deleting the shares there.
         assert (
-            await client.post(
-                f"/api/v1/groups/{group1}/leave", params={"delete_shared": "true"}
-            )
+            await client.post(f"/api/v1/groups/{group1}/leave", params={"delete_shared": "true"})
         ).status_code == 204
 
     assert (await _group_monthly(client, group1))["voided"] is True
@@ -145,9 +144,7 @@ async def test_leave_delete_does_not_touch_the_members_own_data(client, engine):
     )
     with _acting_as(_make_auth(b_uid, b_scope, "B")):
         assert (
-            await client.post(
-                f"/api/v1/groups/{group_id}/leave", params={"delete_shared": "true"}
-            )
+            await client.post(f"/api/v1/groups/{group_id}/leave", params={"delete_shared": "true"})
         ).status_code == 204
 
     async with _sf(engine)() as s:

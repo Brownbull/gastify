@@ -18,6 +18,7 @@ function point(
     period_end: periodStart,
     total_spend_minor: totalSpendMinor,
     transaction_count: transactionCount,
+    voided: false,
   };
 }
 

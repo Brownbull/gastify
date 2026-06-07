@@ -36,9 +36,7 @@ def _sf(engine):
     return async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
 
-async def _seed_group_with_spend(
-    engine, *, when: date, total_minor: int = 80_000
-) -> uuid.UUID:
+async def _seed_group_with_spend(engine, *, when: date, total_minor: int = 80_000) -> uuid.UUID:
     """A group scope holding one (shared-style) transaction on `when`."""
     async with _sf(engine)() as s:
         scope = OwnershipScope(scope_type="group", name="Casa")
