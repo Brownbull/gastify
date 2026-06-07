@@ -4026,3 +4026,15 @@ DEFERRED: +P67 (erasure-doc sweep)
 PHASE: 1 — DSR | TASK: T2/6 — erasure → hard-delete (D89, amends D4) | EXEC 🔄 (T3–T6 remain)
 - 2026-06-07 14:19 | Edit | /home/khujta/projects/apps/gastify/backend/schema/RLS.md
 - 2026-06-07 14:19 | Write | /tmp/gastify-t3-commit.txt
+
+## 2026-06-07 14:25 — [1d2b309] feat(privacy): group-stat tombstones void erased group-period stats (P16 T3)
+FINDINGS: 0 (0 critical, 0 high, 0 medium, 0 low)
+ACTIONS: none — all checks green; RLS.md updated in-commit for the new RLS table
+CHECKS: lint ✅ types ✅ tests ✅ (839 passed/12 skipped) shape ✅ deferred ✅ docs ✅ structure ✅
+NOTE: architecture.md Data Model / API Contracts narrative deferred to Phase-1 completion teach (established P45/P49/P55 pattern; new table + void recorded in D82/D89 + RLS.md). PG RLS reuses the proven direct-form pattern (test_rls_postgres direct-policy case) + migration 035 validated at the T6 staging deploy.
+PHASE: 1 — DSR | TASK: T3/6 — group_stat_tombstone + migration 035 + insights void wiring | EXEC 🔄 (T4–T6 remain)
+- 2026-06-07 14:26 | Write | /home/khujta/projects/apps/gastify/backend/tests/test_privacy_group_void.py
+- 2026-06-07 14:27 | Edit | /home/khujta/projects/apps/gastify/backend/app/schemas/consent.py
+- 2026-06-07 14:27 | Edit | /home/khujta/projects/apps/gastify/backend/app/api/privacy.py
+- 2026-06-07 14:27 | Edit | /home/khujta/projects/apps/gastify/backend/app/api/privacy.py
+- 2026-06-07 14:28 | Edit | /home/khujta/projects/apps/gastify/backend/app/api/privacy.py

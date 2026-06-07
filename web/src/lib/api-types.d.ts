@@ -316,14 +316,17 @@ export interface paths {
         put?: never;
         /**
          * Erasure
-         * @description GDPR Art 17 / Law 21.719 / CCPA — right to erasure.
+         * @description GDPR Art 17 / Law 21.719 / CCPA — right to erasure (account deletion).
          *
-         *     Hard-delete (D89, amends D4): the user's own data — transactions, items, images,
-         *     item-flags — is genuinely removed, and all consents are revoked. The User row
+         *     Account deletion is TOTAL (D82): hard-delete the user's own data (D89, amends D4
+         *     — transactions, items, images, item-flags genuinely removed) + revoke all
+         *     consents, AND void the group-period statistics their shared copies fed (tombstone
+         *     the affected (group, month) pairs) while removing their group memberships so those
+         *     copies fall out of every member-facing list (D72). The content-locked group copies
+         *     themselves are left in place (D74), invisible behind the void. The User row
          *     survives only as a scrubbed shell (PII anonymized) because the ``dsr_erasure``
-         *     audit event FKs to it; that PII-free event is the durable proof of processing
-         *     D4 requires. Group copies the user shared elsewhere are handled by D82's group
-         *     void, not here.
+         *     audit event FKs to it; that PII-free event is the durable proof of processing D4
+         *     requires.
          */
         post: operations["erasure_api_v1_privacy_erasure_post"];
         delete?: never;
@@ -1199,6 +1202,16 @@ export interface components {
             consents_revoked: number;
             /** Transactions Deleted */
             transactions_deleted: number;
+            /**
+             * Group Periods Voided
+             * @default 0
+             */
+            group_periods_voided: number;
+            /**
+             * Group Memberships Removed
+             * @default 0
+             */
+            group_memberships_removed: number;
             /** User Anonymized */
             user_anonymized: boolean;
             /**

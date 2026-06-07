@@ -1186,7 +1186,7 @@
           "privacy"
         ],
         "summary": "Erasure",
-        "description": "GDPR Art 17 / Law 21.719 / CCPA \u2014 right to erasure.\n\nHard-delete (D89, amends D4): the user's own data \u2014 transactions, items, images,\nitem-flags \u2014 is genuinely removed, and all consents are revoked. The User row\nsurvives only as a scrubbed shell (PII anonymized) because the ``dsr_erasure``\naudit event FKs to it; that PII-free event is the durable proof of processing\nD4 requires. Group copies the user shared elsewhere are handled by D82's group\nvoid, not here.",
+        "description": "GDPR Art 17 / Law 21.719 / CCPA \u2014 right to erasure (account deletion).\n\nAccount deletion is TOTAL (D82): hard-delete the user's own data (D89, amends D4\n\u2014 transactions, items, images, item-flags genuinely removed) + revoke all\nconsents, AND void the group-period statistics their shared copies fed (tombstone\nthe affected (group, month) pairs) while removing their group memberships so those\ncopies fall out of every member-facing list (D72). The content-locked group copies\nthemselves are left in place (D74), invisible behind the void. The User row\nsurvives only as a scrubbed shell (PII anonymized) because the ``dsr_erasure``\naudit event FKs to it; that PII-free event is the durable proof of processing D4\nrequires.",
         "operationId": "erasure_api_v1_privacy_erasure_post",
         "responses": {
           "200": {
@@ -3643,6 +3643,16 @@
           "transactions_deleted": {
             "type": "integer",
             "title": "Transactions Deleted"
+          },
+          "group_periods_voided": {
+            "type": "integer",
+            "title": "Group Periods Voided",
+            "default": 0
+          },
+          "group_memberships_removed": {
+            "type": "integer",
+            "title": "Group Memberships Removed",
+            "default": 0
           },
           "user_anonymized": {
             "type": "boolean",

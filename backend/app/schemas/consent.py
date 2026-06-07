@@ -100,6 +100,10 @@ class RectificationResponse(BaseModel):
 class ErasureResponse(BaseModel):
     consents_revoked: int
     transactions_deleted: int
+    # D82 group void: how many (group, month) stats were tombstoned and how many
+    # group memberships were removed for the shared copies the user contributed.
+    group_periods_voided: int = 0
+    group_memberships_removed: int = 0
     user_anonymized: bool
     audit_event_id: UUID
     erased_at: datetime
