@@ -4003,3 +4003,24 @@ HTML_ARTIFACT: docs/gabe/plans/2026-06-07-p16-compliance-launch/index.html
 REPLACES: Reports v2 plan (archived completed_PLAN_2026-06-07_reports-v2.md). Maps to ROADMAP §3 Phase 7; consolidates+audits REQ-20/REQ-21. Folds PENDING P36/P37/P59. Erasure policy needs DPO/legal sign-off (gated at Phase 5).
 - 2026-06-07 12:18 | Write | /home/khujta/projects/apps/gastify/docs/gabe/plans/2026-06-07-p16-compliance-launch/index.html
 - 2026-06-07 12:19 | Edit | /home/khujta/projects/apps/gastify/docs/gabe/plans/2026-06-07-p16-compliance-launch/index.html
+- 2026-06-07 12:30 | Edit | /home/khujta/projects/apps/gastify/docs/gabe/plans/2026-06-07-p16-compliance-launch/index.html
+- 2026-06-07 12:30 | Edit | /home/khujta/projects/apps/gastify/docs/gabe/plans/2026-06-07-p16-compliance-launch/index.html
+- 2026-06-07 12:31 | Edit | /home/khujta/projects/apps/gastify/docs/gabe/plans/2026-06-07-p16-compliance-launch/index.html
+- 2026-06-07 12:40 | Edit | /home/khujta/projects/apps/gastify/docs/gabe/plans/2026-06-07-p16-compliance-launch/index.html
+- 2026-06-07 12:40 | Edit | /home/khujta/projects/apps/gastify/docs/gabe/plans/2026-06-07-p16-compliance-launch/index.html
+- 2026-06-07 12:41 | Edit | /home/khujta/projects/apps/gastify/docs/gabe/plans/2026-06-07-p16-compliance-launch/index.html
+- 2026-06-07 12:54 | Edit | /home/khujta/projects/apps/gastify/docs/gabe/plans/2026-06-07-p16-compliance-launch/index.html
+- 2026-06-07 12:55 | Edit | /home/khujta/projects/apps/gastify/docs/gabe/plans/2026-06-07-p16-compliance-launch/index.html
+- 2026-06-07 12:55 | Edit | /home/khujta/projects/apps/gastify/docs/gabe/plans/2026-06-07-p16-compliance-launch/index.html
+- 2026-06-07 12:55 | Edit | /home/khujta/projects/apps/gastify/docs/gabe/plans/2026-06-07-p16-compliance-launch/index.html
+- 2026-06-07 13:20 | Edit | /home/khujta/projects/apps/gastify/docs/gabe/plans/2026-06-07-p16-compliance-launch/index.html
+- 2026-06-07 13:20 | Edit | /home/khujta/projects/apps/gastify/docs/gabe/plans/2026-06-07-p16-compliance-launch/index.html
+- 2026-06-07 13:20 | Edit | /home/khujta/projects/apps/gastify/docs/gabe/plans/2026-06-07-p16-compliance-launch/index.html
+- 2026-06-07 13:48 | Edit | /home/khujta/projects/apps/gastify/docs/runbooks/P6-INSIGHTS-CONTRACT.md
+
+## 2026-06-07 13:50 — [f028c84] feat(privacy): erasure hard-deletes the user's own data (P16 T2)
+FINDINGS: 1 (0 critical, 0 high, 0 medium, 1 low — doc-drift, fixed in-commit)
+ACTIONS: doc-fix P6-INSIGHTS-CONTRACT.md (erasure → hard-delete) + defer P67 (broader doc sweep → Phase 5)
+CHECKS: lint ✅ types ✅ tests ✅ (832 passed/12 skipped) shape ✅ deferred ✅ docs ⚠→fixed structure ✅
+DEFERRED: +P67 (erasure-doc sweep)
+PHASE: 1 — DSR | TASK: T2/6 — erasure → hard-delete (D89, amends D4) | EXEC 🔄 (T3–T6 remain)
