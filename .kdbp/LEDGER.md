@@ -4066,3 +4066,19 @@ PHASE: 1 — DSR | TASK: T5/6 — group-leave keep-vs-delete choice | EXEC 🔄 
 - 2026-06-07 14:45 | Edit | /home/khujta/projects/apps/gastify/scripts/staging/run-dsr-staging-gate.py
 - 2026-06-07 14:45 | Edit | /home/khujta/projects/apps/gastify/scripts/staging/run-dsr-staging-gate.py
 - 2026-06-07 14:57 | Edit | /home/khujta/projects/apps/gastify/mobile/src/lib/__tests__/reports.test.ts
+
+## 2026-06-07 15:08 — RUNTIME PROOF (P16 T6 — DSR + D82 group void) — staging-e2e GREEN
+GATE: scripts/staging/run-dsr-staging-gate.py (throwaway Firebase users via accounts:signUp/delete — persistent A/B fixtures untouched; erasure is irreversible)
+DEPLOYED URL: https://gastify-api-staging-e2e-staging-e2e.up.railway.app (NOT localhost) · migration_current=035 (health "current", real Postgres — the on-PG migration-apply proof) · CI 27101795258 success
+PROVEN AT: git_rev 8ebb897 (origin/staging) · stage_id 20260607T190737Z-dsr-api-gate · result_status=passed (4/4 sections)
+EVIDENCE (gitignored artifacts under tests/mobile/results/runs/staging-e2e/20260607T190737Z-dsr-api-gate/dsr-api-gate/):
+  - four_dsr_rights: data-access(count 0)→rectification(display_name+locale)→portability→seed 1 txn(count 1)→erasure(transactions_deleted=1, user_anonymized, audit_event_id c3be9af4…)→data-access count_after_erasure=0 (HARD-DELETE proven, D89)
+  - account_delete_void (D82/T4): sharer shares 64000 into a group w/ viewer → before total 64000/voided false → sharer erasure(group_periods_voided=1, group_memberships_removed=1) → viewer sees voided=true, void_reason=account_deleted, total 0 (RLS-correct cross-scope app_user_groups enum + per-group GUC swap + tombstone under FORCE RLS — the path SQLite can't prove)
+  - leave_choice (D82/T5): leaver shares 30000 → leave?delete_shared=true → owner sees voided=true, void_reason=member_removed_data, total 0
+  - leave_keep (D72): leaver shares 21000 → leave (default) → owner sees voided=false, total 21000 (intact)
+PHASE: 1 — DSR | TASK: T6/6 — staging runtime proof | runtime_journey_required ✅ + staging_proof_required ✅ SATISFIED
+
+## 2026-06-07 15:10 — PHASE EXEC COMPLETE: Phase 1 — Data-Subject Rights (DSR)
+TIER: ent
+TASKS: 6 tasks (T1 validate 4 rights, T2 erasure hard-delete, T3 tombstone+migration 035, T4 account-delete void, T5 group-leave choice, T6 staging proof), 5 commits prior to the T6 evidence commit (f028c84 T1+T2; 1d2b309 T3; fc8bb0c T4; d2e9b06 T5; 8ebb897 CI-fix)
+DEVIATIONS: 0 structural, 0 minor. Residuals tracked: P68 (FE leave-delete prompt); documented account-delete edge — shares into a group the user already LEFT keep their anonymous aggregate (RLS-hidden cross-scope under FORCE; sharer scrubbed → no PII remains).
