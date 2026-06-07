@@ -198,6 +198,8 @@ Load-bearing items deferred:
 **Prototype:** no
 **Reason:** Four-jurisdiction compliance (Law 21.719 + GDPR + PIPEDA + CCPA/CPRA) is a hard legal constraint at MVP per SCOPE §9.4. Audit event log required to prove DSR processing.
 
+**Amendment (2026-06-07, see D89).** The erasure IMPLEMENTATION chosen here was anonymize-in-place (keep rows, scrub PII). P16 D89 changes it to HARD-DELETE the user's own data + keep only the PII-free `dsr_erasure` audit event. D4's audit-event REQUIREMENT is preserved (the event survives); only the data-row handling changed (anonymize → hard-delete), to honor D82's "delete everything".
+
 ### Sections rendered
 - Core (always, all 4 dims)
 - Data: 3 dims kept, 1 suppressed
@@ -2513,3 +2515,45 @@ this decision.
 
 ### Status
 - accepted (MVP posture; revisit per the review trigger)
+
+## D89 — P16 execution decisions: validate-and-fill-gaps; erasure → hard-delete (2026-06-07)
+
+**Context.** Pre-Phase-1 review found P16's compliance machinery is largely ALREADY
+SCAFFOLDED: all four DSR rights exist (`app/api/privacy.py` — access / rectification /
+erasure / portability), `retention.py` declares TTLs (scans 90d, audit ~6y), `billing.py`
+has plan tiers + per-plan scan credits + a `NullBillingHook`, and consent eligibility is
+LIVE-DERIVED from `ConsentRecord` (`consent_propagation.py`) so revoke is honored instantly.
+P16 is therefore VALIDATE + FILL-GAPS, not build-from-scratch. Five execution decisions:
+
+**1 — Erasure: HARD-DELETE + PII-free audit event (AMENDS D4).** The existing erasure
+SOFT-DELETES (anonymizes PII in place, keeps rows for the audit trail per D4). That
+contradicts D82's "delete everything." Decision (the "shred + log" model): change the
+own-data path to HARD-DELETE the user's rows (profile / transactions / items / images
+genuinely removed) and keep ONLY the PII-free `dsr_erasure` audit EVENT (satisfies D4's
+"audit event required to prove DSR processing" — the event carries no personal content).
+Group-shared copies are handled by D82 rev 3 (account-delete revokes group visibility +
+voids the affected group-period stats). This AMENDS D4's anonymize-in-place IMPLEMENTATION
+choice; D4's audit-event requirement is preserved.
+
+**2 — Retention TTLs: keep + validate (no overhaul).** `retention.py`'s windows (scans 90d,
+audit ~6y) stand; validate each against the four regimes in the Phase-5 checklist. Update
+`retention.py`'s "transactions never deleted — anonymized via DSR" note: per (1),
+transactions are now HARD-DELETED on erasure (only the audit event is retained).
+
+**3 — Monetization: enforce the existing plumbing + harden P36; keep NullBillingHook.**
+Enforce `billing.py`'s per-plan scan credits in the live scan flow + fix the
+concurrency-naive primitives (P36 — idempotency/locking). No real payment provider yet;
+`NullBillingHook` stays. "Plumbing live + safe," not a billing UI; a real provider is a
+separate later phase.
+
+**4 — LLM throttle simulation: mock-provider forced-throttle flag.** The mock Gemini
+provider (D76) gets a test flag returning quota-exceeded / 429 on demand, directly exercising
+the queued + no-5xx degradation path. No real-provider quota needed.
+
+**5 — Phase structure: keep all 5, re-scoped to "validate + gap."** The gating granularity is
+worth it for a launch gate; each phase shifts from build-from-scratch to
+validate-the-scaffolding + close the specific gap. Phase 1's real NEW work = the (1)
+hard-delete change + the D82 group void/tombstone.
+
+### Status
+- accepted

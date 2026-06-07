@@ -101,10 +101,10 @@
       </g>
     </svg>
     <div class="grid cards" style="margin-top:6px">
-      <div class="card"><h3>P1 · Data-Subject Rights <span class="pill ent">ent</span><span class="pill cx">high</span></h3><p>Access / rectification / erasure / portability serviceable end-to-end on a test user, incl. the strict erasure-vs-group policy.</p><div class="ex">Exit signal (a)</div></div>
-      <div class="card"><h3>P2 · Consent + Retention <span class="pill ent">ent</span><span class="pill cx">high</span></h3><p>Consent records queryable; revocation cascades to cohort-unflag; retention TTL deletes expired data.</p><div class="ex">Exit signals (b) + (d)</div></div>
+      <div class="card"><h3>P1 · Data-Subject Rights <span class="pill ent">ent</span><span class="pill cx">med</span></h3><p>VALIDATE the 4 existing rights (privacy.py); change erasure to hard-delete + PII-free audit event (D89, amends D4); add the D82 group void.</p><div class="ex">Exit signal (a) · validate + gap</div></div>
+      <div class="card"><h3>P2 · Consent + Retention <span class="pill ent">ent</span><span class="pill cx">med</span></h3><p>VALIDATE retention.py TTLs (90d/6y) + consent live-derivation (revoke is instant — no cascade); transactions hard-deleted on erasure (D89).</p><div class="ex">Exit signals (b) + (d) · validate</div></div>
       <div class="card"><h3>P3 · LLM throttle degrade <span class="pill ent">ent</span><span class="pill cx">med-high</span></h3><p>Load test drives the extraction-LLM to quota throttle → all scans enter <code>queued</code>, zero 5xx.</p><div class="ex">Exit signal (c)</div></div>
-      <div class="card"><h3>P4 · Monetization plumbing <span class="pill ent">ent</span><span class="pill cx">med</span></h3><p>Plan tiers at schema level + billing hooks; harden the concurrency-naive billing primitives (P36).</p><div class="ex">Goal: monetization live</div></div>
+      <div class="card"><h3>P4 · Monetization plumbing <span class="pill ent">ent</span><span class="pill cx">med</span></h3><p>ENFORCE billing.py credits in the scan flow + harden P36 concurrency; keep NullBillingHook (no real provider, D89).</p><div class="ex">Goal: monetization plumbing live + safe</div></div>
       <div class="card"><h3>P5 · Audit + go/no-go <span class="pill ent">ent</span><span class="pill cx">med</span></h3><p>4-jurisdiction audit (reuse the live-PG RLS proof + P1–4 evidence), runbook rehearsal, signed checklist.</p><div class="ex">Exit signal (e)</div></div>
     </div>
   </section>
@@ -139,7 +139,7 @@
     <div class="callout">
       <h3>Two triggers — only leaving a group offers a choice</h3>
       <ol>
-        <li><b>Delete account</b> (leaving the app) — <b>total erasure, no choice.</b> Delete own + the shared group copies → <b>void</b> the affected group-period stats (fact-based — can't show a stat once its data is gone) → notice <i>"this member left the application; these stats were shut down for the affected months."</i></li>
+        <li><b>Delete account</b> (leaving the app) — <b>total erasure, no choice.</b> <b>Hard-delete</b> the user's own data ("shred") + keep only a PII-free <code>dsr_erasure</code> audit event ("log" — D89, amends D4); revoke + <b>void</b> the shared group copies' affected group-period stats (fact-based — can't show a stat once its data is gone) → notice <i>"this member left the application; these stats were shut down for the affected months."</i></li>
         <li><b>Leave a group</b> (keep the account) — <b>the only choice:</b> <b>keep</b> the already-shared copies (stats unchanged) or <b>delete</b> them (→ void affected stats + notice). The user's own data is untouched either way.</li>
       </ol>
       <div class="legal">Mechanism: a tombstone <code>(group, period, reason)</code> the stats layer checks before display — voiding is O(mark), and a voided figure is stronger for privacy than a recomputed one (gone, not adjusted). Both deletion paths feed the same void; nothing is orphaned (account delete is total). ⚠ Engineering's read, not legal advice — self-attested at Phase 5 (D88).</div>

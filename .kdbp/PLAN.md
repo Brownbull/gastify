@@ -18,10 +18,10 @@ P16 — Compliance + Launch Hardening: audited four-jurisdiction regulatory read
 
 | # | Phase | Description | Tier | Complexity | Exec | Review | Commit | Push |
 |---|-------|-------------|------|------------|------|--------|--------|------|
-| 1 | Data-Subject Rights (DSR) | Access/export, rectification, erasure, portability serviceable end-to-end on a test user — incl. the strict erasure-vs-group policy (D82). Exit signal (a). | ent | high | ⬜ | ⬜ | ⬜ | ⬜ |
-| 2 | Consent cascade + Retention TTL | Consent records queryable; revocation cascades (cohort-unflag); retention policy deletes data past declared TTL. Exit signals (b)+(d). | ent | high | ⬜ | ⬜ | ⬜ | ⬜ |
-| 3 | LLM quota-throttle degradation | Load test drives extraction-LLM to quota throttle → all scans enter `queued`, no 5xx. Exit signal (c). | ent | med-high | ⬜ | ⬜ | ⬜ | ⬜ |
-| 4 | Monetization plumbing | Plan tiers at schema level + billing hooks; harden the concurrency-naive billing primitives (P36). | ent | med | ⬜ | ⬜ | ⬜ | ⬜ |
+| 1 | Data-Subject Rights (DSR) | VALIDATE the 4 existing rights (privacy.py); change erasure to HARD-DELETE + PII-free audit event (D89, amends D4); add the D82 group void/tombstone. Exit signal (a). | ent | med | ⬜ | ⬜ | ⬜ | ⬜ |
+| 2 | Consent + Retention (validate) | VALIDATE retention.py TTLs (90d/6y) + consent live-derivation (revoke is instant — no cascade); per D89 transactions are hard-deleted on erasure (audit event retained). Exit signals (b)+(d). | ent | med | ⬜ | ⬜ | ⬜ | ⬜ |
+| 3 | LLM quota-throttle degradation | Mock-provider forced-throttle flag (D89) → load test → all scans enter `queued`, no 5xx. Exit signal (c). | ent | med-high | ⬜ | ⬜ | ⬜ | ⬜ |
+| 4 | Monetization plumbing | ENFORCE billing.py credits in the scan flow + harden P36 concurrency; keep NullBillingHook, no provider (D89). | ent | med | ⬜ | ⬜ | ⬜ | ⬜ |
 | 5 | 4-jurisdiction audit + go/no-go | Compliance audit (reuse the live-PG RLS proof + P1–4 evidence), incident-runbook rehearsal, go/no-go checklist signed. Exit signal (e). | ent | med | ⬜ | ⬜ | ⬜ | ⬜ |
 
 <!-- Exec is written by /gabe-execute: ⬜ not started, 🔄 in progress, ✅ complete -->
@@ -46,8 +46,8 @@ decisions_entry: D83
 ```
 
 - **Tier chosen:** ent — irreversible erasure + legally-mandated data export across four regimes; getting it wrong leaks or fails to delete personal data.
-- **Scope:** the four DSR rights on a test user, end-to-end on deployed staging-e2e: **access** (full personal-data export), **rectification** (edit with `user_edited_at`, already partly built), **erasure** (delete + the D82 group policy), **portability** (machine-readable export). Reuse the P1 consent/processing register + ownership-scope.
-- **Erasure-vs-group (D82 rev 3):** two triggers — **account deletion** is TOTAL (delete own + shared copies → VOID affected group-period stats via tombstone + notice "left the application"; no choice); **leaving a group** (keep account) is the only CHOICE — keep the shared copies (stats unchanged) or delete them (→ void affected stats + notice). Same void mechanism, different trigger. Self-attested at Phase 5 (D88).
+- **Scope (validate + gap, D89):** the four DSR rights ALREADY EXIST in `app/api/privacy.py` (access / rectification / erasure / portability) — VALIDATE them end-to-end on a test user. The NEW work: (1) per D89, change erasure from anonymize-in-place to **HARD-DELETE** the user's own data (profile / transactions / items / images) + keep ONLY the PII-free `dsr_erasure` audit event ("shred + log"; amends D4, whose audit-event requirement is preserved); (2) add the D82 group **void/tombstone**. Reuse the P1 consent/processing register + ownership-scope.
+- **Erasure-vs-group (D82 rev 3):** two triggers — **account deletion** is TOTAL (hard-delete own + revoke/void shared copies → VOID affected group-period stats via tombstone + notice "left the application"; no choice); **leaving a group** (keep account) is the only CHOICE — keep the shared copies (stats unchanged) or delete them (→ void affected stats + notice). Same void mechanism, different trigger. Self-attested at Phase 5 (D88).
 - **Runtime evidence:** a Playwright/API journey running each of the four rights on a throwaway test user against deployed staging-e2e; a two-user fixture proving (a) account deletion voids the affected group-period stats with the notice, and (b) group-leave honors the keep-vs-delete choice.
 
 ### Phase 2 — Consent cascade + Retention TTL
@@ -63,9 +63,9 @@ suppressed_dims_count: 0
 decisions_entry: D84
 ```
 
-- **Tier chosen:** ent — data-lifecycle correctness; a missed cascade leaves revoked data live, a wrong TTL deletes financial records a jurisdiction mandates keeping.
-- **Scope:** consent records queryable per the processing register; consent **revocation cascades** to downstream cohort-unflag (connects to P37 DP-cohort); a **retention policy** with declared per-data-class TTL whose scheduled job deletes expired test data — reconciling the deletion-vs-minimum-retention conflict across the four regimes (needs a DECISIONS entry during exec).
-- **Runtime evidence:** revoke consent on a test user → assert the cohort-unflag downstream; seed past-TTL test data → run the retention job → assert deletion; on staging first.
+- **Tier chosen:** ent — data-lifecycle correctness; a wrong TTL deletes financial records a jurisdiction mandates keeping, or fails to purge expired data.
+- **Scope (validate, D89):** consent eligibility is ALREADY LIVE-DERIVED from `ConsentRecord` (`consent_propagation.py`) so revocation is honored INSTANTLY — VALIDATE no cached downstream surface needs active invalidation (no cascade expected). `retention.py` ALREADY declares the TTLs (scans 90d, audit ~6y) + a scheduled job — VALIDATE each window vs the four regimes (Phase-5 checklist) and confirm the purge runs. Per D89, update `retention.py`'s "transactions never deleted — anonymized via DSR" note: transactions are now HARD-DELETED on erasure (only the audit event is retained).
+- **Runtime evidence:** revoke consent on a test user → assert eligibility flips instantly (live-derived); seed past-TTL test data → run the retention job → assert deletion; on staging first.
 
 ### Phase 3 — LLM quota-throttle degradation
 
@@ -98,7 +98,7 @@ decisions_entry: D86
 ```
 
 - **Tier chosen:** ent — financial primitives; the existing billing is concurrency-naive (P36), and double-charging / lost-tier-updates under concurrency is a money bug.
-- **Scope:** plan tiers at the schema level + billing hooks (plumbing, not a full billing UI — per the ROADMAP); harden the concurrency-naive billing primitives (P36) with proper locking/idempotency. Paid-tier LLM pre-commit gating ties to Phase 3.
+- **Scope (enforce + harden, D89):** `billing.py` ALREADY has plan tiers + per-plan scan credits + a `NullBillingHook` (no-op). The gaps: ENFORCE the credits in the live scan flow (currently defined but unenforced) + harden the concurrency-naive primitives (P36) with proper locking/idempotency. Keep `NullBillingHook` — NO real payment provider this phase (a separate later phase). Paid-tier LLM pre-commit gating ties to Phase 3.
 - **Runtime evidence:** concurrent billing-hook integration test (the live PG harness) proving no double-apply; staging proof of the plan-tier schema.
 
 ### Phase 5 — 4-jurisdiction audit + go/no-go
@@ -141,6 +141,7 @@ Phase 1: Data-Subject Rights (DSR)
 
 ## Notes
 
+- **Scaffolding discovery (D89):** P16 is largely VALIDATE-AND-FILL-GAPS, not build-from-scratch — the DSR rights (`app/api/privacy.py`), retention TTLs (`retention.py`), billing plumbing (`billing.py` + `NullBillingHook`), and live-derived consent (`consent_propagation.py`) already exist. The real NEW work: the Phase-1 erasure **hard-delete** change (D89, amends D4) + the D82 group **void/tombstone**; the Phase-3 mock throttle hook; the Phase-4 credit **enforcement** + P36 concurrency fix. This is why the phase complexities dropped (high → med) even though the structure stayed 5 phases.
 - All compliance answers in this plan are engineering's defensible read, NOT legal advice; the four regimes differ on definitions (anonymization, minimum retention). Per D88 the final policy is **self-attested** against a documented 4-jurisdiction checklist at Phase 5 (no external counsel) — a deliberate MVP posture with the residual liability accepted + a review trigger to engage counsel before EU scale.
 - B2 convention holds: every user-facing/backend slice is gated on deployed-staging-e2e runtime proofs before promote; favor the live-PG test harness + adversarial review for the data-safety phases.
 - Tier note: 5× ent is heavy by the over-scope heuristic — intentional here because P16 IS the rigor/validation gate; Phase 5 is the lightest (no new risky code).
