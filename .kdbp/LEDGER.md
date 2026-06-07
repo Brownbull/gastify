@@ -3978,3 +3978,18 @@ B2 PROOFS (deployed staging-e2e): web Playwright report-detail GREEN (month + qu
 DEPLOY DANCE: backend slice → polled /tree?include_series=true until the series was stably present (caught the old deploy at series_points=0, a 502 restart, then stable at 5 weekly buckets) before the FE proofs. DEVICE: the S23 dropped off wifi entirely (No route to host) — user woke it; then Metro restart --clear (stale bundle missing the new Sparkline) → cold-launch → screencap-verify → p14. Captured as s23 memory gotcha #7.
 SCOPE NOTE: the user upgraded P66 from the legacy FAKE indicator (hardcoded up/down SVG, not time data) to a TRUE within-period time-series sparkline — beyond legacy parity.
 ALL Reports v2 work (Phases 1-3 + the P66 sparkline follow-up) is now COMPLETE + in production. Next: ROADMAP P16 (Compliance + Launch Hardening) or the housekeeping queue (P32/P33 live RLS test, P46 insights.py split, P65 VirtualizedList warning, P45/P49 insights doc-drift).
+- 2026-06-07 11:11 | Edit | /home/khujta/projects/apps/gastify/mobile/src/components/ScreenShell.tsx
+- 2026-06-07 11:12 | Edit | /home/khujta/projects/apps/gastify/mobile/src/screens/ItemsScreen.tsx
+- 2026-06-07 11:12 | Edit | /home/khujta/projects/apps/gastify/mobile/src/screens/ItemsScreen.tsx
+- 2026-06-07 11:12 | Edit | /home/khujta/projects/apps/gastify/mobile/src/screens/ItemsScreen.tsx
+- 2026-06-07 11:13 | Edit | /home/khujta/projects/apps/gastify/mobile/src/screens/ItemsScreen.tsx
+- 2026-06-07 11:31 | Edit | /home/khujta/projects/apps/gastify/docs/runbooks/P6-INSIGHTS-CONTRACT.md
+
+## 2026-06-07 11:50 — Housekeeping queue COMPLETE (P32/P33, P46, P65, P45/P49) — all in prod / closed
+The user queued a housekeeping pass after P66. Outcome:
+- P32/P33 (live PG RLS test): NO WORK NEEDED — found already done. ci.yml runs a postgres:16 service + GASTIFY_TEST_PG_DSN so test_rls_postgres.py + test_group_isolation.py execute the real RLS policy DDL against live PG (direct + subquery isolation, WITH CHECK, FORCE RLS non-superuser, fail-safe-on-unset). The PENDING "static only" premise was stale (resolved in 8fbe921). Closed P32; P33 clarified as a deferred SCALE-tier perf item, not a correctness gap.
+- P46 (insights.py 1667 lines > 800): split into a package via an AST-based byte-exact splitter (decorators preserved) — _shared/loading/series/tree/monthly + re-exporting __init__, all <800. Pure refactor, 832 tests byte-identical. Shipped to prod (851aa05, P69).
+- P65 (VirtualizedList-in-ScrollView warning): ScreenShell scroll? prop → the two list-screen FlatLists own their scroll. RUNTIME-PROVEN on S23 (p11+p13 green, 0 warnings in logcat, capture confirmed live). Shipped to prod (82be9ba, P70).
+- P45/P49 (insights /series + /tree doc-drift): documented both (+ D77 period + P66 include_series) in P6-INSIGHTS-CONTRACT.md. Shipped (82be9ba, P70).
+TECHNIQUE: proved a dev-only RN warning ABSENT by clearing logcat, rendering the screen via Maestro, then grepping logcat for the warning string while confirming ReactNativeJS lines exist (so 0 means gone, not a dead capture).
+SESSION ARC: this long session shipped Reports v2 (Phases 1-3 + P66 sparklines) to prod, fixed the staging "By store" data (seed→backfill), and cleared the housekeeping queue. ALL that remains is ROADMAP P16 (Compliance + Launch Hardening) — the launch gate, a major phase best scoped fresh via /gabe-plan.
