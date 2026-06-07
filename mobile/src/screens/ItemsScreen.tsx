@@ -10,7 +10,7 @@ import {
   TextInput,
   View,
 } from "react-native";
-import { ScreenShell } from "../components/ScreenShell";
+import { SCREEN_PADDING, ScreenShell } from "../components/ScreenShell";
 import { useItems } from "../hooks/useItems";
 import { colorIndexForKey } from "../lib/chartData";
 import { formatDate, formatMinorAmount } from "../lib/format";
@@ -53,7 +53,7 @@ export function ItemsScreen({ navigation }: ItemsScreenProps = {}) {
   };
 
   return (
-    <ScreenShell>
+    <ScreenShell scroll={false}>
       <FlatList
         testID="items-screen"
         data={items}
@@ -130,6 +130,7 @@ export function ItemsScreen({ navigation }: ItemsScreenProps = {}) {
           ) : null
         }
         contentContainerStyle={styles.listContent}
+        keyboardShouldPersistTaps="handled"
         ItemSeparatorComponent={() => <View style={styles.separator} />}
       />
     </ScreenShell>
@@ -357,7 +358,9 @@ const styles = StyleSheet.create({
     textTransform: "uppercase",
   },
   listContent: {
-    paddingBottom: 24,
+    // The FlatList is now the scroll container (ScreenShell scroll={false}), so it owns
+    // the screen padding the shell's ScrollView used to provide.
+    padding: SCREEN_PADDING,
   },
   loadMore: {
     marginTop: 16,

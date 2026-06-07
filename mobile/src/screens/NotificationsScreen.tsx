@@ -9,7 +9,7 @@ import {
   Text,
   View,
 } from "react-native";
-import { ScreenShell } from "../components/ScreenShell";
+import { SCREEN_PADDING, ScreenShell } from "../components/ScreenShell";
 import {
   useDeleteNotification,
   useMarkAllNotificationsRead,
@@ -53,7 +53,7 @@ export function NotificationsScreen({ navigation }: NotificationsScreenProps = {
   const notifications = data?.pages.flatMap((page) => page.data) ?? [];
 
   return (
-    <ScreenShell>
+    <ScreenShell scroll={false}>
       <FlatList
         testID="notifications-screen"
         data={notifications}
@@ -233,7 +233,9 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   listContent: {
-    paddingBottom: 24,
+    // The FlatList is now the scroll container (ScreenShell scroll={false}), so it owns
+    // the screen padding the shell's ScrollView used to provide.
+    padding: SCREEN_PADDING,
   },
   loadMore: {
     marginTop: 16,
