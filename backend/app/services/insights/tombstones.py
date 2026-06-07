@@ -16,6 +16,7 @@ from typing import TYPE_CHECKING
 from sqlalchemy import select
 
 from app.models.group_stat_tombstone import GROUP_STAT_VOID_REASONS, GroupStatTombstone
+from app.models.transaction import Transaction
 
 if TYPE_CHECKING:
     import uuid
@@ -115,3 +116,44 @@ async def tombstone_group_period(
     )
     await db.flush()
     return True
+
+
+async def tombstone_member_shares(
+    db: AsyncSession,
+    *,
+    ownership_scope_id: uuid.UUID,
+    user_id: uuid.UUID,
+    reason: str,
+) -> int:
+    """Void every ``(group, month)`` the member's shared copies fed in this scope.
+
+    The single home for "a member's shared data is leaving this group" — shared by
+    account-delete (D82 total erasure → ``account_deleted``) and group-leave-delete
+    (D82 leave choice → ``member_removed_data``). Reads the months the member's group
+    copies touch (``shared_by_user_id``) and tombstones each — never recompute (D82),
+    never mutate the content-locked copy (D74). Returns the count of months newly
+    voided.
+
+    The caller owns the RLS GUC: it must already be swapped to ``ownership_scope_id``
+    (the group scope) so the reads see the copies and the tombstone inserts pass
+    ``WITH CHECK`` under Postgres FORCE RLS. Does NOT commit.
+    """
+    dates = (
+        (
+            await db.execute(
+                select(Transaction.transaction_date).where(
+                    Transaction.ownership_scope_id == ownership_scope_id,
+                    Transaction.shared_by_user_id == user_id,
+                )
+            )
+        )
+        .scalars()
+        .all()
+    )
+    voided = 0
+    for period in sorted({period_key(value) for value in dates}):
+        if await tombstone_group_period(
+            db, ownership_scope_id=ownership_scope_id, period=period, reason=reason
+        ):
+            voided += 1
+    return voided

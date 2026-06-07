@@ -39,7 +39,7 @@ from app.services.consent import (
     log_audit_event,
     revoke_all_consents,
 )
-from app.services.insights.tombstones import period_key, tombstone_group_period
+from app.services.insights.tombstones import tombstone_member_shares
 
 logger = logging.getLogger(__name__)
 
@@ -183,23 +183,9 @@ async def _void_user_group_shares(
     memberships_removed = 0
     for group_id, *_ in group_rows:
         await _set_postgres_ownership_scope(db, group_id)
-        dates = (
-            (
-                await db.execute(
-                    select(Transaction.transaction_date).where(
-                        Transaction.ownership_scope_id == group_id,
-                        Transaction.shared_by_user_id == user_id,
-                    )
-                )
-            )
-            .scalars()
-            .all()
+        periods_voided += await tombstone_member_shares(
+            db, ownership_scope_id=group_id, user_id=user_id, reason="account_deleted"
         )
-        for period in sorted({period_key(d) for d in dates}):
-            if await tombstone_group_period(
-                db, ownership_scope_id=group_id, period=period, reason="account_deleted"
-            ):
-                periods_voided += 1
         membership = await db.scalar(
             select(OwnershipScopeMember).where(
                 OwnershipScopeMember.ownership_scope_id == group_id,

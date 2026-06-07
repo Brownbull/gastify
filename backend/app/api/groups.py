@@ -14,7 +14,7 @@ from datetime import UTC, datetime, timedelta
 from typing import Annotated, cast
 from uuid import UUID  # noqa: TC003 - FastAPI resolves UUID path/param annotations at runtime.
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import func, or_, select, text
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -44,6 +44,7 @@ from app.schemas.groups import (
     ShareRequest,
     VisibilityUpdate,
 )
+from app.services.insights.tombstones import tombstone_member_shares
 
 # Spend fields a share copies verbatim; telemetry (llm_*/scan_*), personal
 # provenance (mapping ids, user-edit timestamps, card alias, thumbnail), and
@@ -488,6 +489,10 @@ async def delete_group(group_id: UUID, auth: Auth, db: DB) -> None:
 
 @router.delete("/{group_id}/members/{member_user_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def remove_member(group_id: UUID, member_user_id: UUID, auth: Auth, db: DB) -> None:
+    # Admin removal ALWAYS keeps the removed member's shared copies (no delete choice
+    # here): per D82 the keep-vs-delete decision over a member's shared data belongs to
+    # that member (via leave?delete_shared), not to an admin acting on them. The removed
+    # member's shares stay in the group's statistics (D72) and only drop from the list.
     role = await _resolve_membership(db, auth, group_id)
     target = await db.scalar(
         select(OwnershipScopeMember).where(
@@ -521,11 +526,32 @@ async def remove_member(group_id: UUID, member_user_id: UUID, auth: Auth, db: DB
 
 
 @router.post("/{group_id}/leave", status_code=status.HTTP_204_NO_CONTENT)
-async def leave_group(group_id: UUID, auth: Auth, db: DB) -> None:
+async def leave_group(
+    group_id: UUID,
+    auth: Auth,
+    db: DB,
+    delete_shared: bool = Query(
+        default=False,
+        description=(
+            "Leaving a group is the ONLY keep-vs-delete choice (D82). false (default) "
+            "KEEPS the copies the caller shared — they stay in the group's statistics "
+            "(D72), just hidden from the list as a departed contributor. true DELETES "
+            "their visibility: void the (group, month) stats their shares fed + drop "
+            "their rows from the list. The caller's own account/data is untouched."
+        ),
+    ),
+) -> None:
     """Leave a group as the authenticated caller (no member id needed client-side).
 
     The last owner/admin cannot leave — it would strand the group with no
     management surface; promote another admin first.
+
+    On ``delete_shared=true`` (D82 leave-delete) the caller's shared copies are voided:
+    every ``(group, month)`` their copies fed is tombstoned (reason
+    ``member_removed_data``) BEFORE the membership row is removed, so the aggregates
+    shut down and D72's current-member filter then hides the rows. The content-locked
+    copies themselves are left in place (D74), inert behind the void; scoped to THIS
+    group only — other groups the caller shared into are untouched.
     """
     role = await _resolve_membership(db, auth, group_id)
     if role in _MUTATE_ROLES and not await _has_other_admin(db, group_id, auth.user_id):
@@ -533,6 +559,13 @@ async def leave_group(group_id: UUID, auth: Auth, db: DB) -> None:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="Promote another admin before leaving",
+        )
+    if delete_shared:
+        await tombstone_member_shares(
+            db,
+            ownership_scope_id=group_id,
+            user_id=auth.user_id,
+            reason="member_removed_data",
         )
     target = await db.scalar(
         select(OwnershipScopeMember).where(

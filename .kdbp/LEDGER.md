@@ -4036,5 +4036,22 @@ PHASE: 1 — DSR | TASK: T3/6 — group_stat_tombstone + migration 035 + insight
 - 2026-06-07 14:26 | Write | /home/khujta/projects/apps/gastify/backend/tests/test_privacy_group_void.py
 - 2026-06-07 14:27 | Edit | /home/khujta/projects/apps/gastify/backend/app/schemas/consent.py
 - 2026-06-07 14:27 | Edit | /home/khujta/projects/apps/gastify/backend/app/api/privacy.py
+
+## 2026-06-07 14:33 — [fc8bb0c] feat(privacy): account-delete voids the user's shared group stats (P16 T4)
+FINDINGS: 0 (0 critical, 0 high, 0 medium, 0 low)
+ACTIONS: none — all checks green; openapi regenerated (ErasureResponse +group_periods_voided/+group_memberships_removed)
+CHECKS: lint ✅ types ✅ tests ✅ (842 passed/12 skipped) shape ✅ deferred ✅ docs ✅ structure ✅
+NOTE: account-delete enumerates groups via app_user_groups (D71), swaps GUC per group to tombstone shared periods + de-member (D72/D74), restores personal scope. Two-user SQLite fixture proves void + revoke-visibility; cross-scope write isolation rides the generic live-PG harness + T6 staging deploy. Residual (documented in the helper): a group the user SHARED INTO then already LEFT keeps its anonymous aggregate — the contributor row is RLS-hidden cross-scope (FORCE) and points at a scrubbed User shell, so no PII remains.
+PHASE: 1 — DSR | TASK: T4/6 — account-delete → group void/tombstone + revoke visibility | EXEC 🔄 (T5–T6 remain)
 - 2026-06-07 14:27 | Edit | /home/khujta/projects/apps/gastify/backend/app/api/privacy.py
 - 2026-06-07 14:28 | Edit | /home/khujta/projects/apps/gastify/backend/app/api/privacy.py
+- 2026-06-07 14:33 | Edit | /home/khujta/projects/apps/gastify/backend/app/services/insights/tombstones.py
+- 2026-06-07 14:33 | Edit | /home/khujta/projects/apps/gastify/backend/app/services/insights/tombstones.py
+- 2026-06-07 14:33 | Edit | /home/khujta/projects/apps/gastify/backend/app/api/privacy.py
+- 2026-06-07 14:33 | Edit | /home/khujta/projects/apps/gastify/backend/app/api/privacy.py
+- 2026-06-07 14:33 | Edit | /home/khujta/projects/apps/gastify/backend/app/api/groups.py
+- 2026-06-07 14:33 | Edit | /home/khujta/projects/apps/gastify/backend/app/api/groups.py
+- 2026-06-07 14:34 | Edit | /home/khujta/projects/apps/gastify/backend/app/api/groups.py
+- 2026-06-07 14:34 | Edit | /home/khujta/projects/apps/gastify/backend/app/api/groups.py
+- 2026-06-07 14:34 | Write | /home/khujta/projects/apps/gastify/backend/tests/test_group_leave_void.py
+- 2026-06-07 14:37 | Write | /tmp/gastify-t5-commit.txt

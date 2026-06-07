@@ -2905,7 +2905,7 @@
           "groups"
         ],
         "summary": "Leave Group",
-        "description": "Leave a group as the authenticated caller (no member id needed client-side).\n\nThe last owner/admin cannot leave \u2014 it would strand the group with no\nmanagement surface; promote another admin first.",
+        "description": "Leave a group as the authenticated caller (no member id needed client-side).\n\nThe last owner/admin cannot leave \u2014 it would strand the group with no\nmanagement surface; promote another admin first.\n\nOn ``delete_shared=true`` (D82 leave-delete) the caller's shared copies are voided:\nevery ``(group, month)`` their copies fed is tombstoned (reason\n``member_removed_data``) BEFORE the membership row is removed, so the aggregates\nshut down and D72's current-member filter then hides the rows. The content-locked\ncopies themselves are left in place (D74), inert behind the void; scoped to THIS\ngroup only \u2014 other groups the caller shared into are untouched.",
         "operationId": "leave_group_api_v1_groups__group_id__leave_post",
         "parameters": [
           {
@@ -2917,6 +2917,18 @@
               "format": "uuid",
               "title": "Group Id"
             }
+          },
+          {
+            "name": "delete_shared",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Leaving a group is the ONLY keep-vs-delete choice (D82). false (default) KEEPS the copies the caller shared \u2014 they stay in the group's statistics (D72), just hidden from the list as a departed contributor. true DELETES their visibility: void the (group, month) stats their shares fed + drop their rows from the list. The caller's own account/data is untouched.",
+              "default": false,
+              "title": "Delete Shared"
+            },
+            "description": "Leaving a group is the ONLY keep-vs-delete choice (D82). false (default) KEEPS the copies the caller shared \u2014 they stay in the group's statistics (D72), just hidden from the list as a departed contributor. true DELETES their visibility: void the (group, month) stats their shares fed + drop their rows from the list. The caller's own account/data is untouched."
           }
         ],
         "responses": {

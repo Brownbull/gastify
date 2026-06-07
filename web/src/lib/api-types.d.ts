@@ -917,6 +917,13 @@ export interface paths {
          *
          *     The last owner/admin cannot leave — it would strand the group with no
          *     management surface; promote another admin first.
+         *
+         *     On ``delete_shared=true`` (D82 leave-delete) the caller's shared copies are voided:
+         *     every ``(group, month)`` their copies fed is tombstoned (reason
+         *     ``member_removed_data``) BEFORE the membership row is removed, so the aggregates
+         *     shut down and D72's current-member filter then hides the rows. The content-locked
+         *     copies themselves are left in place (D74), inert behind the void; scoped to THIS
+         *     group only — other groups the caller shared into are untouched.
          */
         post: operations["leave_group_api_v1_groups__group_id__leave_post"];
         delete?: never;
@@ -4981,7 +4988,10 @@ export interface operations {
     };
     leave_group_api_v1_groups__group_id__leave_post: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description Leaving a group is the ONLY keep-vs-delete choice (D82). false (default) KEEPS the copies the caller shared — they stay in the group's statistics (D72), just hidden from the list as a departed contributor. true DELETES their visibility: void the (group, month) stats their shares fed + drop their rows from the list. The caller's own account/data is untouched. */
+                delete_shared?: boolean;
+            };
             header?: never;
             path: {
                 group_id: string;
