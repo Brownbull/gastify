@@ -82,5 +82,10 @@ appId: com.gastify.mobile
     element:
       id: report-detail-group
     centerElement: true
+# P66: the within-period trend sparkline renders on the group headers for a QUARTER
+# card too (quarter → calendar-month sub-buckets, a different path than the month →
+# weekly buckets proven by p14).
+- assertVisible:
+    id: report-detail-sparkline
 - takeScreenshot:
     path: 01-quarter-detail
