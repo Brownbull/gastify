@@ -5,166 +5,155 @@
 
 ## Goal
 
-Reports v2 — rebuild the legacy BoletApp "Resumen" report **detail** experience in gastify (web + mobile): tap a period report → a rich detail view with hierarchical store + product/item group breakdowns, a persona insight, highlights, and a drill into the underlying transactions. Recovers the depth the current flat period-cards Reports screen is missing, reusing the analytics backend we already ship.
+P16 — Compliance + Launch Hardening: audited four-jurisdiction regulatory readiness (Chile Law 21.719, GDPR, PIPEDA, CCPA/CPRA) + paid Gemini tier + monetization plumbing live + a rehearsed launch-incident runbook — proving the compliance/operational scaffolding dropped across P1–P15 is real, not theoretical.
 
 ## Context
 
-- **Maturity:** mvp
-- **Domain:** Chilean smart expense tracker (AI receipt scanning, multi-currency analytics, PWA + native mobile)
-- **Created:** 2026-06-05
-- **Last Updated:** 2026-06-06 (Phase 3 — Quarter/Year breakdowns — COMPLETE ✅×4 + shipped to production (D81, P65/P66). **ALL Reports v2 phases (1–3) done + in prod.** The range-based /insights/tree + /monthly now accept YYYY-MM / YYYY-Qn / YYYY (month behavior byte-identical); the report detail opens for quarter/year cards with the grouped breakdown + a quarter-aware insight (trend gated to month so quarter/year aren't mislabeled "vs last month"). Adversarial review workflow (4 dims incl. security-reviewer; 16 raw → 12 confirmed, 2 HIGH fixed: year baseline over-read + the "vs last month" mislabel). backend 827 (6 new quarter/year tests, month unchanged) / web 117 / mobile 247. B2-proven both platforms (web month+quarter + S23 p14 month + p15 quarter — the S23 re-locked twice mid-session; user unlocked it for the proofs). A backend slice, so the deployed backend had to STABILIZE before the FE proofs were valid. Per-category trend sparklines descoped → PENDING P66. Current Phase advanced 3→done. Next: ROADMAP P16 (Compliance + Launch Hardening). Prior: Phase 2 — Persona insight + highlights — COMPLETE ✅×4 + shipped to production (D80, P63/P64). A shared buildReportInsight(monthly, card) → persona insight sentence + highlights ("trophies") in the report detail (web overlay + mobile screen), from /insights/monthly gravity_centers + top categories + the card trend; ported from the legacy reportInsights decision tree + Chilean seasonal copy (web i18n es/en/pt; mobile English). Adversarial review workflow (4 dims, 24 raw → 15 confirmed, all HIGH + impactful MEDIUM fixed). B2-proven both platforms (web Playwright + S23 Maestro p14 — S23 auto-locked mid-session; user unlocked it for the proof). Current Phase advanced 2→3. Pure frontend (only Phase 3 needs backend). Prior: Phase 1 — Report Detail Overlay + grouped breakdown — COMPLETE ✅×4 + shipped to production (D79, P61/P62). Tap a month report → web overlay / mobile ReportDetailScreen with the hierarchical store + item grouped breakdown (donut + group cards) from `/insights/tree` (D69) + "view transactions" drill (new `/transactions` validateSearch {dateFrom,dateTo}; resolved PENDING P47). Pure frontend, no migration. Reviewed (typescript + code reviewer, 0 CRITICAL; 3 HIGH + MEDIUMs fixed); web vitest 98 / mobile jest 238; B2-proven both platforms on deployed staging-e2e (web Playwright + S23 Maestro p14). In-proof fixes: empty-dimension message ("No categories in this period.") + mobile flow taps the most-recent completed month. Current Phase advanced 1→2. Prior: plan authored 2026-06-05 — Reports v2 ROADMAP scope-addition, legacy "Resumen" rebuild; backend already ships /insights/tree + gravity_centers + week series, so Slices 1+2 are FE assembly, only Slice 3 needs new backend.)
-- **Decision basis:** Legacy reports gap analysis (2026-06-05, in LEDGER) comparing `boletapp/src/features/reports/` vs gastify `web/src/routes/reports.tsx` + `mobile/src/screens/ReportsScreen.tsx`. Legacy-parity-as-reference (rebuild the feel, don't gold-plate). This is a ROADMAP scope-addition (not yet on the roadmap) — add via `/gabe-scope-addition` when greenlit; sits after P15, around/before P16.
+- **Maturity:** mvp (project) — but P16 is the launch gate, so every phase is tiered **ent** (data-safety + compliance rigor; escalation reasons logged in DECISIONS D83–D87).
+- **Domain:** Chilean smart expense tracker; markets from day 1 = Chile + LATAM + EU + US + Canada (four privacy regimes — the compliance need is real, not aspirational).
+- **Created:** 2026-06-07
+- **Last Updated:** 2026-06-07 (P16 plan authored. Replaces the completed Reports v2 plan — archived `.kdbp/archive/completed_PLAN_2026-06-07_reports-v2.md`. ROADMAP §3 Phase 7. Consolidates + AUDITS REQ-20 (consent + processing register) + REQ-21 (observability); no new REQs — this is a validation + hardening phase. The five phases map to the ROADMAP exit signals a–e. Erasure-vs-group-data policy locked in D82 (strict: revoke group visibility + recompute aggregates below the k-anonymity floor; DPO/legal sign-off pending). Folds in PENDING P36 (concurrency-naive billing), P37 (un-noised DP cohort count → sensitive-category suppression), P59 (invite rate-limit). The live-PG RLS proof (test_rls_postgres.py + test_group_isolation.py in CI, was P32) is a ready compliance-audit artifact.)
 
 ## Phases
 
 | # | Phase | Description | Tier | Complexity | Exec | Review | Commit | Push |
 |---|-------|-------------|------|------------|------|--------|--------|------|
-| 1 | Report Detail Overlay + grouped breakdown | Tap a period report card → a detail overlay/screen with store-group cards + item-group cards (from `/insights/tree`) each with a `CategoryDonut`, plus a "view transactions" drill into the filtered transactions list. Reuses existing tree + donut — no new backend. Web + mobile. | mvp | high | ✅ | ✅ | ✅ | ✅ |
-| 2 | Persona insight + highlights | Add a Rosa-friendly insight sentence + a highlights ("trophies") block to the detail view — biggest category rise/drop, category leader, dominant/diverse patterns — sourced from `/insights/monthly` `gravity_centers` + the period series; Chilean seasonal copy (verano / fiestas patrias / fin de año) as frontend strings. Port `reportInsights.ts` logic. Web + mobile. | mvp | med | ✅ | ✅ | ✅ | ✅ |
-| 3 | Quarter/Year breakdowns + per-category trend | The only net-new backend: generalize the `/insights/tree` + `/insights/monthly` category rollups to **quarter/year** periods (lifts the D77 month-only limit). Detail opens for quarter/year cards with the grouped breakdown + insight. Web + mobile. (Per-category trend **sparklines** descoped to a follow-up — see PENDING.) | mvp | high | ✅ | ✅ | ✅ | ✅ |
+| 1 | Data-Subject Rights (DSR) | Access/export, rectification, erasure, portability serviceable end-to-end on a test user — incl. the strict erasure-vs-group policy (D82). Exit signal (a). | ent | high | ⬜ | ⬜ | ⬜ | ⬜ |
+| 2 | Consent cascade + Retention TTL | Consent records queryable; revocation cascades (cohort-unflag); retention policy deletes data past declared TTL. Exit signals (b)+(d). | ent | high | ⬜ | ⬜ | ⬜ | ⬜ |
+| 3 | LLM quota-throttle degradation | Load test drives extraction-LLM to quota throttle → all scans enter `queued`, no 5xx. Exit signal (c). | ent | med-high | ⬜ | ⬜ | ⬜ | ⬜ |
+| 4 | Monetization plumbing | Plan tiers at schema level + billing hooks; harden the concurrency-naive billing primitives (P36). | ent | med | ⬜ | ⬜ | ⬜ | ⬜ |
+| 5 | 4-jurisdiction audit + go/no-go | Compliance audit (reuse the live-PG RLS proof + P1–4 evidence), incident-runbook rehearsal, go/no-go checklist signed. Exit signal (e). | ent | med | ⬜ | ⬜ | ⬜ | ⬜ |
 
 <!-- Exec is written by /gabe-execute: ⬜ not started, 🔄 in progress, ✅ complete -->
 <!-- Review/Commit/Push auto-ticked by /gabe-review, /gabe-commit, /gabe-push -->
 <!-- A phase is complete when all four status columns are ✅ -->
-<!-- /gabe-next routes to the next command based on column state (Exec → Review → Commit → Push → advance phase) -->
-<!-- Tier column values: mvp | ent | scale. Read by /gabe-execute (tier-cap) and /gabe-review (TIER_DRIFT finding). -->
+<!-- Tier column values: mvp | ent | scale. Read by /gabe-execute (tier-cap) and /gabe-review (TIER_DRIFT). -->
 <!-- User-facing/runtime phase types require journey evidence artifacts before Exec can be ✅. -->
-<!-- Manual override is fine — edit cells by hand any time -->
 
 ## Phase Details
 
-### Phase 1 — Report Detail Overlay + grouped breakdown
+### Phase 1 — Data-Subject Rights (DSR)
 
 ```yaml
 phase: 1
-types: [user-facing, web, native-mobile, data-view, analytics]
-phase_tier: mvp
+types: [auth, data, user-facing, compliance]
+phase_tier: ent
 prototype: false
 dim_overrides: []
-sections_considered: [Core, UI/UX, Data]
+sections_considered: [Core, Data, Auth, User-facing]
 suppressed_dims_count: 0
-decisions_entry: D79
+decisions_entry: D83
 ```
 
-- **Tier chosen:** mvp — new read-only detail surface assembled over the EXISTING `/insights/tree` endpoint + the existing `CategoryDonut`. No new backend, no migration.
-- **Prototype:** no
-- **Why first:** the detail overlay with the grouped, hierarchical breakdown is the single most distinctive thing the legacy "Resumen" had and gastify lacks. Highest value/effort, and unblocks Slices 2–3 (they decorate this surface).
-- **Legacy reference to port:** `boletapp/src/features/reports/components/{ReportDetailOverlay,CategoryGroupCard,ItemGroupCard,SpendingDonutChart}.tsx` + `utils/reportCategoryGrouping.ts` (the store-group + item-group rollup shapes).
-- **Key gastify reuse:** `GET /insights/tree` (4-level store + item hierarchy — `services/insights.py::_build_store_cross_walk_tree`), `web/src/components/charts/CategoryDonut.tsx` + the mobile donut, `web/src/hooks/useInsights.ts::useInsightsTree`.
-- **Tasks:**
-  - **T1 (web)** — `useReportDetail` (thread the tapped report's period date-range into `useInsightsTree`); derive store-group + item-group card view-models from the tree's nested `children`.
-  - **T2 (web)** — `ReportDetailOverlay` component (modal): hero (total + trend), store-group cards + item-group cards each with a `CategoryDonut`; wired to open on a `reports-card` tap. i18n keys. vitest.
-  - **T3 (web)** — "view transactions" drill: map the report period → a transactions filter and navigate. Verify `/transactions` accepts a date-range filter (it has `date_from`/`date_to`); add a `validateSearch` schema if missing (this is the residual from PENDING P47).
-  - **T4 (web)** — Playwright proof on deployed staging-e2e: tap a month card → overlay → group cards + donut visible → drill to transactions.
-  - **T5 (mobile)** — `ReportDetailScreen`/sheet: same group cards + donut (reuse the mobile donut); open on card tap; jest.
-  - **T6 (mobile)** — nav + drill-to-transactions + S23 Maestro proof.
-- **Runtime evidence:** web Playwright (`tests/web-e2e/report-detail.spec.ts`) + S23 Maestro (`tests/mobile/maestro/p14-report-detail-active.yaml`) on deployed staging-e2e — tap a report, assert the grouped breakdown + donut render, drill to transactions.
+- **Tier chosen:** ent — irreversible erasure + legally-mandated data export across four regimes; getting it wrong leaks or fails to delete personal data.
+- **Scope:** the four DSR rights on a test user, end-to-end on deployed staging-e2e: **access** (full personal-data export), **rectification** (edit with `user_edited_at`, already partly built), **erasure** (delete + the D82 group policy), **portability** (machine-readable export). Reuse the P1 consent/processing register + ownership-scope.
+- **Erasure-vs-group (D82, strict):** erase own data → revoke other members' visibility of shared transactions (do not mutate the content-locked group copy) → recompute group aggregates to exclude the departed contribution below the k-anonymity floor. DPO/legal sign-off pending.
+- **Runtime evidence:** a Playwright/API journey that runs each of the four rights on a throwaway test user against deployed staging-e2e + artifacts; erasure proven to revoke group visibility (two-user fixture).
 
-### Phase 2 — Persona insight + highlights
+### Phase 2 — Consent cascade + Retention TTL
 
 ```yaml
 phase: 2
-types: [user-facing, web, native-mobile, analytics]
-phase_tier: mvp
+types: [data, data-migration, compliance, scheduled-job]
+phase_tier: ent
 prototype: false
 dim_overrides: []
-sections_considered: [Core, UI/UX]
+sections_considered: [Core, Data, Migration]
 suppressed_dims_count: 0
-decisions_entry: D80
+decisions_entry: D84
 ```
 
-- **Tier chosen:** mvp — a presentational insight string + highlights derived from data the `/insights/monthly` response already returns (`gravity_centers`). Mostly frontend; no new backend.
-- **Prototype:** no
-- **Legacy reference to port:** `boletapp/src/features/reports/utils/reportInsights.ts` (`generateMonthlyPersonaInsight`, `generate{Monthly,Quarterly,Yearly}Highlights`, the biggest-change detector, `HOLIDAY_MONTHS` seasonal copy).
-- **Key gastify reuse:** `/insights/monthly` `gravity_centers` (direction + explanation per category — `services/insights.py::_gravity_centers`) + the top category; the `week` series for "high/low week within the month."
-- **Tasks:**
-  - **T1 (shared)** — a framework-agnostic `reportInsights` formatter: input = monthly insight (`gravity_centers`, top categories) + the period series; output = `{ insight: string, highlights: Highlight[] }`. Port the legacy thresholds (>15/25% rise/drop, ≥45% dominant, ≥4 diversity). Unit-tested directly.
-  - **T2 (web)** — Chilean seasonal copy as i18n/FE strings + render the insight sentence + highlights block in `ReportDetailOverlay`. vitest.
-  - **T3 (mobile)** — same insight + highlights in the mobile detail screen. jest.
-  - **T4** — Playwright + S23 Maestro proofs: the insight sentence + at least one highlight render for a real month.
-- **Runtime evidence:** web Playwright + S23 Maestro on deployed staging-e2e — assert the persona sentence + a highlight render in the detail view.
+- **Tier chosen:** ent — data-lifecycle correctness; a missed cascade leaves revoked data live, a wrong TTL deletes financial records a jurisdiction mandates keeping.
+- **Scope:** consent records queryable per the processing register; consent **revocation cascades** to downstream cohort-unflag (connects to P37 DP-cohort); a **retention policy** with declared per-data-class TTL whose scheduled job deletes expired test data — reconciling the deletion-vs-minimum-retention conflict across the four regimes (needs a DECISIONS entry during exec).
+- **Runtime evidence:** revoke consent on a test user → assert the cohort-unflag downstream; seed past-TTL test data → run the retention job → assert deletion; on staging first.
 
-### Phase 3 — Quarter/Year breakdowns + per-category trend
+### Phase 3 — LLM quota-throttle degradation
 
 ```yaml
 phase: 3
-types: [analytics, data, user-facing, web, native-mobile]
-phase_tier: mvp
+types: [integration, resilience, observability]
+phase_tier: ent
 prototype: false
 dim_overrides: []
-sections_considered: [Core, Data, UI/UX]
+sections_considered: [Core, Integration, Observability]
 suppressed_dims_count: 0
-decisions_entry: D81
+decisions_entry: D85
 ```
 
-- **Tier chosen:** mvp — additive analytics aggregation (read-only). The cross-scope RLS + period-windowing infrastructure already exists; this generalizes the existing rollup, no migration.
-- **Prototype:** no
-- **Why last:** it's the only slice needing backend, and it DEEPENS surfaces Slices 1–2 already built (quarter/year cards gain a breakdown; group cards gain a sparkline) rather than adding the missing core.
-- **Legacy reference to port:** `boletapp/.../components/CategoryGroupCard.tsx` + `ItemGroupCard.tsx` (the `TrendSparkline`/`TrendChange` mini-SVGs).
-- **Key gastify targets:** `backend/app/services/insights.py` (`_build_store_cross_walk_tree`, the monthly rollup) + `backend/app/api/insights.py` — add quarter/year period support + a per-category prior-period trend field.
-- **Tasks:**
-  - **T1 (backend)** — generalize the tree + monthly category rollup to accept `period` granularity (quarter/year), aggregating the constituent months. pytest (quarter/year tree shape, RLS scope).
-  - **T2 (backend)** — expose per-category current-vs-prior trend (a `trend`/`delta_pct` field on tree nodes, or a thin sibling endpoint). pytest.
-  - **T3 (cross)** — OpenAPI regen (web + mobile).
-  - **T4 (web)** — quarter/year breakdown in the overlay (Slices 1–2 now work for all grains) + `TrendSparkline` in the group cards. vitest.
-  - **T5 (mobile)** — same. jest.
-  - **T6** — backend pytest + web Playwright + S23 Maestro proofs (quarter/year card → breakdown; sparkline renders).
-- **Runtime evidence:** backend pytest (quarter/year rollups + trend) + web Playwright + S23 Maestro on deployed staging-e2e — open a quarter/year report → grouped breakdown + sparklines render.
+- **Tier chosen:** ent — the no-5xx-under-throttle guarantee is a launch-day reliability promise; the paid Gemini tier introduces real quota limits.
+- **Scope:** a load test drives the extraction-LLM service to quota throttle; all scans gracefully enter `queued`, zero 5xx; observability shows the throttle + queue depth. Needs a way to **simulate** quota throttle in staging-e2e (mock Gemini, D76) — a forced-throttle test hook.
+- **Runtime evidence:** the load test against deployed staging-e2e backend; capture status codes (no 5xx) + the queued-scan states + the observability signal.
+
+### Phase 4 — Monetization plumbing
+
+```yaml
+phase: 4
+types: [data, billing, concurrency]
+phase_tier: ent
+prototype: false
+dim_overrides: []
+sections_considered: [Core, Data]
+suppressed_dims_count: 0
+decisions_entry: D86
+```
+
+- **Tier chosen:** ent — financial primitives; the existing billing is concurrency-naive (P36), and double-charging / lost-tier-updates under concurrency is a money bug.
+- **Scope:** plan tiers at the schema level + billing hooks (plumbing, not a full billing UI — per the ROADMAP); harden the concurrency-naive billing primitives (P36) with proper locking/idempotency. Paid-tier LLM pre-commit gating ties to Phase 3.
+- **Runtime evidence:** concurrent billing-hook integration test (the live PG harness) proving no double-apply; staging proof of the plan-tier schema.
+
+### Phase 5 — 4-jurisdiction audit + go/no-go
+
+```yaml
+phase: 5
+types: [compliance, observability, audit]
+phase_tier: ent
+prototype: false
+dim_overrides: []
+sections_considered: [Core, Observability]
+suppressed_dims_count: 0
+decisions_entry: D87
+```
+
+- **Tier chosen:** ent — the launch sign-off; the audit must be rigorous enough to stake a four-jurisdiction launch on. Lightest phase in new code (validation + documentation + rehearsal).
+- **Scope:** the four-jurisdiction compliance audit consolidating the evidence from P1–P4 + the live-PG RLS proof + the consent/processing register; rehearse the launch-day incident runbook; produce + sign the go/no-go readiness checklist. Staging evidence first; production journey smoke needs a separate cutover/test-data approval.
+- **Runtime evidence:** the signed go/no-go checklist + the runbook-rehearsal artifact (a simulated incident walked end-to-end).
 
 ## Current Phase
 
-ALL Reports v2 phases (1–3) COMPLETE + in production.
-
-Reports v2 rebuilt the legacy "Resumen" report-detail experience: Phase 1 (grouped
-store/item breakdown + drill), Phase 2 (persona insight + highlights), Phase 3
-(quarter/year periods — the D77 lift). All B2-proven both platforms + shipped to prod
-2026-06-06. The per-category trend **sparklines** were descoped from Phase 3 to a
-follow-up (PENDING). Next roadmap item is ROADMAP **P16 — Compliance + Launch
-Hardening**; run `/gabe-plan` to open it when ready.
-
-(Phase 3 — Quarter/Year breakdowns — COMPLETE ✅×4, shipped 2026-06-06 (D81). The
-range-based /insights/tree + /monthly now accept YYYY-MM / YYYY-Qn / YYYY (month
-behavior byte-identical); the detail opens for quarter/year cards with the grouped
-breakdown + a quarter-aware insight. Adversarial review (12 findings, 2 HIGH fixed:
-year baseline over-read + the "vs last month" mislabel). B2-proven both platforms —
-the S23 re-locked twice mid-session; the user unlocked it for the proofs.)
-
-(Phase 1 — Report Detail Overlay + grouped breakdown — COMPLETE ✅×4, shipped to
-production 2026-06-06. Tap a month report → web overlay / mobile screen with the
-hierarchical store + item grouped breakdown (donut + group cards) from /insights/tree
-+ "view transactions" drill (new /transactions validateSearch; resolved P47). B2-proven
-both platforms on deployed staging-e2e. Detail is month-only — Phase 3 lifts to
-quarter/year. Phase 2 decorates this overlay with the persona insight + highlights.)
+Phase 1: Data-Subject Rights (DSR)
 
 ## Dependencies
 
-- Phase 2 depends on Phase 1 (the insight + highlights decorate the Phase 1 detail overlay).
-- Phase 3 depends on Phases 1–2 (quarter/year breakdown + sparklines extend the overlay + group cards built in 1–2). Phase 3's backend (T1–T2) can start in parallel with Phase 1 if desired, but the UI half gates on Phase 1.
+- All five phases build on **P1 (Foundation)** — the consent/processing register + ownership-scope + observability scaffolding this phase validates.
+- **Phase 5 (audit)** depends on Phases 1–4 — it audits their evidence + signs the gate.
+- **Phase 2 (consent cascade)** relates to **Phase 1** (consent records feed erasure/rectification) and to **P37** (cohort-unflag).
+- **Phase 4 (billing)** ties to **Phase 3** (paid-tier LLM pre-commit gating).
 
 ## Risks
 
 | Risk | Severity | Mitigation |
 |------|----------|------------|
-| `/transactions` lacks a URL date-range filter schema for the "view transactions" drill (PENDING P47 residual) | medium | It already accepts `date_from`/`date_to` query params; add a thin `validateSearch` route schema in Phase 1 T3 (small, scoped). |
-| Item-group hierarchy in `/insights/tree` may not map 1:1 to the legacy item-group shape | medium | The tree returns nested store + item levels (verified); map to group cards in T1, adjust the view-model rather than the backend. |
-| Quarter/year category rollup (Phase 3) re-aggregating months could be slow/uncached | low | MVP volume is scope-of-one; aggregate per-request like the existing month rollup; add caching only if a real latency signal appears. |
-| Persona insight copy feels generic/wrong for Chilean users | low | Port the legacy thresholds + seasonal copy verbatim; keep it data-grounded (only assert what `gravity_centers` supports). |
-| Reports v2 cosmetic warning carryover (PENDING P65 VirtualizedList) on the new detail screen | low | Reuse the (to-be-fixed) ScreenShell pattern; fold the P65 list-screen fix in if convenient during Phase 1 mobile. |
+| Erasure of shared-group data — legal "erasure" vs the group's data integrity (D74 content-lock) | high | D82: revoke visibility (not mutate the locked copy) + recompute aggregates below the k-floor; DPO/legal sign-off |
+| Retention deletion vs jurisdictions that MANDATE minimum retention of financial records | high | Phase 2 reconciles per-data-class TTL across the four regimes; a DECISIONS entry + DPO sign-off; conservative default (keep when in doubt) |
+| Forcing the LLM quota throttle in staging (mock Gemini, D76) | medium | Phase 3 adds a forced-throttle test hook in the mock provider |
+| Monetization scope creep (full billing vs plumbing) | medium | Plumbing only per the ROADMAP — schema tiers + hooks, no billing UI; folds P36 concurrency fix |
+| "Audited" implies legal authority engineering doesn't have | medium | Engineering encodes strict defaults + evidence; the audit explicitly defers final legal sign-off to a DPO/counsel review |
 
 ## Notes
 
-- ROADMAP scope-addition: when greenlit, run `/gabe-scope-addition` to insert Reports v2 as a roadmap phase (decimal id, e.g. P15.1) covering the legacy-reports parity gap. `/gabe-plan` does not write ROADMAP.
-- Legacy reference root: `boletapp/src/features/reports/` at `/home/khujta/projects/bmad/boletapp/`. Full gap analysis (legacy feature inventory + per-capability gap table) is in `.kdbp/LEDGER.md` (this session) and was produced by a dedicated exploration agent.
-- Deliberately DEFERRED from legacy (out of MVP scope): PDF/print export (`printUtils.ts`), the Instagram-style carousel (legacy built it but never shipped it), the year-stepper + unread/first-period affordances (cheap FE add-ons that can ride along with Phase 1 if time permits).
-- Slices 1+2 reconstruct ~80% of the legacy report experience with zero new backend; Phase 3 is the only backend work.
+- All compliance answers in this plan are engineering's defensible read, NOT legal advice; the four regimes differ on definitions (anonymization, minimum retention) and the final policy needs DPO/counsel sign-off — captured as an explicit gate in Phase 5.
+- B2 convention holds: every user-facing/backend slice is gated on deployed-staging-e2e runtime proofs before promote; favor the live-PG test harness + adversarial review for the data-safety phases.
+- Tier note: 5× ent is heavy by the over-scope heuristic — intentional here because P16 IS the rigor/validation gate; Phase 5 is the lightest (no new risky code).
 
 ## Review Artifacts
 
-- HTML review artifact: none — markdown plan is the review surface (run `/gabe-plan update --html-artifact` to generate a visual one).
+- HTML review artifact: `docs/gabe/plans/2026-06-07-p16-compliance-launch/index.html`
 - Canonical source: `.kdbp/PLAN.md`, `.kdbp/DECISIONS.md`, `.kdbp/LEDGER.md`
 
 ## Runtime Evidence Checkpoints
 
-- **Phase 1:** web Playwright `report-detail.spec.ts` (tap report → grouped breakdown + donut + drill-to-transactions) + S23 Maestro `p14-report-detail-active.yaml`, both vs deployed staging-e2e. Artifacts under `tests/mobile/results/runs/staging-e2e/`.
-- **Phase 2:** web Playwright + S23 Maestro — persona sentence + highlight render in the detail view.
-- **Phase 3:** backend pytest (quarter/year rollups + per-category trend) + web Playwright + S23 Maestro — quarter/year breakdown + sparklines.
+- **Phase 1 (DSR):** Playwright/API journey running all four rights on a throwaway test user vs deployed staging-e2e; two-user fixture proving erasure revokes group visibility. Artifacts → `tests/.../results`.
+- **Phase 2 (consent/retention):** consent-revoke → cohort-unflag assertion; past-TTL seed → retention-job → deletion assertion. Staging first.
+- **Phase 3 (throttle):** load test vs deployed staging-e2e; status-code capture (no 5xx) + queued-scan states + observability signal.
+- **Phase 4 (billing):** concurrent billing-hook test on the live-PG harness (no double-apply) + staging plan-tier schema proof.
+- **Phase 5 (go/no-go):** signed readiness checklist + incident-runbook rehearsal artifact.

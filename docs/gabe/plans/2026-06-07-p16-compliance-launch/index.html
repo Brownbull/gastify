@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>P16 — Compliance + Launch Hardening · Readiness Dashboard</title>
+<style>
+  :root {
+    --bg:#0f1419; --panel:#171e26; --panel2:#1d2630; --ink:#e7edf3; --muted:#9bb0c2;
+    --line:#2a3744; --accent:#5b9bd5; --ent:#c98b3a; --ok:#5fae6b; --warn:#d9a441;
+    --risk-high:#d9534f; --risk-med:#d9a441; --chip:#22303d;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink);
+    font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; }
+  a { color:var(--accent); }
+  .wrap { max-width:1080px; margin:0 auto; padding:0 22px 80px; }
+  .banner { background:#3a2a12; border-bottom:1px solid #5a431c;
+    color:#f0d9a8; padding:10px 22px; font-size:13px; text-align:center; }
+  header.h { padding:34px 0 14px; border-bottom:1px solid var(--line); margin-bottom:26px; }
+  h1 { margin:0 0 6px; font-size:27px; letter-spacing:.2px; }
+  .sub { color:var(--muted); font-size:15px; }
+  .prov { margin-top:16px; display:flex; flex-wrap:wrap; gap:8px; }
+  .prov span { background:var(--chip); border:1px solid var(--line); border-radius:6px;
+    padding:4px 9px; font-size:12px; color:var(--muted); }
+  .prov b { color:var(--ink); font-weight:600; }
+  section { margin:30px 0; }
+  h2 { font-size:18px; margin:0 0 14px; padding-bottom:7px; border-bottom:1px solid var(--line); }
+  h2 .n { color:var(--accent); font-variant-numeric:tabular-nums; margin-right:8px; }
+  .grid { display:grid; gap:14px; }
+  .cards { grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); }
+  .card { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:15px 16px; }
+  .card h3 { margin:0 0 6px; font-size:15px; display:flex; align-items:center; gap:8px; }
+  .pill { font-size:11px; font-weight:700; padding:2px 8px; border-radius:20px; text-transform:uppercase; letter-spacing:.4px; }
+  .pill.ent { background:rgba(201,139,58,.16); color:var(--ent); border:1px solid rgba(201,139,58,.4); }
+  .pill.cx { background:var(--chip); color:var(--muted); border:1px solid var(--line); }
+  .card p { margin:7px 0 0; color:var(--muted); font-size:13.5px; }
+  .card .ex { margin-top:9px; font-size:12px; color:var(--accent); }
+  table { width:100%; border-collapse:collapse; background:var(--panel); border:1px solid var(--line);
+    border-radius:10px; overflow:hidden; font-size:13.5px; }
+  th,td { padding:9px 12px; text-align:left; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { background:var(--panel2); color:var(--muted); font-weight:600; font-size:12px; text-transform:uppercase; letter-spacing:.4px; }
+  tr:last-child td { border-bottom:none; }
+  td.y { color:var(--ok); font-weight:700; } td.n { color:var(--muted); }
+  .sig { display:flex; gap:12px; align-items:flex-start; padding:11px 0; border-bottom:1px solid var(--line); }
+  .sig:last-child { border-bottom:none; }
+  .sig .tag { flex:0 0 26px; height:26px; border-radius:50%; background:var(--chip); border:1px solid var(--line);
+    display:flex; align-items:center; justify-content:center; font-weight:700; color:var(--accent); }
+  .sig .b { color:var(--muted); font-size:12px; }
+  .callout { background:linear-gradient(180deg,#241c10,#1d2630); border:1px solid rgba(201,139,58,.35);
+    border-left:4px solid var(--ent); border-radius:8px; padding:15px 17px; }
+  .callout h3 { margin:0 0 8px; color:var(--ent); font-size:15px; }
+  .callout ol { margin:8px 0 0; padding-left:20px; color:var(--muted); font-size:13.5px; }
+  .callout .legal { margin-top:10px; font-size:12.5px; color:var(--warn); }
+  .risk td.sev { font-weight:700; }
+  .risk td.sev.high { color:var(--risk-high); } .risk td.sev.med { color:var(--risk-med); }
+  ul.chk { list-style:none; padding:0; margin:0; }
+  ul.chk li { padding:8px 0 8px 28px; position:relative; border-bottom:1px solid var(--line); color:var(--muted); font-size:13.5px; }
+  ul.chk li:before { content:"☐"; position:absolute; left:4px; color:var(--accent); font-size:15px; }
+  ul.chk li:last-child { border-bottom:none; }
+  ul.chk b { color:var(--ink); }
+  .flow { width:100%; height:120px; }
+  .detail { background:var(--panel2); border:1px dashed var(--line); border-radius:8px; padding:14px 16px; font-size:13px; }
+  .detail code { background:#0c1116; padding:1px 5px; border-radius:4px; color:#bcd; }
+  footer { margin-top:40px; padding-top:16px; border-top:1px solid var(--line); color:var(--muted); font-size:12px; }
+</style>
+</head>
+<body>
+<div class="banner">HTML review artifact; .kdbp/PLAN.md and .kdbp/DECISIONS.md remain canonical.</div>
+<div class="wrap">
+  <header class="h">
+    <h1>P16 — Compliance + Launch Hardening</h1>
+    <div class="sub">The launch gate: audited four-jurisdiction regulatory readiness + paid Gemini tier + monetization plumbing + a rehearsed incident runbook — proving the compliance scaffolding from P1–P15 is real.</div>
+    <div class="prov">
+      <span>Generated <b>2026-06-07</b></span>
+      <span>Command <b>/gabe-plan</b></span>
+      <span>Source <b>.kdbp/PLAN.md</b></span>
+      <span>Decisions <b>D82 → D87</b></span>
+      <span>ROADMAP <b>§3 Phase 7</b></span>
+      <span>Tiers <b>5 × ent</b></span>
+    </div>
+  </header>
+
+  <section>
+    <h2><span class="n">§1</span>Phase map</h2>
+    <svg class="flow" viewBox="0 0 1040 120" role="img" aria-label="P16 phase dependency flow">
+      <defs><marker id="a" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto">
+        <path d="M0,0 L7,3 L0,6 Z" fill="#5b9bd5"/></marker></defs>
+      <g font-size="12" fill="#e7edf3" text-anchor="middle">
+        <rect x="6" y="14" width="150" height="40" rx="7" fill="#1d2630" stroke="#3a4b59"/><text x="81" y="33">P1 DSR rights</text><text x="81" y="47" fill="#9bb0c2" font-size="10">access·rect·erase·port</text>
+        <rect x="186" y="14" width="160" height="40" rx="7" fill="#1d2630" stroke="#3a4b59"/><text x="266" y="33">P2 Consent + TTL</text><text x="266" y="47" fill="#9bb0c2" font-size="10">cascade · retention</text>
+        <rect x="376" y="14" width="160" height="40" rx="7" fill="#1d2630" stroke="#3a4b59"/><text x="456" y="33">P3 LLM throttle</text><text x="456" y="47" fill="#9bb0c2" font-size="10">queued · no 5xx</text>
+        <rect x="566" y="14" width="160" height="40" rx="7" fill="#1d2630" stroke="#3a4b59"/><text x="646" y="33">P4 Monetization</text><text x="646" y="47" fill="#9bb0c2" font-size="10">tiers · billing hooks</text>
+        <rect x="812" y="64" width="222" height="42" rx="7" fill="#241c10" stroke="#c98b3a"/><text x="923" y="84">P5 Audit + go/no-go</text><text x="923" y="98" fill="#9bb0c2" font-size="10">signs the launch gate</text>
+        <line x1="156" y1="34" x2="184" y2="34" stroke="#5b9bd5" marker-end="url(#a)"/>
+        <line x1="346" y1="34" x2="374" y2="34" stroke="#5b9bd5" marker-end="url(#a)"/>
+        <line x1="536" y1="34" x2="564" y2="34" stroke="#5b9bd5" marker-end="url(#a)"/>
+        <path d="M646,54 C646,80 760,85 810,85" fill="none" stroke="#c98b3a" marker-end="url(#a)"/>
+        <path d="M456,54 C456,92 700,92 810,88" fill="none" stroke="#3a4b59" marker-end="url(#a)"/>
+        <text x="20" y="112" fill="#9bb0c2" font-size="10" text-anchor="start">All build on P1 Foundation (consent register · ownership-scope · observability). P5 audits P1–P4 evidence.</text>
+      </g>
+    </svg>
+    <div class="grid cards" style="margin-top:6px">
+      <div class="card"><h3>P1 · Data-Subject Rights <span class="pill ent">ent</span><span class="pill cx">high</span></h3><p>Access / rectification / erasure / portability serviceable end-to-end on a test user, incl. the strict erasure-vs-group policy.</p><div class="ex">Exit signal (a)</div></div>
+      <div class="card"><h3>P2 · Consent + Retention <span class="pill ent">ent</span><span class="pill cx">high</span></h3><p>Consent records queryable; revocation cascades to cohort-unflag; retention TTL deletes expired data.</p><div class="ex">Exit signals (b) + (d)</div></div>
+      <div class="card"><h3>P3 · LLM throttle degrade <span class="pill ent">ent</span><span class="pill cx">med-high</span></h3><p>Load test drives the extraction-LLM to quota throttle → all scans enter <code>queued</code>, zero 5xx.</p><div class="ex">Exit signal (c)</div></div>
+      <div class="card"><h3>P4 · Monetization plumbing <span class="pill ent">ent</span><span class="pill cx">med</span></h3><p>Plan tiers at schema level + billing hooks; harden the concurrency-naive billing primitives (P36).</p><div class="ex">Goal: monetization live</div></div>
+      <div class="card"><h3>P5 · Audit + go/no-go <span class="pill ent">ent</span><span class="pill cx">med</span></h3><p>4-jurisdiction audit (reuse the live-PG RLS proof + P1–4 evidence), runbook rehearsal, signed checklist.</p><div class="ex">Exit signal (e)</div></div>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="n">§2</span>Exit-signal checklist (ROADMAP acceptance gates)</h2>
+    <div class="card">
+      <div class="sig"><div class="tag">a</div><div><b>DSR request serviceable end-to-end</b> (access / rectification / erasure / portability) on a test user.<div class="b">→ Phase 1</div></div></div>
+      <div class="sig"><div class="tag">b</div><div><b>Consent revocation triggers downstream cohort-unflag.</b><div class="b">→ Phase 2</div></div></div>
+      <div class="sig"><div class="tag">c</div><div><b>Load test → LLM quota throttle → all scans `queued`, no 5xx.</b><div class="b">→ Phase 3</div></div></div>
+      <div class="sig"><div class="tag">d</div><div><b>Retention policy deletes test data older than declared TTL.</b><div class="b">→ Phase 2</div></div></div>
+      <div class="sig"><div class="tag">e</div><div><b>Go/no-go readiness checklist signed.</b> Staging evidence first; prod journey smoke needs separate cutover/test-data approval.<div class="b">→ Phase 5</div></div></div>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="n">§3</span>Jurisdiction × data-subject right</h2>
+    <table>
+      <thead><tr><th>Jurisdiction</th><th>Access</th><th>Rectification</th><th>Erasure</th><th>Portability</th></tr></thead>
+      <tbody>
+        <tr><td>Chile — Law 21.719</td><td class="y">✔</td><td class="y">✔</td><td class="y">✔</td><td class="y">✔</td></tr>
+        <tr><td>EU — GDPR</td><td class="y">✔</td><td class="y">✔</td><td class="y">✔</td><td class="y">✔</td></tr>
+        <tr><td>US — CCPA / CPRA</td><td class="y">✔</td><td class="y">✔</td><td class="y">✔</td><td class="y">✔ (limited)</td></tr>
+        <tr><td>Canada — PIPEDA</td><td class="y">✔</td><td class="y">✔</td><td class="n">withdraw + retention limit</td><td class="y">✔</td></tr>
+      </tbody>
+    </table>
+    <p class="sub" style="margin-top:8px;font-size:12.5px">Phase 1 builds the four rights once over the shared backend; jurisdiction differences (erasure vs PIPEDA/financial minimum-retention, CCPA portability scope) are reconciled in the retention policy (Phase 2) and signed off in Phase 5.</p>
+  </section>
+
+  <section>
+    <h2><span class="n">§4</span>Erasure-vs-group policy <span style="font-size:13px;color:var(--muted)">— DECISIONS D82 (strict)</span></h2>
+    <div class="callout">
+      <h3>When a member leaves a group + requests erasure</h3>
+      <ol>
+        <li>Erase the member's transactions from their own account.</li>
+        <li><b>Revoke</b> the group's visibility of their shared transactions — no remaining member can see them (revoke visibility, don't mutate the D74 content-locked copy).</li>
+        <li><b>Recompute</b> the group's aggregate statistics to exclude their contribution — small groups make a retained aggregate re-identifying (<code>total − own</code>), so it's pseudonymized, not anonymized. A proven k-anonymous aggregate (≥ k=20, the P37 floor) may be exempted.</li>
+      </ol>
+      <div class="legal">⚠ Engineering's defensible read, not legal advice. The four regimes differ on anonymization + minimum-retention of financial records — FINAL policy needs DPO/counsel sign-off, gated explicitly at Phase 5.</div>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="n">§5</span>Tier digest</h2>
+    <table>
+      <thead><tr><th>Phase</th><th>Tier</th><th>Decision</th><th>Why ent over mvp</th></tr></thead>
+      <tbody>
+        <tr><td>P1 DSR</td><td><span class="pill ent">ent</span></td><td>D83</td><td>Irreversible erasure + mandated export across 4 regimes.</td></tr>
+        <tr><td>P2 Consent + TTL</td><td><span class="pill ent">ent</span></td><td>D84</td><td>Missed cascade leaves data live; wrong TTL deletes mandated records.</td></tr>
+        <tr><td>P3 LLM throttle</td><td><span class="pill ent">ent</span></td><td>D85</td><td>No-5xx-under-throttle is a launch-day reliability promise.</td></tr>
+        <tr><td>P4 Monetization</td><td><span class="pill ent">ent</span></td><td>D86</td><td>Financial primitives; concurrency-naive billing (P36) is a money bug.</td></tr>
+        <tr><td>P5 Audit + go/no-go</td><td><span class="pill ent">ent</span></td><td>D87</td><td>Launch sign-off; lightest in new code but the gate is ent.</td></tr>
+      </tbody>
+    </table>
+    <p class="sub" style="margin-top:8px;font-size:12.5px">5 × ent is heavy by the over-scope heuristic — intentional: P16 IS the rigor/validation gate. Phase 5 adds the least new risky code.</p>
+  </section>
+
+  <section>
+    <h2><span class="n">§6</span>Risks</h2>
+    <table class="risk">
+      <thead><tr><th>Risk</th><th>Sev</th><th>Mitigation</th></tr></thead>
+      <tbody>
+        <tr><td>Erasure of shared-group data vs the group's data integrity (D74)</td><td class="sev high">high</td><td>D82: revoke visibility + recompute below k-floor; DPO sign-off.</td></tr>
+        <tr><td>Retention deletion vs jurisdictions mandating minimum retention of financial records</td><td class="sev high">high</td><td>Phase 2 reconciles per-data-class TTL; conservative keep-when-in-doubt default + DPO sign-off.</td></tr>
+        <tr><td>Forcing the LLM quota throttle in staging (mock Gemini, D76)</td><td class="sev med">medium</td><td>Phase 3 adds a forced-throttle test hook in the mock provider.</td></tr>
+        <tr><td>Monetization scope creep (full billing vs plumbing)</td><td class="sev med">medium</td><td>Plumbing only — schema tiers + hooks, no billing UI; folds P36.</td></tr>
+        <tr><td>"Audited" implies legal authority engineering lacks</td><td class="sev med">medium</td><td>Strict defaults + evidence; final legal sign-off deferred to DPO/counsel at Phase 5.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2><span class="n">§7</span>Go/no-go readiness checklist (Phase 5 capstone)</h2>
+    <ul class="chk">
+      <li><b>DSR</b> — all four rights run end-to-end on a test user (staging evidence)</li>
+      <li><b>Erasure-vs-group</b> — two-user fixture proves visibility revoke + aggregate recompute</li>
+      <li><b>Consent cascade</b> — revoke → downstream cohort-unflag asserted</li>
+      <li><b>Retention</b> — past-TTL seed deleted by the scheduled job; mandated-retention classes preserved</li>
+      <li><b>Resilience</b> — load test hits LLM throttle, all scans `queued`, zero 5xx</li>
+      <li><b>Billing</b> — concurrent billing-hook test shows no double-apply (live-PG harness)</li>
+      <li><b>RLS proof</b> — CI live-PG isolation suites cited as audit evidence (test_rls_postgres + test_group_isolation)</li>
+      <li><b>Incident runbook</b> — a simulated launch-day incident rehearsed end-to-end</li>
+      <li><b>DPO/legal sign-off</b> — erasure + retention policy confirmed by counsel for all four regimes</li>
+      <li><b>Go/no-go</b> — readiness checklist signed; production cutover/test-data approval obtained separately</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2><span class="n">§8</span>Detail paths — where the deeper detail lives</h2>
+    <div class="detail">
+      This dashboard summarizes and orients; the canonical detail lives in Markdown:
+      <ul>
+        <li>Phase scope, tiers, dependencies, runtime-evidence checkpoints → <code>.kdbp/PLAN.md</code></li>
+        <li>Erasure policy + per-phase tier rationale → <code>.kdbp/DECISIONS.md</code> (D82 → D87)</li>
+        <li>Phase goal, why-now, exit signals, REQ coverage → <code>.kdbp/ROADMAP.md</code> §3 Phase 7</li>
+        <li>Plan-created record + folded PENDING items → <code>.kdbp/LEDGER.md</code></li>
+        <li>Compliance-adjacent backlog → <code>.kdbp/PENDING.md</code> (P36 billing, P37 DP cohort, P59 invite rate-limit)</li>
+        <li>Live-PG RLS audit evidence → <code>backend/tests/test_rls_postgres.py</code>, <code>backend/tests/test_group_isolation.py</code></li>
+      </ul>
+    </div>
+  </section>
+
+  <footer>
+    Canonical source: <code>.kdbp/PLAN.md</code>, <code>.kdbp/DECISIONS.md</code> (D82–D87), <code>.kdbp/LEDGER.md</code>.
+    This artifact is a human-facing review summary; automation reads the Markdown. Regenerate with <code>/gabe-plan --html-artifact</code>.
+  </footer>
+</div>
+</body>
+</html>

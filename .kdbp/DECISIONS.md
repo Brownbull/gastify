@@ -2376,3 +2376,95 @@ The `postgres` superuser is used **once, operationally**, to provision the two r
 **Prototype:** no
 **Reason:** default MVP pick per U2 — additive read-only analytics aggregation that generalizes the existing month rollup to quarter/year + exposes a per-category prior-period trend; no migration. Lifts the D77 month-only breakdown limit.
 **Δ deferred by tier choice:** per-tenant rollup caching / materialized aggregates (Scale — scope-of-one volume makes per-request aggregation fine). **Review trigger:** add caching on the first quarter/year-breakdown latency signal. **Status:** accepted.
+
+## D82 — Erasure vs shared-group data: revoke visibility + recompute aggregates (2026-06-07)
+
+**Context.** P16 Phase 1 (DSR) must service a right-to-erasure request. The hard case: a
+member shared transactions into a group (D74 content-locks the group copy so it can't be
+modified after the lock window), then leaves the group and requests erasure. What happens
+to (a) the shared transactions and (b) the group's aggregate statistics?
+
+**Decision (strict default).**
+1. Erase the member's transactions from their own account.
+2. REVOKE the group's visibility of their shared transactions — no remaining member can
+   see them. We revoke VISIBILITY rather than mutate the content-locked group copy (D74),
+   so the lock invariant holds and the action is auditable.
+3. RECOMPUTE the group's aggregate statistics to EXCLUDE the departed member's
+   contribution. Rationale: gastify groups are typically small (household/couple), so a
+   retained aggregate is re-identifying (remaining member derives `total − own`) → it is
+   pseudonymized, not anonymized, so erasure rights reach it (GDPR Recital 26 + the
+   analogous CCPA / Law 21.719 / PIPEDA carve-outs only exempt GENUINELY anonymized data).
+   A proven k-anonymous aggregate (≥ the P37 DP-cohort floor, k≥20) MAY be exempted from
+   recompute, but recompute is the default below that floor.
+
+**Why "most strict".** Chosen at user direction (the most strict data-handling posture).
+The strict default avoids relying on weak anonymization for the common small-group case.
+
+**Open / load-bearing.** This is engineering's defensible read, NOT legal advice. The four
+launch jurisdictions differ on anonymization definitions and on MINIMUM-retention mandates
+for financial records (which can conflict with deletion). FINAL policy requires DPO/counsel
+sign-off — an explicit gate in P16 Phase 5 (go/no-go). Until then, this strict default
+governs the Phase 1/2 implementation.
+
+### Status
+- accepted (engineering default; pending DPO/legal confirmation at Phase 5)
+
+## D83 — Phase 1 tier: ent (2026-06-07)
+
+**Phase:** Data-Subject Rights (DSR)
+**Types:** auth, data, user-facing, compliance
+**Tier chosen:** ent
+**Prototype:** no
+**Reason:** Irreversible erasure + legally-mandated data export across four privacy regimes; a wrong erasure leaks or fails to delete personal data. Data-safety mandates ent over the project mvp baseline.
+### Per-dim tier overrides
+dim_overrides: []
+### Status
+- accepted
+
+## D84 — Phase 2 tier: ent (2026-06-07)
+
+**Phase:** Consent cascade + Retention TTL
+**Types:** data, data-migration, compliance, scheduled-job
+**Tier chosen:** ent
+**Prototype:** no
+**Reason:** Data-lifecycle correctness — a missed revocation cascade leaves revoked data live; a wrong TTL deletes financial records a jurisdiction mandates keeping. Both are compliance-breaking.
+### Per-dim tier overrides
+dim_overrides: []
+### Status
+- accepted
+
+## D85 — Phase 3 tier: ent (2026-06-07)
+
+**Phase:** LLM quota-throttle degradation
+**Types:** integration, resilience, observability
+**Tier chosen:** ent
+**Prototype:** no
+**Reason:** The no-5xx-under-throttle guarantee is a launch-day reliability promise; the paid Gemini tier introduces real quota limits that must degrade gracefully to `queued`.
+### Per-dim tier overrides
+dim_overrides: []
+### Status
+- accepted
+
+## D86 — Phase 4 tier: ent (2026-06-07)
+
+**Phase:** Monetization plumbing
+**Types:** data, billing, concurrency
+**Tier chosen:** ent
+**Prototype:** no
+**Reason:** Financial primitives — the existing billing is concurrency-naive (PENDING P36); double-charging or a lost tier-update under concurrency is a money bug. Idempotency/locking is mandatory.
+### Per-dim tier overrides
+dim_overrides: []
+### Status
+- accepted
+
+## D87 — Phase 5 tier: ent (2026-06-07)
+
+**Phase:** 4-jurisdiction audit + go/no-go
+**Types:** compliance, observability, audit
+**Tier chosen:** ent
+**Prototype:** no
+**Reason:** The launch sign-off must be rigorous enough to stake a four-jurisdiction launch on. Lightest phase in NEW code (validation + documentation + runbook rehearsal), but the gate itself is ent.
+### Per-dim tier overrides
+dim_overrides: []
+### Status
+- accepted

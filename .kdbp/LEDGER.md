@@ -3993,3 +3993,13 @@ The user queued a housekeeping pass after P66. Outcome:
 - P45/P49 (insights /series + /tree doc-drift): documented both (+ D77 period + P66 include_series) in P6-INSIGHTS-CONTRACT.md. Shipped (82be9ba, P70).
 TECHNIQUE: proved a dev-only RN warning ABSENT by clearing logcat, rendering the screen via Maestro, then grepping logcat for the warning string while confirming ReactNativeJS lines exist (so 0 means gone, not a dead capture).
 SESSION ARC: this long session shipped Reports v2 (Phases 1-3 + P66 sparklines) to prod, fixed the staging "By store" data (seed→backfill), and cleared the housekeeping queue. ALL that remains is ROADMAP P16 (Compliance + Launch Hardening) — the launch gate, a major phase best scoped fresh via /gabe-plan.
+- 2026-06-07 11:58 | Edit | /home/khujta/projects/apps/gastify/tests/mobile/maestro/p15-report-detail-quarter-active.yaml
+
+## 2026-06-07 12:17 — PLAN CREATED: P16 — Compliance + Launch Hardening
+PHASES: 5 (DSR / Consent+Retention / LLM-throttle / Monetization / Audit+go-no-go) | COMPLEXITY: high overall | MATURITY: mvp (project), all phases tiered ent (launch gate)
+TIERS: mvp x0, ent x5, scale x0 | PROTOTYPES: 0
+DECISIONS: D82 (erasure-vs-group-data policy, strict) + D83->D87 (5 phase tier decisions)
+HTML_ARTIFACT: docs/gabe/plans/2026-06-07-p16-compliance-launch/index.html
+REPLACES: Reports v2 plan (archived completed_PLAN_2026-06-07_reports-v2.md). Maps to ROADMAP §3 Phase 7; consolidates+audits REQ-20/REQ-21. Folds PENDING P36/P37/P59. Erasure policy needs DPO/legal sign-off (gated at Phase 5).
+- 2026-06-07 12:18 | Write | /home/khujta/projects/apps/gastify/docs/gabe/plans/2026-06-07-p16-compliance-launch/index.html
+- 2026-06-07 12:19 | Edit | /home/khujta/projects/apps/gastify/docs/gabe/plans/2026-06-07-p16-compliance-launch/index.html
