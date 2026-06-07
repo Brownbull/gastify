@@ -142,7 +142,7 @@
         <li><b>Delete account</b> (leaving the app) — <b>total erasure, no choice.</b> Delete own + the shared group copies → <b>void</b> the affected group-period stats (fact-based — can't show a stat once its data is gone) → notice <i>"this member left the application; these stats were shut down for the affected months."</i></li>
         <li><b>Leave a group</b> (keep the account) — <b>the only choice:</b> <b>keep</b> the already-shared copies (stats unchanged) or <b>delete</b> them (→ void affected stats + notice). The user's own data is untouched either way.</li>
       </ol>
-      <div class="legal">Mechanism: a tombstone <code>(group, period, reason)</code> the stats layer checks before display — voiding is O(mark), and a voided figure is stronger for privacy than a recomputed one (gone, not adjusted). Both deletion paths feed the same void; nothing is orphaned (account delete is total). ⚠ Engineering's read, not legal advice — DPO/counsel sign-off gated at Phase 5.</div>
+      <div class="legal">Mechanism: a tombstone <code>(group, period, reason)</code> the stats layer checks before display — voiding is O(mark), and a voided figure is stronger for privacy than a recomputed one (gone, not adjusted). Both deletion paths feed the same void; nothing is orphaned (account delete is total). ⚠ Engineering's read, not legal advice — self-attested at Phase 5 (D88).</div>
     </div>
   </section>
 
@@ -166,11 +166,11 @@
     <table class="risk">
       <thead><tr><th>Risk</th><th>Sev</th><th>Mitigation</th></tr></thead>
       <tbody>
-        <tr><td>Erasure of shared-group data vs the group's data integrity (D74)</td><td class="sev high">high</td><td>D82 rev 3: account-delete is total (void affected stats); group-leave is a keep-vs-delete choice; void via tombstone (no recompute); DPO sign-off.</td></tr>
-        <tr><td>Retention deletion vs jurisdictions mandating minimum retention of financial records</td><td class="sev high">high</td><td>Phase 2 reconciles per-data-class TTL; conservative keep-when-in-doubt default + DPO sign-off.</td></tr>
+        <tr><td>Erasure of shared-group data vs the group's data integrity (D74)</td><td class="sev high">high</td><td>D82 rev 3: account-delete is total (void affected stats); group-leave is a keep-vs-delete choice; void via tombstone (no recompute); self-attested at Phase 5 (D88).</td></tr>
+        <tr><td>Retention deletion vs jurisdictions mandating minimum retention of financial records</td><td class="sev high">high</td><td>Phase 2 reconciles per-data-class TTL; conservative keep-when-in-doubt default + self-attestation (D88).</td></tr>
         <tr><td>Forcing the LLM quota throttle in staging (mock Gemini, D76)</td><td class="sev med">medium</td><td>Phase 3 adds a forced-throttle test hook in the mock provider.</td></tr>
         <tr><td>Monetization scope creep (full billing vs plumbing)</td><td class="sev med">medium</td><td>Plumbing only — schema tiers + hooks, no billing UI; folds P36.</td></tr>
-        <tr><td>"Audited" implies legal authority engineering lacks</td><td class="sev med">medium</td><td>Strict defaults + evidence; final legal sign-off deferred to DPO/counsel at Phase 5.</td></tr>
+        <tr><td>Self-attested compliance (no external counsel, D88) — residual liability, heaviest under GDPR</td><td class="sev med">medium-high</td><td>Accepted MVP posture (D88): evidence-backed checklist; review trigger = engage counsel before EU scale / special-category volume.</td></tr>
       </tbody>
     </table>
   </section>
@@ -186,7 +186,7 @@
       <li><b>Billing</b> — concurrent billing-hook test shows no double-apply (live-PG harness)</li>
       <li><b>RLS proof</b> — CI live-PG isolation suites cited as audit evidence (test_rls_postgres + test_group_isolation)</li>
       <li><b>Incident runbook</b> — a simulated launch-day incident rehearsed end-to-end</li>
-      <li><b>DPO/legal sign-off</b> — erasure + retention policy confirmed by counsel for all four regimes</li>
+      <li><b>Self-attested 4-jurisdiction checklist (D88)</b> — each right + obligation mapped to the implementation per regime, signed off by the team; external counsel deferred to the scale trigger</li>
       <li><b>Go/no-go</b> — readiness checklist signed; production cutover/test-data approval obtained separately</li>
     </ul>
   </section>

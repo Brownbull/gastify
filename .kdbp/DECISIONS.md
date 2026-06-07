@@ -2418,11 +2418,13 @@ where the account SURVIVES (group-leave), so the shared copies always have a liv
 
 **Open / load-bearing.** Engineering's defensible read, NOT legal advice. The four launch
 jurisdictions differ on MINIMUM-retention of financial records (which can conflict with
-deletion) and on whether "keep on group-leave" affects an erasure request. FINAL policy
-requires DPO/counsel sign-off — an explicit gate in P16 Phase 5 (go/no-go).
+deletion) and on whether "keep on group-leave" affects an erasure request. FINAL policy is
+SELF-ATTESTED against a documented 4-jurisdiction checklist at P16 Phase 5 (see D88);
+external counsel review is deferred to the D88 review trigger (EU scale / special-category
+volume / budget).
 
 ### Status
-- accepted (rev 3; engineering default, pending DPO/legal confirmation at Phase 5)
+- accepted (rev 3; engineering default, self-attested at Phase 5 per D88)
 
 ## D83 — Phase 1 tier: ent (2026-06-07)
 
@@ -2483,3 +2485,31 @@ dim_overrides: []
 dim_overrides: []
 ### Status
 - accepted
+
+## D88 — Compliance sign-off approach: self-attestation via a documented checklist (2026-06-07)
+
+**Context.** The P16 erasure (D82) + retention policies need a compliance sign-off for the
+four-jurisdiction launch (GDPR / CCPA-CPRA / Chile Law 21.719 / PIPEDA). Options weighed: (1)
+block building on external legal review, (2) build config-driven + a one-off counsel review
+at Phase 5, (3) build + self-attest against a checklist (no external counsel).
+
+**Decision.** Option 3 — SELF-ATTESTATION (user-directed). Build Phases 1–2 to the strict D82
+default; the Phase 5 go/no-go gate is a DOCUMENTED 4-jurisdiction DSR + retention compliance
+checklist, completed + signed off by the team — NOT external counsel. The checklist is the
+audit evidence: it must map each right + obligation per regime to the concrete implementation
+(the DSR endpoints, the void/tombstone mechanism, the retention TTLs per data class, the
+consent/processing register, the live-PG RLS proof). Self-attestation must be evidence-backed,
+not a bare claim.
+
+**Trade-off accepted (made visible per user direction).** Self-attestation carries the
+compliance judgment internally — real residual liability, heaviest under GDPR (EU fines up to
+4% of global revenue, strongest enforcement). This is a deliberate MVP-launch posture chosen
+for speed/cost; it is NOT a claim that external review is unnecessary.
+
+**Review trigger (when to escalate to external counsel).** Before materially scaling the EU
+user base, before processing special-category data at volume, or when budget allows — engage
+privacy counsel for a one-off review of the erasure/retention/consent decisions, and re-open
+this decision.
+
+### Status
+- accepted (MVP posture; revisit per the review trigger)

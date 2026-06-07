@@ -115,8 +115,8 @@ decisions_entry: D87
 ```
 
 - **Tier chosen:** ent — the launch sign-off; the audit must be rigorous enough to stake a four-jurisdiction launch on. Lightest phase in new code (validation + documentation + rehearsal).
-- **Scope:** the four-jurisdiction compliance audit consolidating the evidence from P1–P4 + the live-PG RLS proof + the consent/processing register; rehearse the launch-day incident runbook; produce + sign the go/no-go readiness checklist. Staging evidence first; production journey smoke needs a separate cutover/test-data approval.
-- **Runtime evidence:** the signed go/no-go checklist + the runbook-rehearsal artifact (a simulated incident walked end-to-end).
+- **Scope:** the four-jurisdiction compliance audit consolidating the evidence from P1–P4 + the live-PG RLS proof + the consent/processing register; rehearse the launch-day incident runbook; produce + **self-attest (D88)** the documented 4-jurisdiction DSR + retention checklist as the go/no-go gate (each right + obligation per regime mapped to the concrete implementation — evidence-backed, not a bare claim). Staging evidence first; production journey smoke needs a separate cutover/test-data approval.
+- **Runtime evidence:** the self-attested 4-jurisdiction checklist (D88) + the runbook-rehearsal artifact (a simulated incident walked end-to-end).
 
 ## Current Phase
 
@@ -133,15 +133,15 @@ Phase 1: Data-Subject Rights (DSR)
 
 | Risk | Severity | Mitigation |
 |------|----------|------------|
-| Erasure of shared-group data — legal "erasure" vs the group's data integrity (D74 content-lock) | high | D82 rev 3: account-delete is total (void affected stats); group-leave is a keep-vs-delete choice; void via tombstone (no recompute treadmill); DPO/legal sign-off |
-| Retention deletion vs jurisdictions that MANDATE minimum retention of financial records | high | Phase 2 reconciles per-data-class TTL across the four regimes; a DECISIONS entry + DPO sign-off; conservative default (keep when in doubt) |
+| Erasure of shared-group data — legal "erasure" vs the group's data integrity (D74 content-lock) | high | D82 rev 3: account-delete is total (void affected stats); group-leave is a keep-vs-delete choice; void via tombstone (no recompute treadmill); self-attested at Phase 5 (D88) |
+| Retention deletion vs jurisdictions that MANDATE minimum retention of financial records | high | Phase 2 reconciles per-data-class TTL across the four regimes; a DECISIONS entry + self-attestation (D88); conservative default (keep when in doubt) |
 | Forcing the LLM quota throttle in staging (mock Gemini, D76) | medium | Phase 3 adds a forced-throttle test hook in the mock provider |
 | Monetization scope creep (full billing vs plumbing) | medium | Plumbing only per the ROADMAP — schema tiers + hooks, no billing UI; folds P36 concurrency fix |
-| "Audited" implies legal authority engineering doesn't have | medium | Engineering encodes strict defaults + evidence; the audit explicitly defers final legal sign-off to a DPO/counsel review |
+| Self-attested compliance (no external counsel, D88) carries residual liability — heaviest under GDPR | medium-high | ACCEPTED MVP posture (D88): evidence-backed checklist, not a bare claim; review trigger = engage counsel before EU scale / special-category volume / when budget allows |
 
 ## Notes
 
-- All compliance answers in this plan are engineering's defensible read, NOT legal advice; the four regimes differ on definitions (anonymization, minimum retention) and the final policy needs DPO/counsel sign-off — captured as an explicit gate in Phase 5.
+- All compliance answers in this plan are engineering's defensible read, NOT legal advice; the four regimes differ on definitions (anonymization, minimum retention). Per D88 the final policy is **self-attested** against a documented 4-jurisdiction checklist at Phase 5 (no external counsel) — a deliberate MVP posture with the residual liability accepted + a review trigger to engage counsel before EU scale.
 - B2 convention holds: every user-facing/backend slice is gated on deployed-staging-e2e runtime proofs before promote; favor the live-PG test harness + adversarial review for the data-safety phases.
 - Tier note: 5× ent is heavy by the over-scope heuristic — intentional here because P16 IS the rigor/validation gate; Phase 5 is the lightest (no new risky code).
 
