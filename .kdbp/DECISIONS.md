@@ -2377,46 +2377,52 @@ The `postgres` superuser is used **once, operationally**, to provision the two r
 **Reason:** default MVP pick per U2 — additive read-only analytics aggregation that generalizes the existing month rollup to quarter/year + exposes a per-category prior-period trend; no migration. Lifts the D77 month-only breakdown limit.
 **Δ deferred by tier choice:** per-tenant rollup caching / materialized aggregates (Scale — scope-of-one volume makes per-request aggregation fine). **Review trigger:** add caching on the first quarter/year-breakdown latency signal. **Status:** accepted.
 
-## D82 — Erasure vs shared-group data: user choice + void affected period stats (2026-06-07, rev 2)
+## D82 — Erasure vs shared-group data: account-delete is total; group-leave is a choice (2026-06-07, rev 3)
 
 **Context.** P16 Phase 1 (DSR) must service a right-to-erasure request. The hard case: a
-member shared transactions into a group (D74 content-locks the group copy), then signs off
-the app or leaves a group. What happens to (a) the shared transactions and (b) the group's
-aggregate statistics?
+member shared transactions into a group (D74 content-locks the group copy), then either
+DELETES THEIR ACCOUNT or LEAVES A GROUP. What happens to the shared transactions + the
+group's aggregate statistics? Rev 3 distinguishes the two triggers (rev 1 = recompute,
+rejected as infeasible; rev 2 = a single sign-off choice, refined here).
 
-**Decision (rev 2 — supersedes the rev-1 "recompute" approach).** Recompute was rejected as
-infeasible (every erasure would re-grind N group-period aggregates) and unnecessary — an
-explicit user CHOICE + voiding is cheaper, stronger for privacy, and legally cleaner
-(informed consent). At account sign-off / group-leave, if the user has data shared into
-groups, present a disclaimer + a BINARY, ALL-GROUPS-OR-NONE choice (not per-group):
+**Decision (rev 3).** Two distinct triggers, only one of which offers a choice:
 
-1. **LEAVE DATA BEHIND** — the user leaves / closes their account, but their shared
-   transactions stay available to the groups. Nothing changes for the groups or their stats.
-   (Phase-1 sub-detail: on account deletion with leave-behind, DETACH the left transactions
-   from the deleted identity so the group keeps the financial data without retaining an
-   erased user's personal link.)
-2. **ERASE DATA** — the transactions are deleted everywhere; no longer available to anyone,
-   including the groups. The group statistics for the PERIODS (months) those transactions
-   touched are VOIDED — shut down / non-displayable — **NOT recomputed**. Each voided period
-   shows a notice: *"This member left and chose to stop sharing their transactions, so these
-   statistics were shut down for the months their data affected."*
+**ACCOUNT DELETION (signing off from the app) — TOTAL erasure, NO choice.** The user is
+leaving the app and expects everything gone:
+- Delete all the user's data — their own transactions AND the content-locked group copies
+  they shared.
+- VOID the affected group-period statistics. A stat is fact-based; it cannot be shown once
+  its underlying data is deleted. Tombstone the affected `(group, period)` pairs.
+- Groups see a notice: *"this member left the application; these statistics were shut down
+  for the months their data affected."*
 
-**Mechanism.** A TOMBSTONE record `(group, period, reason, date)` the stats layer checks
-BEFORE display — so a voided period never shows a (re-identifying) recomputed number, and the
-deleted transactions stay deleted. Voiding is O(mark affected periods); a voided figure is
-stronger for privacy than a recomputed one (gone, not adjusted). The user ACKNOWLEDGES the
-consequence → informed consent: the data-rights decision is made knowingly, by them.
+**LEAVING A GROUP (keeping the account) — the ONLY place a choice lives.** The user keeps
+their account + their own data; the question is only what happens to the copies already
+shared into THAT group:
+- KEEP — the shared copies remain available to the group; group stats unchanged.
+- DELETE — remove the shared copies from the group + VOID the affected group-period stats
+  (tombstone + notice: *"this member left the group and removed their shared data; these
+  statistics were shut down for the affected months."*).
+The user's own transactions are untouched either way.
 
-**Why this shape.** User-directed — strict but feasible: no recompute treadmill; the user
-owns the erase-vs-keep decision with full disclosure; voided periods are unambiguously gone.
+**Mechanism.** A TOMBSTONE `(group, period, reason, date)` the stats layer checks BEFORE
+display — voiding is O(mark affected periods), never a recompute; a voided figure is stronger
+for privacy than a recomputed one (gone, not adjusted). Both deletion paths (account-delete,
+group-leave-delete) feed the SAME void mechanism; they differ only in the trigger, the notice
+text, and whether a choice is offered.
+
+**Why this shape.** User-directed. Account deletion = "I'm done, delete it all" → total, with
+no confusing leave-behind option — so NOTHING is orphaned (the rev-2 "detach the left-behind
+data from a deleted identity" sub-question is moot). The keep-vs-delete choice belongs only
+where the account SURVIVES (group-leave), so the shared copies always have a live owner.
 
 **Open / load-bearing.** Engineering's defensible read, NOT legal advice. The four launch
-jurisdictions differ on anonymization + MINIMUM-retention of financial records (which can
-conflict with deletion) and on whether "leave behind" satisfies an erasure request. FINAL
-policy requires DPO/counsel sign-off — an explicit gate in P16 Phase 5 (go/no-go).
+jurisdictions differ on MINIMUM-retention of financial records (which can conflict with
+deletion) and on whether "keep on group-leave" affects an erasure request. FINAL policy
+requires DPO/counsel sign-off — an explicit gate in P16 Phase 5 (go/no-go).
 
 ### Status
-- accepted (rev 2; engineering default, pending DPO/legal confirmation at Phase 5)
+- accepted (rev 3; engineering default, pending DPO/legal confirmation at Phase 5)
 
 ## D83 — Phase 1 tier: ent (2026-06-07)
 

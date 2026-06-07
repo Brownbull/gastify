@@ -12,7 +12,7 @@ P16 — Compliance + Launch Hardening: audited four-jurisdiction regulatory read
 - **Maturity:** mvp (project) — but P16 is the launch gate, so every phase is tiered **ent** (data-safety + compliance rigor; escalation reasons logged in DECISIONS D83–D87).
 - **Domain:** Chilean smart expense tracker; markets from day 1 = Chile + LATAM + EU + US + Canada (four privacy regimes — the compliance need is real, not aspirational).
 - **Created:** 2026-06-07
-- **Last Updated:** 2026-06-07 (P16 plan authored. Replaces the completed Reports v2 plan — archived `.kdbp/archive/completed_PLAN_2026-06-07_reports-v2.md`. ROADMAP §3 Phase 7. Consolidates + AUDITS REQ-20 (consent + processing register) + REQ-21 (observability); no new REQs — this is a validation + hardening phase. The five phases map to the ROADMAP exit signals a–e. Erasure-vs-group-data policy locked in D82 rev 2 (informed-consent CHOICE at sign-off: leave-data-behind vs erase; erase deletes the transactions everywhere + VOIDS the affected group-period stats via a tombstone — no recompute; DPO/legal sign-off pending). Folds in PENDING P36 (concurrency-naive billing), P37 (un-noised DP cohort count → sensitive-category suppression), P59 (invite rate-limit). The live-PG RLS proof (test_rls_postgres.py + test_group_isolation.py in CI, was P32) is a ready compliance-audit artifact.)
+- **Last Updated:** 2026-06-07 (P16 plan authored. Replaces the completed Reports v2 plan — archived `.kdbp/archive/completed_PLAN_2026-06-07_reports-v2.md`. ROADMAP §3 Phase 7. Consolidates + AUDITS REQ-20 (consent + processing register) + REQ-21 (observability); no new REQs — this is a validation + hardening phase. The five phases map to the ROADMAP exit signals a–e. Erasure-vs-group-data policy locked in D82 rev 3 (account deletion = TOTAL erasure + VOID affected group-period stats via a tombstone; leaving a group = the only keep-vs-delete CHOICE; no recompute; DPO/legal sign-off pending). Folds in PENDING P36 (concurrency-naive billing), P37 (un-noised DP cohort count → sensitive-category suppression), P59 (invite rate-limit). The live-PG RLS proof (test_rls_postgres.py + test_group_isolation.py in CI, was P32) is a ready compliance-audit artifact.)
 
 ## Phases
 
@@ -47,8 +47,8 @@ decisions_entry: D83
 
 - **Tier chosen:** ent — irreversible erasure + legally-mandated data export across four regimes; getting it wrong leaks or fails to delete personal data.
 - **Scope:** the four DSR rights on a test user, end-to-end on deployed staging-e2e: **access** (full personal-data export), **rectification** (edit with `user_edited_at`, already partly built), **erasure** (delete + the D82 group policy), **portability** (machine-readable export). Reuse the P1 consent/processing register + ownership-scope.
-- **Erasure-vs-group (D82 rev 2):** at sign-off/group-leave, an all-groups-or-none CHOICE with a disclaimer — (1) **leave data behind** (group keeps the shared transactions; detach from the deleted identity) or (2) **erase** (delete the transactions everywhere + VOID the affected group-period stats via a tombstone, with a notice — no recompute). Informed consent; DPO/legal sign-off pending.
-- **Runtime evidence:** a Playwright/API journey running each of the four rights on a throwaway test user against deployed staging-e2e; a two-user fixture proving the ERASE choice deletes the transactions + voids the affected group-period stats (notice shown), and the LEAVE choice changes nothing for the group.
+- **Erasure-vs-group (D82 rev 3):** two triggers — **account deletion** is TOTAL (delete own + shared copies → VOID affected group-period stats via tombstone + notice "left the application"; no choice); **leaving a group** (keep account) is the only CHOICE — keep the shared copies (stats unchanged) or delete them (→ void affected stats + notice). Same void mechanism, different trigger. DPO/legal sign-off pending.
+- **Runtime evidence:** a Playwright/API journey running each of the four rights on a throwaway test user against deployed staging-e2e; a two-user fixture proving (a) account deletion voids the affected group-period stats with the notice, and (b) group-leave honors the keep-vs-delete choice.
 
 ### Phase 2 — Consent cascade + Retention TTL
 
@@ -133,7 +133,7 @@ Phase 1: Data-Subject Rights (DSR)
 
 | Risk | Severity | Mitigation |
 |------|----------|------------|
-| Erasure of shared-group data — legal "erasure" vs the group's data integrity (D74 content-lock) | high | D82 rev 2: an informed-consent CHOICE (leave-behind vs erase); erase deletes the transactions + VOIDS affected group-period stats via a tombstone (no recompute treadmill); DPO/legal sign-off |
+| Erasure of shared-group data — legal "erasure" vs the group's data integrity (D74 content-lock) | high | D82 rev 3: account-delete is total (void affected stats); group-leave is a keep-vs-delete choice; void via tombstone (no recompute treadmill); DPO/legal sign-off |
 | Retention deletion vs jurisdictions that MANDATE minimum retention of financial records | high | Phase 2 reconciles per-data-class TTL across the four regimes; a DECISIONS entry + DPO sign-off; conservative default (keep when in doubt) |
 | Forcing the LLM quota throttle in staging (mock Gemini, D76) | medium | Phase 3 adds a forced-throttle test hook in the mock provider |
 | Monetization scope creep (full billing vs plumbing) | medium | Plumbing only per the ROADMAP — schema tiers + hooks, no billing UI; folds P36 concurrency fix |
