@@ -48,6 +48,7 @@
 | `backend/app/reference/*.json` | Shared reference-data policy/config payloads | MVP |
 | `backend/app/schemas/*.py` | Pydantic request/response schemas | MVP |
 | `backend/app/services/*.py` | Business logic (no FastAPI imports) | MVP |
+| `backend/app/services/**/*.py` | Business-logic sub-packages (e.g. insights/ split per P46) | MVP |
 | `backend/app/agents/*.py` | PydanticAI agent definitions | MVP |
 | `backend/app/prompts/*.py` | Versioned production prompt registry | MVP |
 | `backend/app/prompts/**/*.py` | Domain-specific production prompt packages | MVP |
