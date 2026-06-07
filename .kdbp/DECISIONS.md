@@ -2377,37 +2377,46 @@ The `postgres` superuser is used **once, operationally**, to provision the two r
 **Reason:** default MVP pick per U2 — additive read-only analytics aggregation that generalizes the existing month rollup to quarter/year + exposes a per-category prior-period trend; no migration. Lifts the D77 month-only breakdown limit.
 **Δ deferred by tier choice:** per-tenant rollup caching / materialized aggregates (Scale — scope-of-one volume makes per-request aggregation fine). **Review trigger:** add caching on the first quarter/year-breakdown latency signal. **Status:** accepted.
 
-## D82 — Erasure vs shared-group data: revoke visibility + recompute aggregates (2026-06-07)
+## D82 — Erasure vs shared-group data: user choice + void affected period stats (2026-06-07, rev 2)
 
 **Context.** P16 Phase 1 (DSR) must service a right-to-erasure request. The hard case: a
-member shared transactions into a group (D74 content-locks the group copy so it can't be
-modified after the lock window), then leaves the group and requests erasure. What happens
-to (a) the shared transactions and (b) the group's aggregate statistics?
+member shared transactions into a group (D74 content-locks the group copy), then signs off
+the app or leaves a group. What happens to (a) the shared transactions and (b) the group's
+aggregate statistics?
 
-**Decision (strict default).**
-1. Erase the member's transactions from their own account.
-2. REVOKE the group's visibility of their shared transactions — no remaining member can
-   see them. We revoke VISIBILITY rather than mutate the content-locked group copy (D74),
-   so the lock invariant holds and the action is auditable.
-3. RECOMPUTE the group's aggregate statistics to EXCLUDE the departed member's
-   contribution. Rationale: gastify groups are typically small (household/couple), so a
-   retained aggregate is re-identifying (remaining member derives `total − own`) → it is
-   pseudonymized, not anonymized, so erasure rights reach it (GDPR Recital 26 + the
-   analogous CCPA / Law 21.719 / PIPEDA carve-outs only exempt GENUINELY anonymized data).
-   A proven k-anonymous aggregate (≥ the P37 DP-cohort floor, k≥20) MAY be exempted from
-   recompute, but recompute is the default below that floor.
+**Decision (rev 2 — supersedes the rev-1 "recompute" approach).** Recompute was rejected as
+infeasible (every erasure would re-grind N group-period aggregates) and unnecessary — an
+explicit user CHOICE + voiding is cheaper, stronger for privacy, and legally cleaner
+(informed consent). At account sign-off / group-leave, if the user has data shared into
+groups, present a disclaimer + a BINARY, ALL-GROUPS-OR-NONE choice (not per-group):
 
-**Why "most strict".** Chosen at user direction (the most strict data-handling posture).
-The strict default avoids relying on weak anonymization for the common small-group case.
+1. **LEAVE DATA BEHIND** — the user leaves / closes their account, but their shared
+   transactions stay available to the groups. Nothing changes for the groups or their stats.
+   (Phase-1 sub-detail: on account deletion with leave-behind, DETACH the left transactions
+   from the deleted identity so the group keeps the financial data without retaining an
+   erased user's personal link.)
+2. **ERASE DATA** — the transactions are deleted everywhere; no longer available to anyone,
+   including the groups. The group statistics for the PERIODS (months) those transactions
+   touched are VOIDED — shut down / non-displayable — **NOT recomputed**. Each voided period
+   shows a notice: *"This member left and chose to stop sharing their transactions, so these
+   statistics were shut down for the months their data affected."*
 
-**Open / load-bearing.** This is engineering's defensible read, NOT legal advice. The four
-launch jurisdictions differ on anonymization definitions and on MINIMUM-retention mandates
-for financial records (which can conflict with deletion). FINAL policy requires DPO/counsel
-sign-off — an explicit gate in P16 Phase 5 (go/no-go). Until then, this strict default
-governs the Phase 1/2 implementation.
+**Mechanism.** A TOMBSTONE record `(group, period, reason, date)` the stats layer checks
+BEFORE display — so a voided period never shows a (re-identifying) recomputed number, and the
+deleted transactions stay deleted. Voiding is O(mark affected periods); a voided figure is
+stronger for privacy than a recomputed one (gone, not adjusted). The user ACKNOWLEDGES the
+consequence → informed consent: the data-rights decision is made knowingly, by them.
+
+**Why this shape.** User-directed — strict but feasible: no recompute treadmill; the user
+owns the erase-vs-keep decision with full disclosure; voided periods are unambiguously gone.
+
+**Open / load-bearing.** Engineering's defensible read, NOT legal advice. The four launch
+jurisdictions differ on anonymization + MINIMUM-retention of financial records (which can
+conflict with deletion) and on whether "leave behind" satisfies an erasure request. FINAL
+policy requires DPO/counsel sign-off — an explicit gate in P16 Phase 5 (go/no-go).
 
 ### Status
-- accepted (engineering default; pending DPO/legal confirmation at Phase 5)
+- accepted (rev 2; engineering default, pending DPO/legal confirmation at Phase 5)
 
 ## D83 — Phase 1 tier: ent (2026-06-07)
 

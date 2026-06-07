@@ -135,15 +135,14 @@
   </section>
 
   <section>
-    <h2><span class="n">§4</span>Erasure-vs-group policy <span style="font-size:13px;color:var(--muted)">— DECISIONS D82 (strict)</span></h2>
+    <h2><span class="n">§4</span>Erasure-vs-group policy <span style="font-size:13px;color:var(--muted)">— DECISIONS D82 rev 2</span></h2>
     <div class="callout">
-      <h3>When a member leaves a group + requests erasure</h3>
+      <h3>At sign-off / group-leave — an informed-consent choice (all groups or none)</h3>
       <ol>
-        <li>Erase the member's transactions from their own account.</li>
-        <li><b>Revoke</b> the group's visibility of their shared transactions — no remaining member can see them (revoke visibility, don't mutate the D74 content-locked copy).</li>
-        <li><b>Recompute</b> the group's aggregate statistics to exclude their contribution — small groups make a retained aggregate re-identifying (<code>total − own</code>), so it's pseudonymized, not anonymized. A proven k-anonymous aggregate (≥ k=20, the P37 floor) may be exempted.</li>
+        <li><b>Leave data behind</b> — close the account / leave the group, but the shared transactions stay available to the groups. <b>Nothing changes</b> for the groups (detach the data from the deleted identity).</li>
+        <li><b>Erase data</b> — the transactions are deleted everywhere (no longer available to anyone, incl. the groups), and the group statistics for the periods those transactions touched are <b>voided</b> — shut down, <b>not recomputed</b> — each showing a notice: <i>"this member left and chose to stop sharing, so these stats were shut down for the affected months."</i></li>
       </ol>
-      <div class="legal">⚠ Engineering's defensible read, not legal advice. The four regimes differ on anonymization + minimum-retention of financial records — FINAL policy needs DPO/counsel sign-off, gated explicitly at Phase 5.</div>
+      <div class="legal">Mechanism: a tombstone <code>(group, period, reason)</code> the stats layer checks before display — voiding is O(mark) not a recompute treadmill, and a voided figure is stronger for privacy than a recomputed one (gone, not adjusted). ⚠ Engineering's read, not legal advice — the four regimes differ on anonymization + minimum-retention; DPO/counsel sign-off gated at Phase 5.</div>
     </div>
   </section>
 
@@ -167,7 +166,7 @@
     <table class="risk">
       <thead><tr><th>Risk</th><th>Sev</th><th>Mitigation</th></tr></thead>
       <tbody>
-        <tr><td>Erasure of shared-group data vs the group's data integrity (D74)</td><td class="sev high">high</td><td>D82: revoke visibility + recompute below k-floor; DPO sign-off.</td></tr>
+        <tr><td>Erasure of shared-group data vs the group's data integrity (D74)</td><td class="sev high">high</td><td>D82 rev 2: informed-consent choice (leave vs erase); erase voids affected period stats via tombstone (no recompute); DPO sign-off.</td></tr>
         <tr><td>Retention deletion vs jurisdictions mandating minimum retention of financial records</td><td class="sev high">high</td><td>Phase 2 reconciles per-data-class TTL; conservative keep-when-in-doubt default + DPO sign-off.</td></tr>
         <tr><td>Forcing the LLM quota throttle in staging (mock Gemini, D76)</td><td class="sev med">medium</td><td>Phase 3 adds a forced-throttle test hook in the mock provider.</td></tr>
         <tr><td>Monetization scope creep (full billing vs plumbing)</td><td class="sev med">medium</td><td>Plumbing only — schema tiers + hooks, no billing UI; folds P36.</td></tr>
@@ -180,7 +179,7 @@
     <h2><span class="n">§7</span>Go/no-go readiness checklist (Phase 5 capstone)</h2>
     <ul class="chk">
       <li><b>DSR</b> — all four rights run end-to-end on a test user (staging evidence)</li>
-      <li><b>Erasure-vs-group</b> — two-user fixture proves visibility revoke + aggregate recompute</li>
+      <li><b>Erasure-vs-group</b> — two-user fixture proves ERASE voids the affected group-period stats (notice shown) + LEAVE changes nothing</li>
       <li><b>Consent cascade</b> — revoke → downstream cohort-unflag asserted</li>
       <li><b>Retention</b> — past-TTL seed deleted by the scheduled job; mandated-retention classes preserved</li>
       <li><b>Resilience</b> — load test hits LLM throttle, all scans `queued`, zero 5xx</li>
