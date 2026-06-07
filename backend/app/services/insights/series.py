@@ -27,6 +27,7 @@ from app.services.insights._shared import (
     shift_months,
 )
 from app.services.insights.loading import _record_from_seed_row, load_insight_records_from_db
+from app.services.insights.tombstones import months_in_range, void_reason_for, voided_periods
 
 
 @dataclass
@@ -65,7 +66,7 @@ async def get_insights_series(
         currency=normalized_currency,
         user_id=user_id,
     )
-    return build_insights_series_from_records(
+    response = build_insights_series_from_records(
         records,
         ownership_scope_id=ownership_scope_id,
         period_start=start,
@@ -73,6 +74,43 @@ async def get_insights_series(
         currency=normalized_currency,
         granularity=granularity,
     )
+    # Void per-bucket (D82): a bucket whose months include a tombstoned one is shut
+    # down (zeroed + reason); unaffected buckets are left intact, so a single voided
+    # month doesn't blank the whole trend. No-op for personal scopes (never voided).
+    voided = await voided_periods(
+        db, ownership_scope_id=ownership_scope_id, start_date=start, end_date=end
+    )
+    if voided:
+        response = _apply_series_void(response, voided)
+    return response
+
+
+def _apply_series_void(
+    response: InsightsSeriesResponse, voided: dict[str, str]
+) -> InsightsSeriesResponse:
+    """Zero out and flag each bucket that touches a tombstoned month."""
+    points: list[InsightsSeriesPoint] = []
+    for point in response.points:
+        bucket_voided = {
+            month: voided[month]
+            for month in months_in_range(point.period_start, point.period_end)
+            if month in voided
+        }
+        reason = void_reason_for(bucket_voided)
+        if reason is None:
+            points.append(point)
+            continue
+        points.append(
+            point.model_copy(
+                update={
+                    "total_spend_minor": 0,
+                    "transaction_count": 0,
+                    "voided": True,
+                    "void_reason": reason,
+                }
+            )
+        )
+    return response.model_copy(update={"points": points})
 
 
 def build_insights_series_from_seed(

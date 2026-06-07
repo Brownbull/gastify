@@ -4024,3 +4024,5 @@ ACTIONS: doc-fix P6-INSIGHTS-CONTRACT.md (erasure → hard-delete) + defer P67 (
 CHECKS: lint ✅ types ✅ tests ✅ (832 passed/12 skipped) shape ✅ deferred ✅ docs ⚠→fixed structure ✅
 DEFERRED: +P67 (erasure-doc sweep)
 PHASE: 1 — DSR | TASK: T2/6 — erasure → hard-delete (D89, amends D4) | EXEC 🔄 (T3–T6 remain)
+- 2026-06-07 14:19 | Edit | /home/khujta/projects/apps/gastify/backend/schema/RLS.md
+- 2026-06-07 14:19 | Write | /tmp/gastify-t3-commit.txt

@@ -1456,6 +1456,13 @@ export interface components {
             total_spend_minor: number;
             /** Transaction Count */
             transaction_count: number;
+            /**
+             * Voided
+             * @default false
+             */
+            voided: boolean;
+            /** Void Reason */
+            void_reason?: string | null;
         };
         /**
          * InsightsSeriesResponse
@@ -1583,6 +1590,13 @@ export interface components {
             item_count: number;
             /** Roots */
             roots?: components["schemas"]["InsightsTreeNode"][];
+            /**
+             * Voided
+             * @default false
+             */
+            voided: boolean;
+            /** Void Reason */
+            void_reason?: string | null;
         };
         /** InvitePreview */
         InvitePreview: {
@@ -1747,6 +1761,13 @@ export interface components {
             gravity_centers?: components["schemas"]["InsightGravityCenter"][];
             /** Excluded Items */
             excluded_items?: components["schemas"]["InsightExcludedItemSummary"][];
+            /**
+             * Voided
+             * @default false
+             */
+            voided: boolean;
+            /** Void Reason */
+            void_reason?: string | null;
         };
         /**
          * NotificationRow

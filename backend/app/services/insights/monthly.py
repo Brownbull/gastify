@@ -50,6 +50,7 @@ from app.services.insights.loading import (
     _record_from_seed_row,
     load_insight_records_from_db,
 )
+from app.services.insights.tombstones import void_reason_for, voided_periods
 
 
 async def get_monthly_insights(
@@ -72,6 +73,25 @@ async def get_monthly_insights(
     normalized_period = first_day_of_month(period_start)
     normalized_currency = currency.upper()
     range_end = period_end if period_end is not None else last_day_of_month(normalized_period)
+
+    # Void BEFORE any load/cache (D82): if any month in the requested range was
+    # tombstoned, the aggregate's underlying data is gone — show a void notice, not
+    # a recomputed figure. Checked first so a freshly-tombstoned group can never be
+    # served a stale (pre-void) cache entry. No-op for personal scopes (never voided).
+    voided = await voided_periods(
+        db,
+        ownership_scope_id=ownership_scope_id,
+        start_date=normalized_period,
+        end_date=range_end,
+    )
+    if voided:
+        return _voided_monthly_response(
+            period_start=normalized_period,
+            period_end=range_end,
+            currency=normalized_currency,
+            reason=void_reason_for(voided),
+        )
+
     is_single_month = range_end == last_day_of_month(normalized_period)
     effective_cache = cache if is_single_month else None
     # The trailing baseline window (for gravity centers) + the fingerprint (the cache
@@ -125,6 +145,26 @@ async def get_monthly_insights(
             response=response,
         )
     return response
+
+
+def _voided_monthly_response(
+    *,
+    period_start: date,
+    period_end: date,
+    currency: str,
+    reason: str | None,
+) -> MonthlyInsightsResponse:
+    """A shut-down monthly stat: zeroed totals + the localizable void reason (D82)."""
+    return MonthlyInsightsResponse(
+        period_start=period_start,
+        period_end=period_end,
+        currency=currency,
+        total_spend_minor=0,
+        transaction_count=0,
+        item_count=0,
+        voided=True,
+        void_reason=reason,
+    )
 
 
 def build_monthly_insights_from_seed(

@@ -4185,6 +4185,22 @@
             "type": "integer",
             "minimum": 0.0,
             "title": "Transaction Count"
+          },
+          "voided": {
+            "type": "boolean",
+            "title": "Voided",
+            "default": false
+          },
+          "void_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Void Reason"
           }
         },
         "type": "object",
@@ -4399,6 +4415,22 @@
             },
             "type": "array",
             "title": "Roots"
+          },
+          "voided": {
+            "type": "boolean",
+            "title": "Voided",
+            "default": false
+          },
+          "void_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Void Reason"
           }
         },
         "type": "object",
@@ -4781,6 +4813,22 @@
             },
             "type": "array",
             "title": "Excluded Items"
+          },
+          "voided": {
+            "type": "boolean",
+            "title": "Voided",
+            "default": false
+          },
+          "void_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Void Reason"
           }
         },
         "type": "object",

@@ -33,6 +33,7 @@ from app.services.insights._shared import (
 )
 from app.services.insights.loading import _record_from_seed_row, load_insight_records_from_db
 from app.services.insights.series import _series_bucket_key
+from app.services.insights.tombstones import void_reason_for, voided_periods
 
 
 async def get_insights_tree(
@@ -59,6 +60,25 @@ async def get_insights_tree(
     normalized_currency = currency.upper()
     normalized_period = first_day_of_month(period_start)
     range_end = period_end if period_end is not None else last_day_of_month(normalized_period)
+
+    # Void BEFORE loading (D82): a tombstoned month in the range shuts the whole
+    # period's tree down — an empty void notice, not a recomputed tree. No-op for
+    # personal scopes (never tombstoned).
+    voided = await voided_periods(
+        db,
+        ownership_scope_id=ownership_scope_id,
+        start_date=normalized_period,
+        end_date=range_end,
+    )
+    if voided:
+        return _voided_tree_response(
+            period_start=normalized_period,
+            period_end=range_end,
+            currency=normalized_currency,
+            dimension=dimension,
+            reason=void_reason_for(voided),
+        )
+
     records = await load_insight_records_from_db(
         db,
         ownership_scope_id=ownership_scope_id,
@@ -75,6 +95,29 @@ async def get_insights_tree(
         dimension=dimension,
         period_end=range_end,
         include_series=include_series,
+    )
+
+
+def _voided_tree_response(
+    *,
+    period_start: date,
+    period_end: date,
+    currency: str,
+    dimension: InsightDimension,
+    reason: str | None,
+) -> InsightsTreeResponse:
+    """A shut-down tree: no roots + the localizable void reason (D82)."""
+    return InsightsTreeResponse(
+        dimension=dimension,
+        period_start=period_start,
+        period_end=period_end,
+        currency=currency,
+        total_spend_minor=0,
+        transaction_count=0,
+        item_count=0,
+        roots=[],
+        voided=True,
+        void_reason=reason,
     )
 
 

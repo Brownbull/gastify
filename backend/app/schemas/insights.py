@@ -173,6 +173,11 @@ class MonthlyInsightsResponse(BaseModel):
     )
     gravity_centers: list[InsightGravityCenter] = Field(default_factory=list)
     excluded_items: list[InsightExcludedItemSummary] = Field(default_factory=list)
+    # Set when the requested period overlaps a group-stat tombstone (D82): the
+    # numbers above are zeroed/empty and the client shows the localized void notice
+    # for `void_reason` instead of the (deleted) aggregate.
+    voided: bool = False
+    void_reason: str | None = None
 
     @field_validator("currency")
     @classmethod
@@ -221,6 +226,10 @@ class InsightsSeriesPoint(BaseModel):
     period_end: date
     total_spend_minor: int = Field(ge=0)
     transaction_count: int = Field(ge=0)
+    # When a constituent month of this bucket was tombstoned (D82), the bucket is
+    # VOIDED: totals are zeroed and `void_reason` carries the localizable cause.
+    voided: bool = False
+    void_reason: str | None = None
 
     @model_validator(mode="after")
     def _validate_point(self) -> "InsightsSeriesPoint":
@@ -321,6 +330,10 @@ class InsightsTreeResponse(BaseModel):
     transaction_count: int = Field(ge=0)
     item_count: int = Field(ge=0)
     roots: list[InsightsTreeNode] = Field(default_factory=list)
+    # Set when the requested period overlaps a group-stat tombstone (D82): `roots`
+    # is empty and the client shows the localized void notice for `void_reason`.
+    voided: bool = False
+    void_reason: str | None = None
 
     @field_validator("currency")
     @classmethod
