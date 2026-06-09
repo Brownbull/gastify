@@ -1,0 +1,100 @@
+<mxfile host="project-documenter" version="24.7.17">
+  <diagram name="High-Level Architecture" id="high-level-architecture">
+    <mxGraphModel dx="1422" dy="762" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- ===== External Services ===== -->
+        <mxCell id="ext-box" value="External Services" style="swimlane;fontStyle=1;fontSize=13;fillColor=#dae8fc;strokeColor=#6c8ebf;startSize=30;" vertex="1" parent="1">
+          <mxGeometry x="80" y="40" width="1040" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="firebase" value="Firebase Auth&#xa;(Google OAuth)" style="rounded=1;whiteSpace=wrap;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="ext-box">
+          <mxGeometry x="60" y="50" width="200" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="gemini" value="Google Gemini 2.5 Flash&#xa;(PydanticAI structured output)" style="rounded=1;whiteSpace=wrap;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="ext-box">
+          <mxGeometry x="380" y="50" width="240" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="fx-api" value="FX Rate API&#xa;(open.er-api.com)" style="rounded=1;whiteSpace=wrap;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="ext-box">
+          <mxGeometry x="740" y="50" width="200" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- ===== Backend ===== -->
+        <mxCell id="backend-box" value="FastAPI Backend — backend/app/ (G1–G5)" style="swimlane;fontStyle=1;fontSize=13;fillColor=#d5e8d4;strokeColor=#82b366;startSize=30;" vertex="1" parent="1">
+          <mxGeometry x="80" y="220" width="1040" height="300" as="geometry" />
+        </mxCell>
+
+        <mxCell id="mw" value="Middleware&#xa;(RequestId → AccessLog → CORS)" style="rounded=1;whiteSpace=wrap;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="backend-box">
+          <mxGeometry x="60" y="50" width="280" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="auth-dep" value="Auth Dependency&#xa;Firebase token verify → AuthContext&#xa;RLS GUC: app.ownership_scope_id" style="rounded=1;whiteSpace=wrap;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="backend-box">
+          <mxGeometry x="60" y="140" width="280" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="routers" value="11 API Routers&#xa;scans · transactions · insights&#xa;statements · groups · consent · …" style="rounded=1;whiteSpace=wrap;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="backend-box">
+          <mxGeometry x="380" y="50" width="240" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="scan-pipeline" value="Scan Pipeline (G4)&#xa;vision → coalesce → categorize&#xa;→ math gate → persist" style="rounded=1;whiteSpace=wrap;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="backend-box">
+          <mxGeometry x="380" y="160" width="240" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="postgres" value="PostgreSQL 16&#xa;RLS deny-by-default&#xa;gastify_app (NOBYPASSRLS)" style="shape=cylinder3;whiteSpace=wrap;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="backend-box">
+          <mxGeometry x="720" y="80" width="200" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="insights" value="Insights / Analytics (P6)&#xa;monthly · tree · gravity · trend" style="rounded=1;whiteSpace=wrap;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="backend-box">
+          <mxGeometry x="720" y="200" width="200" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- ===== Clients ===== -->
+        <mxCell id="web-client" value="React Web SPA (G6 — web/)&#xa;TanStack Router + Query · Zustand&#xa;SSE scan progress · openapi-fetch" style="rounded=1;whiteSpace=wrap;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="80" y="580" width="460" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="mobile-client" value="React Native Mobile (G7 — mobile/)&#xa;Expo + EAS · SecureStore · Camera&#xa;WebSocket scan progress · openapi-fetch" style="rounded=1;whiteSpace=wrap;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="660" y="580" width="460" height="100" as="geometry" />
+        </mxCell>
+
+        <!-- ===== Railway ===== -->
+        <mxCell id="railway" value="Railway&#xa;(gastify-api · gastify-postgres · gastify-web)" style="rounded=1;dashed=1;whiteSpace=wrap;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="80" y="730" width="1040" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- ===== Edges ===== -->
+        <!-- external → backend -->
+        <mxCell id="e1" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="firebase" target="auth-dep" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="gemini" target="scan-pipeline" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="fx-api" target="insights" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <!-- middleware chain -->
+        <mxCell id="e4" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="mw" target="auth-dep" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e5" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="auth-dep" target="routers" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e6" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="routers" target="scan-pipeline" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e7" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="routers" target="postgres" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e8" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="scan-pipeline" target="postgres" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <!-- clients → backend -->
+        <mxCell id="e9" value="HTTP / SSE&#xa;******" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="web-client" target="mw" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e10" value="HTTP / WebSocket&#xa;******" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="mobile-client" target="mw" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <!-- railway wraps clients -->
+        <mxCell id="e11" style="edgeStyle=orthogonalEdgeStyle;dashed=1;" edge="1" source="web-client" target="railway" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

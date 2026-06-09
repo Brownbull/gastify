@@ -18,11 +18,14 @@
 |---------|-------------|------|
 | `.kdbp/**` | KDBP state (PLAN, KNOWLEDGE, PENDING, LEDGER, DECISIONS, etc.) | MVP |
 | `README.md` | Project readme | MVP |
+| `CONTRIBUTING.md` | Developer onboarding guide | MVP |
 | `MOBILE.md` | Root mobile runbook | MVP |
 | `CLAUDE.md` | Claude Code session-start instructions (managed by /gabe-init) | MVP |
 | `LICENSE*` | License file | MVP |
 | `.gitignore` | Git ignore | MVP |
 | `docs/**/*.md` | Project documentation | MVP |
+| `copilot-docs/**/*.md` | Copilot-generated project documentation | MVP |
+| `copilot-docs/**/*.drawio` | draw.io architecture diagrams | MVP |
 | `tests/**/*.{py,ts,tsx,js,jsx}` | Test files | MVP |
 | `tests/web-e2e/proof/**/*.png` | Web E2E proof screenshots (force-added past .gitignore; committed for visual regression) | MVP |
 | `scripts/**/*.{sh,py}` | Utility scripts | MVP |

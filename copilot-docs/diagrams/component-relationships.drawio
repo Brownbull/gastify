@@ -1,0 +1,133 @@
+<mxfile host="project-documenter" version="24.7.17">
+  <diagram name="Component Relationships" id="component-relationships">
+    <mxGraphModel dx="1400" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- ===== G1 API Core ===== -->
+        <mxCell id="g1" value="G1 — API Core" style="swimlane;fontStyle=1;fontSize=11;fillColor=#d5e8d4;strokeColor=#82b366;startSize=25;" vertex="1" parent="1">
+          <mxGeometry x="40" y="40" width="500" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="g1-main" value="main.py&#xa;FastAPI app factory" style="rounded=1;whiteSpace=wrap;" vertex="1" parent="g1">
+          <mxGeometry x="20" y="40" width="140" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="g1-mw" value="middleware.py&#xa;RequestId + AccessLog" style="rounded=1;whiteSpace=wrap;" vertex="1" parent="g1">
+          <mxGeometry x="180" y="40" width="140" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="g1-api" value="api/ (17 routers)&#xa;scans · transactions · insights&#xa;statements · groups · …" style="rounded=1;whiteSpace=wrap;" vertex="1" parent="g1">
+          <mxGeometry x="340" y="40" width="140" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- ===== G2 Data Model ===== -->
+        <mxCell id="g2" value="G2 — Data Model" style="swimlane;fontStyle=1;fontSize=11;fillColor=#dae8fc;strokeColor=#6c8ebf;startSize=25;" vertex="1" parent="1">
+          <mxGeometry x="40" y="220" width="500" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="g2-models" value="models/&#xa;SQLAlchemy ORM&#xa;OwnershipScope root" style="rounded=1;whiteSpace=wrap;" vertex="1" parent="g2">
+          <mxGeometry x="20" y="40" width="140" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="g2-schemas" value="schemas/&#xa;Pydantic request/response" style="rounded=1;whiteSpace=wrap;" vertex="1" parent="g2">
+          <mxGeometry x="180" y="40" width="140" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="g2-alembic" value="alembic/versions/&#xa;34 migrations&#xa;001–034" style="rounded=1;whiteSpace=wrap;" vertex="1" parent="g2">
+          <mxGeometry x="340" y="40" width="140" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- ===== G3 Identity ===== -->
+        <mxCell id="g3" value="G3 — Identity + Ownership" style="swimlane;fontStyle=1;fontSize=11;fillColor=#fff2cc;strokeColor=#d6b656;startSize=25;" vertex="1" parent="1">
+          <mxGeometry x="580" y="40" width="420" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="g3-auth" value="auth/middleware.py&#xa;Firebase verify → AuthContext&#xa;RLS GUC injection" style="rounded=1;whiteSpace=wrap;" vertex="1" parent="g3">
+          <mxGeometry x="20" y="40" width="180" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="g3-consent" value="services/consent.py&#xa;4-jurisdiction consent&#xa;(CL Law 21.719 · GDPR · PIPEDA · CCPA)" style="rounded=1;whiteSpace=wrap;" vertex="1" parent="g3">
+          <mxGeometry x="220" y="40" width="180" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- ===== G4 Scan Pipeline ===== -->
+        <mxCell id="g4" value="G4 — Scan Pipeline" style="swimlane;fontStyle=1;fontSize=11;fillColor=#ffe6cc;strokeColor=#d79b00;startSize=25;" vertex="1" parent="1">
+          <mxGeometry x="580" y="220" width="420" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="g4-agents" value="agents/&#xa;extraction.py&#xa;categorization.py" style="rounded=1;whiteSpace=wrap;" vertex="1" parent="g4">
+          <mxGeometry x="20" y="40" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="g4-worker" value="services/scan_worker.py&#xa;async worker&#xa;(pg SKIP LOCKED queue)" style="rounded=1;whiteSpace=wrap;" vertex="1" parent="g4">
+          <mxGeometry x="160" y="40" width="130" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="g4-gate" value="services/math_gate.py&#xa;fail-closed reconciliation&#xa;delta &gt; 1 minor unit → NEEDS_REVIEW" style="rounded=1;whiteSpace=wrap;" vertex="1" parent="g4">
+          <mxGeometry x="310" y="40" width="90" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="g4-prompts" value="prompts/&#xa;versioned registry&#xa;receipt · statement · categorization" style="rounded=1;whiteSpace=wrap;" vertex="1" parent="g4">
+          <mxGeometry x="20" y="120" width="180" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="g4-events" value="services/scan_events.py&#xa;SSE + WebSocket dispatcher&#xa;in-memory pub/sub" style="rounded=1;whiteSpace=wrap;" vertex="1" parent="g4">
+          <mxGeometry x="220" y="120" width="180" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- ===== G5 Integrations ===== -->
+        <mxCell id="g5" value="G5 — Integrations" style="swimlane;fontStyle=1;fontSize=11;fillColor=#f8cecc;strokeColor=#b85450;startSize=25;" vertex="1" parent="1">
+          <mxGeometry x="40" y="400" width="960" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="g5-firebase" value="auth/firebase.py&#xa;Firebase Admin SDK wrapper" style="rounded=1;whiteSpace=wrap;" vertex="1" parent="g5">
+          <mxGeometry x="20" y="40" width="180" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="g5-retry" value="services/provider_retry.py&#xa;Gemini retry + error classification&#xa;JSON repair" style="rounded=1;whiteSpace=wrap;" vertex="1" parent="g5">
+          <mxGeometry x="220" y="40" width="180" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="g5-fx" value="services/fx.py&#xa;FX rate lazy cache&#xa;PK idempotency" style="rounded=1;whiteSpace=wrap;" vertex="1" parent="g5">
+          <mxGeometry x="420" y="40" width="160" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="g5-scan-prov" value="services/scan_providers.py&#xa;provider dispatch&#xa;mock | fixture | gemini" style="rounded=1;whiteSpace=wrap;" vertex="1" parent="g5">
+          <mxGeometry x="600" y="40" width="180" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="g5-pdf" value="services/statement_extraction.py&#xa;PyMuPDF PDF parser adapter" style="rounded=1;whiteSpace=wrap;" vertex="1" parent="g5">
+          <mxGeometry x="800" y="40" width="140" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- ===== G6 Web ===== -->
+        <mxCell id="g6" value="G6 — Web Portal (web/src/)" style="swimlane;fontStyle=1;fontSize=11;fillColor=#e1d5e7;strokeColor=#9673a6;startSize=25;" vertex="1" parent="1">
+          <mxGeometry x="40" y="580" width="460" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="g6-routes" value="routes/&#xa;TanStack Router&#xa;scan · transactions · reports&#xa;statements · groups" style="rounded=1;whiteSpace=wrap;" vertex="1" parent="g6">
+          <mxGeometry x="20" y="40" width="130" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="g6-hooks" value="hooks/&#xa;useAuth · useInsights&#xa;useReportDetail" style="rounded=1;whiteSpace=wrap;" vertex="1" parent="g6">
+          <mxGeometry x="170" y="40" width="130" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="g6-stores" value="stores/uiStore.ts&#xa;activeScope&#xa;personal ↔ group" style="rounded=1;whiteSpace=wrap;" vertex="1" parent="g6">
+          <mxGeometry x="320" y="40" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="g6-lib" value="lib/&#xa;openapi-fetch client&#xa;Firebase Auth · query config" style="rounded=1;whiteSpace=wrap;" vertex="1" parent="g6">
+          <mxGeometry x="20" y="130" width="280" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- ===== G7 Mobile ===== -->
+        <mxCell id="g7" value="G7 — Mobile App (mobile/src/)" style="swimlane;fontStyle=1;fontSize=11;fillColor=#e1d5e7;strokeColor=#9673a6;startSize=25;" vertex="1" parent="1">
+          <mxGeometry x="540" y="580" width="460" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="g7-screens" value="screens/&#xa;ScanScreen · StatementsScreen&#xa;ReportsScreen · LedgerScreen" style="rounded=1;whiteSpace=wrap;" vertex="1" parent="g7">
+          <mxGeometry x="20" y="40" width="160" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="g7-nav" value="navigation/&#xa;React Navigation stack" style="rounded=1;whiteSpace=wrap;" vertex="1" parent="g7">
+          <mxGeometry x="200" y="40" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="g7-lib" value="lib/&#xa;SecureStore token mirror&#xa;openapi-fetch · generated types" style="rounded=1;whiteSpace=wrap;" vertex="1" parent="g7">
+          <mxGeometry x="340" y="40" width="100" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="g7-stores" value="stores/&#xa;scan · ui · session" style="rounded=1;whiteSpace=wrap;" vertex="1" parent="g7">
+          <mxGeometry x="20" y="130" width="120" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- ===== Cross-well edges ===== -->
+        <mxCell id="ce1" value="uses schemas" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="g1-api" target="g2-schemas" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="ce2" value="injects auth ctx" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="g3-auth" target="g1-api" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="ce3" value="dispatches scan" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="g1-api" target="g4-worker" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="ce4" value="calls" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="g4-agents" target="g5-retry" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="ce5" value="HTTP + SSE" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="g6-lib" target="g1-main" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="ce6" value="HTTP + WebSocket" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="g7-lib" target="g1-main" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="ce7" value="ORM reads/writes" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="g2-models" target="g4-worker" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

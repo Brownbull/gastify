@@ -1,0 +1,92 @@
+<mxfile host="project-documenter" version="24.7.17">
+  <diagram name="Processing Pipeline" id="processing-pipeline">
+    <mxGraphModel dx="1200" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- ===== RECEIPT SCAN LANE ===== -->
+        <mxCell id="scan-lane" value="Receipt Scan Pipeline (G4)" style="swimlane;fontStyle=1;fontSize=13;fillColor=#d5e8d4;strokeColor=#82b366;startSize=30;horizontal=0;" vertex="1" parent="1">
+          <mxGeometry x="40" y="40" width="700" height="800" as="geometry" />
+        </mxCell>
+
+        <mxCell id="s-upload" value="Client uploads receipt image&#xa;POST /api/v1/scans" style="rounded=1;whiteSpace=wrap;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="scan-lane">
+          <mxGeometry x="40" y="50" width="300" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="s-credit" value="Credit atomicity&#xa;debit user_credit + insert pending_scan&#xa;in ONE transaction" style="rounded=1;whiteSpace=wrap;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="scan-lane">
+          <mxGeometry x="40" y="160" width="300" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="s-image" value="Image validation + resize-on-write&#xa;(Pillow — Gemini input optimization)" style="rounded=1;whiteSpace=wrap;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="scan-lane">
+          <mxGeometry x="40" y="280" width="300" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="s-gemini" value="Gemini Vision extraction&#xa;PydanticAI output_type&#xa;provider: mock | fixture | gemini (D76)" style="rounded=1;whiteSpace=wrap;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="scan-lane">
+          <mxGeometry x="40" y="390" width="300" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="s-coalesce" value="Deterministic coalescing&#xa;merge partial items, normalize amounts" style="rounded=1;whiteSpace=wrap;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="scan-lane">
+          <mxGeometry x="40" y="510" width="300" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="s-cat" value="V4 Categorization agent (PydanticAI)&#xa;86-category taxonomy (ItemCategory L1–L4)" style="rounded=1;whiteSpace=wrap;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="scan-lane">
+          <mxGeometry x="40" y="620" width="300" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="s-gate" value="Math reconciliation gate&#xa;delta &gt; 1 minor unit?" style="rhombus;whiteSpace=wrap;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="scan-lane">
+          <mxGeometry x="40" y="730" width="300" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- pass/fail branches -->
+        <mxCell id="s-persist" value="persist_scan.py&#xa;Transaction + TransactionItems&#xa;status = COMPLETED" style="rounded=1;whiteSpace=wrap;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="scan-lane">
+          <mxGeometry x="380" y="730" width="280" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="s-review" value="status = NEEDS_REVIEW&#xa;typed review signals attached" style="rounded=1;whiteSpace=wrap;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="scan-lane">
+          <mxGeometry x="40" y="840" width="280" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- SSE/WS -->
+        <mxCell id="s-stream" value="SSE (web) / WebSocket (mobile)&#xa;progress events: submitted → extracting →&#xa;categorizing → completed | failed" style="rounded=1;whiteSpace=wrap;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="scan-lane">
+          <mxGeometry x="380" y="50" width="280" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- scan edges -->
+        <mxCell id="se1" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="s-upload" target="s-credit" parent="scan-lane"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="se2" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="s-credit" target="s-image" parent="scan-lane"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="se3" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="s-image" target="s-gemini" parent="scan-lane"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="se4" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="s-gemini" target="s-coalesce" parent="scan-lane"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="se5" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="s-coalesce" target="s-cat" parent="scan-lane"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="se6" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="s-cat" target="s-gate" parent="scan-lane"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="se7" value="pass" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="s-gate" target="s-persist" parent="scan-lane"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="se8" value="fail" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="s-gate" target="s-review" parent="scan-lane"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="se9" style="edgeStyle=orthogonalEdgeStyle;dashed=1;" edge="1" source="s-upload" target="s-stream" parent="scan-lane"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <!-- ===== STATEMENT LANE ===== -->
+        <mxCell id="stmt-lane" value="Statement Reconciliation Pipeline (P5)" style="swimlane;fontStyle=1;fontSize=13;fillColor=#dae8fc;strokeColor=#6c8ebf;startSize=30;horizontal=0;" vertex="1" parent="1">
+          <mxGeometry x="780" y="40" width="660" height="640" as="geometry" />
+        </mxCell>
+
+        <mxCell id="st-upload" value="Client uploads PDF&#xa;POST /api/v1/statements&#xa;+ card alias + AI-processing consent" style="rounded=1;whiteSpace=wrap;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="stmt-lane">
+          <mxGeometry x="40" y="50" width="280" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="st-pdf" value="PDF parsing&#xa;PyMuPDF / codex-pdf-text provider" style="rounded=1;whiteSpace=wrap;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="stmt-lane">
+          <mxGeometry x="40" y="170" width="280" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="st-extract" value="Gemini structured extraction&#xa;(statement_extraction.py)&#xa;PydanticAI output_type" style="rounded=1;whiteSpace=wrap;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="stmt-lane">
+          <mxGeometry x="40" y="280" width="280" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="st-match" value="Statement-to-receipt matching&#xa;date tolerance ±3 days&#xa;amount tolerance 1%&#xa;merchant fuzzy match 0.72" style="rounded=1;whiteSpace=wrap;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="stmt-lane">
+          <mxGeometry x="40" y="400" width="280" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="st-buckets" value="Coverage buckets&#xa;matched · statement-only · app-only&#xa;ambiguous · failed" style="rounded=1;whiteSpace=wrap;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="stmt-lane">
+          <mxGeometry x="40" y="530" width="280" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="st-stream" value="WebSocket progress stream&#xa;(statement_events.py)" style="rounded=1;whiteSpace=wrap;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="stmt-lane">
+          <mxGeometry x="360" y="50" width="240" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ste1" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="st-upload" target="st-pdf" parent="stmt-lane"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="ste2" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="st-pdf" target="st-extract" parent="stmt-lane"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="ste3" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="st-extract" target="st-match" parent="stmt-lane"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="ste4" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="st-match" target="st-buckets" parent="stmt-lane"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="ste5" style="edgeStyle=orthogonalEdgeStyle;dashed=1;" edge="1" source="st-upload" target="st-stream" parent="stmt-lane"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
