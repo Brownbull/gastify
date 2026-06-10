@@ -105,11 +105,25 @@ async def upload_statement(
             duplicate.error_message = None
             metadata_changed = True
             should_queue = True
-        elif duplicate.status in {StatementStatus.UPLOADED, StatementStatus.QUEUED}:
+        elif duplicate.status in {
+            StatementStatus.UPLOADED,
+            StatementStatus.QUEUED,
+            StatementStatus.FAILED,
+        }:
             # A dup hit on a statement PARKED pre-processing (its worker dispatch died —
-            # e.g. a deploy restart dropped the BackgroundTask) would otherwise return
-            # 200 and stay stuck forever: statements have no requeue sweep. Re-dispatch;
-            # _acquire_statement is idempotent (only eligible statuses re-acquire).
+            # e.g. a deploy restart dropped the BackgroundTask; statements have no
+            # requeue sweep) or FAILED would otherwise return 200 and never recover. A
+            # re-upload is the user's explicit retry: refresh the stored PDF from the
+            # fresh bytes (same sha == identical content; heals a lost/corrupt file)
+            # and re-dispatch — _acquire_statement is idempotent (eligible statuses only).
+            dup_pdf = Path(duplicate.file_path)
+            dup_pdf.parent.mkdir(parents=True, exist_ok=True)
+            dup_pdf.write_bytes(raw_bytes)
+            if duplicate.status == StatementStatus.FAILED:
+                duplicate.status = StatementStatus.QUEUED
+                duplicate.error_code = None
+                duplicate.error_message = None
+                metadata_changed = True
             should_queue = True
         if metadata_changed:
             await db.commit()
