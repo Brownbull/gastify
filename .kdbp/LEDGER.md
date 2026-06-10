@@ -4089,3 +4089,14 @@ DEVIATIONS: 0 structural, 0 minor. Residuals tracked: P68 (FE leave-delete promp
 - 2026-06-10 00:21 | Edit | /home/khujta/projects/apps/gastify/backend/app/api/privacy.py
 - 2026-06-10 00:36 | Edit | /home/khujta/projects/apps/gastify/scripts/staging/run-dsr-staging-gate.py
 - 2026-06-10 00:36 | Edit | /home/khujta/projects/apps/gastify/scripts/staging/run-dsr-staging-gate.py
+
+## 2026-06-10 05:10 — PHASE 1 REVIEW: Data-Subject Rights (DSR) — adversarial, multi-agent
+VERDICT: APPROVE (post-remediation; initial verdict BLOCK)
+FINDINGS: 28 confirmed (2 critical, 1 high, 14 medium, 11 low) via a 64-agent workflow (wf_66ad0849-0b4) — finder x6 -> adversarial verify -> critic; spend-limit cut verification short, so load-bearing findings were re-verified by hand.
+COVERAGE: LOW->fixed. The 2 CRITICALs were INVISIBLE to the T6 staging proof (it asserted Python counters + the aggregate void, not real DB state).
+CONFIDENCE: 8/100 -> 92/100 after remediation.
+FIXED (commits db984e5 + bb03171): #1 account-delete de-membership no-op on PG (membership DELETE flushed under wrong GUC; now flushed under the group GUC — gate asserts member_count 2->1 on real PG); #3 erasure not total (now hard-deletes statements/lines/recon + card_aliases + scans + notifications + mappings + credit_balances in FK order); #4 PII-free audit (dropped IP from dsr_erasure + scrub consent/audit ip/user_agent); #5/#27 tombstone race (savepoint); #21 leave-delete D4 audit event; #23 tombstones append-only (migration 036); #2 gate prod-guard; #8 retention.py doc. Plus mobile npm-audit critical (shell-quote -> ^1.8.4).
+DEFERRED: +P69 (gravity-baseline + series partial void), +P70 (live-PG erasure-flow + void edge tests), +P71 (admin-removal recourse), +P72 (portability of group copies). D82 amended (retain-but-void vs delete).
+ALIGNMENT: ALIGNED. TIER: ent | DRIFT: none.
+TICK: ✅ (Review column)
+RE-PROOF: staging-e2e GREEN @ migration 036, git_rev bb03171, stage_id 20260610T050923Z-dsr-api-gate — 4/4 sections, member_count_before=2 / member_count_after=1 (de-membership proven on Postgres).
