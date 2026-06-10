@@ -4134,3 +4134,13 @@ COMMITS:
 CHECKS: ruff check . ✅ + format ✅ + mypy ✅; full suite 860 passed/14 skipped (+10 new, +2 PG-gated); alembic head 037; no openapi drift.
 DEFERRED → Phase 5: financial-record-retention tension (D87), P74 consent-record TTL, P75 firebase_uid re-id, P76 dsr-proof window, P77 cohort-output consumer (P9), P78 audit append-only trigger, P79 register-TTL-vs-enforced.
 PHASE: 2 — Consent + Retention | EXEC 🔄 → (T4 staging proof gates ✅) | per D90: gates assert observable DB state on real Postgres.
+
+## 2026-06-10 07:20 — PHASE 2 REVIEW ✅ + STAGING PROOF (Exec ✅ / Review ✅ / Commit ✅)
+REVIEW (D90 pre-promote adversarial): workflow wf_ec34fad7-67d, 12 agents (5 finders → adversarial verify → critic), 14 raw → 6 confirmed (0 refuted) → 3 unique fix-now. ALL FIXED + locked:
+  - HIGH/CRITICAL: retention GH workflow crashed at config-import in prod (GASTIFY_ENVIRONMENT=production + default scan_provider=mock → ValueError) — would have defeated the "actually runs" fix on first enablement. Fixed: prod-shaped provider env + test_retention_workflow_env_loads_config_in_production.
+  - MEDIUM: dsr carve-out predicate divergence (SQLite startswith unescaped '_' wildcard vs PG literal) — latent D90 recursion. Fixed: autoescape=True + test_dsr_carveout_uses_literal_underscore_matching_postgres.
+  - LOW: stale FORCE-RLS comment. Fixed.
+  Remediation commit d021cf4. Review confidence: the fix's own bugs were caught BEFORE promote — D90 working as designed (second phase running).
+EXEC RUNTIME EVIDENCE (per D90, observable on real Postgres): CI run 27259810945 GREEN 13/13 — Backend Test includes test_retention_postgres.py (definer purge deletes cross-scope under the NOBYPASSRLS app role; direct delete=0 — the exact bug locked as a guard). Migration 037 applied + STABILIZED on deployed staging-e2e (3× migration_current=037/current/head=037). Deployed-DB seed-purge proof ops-gated on the GASTIFY_RETENTION_DATABASE_URL secret (honest limit).
+GATES: Phase 2 Exec ✅ / Review ✅ / Commit ✅ / Push ⬜. Staging deploy = DEPLOYMENTS P73.
+NEXT: production promote (staging→main) — a conscious user decision (RLS migration 037 + erasure-now-deletes-push-tokens + the scheduled-purge secret).
