@@ -4109,3 +4109,14 @@ DEPLOY: production Railway STABILIZED at migration 036 (035+036 applied on the p
 DEPLOYMENTS: P71
 NOTE: ships the irreversible HARD-DELETE erasure + D82 group void to production. Pre-promote review caught + fixed 2 CRITICALs the T6 staging proof missed; re-proven @ 036 with the member_count 2->1 roster check.
 TICK: ✅ Push column — Phase 1 (DSR) all four gates green (Exec/Review/Commit/Push).
+
+## 2026-06-10 05:30 — ROADMAP REVISION: P16 launch-gate Phases 2–5 (post-Phase-1 learnings)
+TRIGGER: user-directed, after the Phase-1 review caught 2 CRITICALs the staging proof missed — adjust the roadmap/phases before continuing.
+SCOPE: ROADMAP P16 structure UNCHANGED (same goal, same 5 sub-phases — no /gabe-scope-change needed); refinements at the PLAN + DECISIONS layer.
+APPLIED:
+  A — D90 (binding for Phases 2–5): compliance/data-safety runtime gates assert OBSERVABLE state (rows/rosters/RLS-path on real Postgres), not response payloads; + multi-agent adversarial review before each compliance promote. Cited on Phases 2/3/4/5 runtime-evidence + the Runtime Evidence Checkpoints header + a new Risks row.
+  B — PLAN Phase 2 (Consent + Retention) scope expanded: retention/TTL validation must reconcile against the FULL personal-scope erasure surface (statements/lines/recon, card_aliases, scans, notifications, mappings, credit_balances), not just transactions; build the per-data-class erase-vs-purge-vs-mandate-keep matrix.
+  C — PLAN Phase 5 go/no-go MUST fix-or-accept (never silent) the 4 review residuals: P69 (void leak via gravity-baseline + partial series buckets), P70 (live-PG erasure regression test), P71 (admin-removal erasure recourse), P72 (portability of group shares, GDPR Art 20).
+  D — PLAN Phase 5: pre-promote adversarial multi-agent review required on the cumulative launch surface (per D90).
+  E — PLAN Phase 5 checklist enumerates the Phase-1 erasure/void evidence (full delete surface, void/tombstone 035+036 append-only, PII-free audit, de-membership-on-PG proof) as concrete line items.
+FILES: .kdbp/DECISIONS.md (+D90), .kdbp/PLAN.md (Phases 2–5 scope/evidence + Risks + Notes + Runtime Evidence Checkpoints + Last Updated).

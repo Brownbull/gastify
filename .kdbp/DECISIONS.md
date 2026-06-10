@@ -2572,3 +2572,45 @@ hard-delete change + the D82 group void/tombstone.
 
 ### Status
 - accepted
+
+## D90 — Compliance-phase review rigor: observable-state gates + adversarial pre-promote review (2026-06-10)
+
+**Context.** P16 Phase 1 (DSR) shipped its T6 staging proof GREEN while TWO CRITICAL
+erasure-correctness bugs were live in the code: (1) account-delete de-membership was a
+silent no-op on Postgres (the membership DELETE flushed under the wrong RLS GUC and
+matched 0 rows), and (2) erasure was not total (it left statements, card_aliases,
+scans, notifications, mappings, and credit_balances behind). Both were INVISIBLE to the
+gate because the gate asserted the response payload's COUNTERS (`group_memberships_removed
+== 1`) + the aggregate void, never the real database state. A 64-agent adversarial
+review (run before promote) caught both; the fix added a `member_count 2→1` roster
+assertion that exercises the real Postgres RLS path. The lesson generalizes to every
+remaining P16 "validate-and-harden" phase — the dangerous bugs hide precisely in the
+phases that feel like "just validation" (retention deletion in P2, billing concurrency
+in P4 are the same trap class).
+
+**Decision (binding for all P16 compliance/data-safety phases, Phases 2–5).**
+
+1. **Observable-state gates.** A runtime/staging gate for a compliance or data-safety
+   path MUST assert OBSERVABLE system state — actual row counts, rosters, RLS-path
+   behaviour, queue states, ledger balances — NOT just the endpoint's response payload.
+   A response counter is the code reporting on itself; it cannot catch a bug where the
+   code's own bookkeeping diverges from the database (the exact Phase-1 failure). Where
+   the personal-/group-scope RLS path is load-bearing, the gate must run against real
+   Postgres (the deployed staging-e2e or the live-PG harness), since SQLite has no RLS
+   and silently passes GUC-mismatched writes.
+
+2. **Adversarial pre-promote review.** Each compliance phase gets a multi-agent
+   adversarial review (find → adversarially verify → completeness critic) BEFORE the
+   production promote, not single-pass review. Phase 1 proved single-pass review + a
+   passing staging gate both missed the CRITICALs that the adversarial panel caught.
+   The Phase 5 go/no-go sign-off explicitly requires this review to have run on the
+   cumulative launch surface.
+
+**Why this shape.** Cheap insurance on the one gate that stakes a four-jurisdiction
+launch. The cost (an extra review pass + richer gate assertions) is trivially small next
+to shipping an irreversible-erasure or money bug to production. It also makes the Phase 5
+self-attestation (D88) honest: "proven by observable-state evidence + adversarial review"
+is a defensible claim; "the endpoint returned the right number" is not.
+
+### Status
+- accepted (binding for P16 Phases 2–5; extends D88's evidence-backed-self-attestation posture)
