@@ -2614,3 +2614,53 @@ is a defensible claim; "the endpoint returned the right number" is not.
 
 ### Status
 - accepted (binding for P16 Phases 2–5; extends D88's evidence-backed-self-attestation posture)
+
+## D91 — Retention purge of FORCE-RLS tables runs via a migrator-owned SECURITY DEFINER (not a bypass role); DSR proof events are purge-exempt; the purge is scheduled (2026-06-10)
+
+**Context.** P16 Phase 2 validation (15-agent adversarial workflow + hand-verification) found
+exit-signal-(d) DOUBLY broken on production: (1) the TTL purge (`scripts/ops/run_retention.py`)
+was an ORPHAN — `railway.toml` ran only `alembic upgrade head && uvicorn`, no cron/CI schedule
+anywhere — so expired scans (90d) + audit events (~6y) + receipt images accumulated forever; and
+(2) even if scheduled, `audit_events` is ENABLE+FORCE ROW LEVEL SECURITY, and the runner connects
+as the least-privilege `gastify_app` role (the P43 boot guard REFUSES a bypass role) with NO scope
+GUC — so the global `DELETE FROM audit_events` matched ZERO rows (027 fail-safe form: unset GUC →
+NULL → no visible rows) while reporting success. The SQLite test suite couldn't see it (no RLS) —
+the exact Phase-1 "GREEN gate, live CRITICAL bug" trap that D90 was written to catch.
+
+**Decision.**
+
+1. **Cross-scope purge mechanism = NO FORCE + migrator-owned SECURITY DEFINER (mirrors D71).**
+   Migration 037 drops FORCE on `audit_events` (so the table OWNER, `gastify_migrator`, bypasses RLS
+   for the definer — while the non-owner `gastify_app` stays fully RLS-isolated on DIRECT access, ENABLE
+   still binds it) and adds `app_purge_expired_audit_events(cutoff)` + `app_count_expired_audit_events(cutoff)`
+   — migrator-owned, SECURITY DEFINER, pinned `search_path`, EXECUTE granted only to `gastify_app`.
+   The retention runner stays the least-privilege app role (NO new BYPASSRLS role, boot guard intact);
+   the narrow definer functions do the privileged cross-scope delete and never egress rows. This is the
+   D71 pattern (ownership_scope_members NO-FORCE + the 028 oracle) applied to retention. REJECTED:
+   a dedicated BYPASSRLS retention role (a broad new credential surface, and a future operator could
+   "fix" the zero-rows bug by pointing the runtime at it, re-disabling RLS); a per-scope GUC loop
+   (needs cross-scope scope enumeration, which is itself the problem). `scans` is NOT RLS-bound, so its
+   purge already worked and stays a direct delete.
+
+2. **DSR proof events are purge-exempt.** The generic ~6y `audit_events` purge now EXEMPTS `dsr_*`
+   events (`event_type NOT LIKE 'dsr~_%' ESCAPE '~'` in the definer; `_not_dsr_proof_event` on the
+   SQLite path). After a D89 hard-delete erasure the `dsr_erasure` event is the SOLE durable proof the
+   request was honored — it must outlive the operational window. (The EXACT proof-retention window is a
+   Phase-5 attestation item, P76.)
+
+3. **The purge is scheduled.** `.github/workflows/retention.yml` runs `run_retention.py --apply` daily
+   (cron `17 4 * * *`), gated on a `GASTIFY_RETENTION_DATABASE_URL` secret (skips cleanly while unset);
+   `test_retention_scheduling.py` pins the schedule so a future config drop fails CI. A Railway cron
+   service is the alternative; the GH Action is self-contained + CI-guardable.
+
+4. **Erasure completeness.** `mobile_push_tokens` was orphaned PII (no erasure or retention path ever
+   deleted it; unregister only flips `enabled=False`); `delete_user_personal_data` now hard-deletes it.
+
+**Proof (D90 observable-state).** `test_retention_postgres.py` (live-PG, GASTIFY_TEST_PG_DSN-gated)
+proves under REAL RLS that a direct app-role delete with no GUC purges 0 rows (the bug, locked as a
+guard) while the definer call purges the expired non-DSR rows cross-scope and leaves dsr_* + within-
+window rows intact. `test_run_retention.py` proves the scheduled entrypoint deletes rows + unlinks the
+image. Full data-class matrix + jurisdiction analysis: `docs/runbooks/P16-DATA-RETENTION-MATRIX.md`.
+
+### Status
+- accepted (extends D71's NO-FORCE + SECURITY DEFINER pattern + D90's observable-state rigor)

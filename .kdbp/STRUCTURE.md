@@ -139,6 +139,7 @@
 |---------|-------------|------|
 | `docker/**` | Dockerfiles + compose | MVP |
 | `docker-compose.yml` | Local dev stack | MVP |
+| `.github/workflows/*.yml` | CI + scheduled GitHub Actions workflows | MVP |
 | `infra/**` | Deployment configs | E |
 | `infra/railway/**` | Railway staging/prod environment docs and service notes | MVP |
 

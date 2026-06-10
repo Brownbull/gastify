@@ -4120,3 +4120,17 @@ APPLIED:
   D — PLAN Phase 5: pre-promote adversarial multi-agent review required on the cumulative launch surface (per D90).
   E — PLAN Phase 5 checklist enumerates the Phase-1 erasure/void evidence (full delete surface, void/tombstone 035+036 append-only, PII-free audit, de-membership-on-PG proof) as concrete line items.
 FILES: .kdbp/DECISIONS.md (+D90), .kdbp/PLAN.md (Phases 2–5 scope/evidence + Risks + Notes + Runtime Evidence Checkpoints + Last Updated).
+- 2026-06-10 02:36 | Write | /home/khujta/projects/apps/gastify/.github/workflows/retention.yml
+- 2026-06-10 02:36 | Write | /home/khujta/projects/apps/gastify/backend/tests/test_retention_scheduling.py
+- 2026-06-10 02:44 | Write | /home/khujta/projects/apps/gastify/docs/runbooks/P16-DATA-RETENTION-MATRIX.md
+- 2026-06-10 02:48 | Edit | /home/khujta/projects/apps/gastify/backend/schema/RLS.md
+
+## 2026-06-10 06:10 — PHASE 2 EXEC (Consent + Retention validate) — ultracode workflow
+WORKFLOW: wf_0eea4e63-eb7 (15 agents) — 5 finders → adversarial verify (0 refuted of 9 material) → synthesis. Found exit-signal-(d) DOUBLY broken on prod (retention never scheduled + RLS-inert audit purge), the dsr-proof-event purge bug, and mobile_push_tokens orphaned PII — all invisible to SQLite (the D90 trap, again).
+COMMITS:
+  - [fix(retention)] AXIS1 schedule (.github/workflows/retention.yml + config-guard test) + AXIS2 migration 037 (audit_events NO FORCE + migrator-owned SECURITY DEFINER purge/count, D71 pattern, D91) + AXIS3 dsr_* purge-exempt + retention.py routing + test_retention_postgres.py (D90 live-PG proof) + test_run_retention.py e2e.
+  - [7e1f7f1 fix(privacy)] mobile_push_tokens erasure orphan closed + cohort-OUTPUT observability tests (revoke/erasure drop the user from the DP aggregate, not just the eligibility flag).
+  - [docs] P16-DATA-RETENTION-MATRIX.md (26-row data-class matrix + per-regime jurisdiction read) + D91 + PENDING P74–P79 + PLAN Phase-5 go/no-go refs.
+CHECKS: ruff check . ✅ + format ✅ + mypy ✅; full suite 860 passed/14 skipped (+10 new, +2 PG-gated); alembic head 037; no openapi drift.
+DEFERRED → Phase 5: financial-record-retention tension (D87), P74 consent-record TTL, P75 firebase_uid re-id, P76 dsr-proof window, P77 cohort-output consumer (P9), P78 audit append-only trigger, P79 register-TTL-vs-enforced.
+PHASE: 2 — Consent + Retention | EXEC 🔄 → (T4 staging proof gates ✅) | per D90: gates assert observable DB state on real Postgres.
