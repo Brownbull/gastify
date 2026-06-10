@@ -4255,3 +4255,40 @@ EXEC RUNTIME EVIDENCE (D90, credit-free per user constraint — no Gemini spend)
 REVIEW (self — the adversarial-review workflow can't run under the active monthly spend limit): read the full Phase-3 diff. Verified the re-dispatched process_scan sets the RLS GUC from the scan's scope (set_session_ownership_scope @ scan_worker.py:506). One accepted residual: a 503-worded "overloaded" → SERVER_ERROR → FAILS (genuine outage, not a throttle) — documented in D92, not silently widened. No bugs found.
 DECISIONS: D92 (lifespan sweep recovery + is_throttle class + forced-throttle hook). Commits abec0a9 + fad475b on staging (01aa57f, CI green).
 GATES: Phase 3 Exec ✅ / Review ✅ / Commit ✅ / Push ⬜ — promote staging→main pending user go (like Phase 2).
+- 2026-06-10 12:29 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/assets/PixelIcon.tsx
+- 2026-06-10 12:29 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/assets/PixelIconCatalog.stories.tsx
+- 2026-06-10 12:29 | Edit | /home/khujta/projects/apps/gastify/design-lab/.storybook/main.ts
+- 2026-06-10 12:30 | Write | /home/khujta/projects/apps/gastify/design-lab/src/features/home/spikes/StyleWarmReceiptSpike.tsx
+- 2026-06-10 12:31 | Write | /home/khujta/projects/apps/gastify/design-lab/src/features/home/spikes/StyleGustifyGeometricSpike.tsx
+- 2026-06-10 12:31 | Write | /home/khujta/projects/apps/gastify/design-lab/src/features/home/spikes/StyleOptionsSpike.stories.tsx
+- 2026-06-10 14:53 | Write | /home/khujta/projects/apps/gastify/design-lab/src/features/home/spikes/StyleGustifyGeometricSpike.tsx
+- 2026-06-10 14:53 | Edit | /home/khujta/projects/apps/gastify/tests/web-e2e/playwright.config.ts
+- 2026-06-10 14:54 | Edit | /home/khujta/projects/apps/gastify/tests/web-e2e/playwright.config.ts
+- 2026-06-10 14:54 | Write | /home/khujta/projects/apps/gastify/design-lab/src/features/home/spikes/StyleWarmReceiptSpike.tsx
+- 2026-06-10 15:20 | Edit | /home/khujta/projects/apps/gastify/tests/web-e2e/playwright.config.ts
+- 2026-06-10 15:22 | Write | /home/khujta/projects/apps/gastify/shared/design-tokens.ts
+- 2026-06-10 15:22 | Write | /home/khujta/projects/apps/gastify/design-lab/scripts/generate-tokens-css.mjs
+- 2026-06-10 15:40 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/atoms/Button.tsx
+- 2026-06-10 15:41 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/atoms/Chip.tsx
+- 2026-06-10 15:41 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/atoms/Badge.tsx
+- 2026-06-10 15:41 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/atoms/Input.tsx
+- 2026-06-10 15:41 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/atoms/IconButton.tsx
+- 2026-06-10 15:41 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/atoms/Button.stories.tsx
+- 2026-06-10 15:42 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/atoms/IconButton.stories.tsx
+- 2026-06-10 15:42 | Write | /home/khujta/projects/apps/gastify/design-lab/src/features/home/screens/HomeScreen.stories.tsx
+- 2026-06-10 15:43 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/home/screens/HomeScreen.tsx
+- 2026-06-10 15:43 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/home/screens/HomeScreen.tsx
+- 2026-06-10 15:43 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/home/screens/HomeScreen.tsx
+- 2026-06-10 15:47 | Edit | /home/khujta/projects/apps/gastify/backend/app/api/statements.py
+
+## 2026-06-10 20:05 — E2E HARDENING SWEEP (web Playwright + S23 Maestro) — golden journey + critical edges
+USER ASK: full e2e on web + Android (S23) before finishing Phase 4 — golden journey + most critical edge cases.
+WEB (Playwright vs deployed staging-e2e, fixture API, $0 Gemini): ALL 29 specs GREEN by the end. Criticals 12/12 (golden journey, SSE-drop recovery, failed-scan panel, 5 auth guards, txn edit + provenance, dashboard drill, trends). Edge suite (groups sharing/isolation/hardening, batch ops+scan, items, reports, notifications, settings, statements) green after fixes.
+ANDROID (S23 RFCW90N4BYP, usbipd attach driven FROM WSL — works, beats the wireless workaround): doctor green; Metro+dev-client over adb reverse; GOLDEN JOURNEY PASSED 1m22s (sign-in → gallery scan → processing → result panel → transaction). Scan-failure edge flow run after.
+REAL BUGS FOUND + FIXED (the sweep's yield):
+  - [f94850a] statement SSE events ALWAYS 404 on real Postgres — _check_statement_ownership read FORCE-RLS statements on a no-GUC session (latent since P5, SQLite-invisible; D91 trap class). + dup-upload of a PARKED (UPLOADED/QUEUED) statement now re-dispatches (statements have NO requeue sweep; a statement sat stuck-queued since Jun 2).
+  - [783b8a0] dup re-upload of a FAILED statement refreshes the stored PDF from the fresh bytes (same sha) + retries — a lost/corrupt stored file otherwise poisons that document forever.
+  - [c00d1d5] web-e2e E2E_WEB_PORT override (gustify squats 5173; reuseExistingServer adopted the WRONG app) + CORS-allowed-port constraint documented (unlisted port → every authed browser call fails on OPTIONS preflight 400 — looked like an RLS/data bug, cost 2 full runs to diagnose).
+TEST-INFRA FINDINGS: MAX_GROUPS cap 409 from accumulated spec groups (5 purged; P82 filed); golden-journey requires seed-scan-fixture.sh first (unseeded gallery → INVALID_IMAGE); deploy races mid-run produced 2 false failures (sequence runs around deploys).
+FALSE ALARM RETRACTED: the "transient FORCE-RLS empty reads" theory was MY probe-script bug (counted .items; the field is .data) + CORS — API/RLS/auth were healthy throughout (re-verified end-to-end on the deployed DB as a side effect).
+STATE: statement fixes on staging (783b8a0, not yet promoted — ride the Phase-4 promote). Phase 4 gates unchanged (Exec 🔄; CI PG-concurrency proof passed earlier on 57f017c push).
