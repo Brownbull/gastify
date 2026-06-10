@@ -34,6 +34,13 @@ jobs:
           # while unset, the job skips cleanly rather than failing.
           GASTIFY_DATABASE_URL: ${{ secrets.GASTIFY_RETENTION_DATABASE_URL }}
           GASTIFY_ENVIRONMENT: production
+          # The retention runner does NOT call the LLM, but importing app.config under
+          # GASTIFY_ENVIRONMENT=production runs the boot-time provider guard, which rejects
+          # the default scan_provider=mock. Supply the prod-shaped provider so config loads
+          # (no Gemini key is needed — only the provider VALUE is validated). Without this
+          # the scheduled run crashes at import before purging anything.
+          GASTIFY_SCAN_PROVIDER: gemini
+          GASTIFY_STATEMENT_PROVIDER: gemini
           DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run || 'false' }}
         run: |
           if [ -z "${GASTIFY_DATABASE_URL}" ]; then

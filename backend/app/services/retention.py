@@ -45,7 +45,10 @@ def _is_postgres(db: AsyncSession) -> bool:
 # migrator-owned SECURITY DEFINER `app_purge_expired_audit_events` (migration 037);
 # SQLite mirrors it with the ORM predicate below.
 def _not_dsr_proof_event() -> Any:
-    return not_(AuditEvent.event_type.startswith("dsr_"))
+    # autoescape=True makes the trailing '_' a LITERAL (not a LIKE single-char wildcard),
+    # so this matches the Postgres definer's `NOT LIKE 'dsr~_%' ESCAPE '~'` exactly — the
+    # two purge paths are provably equivalent (a future 'dsrX…' event can't diverge).
+    return not_(AuditEvent.event_type.startswith("dsr_", autoescape=True))
 
 
 if TYPE_CHECKING:
@@ -102,9 +105,9 @@ async def count_expired(
     ).scalar_one()
     audit_cutoff = now - audit_ttl
     if _is_postgres(db):
-        # audit_events is FORCE-RLS for the runtime role — a direct count under no GUC
-        # reads ZERO. The migrator-owned definer counts cross-scope (and honors the
-        # dsr_* carve-out) so the dry-run cannot lie (migration 037).
+        # audit_events is RLS-isolated for the runtime role (ENABLE; NO FORCE after 037) —
+        # a direct count under no GUC reads ZERO. The migrator-owned definer counts
+        # cross-scope (and honors the dsr_* carve-out) so the dry-run cannot lie (037).
         audit_count = int(
             await db.scalar(
                 text("SELECT app_count_expired_audit_events(:cutoff)"), {"cutoff": audit_cutoff}

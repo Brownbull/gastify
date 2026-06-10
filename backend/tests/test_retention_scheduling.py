@@ -31,3 +31,21 @@ def test_retention_workflow_invokes_the_apply_runner() -> None:
         "the scheduled retention workflow must invoke run_retention.py --apply "
         "(otherwise expired data is never deleted)"
     )
+
+
+def test_retention_workflow_env_loads_config_in_production() -> None:
+    """The scheduled workflow runs under GASTIFY_ENVIRONMENT=production, which fires the
+    boot-time provider guard at import. Prove the workflow's provider env (gemini, the
+    same prod uses) loads cleanly — otherwise the runner crashes before purging anything
+    (the review caught exactly this: default scan_provider=mock → fatal ValueError)."""
+    from app.config import Settings
+
+    # The exact provider shape the retention workflow sets; a real DB URL is Postgres.
+    settings = Settings(
+        environment="production",
+        scan_provider="gemini",
+        statement_provider="gemini",
+        database_url="postgresql+asyncpg://gastify_app:x@db:5432/gastify",
+    )
+    assert settings.environment == "production"
+    assert settings.scan_provider == "gemini"

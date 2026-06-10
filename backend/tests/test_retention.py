@@ -236,3 +236,23 @@ async def test_count_expired_excludes_dsr_proof_events(engine):
         await db.commit()
         _, audit_count = await count_expired(db, now=NOW)
     assert audit_count == 1
+
+
+@pytest.mark.asyncio
+async def test_dsr_carveout_uses_literal_underscore_matching_postgres(engine):
+    """The SQLite carve-out treats the '_' in 'dsr_' as a LITERAL (autoescape), matching
+    the PG definer's `NOT LIKE 'dsr~_%' ESCAPE '~'`. So a 'dsr'-prefixed event WITHOUT a
+    literal underscore (e.g. 'dsrupdate') is NOT exempt — it purges, same as on Postgres.
+    Guards against the two paths silently disagreeing on a future event type (D90)."""
+    factory = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+    old = NOW - timedelta(days=365 * 6 + 1)
+    async with factory() as db:
+        await _seed_audit(db, created_at=old, event_type="dsr_access")  # literal _ → EXEMPT
+        await _seed_audit(db, created_at=old, event_type="dsrupdate")  # no literal _ → PURGED
+        await db.commit()
+        deleted = await purge_expired_audit_events(db, now=NOW)
+        await db.commit()
+    assert deleted == 1  # only dsrupdate
+    async with factory() as db:
+        surviving = (await db.execute(sa.select(AuditEvent.event_type))).scalars().all()
+    assert surviving == ["dsr_access"]
