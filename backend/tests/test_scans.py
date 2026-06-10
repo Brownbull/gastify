@@ -380,3 +380,75 @@ class TestGetScan:
         scan_id = await self._insert_scan(engine, scope_id=uuid.uuid4())
         resp = await client.get(f"/api/v1/scans/{scan_id}")
         assert resp.status_code == 404
+
+
+class TestCreditEnforcement:
+    """P16 Phase 4 — per-plan scan-credit enforcement (gated by billing_enforcement_enabled)."""
+
+    @pytest.mark.asyncio
+    async def test_exhausted_credits_blocks_scan_with_402(self, client, engine, monkeypatch):
+        from sqlalchemy import update
+        from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
+
+        from app.config import settings as _settings
+        from app.models.credit import CreditBalance
+        from app.services.billing import get_or_create_balance
+        from tests.conftest import TEST_SCOPE_ID
+
+        monkeypatch.setattr(_settings, "billing_enforcement_enabled", True)
+        factory = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+        async with factory() as db:
+            await get_or_create_balance(db, ownership_scope_id=TEST_SCOPE_ID)
+            await db.execute(
+                update(CreditBalance)
+                .where(CreditBalance.ownership_scope_id == TEST_SCOPE_ID)
+                .values(scan_credits=0)
+            )
+            await db.commit()
+
+        resp = await client.post(
+            "/api/v1/scans", files={"file": ("r.jpg", _make_test_jpeg(800, 600), "image/jpeg")}
+        )
+        assert resp.status_code == 402
+        assert "credit" in resp.json()["detail"].lower()
+
+    @pytest.mark.asyncio
+    async def test_scan_with_credits_deducts_exactly_one(
+        self, client, engine, monkeypatch, tmp_path
+    ):
+        from sqlalchemy import select, update
+        from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
+
+        from app.config import settings as _settings
+        from app.models.credit import CreditBalance
+        from app.services.billing import get_or_create_balance
+        from tests.conftest import TEST_SCOPE_ID
+
+        monkeypatch.setattr(_settings, "billing_enforcement_enabled", True)
+        monkeypatch.setattr(_settings, "scan_storage_dir", str(tmp_path))
+        # No-op the background worker (it would hit the unpatched real async_session DB);
+        # this test only cares that the SUBMIT path deducts a credit.
+        monkeypatch.setattr("app.api.scans.process_scan", lambda *a, **k: None)
+        factory = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+        async with factory() as db:
+            await get_or_create_balance(db, ownership_scope_id=TEST_SCOPE_ID)
+            await db.execute(
+                update(CreditBalance)
+                .where(CreditBalance.ownership_scope_id == TEST_SCOPE_ID)
+                .values(scan_credits=5)
+            )
+            await db.commit()
+
+        resp = await client.post(
+            "/api/v1/scans", files={"file": ("r.jpg", _make_test_jpeg(800, 600), "image/jpeg")}
+        )
+        assert resp.status_code == 201
+        async with factory() as db:
+            credits = (
+                await db.execute(
+                    select(CreditBalance.scan_credits).where(
+                        CreditBalance.ownership_scope_id == TEST_SCOPE_ID
+                    )
+                )
+            ).scalar_one()
+        assert credits == 4  # observable: 5 → 4, exactly one deducted on a successful submit

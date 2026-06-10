@@ -61,6 +61,11 @@ class Settings(BaseSettings):
     # disables the loop. The loop only starts on a deployed Postgres backend (skipped on
     # SQLite/local + tests); the sweep PRIMITIVE (run_requeue_sweep) is always testable.
     scan_requeue_interval_seconds: int = Field(default=120, ge=0, le=3_600)
+    # Enforce per-plan scan credits in the live scan flow (P16 Phase 4). Default OFF —
+    # this is monetization PLUMBING (D89): the deduct/block path is wired + atomic, but
+    # stays inert until a real payment provider exists, so pre-launch users aren't
+    # hard-blocked at the free-tier limit with no way to buy more.
+    billing_enforcement_enabled: bool = False
     receipt_extraction_prompt_id: str = "receipt-extraction-current"
     statement_extraction_prompt_id: str = "statement-extraction-current"
     statement_layout_profile_prompt_id: str = "statement-layout-profile-current"

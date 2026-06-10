@@ -11,12 +11,37 @@ no live provider. `BillingHook` is the seam; `NullBillingHook` is the default.
 
 import enum
 import uuid
-from typing import Protocol
+from typing import Any, Protocol
 
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.credit import CreditBalance
+
+
+def _credit_upsert_nothing(ownership_scope_id: uuid.UUID, dialect_name: str) -> Any:
+    """Dialect-aware INSERT ... ON CONFLICT (ownership_scope_id) DO NOTHING for the
+    default FREE balance — race-safe first-create on Postgres + SQLite (P36 fix)."""
+    values = {
+        "ownership_scope_id": ownership_scope_id,
+        "plan_tier": PlanTier.FREE.value,
+        "scan_credits": PLAN_MONTHLY_CREDITS[PlanTier.FREE],
+    }
+    if dialect_name == "postgresql":
+        from sqlalchemy.dialects.postgresql import insert as pg_insert
+
+        return (
+            pg_insert(CreditBalance)
+            .values(**values)
+            .on_conflict_do_nothing(index_elements=["ownership_scope_id"])
+        )
+    from sqlalchemy.dialects.sqlite import insert as sqlite_insert
+
+    return (
+        sqlite_insert(CreditBalance)
+        .values(**values)
+        .on_conflict_do_nothing(index_elements=["ownership_scope_id"])
+    )
 
 
 class PlanTier(enum.StrEnum):
@@ -69,25 +94,15 @@ async def get_or_create_balance(
     *,
     ownership_scope_id: uuid.UUID,
 ) -> CreditBalance:
-    # CONCURRENCY (deferred with the pricing-enforcement ADR, SCOPE §9.2): the
-    # select-then-insert has a TOCTOU window — concurrent first-creates race on
-    # the unique(ownership_scope_id) constraint. Safe for the current
-    # single-caller plumbing; before set_plan is exposed to concurrent callers
-    # (e.g. billing webhooks), switch to INSERT ... ON CONFLICT DO NOTHING +
-    # re-select. Tracked in PENDING.
+    # Race-safe first-create (P36 fix): INSERT ... ON CONFLICT DO NOTHING then re-select,
+    # so concurrent first-creates don't TOCTOU-race on unique(ownership_scope_id).
+    dialect = db.bind.dialect.name if db.bind is not None else "sqlite"
+    await db.execute(_credit_upsert_nothing(ownership_scope_id, dialect))
+    await db.flush()
     result = await db.execute(
         select(CreditBalance).where(CreditBalance.ownership_scope_id == ownership_scope_id)
     )
-    balance = result.scalar_one_or_none()
-    if balance is None:
-        balance = CreditBalance(
-            ownership_scope_id=ownership_scope_id,
-            plan_tier=PlanTier.FREE.value,
-            scan_credits=PLAN_MONTHLY_CREDITS[PlanTier.FREE],
-        )
-        db.add(balance)
-        await db.flush()
-    return balance
+    return result.scalar_one()
 
 
 async def set_plan(
@@ -119,18 +134,23 @@ async def has_scan_credit(db: AsyncSession, *, ownership_scope_id: uuid.UUID) ->
 
 
 async def deduct_scan_credit(db: AsyncSession, *, ownership_scope_id: uuid.UUID) -> bool:
-    """Decrement one scan credit if available. Returns True if deducted, False if
-    exhausted. NOT wired into the live scan flow — enforcement is the deferred
-    pricing mechanism (SCOPE §9.2); this is the primitive it will call.
+    """Atomically decrement one scan credit if available. Returns True if deducted,
+    False if exhausted. Wired into the live scan flow when billing_enforcement_enabled.
 
-    CONCURRENCY (deferred with enforcement): this read-check-decrement is correct
-    within a single session but not atomic across concurrent sessions (two could
-    each read 1 and both decrement to -1). When enforcement lands, replace with an
-    atomic `UPDATE ... SET scan_credits = scan_credits - 1 WHERE scan_credits > 0`.
-    Tracked in PENDING."""
-    balance = await get_or_create_balance(db, ownership_scope_id=ownership_scope_id)
-    if balance.scan_credits <= 0:
-        return False
-    balance.scan_credits -= 1
+    Concurrency-safe (P36 fix): the single `UPDATE ... SET scan_credits = scan_credits - 1
+    WHERE scan_credits > 0 RETURNING` takes a row lock, so N concurrent calls deduct
+    EXACTLY min(N, available) — never double-spend, never negative. The prior
+    read-check-decrement could let two sessions both read 1 and both decrement to -1."""
+    await get_or_create_balance(db, ownership_scope_id=ownership_scope_id)
+    result = await db.execute(
+        update(CreditBalance)
+        .where(
+            CreditBalance.ownership_scope_id == ownership_scope_id,
+            CreditBalance.scan_credits > 0,
+        )
+        .values(scan_credits=CreditBalance.scan_credits - 1)
+        .returning(CreditBalance.scan_credits)
+    )
+    deducted = result.first() is not None
     await db.flush()
-    return True
+    return deducted

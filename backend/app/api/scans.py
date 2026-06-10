@@ -17,6 +17,7 @@ from app.config import settings
 from app.db import get_db
 from app.models.scan import Scan, ScanStatus
 from app.schemas.scan import ScanResult, ScanSubmission
+from app.services.billing import deduct_scan_credit
 from app.services.image import compress_receipt_image
 from app.services.scan_e2e_fixtures import write_upload_hash_marker
 from app.services.scan_worker import process_scan
@@ -55,6 +56,17 @@ async def submit_scan(
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail="Empty file",
+        )
+
+    # Per-plan scan-credit enforcement (P16 Phase 4, gated by billing_enforcement_enabled).
+    # Atomic deduct in THIS request transaction — it commits with the scan below, so a
+    # failed submit rolls the credit back; an exhausted scope is rejected before any work.
+    if settings.billing_enforcement_enabled and not await deduct_scan_credit(
+        db, ownership_scope_id=auth.ownership_scope_id
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_402_PAYMENT_REQUIRED,
+            detail="Scan credits exhausted for this plan.",
         )
 
     start_ms = time.monotonic()
