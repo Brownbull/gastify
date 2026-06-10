@@ -4100,3 +4100,12 @@ DEFERRED: +P69 (gravity-baseline + series partial void), +P70 (live-PG erasure-f
 ALIGNMENT: ALIGNED. TIER: ent | DRIFT: none.
 TICK: ✅ (Review column)
 RE-PROOF: staging-e2e GREEN @ migration 036, git_rev bb03171, stage_id 20260610T050923Z-dsr-api-gate — 4/4 sections, member_count_before=2 / member_count_after=1 (de-membership proven on Postgres).
+
+## 2026-06-10 05:18 — PUSH staging -> main (PRODUCTION promotion) — P16 Phase 1 DSR
+PR: — (remote-to-remote FF promotion, origin/staging:main, 82be9ba..bb03171, 18 commits)
+CI: staging 27254378416 green 13/13; main 27254964644 (same proven commit bb03171, finishing)
+PROMOTION: promoted staging -> main (production)
+DEPLOY: production Railway STABILIZED at migration 036 (035+036 applied on the prod DB, migration_status=current); /api/v1/privacy/erasure + /groups/{id}/leave deployed + auth-gated (401); /health 200.
+DEPLOYMENTS: P71
+NOTE: ships the irreversible HARD-DELETE erasure + D82 group void to production. Pre-promote review caught + fixed 2 CRITICALs the T6 staging proof missed; re-proven @ 036 with the member_count 2->1 roster check.
+TICK: ✅ Push column — Phase 1 (DSR) all four gates green (Exec/Review/Commit/Push).
