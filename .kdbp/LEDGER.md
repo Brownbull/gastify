@@ -4178,3 +4178,70 @@ WEB OUTAGE (gastify-web-production was Failed) — fixed through a chain of real
   1. Railpack instead of Nixpacks (Railway default change) → set Root Directory=web (reads web/ config). 2. web/railway.toml pinned NIXPACKS. 3. duplicate caddy in nixPkgs → nix-env conflict → removed (Nixpacks auto-provisions it). 4. web/package-lock.json out of sync (never caught — CI builds frontend/, prod deploys web/) → regenerated. 5. node 22.11 < Vite 8's 22.12 + the @rolldown/binding-linux-x64-gnu glibc native binding skipped by Nixpacks' Nix env (libc detection) → SWITCHED the web build to a Dockerfile (node:22-bookworm-slim glibc build → caddy:2-alpine serve; web/Dockerfile + web/railway.toml builder=DOCKERFILE). 6. `railway domain` generated the public URL the service lacked.
   RESULT: web Online + serving — / 200 (SPA), /transactions 200 (Caddy SPA fallback), x-frame-options/x-content-type headers present.
 COMMITS (main): 92bd7b0, 29ef914, 21d81ab, adc9705, 160a80f, 5f5ad87 (web) + cron config via Railway CLI (no repo change). Backend/API/migration 037 unaffected.
+- 2026-06-10 06:12 | Write | /home/khujta/projects/apps/gastify/shared/design-tokens.ts
+- 2026-06-10 06:14 | Write | /home/khujta/projects/apps/gastify/design-lab/scripts/generate-tokens-css.mjs
+- 2026-06-10 06:14 | Write | /home/khujta/projects/apps/gastify/design-lab/package.json
+- 2026-06-10 06:14 | Write | /home/khujta/projects/apps/gastify/design-lab/tsconfig.json
+- 2026-06-10 06:14 | Write | /home/khujta/projects/apps/gastify/design-lab/vite.config.ts
+- 2026-06-10 06:14 | Write | /home/khujta/projects/apps/gastify/design-lab/index.html
+- 2026-06-10 06:14 | Write | /home/khujta/projects/apps/gastify/design-lab/src/styles/index.css
+- 2026-06-10 06:14 | Write | /home/khujta/projects/apps/gastify/design-lab/src/main.tsx
+- 2026-06-10 06:14 | Write | /home/khujta/projects/apps/gastify/design-lab/src/App.tsx
+- 2026-06-10 06:14 | Write | /home/khujta/projects/apps/gastify/design-lab/.storybook/main.ts
+- 2026-06-10 06:15 | Write | /home/khujta/projects/apps/gastify/design-lab/.storybook/preview.tsx
+- 2026-06-10 06:15 | Write | /home/khujta/projects/apps/gastify/design-lab/.storybook/preview-head.html
+- 2026-06-10 06:15 | Write | /home/khujta/projects/apps/gastify/design-lab/vitest.config.ts
+- 2026-06-10 06:16 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/_design/TokenShowcase.tsx
+- 2026-06-10 06:16 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/_design/Tokens.stories.tsx
+- 2026-06-10 06:19 | Edit | /home/khujta/projects/apps/gastify/.github/workflows/ci.yml
+- 2026-06-10 06:33 | Write | /home/khujta/.claude/projects/-home-khujta-projects-apps-gastify/memory/project_design_lab_parallel.md
+- 2026-06-10 06:34 | Edit | /home/khujta/.claude/projects/-home-khujta-projects-apps-gastify/memory/project_design_lab_mockups.md
+- 2026-06-10 06:36 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/assets/icons.tsx
+- 2026-06-10 06:36 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/atoms/Button.tsx
+- 2026-06-10 06:36 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/atoms/Chip.tsx
+- 2026-06-10 06:36 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/atoms/Badge.tsx
+- 2026-06-10 06:36 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/atoms/Input.tsx
+- 2026-06-10 06:36 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/Card.tsx
+- 2026-06-10 06:37 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/StateTabs.tsx
+- 2026-06-10 06:37 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/organisms/AppSurface.tsx
+- 2026-06-10 06:38 | Write | /home/khujta/projects/apps/gastify/design-lab/src/features/home/spikes/IAComparisonSpike.tsx
+- 2026-06-10 06:38 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/atoms/Button.stories.tsx
+- 2026-06-10 06:38 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/atoms/Chip.stories.tsx
+- 2026-06-10 06:38 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/atoms/Badge.stories.tsx
+- 2026-06-10 06:38 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/atoms/Input.stories.tsx
+- 2026-06-10 06:38 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/Card.stories.tsx
+- 2026-06-10 06:39 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/StateTabs.stories.tsx
+- 2026-06-10 06:39 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/organisms/AppSurface.stories.tsx
+- 2026-06-10 06:39 | Write | /home/khujta/projects/apps/gastify/design-lab/src/features/home/spikes/IAComparisonSpike.stories.tsx
+- 2026-06-10 06:47 | Edit | /home/khujta/projects/apps/gastify/shared/design-tokens.ts
+- 2026-06-10 06:47 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/assets/icons.tsx
+- 2026-06-10 06:47 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/atoms/Chip.tsx
+- 2026-06-10 06:47 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/atoms/Input.tsx
+- 2026-06-10 06:48 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/StateTabs.tsx
+- 2026-06-10 06:48 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/StateTabs.stories.tsx
+- 2026-06-10 06:48 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/organisms/AppSurface.tsx
+- 2026-06-10 06:48 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/organisms/AppShell.tsx
+- 2026-06-10 06:48 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/organisms/AppShell.stories.tsx
+- 2026-06-10 06:49 | Write | /home/khujta/projects/apps/gastify/design-lab/src/features/home/model/HomeScreenModel.ts
+- 2026-06-10 06:49 | Write | /home/khujta/projects/apps/gastify/design-lab/src/features/home/components/MonthTreemapCard.tsx
+- 2026-06-10 06:49 | Write | /home/khujta/projects/apps/gastify/design-lab/src/features/home/components/MonthTreemapCard.stories.tsx
+- 2026-06-10 06:49 | Write | /home/khujta/projects/apps/gastify/design-lab/src/features/home/components/RecentTransactionsCard.tsx
+- 2026-06-10 06:49 | Write | /home/khujta/projects/apps/gastify/design-lab/src/features/home/components/RecentTransactionsCard.stories.tsx
+- 2026-06-10 06:50 | Write | /home/khujta/projects/apps/gastify/design-lab/src/features/home/screens/HomeScreen.tsx
+- 2026-06-10 06:50 | Write | /home/khujta/projects/apps/gastify/design-lab/src/features/home/screens/HomeScreen.stories.tsx
+- 2026-06-10 06:50 | Write | /home/khujta/projects/apps/gastify/design-lab/src/features/home/spikes/IAComparisonSpike.tsx
+- 2026-06-10 06:50 | Write | /home/khujta/projects/apps/gastify/design-lab/src/features/home/spikes/IAComparisonSpike.stories.tsx
+- 2026-06-10 06:50 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/home/screens/HomeScreen.tsx
+- 2026-06-10 06:50 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/home/screens/HomeScreen.tsx
+- 2026-06-10 06:51 | Edit | /home/khujta/projects/apps/gastify/docs/rebuild/ux/REACT-STORYBOOK-WORKFLOW.md
+- 2026-06-10 06:52 | Write | /home/khujta/projects/apps/gastify/docs/rebuild/ux/STORYBOOK-STRUCTURE.md
+- 2026-06-10 11:06 | Edit | /home/khujta/projects/apps/gastify/backend/app/observability.py
+- 2026-06-10 11:07 | Edit | /home/khujta/projects/apps/gastify/backend/app/api/metrics.py
+
+## 2026-06-10 15:20 — PHASE 3 (LLM quota-throttle degradation) IMPLEMENTED (Exec 🔄)
+VALIDATION: workflow wf_ff912128-748 (29 agents) — 14 confirmed gaps, 0 refuted (verify/synthesize cut off by the monthly spend limit; load-bearing findings re-verified by reading code). Same Phase-2 orphan-scheduler class.
+CODE (2 commits):
+  - [abec0a9 feat(scan)] degradation+recovery core. (1) requeue_quota_throttled_scans() was an ORPHAN (0 callers) → throttled QUEUED scans never auto-recovered. Now atomic UPDATE...RETURNING claim (multi-replica safe) + run_requeue_sweep() re-dispatching process_scan, driven by a lifespan sweep loop (scan_requeue_interval_seconds=120, deployed-PG only). (2) RATE_LIMIT-worded 429 → terminal FAILED bug: shared is_throttle predicate (QUOTA_EXCEEDED|RATE_LIMIT|OVERLOADED) degrades the whole throttle class to QUEUED. Observable-state tests (real-DB requeue flip + re-dispatch).
+  - [fad475b feat(scan)] forced-throttle hook (`throttle` filename token → real QUEUED path, mock/fixture only, never prod) for the deployed-staging load-proof + /metrics scans_queued_depth gauge (live QUEUED count, scans not RLS-bound) + scans_queued/depth HELP (D90 observability).
+CHECKS: backend 871 passed/14 skip; ruff/format/mypy clean.
+REMAINING (Exec gate): deployed-staging load-proof (throttle N scans → assert N QUEUED rows + no 5xx + /metrics scans_queued_depth, per D90) → Exec ✅; then review (self, spend limit) + Commit ✅ + Push. DECISIONS entry pending.
