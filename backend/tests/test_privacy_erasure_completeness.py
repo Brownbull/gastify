@@ -23,6 +23,7 @@ from app.models.notification import Notification
 from app.models.scan import Scan
 from app.models.statement import CardAlias, Statement, StatementLine
 from app.models.transaction import Transaction
+from app.models.user import MobilePushToken
 from tests.conftest import TEST_SCOPE_ID, TEST_USER_ID
 
 
@@ -89,6 +90,14 @@ async def _seed_full_personal_footprint(engine) -> None:
             )
         )
         s.add(CreditBalance(ownership_scope_id=TEST_SCOPE_ID))
+        s.add(
+            MobilePushToken(
+                ownership_scope_id=TEST_SCOPE_ID,
+                user_id=TEST_USER_ID,
+                token="ExponentPushToken[xxx]",
+                platform="android",
+            )
+        )
         # A consent record carrying PII (ip + user agent) + a prior audit event w/ IP.
         s.add(
             ConsentRecord(
@@ -137,6 +146,10 @@ async def test_erasure_hard_deletes_the_whole_personal_footprint(client, engine)
     )
     assert (
         await _count(engine, CreditBalance, CreditBalance.ownership_scope_id == TEST_SCOPE_ID) == 0
+    )
+    assert (
+        await _count(engine, MobilePushToken, MobilePushToken.ownership_scope_id == TEST_SCOPE_ID)
+        == 0
     )
     # Statement lines cascade with their statement.
     async with _sf(engine)() as s:

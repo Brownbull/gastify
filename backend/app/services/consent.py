@@ -338,6 +338,7 @@ async def delete_user_personal_data(
         TransactionItem,
         TransactionItemFlag,
     )
+    from app.models.user import MobilePushToken
 
     scope = ownership_scope_id
     scope_txn_ids = select(Transaction.id).where(Transaction.ownership_scope_id == scope)
@@ -384,6 +385,13 @@ async def delete_user_personal_data(
     )
     counts["credit_balances"] = await _del(
         delete(CreditBalance).where(CreditBalance.ownership_scope_id == scope)
+    )
+    # Device push tokens are personal data (token + device_id + platform + user link).
+    # The unregister path only flips enabled=False, and the users row is scrubbed-not-
+    # deleted, so without this a deleted user's device tokens would survive forever
+    # (P16 Phase-2 review — orphaned-PII gap the Phase-1 erasure expansion missed).
+    counts["mobile_push_tokens"] = await _del(
+        delete(MobilePushToken).where(MobilePushToken.ownership_scope_id == scope)
     )
     # Transaction subtree (flags -> items/images -> transactions). In a personal
     # scope every flag is the erasing user's own.
