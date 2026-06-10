@@ -36,6 +36,7 @@
 | `backend/pyproject.toml` | Python deps + tool config | MVP |
 | `backend/uv.lock` | uv lockfile (committed for reproducible installs) | MVP |
 | `backend/railway.toml` | Railway backend deploy config | MVP |
+| `web/railway.toml` | Railway web deploy config (pins the Nixpacks builder) | MVP |
 | `backend/.env.example` | Backend env var template (no secrets) | MVP |
 | `backend/.env.*.example` | Backend environment-specific env templates (no secrets) | MVP |
 | `backend/app/main.py` | FastAPI entry | MVP |

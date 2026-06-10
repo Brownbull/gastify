@@ -1,0 +1,5 @@
+# Pin the builder to Nixpacks so Railway reads web/nixpacks.toml (npm build → Caddy
+# serving dist/). Railway's default builder switched to Railpack, which ignores
+# nixpacks.toml and fails with "No start command detected" — the prod web outage.
+[build]
+builder = "NIXPACKS"
