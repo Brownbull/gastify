@@ -2,14 +2,16 @@
 # command below, and declaring it again collides (duplicate _caddy completion → nix-env
 # "Unable to build profile" conflict on the Railway builder).
 #
-# nodejs_24: Vite 8 + its Rolldown bundler require node >=22.12 (nixpacks nodejs_22
-# pins 22.11.0 — just below). 24 satisfies cleanly.
+# nodejs_22 (22.11): the only modern node in nixpacks' pinned nixpkgs (nodejs_24 is
+# undefined there). Vite 8 only WARNS on 22.11 (<22.12) then continues — the real
+# blocker was the missing Rolldown native binding, fixed below.
 [phases.setup]
-nixPkgs = ["nodejs_24"]
+nixPkgs = ["nodejs_22"]
 
-# npm install (NOT npm ci): Vite 8's Rolldown needs the @rolldown/binding-linux-x64-gnu
-# native optional dep, which npm's optional-deps lockfile bug (npm/cli#4828) drops under
-# `npm ci`. `npm install` re-resolves + installs the correct platform binding on Railway.
+# npm install (NOT npm ci): Vite 8's Rolldown needs @rolldown/binding-linux-x64-gnu,
+# a platform optional dep that npm's optional-deps bug (npm/cli#4828) can drop under
+# `npm ci`. The committed lockfile now pins it (clean regen), and `npm install`
+# re-resolves it on Railway's linux-x64 as a belt-and-suspenders.
 [phases.install]
 cmds = ["npm install --legacy-peer-deps"]
 
