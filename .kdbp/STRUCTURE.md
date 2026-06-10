@@ -36,7 +36,7 @@
 | `backend/pyproject.toml` | Python deps + tool config | MVP |
 | `backend/uv.lock` | uv lockfile (committed for reproducible installs) | MVP |
 | `backend/railway.toml` | Railway backend deploy config | MVP |
-| `web/railway.toml` | Railway web deploy config (pins the Nixpacks builder) | MVP |
+| `web/railway.toml` | Railway web deploy config (pins the Dockerfile builder) | MVP |
 | `backend/.env.example` | Backend env var template (no secrets) | MVP |
 | `backend/.env.*.example` | Backend environment-specific env templates (no secrets) | MVP |
 | `backend/app/main.py` | FastAPI entry | MVP |
@@ -211,6 +211,27 @@
 | `frontend/public/**` | Static assets (favicons, PWA manifest icons) | MVP |
 | `frontend/.storybook/**` | Storybook 10 showcase config (per pivot DECISIONS D25) | MVP |
 | `frontend/src/**/*.stories.tsx` | Storybook stories (CSF3) | MVP |
+
+### Design Lab (React + Storybook mockup workspace — PLAN-MOCKUPS)
+
+<!-- Fresh mockup workspace (2026-06-10, parallel plan .kdbp/PLAN-MOCKUPS.md): production-grade React mockups
+     inspected via Storybook 10; desktop/tablet/mobile views; artifacts later wire into web/ + mobile/.
+     Token single-source: shared/design-tokens.ts (web global.css color vocabulary + locked DTCG fonts/radii/shadows). -->
+
+| Pattern | Description | Tier |
+|---------|-------------|------|
+| `shared/design-tokens.ts` | Single TS token source (3 themes × 2 modes, fonts, radii, shadows, motion) — design-lab now, web/ + mobile/ adapters later | MVP |
+| `design-lab/package.json` | Workspace deps + scripts (4-gate verification) | MVP |
+| `design-lab/package-lock.json` | npm lockfile | MVP |
+| `design-lab/index.html` | Vite entry HTML | MVP |
+| `design-lab/vite.config.ts` | Vite config (react + tailwindcss plugins, @shared alias) | MVP |
+| `design-lab/vitest.config.ts` | Vitest projects: unit (jsdom) + storybook (browser-mode Chromium) | MVP |
+| `design-lab/tsconfig.json` | TypeScript config | MVP |
+| `design-lab/.storybook/**` | Storybook 10 config (theme/mode toolbar, fonts, addons) | MVP |
+| `design-lab/scripts/*.mjs` | Token-CSS generator + future smoke scripts | MVP |
+| `design-lab/src/**/*.{ts,tsx}` | Design-system + feature mockup source, colocated `*.stories.tsx` | MVP |
+| `design-lab/src/**/*.css` | Styles (index.css + GENERATED tokens.css) | MVP |
+| `design-lab/*.md` | Workspace docs | MVP |
 
 <!-- ### Web App (any stack)
 
