@@ -105,6 +105,12 @@ async def upload_statement(
             duplicate.error_message = None
             metadata_changed = True
             should_queue = True
+        elif duplicate.status in {StatementStatus.UPLOADED, StatementStatus.QUEUED}:
+            # A dup hit on a statement PARKED pre-processing (its worker dispatch died —
+            # e.g. a deploy restart dropped the BackgroundTask) would otherwise return
+            # 200 and stay stuck forever: statements have no requeue sweep. Re-dispatch;
+            # _acquire_statement is idempotent (only eligible statuses re-acquire).
+            should_queue = True
         if metadata_changed:
             await db.commit()
             await db.refresh(duplicate)

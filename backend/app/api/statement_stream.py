@@ -21,7 +21,7 @@ from sse_starlette.sse import EventSourceResponse
 
 from app.api.scan_stream import _resolve_ownership, _verify_token
 from app.config import settings
-from app.db import async_session
+from app.db import async_session, set_session_ownership_scope
 from app.models.statement import Statement
 from app.schemas.statement import StatementEvent
 from app.services.statement_events import statement_dispatcher
@@ -35,6 +35,11 @@ ws_router = APIRouter(tags=["statement-stream-ws"])
 
 async def _check_statement_ownership(statement_id: uuid.UUID, scope_id: uuid.UUID) -> bool:
     async with async_session() as db:
+        # statements is FORCE-RLS and this session is OUTSIDE the request flow (token
+        # auth, no auth dep) — without the scope GUC the fail-safe policy hides every
+        # row and ownership ALWAYS reads false → the stream 404s on real Postgres
+        # (invisible on SQLite). The scope is already resolved from the verified token.
+        await set_session_ownership_scope(db, scope_id)
         row = await db.execute(
             select(Statement.id).where(
                 Statement.id == statement_id,
