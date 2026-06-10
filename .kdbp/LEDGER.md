@@ -4144,3 +4144,15 @@ REVIEW (D90 pre-promote adversarial): workflow wf_ec34fad7-67d, 12 agents (5 fin
 EXEC RUNTIME EVIDENCE (per D90, observable on real Postgres): CI run 27259810945 GREEN 13/13 — Backend Test includes test_retention_postgres.py (definer purge deletes cross-scope under the NOBYPASSRLS app role; direct delete=0 — the exact bug locked as a guard). Migration 037 applied + STABILIZED on deployed staging-e2e (3× migration_current=037/current/head=037). Deployed-DB seed-purge proof ops-gated on the GASTIFY_RETENTION_DATABASE_URL secret (honest limit).
 GATES: Phase 2 Exec ✅ / Review ✅ / Commit ✅ / Push ⬜. Staging deploy = DEPLOYMENTS P73.
 NEXT: production promote (staging→main) — a conscious user decision (RLS migration 037 + erasure-now-deletes-push-tokens + the scheduled-purge secret).
+- 2026-06-10 04:14 | Write | /tmp/verify_roles.py
+- 2026-06-10 04:19 | Write | /tmp/retention_proof.py
+
+## 2026-06-10 07:55 — PHASE 2 PUSH ✅ — PRODUCTION PROMOTION (all 4 gates ✅, COMPLETE)
+PROMOTE: FF main bb03171→cdadd6a; staging CI 27263564294 ✅, prod CI 27263904075 ✅. Prod deploy ran alembic → 037 on the production DB.
+PRE-PROMOTE VERIFICATION (railway CLI + asyncpg, public proxy — credentials kept out of the transcript):
+  #1 role split — PROD (036): audit_events owner=gastify_migrator, gastify_app NOBYPASSRLS least-priv → NO FORCE is safe (owner-only exemption). STAGING-E2E (037): full mechanism green.
+  #3 deployed-DB seed→purge proof — PASS on staging-e2e AS the real gastify_app: direct delete (no GUC)=0 (RLS isolates), app_count/app_purge definer =1/1, dsr_erasure survived, test row self-cleaned (zero residue).
+  #4 CI live-PG — test_retention_postgres.py 2 passed (GASTIFY_TEST_PG_DSN set), not skipped.
+POST-DEPLOY (prod): DB @ 037 — audit_events forced=False; app_purge/app_count definer fns owned by migrator, security_definer=True; gastify_app has EXECUTE; /health ok+current; DSR 401.
+GATES: Phase 2 Exec ✅ / Review ✅ / Commit ✅ / Push ✅ — COMPLETE, live in production. Deployment = DEPLOYMENTS P74.
+OUTSTANDING (user action): the scheduled retention purge is INERT until a PRODUCTION-ONLY Railway cron service runs run_retention.py --apply (2A) — staging-e2e excluded (determinism), real-staging optional. P74–P79 → Phase 5 go/no-go.
