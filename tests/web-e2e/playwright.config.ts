@@ -34,6 +34,13 @@ function loadDotenv(file: string): Record<string, string> {
 
 const webEnv = loadDotenv(path.resolve(__dirname, "../../web/.env.staging-e2e"));
 
+// Overridable port: other projects' dev servers (e.g. gustify) also default to 5173, and
+// reuseExistingServer would silently adopt the WRONG app and fail every spec on sign-in.
+// CONSTRAINT: the port must be a CORS-allowed origin on the staging-e2e API
+// (GASTIFY_CORS_ORIGINS — currently 5173 + 5174). An unlisted port fails every authed
+// browser call on the OPTIONS preflight (400) while curl probes still work — confusing.
+const E2E_WEB_PORT = process.env.E2E_WEB_PORT ?? "5173";
+
 export default defineConfig({
   testDir: ".",
   fullyParallel: false,
@@ -43,15 +50,15 @@ export default defineConfig({
   reporter: "list",
   timeout: 120_000,
   use: {
-    baseURL: "http://localhost:5173",
+    baseURL: `http://localhost:${E2E_WEB_PORT}`,
     trace: "retain-on-failure",
     video: "retain-on-failure",
     screenshot: "only-on-failure",
     ...devices["Desktop Chrome"],
   },
   webServer: {
-    command: "cd ../../web && npx vite --mode staging-e2e --port 5173 --strictPort",
-    url: "http://localhost:5173/sign-in",
+    command: `cd ../../web && npx vite --mode staging-e2e --port ${E2E_WEB_PORT} --strictPort`,
+    url: `http://localhost:${E2E_WEB_PORT}/sign-in`,
     reuseExistingServer: !process.env.CI,
     timeout: 60_000,
     env: { ...process.env, ...webEnv },
