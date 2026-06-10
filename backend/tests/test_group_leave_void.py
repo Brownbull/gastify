@@ -17,6 +17,7 @@ import pytest
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
+from app.models.consent import AuditEvent
 from app.models.transaction import Transaction, TransactionItem
 from tests.test_groups import _acting_as, _add_member, _make_auth, _seed_user
 
@@ -133,6 +134,52 @@ async def test_leave_delete_is_scoped_to_the_left_group_only(client, engine):
         g2 = await _group_monthly(client, group2)
     assert g2["voided"] is False
     assert g2["total_spend_minor"] == 9_000
+
+
+@pytest.mark.asyncio
+async def test_leave_delete_emits_a_proof_of_processing_audit_event(client, engine):
+    """Leave-delete is a user-initiated data deletion → it must leave a D4 audit trail."""
+    group_id, b_uid, b_scope = await _setup_sharer_in_group(
+        client, engine, when=date(2026, 3, 15), total_minor=50_000
+    )
+    with _acting_as(_make_auth(b_uid, b_scope, "B")):
+        assert (
+            await client.post(f"/api/v1/groups/{group_id}/leave", params={"delete_shared": "true"})
+        ).status_code == 204
+
+    async with _sf(engine)() as s:
+        events = (
+            (
+                await s.execute(
+                    select(AuditEvent).where(
+                        AuditEvent.ownership_scope_id == uuid.UUID(group_id),
+                        AuditEvent.event_type == "dsr_group_leave_delete",
+                    )
+                )
+            )
+            .scalars()
+            .all()
+        )
+    assert len(events) == 1
+    assert events[0].user_id == b_uid
+
+
+@pytest.mark.asyncio
+async def test_leave_keep_emits_no_deletion_audit_event(client, engine):
+    """The keep path is not a deletion — no dsr_group_leave_delete event."""
+    group_id, b_uid, b_scope = await _setup_sharer_in_group(
+        client, engine, when=date(2026, 3, 15), total_minor=50_000
+    )
+    with _acting_as(_make_auth(b_uid, b_scope, "B")):
+        assert (await client.post(f"/api/v1/groups/{group_id}/leave")).status_code == 204
+
+    async with _sf(engine)() as s:
+        count = await s.scalar(
+            select(func.count())
+            .select_from(AuditEvent)
+            .where(AuditEvent.event_type == "dsr_group_leave_delete")
+        )
+    assert count == 0
 
 
 @pytest.mark.asyncio

@@ -34,10 +34,11 @@ from app.schemas.consent import (
 )
 from app.services.consent import (
     anonymize_user_profile,
-    delete_user_transactions,
+    delete_user_personal_data,
     list_consents,
     log_audit_event,
     revoke_all_consents,
+    scrub_user_audit_trail,
 )
 from app.services.insights.tombstones import tombstone_member_shares
 
@@ -194,6 +195,13 @@ async def _void_user_group_shares(
         )
         if membership is not None:
             await db.delete(membership)
+            # FLUSH WHILE THE GUC IS STILL THIS GROUP. db.delete only marks the row;
+            # without an explicit flush the DELETE would emit at the next ORM
+            # statement — under the NEXT group's GUC or (after the restore below) the
+            # personal GUC. ownership_scope_members is RLS-bound for the runtime role,
+            # so a DELETE under the wrong GUC matches 0 rows and (no version_id →
+            # warn-not-raise) silently leaves the membership in place on Postgres.
+            await db.flush()
             memberships_removed += 1
     # Re-point the session at the personal scope so the remaining erasure steps
     # (anonymize_user_profile, the dsr_erasure audit event) run personally-scoped.
@@ -202,21 +210,22 @@ async def _void_user_group_shares(
 
 
 @router.post("/erasure", response_model=ErasureResponse)
-async def erasure(request: Request, auth: Auth, db: DB) -> ErasureResponse:
+async def erasure(auth: Auth, db: DB) -> ErasureResponse:
     """GDPR Art 17 / Law 21.719 / CCPA — right to erasure (account deletion).
 
-    Account deletion is TOTAL (D82): hard-delete the user's own data (D89, amends D4
-    — transactions, items, images, item-flags genuinely removed) + revoke all
-    consents, AND void the group-period statistics their shared copies fed (tombstone
-    the affected (group, month) pairs) while removing their group memberships so those
-    copies fall out of every member-facing list (D72). The content-locked group copies
-    themselves are left in place (D74), invisible behind the void. The User row
-    survives only as a scrubbed shell (PII anonymized) because the ``dsr_erasure``
-    audit event FKs to it; that PII-free event is the durable proof of processing D4
-    requires.
+    Account deletion is TOTAL (D82): hard-delete ALL the user's personal-scope data
+    (D89, amends D4 — transactions/items/images/flags, statements + lines + recon,
+    card aliases, scans, notifications, merchant/category mappings, credit balances
+    all genuinely removed) + revoke all consents, AND void the group-period statistics
+    their shared copies fed (tombstone the affected (group, month) pairs) while removing
+    their group memberships so those copies fall out of every member-facing list (D72).
+    The content-locked group copies themselves are left in place (D74), invisible behind
+    the void. What deliberately SURVIVES is PII-free: the scrubbed ``users`` shell, the
+    user's revoked ``consent_records`` and the ``audit_events`` (D4 proof of
+    processing) — all stripped of ``ip_address``/``user_agent`` so no personal content
+    remains. The ``dsr_erasure`` event itself is logged WITHOUT the request IP.
     """
     now = datetime.now(UTC)
-    ip = request.client.host if request.client else None
 
     consents_revoked = await revoke_all_consents(
         db,
@@ -224,10 +233,11 @@ async def erasure(request: Request, auth: Auth, db: DB) -> ErasureResponse:
         user_id=auth.user_id,
     )
 
-    txn_deleted = await delete_user_transactions(
+    deleted = await delete_user_personal_data(
         db,
         ownership_scope_id=auth.ownership_scope_id,
     )
+    txn_deleted = deleted["transactions"]
 
     group_periods_voided, group_memberships_removed = await _void_user_group_shares(
         db,
@@ -236,17 +246,22 @@ async def erasure(request: Request, auth: Auth, db: DB) -> ErasureResponse:
     )
 
     await anonymize_user_profile(db, user_id=auth.user_id)
+    # Strip residual PII from the rows erasure retains as proof (D89: PII-free).
+    await scrub_user_audit_trail(
+        db, ownership_scope_id=auth.ownership_scope_id, user_id=auth.user_id
+    )
 
     event = await log_audit_event(
         db,
         ownership_scope_id=auth.ownership_scope_id,
         user_id=auth.user_id,
         event_type="dsr_erasure",
-        ip_address=ip,
+        # No ip_address: the dsr_erasure event must be PII-free (D89). The request IP
+        # is GDPR personal data; the durable proof carries only the erasure facts.
         details=json.dumps(
             {
                 "consents_revoked": consents_revoked,
-                "transactions_deleted": txn_deleted,
+                "records_deleted": deleted,
                 "group_periods_voided": group_periods_voided,
                 "group_memberships_removed": group_memberships_removed,
                 "user_anonymized": True,
@@ -260,7 +275,7 @@ async def erasure(request: Request, auth: Auth, db: DB) -> ErasureResponse:
         extra={
             "user_id": str(auth.user_id),
             "consents_revoked": consents_revoked,
-            "transactions_deleted": txn_deleted,
+            "records_deleted": sum(deleted.values()),
             "group_periods_voided": group_periods_voided,
             "group_memberships_removed": group_memberships_removed,
         },

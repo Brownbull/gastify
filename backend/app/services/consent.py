@@ -296,24 +296,42 @@ async def revoke_all_consents(
     return len(records)
 
 
-async def delete_user_transactions(
+async def delete_user_personal_data(
     db: AsyncSession,
     *,
     ownership_scope_id: uuid.UUID,
-) -> int:
-    """Hard-delete the user's own transaction data (D89, amends D4).
+) -> dict[str, int]:
+    """Hard-delete ALL of the user's own personal-scope data (D89, amends D4).
 
-    The rows are removed, not anonymized in place, to honor D82's "delete
-    everything". The PII-free ``dsr_erasure`` audit event remains the durable proof
-    of processing (D4's requirement), and the User row survives as a scrubbed shell
-    because the audit event FKs to ``user_id`` (see ``anonymize_user_profile``).
+    Account deletion is TOTAL (D82): every table the user owns under their PERSONAL
+    scope is genuinely removed — not just transactions. The surviving rows are
+    deliberate: the ``users`` shell (scrubbed in ``anonymize_user_profile``), the
+    PII-free ``audit_events`` (D4 proof of processing — PII scrubbed in
+    ``scrub_user_audit_trail``), the user's ``consent_records`` (revoked + retained as
+    proof, PII scrubbed), and the empty personal ``ownership_scopes`` shell. Group
+    copies the user shared into OTHER scopes are NOT touched here — D82's group void
+    (tombstone + de-member) handles those.
 
     ``ownership_scope_id`` is the caller's PERSONAL scope: ``auth.ownership_scope_id``
-    is never a swapped group scope — the D69/D70 read swap goes through
-    ``resolve_scope`` and does not rebind base auth — so every row deleted here is the
-    erasing user's own. Group copies the user shared into OTHER scopes are not touched
-    here; D82's group void handles those.
+    is never a swapped group scope (the D69/D70 read swap goes through
+    ``resolve_analytics_scope`` and does not rebind base auth), so every row deleted
+    here is the erasing user's own.
+
+    Returns per-table delete counts (for the audit event + erasure response). Deletes
+    children before parents in explicit FK order — robust on SQLite (where ON DELETE
+    CASCADE needs PRAGMA foreign_keys=ON) and correct on Postgres.
     """
+    from app.models.credit import CreditBalance
+    from app.models.mapping import CategoryMapping, MerchantMapping
+    from app.models.notification import Notification
+    from app.models.scan import Scan
+    from app.models.statement import (
+        CardAlias,
+        Statement,
+        StatementLine,
+        StatementReconciliationRun,
+        StatementReconciliationVerdict,
+    )
     from app.models.transaction import (
         Transaction,
         TransactionImage,
@@ -321,31 +339,94 @@ async def delete_user_transactions(
         TransactionItemFlag,
     )
 
-    scope_txn_ids = select(Transaction.id).where(
-        Transaction.ownership_scope_id == ownership_scope_id
+    scope = ownership_scope_id
+    scope_txn_ids = select(Transaction.id).where(Transaction.ownership_scope_id == scope)
+    scope_statement_ids = select(Statement.id).where(Statement.ownership_scope_id == scope)
+    scope_run_ids = select(StatementReconciliationRun.id).where(
+        StatementReconciliationRun.ownership_scope_id == scope
     )
 
-    # Delete children before parents (explicit FK order — robust on SQLite where
-    # ON DELETE CASCADE needs PRAGMA foreign_keys=ON; PG enforces CASCADE natively).
-    # In a personal ownership scope every flag is the erasing user's own.
-    await db.execute(
-        delete(TransactionItemFlag).where(
-            TransactionItemFlag.ownership_scope_id == ownership_scope_id
+    async def _del(stmt: Any) -> int:
+        result = cast("CursorResult[Any]", await db.execute(stmt))
+        return result.rowcount or 0
+
+    counts: dict[str, int] = {}
+    # Statement subtree (verdicts -> runs/lines -> statements -> card aliases).
+    counts["statement_recon_verdicts"] = await _del(
+        delete(StatementReconciliationVerdict).where(
+            StatementReconciliationVerdict.run_id.in_(scope_run_ids)
         )
     )
-    await db.execute(
+    counts["statement_recon_runs"] = await _del(
+        delete(StatementReconciliationRun).where(
+            StatementReconciliationRun.ownership_scope_id == scope
+        )
+    )
+    counts["statement_lines"] = await _del(
+        delete(StatementLine).where(StatementLine.statement_id.in_(scope_statement_ids))
+    )
+    counts["statements"] = await _del(
+        delete(Statement).where(Statement.ownership_scope_id == scope)
+    )
+    counts["card_aliases"] = await _del(
+        delete(CardAlias).where(CardAlias.ownership_scope_id == scope)
+    )
+    # Independent scoped tables (scans' transaction_id is SET NULL, so order-free).
+    counts["scans"] = await _del(delete(Scan).where(Scan.ownership_scope_id == scope))
+    counts["notifications"] = await _del(
+        delete(Notification).where(Notification.ownership_scope_id == scope)
+    )
+    counts["merchant_mappings"] = await _del(
+        delete(MerchantMapping).where(MerchantMapping.ownership_scope_id == scope)
+    )
+    counts["category_mappings"] = await _del(
+        delete(CategoryMapping).where(CategoryMapping.ownership_scope_id == scope)
+    )
+    counts["credit_balances"] = await _del(
+        delete(CreditBalance).where(CreditBalance.ownership_scope_id == scope)
+    )
+    # Transaction subtree (flags -> items/images -> transactions). In a personal
+    # scope every flag is the erasing user's own.
+    counts["transaction_item_flags"] = await _del(
+        delete(TransactionItemFlag).where(TransactionItemFlag.ownership_scope_id == scope)
+    )
+    counts["transaction_items"] = await _del(
         delete(TransactionItem).where(TransactionItem.transaction_id.in_(scope_txn_ids))
     )
-    await db.execute(
+    counts["transaction_images"] = await _del(
         delete(TransactionImage).where(TransactionImage.transaction_id.in_(scope_txn_ids))
     )
-    result = cast(
-        "CursorResult[Any]",
-        await db.execute(
-            delete(Transaction).where(Transaction.ownership_scope_id == ownership_scope_id)
-        ),
+    counts["transactions"] = await _del(
+        delete(Transaction).where(Transaction.ownership_scope_id == scope)
     )
-    return result.rowcount or 0
+    return counts
+
+
+async def scrub_user_audit_trail(
+    db: AsyncSession,
+    *,
+    ownership_scope_id: uuid.UUID,
+    user_id: uuid.UUID,
+) -> None:
+    """Strip residual PII from the rows erasure deliberately RETAINS (D89: PII-free).
+
+    ``audit_events`` (kept as D4 proof of processing) and the user's
+    ``consent_records`` (revoked but retained as consent proof) carry ``ip_address``
+    and ``user_agent`` — both personal data under GDPR. Null them so the surviving
+    proof rows hold no personal content, only the event/consent facts.
+    """
+    from app.models.consent import AuditEvent, ConsentRecord
+
+    await db.execute(
+        update(AuditEvent)
+        .where(AuditEvent.ownership_scope_id == ownership_scope_id)
+        .values(ip_address=None)
+    )
+    await db.execute(
+        update(ConsentRecord)
+        .where(ConsentRecord.user_id == user_id)
+        .values(ip_address=None, user_agent=None)
+    )
 
 
 async def anonymize_user_profile(

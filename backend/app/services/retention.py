@@ -8,9 +8,12 @@ Deletes data that has aged past its declared retention window:
 - **Audit events** are kept for a long compliance window (audit trail), then
   purged once past it.
 
-Financial transactions are NEVER deleted here — data-subject erasure anonymizes
-them in place (D4 soft-delete), so retention only removes transient + expired
-operational data. The scheduled invocation lives in `scripts/ops/run_retention.py`.
+Financial transactions are NEVER deleted by THIS retention job — but data-subject
+erasure now HARD-DELETES them (D89, amends D4: transactions/items/images/flags +
+statements, card aliases, scans, notifications, mappings, credit balances are
+genuinely removed; only the PII-free `dsr_erasure` audit event is retained). This
+job only removes transient + expired operational data. The scheduled invocation
+lives in `scripts/ops/run_retention.py`.
 """
 
 from dataclasses import dataclass
@@ -30,8 +33,9 @@ if TYPE_CHECKING:
 #
 # NOTE on the scan window vs the ProcessingRegister `receipt_scanning` policy
 # ("duration of account + 7 years"): that 7-year period governs the FINANCIAL
-# RECORD — the Transaction created from a scan, which persists independently and
-# is anonymized (not purged) under DSR. A `Scan` row is only the transient
+# RECORD — the Transaction created from a scan, which persists independently while
+# the account lives and is HARD-DELETED (not anonymized) under DSR erasure (D89). A
+# `Scan` row is only the transient
 # processing job + its receipt image; once terminal, keeping it past 90 days has
 # no compliance value, so it is purged here. The 7-year retention lives with the
 # Transaction, not the scan job. AUDIT_RETENTION is the operational audit-trail

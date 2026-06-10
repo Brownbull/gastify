@@ -69,6 +69,11 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--stage-id", default=os.getenv("GASTIFY_DSR_STAGE_ID"))
     parser.add_argument("--timeout-s", type=int, default=60)
+    parser.add_argument(
+        "--allow-nonstaging",
+        action="store_true",
+        help="Override the staging-only guard (NEVER for production).",
+    )
     return parser.parse_args()
 
 
@@ -317,6 +322,14 @@ def section_account_delete_void(
         before = _group_monthly(client, base, viewer.token, group_id=group_id, period="2026-03")
         expect(before.get("total_spend_minor") == 64_000, f"before total: {before}")
         expect(before.get("voided") is False, f"before voided: {before}")
+        # Roster BEFORE erasure: owner(sharer) + member(viewer) = 2. This roster check
+        # is the real de-membership proof on Postgres — the prior gate only asserted the
+        # Python counter, which masked the RLS GUC flush-order bug (review #1).
+        roster_before = cast(
+            "dict[str, Any]",
+            request_json(client, "GET", f"{base}/api/v1/groups/{group_id}", token=viewer.token),
+        )
+        expect(roster_before.get("member_count") == 2, f"roster before: {roster_before}")
 
         erasure = cast(
             "dict[str, Any]",
@@ -329,12 +342,22 @@ def section_account_delete_void(
         expect(after.get("voided") is True, f"after voided: {after}")
         expect(after.get("void_reason") == "account_deleted", f"after reason: {after}")
         expect(after.get("total_spend_minor") == 0, f"after total: {after}")
+        # Roster AFTER erasure: the sharer is GONE from the group (member_count 2 -> 1),
+        # and their user_id no longer appears in the members list.
+        roster_after = cast(
+            "dict[str, Any]",
+            request_json(client, "GET", f"{base}/api/v1/groups/{group_id}", token=viewer.token),
+        )
+        expect(roster_after.get("member_count") == 1, f"roster after: {roster_after}")
+        expect(len(roster_after.get("members", [])) == 1, f"roster members: {roster_after}")
 
         result = {
             "section": "account_delete_void",
             "status": "passed",
             "group_id": group_id,
             "before_total_minor": before.get("total_spend_minor"),
+            "member_count_before": roster_before.get("member_count"),
+            "member_count_after": roster_after.get("member_count"),
             "after_voided": after.get("voided"),
             "after_void_reason": after.get("void_reason"),
             "after_total_minor": after.get("total_spend_minor"),
@@ -443,6 +466,16 @@ def main() -> None:
     api_base_url = require(
         args.api_base_url or env_values.get("EXPO_PUBLIC_API_BASE_URL"), "API base URL"
     ).rstrip("/")
+    # Refuse any non-staging target (mirrors seed-staging.py's prod refusal): this gate
+    # performs IRREVERSIBLE erasure + creates real Firebase accounts. The throwaway users
+    # are self-created so a stray run cannot erase pre-existing users, but pointing it at
+    # production would still pollute the prod Firebase pool + DB. Pass --allow-nonstaging
+    # to override (never for production).
+    if "staging" not in api_base_url.lower() and not args.allow_nonstaging:
+        raise SystemExit(
+            f"Refusing to run the DSR erasure gate against a non-staging target: {api_base_url}. "
+            "Point --api-base-url at a *-staging* URL, or pass --allow-nonstaging to override."
+        )
     stage_id = args.stage_id or f"{datetime.now(UTC):%Y%m%dT%H%M%SZ}-dsr-api-gate"
     result_dir = args.result_root / "runs" / args.result_env / stage_id / "dsr-api-gate"
     latest_dir = args.result_root / "latest" / args.result_env / "dsr-api-gate"

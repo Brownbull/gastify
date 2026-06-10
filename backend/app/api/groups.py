@@ -9,6 +9,7 @@ SECURITY DEFINER readers (D71); on SQLite (no RLS) the same queries run plainly.
 
 from __future__ import annotations
 
+import json
 import secrets
 from datetime import UTC, datetime, timedelta
 from typing import Annotated, cast
@@ -44,6 +45,7 @@ from app.schemas.groups import (
     ShareRequest,
     VisibilityUpdate,
 )
+from app.services.consent import log_audit_event
 from app.services.insights.tombstones import tombstone_member_shares
 
 # Spend fields a share copies verbatim; telemetry (llm_*/scan_*), personal
@@ -561,11 +563,22 @@ async def leave_group(
             detail="Promote another admin before leaving",
         )
     if delete_shared:
-        await tombstone_member_shares(
+        periods_voided = await tombstone_member_shares(
             db,
             ownership_scope_id=group_id,
             user_id=auth.user_id,
             reason="member_removed_data",
+        )
+        # D4 proof-of-processing for this user-initiated data deletion (parallel to the
+        # dsr_erasure event). Group-scoped — the action runs under the group GUC.
+        await log_audit_event(
+            db,
+            ownership_scope_id=group_id,
+            user_id=auth.user_id,
+            event_type="dsr_group_leave_delete",
+            resource_type="ownership_scope",
+            resource_id=group_id,
+            details=json.dumps({"group_periods_voided": periods_voided}),
         )
     target = await db.scalar(
         select(OwnershipScopeMember).where(
@@ -575,7 +588,10 @@ async def leave_group(
     )
     if target is not None:
         await db.delete(target)
-        await db.commit()
+    # Commit unconditionally so the delete_shared tombstones + audit event persist even
+    # if the membership row is already gone (commit runs under the group GUC, so the
+    # membership DELETE is RLS-correct — see the erasure-path R1 fix for the contrast).
+    await db.commit()
     await _restore_personal_scope(db, auth)
 
 

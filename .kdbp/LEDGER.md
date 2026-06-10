@@ -4082,3 +4082,10 @@ PHASE: 1 — DSR | TASK: T6/6 — staging runtime proof | runtime_journey_requir
 TIER: ent
 TASKS: 6 tasks (T1 validate 4 rights, T2 erasure hard-delete, T3 tombstone+migration 035, T4 account-delete void, T5 group-leave choice, T6 staging proof), 5 commits prior to the T6 evidence commit (f028c84 T1+T2; 1d2b309 T3; fc8bb0c T4; d2e9b06 T5; 8ebb897 CI-fix)
 DEVIATIONS: 0 structural, 0 minor. Residuals tracked: P68 (FE leave-delete prompt); documented account-delete edge — shares into a group the user already LEFT keep their anonymous aggregate (RLS-hidden cross-scope under FORCE; sharer scrubbed → no PII remains).
+- 2026-06-09 21:15 | Write | /home/khujta/projects/apps/gastify/backend/tests/test_probe_weekly_void_edge.py
+- 2026-06-09 21:15 | Write | /home/khujta/projects/apps/gastify/backend/tests/test_verify_probe_tmp.py
+- 2026-06-09 21:18 | Edit | /home/khujta/projects/apps/gastify/backend/app/api/privacy.py
+- 2026-06-09 21:35 | Write | /home/khujta/projects/apps/gastify/backend/tests/test_adversarial_verify_tmp.py
+- 2026-06-10 00:21 | Edit | /home/khujta/projects/apps/gastify/backend/app/api/privacy.py
+- 2026-06-10 00:36 | Edit | /home/khujta/projects/apps/gastify/scripts/staging/run-dsr-staging-gate.py
+- 2026-06-10 00:36 | Edit | /home/khujta/projects/apps/gastify/scripts/staging/run-dsr-staging-gate.py

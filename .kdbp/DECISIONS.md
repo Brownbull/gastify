@@ -2425,8 +2425,23 @@ SELF-ATTESTED against a documented 4-jurisdiction checklist at P16 Phase 5 (see 
 external counsel review is deferred to the D88 review trigger (EU scale / special-category
 volume / budget).
 
+**Amendment (2026-06-10, P16 Phase 1 review remediation — implemented-reality reconciliation).**
+Rev 3's prose says account-delete "Delete all the user's data — their own transactions AND the
+content-locked group copies they shared." The IMPLEMENTATION (per the Phase-1 hand-off + D74)
+does NOT physically delete the group copies: a group copy is a content-locked snapshot other
+members' aggregates were built on, so erasure RETAINS the copy row but renders it INERT —
+(1) tombstones the affected (group, month) so the aggregate reads VOID (gone, not recomputed),
+and (2) removes the user's group membership so D72's current-member filter drops the rows from
+every member-facing list. Net effect = the erased user's shared data is invisible everywhere
+(aggregates voided, lists filtered), with no PII attributable (the `users` shell is scrubbed),
+while the snapshot integrity D74 protects is preserved. This "retain-but-void-and-delist" is the
+binding behaviour; rev 3's "delete the copies" wording is superseded by it. The group-leave-DELETE
+choice uses the identical mechanism (reason `member_removed_data`). DOCUMENTED residual: a group
+the user shared into then ALREADY LEFT before account-delete keeps its anonymous aggregate (the
+contributor row is RLS-hidden cross-scope under FORCE; the `users` shell is scrubbed → no PII).
+
 ### Status
-- accepted (rev 3; engineering default, self-attested at Phase 5 per D88)
+- accepted (rev 3 + 2026-06-10 implemented-reality amendment; engineering default, self-attested at Phase 5 per D88)
 
 ## D83 — Phase 1 tier: ent (2026-06-07)
 

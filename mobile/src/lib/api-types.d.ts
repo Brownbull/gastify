@@ -318,15 +318,17 @@ export interface paths {
          * Erasure
          * @description GDPR Art 17 / Law 21.719 / CCPA — right to erasure (account deletion).
          *
-         *     Account deletion is TOTAL (D82): hard-delete the user's own data (D89, amends D4
-         *     — transactions, items, images, item-flags genuinely removed) + revoke all
-         *     consents, AND void the group-period statistics their shared copies fed (tombstone
-         *     the affected (group, month) pairs) while removing their group memberships so those
-         *     copies fall out of every member-facing list (D72). The content-locked group copies
-         *     themselves are left in place (D74), invisible behind the void. The User row
-         *     survives only as a scrubbed shell (PII anonymized) because the ``dsr_erasure``
-         *     audit event FKs to it; that PII-free event is the durable proof of processing D4
-         *     requires.
+         *     Account deletion is TOTAL (D82): hard-delete ALL the user's personal-scope data
+         *     (D89, amends D4 — transactions/items/images/flags, statements + lines + recon,
+         *     card aliases, scans, notifications, merchant/category mappings, credit balances
+         *     all genuinely removed) + revoke all consents, AND void the group-period statistics
+         *     their shared copies fed (tombstone the affected (group, month) pairs) while removing
+         *     their group memberships so those copies fall out of every member-facing list (D72).
+         *     The content-locked group copies themselves are left in place (D74), invisible behind
+         *     the void. What deliberately SURVIVES is PII-free: the scrubbed ``users`` shell, the
+         *     user's revoked ``consent_records`` and the ``audit_events`` (D4 proof of
+         *     processing) — all stripped of ``ip_address``/``user_agent`` so no personal content
+         *     remains. The ``dsr_erasure`` event itself is logged WITHOUT the request IP.
          */
         post: operations["erasure_api_v1_privacy_erasure_post"];
         delete?: never;

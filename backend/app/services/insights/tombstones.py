@@ -14,6 +14,7 @@ from datetime import date
 from typing import TYPE_CHECKING
 
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 
 from app.models.group_stat_tombstone import GROUP_STAT_VOID_REASONS, GroupStatTombstone
 from app.models.transaction import Transaction
@@ -90,12 +91,19 @@ async def tombstone_group_period(
     period: str,
     reason: str,
 ) -> bool:
-    """Mark one ``(group scope, month)`` VOID — idempotent.
+    """Mark one ``(group scope, month)`` VOID — idempotent + race-safe.
 
     Returns ``True`` if a new tombstone was inserted, ``False`` if the group-period
     was already tombstoned (the existing reason wins). Does NOT commit. The caller
     owns the RLS GUC: under Postgres FORCE RLS the session must already be swapped
     to ``ownership_scope_id`` so the insert's ``WITH CHECK`` matches the GUC.
+
+    Concurrency: the fast-path SELECT skips the insert when the row already exists,
+    but two erasures/leave-deletes voiding the SAME (group, period) at once both pass
+    that SELECT and race the INSERT. The loser would hit the
+    ``uq_group_stat_tombstones_scope_period`` unique constraint — so the INSERT runs
+    inside a SAVEPOINT and an ``IntegrityError`` is swallowed as "already tombstoned"
+    (returns ``False``) rather than 500-ing the whole erasure transaction.
     """
     if reason not in GROUP_STAT_VOID_REASONS:
         raise ValueError(f"invalid group-stat void reason: {reason!r}")
@@ -107,14 +115,20 @@ async def tombstone_group_period(
     )
     if existing is not None:
         return False
-    db.add(
-        GroupStatTombstone(
-            ownership_scope_id=ownership_scope_id,
-            period=period,
-            reason=reason,
-        )
-    )
-    await db.flush()
+    try:
+        async with db.begin_nested():
+            db.add(
+                GroupStatTombstone(
+                    ownership_scope_id=ownership_scope_id,
+                    period=period,
+                    reason=reason,
+                )
+            )
+            # The savepoint release flushes the INSERT; a unique-constraint conflict
+            # surfaces here and rolls back only this savepoint, not the outer tx.
+            await db.flush()
+    except IntegrityError:
+        return False
     return True
 
 
