@@ -1,5 +1,8 @@
+# caddy is NOT listed here: Nixpacks auto-provisions it from the `caddy run` start
+# command below, and declaring it again collides (duplicate _caddy completion → nix-env
+# "Unable to build profile" conflict on the Railway builder).
 [phases.setup]
-nixPkgs = ["nodejs_20", "caddy"]
+nixPkgs = ["nodejs_20"]
 
 [phases.install]
 cmds = ["npm ci --legacy-peer-deps"]
