@@ -43,6 +43,26 @@ _TRANSIENT_CODES = frozenset(
     }
 )
 
+# Provider "back off, retry later" codes — when one of these is the FINAL error (after
+# retry/backoff is exhausted), the scan degrades gracefully to QUEUED for a later requeue
+# sweep, NOT terminal FAILED (P16 Phase 3, exit signal c). QUOTA_EXCEEDED (daily quota) +
+# RATE_LIMIT (429 RPM, however the provider words it) + OVERLOADED (503 model busy) all
+# mean "the scan is fine, the provider is throttling us" — they recover when capacity
+# frees up. Anything else is a real failure.
+THROTTLE_CODES = frozenset(
+    {
+        ScanErrorCode.QUOTA_EXCEEDED,
+        ScanErrorCode.RATE_LIMIT,
+        ScanErrorCode.OVERLOADED,
+    }
+)
+
+
+def is_throttle(code: ScanErrorCode) -> bool:
+    """True iff a provider error code means "throttled, retry later" → degrade to QUEUED."""
+    return code in THROTTLE_CODES
+
+
 _TRANSIENT_KEYWORDS = (
     "econnreset",
     "etimedout",

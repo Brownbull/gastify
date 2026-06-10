@@ -36,6 +36,7 @@ from app.services.scan_errors import (
     ScanError,
     ScanErrorCode,
     classify_error,
+    is_throttle,
 )
 from app.services.scan_events import dispatcher
 from app.services.scan_providers import active_scan_provider, mock_case_for_scan
@@ -876,28 +877,50 @@ async def _queue_scan(scan_id: uuid.UUID, error_code: str, error_message: str) -
 
 
 async def requeue_quota_throttled_scans() -> list[uuid.UUID]:
-    """Retry sweep: flip quota-throttled QUEUED scans back to SUBMITTED so the
-    worker reprocesses them once quota recovers, clearing the parked error.
-
-    Returns the requeued scan ids for the caller (scheduler / ops entrypoint) to
-    re-dispatch through ``process_scan``. The periodic invocation is operational
-    (a scheduled job); this function is the testable primitive it calls.
+    """Atomically flip throttled QUEUED scans → SUBMITTED, returning the ids THIS call
+    claimed. The single ``UPDATE ... RETURNING`` is multi-replica safe: when the sweep
+    runs concurrently across replicas, each claims a DISJOINT set (the row-level write
+    lock serializes them), so the caller's re-dispatch never double-processes a scan.
+    Callers re-dispatch the returned ids through ``process_scan`` — see run_requeue_sweep.
     """
     async with async_session() as db:
-        rows = await db.execute(select(Scan.id).where(Scan.status == ScanStatus.QUEUED))
-        ids = [row[0] for row in rows.all()]
-        if ids:
-            await db.execute(
-                update(Scan)
-                .where(Scan.status == ScanStatus.QUEUED)
-                .values(
-                    status=ScanStatus.SUBMITTED,
-                    error_code=None,
-                    error_message=None,
-                )
-            )
-            await db.commit()
+        result = await db.execute(
+            update(Scan)
+            .where(Scan.status == ScanStatus.QUEUED)
+            .values(status=ScanStatus.SUBMITTED, error_code=None, error_message=None)
+            .returning(Scan.id)
+        )
+        ids = [row[0] for row in result.all()]
+        await db.commit()
         return ids
+
+
+# Keep strong refs to in-flight requeue dispatch tasks so they aren't GC'd mid-run.
+_requeue_tasks: set[asyncio.Task[bool]] = set()
+
+
+def _spawn_scan_task(scan_id: uuid.UUID) -> None:
+    task = asyncio.create_task(process_scan(scan_id))
+    _requeue_tasks.add(task)
+    task.add_done_callback(_requeue_tasks.discard)
+
+
+async def run_requeue_sweep() -> int:
+    """One requeue sweep: atomically claim throttled QUEUED scans, flip them to
+    SUBMITTED, and RE-DISPATCH each through ``process_scan`` (which self-resolves its
+    own scope — no request context needed). Returns the count requeued.
+
+    This is the RECOVERY half of the throttle-degradation guarantee (exit signal c):
+    parking a scan in QUEUED (graceful, no 5xx) is only useful if something later
+    reprocesses it once capacity frees up. The lifespan sweep loop calls this on a
+    recurring schedule; it is also the ops/test entrypoint.
+    """
+    ids = await requeue_quota_throttled_scans()
+    for scan_id in ids:
+        _spawn_scan_task(scan_id)
+    if ids:
+        logger.info("requeue_sweep_dispatched", count=len(ids))
+    return len(ids)
 
 
 async def _settle_pipeline_error(
@@ -907,12 +930,13 @@ async def _settle_pipeline_error(
     stage: str,
     progress: int,
 ) -> None:
-    """Settle a classified LLM-pipeline error. QUOTA_EXCEEDED degrades gracefully
-    to QUEUED (no 5xx, retriable); every other code fails. Emits the matching
-    stream event, records a per-error-code metric, and closes the stream."""
+    """Settle a classified LLM-pipeline error. The THROTTLE class (quota / 429 rate
+    limit / 503 overloaded — see is_throttle) degrades gracefully to QUEUED (no 5xx,
+    retriable by the requeue sweep); every other code fails. Emits the matching stream
+    event, records a per-error-code metric, and closes the stream."""
     code = classified.code.value
     metrics.inc(f"scan_error_{code.lower()}")
-    if classified.code == ScanErrorCode.QUOTA_EXCEEDED:
+    if is_throttle(classified.code):
         await _queue_scan(scan_id, code, str(classified))
         await _emit(
             scan_id,

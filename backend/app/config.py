@@ -56,6 +56,11 @@ class Settings(BaseSettings):
     gemini_model: str = "gemini-2.5-flash-lite"
     gemini_max_retries: int = 3
     gemini_retry_delay_seconds: float = 2.0
+    # How often the background sweep flips throttled QUEUED scans back to SUBMITTED and
+    # re-dispatches them (P16 Phase 3, exit signal c — the throttle-recovery path). 0
+    # disables the loop. The loop only starts on a deployed Postgres backend (skipped on
+    # SQLite/local + tests); the sweep PRIMITIVE (run_requeue_sweep) is always testable.
+    scan_requeue_interval_seconds: int = Field(default=120, ge=0, le=3_600)
     receipt_extraction_prompt_id: str = "receipt-extraction-current"
     statement_extraction_prompt_id: str = "statement-extraction-current"
     statement_layout_profile_prompt_id: str = "statement-layout-profile-current"

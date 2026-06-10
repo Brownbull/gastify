@@ -270,6 +270,42 @@ class TestQuotaGracefulDegradation:
         assert "scan_queued" in event_types
 
     @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        ("err_text", "expected_code"),
+        [
+            ("429 Too Many Requests: rate limit exceeded", ScanErrorCode.RATE_LIMIT),
+            ("the model is overloaded, please try again later", ScanErrorCode.OVERLOADED),
+        ],
+    )
+    async def test_throttle_class_429_503_queues_not_fails(self, err_text, expected_code):
+        """A 429 rate-limit or 503 overloaded throttle (no 'quota' token in the body)
+        degrades to QUEUED, not terminal FAILED — closes the classification-ordering gap
+        where only the literal 'quota' wording reached the recovery path (P16 Phase 3)."""
+        scan = _mock_scan()
+        p = _pipeline_ctx(
+            scan, _mock_extraction(), _mock_categorization(), extract_side=Exception(err_text)
+        )
+        with (
+            p[0],
+            p[1],
+            p[2],
+            p[3],
+            p[4],
+            p[5],
+            p[6],
+            patch(f"{_W}._queue_scan", new_callable=AsyncMock) as queue,
+            patch(f"{_W}._fail_scan", new_callable=AsyncMock) as fail,
+            patch(f"{_W}._emit") as mock_emit,
+        ):
+            result = await process_scan(scan.id)
+
+        assert result is False
+        queue.assert_awaited_once()
+        fail.assert_not_awaited()
+        assert queue.await_args.args[1] == expected_code.value
+        assert "scan_queued" in [c.args[1] for c in mock_emit.call_args_list]
+
+    @pytest.mark.asyncio
     async def test_non_quota_error_still_fails(self):
         scan = _mock_scan()
         bad = Exception("invalid image: corrupt input request")

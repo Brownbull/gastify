@@ -1,6 +1,8 @@
+import asyncio
 from collections.abc import AsyncIterator
-from contextlib import asynccontextmanager
+from contextlib import asynccontextmanager, suppress
 
+import structlog
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -30,6 +32,20 @@ from app.logging import setup_logging
 from app.middleware import AccessLogMiddleware, RequestIdMiddleware
 
 setup_logging()
+logger = structlog.get_logger()
+
+
+async def _requeue_sweep_loop() -> None:
+    """Periodically recover throttled QUEUED scans (P16 Phase 3, exit signal c): flip
+    them back to SUBMITTED + re-dispatch through process_scan once capacity frees up."""
+    from app.services.scan_worker import run_requeue_sweep
+
+    while True:
+        await asyncio.sleep(settings.scan_requeue_interval_seconds)
+        try:
+            await run_requeue_sweep()
+        except Exception:
+            logger.exception("requeue_sweep_loop_error")
 
 
 @asynccontextmanager
@@ -38,7 +54,21 @@ async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
     # row-level security. Skips local + SQLite. A successful boot is proof the
     # runtime connects as a least-privilege role.
     await assert_least_privilege_role()
-    yield
+    # Throttle-recovery sweep — only on a deployed Postgres backend; never on SQLite
+    # (tests/local), where the loop would run forever and interfere. The sweep PRIMITIVE
+    # (run_requeue_sweep) stays directly testable regardless.
+    sweep_task: asyncio.Task[None] | None = None
+    if settings.scan_requeue_interval_seconds > 0 and not settings.database_url.startswith(
+        "sqlite"
+    ):
+        sweep_task = asyncio.create_task(_requeue_sweep_loop())
+    try:
+        yield
+    finally:
+        if sweep_task is not None:
+            sweep_task.cancel()
+            with suppress(asyncio.CancelledError):
+                await sweep_task
 
 
 app = FastAPI(
