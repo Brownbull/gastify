@@ -4166,3 +4166,15 @@ OUTSTANDING (user action): the scheduled retention purge is INERT until a PRODUC
 Found: scripts/ops/run_retention.py is NOT in the prod image (Dockerfile builds from backend/ only) → a Railway cron reusing the image couldn't invoke it. Scan storage is ephemeral (no RAILWAY_VOLUME), so file-cleanup is moot; the cron only needs DB purge.
 Fix (5532b41, main): moved the runner into the backend package as app.services.retention_runner (ships in the image); scripts/ops/run_retention.py is now a thin shim; GH Action + the Railway cron both invoke `python -m app.services.retention_runner --apply`. Validated end-to-end (dry-run) vs deployed staging-e2e Postgres as gastify_app. backend 862 passed; main CI green (27264871322).
 NEXT (user dashboard): create the production-only Railway cron service (steps handed off). staging-e2e excluded (determinism); real-staging optional.
+- 2026-06-10 05:11 | Write | /home/khujta/projects/apps/gastify/web/railway.toml
+- 2026-06-10 05:33 | Edit | /home/khujta/projects/apps/gastify/web/nixpacks.toml
+- 2026-06-10 05:45 | Write | /home/khujta/projects/apps/gastify/web/nixpacks.toml
+- 2026-06-10 05:58 | Write | /home/khujta/projects/apps/gastify/web/Dockerfile
+- 2026-06-10 05:58 | Write | /home/khujta/projects/apps/gastify/web/railway.toml
+
+## 2026-06-10 09:50 — Retention cron LIVE-config + prod web outage FIXED (Railway, via CLI)
+RETENTION CRON (production-only, per the env decision): created service renamed gastify-retention-cron; set GASTIFY_DATABASE_URL=${{gastify-api-production.GASTIFY_DATABASE_URL}} (resolves to the least-privilege internal gastify_app DSN — no public exposure) + GASTIFY_ENVIRONMENT=production + GASTIFY_SCAN_PROVIDER/STATEMENT_PROVIDER=gemini. Payload PROVEN on the real prod DB: `python -m app.services.retention_runner` dry-run as gastify_app → config loads, audit count routes through the 037 definer → "would purge 0/0". Start command + cron schedule (17 4 * * *) set by the user in the dashboard; first --apply runs 04:17 UTC. staging-e2e excluded (determinism); real-staging optional.
+WEB OUTAGE (gastify-web-production was Failed) — fixed through a chain of real issues:
+  1. Railpack instead of Nixpacks (Railway default change) → set Root Directory=web (reads web/ config). 2. web/railway.toml pinned NIXPACKS. 3. duplicate caddy in nixPkgs → nix-env conflict → removed (Nixpacks auto-provisions it). 4. web/package-lock.json out of sync (never caught — CI builds frontend/, prod deploys web/) → regenerated. 5. node 22.11 < Vite 8's 22.12 + the @rolldown/binding-linux-x64-gnu glibc native binding skipped by Nixpacks' Nix env (libc detection) → SWITCHED the web build to a Dockerfile (node:22-bookworm-slim glibc build → caddy:2-alpine serve; web/Dockerfile + web/railway.toml builder=DOCKERFILE). 6. `railway domain` generated the public URL the service lacked.
+  RESULT: web Online + serving — / 200 (SPA), /transactions 200 (Caddy SPA fallback), x-frame-options/x-content-type headers present.
+COMMITS (main): 92bd7b0, 29ef914, 21d81ab, adc9705, 160a80f, 5f5ad87 (web) + cron config via Railway CLI (no repo change). Backend/API/migration 037 unaffected.
