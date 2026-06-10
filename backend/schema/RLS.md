@@ -117,7 +117,7 @@ All roles SELECT; only `app_admin` mutates (with auto-audit-row trigger).
 - SELECT all tables
 - INSERT all tables WITH automatic audit-events BEFORE INSERT trigger
 - UPDATE all tables WITH automatic audit row
-- DELETE DENY on `audit_events` (append-only invariant)
+- DELETE DENY on `audit_events` for the runtime role (append-only invariant). Two GOVERNED mutations exist: the DSR PII scrub (`scrub_user_audit_trail` UPDATEs ip_address→NULL) and the retention TTL purge of NON-dsr events (via the migrator-owned `SECURITY DEFINER app_purge_expired_audit_events`, migration 037 — `audit_events` is ENABLE-but-NO-FORCE so the owner-run definer can purge cross-scope; `dsr_*` proof events are exempt). The "append-only" claim is honestly "append-only except those two governed mutations" — a DB trigger enforcing exactly that is P78.
 - Allowed only via documented erasure path (A.17 ERASURE-POLICY)
 - Every connection writes session-start audit row (operator + ticket)
 - CI + observability alert on `app_admin` connection volume per day

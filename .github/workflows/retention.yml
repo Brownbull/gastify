@@ -1,0 +1,48 @@
+name: retention
+
+# Scheduled data-retention purge (P16 Phase 2, exit signal d). Without this, the TTL
+# windows declared in retention.py + the processing register never actually run —
+# expired scans (90d) + non-DSR audit events (~6y) + receipt images accumulate forever.
+# The purge connects as the least-privilege gastify_app role (NOT a bypass role); the
+# cross-scope audit_events delete goes through the migrator-owned SECURITY DEFINER
+# (migration 037). DSR proof events are exempt.
+on:
+  schedule:
+    # Daily at 04:17 UTC (off-peak). Cron presence is asserted by
+    # backend/tests/test_retention_scheduling.py so a future config change that drops
+    # the schedule fails CI.
+    - cron: "17 4 * * *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Dry run (count only, no deletes)"
+        type: boolean
+        default: true
+
+jobs:
+  purge:
+    name: Purge expired data
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v4
+      - run: cd backend && uv sync --frozen
+      - name: Run retention purge
+        env:
+          # The gastify_app production DSN (least-privilege; the definer does the
+          # privileged audit purge). Set this secret to enable the scheduled purge —
+          # while unset, the job skips cleanly rather than failing.
+          GASTIFY_DATABASE_URL: ${{ secrets.GASTIFY_RETENTION_DATABASE_URL }}
+          GASTIFY_ENVIRONMENT: production
+          DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run || 'false' }}
+        run: |
+          if [ -z "${GASTIFY_DATABASE_URL}" ]; then
+            echo "::warning::GASTIFY_RETENTION_DATABASE_URL not set — skipping retention purge."
+            exit 0
+          fi
+          cd backend
+          if [ "${DRY_RUN}" = "true" ]; then
+            uv run python ../scripts/ops/run_retention.py
+          else
+            uv run python ../scripts/ops/run_retention.py --apply
+          fi

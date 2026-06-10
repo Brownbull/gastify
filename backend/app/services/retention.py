@@ -10,21 +10,43 @@ Deletes data that has aged past its declared retention window:
 
 Financial transactions are NEVER deleted by THIS retention job — but data-subject
 erasure now HARD-DELETES them (D89, amends D4: transactions/items/images/flags +
-statements, card aliases, scans, notifications, mappings, credit balances are
-genuinely removed; only the PII-free `dsr_erasure` audit event is retained). This
-job only removes transient + expired operational data. The scheduled invocation
-lives in `scripts/ops/run_retention.py`.
+statements, card aliases, scans, notifications, mappings, credit balances, mobile
+push tokens are genuinely removed; only PII-free `dsr_*` audit events are retained).
+This job only removes transient + expired operational data.
+
+RLS contract (D90/D71): the runner (`scripts/ops/run_retention.py`) connects as the
+least-privilege `gastify_app` role with NO scope GUC — it is NOT a BYPASSRLS role and
+must never be. `scans` is not RLS-bound, so its purge deletes directly. `audit_events`
+IS RLS-isolated, so its cross-scope purge goes through the migrator-owned SECURITY
+DEFINER `app_purge_expired_audit_events` (migration 037), which also exempts the `dsr_*`
+proof events. The scheduled invocation is `.github/workflows/retention.yml` (daily cron
+→ `run_retention.py --apply`).
 """
 
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import TYPE_CHECKING, Any, cast
 
-from sqlalchemy import delete, func, select
+from sqlalchemy import delete, func, not_, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.consent import AuditEvent
 from app.models.scan import Scan, ScanStatus
+
+
+def _is_postgres(db: AsyncSession) -> bool:
+    return db.bind is not None and db.bind.dialect.name == "postgresql"
+
+
+# DSR proof events (dsr_access/rectification/erasure/portability/group_leave_delete) are
+# EXEMPT from the generic audit purge: after a hard-delete erasure (D89) the dsr_erasure
+# event is the SOLE durable proof the request was honored, so it must outlive the ~6y
+# operational window. On Postgres this carve-out + the cross-scope delete live in the
+# migrator-owned SECURITY DEFINER `app_purge_expired_audit_events` (migration 037);
+# SQLite mirrors it with the ORM predicate below.
+def _not_dsr_proof_event() -> Any:
+    return not_(AuditEvent.event_type.startswith("dsr_"))
+
 
 if TYPE_CHECKING:
     from sqlalchemy.engine import CursorResult
@@ -78,13 +100,25 @@ async def count_expired(
             )
         )
     ).scalar_one()
-    audit_count = (
-        await db.execute(
-            select(func.count())
-            .select_from(AuditEvent)
-            .where(AuditEvent.created_at < now - audit_ttl)
+    audit_cutoff = now - audit_ttl
+    if _is_postgres(db):
+        # audit_events is FORCE-RLS for the runtime role — a direct count under no GUC
+        # reads ZERO. The migrator-owned definer counts cross-scope (and honors the
+        # dsr_* carve-out) so the dry-run cannot lie (migration 037).
+        audit_count = int(
+            await db.scalar(
+                text("SELECT app_count_expired_audit_events(:cutoff)"), {"cutoff": audit_cutoff}
+            )
+            or 0
         )
-    ).scalar_one()
+    else:
+        audit_count = (
+            await db.execute(
+                select(func.count())
+                .select_from(AuditEvent)
+                .where(AuditEvent.created_at < audit_cutoff, _not_dsr_proof_event())
+            )
+        ).scalar_one()
     return scan_count, audit_count
 
 
@@ -120,10 +154,25 @@ async def purge_expired_audit_events(
     now: datetime,
     audit_ttl: timedelta = AUDIT_RETENTION,
 ) -> int:
-    """Delete audit events older than the compliance retention window. Does not commit."""
+    """Delete non-DSR audit events older than the compliance window. Does not commit.
+
+    On Postgres this runs through the migrator-owned SECURITY DEFINER
+    ``app_purge_expired_audit_events`` (migration 037): audit_events is RLS-isolated for
+    the runtime role, so a direct ``DELETE`` under the scope-free retention connection
+    would match ZERO rows. The definer purges cross-scope and EXEMPTS the ``dsr_*``
+    proof-of-processing events. SQLite (no RLS, no functions) mirrors it directly.
+    """
+    cutoff = now - audit_ttl
+    if _is_postgres(db):
+        deleted = await db.scalar(
+            text("SELECT app_purge_expired_audit_events(:cutoff)"), {"cutoff": cutoff}
+        )
+        return int(deleted or 0)
     result = cast(
         "CursorResult[Any]",
-        await db.execute(delete(AuditEvent).where(AuditEvent.created_at < now - audit_ttl)),
+        await db.execute(
+            delete(AuditEvent).where(AuditEvent.created_at < cutoff, _not_dsr_proof_event())
+        ),
     )
     return result.rowcount or 0
 
