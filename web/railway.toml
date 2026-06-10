@@ -1,5 +1,6 @@
-# Pin the builder to Nixpacks so Railway reads web/nixpacks.toml (npm build → Caddy
-# serving dist/). Railway's default builder switched to Railpack, which ignores
-# nixpacks.toml and fails with "No start command detected" — the prod web outage.
+# Build the web with a Dockerfile (standard Debian/glibc) rather than Nixpacks: the Nix
+# environment makes npm skip the glibc Rolldown native binding Vite 8 needs. See
+# web/Dockerfile. (web/nixpacks.toml is retained for reference but unused while DOCKERFILE.)
 [build]
-builder = "NIXPACKS"
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
