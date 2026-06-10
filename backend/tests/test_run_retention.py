@@ -1,16 +1,14 @@
-"""End-to-end proof of the scheduled retention RUNNER (scripts/ops/run_retention.py).
+"""End-to-end proof of the scheduled retention RUNNER (app.services.retention_runner).
 
-The service layer (apply_retention) is unit-tested; this proves the actual entrypoint
-the GitHub Actions schedule invokes (_run(apply=True)) deletes the expired rows AND
-unlinks the receipt-image file — observable DB + filesystem state, not the print/return.
+The service layer (apply_retention) is unit-tested; this proves the actual in-image
+entrypoint the Railway cron + GitHub Action invoke (_run(apply=True)) deletes the expired
+rows AND unlinks the receipt-image file — observable DB + filesystem state, not the return.
 """
 
 from __future__ import annotations
 
-import importlib.util
 import uuid
 from datetime import UTC, datetime, timedelta
-from pathlib import Path
 
 import pytest
 import sqlalchemy as sa
@@ -18,17 +16,12 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from app.models.consent import AuditEvent
 from app.models.scan import Scan, ScanStatus
+from app.services import retention_runner
 from tests.conftest import TEST_SCOPE_ID
-
-_RUNNER_PATH = Path(__file__).resolve().parents[2] / "scripts" / "ops" / "run_retention.py"
 
 
 def _load_runner():
-    spec = importlib.util.spec_from_file_location("run_retention_under_test", _RUNNER_PATH)
-    assert spec and spec.loader
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-    return module
+    return retention_runner
 
 
 @pytest.mark.asyncio

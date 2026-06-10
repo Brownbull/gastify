@@ -48,8 +48,9 @@ jobs:
             exit 0
           fi
           cd backend
+          # Same in-image entrypoint the Railway cron service uses (app.services.retention_runner).
           if [ "${DRY_RUN}" = "true" ]; then
-            uv run python ../scripts/ops/run_retention.py
+            uv run python -m app.services.retention_runner
           else
-            uv run python ../scripts/ops/run_retention.py --apply
+            uv run python -m app.services.retention_runner --apply
           fi

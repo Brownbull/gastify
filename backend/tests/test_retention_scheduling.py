@@ -27,8 +27,10 @@ def test_retention_workflow_runs_on_a_recurring_schedule() -> None:
 
 def test_retention_workflow_invokes_the_apply_runner() -> None:
     text = _WORKFLOW.read_text(encoding="utf-8")
-    assert "run_retention.py --apply" in text, (
-        "the scheduled retention workflow must invoke run_retention.py --apply "
+    # The in-image module entrypoint, shared with the Railway cron service.
+    assert "app.services.retention_runner --apply" in text, (
+        "the scheduled retention workflow must invoke "
+        "`python -m app.services.retention_runner --apply` "
         "(otherwise expired data is never deleted)"
     )
 
