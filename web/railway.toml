@@ -1,6 +1,6 @@
 # Build the web with a Dockerfile (standard Debian/glibc) rather than Nixpacks: the Nix
 # environment makes npm skip the glibc Rolldown native binding Vite 8 needs. See
-# web/Dockerfile. (web/nixpacks.toml is retained for reference but unused while DOCKERFILE.)
+# web/Dockerfile.
 [build]
 builder = "DOCKERFILE"
 dockerfilePath = "Dockerfile"

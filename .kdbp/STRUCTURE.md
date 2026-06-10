@@ -80,7 +80,7 @@
 | `web/.env.*.example` | Environment-specific env templates (no secrets) | MVP |
 | `web/README.md` | Web app readme | MVP |
 | `web/Caddyfile` | Railway static SPA server config | MVP |
-| `web/nixpacks.toml` | Railway/Nixpacks static SPA build config | MVP |
+| `web/Dockerfile` | Railway web build (node→Vite build, Caddy serve) | MVP |
 | `web/.tanstack/**` | TanStack Router generated config | MVP |
 | `web/src/main.tsx` | React entry | MVP |
 | `web/src/routeTree.gen.ts` | TanStack Router generated route tree | MVP |
