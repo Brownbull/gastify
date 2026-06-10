@@ -4156,3 +4156,13 @@ PRE-PROMOTE VERIFICATION (railway CLI + asyncpg, public proxy — credentials ke
 POST-DEPLOY (prod): DB @ 037 — audit_events forced=False; app_purge/app_count definer fns owned by migrator, security_definer=True; gastify_app has EXECUTE; /health ok+current; DSR 401.
 GATES: Phase 2 Exec ✅ / Review ✅ / Commit ✅ / Push ✅ — COMPLETE, live in production. Deployment = DEPLOYMENTS P74.
 OUTSTANDING (user action): the scheduled retention purge is INERT until a PRODUCTION-ONLY Railway cron service runs run_retention.py --apply (2A) — staging-e2e excluded (determinism), real-staging optional. P74–P79 → Phase 5 go/no-go.
+- 2026-06-10 04:48 | Write | /home/khujta/projects/apps/gastify/backend/app/services/retention_runner.py
+- 2026-06-10 04:48 | Write | /home/khujta/projects/apps/gastify/scripts/ops/run_retention.py
+- 2026-06-10 04:48 | Edit | /home/khujta/projects/apps/gastify/.github/workflows/retention.yml
+- 2026-06-10 04:49 | Edit | /home/khujta/projects/apps/gastify/backend/tests/test_retention_scheduling.py
+- 2026-06-10 04:49 | Edit | /home/khujta/projects/apps/gastify/backend/tests/test_run_retention.py
+
+## 2026-06-10 08:20 — in-image retention runner (cron-readiness)
+Found: scripts/ops/run_retention.py is NOT in the prod image (Dockerfile builds from backend/ only) → a Railway cron reusing the image couldn't invoke it. Scan storage is ephemeral (no RAILWAY_VOLUME), so file-cleanup is moot; the cron only needs DB purge.
+Fix (5532b41, main): moved the runner into the backend package as app.services.retention_runner (ships in the image); scripts/ops/run_retention.py is now a thin shim; GH Action + the Railway cron both invoke `python -m app.services.retention_runner --apply`. Validated end-to-end (dry-run) vs deployed staging-e2e Postgres as gastify_app. backend 862 passed; main CI green (27264871322).
+NEXT (user dashboard): create the production-only Railway cron service (steps handed off). staging-e2e excluded (determinism); real-staging optional.
