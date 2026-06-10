@@ -29,9 +29,13 @@ def mock_case_for_scan(original_filename: str | None) -> E2EScanFixtureCase:
     The mock provider is intentionally schema-backed, not stringly typed: the
     cases reuse the same Pydantic fixture payloads as the physical E2E lane.
     Filenames containing `review`/`unknown` or `failure`/`failed` select edge
-    cases; every other upload becomes the happy case.
+    cases; every other upload becomes the happy case. A `throttle` token forces the
+    quota-throttle degradation path (→ QUEUED) — the P16 Phase 3 forced-throttle hook
+    for the deployed-staging load proof (mock/fixture providers only, never prod).
     """
     filename = (original_filename or "").strip().lower()
+    if "throttle" in filename:
+        return E2EScanFixtureCase(key="throttle", outcome="throttle")
     if any(token in filename for token in ("failure", "failed", "invalid")):
         return fixture_case_by_key("failure") or _fallback_failure_case()
     if any(token in filename for token in ("review", "unknown", "low-confidence")):

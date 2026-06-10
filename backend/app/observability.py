@@ -38,6 +38,14 @@ METRIC_HELP: dict[str, str] = {
     ),
     "scan_error_rate_limit": "Scans that hit Gemini 429 rate limit (D62 Path-B trigger).",
     "scan_error_quota_exceeded": "Scans throttled by Gemini quota (D62 Path-B trigger).",
+    "scans_queued": (
+        "Scans gracefully parked in QUEUED by provider throttling, cumulative "
+        "(P16 Phase 3 exit signal c — the throttle-degradation signal)."
+    ),
+    "scans_queued_depth": (
+        "Current number of scans waiting in QUEUED for the throttle-recovery sweep "
+        "(queue depth; computed from the DB on each scrape)."
+    ),
 }
 
 PROMETHEUS_CONTENT_TYPE = "text/plain; version=0.0.4; charset=utf-8"

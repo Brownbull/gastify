@@ -49,8 +49,10 @@ E2E_SCAN_FIXTURE_HASHES = {
 
 @dataclass(frozen=True)
 class E2EScanFixtureCase:
+    # "throttle" simulates a provider quota throttle (→ QUEUED) for the P16 Phase 3
+    # forced-throttle hook — only reachable via the mock/fixture providers (never prod).
     key: str
-    outcome: Literal["success", "failure"]
+    outcome: Literal["success", "failure", "throttle"]
     extraction: ExtractionResult | None = None
     categorization: CategorizationOutput | None = None
     failure_code: str | None = None

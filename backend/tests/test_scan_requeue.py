@@ -85,3 +85,60 @@ async def test_run_requeue_sweep_is_a_noop_with_no_queued_scans(engine, monkeypa
     monkeypatch.setattr(scan_worker, "async_session", factory)
     await _seed_scan(factory, status=ScanStatus.COMPLETED)
     assert await scan_worker.run_requeue_sweep() == 0
+
+
+# --- Forced-throttle hook + queue-depth observability (P16 Phase 3, Chunk 2) ---
+
+from unittest.mock import AsyncMock, patch  # noqa: E402
+
+from app.services.scan_providers import mock_case_for_scan  # noqa: E402
+
+
+def test_mock_case_for_scan_recognizes_throttle_token():
+    """The forced-throttle hook: a `throttle` filename selects the throttle case
+    (mock/fixture providers only — never the prod Gemini path)."""
+    assert mock_case_for_scan("gastify-test-case-throttle.jpg").outcome == "throttle"
+    assert mock_case_for_scan("receipt.jpg").outcome != "throttle"
+
+
+@pytest.mark.asyncio
+async def test_throttle_fixture_scan_degrades_to_queued_not_failed():
+    """The throttle hook routes through the REAL degradation path → QUEUED + scan_queued
+    event, not a terminal failure."""
+    sid = uuid.uuid4()
+    with (
+        patch("app.services.scan_worker._queue_scan", new_callable=AsyncMock) as queue,
+        patch("app.services.scan_worker._fail_scan", new_callable=AsyncMock) as fail,
+        patch("app.services.scan_worker._emit", new_callable=AsyncMock) as emit,
+        patch("app.services.scan_worker.dispatcher"),
+    ):
+        result = await scan_worker._throttle_fixture_scan(sid)
+    assert result is False
+    queue.assert_awaited_once()
+    fail.assert_not_awaited()
+    assert queue.await_args.args[1] == "QUOTA_EXCEEDED"
+    assert any(c.args[1] == "scan_queued" for c in emit.call_args_list)
+
+
+def test_metric_help_includes_queued_signals():
+    from app.observability import METRIC_HELP
+
+    assert "scans_queued" in METRIC_HELP
+    assert "scans_queued_depth" in METRIC_HELP
+
+
+@pytest.mark.asyncio
+async def test_metrics_queue_depth_gauge_reflects_queued_rows(engine, monkeypatch):
+    """/metrics scans_queued_depth gauge is set from the live QUEUED-scan count (D90
+    observable-state evidence)."""
+    factory = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+    monkeypatch.setattr("app.api.metrics.async_session", factory)
+    for _ in range(2):
+        await _seed_scan(factory, status=ScanStatus.QUEUED)
+    await _seed_scan(factory, status=ScanStatus.COMPLETED)
+
+    from app.api.metrics import _refresh_queue_depth_gauge
+    from app.observability import metrics
+
+    await _refresh_queue_depth_gauge()
+    assert metrics.snapshot()["gauges"]["scans_queued_depth"] == 2

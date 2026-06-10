@@ -646,6 +646,8 @@ async def _run_e2e_fixture_pipeline(
     image_bytes = await asyncio.to_thread(image_path.read_bytes)
     await _emit(scan_id, "image_processed", "load_image", 5, data={"size_bytes": len(image_bytes)})
 
+    if fixture.outcome == "throttle":
+        return await _throttle_fixture_scan(scan_id)
     if fixture.outcome == "failure":
         return await _fail_e2e_fixture_scan(scan_id, fixture)
 
@@ -730,6 +732,8 @@ async def _run_mock_provider_pipeline(
         dispatcher.close_scan(scan_id)
         metrics.inc("scans_failed")
         return False
+    if fixture.outcome == "throttle":
+        return await _throttle_fixture_scan(scan_id)
     if fixture.outcome == "failure":
         return await _fail_e2e_fixture_scan(scan_id, fixture)
 
@@ -788,6 +792,21 @@ async def _fail_e2e_fixture_scan(scan_id: uuid.UUID, fixture: E2EScanFixtureCase
     )
     dispatcher.close_scan(scan_id)
     metrics.inc("scans_failed")
+    return False
+
+
+async def _throttle_fixture_scan(scan_id: uuid.UUID) -> bool:
+    """Forced-throttle hook (P16 Phase 3): route a `throttle` test-case through the REAL
+    quota-degradation path (_settle_pipeline_error → QUEUED + scan_queued event +
+    scans_queued metric). Lets a deployed-staging load test drive scans into QUEUED
+    deterministically with no real provider quota. Mock/fixture providers only — the
+    prod Gemini pipeline never reaches mock_case_for_scan, so this can't fire in prod."""
+    await _settle_pipeline_error(
+        scan_id,
+        PermanentScanError(ScanErrorCode.QUOTA_EXCEEDED, "forced throttle (test control)"),
+        stage="stage1",
+        progress=0,
+    )
     return False
 
 
