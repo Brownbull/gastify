@@ -4245,3 +4245,13 @@ CODE (2 commits):
   - [fad475b feat(scan)] forced-throttle hook (`throttle` filename token → real QUEUED path, mock/fixture only, never prod) for the deployed-staging load-proof + /metrics scans_queued_depth gauge (live QUEUED count, scans not RLS-bound) + scans_queued/depth HELP (D90 observability).
 CHECKS: backend 871 passed/14 skip; ruff/format/mypy clean.
 REMAINING (Exec gate): deployed-staging load-proof (throttle N scans → assert N QUEUED rows + no 5xx + /metrics scans_queued_depth, per D90) → Exec ✅; then review (self, spend limit) + Commit ✅ + Push. DECISIONS entry pending.
+- 2026-06-10 11:54 | Write | /tmp/sweep_proof.py
+
+## 2026-06-10 16:00 — PHASE 3 Exec ✅ / Review ✅ / Commit ✅ (self-review; promote pending)
+EXEC RUNTIME EVIDENCE (D90, credit-free per user constraint — no Gemini spend):
+  - DEPLOYED sweep proof on staging-e2e: seeded 3 QUEUED scans → the LIVE lifespan sweep claimed all 3 within ~60s and re-dispatched process_scan (ended FAILED on the fake image — proving claim→flip→re-dispatch end-to-end on the real backend). The orphan is gone. Self-cleaned (the 3 FAILED test scans removed).
+  - Unit/integration (CI green, sqlite — faithful to PG since scans is NOT RLS-bound, no Phase-2-style trap): throttle-class→QUEUED incl. RATE_LIMIT/OVERLOADED; atomic requeue flip + re-dispatch; forced-throttle hook→QUEUED; /metrics scans_queued_depth reflects QUEUED rows. backend 871 passed.
+  - NOT done (per user: don't stress-test on real Gemini credits): the full scan-submission load-proof needs GASTIFY_SCAN_TEST_CONTROLS_ENABLED=true on staging-e2e (still credit-free via the fixture provider) — available on demand; the sweep proof + unit tests cover the mechanism.
+REVIEW (self — the adversarial-review workflow can't run under the active monthly spend limit): read the full Phase-3 diff. Verified the re-dispatched process_scan sets the RLS GUC from the scan's scope (set_session_ownership_scope @ scan_worker.py:506). One accepted residual: a 503-worded "overloaded" → SERVER_ERROR → FAILS (genuine outage, not a throttle) — documented in D92, not silently widened. No bugs found.
+DECISIONS: D92 (lifespan sweep recovery + is_throttle class + forced-throttle hook). Commits abec0a9 + fad475b on staging (01aa57f, CI green).
+GATES: Phase 3 Exec ✅ / Review ✅ / Commit ✅ / Push ⬜ — promote staging→main pending user go (like Phase 2).

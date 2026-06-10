@@ -2664,3 +2664,45 @@ image. Full data-class matrix + jurisdiction analysis: `docs/runbooks/P16-DATA-R
 
 ### Status
 - accepted (extends D71's NO-FORCE + SECURITY DEFINER pattern + D90's observable-state rigor)
+
+## D92 — Throttle degradation recovers via a scheduled lifespan sweep (not an ops cron); throttle = a code class, not just "quota" (2026-06-10)
+
+**Context.** P16 Phase 3 (exit signal c): when the extraction LLM is throttled, scans must
+degrade gracefully to QUEUED (no 5xx) AND recover when capacity frees. Validation found the
+degradation built but two gaps (same orphan-scheduler class as Phase 2 / D91): the recovery
+sweep `requeue_quota_throttled_scans()` had ZERO callers, and only the literal "quota" error
+wording reached QUEUED (a 429 worded "rate limit" settled to terminal FAILED).
+
+**Decision.**
+
+1. **Recovery runs as an in-process lifespan sweep loop, NOT an external cron** (contrast
+   D91's retention cron). Rationale: scan recovery must be fast (minutes, not daily) and the
+   scan pipeline already runs IN the web process (FastAPI BackgroundTasks), so the recovery
+   belongs there too. `run_requeue_sweep()` flips throttled QUEUED→SUBMITTED via an atomic
+   `UPDATE ... RETURNING` (multi-replica safe — each replica claims a disjoint set) and
+   re-dispatches each through `process_scan` (which self-resolves its scope context-free).
+   A lifespan loop runs it every `scan_requeue_interval_seconds` (default 120s); gated to a
+   deployed-Postgres backend (never SQLite/tests). The sweep PRIMITIVE stays directly testable.
+
+2. **Throttle is a CODE CLASS, not a wording.** A shared `is_throttle` predicate
+   (QUOTA_EXCEEDED | RATE_LIMIT | OVERLOADED) drives the degrade-to-QUEUED branch — a throttle
+   that survived backoff is retriable by definition, so the whole class recovers. Residual
+   (accepted): a 503-worded "overloaded" classifies as SERVER_ERROR (not OVERLOADED) and
+   FAILS — a persistent 503 is a genuine outage, and the quota/429 throttle is the launch-day
+   concern; documented, not silently widened to queue all 5xx.
+
+3. **Forced-throttle hook for credit-free proof.** A `throttle` filename token routes a scan
+   through the real QUEUED path via the mock/fixture providers ONLY (the prod Gemini pipeline
+   never reaches `mock_case_for_scan`), so a deployed-staging load test can drive scans into
+   QUEUED with no Gemini spend. `/metrics scans_queued_depth` (live count; scans is not
+   RLS-bound) + the `scans_queued` counter give the D90 observable signal.
+
+**Proof (D90 observable-state).** Unit/integration: real-DB requeue flip + re-dispatch,
+throttle-class queuing, the gauge. DEPLOYED (credit-free): seeded QUEUED scans on staging-e2e
+were claimed by the live sweep within ~60s and re-dispatched (ended FAILED on the fake image)
+— proving the sweep is scheduled + running + re-dispatching on the real backend, not an orphan.
+Phase 3 has no Postgres RLS trap (scans is not RLS-bound), so the SQLite tests are faithful to
+prod — unlike D91's audit purge.
+
+### Status
+- accepted (extends D90 observable-state rigor; sibling to D91's "machinery must be scheduled")
