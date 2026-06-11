@@ -229,3 +229,66 @@ async def test_batch_category_reassign_learns_per_merchant(client, engine):
     for m in learned.values():
         assert m.store_category_id == store_id
         assert m.target_merchant in ("Jumbo Centro", "Lider Express")  # name unchanged
+
+
+@pytest.mark.asyncio
+async def test_mappings_management_list_delete_and_unlearn(client, engine):
+    """UX-4 management (functionality plan, Phase 5): the learned mappings are listable,
+    deletable — and deletion UNLEARNS: the next scan stops applying the correction."""
+    factory = _factory(engine)
+    async with factory() as db:
+        store_id, itemcat_id = await _seed_reference(db)
+        txn_id, item_id = await _seed_txn(db, merchant=FIXTURE_MERCHANT, item_name=FIXTURE_ITEM)
+        await db.commit()
+
+    # Teach both kinds.
+    await client.patch(
+        f"/api/v1/transactions/{txn_id}",
+        json={"merchant": "Jumbo Maipú", "store_category_id": str(store_id)},
+    )
+    await client.patch(
+        f"/api/v1/transactions/{txn_id}",
+        json={
+            "items": [
+                {"id": str(item_id), "name": "Leche Colun", "item_category_id": str(itemcat_id)}
+            ]
+        },
+    )
+
+    listing = await client.get("/api/v1/mappings")
+    assert listing.status_code == 200
+    body = listing.json()
+    assert len(body["merchants"]) == 1 and len(body["items"]) == 1
+    assert body["merchants"][0]["target_merchant"] == "Jumbo Maipú"
+    assert body["items"][0]["target_item"] == "Leche Colun"
+
+    # Delete both → list empties.
+    assert (
+        await client.delete(f"/api/v1/mappings/merchant/{body['merchants'][0]['id']}")
+    ).status_code == 204
+    assert (
+        await client.delete(f"/api/v1/mappings/item/{body['items'][0]['id']}")
+    ).status_code == 204
+    emptied = (await client.get("/api/v1/mappings")).json()
+    assert emptied["merchants"] == [] and emptied["items"] == []
+
+    # THE UNLEARN PROOF: a new scan of the same receipt keeps its ORIGINAL names.
+    fixture = fixture_case_by_key("happy")
+    async with factory() as db:
+        scan = Scan(
+            ownership_scope_id=TEST_SCOPE_ID,
+            status=ScanStatus.PROCESSING,
+            image_path="/tmp/unlearn.jpg",
+            original_filename="unlearn.jpg",
+            content_type="image/jpeg",
+            file_size_bytes=10,
+        )
+        db.add(scan)
+        await db.flush()
+        verdict = reconcile(fixture.extraction.extraction)
+        new_txn = await persist_scan_result(
+            db, scan, fixture.extraction, fixture.categorization, verdict
+        )
+        await db.commit()
+        assert new_txn.merchant == FIXTURE_MERCHANT  # NOT "Jumbo Maipú" — unlearned
+        assert new_txn.merchant_source != "mapping"

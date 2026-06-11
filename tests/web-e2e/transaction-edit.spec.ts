@@ -1,4 +1,11 @@
 import { test, expect, type Page } from "@playwright/test";
+import { cleanupLearnedMappings } from "./helpers/cleanup";
+
+// The merchant rename below TEACHES a mapping (the app learns from edits) — unlearn it
+// so future fixture scans keep canonical names (learning pollution, see LEDGER).
+test.afterEach(async () => {
+  await cleanupLearnedMappings();
+});
 
 /**
  * Web transaction manual-edit journey (REQ-13: user_edited_at precedence).

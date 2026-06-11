@@ -3151,6 +3151,99 @@
         }
       }
     },
+    "/api/v1/mappings": {
+      "get": {
+        "tags": [
+          "mappings"
+        ],
+        "summary": "List Mappings",
+        "operationId": "list_mappings_api_v1_mappings_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LearnedMappingsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/mappings/merchant/{mapping_id}": {
+      "delete": {
+        "tags": [
+          "mappings"
+        ],
+        "summary": "Delete Merchant Mapping",
+        "operationId": "delete_merchant_mapping_api_v1_mappings_merchant__mapping_id__delete",
+        "parameters": [
+          {
+            "name": "mapping_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Mapping Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/mappings/item/{mapping_id}": {
+      "delete": {
+        "tags": [
+          "mappings"
+        ],
+        "summary": "Delete Item Mapping",
+        "operationId": "delete_item_mapping_api_v1_mappings_item__mapping_id__delete",
+        "parameters": [
+          {
+            "name": "mapping_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Mapping Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/metrics": {
       "get": {
         "tags": [
@@ -4717,6 +4810,66 @@
         "title": "ItemListRow",
         "description": "One line item with its parent transaction's context (GET /api/v1/items)."
       },
+      "ItemMappingResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "original_item": {
+            "type": "string",
+            "title": "Original Item"
+          },
+          "target_item": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Item"
+          },
+          "target_category_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Target Category Id"
+          },
+          "merchant_pattern": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Merchant Pattern"
+          },
+          "usage_count": {
+            "type": "integer",
+            "title": "Usage Count"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "original_item",
+          "target_item",
+          "target_category_id",
+          "merchant_pattern",
+          "usage_count",
+          "updated_at"
+        ],
+        "title": "ItemMappingResponse"
+      },
       "JoinResponse": {
         "properties": {
           "id": {
@@ -4735,6 +4888,30 @@
           "name"
         ],
         "title": "JoinResponse"
+      },
+      "LearnedMappingsResponse": {
+        "properties": {
+          "merchants": {
+            "items": {
+              "$ref": "#/components/schemas/MerchantMappingResponse"
+            },
+            "type": "array",
+            "title": "Merchants"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ItemMappingResponse"
+            },
+            "type": "array",
+            "title": "Items"
+          }
+        },
+        "type": "object",
+        "required": [
+          "merchants",
+          "items"
+        ],
+        "title": "LearnedMappingsResponse"
       },
       "MarkAllReadResponse": {
         "properties": {
@@ -4788,6 +4965,54 @@
           "role"
         ],
         "title": "MemberSummary"
+      },
+      "MerchantMappingResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "original_merchant": {
+            "type": "string",
+            "title": "Original Merchant"
+          },
+          "target_merchant": {
+            "type": "string",
+            "title": "Target Merchant"
+          },
+          "store_category_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Store Category Id"
+          },
+          "usage_count": {
+            "type": "integer",
+            "title": "Usage Count"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "original_merchant",
+          "target_merchant",
+          "store_category_id",
+          "usage_count",
+          "updated_at"
+        ],
+        "title": "MerchantMappingResponse"
       },
       "MonthlyInsightsResponse": {
         "properties": {

@@ -23,6 +23,7 @@ function SettingsPage() {
       </h1>
       <ProfileSection />
       <CurrencySection />
+      <LearnedMappingsSection />
       <AppearanceSection />
       <DataSection />
       <AccountSection />
@@ -131,6 +132,82 @@ function CurrencySection() {
           </span>
         )}
       </FieldRow>
+    </SectionCard>
+  );
+}
+
+type LearnedMappings = {
+  merchants: Array<{ id: string; original_merchant: string; target_merchant: string }>;
+  items: Array<{ id: string; original_item: string; target_item: string | null }>;
+};
+
+function LearnedMappingsSection() {
+  const [data, setData] = useState<LearnedMappings | null>(null);
+
+  const refresh = () => {
+    apiClient.GET("/api/v1/mappings").then(({ data: d }) => {
+      if (d) setData(d as LearnedMappings);
+    });
+  };
+  useEffect(refresh, []);
+
+  const remove = async (kind: "merchant" | "item", id: string) => {
+    if (kind === "merchant") {
+      await apiClient.DELETE("/api/v1/mappings/merchant/{mapping_id}", {
+        params: { path: { mapping_id: id } },
+      });
+    } else {
+      await apiClient.DELETE("/api/v1/mappings/item/{mapping_id}", {
+        params: { path: { mapping_id: id } },
+      });
+    }
+    refresh();
+  };
+
+  const empty = data && data.merchants.length === 0 && data.items.length === 0;
+  return (
+    <SectionCard title="Learned mappings">
+      <div className="space-y-1 text-sm" data-testid="learned-mappings-section">
+        {!data && <p style={{ color: "var(--text-muted)" }}>…</p>}
+        {empty && (
+          <p style={{ color: "var(--text-muted)" }} data-testid="learned-mappings-empty">
+            Nothing learned yet — corrections you make to merchants and items will appear
+            here and auto-apply to future scans.
+          </p>
+        )}
+        {data?.merchants.map((m) => (
+          <div key={m.id} className="flex items-center justify-between gap-2">
+            <span className="truncate" style={{ color: "var(--text-secondary)" }}>
+              {m.original_merchant} → {m.target_merchant}
+            </span>
+            <button
+              type="button"
+              data-testid={`mapping-delete-${m.id}`}
+              onClick={() => remove("merchant", m.id)}
+              className="shrink-0 text-xs"
+              style={{ color: "var(--danger, #dc2626)" }}
+            >
+              Delete
+            </button>
+          </div>
+        ))}
+        {data?.items.map((m) => (
+          <div key={m.id} className="flex items-center justify-between gap-2">
+            <span className="truncate" style={{ color: "var(--text-secondary)" }}>
+              {m.original_item} → {m.target_item ?? "(category only)"}
+            </span>
+            <button
+              type="button"
+              data-testid={`mapping-delete-${m.id}`}
+              onClick={() => remove("item", m.id)}
+              className="shrink-0 text-xs"
+              style={{ color: "var(--danger, #dc2626)" }}
+            >
+              Delete
+            </button>
+          </div>
+        ))}
+      </div>
     </SectionCard>
   );
 }

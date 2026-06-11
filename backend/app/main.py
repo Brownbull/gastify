@@ -13,6 +13,7 @@ from app.api.groups import router as groups_router
 from app.api.health import router as health_router
 from app.api.insights import router as insights_router
 from app.api.items import router as items_router
+from app.api.mappings import router as mappings_router
 from app.api.metrics import router as metrics_router
 from app.api.notifications import router as notifications_router
 from app.api.privacy import router as privacy_router
@@ -117,4 +118,5 @@ app.include_router(reference_router, prefix="/api/v1")
 app.include_router(insights_router, prefix="/api/v1")
 app.include_router(groups_router, prefix="/api/v1")
 app.include_router(invites_router, prefix="/api/v1")
+app.include_router(mappings_router, prefix="/api/v1")
 app.include_router(metrics_router, prefix="/api/v1")

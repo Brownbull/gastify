@@ -114,3 +114,37 @@ export async function firstMatchedTransactionId(): Promise<string | undefined> {
     (t) => t.statement_matched,
   )?.id;
 }
+
+/** Unlearn mappings taught by spec edits (e.g. "E2E Edited …" renames) so future
+ * fixture scans keep their canonical names — the durable fix for learning pollution. */
+export async function cleanupLearnedMappings(targetPattern = /^(E2E |MODIFIED|S23 )/): Promise<void> {
+  try {
+    const base = env.VITE_API_BASE_URL;
+    const token = await idToken();
+    if (!base || !token) return;
+    const auth = { Authorization: `Bearer ${token}` };
+    const res = await fetch(`${base}/api/v1/mappings`, { headers: auth });
+    if (!res.ok) return;
+    const body = (await res.json()) as {
+      merchants: Array<{ id: string; target_merchant: string }>;
+      items: Array<{ id: string; target_item: string | null }>;
+    };
+    const doomed = [
+      ...body.merchants
+        .filter((m) => targetPattern.test(m.target_merchant))
+        .map((m) => `merchant/${m.id}`),
+      ...body.items
+        .filter((m) => m.target_item && targetPattern.test(m.target_item))
+        .map((m) => `item/${m.id}`),
+    ];
+    await Promise.all(
+      doomed.map((path) =>
+        fetch(`${base}/api/v1/mappings/${path}`, { method: "DELETE", headers: auth }).catch(
+          () => {},
+        ),
+      ),
+    );
+  } catch {
+    // Best-effort.
+  }
+}

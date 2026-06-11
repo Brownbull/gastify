@@ -1031,6 +1031,57 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/mappings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Mappings */
+        get: operations["list_mappings_api_v1_mappings_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/mappings/merchant/{mapping_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete Merchant Mapping */
+        delete: operations["delete_merchant_mapping_api_v1_mappings_merchant__mapping_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/mappings/item/{mapping_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete Item Mapping */
+        delete: operations["delete_item_mapping_api_v1_mappings_item__mapping_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/metrics": {
         parameters: {
             query?: never;
@@ -1735,6 +1786,32 @@ export interface components {
              */
             created_at: string;
         };
+        /** ItemMappingResponse */
+        ItemMappingResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Original Item */
+            original_item: string;
+            /** Target Item */
+            target_item: string | null;
+            /**
+             * Target Category Id
+             * Format: uuid
+             */
+            target_category_id: string;
+            /** Merchant Pattern */
+            merchant_pattern: string | null;
+            /** Usage Count */
+            usage_count: number;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
         /** JoinResponse */
         JoinResponse: {
             /**
@@ -1744,6 +1821,13 @@ export interface components {
             id: string;
             /** Name */
             name: string;
+        };
+        /** LearnedMappingsResponse */
+        LearnedMappingsResponse: {
+            /** Merchants */
+            merchants: components["schemas"]["MerchantMappingResponse"][];
+            /** Items */
+            items: components["schemas"]["ItemMappingResponse"][];
         };
         /** MarkAllReadResponse */
         MarkAllReadResponse: {
@@ -1769,6 +1853,27 @@ export interface components {
              * @default false
              */
             shares_detail: boolean;
+        };
+        /** MerchantMappingResponse */
+        MerchantMappingResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Original Merchant */
+            original_merchant: string;
+            /** Target Merchant */
+            target_merchant: string;
+            /** Store Category Id */
+            store_category_id: string | null;
+            /** Usage Count */
+            usage_count: number;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
         };
         /** MonthlyInsightsResponse */
         MonthlyInsightsResponse: {
@@ -5201,6 +5306,84 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["JoinResponse"];
                 };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_mappings_api_v1_mappings_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LearnedMappingsResponse"];
+                };
+            };
+        };
+    };
+    delete_merchant_mapping_api_v1_mappings_merchant__mapping_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mapping_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_item_mapping_api_v1_mappings_item__mapping_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mapping_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Validation Error */
             422: {
