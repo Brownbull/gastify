@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import {
+  flattenTreeAtLevel,
   rollupToSlices,
   treeNodesToSlices,
   parsePercent,
@@ -150,5 +151,28 @@ describe("treeNodesToSlices", () => {
   it("adds no Other slice when children reconcile to the parent total", () => {
     const slices = treeNodesToSlices([treeNode({ total_minor: 100_000 })], 100_000);
     expect(slices.some((s) => s.isOther)).toBe(false);
+  });
+});
+
+
+describe("flattenTreeAtLevel", () => {
+  const node = (key: string, level: number, total: number, children: unknown[] = []) =>
+    ({ key, label: key, level, total_minor: total, children }) as never;
+
+  it("merges same-key nodes across parents at the cut level (summing spend)", () => {
+    const roots = [
+      node("ind-a", 1, 600, [node("st-1", 2, 600, [node("OtherFamily", 3, 100)])]),
+      node("ind-b", 1, 400, [node("st-2", 2, 400, [node("OtherFamily", 3, 50)])]),
+    ];
+    const slices = flattenTreeAtLevel(roots, 3, 1000);
+    expect(slices).toHaveLength(1); // ONE merged slice, not duplicate keys
+    expect(slices[0].categoryKey).toBe("OtherFamily");
+    expect(slices[0].valueMinor).toBe(150);
+  });
+
+  it("cuts at exactly the requested level", () => {
+    const roots = [node("ind-a", 1, 600, [node("st-1", 2, 600)])];
+    expect(flattenTreeAtLevel(roots, 1, 600).map((s) => s.categoryKey)).toEqual(["ind-a"]);
+    expect(flattenTreeAtLevel(roots, 2, 600).map((s) => s.categoryKey)).toEqual(["st-1"]);
   });
 });

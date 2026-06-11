@@ -172,15 +172,25 @@ export function flattenTreeAtLevel(
   level: number,
   responseTotalMinor: number,
 ): ChartSlice[] {
-  const found: TreeNode[] = [];
+  // The same taxonomy key can appear under SEVERAL parents at the item levels (e.g.
+  // `OtherFamily` under each store-type) — tree keys are unique per parent, not per
+  // level. Merge same-key nodes (summing spend): the bar shows category totals.
+  const merged = new Map<string, TreeNode & { total_minor: number }>();
   const walk = (list: readonly TreeNode[]) => {
     for (const node of list) {
-      if (node.level === level) found.push(node);
+      if (node.level === level) {
+        const seen = merged.get(node.key);
+        if (seen) {
+          merged.set(node.key, { ...seen, total_minor: seen.total_minor + node.total_minor });
+        } else {
+          merged.set(node.key, { ...node });
+        }
+      }
       if (node.children?.length) walk(node.children);
     }
   };
   walk(nodes);
-  found.sort((a, b) => b.total_minor - a.total_minor);
+  const found = [...merged.values()].sort((a, b) => b.total_minor - a.total_minor);
   return found.map((node) => ({
     categoryKey: node.key,
     label: node.label,
