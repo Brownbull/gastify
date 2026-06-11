@@ -33,8 +33,6 @@ jobs:
   web-lint:
     name: Web Lint
     runs-on: ubuntu-latest
-    # web/ has pre-existing lint errors (P81) — surface them without blocking CI yet.
-    continue-on-error: true
     defaults:
       run:
         working-directory: web

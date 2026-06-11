@@ -740,6 +740,12 @@ function EditableText({
     setDraft(value);
   }
 
+  // Hooks BEFORE the early return — a conditional hook corrupts React's hook order
+  // when `locked` flips (rules-of-hooks). Focusing is a no-op while locked.
+  useEffect(() => {
+    if (editing) inputRef.current?.focus();
+  }, [editing]);
+
   if (locked) {
     return (
       <span className={`${className} px-1`} style={{ color: "var(--text)" }}>
@@ -747,10 +753,6 @@ function EditableText({
       </span>
     );
   }
-
-  useEffect(() => {
-    if (editing) inputRef.current?.focus();
-  }, [editing]);
 
   const commit = () => {
     const trimmed = draft.trim();
@@ -828,6 +830,11 @@ function EditableDate({
     setDraft(value);
   }
 
+  // Hooks BEFORE the early return (rules-of-hooks; see the text editor above).
+  useEffect(() => {
+    if (editing) inputRef.current?.focus();
+  }, [editing]);
+
   if (locked) {
     return (
       <span className="px-1 text-sm" style={{ color: "var(--text-secondary)" }}>
@@ -835,10 +842,6 @@ function EditableDate({
       </span>
     );
   }
-
-  useEffect(() => {
-    if (editing) inputRef.current?.focus();
-  }, [editing]);
 
   const commit = () => {
     if (draft && draft !== value) {

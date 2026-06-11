@@ -21,12 +21,28 @@ test("inline-edit a transaction merchant and see the edited marker", async ({ pa
     timeout: 30_000,
   });
 
-  // Open the first transaction in the ledger. Transaction rows link to
-  // /transactions/<uuid>; scope to those hrefs so we don't match a nav link.
-  const firstTxn = page.locator('a[href^="/transactions/"]').first();
-  await expect(firstTxn).toBeVisible({ timeout: 30_000 });
-  await firstTxn.click();
-  await expect(page).toHaveURL(/\/transactions\/[0-9a-f-]+$/, { timeout: 30_000 });
+  // Open the first EDITABLE transaction. Rows link to /transactions/<uuid>; a row
+  // shared into a group is LOCKED (D74 — is_shared renders read-only, no edit button),
+  // and the groups specs share rows, so blindly picking .first() collides with them.
+  const txnLinks = page.locator('a[href^="/transactions/"]');
+  await expect(txnLinks.first()).toBeVisible({ timeout: 30_000 });
+  const candidates = Math.min(await txnLinks.count(), 6);
+  let opened = false;
+  for (let i = 0; i < candidates; i++) {
+    await txnLinks.nth(i).click();
+    await expect(page).toHaveURL(/\/transactions\/[0-9a-f-]+$/, { timeout: 30_000 });
+    const editBtn = page.locator('button[title="Click to edit"]').first();
+    const editable = await editBtn
+      .waitFor({ state: "visible", timeout: 5_000 })
+      .then(() => true)
+      .catch(() => false);
+    if (editable) {
+      opened = true;
+      break;
+    }
+    await page.goBack(); // locked (shared) — try the next row
+  }
+  if (!opened) throw new Error("No editable (unshared) transaction found in the first rows");
 
   // On the detail screen the merchant renders as an editable button whose
   // accessible name is the merchant text; it carries title="Click to edit".

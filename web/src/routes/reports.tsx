@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useMemo, useState } from "react";
+import { lazy, Suspense, useMemo, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import {
   currentPeriod,
@@ -172,15 +172,16 @@ function ReportsPage() {
 
   // On first load (monthly only), focus the most-recent month that actually has
   // spend so the breakdown is meaningful. Quarter/year card periods aren't months,
-  // so the donut never targets them.
-  useEffect(() => {
-    if (autoFocused || !series.data || !isMonthly) return;
+  // so the donut never targets them. Render-time state adjustment (the React-docs
+  // pattern) instead of a setState-in-effect: the guard flips in the same pass, so
+  // React restarts the render once before committing — no effect cascade.
+  if (!autoFocused && series.data && isMonthly) {
+    setAutoFocused(true);
     const latestWithSpend = cards.find((c) => c.total > 0);
     if (latestWithSpend && latestWithSpend.period !== period) {
       setPeriod(latestWithSpend.period);
     }
-    setAutoFocused(true);
-  }, [series.data, cards, autoFocused, period, isMonthly]);
+  }
 
   const rows =
     dimension === "transaction_category"

@@ -45,8 +45,11 @@ export function ReportDetailOverlay({ card, onClose, onViewTransactions }: Repor
   const { t } = useI18n();
   const panelRef = useRef<HTMLDivElement>(null);
   // Keep the latest onClose without re-subscribing the listener every parent render.
+  // (Written in an effect — ref writes during render break React's render purity.)
   const onCloseRef = useRef(onClose);
-  onCloseRef.current = onClose;
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  });
 
   // Mount-once: Escape closes, and focus moves into the dialog (WCAG 2.4.3).
   useEffect(() => {

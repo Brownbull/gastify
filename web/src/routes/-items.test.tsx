@@ -16,6 +16,8 @@ vi.mock("@tanstack/react-router", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@tanstack/react-router")>();
   return {
     ...actual,
+    // `to`/`params` are destructured ONLY to exclude router props from the DOM <a> spread.
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     Link: ({ children, to, params, ...rest }: { children: ReactNode } & Record<string, unknown>) => (
       <a {...rest}>{children}</a>
     ),
