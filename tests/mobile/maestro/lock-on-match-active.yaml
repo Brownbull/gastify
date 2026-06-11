@@ -1,0 +1,81 @@
+appId: com.gastify.mobile
+---
+- waitForAnimationToEnd:
+    timeout: 10000
+- tapOn:
+    text: "Continue"
+    optional: true
+- tapOn:
+    text: "Got it"
+    optional: true
+- runFlow:
+    when:
+      visible: "Reload"
+    commands:
+      - tapOn:
+          point: "90%,45%"
+      - waitForAnimationToEnd:
+          timeout: 5000
+- runFlow:
+    when:
+      visible:
+        id: e2e-sign-in-button
+    commands:
+      - tapOn:
+          id: e2e-sign-in-button
+- waitForAnimationToEnd:
+    timeout: 10000
+- tapOn:
+    text: "Continue"
+    optional: true
+- tapOn:
+    text: "Got it"
+    optional: true
+- runFlow:
+    when:
+      visible:
+        id: e2e-sign-in-button
+    commands:
+      - tapOn:
+          id: e2e-sign-in-button
+- extendedWaitUntil:
+    visible:
+      id: home-screen
+    timeout: 60000
+- tapOn:
+    id: open-ledger-button
+- extendedWaitUntil:
+    visible:
+      id: transactions-list
+    timeout: 30000
+# The statement-matched, unshared fixture row (re-created via API before the run).
+# The matched row is seeded as the NEWEST ledger entry - top of the list, no hunt.
+- extendedWaitUntil:
+    visible: "Demo Café Lastarria"
+    timeout: 30000
+- tapOn:
+    text: "Demo Café Lastarria"
+- extendedWaitUntil:
+    visible:
+      id: transaction-detail-screen
+    timeout: 30000
+- takeScreenshot:
+    path: 01-lock-match-detail
+# Try a merchant edit: the backend refuses (lock-on-match 409) and the RN app must
+# SURFACE it - the optimistic value rolls back with the toast.
+- tapOn:
+    id: transaction-edit-merchant
+- eraseText
+- inputText: "Locked Edit Attempt"
+- hideKeyboard
+- tapOn:
+    id: transaction-save-merchant-button
+- extendedWaitUntil:
+    visible: "Edit was rolled back"
+    timeout: 20000
+- takeScreenshot:
+    path: 02-lock-match-rollback-toast
+# And the original value survives.
+- assertVisible: "Demo Café Lastarria"
+- takeScreenshot:
+    path: 03-lock-match-value-restored
