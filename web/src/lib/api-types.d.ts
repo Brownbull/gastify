@@ -2812,6 +2812,11 @@ export interface components {
              */
             is_shared: boolean;
             /**
+             * Statement Matched
+             * @default false
+             */
+            statement_matched: boolean;
+            /**
              * Items
              * @default []
              */
@@ -3054,6 +3059,11 @@ export interface components {
              * @default false
              */
             is_shared: boolean;
+            /**
+             * Statement Matched
+             * @default false
+             */
+            statement_matched: boolean;
             /**
              * Created At
              * Format: date-time

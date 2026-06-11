@@ -85,6 +85,7 @@ function TransactionDetailPage() {
               locked={locked}
             />
             {locked && <SharedLockBadge />}
+            {txn.statement_matched && <StatementMatchedBadge />}
           </div>
           <EditableDate
             value={txn.transaction_date}
@@ -190,6 +191,19 @@ function BackLink() {
     >
       <span aria-hidden="true">&larr;</span> Back
     </Link>
+  );
+}
+
+function StatementMatchedBadge() {
+  return (
+    <span
+      data-testid="txn-matched-badge"
+      className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium"
+      style={{ color: "var(--success, #15803d)", backgroundColor: "var(--success-light, #dcfce7)" }}
+      title="Matched against a card statement"
+    >
+      ✓ Matched
+    </span>
   );
 }
 

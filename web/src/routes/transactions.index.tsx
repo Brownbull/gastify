@@ -506,6 +506,16 @@ function TransactionRow({ txn, isSelected, onToggle }: TransactionRowProps) {
         {txn.item_count}
       </td>
       <td className="hidden px-4 py-3 lg:table-cell">
+        {txn.statement_matched && (
+          <span
+            data-testid="txn-matched-badge"
+            className="mr-1 inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium"
+            style={{ color: "var(--success, #15803d)", backgroundColor: "var(--success-light, #dcfce7)" }}
+            title="Matched against a card statement"
+          >
+            ✓ Matched
+          </span>
+        )}
         {txn.receipt_type && (
           <span
             className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium"

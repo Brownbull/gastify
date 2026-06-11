@@ -41,4 +41,9 @@ test("uploads a statement and renders the reconciliation buckets", async ({ page
   await expect(page.getByText("Matched").first()).toBeVisible();
   await expect(page.getByText("Statement only").first()).toBeVisible();
   await expect(page.getByText("App only").first()).toBeVisible();
+
+  // Phase-2 (functionality plan): a MATCHED verdict surfaces on the ledger — the
+  // matched transaction rows carry the "✓ Matched" indicator (REQ-09 surface).
+  await page.goto("/transactions");
+  await expect(page.getByTestId("txn-matched-badge").first()).toBeVisible({ timeout: 20_000 });
 });

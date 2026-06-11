@@ -179,6 +179,9 @@ class TransactionListItem(BaseModel):
     item_count: int = 0
     # D74: True once shared into a group → renders a lock badge in the list.
     is_shared: bool = False
+    # A statement-reconciliation MATCHED verdict references this transaction — the
+    # ledger's "covered by a statement" indicator (REQ-09 surface).
+    statement_matched: bool = False
     created_at: datetime
     updated_at: datetime
 
@@ -229,6 +232,9 @@ class TransactionDetail(BaseModel):
     thumbnail_gen_ms: int | None = None
     # D74: True once shared into a group → content fields are locked client-side.
     is_shared: bool = False
+    # A statement-reconciliation MATCHED verdict references this transaction — the
+    # ledger's "covered by a statement" indicator (REQ-09 surface).
+    statement_matched: bool = False
     items: list[TransactionItemResponse] = []
     images: list[TransactionImageResponse] = []
     created_at: datetime

@@ -8085,6 +8085,11 @@
             "title": "Is Shared",
             "default": false
           },
+          "statement_matched": {
+            "type": "boolean",
+            "title": "Statement Matched",
+            "default": false
+          },
           "items": {
             "items": {
               "$ref": "#/components/schemas/TransactionItemResponse"
@@ -8896,6 +8901,11 @@
           "is_shared": {
             "type": "boolean",
             "title": "Is Shared",
+            "default": false
+          },
+          "statement_matched": {
+            "type": "boolean",
+            "title": "Statement Matched",
             "default": false
           },
           "created_at": {

@@ -15,7 +15,7 @@ from app.auth.deps import Auth, AuthContext
 from app.config import settings
 from app.db import get_db
 from app.models.reference import Currency
-from app.models.statement import CardAlias
+from app.models.statement import CardAlias, ReconciliationVerdict, StatementReconciliationVerdict
 from app.models.transaction import (
     Transaction,
     TransactionImage,
@@ -127,6 +127,7 @@ async def list_transactions(
 
     txn_ids = [txn.id for txn in rows]
     item_counts: dict[UUID, int] = {}
+    matched_ids: set[UUID] = set()
     if txn_ids:
         count_result = await db.execute(
             select(TransactionItem.transaction_id, func.count())
@@ -134,6 +135,13 @@ async def list_transactions(
             .group_by(TransactionItem.transaction_id)
         )
         item_counts = {transaction_id: int(count) for transaction_id, count in count_result.all()}
+        matched_result = await db.execute(
+            select(StatementReconciliationVerdict.receipt_transaction_id.distinct()).where(
+                StatementReconciliationVerdict.receipt_transaction_id.in_(txn_ids),
+                StatementReconciliationVerdict.verdict == ReconciliationVerdict.MATCHED,
+            )
+        )
+        matched_ids = {row for row in matched_result.scalars() if row is not None}
 
     items: list[TransactionListItem] = []
     for txn in rows:
@@ -173,6 +181,7 @@ async def list_transactions(
                 recurrence_user_edited_at=txn.recurrence_user_edited_at,
                 item_count=item_counts.get(txn.id, 0),
                 is_shared=txn.is_shared,
+                statement_matched=txn.id in matched_ids,
                 created_at=txn.created_at,
                 updated_at=txn.updated_at,
             )
@@ -193,7 +202,9 @@ async def get_transaction(
     if txn is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Transaction not found")
 
-    return _transaction_detail_for_user(txn, user_id=auth.user_id)
+    return _transaction_detail_for_user(
+        txn, user_id=auth.user_id, statement_matched=await _is_statement_matched(db, txn.id)
+    )
 
 
 @router.post("", status_code=status.HTTP_201_CREATED)
@@ -485,7 +496,11 @@ async def update_transaction(
     refreshed = await _load_owned_transaction_detail(db, auth=auth, transaction_id=transaction_id)
     if refreshed is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Transaction not found")
-    return _transaction_detail_for_user(refreshed, user_id=auth.user_id)
+    return _transaction_detail_for_user(
+        refreshed,
+        user_id=auth.user_id,
+        statement_matched=await _is_statement_matched(db, refreshed.id),
+    )
 
 
 @router.put("/{transaction_id}/items/{item_id}/flags", response_model=TransactionDetail)
@@ -529,7 +544,11 @@ async def update_transaction_item_flags(
     refreshed = await _load_owned_transaction_detail(db, auth=auth, transaction_id=transaction_id)
     if refreshed is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Transaction not found")
-    return _transaction_detail_for_user(refreshed, user_id=auth.user_id)
+    return _transaction_detail_for_user(
+        refreshed,
+        user_id=auth.user_id,
+        statement_matched=await _is_statement_matched(db, refreshed.id),
+    )
 
 
 def _assert_within_delete_window(dates: list[date]) -> None:
@@ -714,8 +733,23 @@ async def _load_owned_transaction_detail(
     return result.scalar_one_or_none()
 
 
-def _transaction_detail_for_user(txn: Transaction, *, user_id: UUID) -> TransactionDetail:
+async def _is_statement_matched(db: AsyncSession, transaction_id: UUID) -> bool:
+    verdict = await db.scalar(
+        select(StatementReconciliationVerdict.id)
+        .where(
+            StatementReconciliationVerdict.receipt_transaction_id == transaction_id,
+            StatementReconciliationVerdict.verdict == ReconciliationVerdict.MATCHED,
+        )
+        .limit(1)
+    )
+    return verdict is not None
+
+
+def _transaction_detail_for_user(
+    txn: Transaction, *, user_id: UUID, statement_matched: bool = False
+) -> TransactionDetail:
     detail = TransactionDetail.model_validate(txn)
+    detail.statement_matched = statement_matched
     item_by_id = {item.id: item for item in txn.items}
     for item_response in detail.items:
         item = item_by_id.get(item_response.id)
