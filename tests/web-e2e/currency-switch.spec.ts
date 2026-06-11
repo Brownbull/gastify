@@ -20,22 +20,26 @@ async function currencySelect(page: Page) {
   return select;
 }
 
-test("currency switch CLP→USD persists across reload, then back", async ({ page }) => {
+test("currency switch persists across reload, both directions", async ({ page }) => {
   await signIn(page);
 
+  // Start-state-agnostic: the shared e2e user's current value is whatever the last
+  // run left — switch to the OTHER currency, then back to the original.
   let select = await currencySelect(page);
-  await expect(select).toHaveValue("CLP");
+  const original = await select.inputValue();
+  expect(["CLP", "USD"]).toContain(original);
+  const other = original === "CLP" ? "USD" : "CLP";
 
-  await select.selectOption("USD");
+  await select.selectOption(other);
   await expect(select).toBeEnabled({ timeout: 10_000 }); // save round-trip done
 
   await page.reload();
   select = await currencySelect(page);
-  await expect(select).toHaveValue("USD"); // persisted server-side
+  await expect(select).toHaveValue(other); // persisted server-side
 
-  await select.selectOption("CLP"); // restore the shared user
+  await select.selectOption(original); // restore the shared user
   await expect(select).toBeEnabled({ timeout: 10_000 });
   await page.reload();
   select = await currencySelect(page);
-  await expect(select).toHaveValue("CLP");
+  await expect(select).toHaveValue(original);
 });
