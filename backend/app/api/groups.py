@@ -16,7 +16,7 @@ from typing import Annotated, cast
 from uuid import UUID  # noqa: TC003 - FastAPI resolves UUID path/param annotations at runtime.
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response, status
-from sqlalchemy import func, or_, select, text
+from sqlalchemy import case, func, or_, select, text, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import aliased, selectinload
@@ -468,6 +468,14 @@ async def delete_group(group_id: UUID, auth: Auth, db: DB) -> None:
         .scalars()
         .all()
     )
+    # P83: capture each copy's source + sharer BEFORE deletion so the sources can be
+    # released afterwards (share_count −1; unlock when the last copy is gone). The
+    # sources live in the SHARERS' personal scopes — resolved + updated per scope below.
+    copy_links = [
+        (txn.shared_from_transaction_id, txn.shared_by_user_id)
+        for txn in group_txns
+        if txn.shared_from_transaction_id is not None and txn.shared_by_user_id is not None
+    ]
     for txn in group_txns:
         await db.delete(txn)
     members = (
@@ -487,6 +495,41 @@ async def delete_group(group_id: UUID, auth: Auth, db: DB) -> None:
     if scope is not None:
         await db.delete(scope)
     await db.commit()
+
+    # P83: release the deleted copies' sources, grouped by sharer scope (users is not
+    # RLS-bound, so the sharer→personal-scope map is readable; each UPDATE then runs
+    # under THAT scope's GUC — the share endpoint's restore-then-write pattern).
+    if copy_links:
+        sharer_ids = {user_id for _, user_id in copy_links}
+        scope_map = dict(
+            (
+                await db.execute(
+                    select(User.id, User.ownership_scope_id).where(User.id.in_(sharer_ids))
+                )
+            ).all()
+        )
+        by_scope: dict[UUID, list[UUID]] = {}
+        for source_id, user_id in copy_links:
+            sharer_scope = scope_map.get(user_id)
+            if sharer_scope is not None:
+                by_scope.setdefault(sharer_scope, []).append(source_id)
+        for sharer_scope, source_ids in by_scope.items():
+            await _set_postgres_ownership_scope(db, sharer_scope)
+            await db.execute(
+                update(Transaction)
+                .where(
+                    Transaction.id.in_(source_ids),
+                    Transaction.ownership_scope_id == sharer_scope,
+                )
+                .values(
+                    # case(): portable floor-at-zero (PG's GREATEST vs sqlite's max differ).
+                    share_count=case(
+                        (Transaction.share_count > 0, Transaction.share_count - 1), else_=0
+                    ),
+                    is_shared=case((Transaction.share_count > 1, True), else_=False),
+                )
+            )
+        await db.commit()
     await _restore_personal_scope(db, auth)
 
 
@@ -729,6 +772,7 @@ async def share_transaction(
     # then set the flag (this refreshes the source under the personal scope) + commit.
     await _restore_personal_scope(db, auth)
     source.is_shared = True
+    source.share_count = (source.share_count or 0) + 1  # P83: live-copy counter
     await db.commit()
     return response
 

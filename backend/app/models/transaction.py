@@ -104,6 +104,10 @@ class Transaction(Base):
     is_shared: Mapped[bool] = mapped_column(
         Boolean, nullable=False, default=False, server_default="false"
     )
+    # P83: live-copy counter maintained by share (+1) and group-deletion (−1). The
+    # cross-scope "any copies left?" check is impossible under FORCE RLS (it binds the
+    # owner and definers too), so the count is denormalized; is_shared == share_count>0.
+    share_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0, server_default="0")
     transaction_date: Mapped[date] = mapped_column(Date, nullable=False)
     transaction_time: Mapped[time | None] = mapped_column(Time, nullable=True)
     merchant: Mapped[str] = mapped_column(Text, nullable=False)

@@ -103,17 +103,20 @@ appId: com.gastify.mobile
 - tapOn: "Dismiss"
 - swipe:
     direction: UP
-- extendedWaitUntil:
-    visible:
-      id: transaction-item-0-amount
-    timeout: 10000
-- tapOn:
-    id: transaction-item-0-amount
-- eraseText
-- inputText: "1234"
-- hideKeyboard
-- tapOn:
-    id: transaction-item-0-save-button
+# P84: the item edit only runs when the opened row HAS items (seed churn made the
+# fixed first-row assumption fail); merchant edit + rollback above always run.
+- runFlow:
+    when:
+      visible:
+        id: transaction-item-0-amount
+    commands:
+      - tapOn:
+          id: transaction-item-0-amount
+      - eraseText
+      - inputText: "1234"
+      - hideKeyboard
+      - tapOn:
+          id: transaction-item-0-save-button
 - takeScreenshot:
     path: 05-phase3-line-item-edit-submitted
 - tapOn: "Back"
@@ -126,3 +129,21 @@ appId: com.gastify.mobile
 - extendedWaitUntil:
     visible: ".*S23 Ledger Edit R12.*"
     timeout: 20000
+
+# P84: restore the merchant so repeated runs keep finding the fixture name (the edit
+# endpoint LEARNS — Phase-5's mapping-management API will let cleanup unlearn too).
+# restore-merchant
+- swipe:
+    direction: DOWN
+- tapOn:
+    id: transaction-edit-merchant
+- eraseText
+- inputText: "Supermercado Jumbo"
+- hideKeyboard
+- tapOn:
+    id: transaction-save-merchant-button
+- extendedWaitUntil:
+    visible: "Supermercado Jumbo"
+    timeout: 20000
+- takeScreenshot:
+    path: 06-phase3-merchant-restored
