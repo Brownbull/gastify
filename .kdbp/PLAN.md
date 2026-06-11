@@ -1,35 +1,33 @@
 # Active Plan
 
-<!-- status: complete -->
+<!-- status: active -->
 <!-- project_type: code -->
 
 ## Goal
 
-Statement-matching hardening + ledger usability: lock matched transactions (the statement is external truth), port the useful legacy ledger filters + add source/matched filters (scan vs statement vs manual; matched vs not), build the manual-entry UI over the already-complete API, and prove the full statement journey end-to-end with screenshots.
+Manual-entry hardening per user spec: backend input validation/sanitization (name whitelist; integer quantities >= 0; non-negative prices), a configurable date-format user preference (settings + placeholders), cents-aware price entry for exponent>0 currencies, and user-assignable categories on the manual form — tests + e2e.
 
 ## Context
 
-- **Maturity:** mvp; Phase 1 ent-ish (data-integrity semantics).
+- **Maturity:** mvp; Phase 1 validation is ent-ish (input boundary).
 - **Created:** 2026-06-11
-- **Last Updated:** 2026-06-11 (grounding: receipt_type ALREADY distinguishes scan|manual|statement|import; POST /transactions ALREADY takes merchant/date/time/country/city/items — manual entry needs only UI; list API has date/category/merchant/currency/card_alias filters — missing source+matched; legacy bar = temporal+category+location+active-count+clear. DESIGN NOTE: current reconciliation deliberately matches AROUND user edits (test_reconcile_respects_user_edited_transaction_fields) — lock-on-match inverts that for matched rows per user decision; statement deletion = the natural unlock.)
+- **Last Updated:** 2026-06-11 (the POST /transactions endpoint exists; the gap is the RULES. Names: letters incl. accents + digits + spaces + dots ONLY, 422 otherwise. Date: backend-typed already; FE placeholder shows the user's configured format (dd/MM/yyyy vs MM/dd/yyyy) - a NEW user preference. Quantities: INTEGERS >= 0 (user self-corrected from float; flagged for confirmation). Prices: minor-unit integers >= 0; cent-currencies get whole+cents fields composed client-side. Categories: pickers over existing reference endpoints; create API already accepts them.)
 
 ## Phases
 
 | # | Phase | Description | Tier | Complexity | Exec | Review | Commit | Push |
 |---|-------|-------------|------|------------|------|--------|--------|------|
-| 1 | Lock-on-match | Matched transactions (MATCHED verdict exists) refuse content edits + delete (409 naming the rule; D74's lock pattern, distinct message). Batch ops too. Statement deletion unlocks (verdicts go with the run). Contracts incl. the unlock path. | ent | med | ✅ | ✅ | ✅ | ✅ |
-| 2 | Ledger filters | API: source (receipt_type) + matched (bool) params on the list; web: a filter bar (date range, category, merchant, source, matched; active-count + clear-all per legacy) with stable testids. Contracts + types regen. | mvp | med | ✅ | ✅ | ✅ | ✅ |
-| 3 | Manual entry UI | A functional "Add transaction" form over the EXISTING POST: merchant, date, time, place (country/city), items one-by-one (total auto-sum), receipt_type=manual. Mappings/learning apply on later edits as usual. e2e: create → appears in ledger → filter source=manual finds it. | mvp | med | ✅ | ✅ | ✅ | ✅ |
-| 4 | Statement journey proof | The full e2e with screenshots: upload statement → reconcile → matched txn badge (have) → EDIT REFUSED (locked) → filters isolate matched / scan-only / statement-only → delete statement → unlocked again. | mvp | med | ✅ | ✅ | ✅ | ✅ |
+| 1 | Backend validation | TransactionCreate + item schema validators: name whitelist (letters/digits/spaces/dots), qty int>=0, prices>=0; applies to the API create path only (scan/statement paths construct internally). Contract tests incl. rejection messages. | ent | med | ⬜ | ⬜ | ⬜ | ⬜ |
+| 2 | Date-format preference | users.date_format (dd/MM/yyyy | MM/dd/yyyy) + profile read + rectification write + settings select; types regen. | mvp | low-med | ⬜ | ⬜ | ⬜ | ⬜ |
+| 3 | Form upgrades | Manual form: date text-field with the configured-format placeholder + client validation; cents field pair when currency exponent>0; store + item category pickers; qty fields. e2e: invalid name 422 surfaced, date format honored, category lands on the created txn. | mvp | med | ⬜ | ⬜ | ⬜ | ⬜ |
 
 ## Current Phase
 
-(plan complete)
+Phase 1: Backend validation
 
 ## Risks
 
 | Risk | Severity | Mitigation |
 |------|----------|------------|
-| Lock-on-match strands rows if unmatching is impossible | high | statement deletion cascades verdicts → unlock; contract-test the full cycle |
-| The matched check adds a query to every PATCH/DELETE | low | single EXISTS on an indexed column, only when content fields change |
-| Filter params bloat the list endpoint | low | two optional params; same WHERE pattern as existing filters |
+| The whitelist rejects legit merchants (e.g. "M&M", hyphens) | med | the rule is the USER'S spec (letters/digits/spaces/dots only); revisit on real-world friction |
+| Validation breaking scan/statement internal creates | high | validators live on the API schemas only; internal paths construct models directly - regression-run the scan/statement suites |
