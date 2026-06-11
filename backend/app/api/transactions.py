@@ -601,6 +601,19 @@ async def batch_update_transactions(
 
     set_values["updated_at"] = now
 
+    # Capture the ORIGINAL merchants BEFORE the bulk update so batch edits LEARN the
+    # same way single edits do (the learned-mappings contract: a merchant/category
+    # correction teaches the next scan). Batch previously skipped learning entirely.
+    originals = (
+        await db.execute(
+            select(Transaction.merchant).where(
+                Transaction.id.in_(body.transaction_ids),
+                Transaction.ownership_scope_id == auth.ownership_scope_id,
+            )
+        )
+    ).scalars()
+    original_merchants = {m for m in originals if m}
+
     stmt = (
         update(Transaction)
         .where(
@@ -610,6 +623,18 @@ async def batch_update_transactions(
         .values(**set_values)
     )
     result = cast("CursorResult[Any]", await db.execute(stmt))
+
+    new_merchant = update_fields.get("merchant")
+    new_store_category = update_fields.get("store_category_id")
+    for original in original_merchants:
+        await remember_merchant_mapping(
+            db,
+            ownership_scope_id=auth.ownership_scope_id,
+            original_merchant=original,
+            # A category-only batch keeps each original name as its own target.
+            target_merchant=new_merchant or original,
+            store_category_id=new_store_category,
+        )
     await db.commit()
     return BatchResult(count=result.rowcount)
 
