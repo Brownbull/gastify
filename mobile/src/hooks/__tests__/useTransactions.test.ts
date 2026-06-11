@@ -59,6 +59,7 @@ const baseDetail: TransactionDetail = {
   queue_wait_ms: null,
   thumbnail_gen_ms: null,
   is_shared: false,
+  statement_matched: false,
   items: [
     {
       id: "item-1",
@@ -117,6 +118,7 @@ const baseListItem: TransactionListItem = {
   recurrence_user_edited_at: null,
   item_count: 1,
   is_shared: false,
+  statement_matched: false,
   created_at: "2026-05-10T12:00:00Z",
   updated_at: "2026-05-10T12:00:00Z",
 };
