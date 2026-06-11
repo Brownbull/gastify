@@ -23,6 +23,7 @@ from app.db import Base
 from app.models.credit import CreditBalance
 from app.models.mapping import MerchantMapping
 from app.models.notification import Notification
+from app.models.reference import Currency
 from app.models.scan import Scan, ScanStatus
 from app.models.statement import CardAlias, Statement, StatementLine
 from app.models.transaction import Transaction, TransactionItem
@@ -51,6 +52,8 @@ async def test_erasure_hard_deletes_the_full_surface_on_postgres() -> None:
             await conn.run_sync(Base.metadata.create_all)
 
         async with factory() as db:
+            # Reference rows the personal tables FK onto (fresh schema has none).
+            db.add(Currency(code="CLP", exponent=0))
             db.add(OwnershipScope(id=scope_id, scope_type="individual"))
             await db.flush()
             user = User(
