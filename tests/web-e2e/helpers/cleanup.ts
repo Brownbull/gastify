@@ -99,3 +99,18 @@ export async function deleteTransaction(id: string): Promise<boolean> {
   });
   return res.status === 204;
 }
+
+/** The id of any transaction carrying a MATCHED reconciliation verdict (API). */
+export async function firstMatchedTransactionId(): Promise<string | undefined> {
+  const base = env.VITE_API_BASE_URL;
+  const token = await idToken();
+  if (!base || !token) return undefined;
+  const res = await fetch(`${base}/api/v1/transactions?limit=200`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) return undefined;
+  const body = await res.json();
+  return (body.data as Array<{ id: string; statement_matched?: boolean }>).find(
+    (t) => t.statement_matched,
+  )?.id;
+}

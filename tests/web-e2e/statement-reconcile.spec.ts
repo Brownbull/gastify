@@ -1,4 +1,5 @@
 import path from "node:path";
+import { firstMatchedTransactionId } from "./helpers/cleanup";
 import { test, expect, type Page } from "@playwright/test";
 
 /**
@@ -43,7 +44,11 @@ test("uploads a statement and renders the reconciliation buckets", async ({ page
   await expect(page.getByText("App only").first()).toBeVisible();
 
   // Phase-2 (functionality plan): a MATCHED verdict surfaces on the ledger — the
-  // matched transaction rows carry the "✓ Matched" indicator (REQ-09 surface).
-  await page.goto("/transactions");
-  await expect(page.getByTestId("txn-matched-badge").first()).toBeVisible({ timeout: 20_000 });
+  // matched transaction's DETAIL carries the "✓ Matched" indicator (REQ-09 surface).
+  // Resolved via API: the matched row sorts pages deep in the list (UI pagination is
+  // exercised elsewhere); the badge surface is what this asserts.
+  const matchedId = await firstMatchedTransactionId();
+  expect(matchedId).toBeTruthy();
+  await page.goto(`/transactions/${matchedId}`);
+  await expect(page.getByTestId("txn-matched-badge")).toBeVisible({ timeout: 20_000 });
 });
