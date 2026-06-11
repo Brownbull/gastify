@@ -4364,3 +4364,16 @@ LESSON (self): two CI round-trips wasted on ungated commits — run pytest+ruff 
 ## 2026-06-11 15:10 — FUNCTIONALITY Phase 2 COMPLETE (matched-transaction indicator)
 BUILT (87b9852..): statement_matched on transaction list (one bulk DISTINCT over MATCHED verdicts per page; RLS-bound via the run-scope policy) + detail (EXISTS helper through all 3 detail-returning endpoints); "✓ Matched" badge on web rows + detail (stable testids for the overhaul); API contract test; mobile+web types regenerated; mobile fixtures updated.
 PROVEN: API contract test green; deployed staging-e2e returns the flag (1 matched txn verified by direct probe); e2e green — upload statement → buckets → the matched txn's DETAIL shows the badge (13.1s). List-pagination spec-navigation abandoned after 3 rounds in favor of the API-resolved detail assertion (the feature was verified working throughout — the fight was spec navigation, not product).
+- 2026-06-11 11:11 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/Card.tsx
+- 2026-06-11 11:12 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/StateTabs.tsx
+- 2026-06-11 11:12 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/CompactRowList.tsx
+- 2026-06-11 11:12 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/SummaryStats.tsx
+- 2026-06-11 11:12 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/EmptyState.tsx
+- 2026-06-11 11:13 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/Toast.tsx
+- 2026-06-11 11:13 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/CompactRowList.stories.tsx
+- 2026-06-11 11:14 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/SummaryStats.stories.tsx
+- 2026-06-11 11:14 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/EmptyState.stories.tsx
+- 2026-06-11 11:14 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/Toast.stories.tsx
+
+## 2026-06-11 15:50 - FUNCTIONALITY Phase 3 COMPLETE (currency switch CLP/USD)
+FOUND: the mutation already existed (rectification, FK-validated). BUILT (b549919): GET /privacy/profile (light settings read), web settings Currency select (optimistic+rollback, stable testid), round-trip contract test, types regen. PROVEN: e2e vs deployed - switch, reload, persisted, restore, both directions (16.9s; start-state-agnostic since the shared user's value persists between runs).
