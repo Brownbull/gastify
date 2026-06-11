@@ -4414,3 +4414,23 @@ With this, EVERY feature shipped today is proven on web AND the behavior-critica
 
 ## 2026-06-11 (cont) - DECK-CLEARING Phase 1: PENDING triage (44 -> 27 open)
 Sweep of all 44 open rows. 9 resolved: P1-P4 + P14 (legacy HTML-mockup/Ladle era, superseded by the design-lab React+Storybook lane), P24 (review-warning UI long since shipped + e2e-proven on both platforms), P36 (status cell lagged its own resolution comment), P51 (statement-reconcile spec green since the stuck-statement fixes), P80 (CI repointed to web/ during P16; residual = frontend/ retirement, an explicit user-deferred decision). 8 re-statused "accepted (go/no-go §4)": P69, P71, P72, P74-P77, P79 - the launch-gate dispositions, not open work. 27 remain genuinely open: 3 are this plan's targets (P67 docs, P68 leave-dialog, P84 self-seeding flow; P23 doc nit folds into the P67 sweep), the rest ent/scale-gated or user-paced (P16, P18-P21, P25, P26, P28, P30, P31, P33, P37-P39, P44, P48, P52, P53, P56-P58, P60, P63).
+- 2026-06-11 17:34 | Edit | /home/khujta/projects/apps/gastify/docs/runbooks/DPO-PROCEDURES.md
+- 2026-06-11 17:35 | Edit | /home/khujta/projects/apps/gastify/docs/runbooks/DPO-PROCEDURES.md
+- 2026-06-11 17:35 | Edit | /home/khujta/projects/apps/gastify/docs/runbooks/DPO-PROCEDURES.md
+- 2026-06-11 17:35 | Edit | /home/khujta/projects/apps/gastify/docs/runbooks/DPO-PROCEDURES.md
+- 2026-06-11 17:35 | Edit | /home/khujta/projects/apps/gastify/docs/wells/3-identity-ownership.md
+- 2026-06-11 17:35 | Edit | /home/khujta/projects/apps/gastify/docs/rebuild/api/OPENAPI-SKETCH.md
+- 2026-06-11 17:38 | Write | /home/khujta/projects/apps/gastify/tests/mobile/scripts/seed-ledger-edit-txn.sh
+- 2026-06-11 17:39 | Write | /home/khujta/projects/apps/gastify/tests/mobile/scripts/run-ledger-edit-maestro.sh
+- 2026-06-11 17:39 | Write | /home/khujta/projects/apps/gastify/tests/mobile/maestro/p4-phase3-ledger-edit-active.yaml
+- 2026-06-11 17:41 | Edit | /home/khujta/projects/apps/gastify/web/src/lib/i18n.ts
+- 2026-06-11 17:41 | Edit | /home/khujta/projects/apps/gastify/web/src/lib/i18n.ts
+- 2026-06-11 17:42 | Edit | /home/khujta/projects/apps/gastify/web/src/lib/i18n.ts
+- 2026-06-11 17:42 | Edit | /home/khujta/projects/apps/gastify/web/src/hooks/useGroups.ts
+- 2026-06-11 17:42 | Edit | /home/khujta/projects/apps/gastify/web/src/routes/groups.tsx
+- 2026-06-11 17:44 | Edit | /home/khujta/projects/apps/gastify/tests/mobile/maestro/p4-phase3-ledger-edit-active.yaml
+- 2026-06-11 17:45 | Edit | /home/khujta/projects/apps/gastify/tests/web-e2e/groups.spec.ts
+- 2026-06-11 17:46 | Edit | /home/khujta/projects/apps/gastify/tests/web-e2e/groups.spec.ts
+
+## 2026-06-11 (cont) - DECK-CLEARING Phase 2: P84 self-seeded ledger-edit + P67 erasure docs
+P84 CLOSED with the durable fix: new seed-ledger-edit-txn.sh (seed|cleanup; creds from mobile/.env, never echoed) creates an 'S23 Edit Seed' manual transaction WITH items dated TODAY via the API, so the flow's target is always the newest ledger row; run-ledger-edit-maestro.sh wraps seed -> flow -> trap-cleanup (deletes the row + unlearns the rename-taught merchant mapping; round-trip validated standalone first). Flow rewrite: unconditional item edit (seeded rows always have items), no merchant-restore tail. FIRST device run FAILED at 'Save item' - the button renders below the category selector and the old conditional block had silently never exercised it on-device; added scrollUntilVisible. SECOND RUN PASS (S23, artifacts: runs/staging-e2e/20260611T214455Z-staging-e2e-s23-ledger-edit/). P67 CLOSED: DPO-PROCEDURES.md was the live offender (3 anonymize-in-place claims) - rewritten to D89 hard-delete + PII-free dsr_erasure proof + migration-037 dsr_* purge exemption; identity well 'DELETE /erase (anonymize)' -> 'POST /erasure (hard-delete, D89)'; other cited files verified clean. P23 folded in: OPENAPI-SKETCH §11 as-built note (/reference/ prefix, not /ref/).

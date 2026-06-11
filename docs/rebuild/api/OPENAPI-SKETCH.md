@@ -649,6 +649,8 @@ GET /card-aliases?include_archived=false
 
 Public endpoints (no auth required for category lists; auth required for FX).
 
+> **As built:** the implemented router prefix is `/reference/` (e.g. `GET /api/v1/reference/store-categories`), not the sketched `/ref/` — see `backend/app/api/reference.py`.
+
 | Method | Path | Type | Description | SCOPE |
 |--------|------|------|-------------|-------|
 | GET | `/ref/currencies` | CRUD | List supported currencies | REQ-19 |

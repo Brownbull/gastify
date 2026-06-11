@@ -1,4 +1,8 @@
 appId: com.gastify.mobile
+# P84: SELF-SEEDED flow. Run via tests/mobile/scripts/run-ledger-edit-maestro.sh,
+# which seeds an "S23 Edit Seed" manual transaction (with items) dated TODAY before
+# the flow and deletes it (plus the learned rename mapping) after. The seeded row is
+# the newest ledger entry, so no fixed-fixture scroll target can starve.
 ---
 - waitForAnimationToEnd:
     timeout: 10000
@@ -54,14 +58,15 @@ appId: com.gastify.mobile
     timeout: 30000
 - takeScreenshot:
     path: 01-phase3-ledger-list
+# The seeded row is dated today — newest entry, at/near the top.
 - scrollUntilVisible:
     element:
-      text: "Supermercado Jumbo"
+      text: "S23 Edit Seed"
     direction: DOWN
-    timeout: 40000
+    timeout: 20000
     speed: 60
 - tapOn:
-    text: "Supermercado Jumbo"
+    text: "S23 Edit Seed"
 - extendedWaitUntil:
     visible:
       id: transaction-detail-screen
@@ -103,20 +108,25 @@ appId: com.gastify.mobile
 - tapOn: "Dismiss"
 - swipe:
     direction: UP
-# P84: the item edit only runs when the opened row HAS items (seed churn made the
-# fixed first-row assumption fail); merchant edit + rollback above always run.
-- runFlow:
-    when:
-      visible:
-        id: transaction-item-0-amount
-    commands:
-      - tapOn:
-          id: transaction-item-0-amount
-      - eraseText
-      - inputText: "1234"
-      - hideKeyboard
-      - tapOn:
-          id: transaction-item-0-save-button
+# Seeded with items, so the item edit runs unconditionally again.
+- extendedWaitUntil:
+    visible:
+      id: transaction-item-0-amount
+    timeout: 10000
+- tapOn:
+    id: transaction-item-0-amount
+- eraseText
+- inputText: "1234"
+- hideKeyboard
+# The Save item button sits below the category selector — bring it on-screen.
+- scrollUntilVisible:
+    element:
+      id: transaction-item-0-save-button
+    direction: DOWN
+    timeout: 15000
+    speed: 40
+- tapOn:
+    id: transaction-item-0-save-button
 - takeScreenshot:
     path: 05-phase3-line-item-edit-submitted
 - tapOn: "Back"
@@ -124,26 +134,10 @@ appId: com.gastify.mobile
     visible:
       id: transactions-list
     timeout: 20000
-- takeScreenshot:
-    path: 06-phase3-ledger-list-updated
 - extendedWaitUntil:
     visible: ".*S23 Ledger Edit R12.*"
     timeout: 20000
-
-# P84: restore the merchant so repeated runs keep finding the fixture name (the edit
-# endpoint LEARNS — Phase-5's mapping-management API will let cleanup unlearn too).
-# restore-merchant
-- swipe:
-    direction: DOWN
-- tapOn:
-    id: transaction-edit-merchant
-- eraseText
-- inputText: "Supermercado Jumbo"
-- hideKeyboard
-- tapOn:
-    id: transaction-save-merchant-button
-- extendedWaitUntil:
-    visible: "Supermercado Jumbo"
-    timeout: 20000
 - takeScreenshot:
-    path: 06-phase3-merchant-restored
+    path: 06-phase3-ledger-list-updated
+# No merchant-restore tail: the runner's cleanup deletes the seeded row and
+# unlearns the rename mapping, so every run starts from a fresh seed.

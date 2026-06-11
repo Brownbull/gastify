@@ -34,7 +34,7 @@ Identity + Ownership is the authentication and multi-tenant authorization spine 
 |----------|------|
 | `services/consent.py` | `grant_consent()`, `revoke_consent()`, `list_consents()`, `list_audit_events()`, `get_processing_purpose()`, `anonymize_user_profile()`, `revoke_all_consents()`. Implements consent propagation for AI training + cohort data-sharing. |
 | `api/consent.py` | `/consent` router — GET (list), POST `/{purpose}/grant` (validate purpose, capture IP/UA), POST `/{purpose}/revoke`. |
-| `api/privacy.py` | `/privacy` router — DSR endpoints: GET `/data-access` (export per Law 21.719 / GDPR Art 15 / PIPEDA / CCPA), POST `/rectification`, DELETE `/erase` (anonymize + revoke all), GET `/portability` (JSON/CSV export). |
+| `api/privacy.py` | `/privacy` router — DSR endpoints: GET `/data-access` (export per Law 21.719 / GDPR Art 15 / PIPEDA / CCPA), POST `/rectification`, POST `/erasure` (hard-delete + revoke all — D89, amends D4), GET `/portability` (JSON/CSV export). |
 
 ### Groups CRUD (backend/app/api/groups.py)
 
