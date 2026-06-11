@@ -1,7 +1,7 @@
 """Transactions CRUD endpoints per OpenAPI sketch §2."""
 
 import logging
-from datetime import UTC, date, datetime
+from datetime import UTC, date, datetime, timedelta
 from typing import TYPE_CHECKING, Annotated, Any, cast
 from uuid import UUID
 
@@ -12,6 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.auth.deps import Auth, AuthContext
+from app.config import settings
 from app.db import get_db
 from app.models.reference import Currency
 from app.models.statement import CardAlias
@@ -531,6 +532,24 @@ async def update_transaction_item_flags(
     return _transaction_detail_for_user(refreshed, user_id=auth.user_id)
 
 
+def _assert_within_delete_window(dates: list[date]) -> None:
+    """UX-11: deletes are only allowed for transactions newer than the window, so the
+    statistics of settled periods can't shift underneath the user. 409 names the rule.
+    DSR erasure intentionally bypasses this (bulk path in consent.py, a legal right)."""
+    window = settings.transaction_delete_window_days
+    if window <= 0:
+        return
+    cutoff = datetime.now(UTC).date() - timedelta(days=window)
+    if any(d < cutoff for d in dates):
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=(
+                f"Transactions older than {window} days are locked: past periods' "
+                "statistics are settled. Contact support or use account data export."
+            ),
+        )
+
+
 @router.delete("/{transaction_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_transaction(
     transaction_id: UUID,
@@ -547,6 +566,7 @@ async def delete_transaction(
     if txn is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Transaction not found")
 
+    _assert_within_delete_window([txn.transaction_date])
     await db.delete(txn)
     await db.commit()
 
@@ -647,6 +667,22 @@ async def batch_delete_transactions(
 ) -> BatchResult:
     if not body.transaction_ids:
         return BatchResult(count=0)
+
+    # Whole-batch rejection on any out-of-window row (mirrors the D74 lock pattern:
+    # explicit 409 over silently skipping rows).
+    dates = (
+        (
+            await db.execute(
+                select(Transaction.transaction_date).where(
+                    Transaction.id.in_(body.transaction_ids),
+                    Transaction.ownership_scope_id == auth.ownership_scope_id,
+                )
+            )
+        )
+        .scalars()
+        .all()
+    )
+    _assert_within_delete_window(list(dates))
 
     stmt = delete(Transaction).where(
         Transaction.id.in_(body.transaction_ids),

@@ -69,6 +69,10 @@ class Settings(BaseSettings):
     # P59 defense-in-depth rate limiting (invite + auth-sensitive endpoints). The test
     # suites disable it (they hammer endpoints faster than any human legitimately would).
     rate_limit_enabled: bool = True
+    # UX-11 parity: transactions older than this window are immutable-by-age — deletes
+    # are refused (409) so past periods' statistics stay stable. 0 disables the window.
+    # DSR erasure is NEVER gated by this (a legal right; bulk path, not these endpoints).
+    transaction_delete_window_days: int = Field(default=90, ge=0)
     receipt_extraction_prompt_id: str = "receipt-extraction-current"
     statement_extraction_prompt_id: str = "statement-extraction-current"
     statement_layout_profile_prompt_id: str = "statement-layout-profile-current"
