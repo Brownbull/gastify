@@ -220,9 +220,7 @@ def build_monthly_insights_from_records(
         and record.currency.upper() == normalized_currency
     )
     current_records = tuple(
-        record
-        for record in scoped_records
-        if range_start <= record.transaction_date <= range_end
+        record for record in scoped_records if range_start <= record.transaction_date <= range_end
     )
 
     prepared_current = tuple(_prepare_transaction(record) for record in current_records)
