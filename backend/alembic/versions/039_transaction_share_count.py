@@ -19,6 +19,7 @@ migrator owns the table; everyone else stays policy-bound throughout).
 """
 
 import sqlalchemy as sa
+
 from alembic import op
 
 revision = "039"
