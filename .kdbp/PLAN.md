@@ -1,34 +1,36 @@
 # Active Plan
 
-<!-- status: complete -->
+<!-- status: active -->
 <!-- project_type: code -->
 
 ## Goal
 
-Feature-correctness verification: prove the behavior contracts of existing features that must survive the upcoming UI overhaul — the learned-mappings loop, transaction delete (+ the 90-day window rule, to build), stats reacting to edits/shares (personal + group), reconciliation outcomes, and group admin operations — on web AND the S23.
+Functionality completion: fix the two filed bugs now (P83, P84) and BUILD the missing user-facing functionality the audit found — matched-transaction indicator, per-user currency switch (CLP↔USD), group admin controls, learned-mappings management — each as backend + minimal FUNCTIONAL UI + tests, fully independent of the parallel visual overhaul (which re-skins only; it must find every behavior already working and tested).
 
 ## Context
 
-- **Maturity:** mvp; Phase 2 tiered ent (data deletion + stats integrity).
+- **Maturity:** mvp.
 - **Created:** 2026-06-11
-- **Last Updated:** 2026-06-11 (authored after the feature audit: learned mappings FULLY BUILT (learn on merchant/store_category/item-name/item_category edits → auto-apply on next scan, usage_count) but ZERO tests on the loop; batch-update suspected NOT to learn (inconsistency); DELETE /transactions exists but hard + no 90-day window (UX-11 parity gap — user wants delete gated ≤90 days so old-period stats stay stable); stats-react-to-edits/group-stats/recon-matrix/admin-ops are e2e gaps. S23 reachable via WiFi ADB.)
+- **Last Updated:** 2026-06-11 (authored per user directive: bugs triaged fix-now; missing functionality built NOW unless too large; the design-lab session is VISUAL ONLY. Deferred with rationale: credit UX (no payment provider; billing enforcement deliberately off), onboarding/offline-banner/empty-states/undo-toast/theme-preview (presentation-dominant → the visual session).)
 
 ## Phases
 
 | # | Phase | Description | Tier | Complexity | Exec | Review | Commit | Push |
 |---|-------|-------------|------|------------|------|--------|--------|------|
-| 1 | Learned-mappings contract | API-level tests for the full loop: edit merchant/category → MerchantMapping; edit item name/category → CategoryMapping; NEXT fixture scan auto-applies both; usage_count increments; re-edit updates the mapping. Fix batch-update if it doesn't learn (consistency). | mvp | med | ✅ | ✅ | ✅ | ✅ |
-| 2 | Delete + 90-day window | Implement UX-11 parity: DELETE /transactions/{id} refused for transactions older than 90 days (409, config-tunable window); DSR erasure NEVER gated (separate bulk path). Tests: delete ≤90d works + stats reflect it; >90d blocked; erasure still total. Web e2e delete journey. | ent | med | ✅ | ✅ | ✅ | ✅ |
-| 3 | Stats-react + groups + recon e2e | Web e2e: category edit → dashboard/report figures CHANGE; share txn → GROUP stats include it; group admin ops (remove member, role change, delete group); reconciliation outcome matrix (matched / statement-only / app-only — fixture-driven where possible, backend-level otherwise). S23 mirrors: mappings loop + delete + stats-react. | mvp | med-high | ✅ | ✅ | ✅ | ✅ |
+| 1 | Bug fixes (P83+P84) | P83: deleting a group (or leave-with-delete) resets is_shared on source transactions whose LAST group copy is gone — no more locked-forever strands; shared helper + tests. P84: ledger-edit Maestro flow made row-robust (pick a row with items, lock-resilient). | mvp | low-med | ⬜ | ⬜ | ⬜ | ⬜ |
+| 2 | Matched-transaction indicator | Expose reconciliation match state per transaction (list + detail API) + a minimal UI badge on rows/detail; e2e asserts a matched txn shows it after statement reconcile. | mvp | med | ⬜ | ⬜ | ⬜ | ⬜ |
+| 3 | User currency switch | PATCH settings endpoint for users.default_currency (CLP↔USD, validated vs currencies) + expose in profile API; the dashboard/display consumes it (primary-display preference per UX-10); minimal settings select; tests both directions. | mvp | med | ⬜ | ⬜ | ⬜ | ⬜ |
+| 4 | Group admin UI | Web controls for the EXISTING backend admin ops: remove member, change role, delete group (delete also un-strands via P83 fix); e2e for each incl. the admin-must-promote-before-leave 409 path. | mvp | med | ⬜ | ⬜ | ⬜ | ⬜ |
+| 5 | Learned-mappings management | UX-4 parity: GET+DELETE APIs for merchant/item mappings + a minimal settings list with delete; e2e: delete a mapping → next scan no longer applies it. | mvp | med | ⬜ | ⬜ | ⬜ | ⬜ |
 
 ## Current Phase
 
-(plan complete)
+Phase 1: Bug fixes (P83+P84)
 
 ## Risks
 
 | Risk | Severity | Mitigation |
 |------|----------|------------|
-| The 90-day delete gate breaks DSR erasure or batch ops | high | erasure uses delete_user_personal_data (bulk SQL, not the endpoint) — explicit test that erasure ignores the window |
-| Mapping auto-apply tests depend on fixture scan internals | med | drive via the real persist path (fixture provider) not mocks |
-| Stats e2e flake on shared staging data | med | timestamped test data + the P82 cleanup pattern |
+| is_shared reset hits a source whose copy still exists elsewhere | high | reset ONLY when no live group copy remains (count copies across all groups); contract tests both ways |
+| Currency switch implies recompute semantics | med | display-preference ONLY (UX-10: native primary) — totals stay per-currency + USD shadow; no stored-amount rewrites |
+| UI work collides with the visual overhaul | low | minimal functional markup with stable data-testids; overhaul re-skins on top |
