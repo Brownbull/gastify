@@ -4292,3 +4292,16 @@ REAL BUGS FOUND + FIXED (the sweep's yield):
 TEST-INFRA FINDINGS: MAX_GROUPS cap 409 from accumulated spec groups (5 purged; P82 filed); golden-journey requires seed-scan-fixture.sh first (unseeded gallery → INVALID_IMAGE); deploy races mid-run produced 2 false failures (sequence runs around deploys).
 FALSE ALARM RETRACTED: the "transient FORCE-RLS empty reads" theory was MY probe-script bug (counted .items; the field is .data) + CORS — API/RLS/auth were healthy throughout (re-verified end-to-end on the deployed DB as a side effect).
 STATE: statement fixes on staging (783b8a0, not yet promoted — ride the Phase-4 promote). Phase 4 gates unchanged (Exec 🔄; CI PG-concurrency proof passed earlier on 57f017c push).
+- 2026-06-10 16:04 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/_spikes/spikeLayout.tsx
+- 2026-06-10 16:05 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/_spikes/ButtonSpike.stories.tsx
+- 2026-06-10 16:05 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/_spikes/ChipSpike.stories.tsx
+- 2026-06-10 16:05 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/_spikes/BadgeSpike.stories.tsx
+- 2026-06-10 16:05 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/_spikes/InputSpike.stories.tsx
+- 2026-06-10 16:06 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/_spikes/IconButtonSpike.stories.tsx
+
+## 2026-06-11 00:55 — PHASE 4 Exec ✅ / Review ✅ / Commit ✅ (promote next)
+EXEC (57f017c): P36 money-bug fixed — deduct_scan_credit = atomic UPDATE...WHERE scan_credits>0 RETURNING (N concurrent deducts = exactly min(N,available), never negative); get_or_create_balance = INSERT...ON CONFLICT DO NOTHING (no TOCTOU); both dialect-aware. Enforcement wired into POST /scans (402 when exhausted), gated by billing_enforcement_enabled (default OFF — D89 plumbing-only, no payment provider; pre-launch users not hard-blocked). P36 resolved.
+RUNTIME EVIDENCE (D90): CI run 27316344087 GREEN — test_billing_postgres ran on real Postgres (NOT skipped): 50 concurrent deducts against 20 credits → exactly 20 won, the credit ROW = 0 (the observable counter, not the hook return). Enforcement: sqlite tests assert the 402 + row 5→4 on submit. HONEST LIMIT: the deployed enforced-credit-block proof is flag-gated (the flag is intentionally OFF everywhere incl. prod — flipping it on staging-e2e would block the shared e2e user's scans); the CI-PG concurrency proof + the 402 tests cover the mechanism.
+REVIEW (self — spend limit): deduct sits in the request transaction (commits WITH the scan; failed submit rolls the credit back); enforcement short-circuits when the flag is off (zero prod behavior change); dialect upsert correct on both backends. No findings.
+ALSO RIDING THE PROMOTE: the E2E-sweep statement fixes (f94850a SSE GUC + stuck-requeue, 783b8a0 FAILED-dup retry — verified behaviorally on deployed staging-e2e) + web-e2e port fix + bookkeeping.
+GATES: Phase 4 Exec ✅ / Review ✅ / Commit ✅ / Push ⬜ → promoting staging→main (user: "finish phase 4").
