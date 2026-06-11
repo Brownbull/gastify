@@ -1,5 +1,7 @@
 # P7 Compliance + Launch Hardening — Exit Gate Evidence Packet
 
+> **SUPERSEDED (2026-06-11)** by [P16-LAUNCH-GO-NO-GO.md](P16-LAUNCH-GO-NO-GO.md) — every item deferred here as "operational" was closed by P16 Phases 1–4 with deployed proofs.
+
 > Roadmap phase **P7** (consolidates + audits REQ-20 consent/processing-register +
 > REQ-21 observability; adds monetization plumbing + launch hardening).
 > Compiled 2026-05-29 during the code-complete + defer-runtime roadmap drive.
