@@ -110,8 +110,15 @@ export async function firstMatchedTransactionId(): Promise<string | undefined> {
   });
   if (!res.ok) return undefined;
   const body = await res.json();
-  return (body.data as Array<{ id: string; statement_matched?: boolean }>).find(
-    (t) => t.statement_matched,
+  const rows = body.data as Array<{
+    id: string;
+    statement_matched?: boolean;
+    is_shared?: boolean;
+  }>;
+  // Prefer an UNSHARED matched row: D74's share-lock would shadow the match-lock
+  // semantics a caller wants to exercise.
+  return (
+    rows.find((t) => t.statement_matched && !t.is_shared) ?? rows.find((t) => t.statement_matched)
   )?.id;
 }
 
@@ -147,4 +154,49 @@ export async function cleanupLearnedMappings(targetPattern = /^(E2E |MODIFIED|S2
   } catch {
     // Best-effort.
   }
+}
+
+/** Delete a statement via the API (cascades runs+verdicts — the unlock path). */
+export async function deleteStatementById(id: string): Promise<boolean> {
+  const base = env.VITE_API_BASE_URL;
+  const token = await idToken();
+  if (!base || !token) return false;
+  const res = await fetch(`${base}/api/v1/statements/${id}`, {
+    method: "DELETE",
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return res.status === 204;
+}
+
+/** The most recent statement's id (API). */
+export async function latestStatementId(): Promise<string | undefined> {
+  const base = env.VITE_API_BASE_URL;
+  const token = await idToken();
+  if (!base || !token) return undefined;
+  const res = await fetch(`${base}/api/v1/statements`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) return undefined;
+  const rows = (await res.json()) as Array<{ id: string }>;
+  return rows[0]?.id;
+}
+
+/** Delete EVERY statement (cascades all runs+verdicts) — the deterministic unlock. */
+export async function deleteAllStatements(): Promise<number> {
+  const base = env.VITE_API_BASE_URL;
+  const token = await idToken();
+  if (!base || !token) return 0;
+  const auth = { Authorization: `Bearer ${token}` };
+  const res = await fetch(`${base}/api/v1/statements`, { headers: auth });
+  if (!res.ok) return 0;
+  const rows = (await res.json()) as Array<{ id: string }>;
+  let n = 0;
+  for (const r of rows) {
+    const del = await fetch(`${base}/api/v1/statements/${r.id}`, {
+      method: "DELETE",
+      headers: auth,
+    });
+    if (del.status === 204) n++;
+  }
+  return n;
 }
