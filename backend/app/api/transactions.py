@@ -2,7 +2,7 @@
 
 import logging
 from datetime import UTC, date, datetime, timedelta
-from typing import TYPE_CHECKING, Annotated, Any, cast
+from typing import TYPE_CHECKING, Annotated, Any, Literal, cast
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
@@ -88,6 +88,15 @@ async def list_transactions(
     merchant: str | None = Query(default=None),
     currency: str | None = Query(default=None),
     card_alias: str | None = Query(default=None),
+    source: Literal["scan", "manual", "statement", "import"] | None = Query(
+        default=None, description="Filter by origin (receipt_type)."
+    ),
+    matched: bool | None = Query(
+        default=None,
+        description=(
+            "true: only transactions matched against a card statement; false: only unmatched ones."
+        ),
+    ),
 ) -> PaginatedResponse[TransactionListItem]:
     query = (
         select(Transaction)
@@ -107,6 +116,18 @@ async def list_transactions(
         query = query.where(Transaction.currency == currency)
     if card_alias:
         query = query.where(Transaction.alias.ilike(f"%{card_alias}%"))
+    if source:
+        query = query.where(Transaction.receipt_type == source)
+    if matched is not None:
+        matched_subq = (
+            select(StatementReconciliationVerdict.id)
+            .where(
+                StatementReconciliationVerdict.receipt_transaction_id == Transaction.id,
+                StatementReconciliationVerdict.verdict == ReconciliationVerdict.MATCHED,
+            )
+            .exists()
+        )
+        query = query.where(matched_subq if matched else ~matched_subq)
     if cursor:
         parts = cursor.split("|", 1)
         if len(parts) == 2:

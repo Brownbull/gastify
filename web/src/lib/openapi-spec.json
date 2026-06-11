@@ -411,6 +411,48 @@
               ],
               "title": "Card Alias"
             }
+          },
+          {
+            "name": "source",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "scan",
+                    "manual",
+                    "statement",
+                    "import"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by origin (receipt_type).",
+              "title": "Source"
+            },
+            "description": "Filter by origin (receipt_type)."
+          },
+          {
+            "name": "matched",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "true: only transactions matched against a card statement; false: only unmatched ones.",
+              "title": "Matched"
+            },
+            "description": "true: only transactions matched against a card statement; false: only unmatched ones."
           }
         ],
         "responses": {

@@ -7,7 +7,7 @@ cascades the verdicts away and UNLOCKS — the full cycle is pinned.
 """
 
 import uuid
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, date, datetime, timedelta
 
 import pytest
 from sqlalchemy import select
@@ -127,3 +127,53 @@ async def test_deleting_the_statement_unlocks(client, engine):
     edit = await client.patch(f"/api/v1/transactions/{txn_id}", json={"merchant": "Unlocked Store"})
     assert edit.status_code == 200
     assert (await client.delete(f"/api/v1/transactions/{txn_id}")).status_code == 204
+
+
+@pytest.mark.asyncio
+async def test_list_filters_source_and_matched(client, engine):
+    """Phase-2 filters: source (receipt_type origin) + matched (reconciliation state)
+    — the ledger can isolate scan-only / statement-derived / manual / matched rows."""
+    factory = _factory(engine)
+    async with factory() as db:
+        matched_id, _ = await _seed_matched(db)  # receipt_type None, MATCHED verdict
+        scan_txn = Transaction(
+            ownership_scope_id=TEST_SCOPE_ID,
+            transaction_date=date(2026, 6, 2),
+            merchant="Scan Origin",
+            total_minor=100,
+            currency="CLP",
+            receipt_type="scan",
+        )
+        manual_txn = Transaction(
+            ownership_scope_id=TEST_SCOPE_ID,
+            transaction_date=date(2026, 6, 3),
+            merchant="Manual Origin",
+            total_minor=200,
+            currency="CLP",
+            receipt_type="manual",
+        )
+        stmt_txn = Transaction(
+            ownership_scope_id=TEST_SCOPE_ID,
+            transaction_date=date(2026, 6, 4),
+            merchant="Statement Origin",
+            total_minor=300,
+            currency="CLP",
+            receipt_type="statement",
+        )
+        db.add_all([scan_txn, manual_txn, stmt_txn])
+        await db.commit()
+
+    async def ids(qs: str) -> set[str]:
+        resp = await client.get(f"/api/v1/transactions?{qs}")
+        assert resp.status_code == 200
+        return {row["merchant"] for row in resp.json()["data"]}
+
+    assert await ids("source=scan") == {"Scan Origin"}
+    assert await ids("source=manual") == {"Manual Origin"}
+    assert await ids("source=statement") == {"Statement Origin"}
+    assert "Matched Store" in await ids("matched=true")
+    unmatched = await ids("matched=false")
+    assert "Matched Store" not in unmatched
+    assert {"Scan Origin", "Manual Origin", "Statement Origin"} <= unmatched
+    # Combinable with existing filters:
+    assert await ids("source=manual&merchant=Manual") == {"Manual Origin"}

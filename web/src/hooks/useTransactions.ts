@@ -18,6 +18,10 @@ export interface TransactionFilters {
   merchant?: string;
   currency?: string;
   category?: string;
+  /** Origin filter: scan | manual | statement | import (receipt_type). */
+  source?: "scan" | "manual" | "statement" | "import";
+  /** Reconciliation filter: true = matched against a statement, false = unmatched. */
+  matched?: boolean;
 }
 
 export const transactionKeys = {
@@ -61,6 +65,8 @@ export function useTransactions(filters: TransactionFilters = {}) {
             merchant: filters.merchant || undefined,
             currency: filters.currency || undefined,
             category: filters.category || undefined,
+            source: filters.source || undefined,
+            matched: filters.matched ?? undefined,
           },
         },
       });

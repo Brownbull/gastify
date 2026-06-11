@@ -3536,6 +3536,10 @@ export interface operations {
                 merchant?: string | null;
                 currency?: string | null;
                 card_alias?: string | null;
+                /** @description Filter by origin (receipt_type). */
+                source?: ("scan" | "manual" | "statement" | "import") | null;
+                /** @description true: only transactions matched against a card statement; false: only unmatched ones. */
+                matched?: boolean | null;
             };
             header?: never;
             path?: never;

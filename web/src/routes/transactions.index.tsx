@@ -295,6 +295,41 @@ function FilterBar({ filters, onChange }: FilterBarProps) {
           }}
         />
       </label>
+      <label className="flex flex-col gap-1 text-xs" style={{ color: "var(--text-muted)" }}>
+        Source
+        <select
+          data-testid="filter-source"
+          value={filters.source ?? ""}
+          onChange={(e) =>
+            update({ source: (e.target.value || undefined) as TransactionFilters["source"] })
+          }
+          className="rounded-md border px-2 py-1.5 text-sm"
+          style={{ borderColor: "var(--border)", color: "var(--text)" }}
+        >
+          <option value="">All</option>
+          <option value="scan">Scan</option>
+          <option value="manual">Manual</option>
+          <option value="statement">Statement</option>
+        </select>
+      </label>
+      <label className="flex flex-col gap-1 text-xs" style={{ color: "var(--text-muted)" }}>
+        Statement match
+        <select
+          data-testid="filter-matched"
+          value={filters.matched === undefined ? "" : String(filters.matched)}
+          onChange={(e) =>
+            update({
+              matched: e.target.value === "" ? undefined : e.target.value === "true",
+            })
+          }
+          className="rounded-md border px-2 py-1.5 text-sm"
+          style={{ borderColor: "var(--border)", color: "var(--text)" }}
+        >
+          <option value="">All</option>
+          <option value="true">Matched</option>
+          <option value="false">Unmatched</option>
+        </select>
+      </label>
 
       <label className="flex flex-col gap-1">
         <span className="text-xs" style={{ color: "var(--text-muted)" }}>
