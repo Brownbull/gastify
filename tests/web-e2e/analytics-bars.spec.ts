@@ -29,6 +29,13 @@ async function label(page: Page): Promise<string> {
   return page.getByTestId("period-label").innerText();
 }
 
+/** Wait until the distribution settles into content or the explicit empty state. */
+async function settled(page: Page): Promise<void> {
+  await expect(page.getByText(/total spend|no spend|sin gastos/i).first()).toBeVisible({
+    timeout: 20_000,
+  });
+}
+
 /** Step prev until the label matches, with a hard cap (data lives in 2026-05). */
 async function stepBackTo(page: Page, target: string, cap = 30): Promise<void> {
   for (let i = 0; i < cap; i++) {
@@ -57,10 +64,13 @@ test("level bar: L1→L4 sweep renders distinct cuts; level survives period step
       "aria-pressed",
       "true",
     );
-    // The cut must settle into EITHER slices or the explicit empty state — never a crash.
-    await page.waitForTimeout(900);
+    // The cut must settle into EITHER slices or the explicit empty state — never a
+    // crash. Wait for real content (a fixed delay races the tree load).
+    await expect(
+      donutSection.getByText(/total spend|no spend|sin gastos/i).first(),
+    ).toBeVisible({ timeout: 20_000 });
     const text = await donutSection.innerText();
-    expect(text.length).toBeGreaterThan(10);
+    expect(text.length).toBeGreaterThan(30);
     cuts.push(text);
     await proof(page, `0${level}-level-L${level}-2026-05`);
   }
@@ -91,6 +101,7 @@ test("temporal bar: key forms, year-boundary stepping, future clamp, current res
   await stepBackTo(page, "2026-01");
   await page.getByTestId("period-prev").click();
   await expect(page.getByTestId("period-label")).toHaveText("2025-12");
+  await settled(page);
   await proof(page, "06-month-year-boundary-2025-12");
 
   // --- Quarter: switching RESETS to the current quarter; boundary Q1 → prior Q4.
@@ -101,6 +112,7 @@ test("temporal bar: key forms, year-boundary stepping, future clamp, current res
   await stepBackTo(page, "2026-Q1");
   await page.getByTestId("period-prev").click();
   await expect(page.getByTestId("period-label")).toHaveText("2025-Q4");
+  await settled(page);
   await proof(page, "07-quarter-year-boundary-2025-Q4");
 
   // --- Year: form + stepping.
@@ -108,6 +120,7 @@ test("temporal bar: key forms, year-boundary stepping, future clamp, current res
   await expect(page.getByTestId("period-label")).toHaveText(/^\d{4}$/);
   await page.getByTestId("period-prev").click();
   await expect(page.getByTestId("period-label")).toHaveText(/^\d{4}$/);
+  await settled(page);
   await proof(page, "08-year-view");
 
   // --- Week: form, the ISO year-boundary edge (2026-W01 → prev → 2025-W52, since
@@ -116,12 +129,15 @@ test("temporal bar: key forms, year-boundary stepping, future clamp, current res
   const wk = await label(page);
   expect(wk).toMatch(/^\d{4}-W\d{2}$/);
   await expect(page.getByTestId("period-next")).toBeDisabled();
+  await settled(page);
   await proof(page, "09-week-current");
 
   await stepBackTo(page, "2026-W01", 40);
+  await settled(page);
   await proof(page, "10-week-W01");
   await page.getByTestId("period-prev").click();
   await expect(page.getByTestId("period-label")).toHaveText("2025-W52");
+  await settled(page);
   await proof(page, "11-week-year-boundary-2025-W52");
 
   // Weekly with data: ISO week 2026-W20 contains 2026-05-(11..17) — seeded month.
@@ -131,12 +147,43 @@ test("temporal bar: key forms, year-boundary stepping, future clamp, current res
     await page.getByTestId("period-next").click();
   }
   await expect(page.getByTestId("period-label")).toHaveText("2026-W20");
-  await page.waitForTimeout(900); // let the week's distribution settle
+  await settled(page);
   await proof(page, "12-week-with-data-2026-W20");
 
   // --- Switching back to month resets to the CURRENT month (not the stepped week).
   await page.getByTestId("temporal-pill-month").click();
   await expect(page.getByTestId("period-label")).toHaveText(/^\d{4}-\d{2}$/);
   await expect(page.getByTestId("period-next")).toBeDisabled();
+  await settled(page);
   await proof(page, "13-back-to-current-month");
+});
+
+test("week-to-week walk: consecutive weeks each render data (seeded demo span)", async ({
+  page,
+}) => {
+  test.setTimeout(180_000);
+  await signIn(page);
+  await page.goto("/trends");
+  await expect(page.getByTestId("temporal-bar")).toBeVisible({ timeout: 20_000 });
+  await page.getByTestId("temporal-pill-week").click();
+  await expect(page.getByTestId("period-label")).toHaveText(/^\d{4}-W\d{2}$/);
+
+  // Walk back four consecutive weeks: every one renders a populated distribution
+  // (the demo seed covers every ISO week since 2025-W45).
+  for (let step = 1; step <= 4; step++) {
+    await page.getByTestId("period-prev").click();
+    const key = await label(page);
+    expect(key).toMatch(/^\d{4}-W\d{2}$/);
+    // Populated: the donut total renders (not the empty state).
+    await expect(page.getByText(/total spend/i).first()).toBeVisible({ timeout: 20_000 });
+    await page.waitForTimeout(700); // let the donut + legend settle for the proof
+    await proof(page, `1${3 + step}-week-walk-${key}`);
+  }
+
+  // And the level bar stays meaningful mid-walk: L4 shows item families for this week.
+  await page.getByTestId("level-pill-4").click();
+  await expect(page.getByTestId("level-pill-4")).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByText(/total spend/i).first()).toBeVisible({ timeout: 20_000 });
+  await page.waitForTimeout(700);
+  await proof(page, "18-week-walk-L4-items");
 });

@@ -74,3 +74,25 @@ async def test_tree_and_monthly_accept_week_periods(client, engine):
 
     bad = await client.get("/api/v1/insights/tree?period=2026-W54")
     assert bad.status_code == 422
+
+
+@pytest.mark.asyncio
+async def test_week_starting_on_day_one_of_month(client, engine):
+    """W23-2026 starts MONDAY JUNE 1 — a week whose start coincides with month-begin
+    (the deployed gallery caught this returning empty)."""
+    factory = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+    async with factory() as db:
+        for d in (date(2026, 6, 1), date(2026, 6, 3), date(2026, 6, 6)):
+            db.add(
+                Transaction(
+                    ownership_scope_id=TEST_SCOPE_ID,
+                    transaction_date=d,
+                    merchant=f"W23 {d}",
+                    total_minor=1000,
+                    currency="CLP",
+                )
+            )
+        await db.commit()
+    tree = await client.get("/api/v1/insights/tree?period=2026-W23")
+    assert tree.status_code == 200
+    assert tree.json()["total_spend_minor"] == 3000
