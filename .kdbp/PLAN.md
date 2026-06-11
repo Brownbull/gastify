@@ -17,13 +17,13 @@ Feature-correctness verification: prove the behavior contracts of existing featu
 
 | # | Phase | Description | Tier | Complexity | Exec | Review | Commit | Push |
 |---|-------|-------------|------|------------|------|--------|--------|------|
-| 1 | Learned-mappings contract | API-level tests for the full loop: edit merchant/category → MerchantMapping; edit item name/category → CategoryMapping; NEXT fixture scan auto-applies both; usage_count increments; re-edit updates the mapping. Fix batch-update if it doesn't learn (consistency). | mvp | med | ⬜ | ⬜ | ⬜ | ⬜ |
-| 2 | Delete + 90-day window | Implement UX-11 parity: DELETE /transactions/{id} refused for transactions older than 90 days (409, config-tunable window); DSR erasure NEVER gated (separate bulk path). Tests: delete ≤90d works + stats reflect it; >90d blocked; erasure still total. Web e2e delete journey. | ent | med | ⬜ | ⬜ | ⬜ | ⬜ |
+| 1 | Learned-mappings contract | API-level tests for the full loop: edit merchant/category → MerchantMapping; edit item name/category → CategoryMapping; NEXT fixture scan auto-applies both; usage_count increments; re-edit updates the mapping. Fix batch-update if it doesn't learn (consistency). | mvp | med | ✅ | ✅ | ✅ | ✅ |
+| 2 | Delete + 90-day window | Implement UX-11 parity: DELETE /transactions/{id} refused for transactions older than 90 days (409, config-tunable window); DSR erasure NEVER gated (separate bulk path). Tests: delete ≤90d works + stats reflect it; >90d blocked; erasure still total. Web e2e delete journey. | ent | med | ✅ | ✅ | ✅ | ✅ |
 | 3 | Stats-react + groups + recon e2e | Web e2e: category edit → dashboard/report figures CHANGE; share txn → GROUP stats include it; group admin ops (remove member, role change, delete group); reconciliation outcome matrix (matched / statement-only / app-only — fixture-driven where possible, backend-level otherwise). S23 mirrors: mappings loop + delete + stats-react. | mvp | med-high | ⬜ | ⬜ | ⬜ | ⬜ |
 
 ## Current Phase
 
-Phase 1: Learned-mappings contract
+Phase 3: Stats-react + groups + recon e2e
 
 ## Risks
 

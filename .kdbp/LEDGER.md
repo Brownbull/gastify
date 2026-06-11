@@ -4328,3 +4328,15 @@ EXEC (881ebf4 + 7a2dce5): P82 — page-independent groups-spec cleanup (Firebase
 HOTFIX (the avatar e2e caught it): Phase-1's rate limiting 500'd every VALID invite preview — slowapi headers_enabled injects X-RateLimit into a `response: Response` param the endpoints lacked; 404/429 paths short-circuit before injection, so the unit tests missed it. Fixed (response params) + a 200-path regression test. Avatar spec re-run GREEN (44s vs the 120s-timeout failures — the timeouts WERE the 500s).
 CHECKS: backend 877 passed; CI green incl. test_erasure_postgres + the 4 rate-limit tests on real PG; groups-hardening 2/2 on deployed staging-e2e.
 LESSON (recurring): unit tests prove the path you thought to test; the e2e suite caught the success-path 500 the 404/429-only tests missed. Counterpart of the D90 sqlite-vs-PG lesson, now for response-path coverage.
+- 2026-06-10 23:54 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/_spikes/AtomSpike.tsx
+- 2026-06-10 23:55 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/_spikes/ButtonSpike.stories.tsx
+- 2026-06-10 23:55 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/_spikes/ChipSpike.stories.tsx
+- 2026-06-10 23:55 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/_spikes/BadgeSpike.stories.tsx
+- 2026-06-10 23:55 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/_spikes/InputSpike.stories.tsx
+- 2026-06-10 23:56 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/_spikes/IconButtonSpike.stories.tsx
+
+## 2026-06-11 05:05 — FEATURE-CORRECTNESS Phases 1+2 COMPLETE (mappings loop + 90-day window)
+PHASE 1 (7c849a1): learned-mappings contract — the loop was FULLY BUILT but had ZERO tests. 5 contracts now pin it: learn merchant name+category on edit; learn item name+category on edit; upsert (latest correction wins, no dup rows); THE LOOP (a new scan of the same receipt through the REAL persist path auto-applies all four learned fields — names+categories replaced, source='mapping', usage_count increments); batch learning. FIX: batch-update previously did NOT learn (bulk UPDATE only, unlike single edit) — now remembers merchant→category per distinct original merchant.
+PHASE 2 (8b81449): the 90-day delete window (UX-11 parity, user-requested) — transaction_delete_window_days=90 (0 disables); single + batch delete 409 for older rows (whole-batch rejection, D74 pattern); EXACT-boundary day still deletable; DSR ERASURE EXPLICITLY UNGATED (legal right, bulk path) — pinned by test. 6 contracts.
+CHECKS: backend 888 passed (+11); ruff/format/mypy clean; staging CI green. These contracts pin API behavior, not rendering — they survive the frontend overhaul by design.
+NEXT: Phase 3 — stats-react-to-edits e2e (personal + group), group admin ops, reconciliation outcome matrix, S23 mirrors (WiFi ADB — needs the device's IP:port).
