@@ -19,12 +19,12 @@ Statement-matching hardening + ledger usability: lock matched transactions (the 
 |---|-------|-------------|------|------------|------|--------|--------|------|
 | 1 | Lock-on-match | Matched transactions (MATCHED verdict exists) refuse content edits + delete (409 naming the rule; D74's lock pattern, distinct message). Batch ops too. Statement deletion unlocks (verdicts go with the run). Contracts incl. the unlock path. | ent | med | ✅ | ✅ | ✅ | ✅ |
 | 2 | Ledger filters | API: source (receipt_type) + matched (bool) params on the list; web: a filter bar (date range, category, merchant, source, matched; active-count + clear-all per legacy) with stable testids. Contracts + types regen. | mvp | med | ✅ | ✅ | ✅ | ✅ |
-| 3 | Manual entry UI | A functional "Add transaction" form over the EXISTING POST: merchant, date, time, place (country/city), items one-by-one (total auto-sum), receipt_type=manual. Mappings/learning apply on later edits as usual. e2e: create → appears in ledger → filter source=manual finds it. | mvp | med | 🔄 | ⬜ | ⬜ | ⬜ |
-| 4 | Statement journey proof | The full e2e with screenshots: upload statement → reconcile → matched txn badge (have) → EDIT REFUSED (locked) → filters isolate matched / scan-only / statement-only → delete statement → unlocked again. | mvp | med | ⬜ | ⬜ | ⬜ | ⬜ |
+| 3 | Manual entry UI | A functional "Add transaction" form over the EXISTING POST: merchant, date, time, place (country/city), items one-by-one (total auto-sum), receipt_type=manual. Mappings/learning apply on later edits as usual. e2e: create → appears in ledger → filter source=manual finds it. | mvp | med | ✅ | ✅ | ✅ | ✅ |
+| 4 | Statement journey proof | The full e2e with screenshots: upload statement → reconcile → matched txn badge (have) → EDIT REFUSED (locked) → filters isolate matched / scan-only / statement-only → delete statement → unlocked again. | mvp | med | 🔄 | ⬜ | ⬜ | ⬜ |
 
 ## Current Phase
 
-Phase 3: Manual entry UI
+Phase 4: Statement journey proof
 
 ## Risks
 
