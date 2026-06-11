@@ -19,13 +19,19 @@ from fastapi import (
     UploadFile,
     status,
 )
-from sqlalchemy import select
+from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.deps import Auth  # noqa: TC001 - FastAPI needs Annotated dependency at runtime.
 from app.config import settings
 from app.db import get_db
-from app.models.statement import CardAlias, Statement, StatementLine, StatementStatus
+from app.models.statement import (
+    CardAlias,
+    Statement,
+    StatementLine,
+    StatementReconciliationRun,
+    StatementStatus,
+)
 from app.schemas.statement import (
     StatementLineRecordResponse,
     StatementProcessRequest,
@@ -262,6 +268,16 @@ async def delete_statement(
     if statement is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Statement not found")
     pdf_path = Path(statement.file_path)
+    # Delete the RUNS first (their verdicts CASCADE away). Letting the cascade start
+    # from the statement deletes the LINES first, whose SET NULL on
+    # verdicts.statement_line_id turns statement_only verdicts into both-sources-NULL
+    # rows — violating ck_recon_verdicts_has_source before the run cascade reaches
+    # them (PG-only ordering; invisible on SQLite).
+    await db.execute(
+        delete(StatementReconciliationRun).where(
+            StatementReconciliationRun.statement_id == statement.id
+        )
+    )
     await db.delete(statement)
     await db.commit()
     # Remove the stored PDF. The per-statement DIRECTORY is only removed when it
