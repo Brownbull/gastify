@@ -2,7 +2,6 @@
 accepted by the tree + monthly endpoints — the data contract behind the temporal bar's
 weekly view (the series endpoint already speaks weeks)."""
 
-import uuid
 from datetime import date
 
 import pytest

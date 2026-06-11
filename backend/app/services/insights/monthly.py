@@ -222,7 +222,7 @@ def build_monthly_insights_from_records(
     current_records = tuple(
         record
         for record in scoped_records
-        if normalized_period <= record.transaction_date <= range_end
+        if range_start <= record.transaction_date <= range_end
     )
 
     prepared_current = tuple(_prepare_transaction(record) for record in current_records)
