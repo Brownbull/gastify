@@ -4381,3 +4381,8 @@ FOUND: the mutation already existed (rectification, FK-validated). BUILT (b54991
 
 ## 2026-06-11 16:20 - FUNCTIONALITY Phase 4 COMPLETE (group admin ops e2e)
 FOUND: the admin UI already existed (promote/demote, remove-with-confirm, leave, owner delete) - the earlier audit missed it because the controls had NO testids. BUILT: 5 stable testids (overhaul contract) + the full two-user owner journey e2e (promote -> role label updates -> demote -> remove -> UI delete -> gone). PASSED first try, 32s, vs deployed staging-e2e.
+- 2026-06-11 11:32 | Write | /home/khujta/projects/apps/gastify/backend/app/api/mappings.py
+
+## 2026-06-11 17:10 - FUNCTIONALITY-COMPLETION PLAN COMPLETE (5/5 phases)
+Phase 5 (0439474+): mappings management API (list + delete per kind, scope-bound) with the UNLEARN contract (deleted mapping -> the next scan keeps ORIGINAL names, backend-pinned); settings Learned Mappings section (delete-and-relearn model per UX-4); cleanupLearnedMappings() wired into the teaching specs (the durable fix for learning pollution). E2E (15.8s): UI merchant edit -> row in settings -> delete -> gone. TWO SPEC BUGS trace-diagnosed en route: the optimistic merchant update let the spec navigate BEFORE the PATCH landed (status -1 aborted request in the trace - nothing learned); ancestor-div locator matched 25 delete buttons.
+PLAN TOTALS: P83 fixed + prod-healed; P84 patched/refiled; matched-transaction indicator built+proven; currency switch built+proven; group admin testids + two-user journey; mappings management + unlearn. 894 backend tests; every phase promoted to prod same-day.
