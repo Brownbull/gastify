@@ -17,7 +17,7 @@ Post-launch-gate hardening + hygiene: close the accepted-residual security items
 
 | # | Phase | Description | Tier | Complexity | Exec | Review | Commit | Push |
 |---|-------|-------------|------|------------|------|--------|--------|------|
-| 1 | Security hardening | P59: slowapi rate-limiting on invite + auth-sensitive endpoints (429 + headers). P78: migration 038 — audit_events governed-mutations trigger (append-only except the PII scrub UPDATE + the TTL purge DELETE). | ent | med | ⬜ | ⬜ | ⬜ | ⬜ |
+| 1 | Security hardening | P59: slowapi rate-limiting on invite + auth-sensitive endpoints (429 + headers). P78: migration 038 — audit_events governed-mutations trigger (append-only except the PII scrub UPDATE + the TTL purge DELETE). | ent | med | ✅ | ✅ | ✅ | ⬜ |
 | 2 | Web lint debt (P81) | Fix the 6 eslint ERRORS (2 conditional-useEffect are potential real bugs, refs-during-render, setState-in-effect, 2 unused vars) → drop `continue-on-error` on the Web Lint CI job. LIGHT: no component-test buildout (the overhaul would obsolete it). | mvp | low-med | ⬜ | ⬜ | ⬜ | ⬜ |
 | 3 | Test + repo hygiene | P82: group-creating web-e2e specs clean up after themselves (afterEach API delete). P70: live-PG erasure regression test in CI (locks the Phase-1 bug class). Dead-config sweep. | mvp | low | ⬜ | ⬜ | ⬜ | ⬜ |
 
