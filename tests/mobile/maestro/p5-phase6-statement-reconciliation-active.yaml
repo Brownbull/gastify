@@ -100,10 +100,13 @@ appId: com.gastify.mobile
     path: 04-phase6-statement-progress
 - swipe:
     direction: UP
-- extendedWaitUntil:
-    visible:
+# Processing-card growth pushed the panel further down; hunt for it instead of one swipe.
+- scrollUntilVisible:
+    element:
       id: statement-reconciliation-panel
+    direction: DOWN
     timeout: 90000
+    speed: 60
 - assertVisible: "Coverage"
 - assertVisible: "Matched"
 - assertVisible: "Statement only"
