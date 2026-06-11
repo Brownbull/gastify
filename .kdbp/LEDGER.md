@@ -4305,3 +4305,11 @@ RUNTIME EVIDENCE (D90): CI run 27316344087 GREEN — test_billing_postgres ran o
 REVIEW (self — spend limit): deduct sits in the request transaction (commits WITH the scan; failed submit rolls the credit back); enforcement short-circuits when the flag is off (zero prod behavior change); dialect upsert correct on both backends. No findings.
 ALSO RIDING THE PROMOTE: the E2E-sweep statement fixes (f94850a SSE GUC + stuck-requeue, 783b8a0 FAILED-dup retry — verified behaviorally on deployed staging-e2e) + web-e2e port fix + bookkeeping.
 GATES: Phase 4 Exec ✅ / Review ✅ / Commit ✅ / Push ⬜ → promoting staging→main (user: "finish phase 4").
+- 2026-06-10 21:24 | Write | /home/khujta/projects/apps/gastify/docs/runbooks/P16-LAUNCH-GO-NO-GO.md
+
+## 2026-06-11 01:25 — PHASE 5 Exec ✅ / Review ✅ / Commit ✅ — GO ATTESTATION SIGNED
+DELIVERABLE (1f75984): docs/runbooks/P16-LAUNCH-GO-NO-GO.md — supersedes P7-LAUNCH-EXIT-GATE (every "deferred operational" item closed by Phases 1–4 with deployed proofs). Contents: exit signals a–e → deployed observable-state evidence (D90); 4-jurisdiction rights map; Phase-1 erasure/void evidence enumerated (revision item E); ALL residuals dispositioned fix-or-accept with per-regime rationale (item C) — P74 RATIFIED keep-forever; financial-record tension ACCEPTED with business-tier re-open trigger; P72 (Art-20 group shares) honest accept w/ EU-scale trigger.
+REHEARSAL (item on the runtime-evidence list): SEV1 cross-tenant-exposure scenario EXECUTED read-only on PRODUCTION — RLS/role verify 4s, live fail-safe proof (gastify_app no-GUC → 0 rows) 3s, request-id tracing 2s; <10s detect-verify loop. One finding: probe graduated to scripts/ops/verify-rls-posture.py (done, 55241f1).
+REVIEW (item D, honest): multi-agent adversarial review blocked by the monthly spend limit — disclosed in the packet §6. Mitigation: every CODE phase (1–3) had multi-agent adversarial review (8 CRITICALs caught pre-promote); Phase 4 + the packet got structured self-review + the independent E2E sweep (which found 3 real bugs). D90's no-single-pass intent held for all code.
+ATTESTATION: **GO** (D88 self-attested, evidence-backed, residuals explicit, re-open triggers named).
+GATES: Phase 5 Exec ✅ / Review ✅ / Commit ✅ / Push ⬜ → promote (docs + ops script only).

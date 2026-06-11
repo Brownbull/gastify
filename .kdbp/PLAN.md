@@ -22,7 +22,7 @@ P16 — Compliance + Launch Hardening: audited four-jurisdiction regulatory read
 | 2 | Consent + Retention (validate) | VALIDATE retention.py TTLs (90d/6y) + consent live-derivation (revoke is instant — no cascade); per D89 transactions are hard-deleted on erasure (audit event retained). Exit signals (b)+(d). | ent | med | ✅ | ✅ | ✅ | ✅ |
 | 3 | LLM quota-throttle degradation | Mock-provider forced-throttle flag (D89) → load test → all scans enter `queued`, no 5xx. Exit signal (c). | ent | med-high | ✅ | ✅ | ✅ | ✅ |
 | 4 | Monetization plumbing | ENFORCE billing.py credits in the scan flow + harden P36 concurrency; keep NullBillingHook, no provider (D89). | ent | med | ✅ | ✅ | ✅ | ✅ |
-| 5 | 4-jurisdiction audit + go/no-go | Compliance audit (reuse the live-PG RLS proof + P1–4 evidence), incident-runbook rehearsal, go/no-go checklist signed. Exit signal (e). | ent | med | ⬜ | ⬜ | ⬜ | ⬜ |
+| 5 | 4-jurisdiction audit + go/no-go | Compliance audit (reuse the live-PG RLS proof + P1–4 evidence), incident-runbook rehearsal, go/no-go checklist signed. Exit signal (e). | ent | med | ✅ | ✅ | ✅ | ⬜ |
 
 <!-- Exec is written by /gabe-execute: ⬜ not started, 🔄 in progress, ✅ complete -->
 <!-- Review/Commit/Push auto-ticked by /gabe-review, /gabe-commit, /gabe-push -->
