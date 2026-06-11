@@ -5,17 +5,15 @@
 
 ## Goal
 
-Clear the deck: PENDING triage sweep (44 open items → real/stale/dispositioned), P84 self-seeding device flow, P67 erasure-docs fix, P68 leave-group keep-vs-delete dialog (web functional reference), then the UI-feature inventory handoff doc for the parallel mockup session.
+Two-user runtime hardening: prove (and fix where broken) the second user's LIVE view of group interactions — share propagation into B's statistics, visibility/consent gating of B's transaction list, deletion semantics (share-lock refusal; leave keep-vs-delete) as seen by the OTHER user, including the D72 departed-contributor contrast (keep: stats stay, row hides) vs D82 (delete: month voids).
 
 ## Phases
 
 | # | Phase | Description | Tier | Complexity | Exec | Review | Commit | Push |
 |---|-------|-------------|------|------------|------|--------|--------|------|
-| 1 | PENDING triage + hygiene | Classify all 44 open items; mark gate-dispositioned ones; resolve stale/superseded with notes. | mvp | low-med | ✅ | ✅ | ✅ | ✅ |
-| 2 | P84 + P67 | Self-seeded ledger-edit flow (today's seed-newest pattern) verified on S23; erasure-docs drift fixed. | mvp | low-med | ✅ | ✅ | ✅ | ✅ |
-| 3 | P68 leave dialog (web) | Keep-vs-delete choice dialog on group leave (the live backend param); testids; e2e asserts the chosen flag hits the wire. Mobile rides the overhaul. | mvp | med | ✅ | ✅ | ✅ | ✅ |
-| 4 | UI-feature inventory doc | docs/rebuild/ux/UI-FEATURE-INVENTORY.md - every feature + screen + control + testid + behavior contract the overhaul must include (the mockup session's context source). NEVER touches design-lab//shared//PLAN-MOCKUPS.md. | mvp | low | ✅ | ✅ | ✅ | ✅ |
+| 1 | Semantics recon | Pin down: voided-month rendering on the web group dashboard, B-user cleanup capability, manual-entry/POST behavior in group scope, unshare path existence, role-change controls, batch-delete refusal surface. | mvp | low | ⬜ | ⬜ | ⬜ | ⬜ |
+| 2 | Two-user stats/delete e2e | New groups-two-user-stats.spec.ts: share→B stats + gated list; role promote→A leave-delete→B sees voided month + empty list; leave-keep contrast (stats stay, departed row hides); shared-source delete refusal. Fix any product bugs it finds. | mvp | med | ⬜ | ⬜ | ⬜ | ⬜ |
 
 ## Current Phase
 
-Phase 4: UI-feature inventory doc
+Phase 1: Semantics recon
