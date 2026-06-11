@@ -71,6 +71,10 @@ async def get_monthly_insights(
     """
 
     normalized_period = first_day_of_month(period_start)
+    # The QUERY range honors the raw start: ISO weeks (the temporal bar) begin
+    # mid-month, and snapping would leak pre-period days in. M/Q/Y starts are day-1,
+    # so range_start == normalized_period for them (cache/baseline math unchanged).
+    range_start = period_start
     normalized_currency = currency.upper()
     range_end = period_end if period_end is not None else last_day_of_month(normalized_period)
 
@@ -81,7 +85,7 @@ async def get_monthly_insights(
     voided = await voided_periods(
         db,
         ownership_scope_id=ownership_scope_id,
-        start_date=normalized_period,
+        start_date=range_start,
         end_date=range_end,
     )
     if voided:
@@ -98,7 +102,7 @@ async def get_monthly_insights(
     # key) are only needed for single-month periods; quarter/year skip both — no extra
     # baseline read and no wasted fingerprint query when the cache is bypassed.
     db_start = (
-        shift_months(normalized_period, -_BASELINE_MONTHS) if is_single_month else normalized_period
+        shift_months(normalized_period, -_BASELINE_MONTHS) if is_single_month else range_start
     )
 
     fingerprint = ""
@@ -202,6 +206,10 @@ def build_monthly_insights_from_records(
     """
 
     normalized_period = first_day_of_month(period_start)
+    # The QUERY range honors the raw start: ISO weeks (the temporal bar) begin
+    # mid-month, and snapping would leak pre-period days in. M/Q/Y starts are day-1,
+    # so range_start == normalized_period for them (cache/baseline math unchanged).
+    range_start = period_start
     normalized_currency = currency.upper()
     range_end = period_end if period_end is not None else last_day_of_month(normalized_period)
     is_single_month = range_end == last_day_of_month(normalized_period)

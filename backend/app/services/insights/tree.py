@@ -58,7 +58,9 @@ async def get_insights_tree(
     """
 
     normalized_currency = currency.upper()
-    normalized_period = first_day_of_month(period_start)
+    # Weeks (the W/M/Q/Y temporal bar) start mid-month; snapping to month-begin would
+    # leak pre-period days in. M/Q/Y starts are already day-1, so this is a no-op there.
+    normalized_period = period_start if period_start.day != 1 else first_day_of_month(period_start)
     range_end = period_end if period_end is not None else last_day_of_month(normalized_period)
 
     # Void BEFORE loading (D82): a tombstoned month in the range shuts the whole
@@ -161,7 +163,9 @@ def build_insights_tree_from_records(
     """
 
     normalized_currency = currency.upper()
-    normalized_period = first_day_of_month(period_start)
+    # Weeks (the W/M/Q/Y temporal bar) start mid-month; snapping to month-begin would
+    # leak pre-period days in. M/Q/Y starts are already day-1, so this is a no-op there.
+    normalized_period = period_start if period_start.day != 1 else first_day_of_month(period_start)
     range_end = period_end if period_end is not None else last_day_of_month(normalized_period)
     scoped_records = tuple(
         record

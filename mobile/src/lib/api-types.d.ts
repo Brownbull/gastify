@@ -4695,7 +4695,7 @@ export interface operations {
     get_monthly_insights_endpoint_api_v1_insights_monthly_get: {
         parameters: {
             query: {
-                /** @description Report period: YYYY-MM (month), YYYY-Qn (quarter), or YYYY (year). */
+                /** @description Report period: YYYY-MM (month), YYYY-Qn (quarter), YYYY (year), or YYYY-Wnn (ISO week). */
                 period: string;
                 /** @description Reporting currency. Defaults to the user's default currency. */
                 currency?: string | null;
@@ -4771,7 +4771,7 @@ export interface operations {
     get_insights_tree_endpoint_api_v1_insights_tree_get: {
         parameters: {
             query: {
-                /** @description Report period: YYYY-MM (month), YYYY-Qn (quarter), or YYYY (year). */
+                /** @description Report period: YYYY-MM (month), YYYY-Qn (quarter), YYYY (year), or YYYY-Wnn (ISO week). */
                 period: string;
                 /** @description transaction_category -> 4-level Industry/Store-type/Item-family/Item cross-walk tree; item_category -> 2-level Family/Item tree. */
                 dimension?: "transaction_category" | "item_category";

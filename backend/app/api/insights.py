@@ -34,7 +34,7 @@ DB = Annotated[AsyncSession, Depends(get_db)]
 
 # A report period: YYYY-MM (month), YYYY-Qn (quarter), or YYYY (year). Quarter/year
 # aggregate the constituent months (D77 lift); month is the original behavior.
-_REPORT_PERIOD_PATTERN = r"^[1-9]\d{3}(-(0[1-9]|1[0-2]|Q[1-4]))?$"
+_REPORT_PERIOD_PATTERN = r"^[1-9]\d{3}(-(0[1-9]|1[0-2]|Q[1-4]|W(0[1-9]|[1-4]\d|5[0-3])))?$"
 
 
 def _parse_report_range(value: str) -> tuple[date, date]:
@@ -43,7 +43,7 @@ def _parse_report_range(value: str) -> tuple[date, date]:
     except ValueError as exc:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail="period must be YYYY-MM, YYYY-Qn, or YYYY",
+            detail="period must be YYYY-MM, YYYY-Qn, YYYY, or YYYY-Wnn",
         ) from exc
 
 
@@ -53,7 +53,10 @@ async def get_monthly_insights_endpoint(
     db: DB,
     period: str = Query(
         ...,
-        description="Report period: YYYY-MM (month), YYYY-Qn (quarter), or YYYY (year).",
+        description=(
+            "Report period: YYYY-MM (month), YYYY-Qn (quarter), YYYY (year), "
+            "or YYYY-Wnn (ISO week)."
+        ),
         pattern=_REPORT_PERIOD_PATTERN,
     ),
     currency: str | None = Query(
@@ -145,7 +148,10 @@ async def get_insights_tree_endpoint(
     db: DB,
     period: str = Query(
         ...,
-        description="Report period: YYYY-MM (month), YYYY-Qn (quarter), or YYYY (year).",
+        description=(
+            "Report period: YYYY-MM (month), YYYY-Qn (quarter), YYYY (year), "
+            "or YYYY-Wnn (ISO week)."
+        ),
         pattern=_REPORT_PERIOD_PATTERN,
     ),
     dimension: InsightDimension = Query(

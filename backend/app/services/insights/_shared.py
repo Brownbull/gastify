@@ -152,10 +152,10 @@ def _tree_category_for_level(level: int, key: str) -> CategoryDefinition:
 def parse_report_period(value: str) -> tuple[date, date]:
     """Parse a report-period key → (period_start, period_end) inclusive range.
 
-    Accepts the three granularity key formats the series emits (D77):
-    `YYYY` (year), `YYYY-Qn` (quarter), `YYYY-MM` (month). Lifts the D77
-    month-only limit so the tree + monthly rollups can span a quarter/year.
-    Raises ValueError on a malformed key.
+    Accepts the four granularity key formats the series emits (D77 + the W/M/Q/Y
+    temporal bar): `YYYY` (year), `YYYY-Qn` (quarter), `YYYY-MM` (month), and
+    `YYYY-Wnn` (ISO week, Monday..Sunday — fromisocalendar handles year-boundary
+    weeks and rejects W53 in 52-week years). Raises ValueError on a malformed key.
     """
     if len(value) == 4 and value.isdigit():
         year = int(value)
@@ -168,6 +168,11 @@ def parse_report_period(value: str) -> tuple[date, date]:
         start_month = (quarter - 1) * 3 + 1
         start = date(year, start_month, 1)
         return start, last_day_of_month(date(year, start_month + 2, 1))
+    if len(value) == 8 and value[4:6] == "-W":
+        year = int(value[:4])
+        week = int(value[6:8])
+        start = date.fromisocalendar(year, week, 1)  # raises ValueError when invalid
+        return start, start + timedelta(days=6)
     if len(value) == 7 and value[4] == "-":
         year = int(value[:4])
         month = int(value[5:7])
