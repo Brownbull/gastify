@@ -43,6 +43,7 @@ Edit values directly or rerun `/gabe-push --reconfigure` to redo the interview.
 | Branch | Action | Decided | Notes |
 |--------|--------|---------|-------|
 | rebuild/fe-dashboard-batch-01 | ignore-always | 2026-05-06 | Old frontend batch branch from prior Storybook pivot work |
+| copilot/understanding-project-from-scratch | delete-remote | 2026-06-11 | Copilot-generated exploration branch; deleted at user direction |
 
 <!--
 Migrated 2026-04-23 from v1 trunk-based shape (single env, promotion chain

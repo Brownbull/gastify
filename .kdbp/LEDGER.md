@@ -4443,3 +4443,11 @@ ONE-OFF NOT CHASED: a single run showed B's groups list re-render landing ~16s a
 
 ## 2026-06-11 (cont) - DECK-CLEARING Phase 4: UI-FEATURE-INVENTORY.md (mockup-session handoff)
 docs/rebuild/ux/UI-FEATURE-INVENTORY.md: the complete what-must-exist catalog for the visual overhaul - 17 sections covering global contracts (scope switcher/banner, matched + share locks, D70 personal-only scan, i18n es/en/pt, date-format setting, name sanitization, credits), all 11 nav surfaces + sign-in/invite/detail/manual-entry, per-screen control->testid->behavior tables (116+ web testids enumerated from source), mobile parity notes (214 testIDs; P60(b)(c) + P68-mobile listed as gaps the overhaul must close), and the testid stability rule (e2e suites select on them). Built from the live source + spec inventory, NOT from memory. design-lab//shared//PLAN-MOCKUPS.md untouched per the standing directive.
+
+## 2026-06-11 18:51 — PUSH feat/phase6-items-reports -> staging -> main (promotion)
+PR: — (staging integration push + FF promotion, no PR per PUSH.md flow)
+CI: staging run 27382120893 ✅ 13/13 (Backend Test/Typecheck, Web Build/Lint/Test/Typecheck, Mobile Test/Typecheck/Audit/API Drift, Secret Scan, SCA Audit, Custom Gates); main runs the same SHA 116c7e0
+PROMOTION: promoted staging -> main (82dc451 -> 116c7e0, FF; main = staging = branch)
+DEPLOYMENTS: P80 (row added to .kdbp/DEPLOYMENTS.md)
+DRIFT: origin/copilot/understanding-project-from-scratch deleted at user direction (decision logged in PUSH.md)
+PLAN: deck-clearing all 4 phases Push ✅ — plan complete. Next: wait for the frontend overhaul (user direction).
