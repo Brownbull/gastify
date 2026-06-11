@@ -29,9 +29,7 @@ async def main() -> None:
             "SELECT pg_get_userbyid(relowner) owner, relrowsecurity rls, "
             "relforcerowsecurity forced FROM pg_class WHERE relname='audit_events'"
         )
-        print(
-            f"\naudit_events: owner={t['owner']}  rls_enabled={t['rls']}  forced={t['forced']}"
-        )
+        print(f"\naudit_events: owner={t['owner']}  rls_enabled={t['rls']}  forced={t['forced']}")
         print("  (037 expects: owner=gastify_migrator, rls=True, forced=False)")
         print("  (036/pre-037 expects: owner=gastify_migrator, rls=True, forced=True)")
 
@@ -47,7 +45,8 @@ async def main() -> None:
             "WHERE proname IN ('app_purge_expired_audit_events','app_count_expired_audit_events') "
             "ORDER BY proname"
         )
-        print("\n037 definer functions:", "NONE (pre-037 — expected on prod until promote)" if not fns else "")
+        missing = "NONE (pre-037)" if not fns else ""
+        print("\n037 definer functions:", missing)
         for f in fns:
             print(f"  {f['proname']:32} owner={f['owner']} security_definer={f['prosecdef']}")
         if fns:
