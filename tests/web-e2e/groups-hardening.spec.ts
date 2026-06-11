@@ -1,4 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
+import { cleanupTestGroups } from "./helpers/cleanup";
 
 /**
  * Group-hardening runtime proofs (D74 lock + D75 avatar) against deployed
@@ -27,6 +28,12 @@ async function createGroup(page: Page, name: string): Promise<void> {
   await form.getByRole("button").click();
   await expect(page.getByText(name)).toBeVisible({ timeout: 15_000 });
 }
+
+
+// P82: page-independent cleanup (the specs create their own contexts).
+test.afterEach(async () => {
+  await cleanupTestGroups();
+});
 
 test("sharing a transaction locks its content in the UI (D74)", async ({ browser }) => {
   const ctx = await browser.newContext();

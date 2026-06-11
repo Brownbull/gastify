@@ -1,4 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
+import { cleanupTestGroups } from "./helpers/cleanup";
 
 /**
  * Web Groups — Phase 5d (D70/D71/D72). Runs local Vite (--mode staging-e2e)
@@ -22,6 +23,12 @@ async function signIn(page: Page): Promise<void> {
   await page.getByTestId("sign-in-test-auth-button").click();
   await expect(page).toHaveURL(/\/$/, { timeout: 30_000 });
 }
+
+
+// P82: page-independent cleanup (the specs create their own contexts).
+test.afterEach(async () => {
+  await cleanupTestGroups();
+});
 
 test("group flow: create, share, switch scope, isolation, scan blocked", async ({ page }) => {
   await signIn(page);

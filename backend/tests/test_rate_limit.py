@@ -57,3 +57,21 @@ async def test_join_has_a_tighter_window(client, enabled_limiter):
     ]
     assert all(s == 404 for s in statuses[:10])
     assert statuses[10] == 429
+
+
+@pytest.mark.asyncio
+async def test_successful_preview_passes_through_the_limiter(client, engine, enabled_limiter):
+    """The 200 path: slowapi injects X-RateLimit headers into the endpoint's Response —
+    without a `response` param the injection raises and a VALID invite preview 500s
+    (the bug the avatar e2e caught on deployed staging-e2e; 404/429 paths short-circuit
+    before injection, which is why the original tests missed it)."""
+    create = await client.post("/api/v1/groups", json={"name": "RL Group"})
+    assert create.status_code == 201
+    gid = create.json()["id"]
+    share = await client.post(f"/api/v1/groups/{gid}/invite")
+    assert share.status_code in (200, 201)
+    token = share.json().get("token") or share.json().get("invite_token")
+    assert token
+    r = await client.get(f"/api/v1/invites/{token}", headers={"X-Forwarded-For": "203.0.113.99"})
+    assert r.status_code == 200  # the regression: this 500'd without the response param
+    assert "x-ratelimit-limit" in {k.lower() for k in r.headers}

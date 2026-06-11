@@ -1,4 +1,5 @@
 import { test, expect, type Page, type BrowserContext } from "@playwright/test";
+import { cleanupTestGroups } from "./helpers/cleanup";
 
 /**
  * Multi-user group proof — TWO real authenticated users in TWO isolated browser
@@ -23,6 +24,12 @@ async function signIn(page: Page, buttonTestId: string): Promise<void> {
   await page.getByTestId(buttonTestId).click();
   await expect(page).toHaveURL(/\/$/, { timeout: 30_000 });
 }
+
+
+// P82: page-independent cleanup (the specs create their own contexts).
+test.afterEach(async () => {
+  await cleanupTestGroups();
+});
 
 test("two real users: B joins A's group via invite and sees A's shared transaction", async ({
   browser,
