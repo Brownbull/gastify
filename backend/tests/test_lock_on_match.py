@@ -7,7 +7,7 @@ cascades the verdicts away and UNLOCKS — the full cycle is pinned.
 """
 
 import uuid
-from datetime import UTC, date, datetime, timedelta
+from datetime import UTC, datetime, timedelta
 
 import pytest
 from sqlalchemy import select
