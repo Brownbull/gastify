@@ -1,5 +1,11 @@
 """Shared test fixtures — in-process async SQLite for isolation."""
 
+import os
+
+# Disable P59 rate limiting BEFORE app.main imports settings — the suites hammer
+# endpoints far faster than any human; the limiter has its own dedicated tests.
+os.environ.setdefault("GASTIFY_RATE_LIMIT_ENABLED", "false")
+
 import uuid
 from collections.abc import AsyncGenerator
 from decimal import Decimal

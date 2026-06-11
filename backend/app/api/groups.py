@@ -15,7 +15,7 @@ from datetime import UTC, datetime, timedelta
 from typing import Annotated, cast
 from uuid import UUID  # noqa: TC003 - FastAPI resolves UUID path/param annotations at runtime.
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from sqlalchemy import func, or_, select, text
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -27,6 +27,7 @@ from app.auth.deps import Auth, _is_scope_member, _set_postgres_ownership_scope 
 from app.db import get_db
 from app.models.transaction import Transaction, TransactionItem
 from app.models.user import OwnershipScope, OwnershipScopeMember, User
+from app.rate_limit import INVITE_JOIN_LIMIT, INVITE_PREVIEW_LIMIT, limiter
 from app.schemas.groups import (
     ConsentUpdate,
     GroupCreate,
@@ -748,7 +749,8 @@ async def create_invite(group_id: UUID, auth: Auth, db: DB) -> InviteResponse:
 
 
 @invites_router.get("/{token}", response_model=InvitePreview)
-async def preview_invite(token: str, auth: Auth, db: DB) -> InvitePreview:
+@limiter.limit(INVITE_PREVIEW_LIMIT)
+async def preview_invite(request: Request, token: str, auth: Auth, db: DB) -> InvitePreview:
     preview = await _invite_preview_row(db, token)
     if preview is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Invite not found")
@@ -763,7 +765,8 @@ async def preview_invite(token: str, auth: Auth, db: DB) -> InvitePreview:
 
 
 @invites_router.post("/{token}/join", response_model=JoinResponse)
-async def join_via_invite(token: str, auth: Auth, db: DB) -> JoinResponse:
+@limiter.limit(INVITE_JOIN_LIMIT)
+async def join_via_invite(request: Request, token: str, auth: Auth, db: DB) -> JoinResponse:
     preview = await _invite_preview_row(db, token)
     if preview is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Invite not found")

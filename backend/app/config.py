@@ -66,6 +66,9 @@ class Settings(BaseSettings):
     # stays inert until a real payment provider exists, so pre-launch users aren't
     # hard-blocked at the free-tier limit with no way to buy more.
     billing_enforcement_enabled: bool = False
+    # P59 defense-in-depth rate limiting (invite + auth-sensitive endpoints). The test
+    # suites disable it (they hammer endpoints faster than any human legitimately would).
+    rate_limit_enabled: bool = True
     receipt_extraction_prompt_id: str = "receipt-extraction-current"
     statement_extraction_prompt_id: str = "statement-extraction-current"
     statement_layout_profile_prompt_id: str = "statement-layout-profile-current"

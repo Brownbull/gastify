@@ -30,6 +30,7 @@ from app.config import settings
 from app.db import assert_least_privilege_role
 from app.logging import setup_logging
 from app.middleware import AccessLogMiddleware, RequestIdMiddleware
+from app.rate_limit import limiter
 
 setup_logging()
 logger = structlog.get_logger()
@@ -79,6 +80,13 @@ app = FastAPI(
     redoc_url="/api/redoc" if settings.debug else None,
     lifespan=lifespan,
 )
+
+# P59 rate limiting — slowapi needs the limiter on app.state + the 429 handler.
+from slowapi import _rate_limit_exceeded_handler  # noqa: E402
+from slowapi.errors import RateLimitExceeded  # noqa: E402
+
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)  # type: ignore[arg-type]  # slowapi's handler is typed narrower than Starlette wants
 
 app.add_middleware(AccessLogMiddleware)
 app.add_middleware(RequestIdMiddleware)
