@@ -17,7 +17,7 @@ Functionality completion: fix the two filed bugs now (P83, P84) and BUILD the mi
 
 | # | Phase | Description | Tier | Complexity | Exec | Review | Commit | Push |
 |---|-------|-------------|------|------------|------|--------|--------|------|
-| 1 | Bug fixes (P83+P84) | P83: deleting a group (or leave-with-delete) resets is_shared on source transactions whose LAST group copy is gone — no more locked-forever strands; shared helper + tests. P84: ledger-edit Maestro flow made row-robust (pick a row with items, lock-resilient). | mvp | low-med | ⬜ | ⬜ | ⬜ | ⬜ |
+| 1 | Bug fixes (P83+P84) | P83: deleting a group (or leave-with-delete) resets is_shared on source transactions whose LAST group copy is gone — no more locked-forever strands; shared helper + tests. P84: ledger-edit Maestro flow made row-robust (pick a row with items, lock-resilient). | mvp | low-med | ✅ | ✅ | ✅ | ✅ |
 | 2 | Matched-transaction indicator | Expose reconciliation match state per transaction (list + detail API) + a minimal UI badge on rows/detail; e2e asserts a matched txn shows it after statement reconcile. | mvp | med | ⬜ | ⬜ | ⬜ | ⬜ |
 | 3 | User currency switch | PATCH settings endpoint for users.default_currency (CLP↔USD, validated vs currencies) + expose in profile API; the dashboard/display consumes it (primary-display preference per UX-10); minimal settings select; tests both directions. | mvp | med | ⬜ | ⬜ | ⬜ | ⬜ |
 | 4 | Group admin UI | Web controls for the EXISTING backend admin ops: remove member, change role, delete group (delete also un-strands via P83 fix); e2e for each incl. the admin-must-promote-before-leave 409 path. | mvp | med | ⬜ | ⬜ | ⬜ | ⬜ |
@@ -25,7 +25,7 @@ Functionality completion: fix the two filed bugs now (P83, P84) and BUILD the mi
 
 ## Current Phase
 
-Phase 1: Bug fixes (P83+P84)
+Phase 2: Matched-transaction indicator
 
 ## Risks
 

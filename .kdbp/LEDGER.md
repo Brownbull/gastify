@@ -4347,3 +4347,16 @@ WEB (c26b708): stats-REACT contracts 2/2 GREEN on deployed staging-e2e — (1) p
 FINDINGS RECORDED: reconciliation matrix already covered (10 unit cases: exact/fuzzy/buckets/dupes/payments/user-edit-respect); group-admin ops backend-pinned, NO web UI controls (UI → overhaul); matched-txn indicator = feature gap (panel-only).
 S23 (WiFi ADB, 192.168.1.83:5555 — recipe in memory): device validated boot→sign-in→ledger→MERCHANT EDIT+SAVE (the edit-learns journey). Session peeled 4 independent infra issues: dead Metro (twice — incl. my own `| head` SIGPIPE kill; now harness-managed pipe-free), dangling locked rows (→ REAL BUG P83: group deletion strands sources locked-forever, is_shared never reset; 2 rows hand-reset), notification-shade flake, and finally seed-drift on the item-edit step (→ P84: flow assumes a fixed first row). Product behavior correct at every layer reached.
 GATES: Phase 3 Exec ✅ / Review ✅ (self) / Commit ✅ / Push ⬜ → promote next.
+- 2026-06-11 09:17 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/atoms/Badge.tsx
+- 2026-06-11 09:17 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/atoms/Badge.tsx
+- 2026-06-11 09:17 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/atoms/Chip.tsx
+- 2026-06-11 09:18 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/atoms/Chip.tsx
+- 2026-06-11 09:18 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/atoms/Input.tsx
+- 2026-06-11 09:18 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/atoms/Input.tsx
+- 2026-06-11 09:18 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/atoms/IconButton.tsx
+
+## 2026-06-11 14:30 — FUNCTIONALITY PLAN Phase 1 COMPLETE (P83 fixed; P84 patched+refiled)
+P83 (c7e12eb..84f1408, PROMOTED): share_count denormalization — the cross-scope "any copy left?" check is impossible under FORCE RLS (binds owner+definers), so the live-copy count is maintained: share +1 (personal-GUC write, next to the lock flag), delete_group −1 per source under each SHARER's scope GUC (sharer→scope via un-RLS'd users; portable case() floor). Migration 039's backfill HEALED existing strands on staging-e2e AND prod. 3 contracts incl. unlock-is-real (subsequent edit succeeds) + two-group lock persistence. P83 resolved.
+P84: conditional item-edit + merchant-restore patches landed; root cause refiled (flow needs self-seeded data — golden-journey runs rename every fixture row, starving the fixed target). Journey content covered by golden-journey/web-edit/mapping contracts meanwhile.
+ALSO: learning-pollution find+clean (3 mappings on staging-e2e — the new edit-learning captured e2e renames; jumbo→'S23 Ledger Edit R12' would have broken scan specs). Durable unlearn = Phase 5's mappings API, wired into test cleanup. + @grpc/grpc-js high advisory fixed (npm audit fix, 250 mobile tests green).
+LESSON (self): two CI round-trips wasted on ungated commits — run pytest+ruff check+format --check+mypy BEFORE every commit, not after.
