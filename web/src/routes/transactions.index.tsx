@@ -84,7 +84,17 @@ function TransactionsListPage() {
         </p>
       </div>
 
-      <FilterBar filters={filters} onChange={setFilters} />
+      <div className="flex items-center justify-between gap-3">
+        <FilterBar filters={filters} onChange={setFilters} />
+        <Link
+          to="/transactions/new"
+          data-testid="add-transaction-link"
+          className="shrink-0 rounded-md border px-3 py-1.5 text-sm font-medium"
+          style={{ borderColor: "var(--border)", color: "var(--primary)" }}
+        >
+          + Add
+        </Link>
+      </div>
 
       {selected.size > 0 && (
         <BatchActionBar
