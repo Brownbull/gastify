@@ -501,13 +501,12 @@ async def delete_group(group_id: UUID, auth: Auth, db: DB) -> None:
     # under THAT scope's GUC — the share endpoint's restore-then-write pattern).
     if copy_links:
         sharer_ids = {user_id for _, user_id in copy_links}
-        scope_map = dict(
-            (
-                await db.execute(
-                    select(User.id, User.ownership_scope_id).where(User.id.in_(sharer_ids))
-                )
-            ).all()
-        )
+        scope_rows = (
+            await db.execute(
+                select(User.id, User.ownership_scope_id).where(User.id.in_(sharer_ids))
+            )
+        ).all()
+        scope_map = {user_id: scope_id for user_id, scope_id in scope_rows}
         by_scope: dict[UUID, list[UUID]] = {}
         for source_id, user_id in copy_links:
             sharer_scope = scope_map.get(user_id)
