@@ -46,7 +46,7 @@ test("sharing a transaction locks its content in the UI (D74)", async ({ browser
 
     // Open the first personal transaction and share it into the fresh group.
     await a.goto("/transactions");
-    await a.locator("a[href^='/transactions/']").first().click();
+    await a.locator("a[href^='/transactions/']:not([href$='/new'])").first().click();
     const share = a.getByTestId("share-to-group");
     await expect(share).toBeVisible({ timeout: 15_000 });
     await share.getByRole("combobox").selectOption({ label: groupName });

@@ -34,7 +34,7 @@ test("proof: scan progress complete", async ({ page }) => {
 test("proof: transaction edit marker", async ({ page }) => {
   await signIn(page);
   await page.goto("/transactions");
-  await page.locator('a[href^="/transactions/"]').first().click();
+  await page.locator('a[href^="/transactions/"]:not([href$="/new"])').first().click();
   await expect(page).toHaveURL(/\/transactions\/[0-9a-f-]+$/, { timeout: 30_000 });
   await page.locator('button[title="Click to edit"]').first().click();
   const input = page.locator('input[type="text"]').first();

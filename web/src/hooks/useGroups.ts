@@ -138,13 +138,15 @@ export function useCreateInvite(groupId: string) {
 export function useLeaveGroup() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (groupId: string) => {
+    // D82 keep-vs-delete choice: deleteShared=true voids the caller's shared
+    // copies (the group's stats for those months shut down); false keeps them.
+    mutationFn: async ({ groupId, deleteShared }: { groupId: string; deleteShared: boolean }) => {
       const { error } = await apiClient.POST("/api/v1/groups/{group_id}/leave", {
-        params: { path: { group_id: groupId } },
+        params: { path: { group_id: groupId }, query: { delete_shared: deleteShared } },
       });
       if (error) throw new Error("Failed to leave group");
     },
-    onSuccess: (_data, groupId) => {
+    onSuccess: (_data, { groupId }) => {
       qc.removeQueries({ queryKey: groupKeys.detail(groupId) });
       qc.removeQueries({ queryKey: groupKeys.transactions(groupId) });
       void qc.invalidateQueries({ queryKey: groupKeys.list() });

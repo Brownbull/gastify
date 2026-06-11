@@ -23,7 +23,7 @@ async function signIn(page: Page): Promise<void> {
 
 async function openFirstTransaction(page: Page): Promise<void> {
   await page.goto("/transactions");
-  await page.locator('a[href^="/transactions/"]').first().click();
+  await page.locator('a[href^="/transactions/"]:not([href$="/new"])').first().click();
   await expect(page).toHaveURL(/\/transactions\/[0-9a-f-]+$/, { timeout: 30_000 });
 }
 
@@ -42,7 +42,7 @@ async function scanThenOpenJumbo(page: Page): Promise<void> {
   // merchant search rather than relying on list position.
   await page.getByPlaceholder("Search...").fill("Supermercado Jumbo");
   const jumbo = page
-    .locator('a[href^="/transactions/"]')
+    .locator('a[href^="/transactions/"]:not([href$="/new"])')
     .filter({ hasText: /Supermercado Jumbo/ })
     .first();
   await expect(jumbo).toBeVisible({ timeout: 30_000 });

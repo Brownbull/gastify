@@ -100,6 +100,19 @@ export async function deleteTransaction(id: string): Promise<boolean> {
   return res.status === 204;
 }
 
+/** The YYYY-MM month of a transaction's transaction_date (API). */
+export async function transactionMonth(id: string): Promise<string | undefined> {
+  const base = env.VITE_API_BASE_URL;
+  const token = await idToken();
+  if (!base || !token) return undefined;
+  const res = await fetch(`${base}/api/v1/transactions/${id}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) return undefined;
+  const body = (await res.json()) as { transaction_date?: string };
+  return body.transaction_date?.slice(0, 7);
+}
+
 /** The id of any transaction carrying a MATCHED reconciliation verdict (API). */
 export async function firstMatchedTransactionId(): Promise<string | undefined> {
   const base = env.VITE_API_BASE_URL;

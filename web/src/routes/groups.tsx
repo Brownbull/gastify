@@ -425,6 +425,7 @@ function GroupActions({ detail, groupId }: { detail: GroupDetail; groupId: strin
   const deleteGroup = useDeleteGroup();
   const activeScope = useUiStore((s) => s.activeScope);
   const setActiveScope = useUiStore((s) => s.setActiveScope);
+  const [leaveDialogOpen, setLeaveDialogOpen] = useState(false);
 
   function resetScopeIfActive() {
     if (activeScope.kind === "group" && activeScope.id === groupId) {
@@ -432,17 +433,72 @@ function GroupActions({ detail, groupId }: { detail: GroupDetail; groupId: strin
     }
   }
 
+  function leave(deleteShared: boolean) {
+    leaveGroup.mutate(
+      { groupId, deleteShared },
+      {
+        onSuccess: () => {
+          setLeaveDialogOpen(false);
+          resetScopeIfActive();
+        },
+      },
+    );
+  }
+
   return (
     <div className="flex flex-wrap gap-3 border-t pt-3" style={{ borderColor: "var(--border)" }}>
       <button
         type="button"
         data-testid="group-leave-button"
-        onClick={() => leaveGroup.mutate(groupId, { onSuccess: resetScopeIfActive })}
+        onClick={() => setLeaveDialogOpen(true)}
         className="text-xs font-medium"
         style={{ color: "var(--text-secondary)" }}
       >
         {t("group.leave")}
       </button>
+      {leaveDialogOpen && (
+        <div
+          role="dialog"
+          aria-label={t("group.leaveTitle")}
+          data-testid="group-leave-dialog"
+          className="basis-full space-y-2 rounded border p-3"
+          style={{ borderColor: "var(--border)" }}
+        >
+          <p className="text-sm font-medium">{t("group.leaveTitle")}</p>
+          <div className="flex flex-col gap-2">
+            <button
+              type="button"
+              data-testid="group-leave-keep-button"
+              disabled={leaveGroup.isPending}
+              onClick={() => leave(false)}
+              className="rounded border px-3 py-2 text-left text-xs font-medium"
+              style={{ borderColor: "var(--border)" }}
+            >
+              {t("group.leaveKeep")}
+            </button>
+            <button
+              type="button"
+              data-testid="group-leave-delete-button"
+              disabled={leaveGroup.isPending}
+              onClick={() => leave(true)}
+              className="rounded border px-3 py-2 text-left text-xs font-medium"
+              style={{ borderColor: "var(--danger, #dc2626)", color: "var(--danger, #dc2626)" }}
+            >
+              {t("group.leaveDelete")}
+            </button>
+            <button
+              type="button"
+              data-testid="group-leave-cancel-button"
+              disabled={leaveGroup.isPending}
+              onClick={() => setLeaveDialogOpen(false)}
+              className="text-left text-xs font-medium"
+              style={{ color: "var(--text-secondary)" }}
+            >
+              {t("group.leaveCancel")}
+            </button>
+          </div>
+        </div>
+      )}
       {detail.role === "owner" && (
         <button
           type="button"

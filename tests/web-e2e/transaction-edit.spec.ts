@@ -31,7 +31,7 @@ test("inline-edit a transaction merchant and see the edited marker", async ({ pa
   // Open the first EDITABLE transaction. Rows link to /transactions/<uuid>; a row
   // shared into a group is LOCKED (D74 — is_shared renders read-only, no edit button),
   // and the groups specs share rows, so blindly picking .first() collides with them.
-  const txnLinks = page.locator('a[href^="/transactions/"]');
+  const txnLinks = page.locator('a[href^="/transactions/"]:not([href$="/new"])');
   await expect(txnLinks.first()).toBeVisible({ timeout: 30_000 });
   const candidates = Math.min(await txnLinks.count(), 6);
   let opened = false;

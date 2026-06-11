@@ -50,7 +50,7 @@ test("two real users: B joins A's group via invite and sees A's shared transacti
     await expect(a.getByText(groupName)).toBeVisible({ timeout: 15_000 });
 
     await a.goto("/transactions");
-    await a.locator("a[href^='/transactions/']").first().click();
+    await a.locator("a[href^='/transactions/']:not([href$='/new'])").first().click();
     const share = a.getByTestId("share-to-group");
     await expect(share).toBeVisible({ timeout: 15_000 });
     await share.getByRole("combobox").selectOption({ label: groupName });

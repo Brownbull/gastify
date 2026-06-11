@@ -22,7 +22,7 @@ test("a merchant edit appears under learned mappings and can be deleted", async 
 
   // Teach: rename an editable transaction's merchant.
   await page.goto("/transactions");
-  const links = page.locator("a[href^='/transactions/']");
+  const links = page.locator("a[href^='/transactions/']:not([href$='/new'])");
   await links.first().waitFor({ timeout: 30_000 });
   const target = `E2E Learned ${Date.now()}`;
   let taught = false;

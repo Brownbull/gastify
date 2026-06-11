@@ -1,6 +1,11 @@
 import path from "node:path";
 import { test, expect, type Page } from "@playwright/test";
-import { cleanupTestGroups, deleteTransaction, transactionIdsOn } from "./helpers/cleanup";
+import {
+  cleanupTestGroups,
+  deleteTransaction,
+  transactionIdsOn,
+  transactionMonth,
+} from "./helpers/cleanup";
 
 /**
  * Stats REACT to data changes (feature-correctness plan, Phase 3) — the gap the
@@ -88,10 +93,11 @@ test("group stats: sharing a transaction moves the group total from empty to its
 
   // Share the first UNLOCKED seeded transaction; capture its amount from the detail.
   await page.goto("/transactions");
-  const links = page.locator("a[href^='/transactions/']");
+  const links = page.locator("a[href^='/transactions/']:not([href$='/new'])");
   await links.first().waitFor({ timeout: 30_000 });
   const count = Math.min(await links.count(), 6);
   let shared = false;
+  let sharedId: string | undefined;
   for (let i = 0; i < count; i++) {
     await links.nth(i).click();
     await expect(page).toHaveURL(/\/transactions\/[0-9a-f-]+$/, { timeout: 15_000 });
@@ -107,11 +113,17 @@ test("group stats: sharing a transaction moves the group total from empty to its
         timeout: 15_000,
       });
       shared = true;
+      sharedId = page.url().match(/\/transactions\/([0-9a-f-]+)$/)?.[1];
       break;
     }
     await page.goBack();
   }
   expect(shared).toBe(true);
+
+  // The list is newest-first, so the shared row's month is whatever the latest data
+  // is — read it from the API rather than assuming a fixture month.
+  const sharedMonth = sharedId ? await transactionMonth(sharedId) : undefined;
+  expect(sharedMonth, "shared transaction month resolves via API").toBeTruthy();
 
   // Switch the app scope to the group: its dashboard total at the txn's month equals
   // the shared amount (was a fresh, empty group — stats updated on share).
@@ -120,6 +132,6 @@ test("group stats: sharing a transaction moves the group total from empty to its
     .getByRole("listbox")
     .getByRole("option", { name: new RegExp(groupName) })
     .click();
-  const groupTotal = await dashboardTotalAt(page, FIXTURE_MONTH);
+  const groupTotal = await dashboardTotalAt(page, sharedMonth as string);
   expect(groupTotal).toBeGreaterThan(0); // was a fresh empty group — the share moved it
 });
