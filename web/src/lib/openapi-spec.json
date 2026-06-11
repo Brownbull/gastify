@@ -7238,6 +7238,7 @@
           },
           "total_minor": {
             "type": "integer",
+            "minimum": 0.0,
             "title": "Total Minor"
           },
           "discount_total_minor": {
@@ -7708,6 +7709,7 @@
           },
           "total_minor": {
             "type": "integer",
+            "minimum": 0.0,
             "title": "Total Minor"
           },
           "discount_total_minor": {
@@ -8541,7 +8543,8 @@
           "qty": {
             "anyOf": [
               {
-                "type": "number"
+                "type": "number",
+                "minimum": 0.0
               },
               {
                 "type": "null"
@@ -8552,7 +8555,8 @@
           "unit_price_minor": {
             "anyOf": [
               {
-                "type": "integer"
+                "type": "integer",
+                "minimum": 0.0
               },
               {
                 "type": "null"
@@ -8562,6 +8566,7 @@
           },
           "total_price_minor": {
             "type": "integer",
+            "minimum": 0.0,
             "title": "Total Price Minor"
           },
           "discount_minor": {

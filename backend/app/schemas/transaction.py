@@ -1,11 +1,12 @@
 """Transaction request/response schemas per OpenAPI sketch §2."""
 
+import re
 from datetime import date, datetime, time
 from decimal import Decimal
 from typing import Literal
 from uuid import UUID
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 from app.schemas.insights import ItemInsightFlagKind
 from app.schemas.recurrence import RecurrenceInterval, RecurrenceKind, RecurrenceSource
@@ -14,11 +15,40 @@ from app.schemas.scan import ScanReviewLevel, ScanReviewSignal
 # --- Item schemas ---
 
 
+# Manual-entry sanitization (user spec): names may contain letters (incl. accents),
+# digits, spaces and dots — nothing else. Applies to API creates only; the scan and
+# statement pipelines construct models internally with extracted text.
+_NAME_PATTERN = re.compile(r"^[\w\sÁÉÍÓÚÜÑáéíóúüñ.]+$", re.UNICODE)
+
+
+def _validate_clean_name(value: str, field_label: str) -> str:
+    cleaned = value.strip()
+    if not cleaned:
+        raise ValueError(f"{field_label} must not be empty")
+    if not _NAME_PATTERN.match(cleaned) or "_" in cleaned:
+        raise ValueError(f"{field_label} may only contain letters, numbers, spaces and dots")
+    return cleaned
+
+
 class TransactionItemCreate(BaseModel):
     name: str
-    qty: float | None = None
-    unit_price_minor: int | None = None
-    total_price_minor: int
+    # User spec: quantities are INTEGERS >= 0 (typed float for wire-compat; validated).
+    qty: float | None = Field(default=None, ge=0)
+    unit_price_minor: int | None = Field(default=None, ge=0)
+    total_price_minor: int = Field(ge=0)
+
+    @field_validator("name")
+    @classmethod
+    def _clean_item_name(cls, value: str) -> str:
+        return _validate_clean_name(value, "Item name")
+
+    @field_validator("qty")
+    @classmethod
+    def _integer_quantity(cls, value: float | None) -> float | None:
+        if value is not None and value != int(value):
+            raise ValueError("Quantity must be a whole number")
+        return value
+
     discount_minor: int | None = Field(default=None, deprecated=True)
     discount_label: str | None = Field(default=None, deprecated=True)
     item_category_id: UUID | None = None
@@ -81,11 +111,17 @@ class TransactionCreate(BaseModel):
     transaction_date: date
     transaction_time: time | None = None
     merchant: str
+
+    @field_validator("merchant")
+    @classmethod
+    def _clean_merchant(cls, value: str) -> str:
+        return _validate_clean_name(value, "Merchant")
+
     store_category_id: UUID | None = None
     store_category_source: Literal["mapping", "ai", "user", "unknown"] | None = None
     store_category_confidence: Decimal | None = Field(default=None, ge=0, le=1)
     store_category_mapping_id: UUID | None = None
-    total_minor: int
+    total_minor: int = Field(ge=0)
     discount_total_minor: int | None = None
     gross_total_minor: int | None = None
     reconstructed_total_minor: int | None = None

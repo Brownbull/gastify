@@ -73,7 +73,7 @@ class TestCreateTransaction:
                 "currency": "CLP",
                 "items": [
                     {"name": "Pan", "total_price_minor": 2000},
-                    {"name": "Leche", "total_price_minor": 3000, "qty": 1.5},
+                    {"name": "Leche", "total_price_minor": 3000, "qty": 2},
                 ],
             },
         )
