@@ -37,7 +37,15 @@ test("a merchant edit appears under learned mappings and can be deleted", async 
       await editBtn.click();
       const input = page.locator('input[type="text"]:focus');
       await input.fill(target);
-      await input.press("Enter");
+      // The merchant text updates OPTIMISTICALLY — navigating on sight of it aborts
+      // the in-flight PATCH and nothing is learned. Await the server response.
+      await Promise.all([
+        page.waitForResponse(
+          (r) => r.request().method() === "PATCH" && r.url().includes("/transactions/") && r.ok(),
+          { timeout: 15_000 },
+        ),
+        input.press("Enter"),
+      ]);
       await expect(page.getByText(target).first()).toBeVisible({ timeout: 15_000 });
       taught = true;
       break;
@@ -50,9 +58,8 @@ test("a merchant edit appears under learned mappings and can be deleted", async 
   await page.goto("/settings");
   const section = page.getByTestId("learned-mappings-section");
   await expect(section).toBeVisible({ timeout: 20_000 });
-  const row = section.getByText(new RegExp(`→ ${target}`));
+  const row = section.locator("div.justify-between").filter({ hasText: target });
   await expect(row).toBeVisible({ timeout: 20_000 });
-  const rowContainer = page.locator("div", { has: row }).last();
-  await rowContainer.locator("[data-testid^='mapping-delete-']").click();
+  await row.locator("[data-testid^='mapping-delete-']").click();
   await expect(row).toHaveCount(0, { timeout: 15_000 });
 });
