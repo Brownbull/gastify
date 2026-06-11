@@ -49,9 +49,7 @@ async def _share(client, group_id: str, txn_id: uuid.UUID) -> None:
 
 async def _source(factory, txn_id) -> Transaction:
     async with factory() as db:
-        return (
-            await db.execute(select(Transaction).where(Transaction.id == txn_id))
-        ).scalar_one()
+        return (await db.execute(select(Transaction).where(Transaction.id == txn_id))).scalar_one()
 
 
 @pytest.mark.asyncio
