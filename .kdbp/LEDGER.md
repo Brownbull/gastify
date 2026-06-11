@@ -4377,3 +4377,7 @@ PROVEN: API contract test green; deployed staging-e2e returns the flag (1 matche
 
 ## 2026-06-11 15:50 - FUNCTIONALITY Phase 3 COMPLETE (currency switch CLP/USD)
 FOUND: the mutation already existed (rectification, FK-validated). BUILT (b549919): GET /privacy/profile (light settings read), web settings Currency select (optimistic+rollback, stable testid), round-trip contract test, types regen. PROVEN: e2e vs deployed - switch, reload, persisted, restore, both directions (16.9s; start-state-agnostic since the shared user's value persists between runs).
+- 2026-06-11 11:30 | Write | /home/khujta/projects/apps/gastify/tests/web-e2e/groups-admin.spec.ts
+
+## 2026-06-11 16:20 - FUNCTIONALITY Phase 4 COMPLETE (group admin ops e2e)
+FOUND: the admin UI already existed (promote/demote, remove-with-confirm, leave, owner delete) - the earlier audit missed it because the controls had NO testids. BUILT: 5 stable testids (overhaul contract) + the full two-user owner journey e2e (promote -> role label updates -> demote -> remove -> UI delete -> gone). PASSED first try, 32s, vs deployed staging-e2e.
