@@ -357,6 +357,18 @@ async def update_transaction(
                 "You can still pair it to a card or mark it recurrent."
             ),
         )
+    # Lock-on-match: a MATCHED reconciliation verdict makes the statement the external
+    # source of truth — the matched content must not drift underneath it. Same shape
+    # as the D74 share lock (tangential ops stay allowed); deleting the statement
+    # removes its verdicts (CASCADE) and unlocks.
+    if locks_content and await _is_statement_matched(db, txn.id):
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=(
+                "This transaction is matched against a card statement and locked for "
+                "content edits. Delete the statement to unlock it."
+            ),
+        )
 
     if "merchant" in update_data:
         txn.merchant = update_data["merchant"]
@@ -551,6 +563,31 @@ async def update_transaction_item_flags(
     )
 
 
+async def _assert_none_statement_matched(
+    db: AsyncSession, transaction_ids: list[UUID], ownership_scope_id: UUID
+) -> None:
+    """Whole-batch rejection when ANY selected transaction is statement-matched
+    (mirrors the D74 batch lock: explicit 409 over silent partials)."""
+    matched = await db.scalar(
+        select(func.count())
+        .select_from(StatementReconciliationVerdict)
+        .join(Transaction, Transaction.id == StatementReconciliationVerdict.receipt_transaction_id)
+        .where(
+            StatementReconciliationVerdict.receipt_transaction_id.in_(transaction_ids),
+            StatementReconciliationVerdict.verdict == ReconciliationVerdict.MATCHED,
+            Transaction.ownership_scope_id == ownership_scope_id,
+        )
+    )
+    if int(matched or 0) > 0:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=(
+                "Some selected transactions are matched against a card statement and "
+                "locked. Deselect them to continue."
+            ),
+        )
+
+
 def _assert_within_delete_window(dates: list[date]) -> None:
     """UX-11: deletes are only allowed for transactions newer than the window, so the
     statistics of settled periods can't shift underneath the user. 409 names the rule.
@@ -585,6 +622,14 @@ async def delete_transaction(
     if txn is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Transaction not found")
 
+    if await _is_statement_matched(db, txn.id):
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=(
+                "This transaction is matched against a card statement and cannot be "
+                "deleted. Delete the statement to unlock it."
+            ),
+        )
     _assert_within_delete_window([txn.transaction_date])
     await db.delete(txn)
     await db.commit()
@@ -637,6 +682,7 @@ async def batch_update_transactions(
                 "content edits. Deselect them to continue."
             ),
         )
+    await _assert_none_statement_matched(db, body.transaction_ids, auth.ownership_scope_id)
 
     set_values["updated_at"] = now
 
@@ -702,6 +748,7 @@ async def batch_delete_transactions(
         .all()
     )
     _assert_within_delete_window(list(dates))
+    await _assert_none_statement_matched(db, body.transaction_ids, auth.ownership_scope_id)
 
     stmt = delete(Transaction).where(
         Transaction.id.in_(body.transaction_ids),

@@ -242,6 +242,31 @@ async def get_statement_lines(
     return [StatementLineRecordResponse.model_validate(line) for line in rows.scalars()]
 
 
+@router.delete("/{statement_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_statement(
+    statement_id: uuid.UUID,
+    auth: Auth,
+    db: DB,
+) -> None:
+    """Remove a statement: its lines, reconciliation runs and VERDICTS go with it
+    (FK CASCADE) — which also UNLOCKS any transactions that were matched against it
+    (the lock-on-match escape hatch). The stored PDF is removed best-effort."""
+    statement = (
+        await db.execute(
+            select(Statement).where(
+                Statement.id == statement_id,
+                Statement.ownership_scope_id == auth.ownership_scope_id,
+            )
+        )
+    ).scalar_one_or_none()
+    if statement is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Statement not found")
+    pdf_path = Path(statement.file_path)
+    await db.delete(statement)
+    await db.commit()
+    shutil.rmtree(pdf_path.parent, ignore_errors=True)
+
+
 @router.post("/{statement_id}/reconcile", response_model=StatementReconciliationResponse)
 async def reconcile_statement(
     statement_id: uuid.UUID,

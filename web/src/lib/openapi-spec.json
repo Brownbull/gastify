@@ -1812,6 +1812,41 @@
             }
           }
         }
+      },
+      "delete": {
+        "tags": [
+          "statements"
+        ],
+        "summary": "Delete Statement",
+        "description": "Remove a statement: its lines, reconciliation runs and VERDICTS go with it\n(FK CASCADE) \u2014 which also UNLOCKS any transactions that were matched against it\n(the lock-on-match escape hatch). The stored PDF is removed best-effort.",
+        "operationId": "delete_statement_api_v1_statements__statement_id__delete",
+        "parameters": [
+          {
+            "name": "statement_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Statement Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/api/v1/statements/{statement_id}/lines": {
