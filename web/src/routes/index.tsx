@@ -108,6 +108,28 @@ function DashboardContent({ data, period }: { data: MonthlyInsights; period: str
     `${period}:${dimension}`,
   );
 
+  // A tombstoned (group, month): totals are zeroed server-side and the cause arrives
+  // in void_reason — show the explanation, not the generic "scan something" empty state.
+  if (data.voided) {
+    const reasonKey =
+      data.void_reason === "account_deleted"
+        ? "dashboard.voided.account_deleted"
+        : data.void_reason === "member_removed_data"
+          ? "dashboard.voided.member_removed_data"
+          : "dashboard.voided";
+    return (
+      <div
+        className="rounded-lg border p-10 text-center"
+        style={{ borderColor: "var(--border)", backgroundColor: "var(--surface)" }}
+        data-testid="dashboard-voided"
+      >
+        <p className="text-sm" style={{ color: "var(--text-muted)" }}>
+          {t(reasonKey)}
+        </p>
+      </div>
+    );
+  }
+
   if (data.transaction_count === 0) {
     return (
       <div

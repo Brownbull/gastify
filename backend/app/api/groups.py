@@ -630,7 +630,24 @@ async def leave_group(
         )
     )
     if target is not None:
+        leaver_was_owner = target.role == "owner"
         await db.delete(target)
+        # Ownership transfer (D94): delete_group is owner-only and "owner" is not an
+        # assignable role, so an owner leaving would orphan the group as permanently
+        # undeletable. The guard above already requires another admin to exist —
+        # promote the longest-standing one to owner so the group always has one.
+        if leaver_was_owner:
+            successor = await db.scalar(
+                select(OwnershipScopeMember)
+                .where(
+                    OwnershipScopeMember.ownership_scope_id == group_id,
+                    OwnershipScopeMember.user_id != auth.user_id,
+                    OwnershipScopeMember.role == "admin",
+                )
+                .order_by(OwnershipScopeMember.created_at, OwnershipScopeMember.id)
+            )
+            if successor is not None:
+                successor.role = "owner"
     # Commit unconditionally so the delete_shared tombstones + audit event persist even
     # if the membership row is already gone (commit runs under the group GUC, so the
     # membership DELETE is RLS-correct — see the erasure-path R1 fix for the contrast).

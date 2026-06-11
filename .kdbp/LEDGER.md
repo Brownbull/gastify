@@ -4451,3 +4451,17 @@ PROMOTION: promoted staging -> main (82dc451 -> 116c7e0, FF; main = staging = br
 DEPLOYMENTS: P80 (row added to .kdbp/DEPLOYMENTS.md)
 DRIFT: origin/copilot/understanding-project-from-scratch deleted at user direction (decision logged in PUSH.md)
 PLAN: deck-clearing all 4 phases Push ✅ — plan complete. Next: wait for the frontend overhaul (user direction).
+- 2026-06-11 19:27 | Edit | /home/khujta/projects/apps/gastify/web/src/routes/-index.test.tsx
+- 2026-06-11 19:29 | Edit | /home/khujta/projects/apps/gastify/web/src/routes/transactions.new.tsx
+- 2026-06-11 19:30 | Edit | /home/khujta/projects/apps/gastify/web/src/routes/transactions.new.tsx
+- 2026-06-11 19:30 | Edit | /home/khujta/projects/apps/gastify/web/src/routes/transactions.new.tsx
+- 2026-06-11 19:32 | Edit | /home/khujta/projects/apps/gastify/backend/app/api/groups.py
+- 2026-06-11 19:33 | Edit | /home/khujta/projects/apps/gastify/backend/tests/test_groups.py
+- 2026-06-11 19:33 | Edit | /home/khujta/projects/apps/gastify/backend/tests/test_groups.py
+
+## 2026-06-11 (cont) - TWO-USER HARDENING Phase 1 recon: 3 real findings
+(1) VOID NOTICE NEVER IMPLEMENTED: the insights API zeroes voided (group,month) buckets and sends voided+void_reason expecting a client notice - neither web nor mobile rendered one; a leave-delete looked like an unexplained empty month. Web FIXED (dashboard-voided testid, es/en/pt copy for member_removed_data/account_deleted, TDD vitest); mobile -> P85 (rides overhaul).
+(2) MANUAL ENTRY UNGUARDED IN GROUP SCOPE: /transactions/new had no D70 guard (scan/batch do) and POST /transactions always writes the PERSONAL scope - creating "inside" a group view silently landed elsewhere. FIXED: PersonalOnlyNotice in group mode.
+(3) D94 - ORPHANED GROUP OWNERSHIP: delete_group is owner-only, 'owner' is not assignable, and the leave guard only demands another ADMIN - an owner promoting an admin and leaving made the group PERMANENTLY UNDELETABLE while occupying every member's 5-group cap. FIXED: owner-leave promotes the longest-standing admin to owner (same transaction); backend test (deterministic seniority - SQLite second-granular timestamps made the uuid tiebreak flaky on the first run).
+BY-DESIGN CONFIRMATIONS (not bugs): deleting a shared SOURCE is allowed, the group copy is an independent snapshot (D74 D-Q3); no per-copy unshare exists (delete-group only); batch-delete skipping the is_shared check MATCHES the single-delete semantics.
+Gates: backend 921 pass + ruff + format + mypy(app); web tsc + eslint + 129 vitest. cleanup.ts now two-user (B deletes groups it inherits via D94).

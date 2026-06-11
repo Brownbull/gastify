@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { apiClient } from "@/lib/api";
+import { PersonalOnlyNotice } from "@/components/PersonalOnlyNotice";
+import { useUiStore } from "@/stores/uiStore";
 
 type RefCategory = { id: string; key: string; level: number; display_labels?: Record<string, string> };
 
@@ -40,6 +42,9 @@ const EMPTY_ITEM: DraftItem = { name: "", qty: "1", price: "", cents: "0", categ
 
 function NewTransactionPage() {
   const navigate = useNavigate();
+  // D70: capture is personal-only. POST /transactions always writes the personal
+  // scope, so creating "inside" a group view would silently land elsewhere.
+  const inGroupMode = useUiStore((s) => s.activeScope.kind === "group");
   const [merchant, setMerchant] = useState("");
   const [txDate, setTxDate] = useState("");
   const [txTime, setTxTime] = useState("");
@@ -126,6 +131,9 @@ function NewTransactionPage() {
   };
 
   const inputStyle = { borderColor: "var(--border)", color: "var(--text)" };
+
+  if (inGroupMode) return <PersonalOnlyNotice />;
+
   return (
     <div className="mx-auto max-w-xl space-y-4">
       <h1 className="text-2xl font-semibold" style={{ color: "var(--text)" }}>

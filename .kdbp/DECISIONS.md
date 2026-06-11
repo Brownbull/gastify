@@ -2725,3 +2725,7 @@ cross-check the LLM's merchant/total/date against the signed SII data when a QR 
 
 ### Status
 - accepted (product decision; ROADMAP P17 → dropped, Change Log v1.5)
+
+## D94 — An owner LEAVING a group transfers ownership to the longest-standing admin (2026-06-11)
+
+**Decision.** `POST /groups/{id}/leave` by the OWNER promotes the longest-standing other ADMIN (`created_at` asc, id tiebreak) to `owner` in the same transaction that removes the leaver's membership. **Why.** Found during the two-user runtime hardening pass: `delete_group` requires role `owner`, `AssignableRole` excludes `owner`, and the leave guard only requires *another admin* to exist — so an owner promoting an admin and leaving orphaned the group as PERMANENTLY UNDELETABLE while it kept occupying every member's 5-group cap (the leave guard's own message, "promote another admin before leaving", clearly intended that admin to inherit a full management surface). Alternatives considered: (a) blocking owner-leave outright — harsh, and there is no ownership-transfer endpoint to point the owner at; (b) widening delete_group to admins — a broader destructive-permission grant than the invariant needs. The invariant chosen: **a group with members always has exactly one owner.** **Status:** accepted. **Affects:** `backend/app/api/groups.py` (leave_group successor promotion), `backend/tests/test_groups.py`, `tests/web-e2e/groups-two-user-stats.spec.ts` (runtime proof: B owns + deletes after A departs), e2e cleanup (B-side group deletion).

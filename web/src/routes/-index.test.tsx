@@ -230,6 +230,21 @@ describe("DashboardPage", () => {
     expect(await screen.findByTestId("dashboard-empty")).toBeInTheDocument();
   });
 
+  it("shows the void notice (not the generic empty state) for a voided month", async () => {
+    mockApi({
+      ...monthlyPayload,
+      transaction_count: 0,
+      total_spend_minor: 0,
+      voided: true,
+      void_reason: "member_removed_data",
+    });
+    renderPage();
+
+    const notice = await screen.findByTestId("dashboard-voided");
+    expect(notice).toHaveTextContent("A departed member removed their shared data");
+    expect(screen.queryByTestId("dashboard-empty")).not.toBeInTheDocument();
+  });
+
   it("shows an error state when the request fails", async () => {
     mockGet.mockImplementation((() =>
       Promise.resolve({ data: undefined, error: { detail: "x" } })) as never);

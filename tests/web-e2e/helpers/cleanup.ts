@@ -31,10 +31,12 @@ function loadDotenv(file: string): Record<string, string> {
 
 const env = loadDotenv(path.resolve(__dirname, "../../../web/.env.staging-e2e"));
 
-async function idToken(): Promise<string | undefined> {
+export type E2eUser = "a" | "b";
+
+async function tokenFor(user: E2eUser): Promise<string | undefined> {
   const key = env.VITE_FIREBASE_API_KEY;
-  const email = env.VITE_E2E_AUTH_EMAIL;
-  const password = env.VITE_E2E_AUTH_PASSWORD;
+  const email = user === "a" ? env.VITE_E2E_AUTH_EMAIL : env.VITE_E2E_AUTH_EMAIL_B;
+  const password = user === "a" ? env.VITE_E2E_AUTH_PASSWORD : env.VITE_E2E_AUTH_PASSWORD_B;
   if (!key || !email || !password) return undefined;
   const res = await fetch(
     `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${key}`,
@@ -49,27 +51,56 @@ async function idToken(): Promise<string | undefined> {
   return (await res.json()).idToken as string;
 }
 
-/** Delete every group whose name starts with `prefix` (default: all E2E test groups). */
-export async function cleanupTestGroups(prefix = "E2E "): Promise<void> {
+async function idToken(): Promise<string | undefined> {
+  return tokenFor("a");
+}
+
+/** Authenticated JSON request as one of the two e2e users. Returns undefined on
+ * missing config; throws nothing — callers assert on the result. */
+export async function apiAs(
+  user: E2eUser,
+  method: string,
+  apiPath: string,
+  body?: unknown,
+): Promise<{ status: number; json: unknown } | undefined> {
+  const base = env.VITE_API_BASE_URL;
+  const token = await tokenFor(user);
+  if (!base || !token) return undefined;
+  const res = await fetch(`${base}/api/v1${apiPath}`, {
+    method,
+    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+    body: body === undefined ? undefined : JSON.stringify(body),
+  });
+  const text = await res.text();
+  let json: unknown = undefined;
   try {
-    const base = env.VITE_API_BASE_URL;
-    const token = await idToken();
-    if (!base || !token) return;
-    const auth = { Authorization: `Bearer ${token}` };
-    const res = await fetch(`${base}/api/v1/groups`, { headers: auth });
-    if (!res.ok) return;
-    const groups: Array<{ id: string; name?: string }> = await res.json();
-    await Promise.all(
-      groups
-        .filter((g) => g.name?.startsWith(prefix))
-        .map((g) =>
-          fetch(`${base}/api/v1/groups/${g.id}`, { method: "DELETE", headers: auth }).catch(
-            () => {},
-          ),
-        ),
-    );
+    json = text ? JSON.parse(text) : undefined;
   } catch {
-    // Best-effort: cleanup must never fail a spec.
+    json = text;
+  }
+  return { status: res.status, json };
+}
+
+/** Delete every group whose name starts with `prefix` — for BOTH e2e users (a group
+ * can outlive its creator: an owner leaving hands ownership to an admin, D94). */
+export async function cleanupTestGroups(prefix = "E2E "): Promise<void> {
+  for (const user of ["a", "b"] as const) {
+    try {
+      const listed = await apiAs(user, "GET", "/groups");
+      if (!listed || listed.status !== 200) continue;
+      const groups = listed.json as Array<{ id: string; name?: string; role?: string }>;
+      await Promise.all(
+        groups
+          .filter((g) => g.name?.startsWith(prefix))
+          .map(async (g) => {
+            // Owners delete; mere members leave (keep) so the cap frees up.
+            if (g.role === "owner") await apiAs(user, "DELETE", `/groups/${g.id}`);
+            else await apiAs(user, "POST", `/groups/${g.id}/leave?delete_shared=false`);
+          }),
+      );
+    } catch {
+      // Best-effort: cleanup must never fail a spec.
+    }
   }
 }
 

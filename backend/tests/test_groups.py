@@ -13,6 +13,7 @@ import uuid
 from datetime import UTC, datetime, timedelta
 
 import pytest
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from app.api import groups as groups_api
@@ -168,6 +169,51 @@ async def test_remove_member_and_owner_cannot_leave_last(client, engine):
     removed = await client.delete(f"/api/v1/groups/{group_id}/members/{member_uid}")
     assert removed.status_code == 204
     assert (await client.get(f"/api/v1/groups/{group_id}")).json()["member_count"] == 1
+
+
+@pytest.mark.asyncio
+async def test_owner_leave_transfers_ownership_to_an_admin(client, engine):
+    """D94: delete_group is owner-only and 'owner' is not assignable, so an owner
+    leaving must hand ownership to the longest-standing other admin — otherwise the
+    group is orphaned as permanently undeletable."""
+    group_id = (await client.post("/api/v1/groups", json={"name": "Casa"})).json()["id"]
+    gid = uuid.UUID(group_id)
+    admin_uid, _ = await _seed_user(engine, "successor")
+    later_admin_uid, _ = await _seed_user(engine, "later-admin")
+    # SQLite's CURRENT_TIMESTAMP is second-granular, so set the join times explicitly
+    # to make "longest-standing" unambiguous.
+    async with _sf(engine)() as s:
+        s.add(
+            OwnershipScopeMember(
+                ownership_scope_id=gid,
+                user_id=admin_uid,
+                role="admin",
+                created_at=datetime(2026, 1, 1, tzinfo=UTC),
+            )
+        )
+        s.add(
+            OwnershipScopeMember(
+                ownership_scope_id=gid,
+                user_id=later_admin_uid,
+                role="admin",
+                created_at=datetime(2026, 2, 1, tzinfo=UTC),
+            )
+        )
+        await s.commit()
+
+    left = await client.post(f"/api/v1/groups/{group_id}/leave")
+    assert left.status_code == 204
+
+    async with _sf(engine)() as s:
+        rows = (
+            await s.execute(
+                select(OwnershipScopeMember).where(OwnershipScopeMember.ownership_scope_id == gid)
+            )
+        ).scalars()
+        roles = {m.user_id: m.role for m in rows}
+    assert TEST_USER_ID not in roles  # the owner actually left
+    assert roles[admin_uid] == "owner"  # longest-standing admin promoted
+    assert roles[later_admin_uid] == "admin"  # the newer admin is untouched
 
 
 @pytest.mark.asyncio
