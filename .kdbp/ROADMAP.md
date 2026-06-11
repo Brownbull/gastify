@@ -40,7 +40,7 @@ phase_count: 15
 | P14 | **Items View + Reports** | Dedicated cross-transaction item search. Weekly/monthly report cards with spending summaries and charts (month/quarter/year/week granularity — D77). | P13 | — | Feature parity | completed |
 | P15 | **Notification Center** | In-app notification view (list, read/unread, mark-read, delete). Backend notification hooks. | P2 | — | Feature parity | completed |
 | P16 | **Compliance + Launch Hardening** | Four-jurisdiction regulatory readiness validated (Law 21.719, GDPR, PIPEDA, CCPA/CPRA) + launch infra + cutover drill. Paid-tier LLM pre-commit in place. Monetization plumbing live. | P1–P15 | — | Consolidates + audits REQ-20, REQ-21 | completed |
-| P17 | **Structured-Boleta Shortcut** | Chilean electronic-boleta QR/CAF parser bypasses the vision LLM for structured receipts — cuts per-scan cost on SII-Resolution-52/2026 electronic boletas. Nice-to-have, post-MVP. | P2, P16 | P18 | REQ-26 | pending |
+| P17 | **Structured-Boleta Shortcut** | Chilean electronic-boleta QR/CAF parser bypasses the vision LLM for structured receipts — cuts per-scan cost on SII-Resolution-52/2026 electronic boletas. Nice-to-have, post-MVP. | P2, P16 | P18 | REQ-26 | **dropped** (D93 — TED has no line items; items are the differentiator) |
 | P18 | **Cohort Benchmarking (DP-engineered)** | Consent-gated cohort aggregation with k ≥ 20 floor, ε ≤ 1 DP noise, sensitive-category suppression, revocation-aware recompute. Unlocks SC-11 / JTBD-05. Post-MVP. | P1, P6, P16 | P17 | REQ-27 | pending |
 
 ## §3 Phase Detail
@@ -275,6 +275,7 @@ graph LR
 
 | Date | Version | Change |
 |---|---|---|
+| 2026-06-11 | v1.5 | P16 completed (all 5 phases, GO attestation signed). P17 DROPPED per D93 — the boleta TED/QR carries no line-item data and item-level tracking is the product differentiator; the LLM stays mandatory per scan, so the bypass saves ~nothing. Preserved as a possible validation-anchor enhancement. |
 | 2026-06-05 | v1.4 | Housekeeping status sync: P6 (Insights + Item Flags) marked completed — shipped to production as the basis of the P13 dashboards. P14 (Items + Reports) shipped (month/quarter/week/year granularity, D77). Frontmatter version bumped 1.3→1.4 to match the 2026-06-02 scope change. P15 (Notification Center) is the next active phase. |
 | 2026-06-02 | v1.4 | Inserted P10-P15 (feature parity with legacy BoletApp) before launch gate. P7→P16, P8→P17, P9→P18. Write-first ordering: settings/themes → batch ops → batch scan → dashboard/charts → items/reports → notifications. Groups deferred. New critical path: P6 → P10-P15 → P16 (launch). |
 | 2026-05-24 | v1.2 | deferred iOS runtime testing until after P1-P9; P4/Phase 5 closes on Android physical hardware for the current roadmap cycle. |

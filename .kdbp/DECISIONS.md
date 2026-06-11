@@ -2706,3 +2706,22 @@ prod — unlike D91's audit purge.
 
 ### Status
 - accepted (extends D90 observable-state rigor; sibling to D91's "machinery must be scheduled")
+
+## D93 — P17 (Structured-Boleta QR Shortcut) DROPPED: the TED carries no line items, and items ARE the product (2026-06-11)
+
+**Context.** ROADMAP P17 proposed parsing the electronic boleta's QR/TED to bypass the
+vision LLM and cut per-scan cost. Product review (user, 2026-06-11): the TED stamp encodes
+issuer RUT / doc type / folio / date / total / receiver (+ at most the FIRST item, `IT1`) —
+the full line-item detail lives in the merchant→SII DTE XML, NOT in the printed code.
+
+**Decision.** DROP P17. gastify's differentiator is ITEM-level tracking + classification
+(no Chilean app does it well); merchant/date/total classification is commodity. Since the
+LLM remains mandatory for items on every scan, the QR "bypass" saves almost nothing and
+adds a parser + divergent pipeline to maintain.
+
+**Preserved idea (enhancement, not a phase):** the TED as a free VALIDATION ANCHOR —
+cross-check the LLM's merchant/total/date against the signed SII data when a QR is present
+(accuracy/anti-hallucination, not cost). Revisit if extraction-accuracy complaints emerge.
+
+### Status
+- accepted (product decision; ROADMAP P17 → dropped, Change Log v1.5)
