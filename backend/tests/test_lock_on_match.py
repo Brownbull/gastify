@@ -41,7 +41,7 @@ async def _seed_matched(db) -> tuple[uuid.UUID, uuid.UUID]:
     stmt = Statement(
         ownership_scope_id=TEST_SCOPE_ID,
         original_filename="s.pdf",
-        file_path="/tmp/lock-match.pdf",
+        file_path="/tmp/lock-match-scratch/statement.pdf",
         file_sha256="2" * 64,
         file_size_bytes=10,
         currency="CLP",

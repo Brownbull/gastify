@@ -264,7 +264,15 @@ async def delete_statement(
     pdf_path = Path(statement.file_path)
     await db.delete(statement)
     await db.commit()
-    shutil.rmtree(pdf_path.parent, ignore_errors=True)
+    # Remove the stored PDF. The per-statement DIRECTORY is only removed when it
+    # really is the upload layout ({storage_root}/{scope}/{statement_id}/) — a
+    # blind rmtree(parent) on a DB-sourced path is an arbitrary-directory delete.
+    storage_root = Path(settings.statement_storage_dir).resolve()
+    parent = pdf_path.parent.resolve()
+    if storage_root in parent.parents:
+        shutil.rmtree(parent, ignore_errors=True)
+    else:
+        pdf_path.unlink(missing_ok=True)
 
 
 @router.post("/{statement_id}/reconcile", response_model=StatementReconciliationResponse)
