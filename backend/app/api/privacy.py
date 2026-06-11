@@ -28,6 +28,7 @@ from app.schemas.consent import (
     ErasureResponse,
     PortabilityResponse,
     PortabilityTransaction,
+    ProfileResponse,
     RectificationRequest,
     RectificationResponse,
     UserDataExport,
@@ -96,6 +97,19 @@ async def data_access(request: Request, auth: Auth, db: DB) -> DataAccessRespons
         consents=[ConsentResponse.model_validate(c) for c in consents],
         transactions_count=txn_count,
         exported_at=now,
+    )
+
+
+@router.get("/profile", response_model=ProfileResponse)
+async def get_profile(auth: Auth) -> ProfileResponse:
+    """The settings-screen read: current profile prefs (incl. default_currency) without
+    composing the full data-access export."""
+    user = auth.user
+    return ProfileResponse(
+        display_name=user.display_name,
+        email=user.email,
+        default_currency=user.default_currency,
+        locale=user.locale,
     )
 
 

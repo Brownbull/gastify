@@ -1138,6 +1138,28 @@
         }
       }
     },
+    "/api/v1/privacy/profile": {
+      "get": {
+        "tags": [
+          "privacy"
+        ],
+        "summary": "Get Profile",
+        "description": "The settings-screen read: current profile prefs (incl. default_currency) without\ncomposing the full data-access export.",
+        "operationId": "get_profile_api_v1_privacy_profile_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProfileResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/privacy/rectification": {
       "post": {
         "tags": [
@@ -5218,6 +5240,56 @@
           "is_active"
         ],
         "title": "ProcessingRegisterResponse"
+      },
+      "ProfileResponse": {
+        "properties": {
+          "display_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Display Name"
+          },
+          "email": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Email"
+          },
+          "default_currency": {
+            "type": "string",
+            "title": "Default Currency"
+          },
+          "locale": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Locale"
+          }
+        },
+        "type": "object",
+        "required": [
+          "display_name",
+          "email",
+          "default_currency",
+          "locale"
+        ],
+        "title": "ProfileResponse",
+        "description": "Lightweight profile read for settings surfaces (data-access is the FULL export)."
       },
       "PushTokenRegistration": {
         "properties": {

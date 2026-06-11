@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useI18n } from "@/hooks/useI18n";
 import { SUPPORTED_LOCALES, type SupportedLocale } from "@/lib/i18n";
@@ -22,6 +22,7 @@ function SettingsPage() {
         {t("settings.title")}
       </h1>
       <ProfileSection />
+      <CurrencySection />
       <AppearanceSection />
       <DataSection />
       <AccountSection />
@@ -69,6 +70,66 @@ function ProfileSection() {
         <span className="text-sm" style={{ color: "var(--text-primary)" }}>
           {user?.displayName ?? "—"}
         </span>
+      </FieldRow>
+    </SectionCard>
+  );
+}
+
+const CURRENCY_CHOICES = ["CLP", "USD"] as const;
+
+function CurrencySection() {
+  const [current, setCurrent] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    apiClient.GET("/api/v1/privacy/profile").then(({ data }) => {
+      if (!cancelled && data) setCurrent(data.default_currency);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const onChange = async (code: string) => {
+    setSaving(true);
+    setError(null);
+    const previous = current;
+    setCurrent(code);
+    const { error: apiError } = await apiClient.POST("/api/v1/privacy/rectification", {
+      body: { default_currency: code },
+    });
+    setSaving(false);
+    if (apiError) {
+      setCurrent(previous);
+      setError("Could not update currency");
+    }
+  };
+
+  return (
+    <SectionCard title="Currency">
+      <FieldRow label="Default currency">
+        <select
+          data-testid="settings-currency-select"
+          value={current ?? ""}
+          disabled={current === null || saving}
+          onChange={(e) => onChange(e.target.value)}
+          className="rounded-md border px-2 py-1 text-sm"
+          style={{ borderColor: "var(--border)", color: "var(--text-primary)" }}
+        >
+          {current === null && <option value="">…</option>}
+          {CURRENCY_CHOICES.map((code) => (
+            <option key={code} value={code}>
+              {code}
+            </option>
+          ))}
+        </select>
+        {error && (
+          <span className="ml-2 text-xs" style={{ color: "var(--error)" }}>
+            {error}
+          </span>
+        )}
       </FieldRow>
     </SectionCard>
   );

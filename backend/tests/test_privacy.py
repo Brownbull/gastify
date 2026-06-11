@@ -275,3 +275,21 @@ async def test_portability_includes_total_and_truncated(client):
     data = resp.json()
     assert data["total_transactions"] == 0
     assert data["truncated"] is False
+
+
+@pytest.mark.asyncio
+async def test_default_currency_switch_round_trip(client):
+    """The user currency switch (functionality plan, Phase 3): CLP→USD and back,
+    each change visible on the lightweight profile read the settings screen uses."""
+    before = await client.get("/api/v1/privacy/profile")
+    assert before.status_code == 200
+    assert before.json()["default_currency"] == "CLP"
+
+    to_usd = await client.post("/api/v1/privacy/rectification", json={"default_currency": "USD"})
+    assert to_usd.status_code == 200
+    assert "default_currency" in to_usd.json()["updated_fields"]
+    assert (await client.get("/api/v1/privacy/profile")).json()["default_currency"] == "USD"
+
+    back = await client.post("/api/v1/privacy/rectification", json={"default_currency": "CLP"})
+    assert back.status_code == 200
+    assert (await client.get("/api/v1/privacy/profile")).json()["default_currency"] == "CLP"

@@ -85,6 +85,15 @@ class UserDataExport(BaseModel):
     created_at: datetime
 
 
+class ProfileResponse(BaseModel):
+    """Lightweight profile read for settings surfaces (data-access is the FULL export)."""
+
+    display_name: str | None
+    email: str | None
+    default_currency: str
+    locale: str | None
+
+
 class RectificationRequest(BaseModel):
     display_name: str | None = None
     email: str | None = None

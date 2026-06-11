@@ -285,6 +285,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/privacy/profile": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Profile
+         * @description The settings-screen read: current profile prefs (incl. default_currency) without
+         *     composing the full data-access export.
+         */
+        get: operations["get_profile_api_v1_privacy_profile_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/privacy/rectification": {
         parameters: {
             query?: never;
@@ -1940,6 +1961,20 @@ export interface components {
             jurisdictions: string;
             /** Is Active */
             is_active: boolean;
+        };
+        /**
+         * ProfileResponse
+         * @description Lightweight profile read for settings surfaces (data-access is the FULL export).
+         */
+        ProfileResponse: {
+            /** Display Name */
+            display_name: string | null;
+            /** Email */
+            email: string | null;
+            /** Default Currency */
+            default_currency: string;
+            /** Locale */
+            locale: string | null;
         };
         /** PushTokenRegistration */
         PushTokenRegistration: {
@@ -3841,6 +3876,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["DataAccessResponse"];
+                };
+            };
+        };
+    };
+    get_profile_api_v1_privacy_profile_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProfileResponse"];
                 };
             };
         };
