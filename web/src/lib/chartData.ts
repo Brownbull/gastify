@@ -158,3 +158,38 @@ export function treeNodesToSlices(
 }
 
 export { OTHER_KEY };
+
+
+/**
+ * Flatten the insights tree at exactly classification level N (the L1–L4 bar,
+ * legacy DonutViewMode port): collect every node whose `level` === N across the whole
+ * tree, regardless of parentage. The level totals all sum to the same period total
+ * only at L1/L2 (transaction-aggregated); L3/L4 exclude itemless spend by design —
+ * callers pass the response total for percent math.
+ */
+export function flattenTreeAtLevel(
+  nodes: readonly TreeNode[],
+  level: number,
+  responseTotalMinor: number,
+): ChartSlice[] {
+  const found: TreeNode[] = [];
+  const walk = (list: readonly TreeNode[]) => {
+    for (const node of list) {
+      if (node.level === level) found.push(node);
+      if (node.children?.length) walk(node.children);
+    }
+  };
+  walk(nodes);
+  found.sort((a, b) => b.total_minor - a.total_minor);
+  return found.map((node) => ({
+    categoryKey: node.key,
+    label: node.label,
+    parentKey: node.parent_key ?? "",
+    parentLabel: "",
+    valueMinor: node.total_minor,
+    percent: responseTotalMinor > 0 ? (node.total_minor / responseTotalMinor) * 100 : 0,
+    colorVar: categoryColorVar(node.key),
+    isOther: false,
+    drillable: false, // the level bar shows a flat cut; drilling is the dashboard's job
+  }));
+}

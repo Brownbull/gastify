@@ -1,21 +1,20 @@
 import { lazy, Suspense, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
-  currentPeriod,
   periodWindow,
   useInsightsSeries,
-  useMonthlyInsights,
-  type InsightDimension,
+  useInsightsTree,
   type SeriesGranularity,
 } from "@/hooks/useInsights";
 import { useI18n } from "@/hooks/useI18n";
-import { rollupToSlices } from "@/lib/chartData";
+import { flattenTreeAtLevel } from "@/lib/chartData";
 import {
-  DimensionToggle,
-  InsightsSkeleton,
-  PeriodStepper,
-  ChartFallback,
-} from "@/components/insights/widgets";
+  currentPeriodKey,
+  monthKeyOf,
+  shiftPeriodKey,
+  type PeriodGranularity,
+} from "@/lib/periodKeys";
+import { InsightsSkeleton, ChartFallback } from "@/components/insights/widgets";
 
 const CategoryDonut = lazy(() => import("@/components/charts/CategoryDonut"));
 const SpendTimeSeries = lazy(() => import("@/components/charts/SpendTimeSeries"));
@@ -36,21 +35,25 @@ export const Route = createFileRoute("/trends")({
 
 function TrendsPage() {
   const { t } = useI18n();
-  const [period, setPeriod] = useState(() => currentPeriod());
-  const [dimension, setDimension] = useState<InsightDimension>("transaction_category");
-  const [granularity, setGranularity] = useState<SeriesGranularity>("month");
-  const atCurrent = period >= currentPeriod();
+  // The W/M/Q/Y temporal bar (legacy TimePeriod port): one page-level granularity +
+  // a matching period key drive BOTH the distribution and the series.
+  const [granularity, setGranularity] = useState<PeriodGranularity>("month");
+  const [period, setPeriod] = useState(() => currentPeriodKey("month"));
+  // The L1-L4 classification bar (legacy DonutViewMode port) over the 4-level tree.
+  const [level, setLevel] = useState(2);
+  const atCurrent = period >= currentPeriodKey(granularity);
 
-  const monthly = useMonthlyInsights(period);
-  const window = periodWindow(period, WINDOW_MONTHS[granularity]);
-  const series = useInsightsSeries(window.from, window.to, granularity);
+  const switchGranularity = (g: PeriodGranularity) => {
+    setGranularity(g);
+    setPeriod(currentPeriodKey(g));
+  };
 
-  const rows =
-    dimension === "transaction_category"
-      ? (monthly.data?.top_transaction_categories ?? [])
-      : (monthly.data?.top_item_categories ?? []);
-  const slices = monthly.data
-    ? rollupToSlices(rows, monthly.data.total_spend_minor)
+  const tree = useInsightsTree(period, "transaction_category");
+  const window = periodWindow(monthKeyOf(period), WINDOW_MONTHS[granularity]);
+  const series = useInsightsSeries(window.from, window.to, granularity as SeriesGranularity);
+
+  const slices = tree.data
+    ? flattenTreeAtLevel(tree.data.roots ?? [], level, tree.data.total_spend_minor)
     : [];
   const hasDistribution = slices.length > 0;
   const seriesPoints = series.data?.points ?? [];
@@ -67,8 +70,38 @@ function TrendsPage() {
             {t("trends.subtitle")}
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <PeriodStepper period={period} atCurrent={atCurrent} onChange={setPeriod} />
+        <div className="flex flex-wrap items-center gap-2">
+          <TemporalBar value={granularity} onChange={switchGranularity} />
+          <div className="flex items-center gap-1" data-testid="period-stepper">
+            <button
+              type="button"
+              aria-label="Previous period"
+              data-testid="period-prev"
+              onClick={() => setPeriod(shiftPeriodKey(period, -1))}
+              className="rounded-md border px-2 py-1.5 text-sm"
+              style={{ borderColor: "var(--border)", color: "var(--text)" }}
+            >
+              ←
+            </button>
+            <span
+              className="min-w-20 text-center text-sm font-medium"
+              data-testid="period-label"
+              style={{ color: "var(--text)" }}
+            >
+              {period}
+            </span>
+            <button
+              type="button"
+              aria-label="Next period"
+              data-testid="period-next"
+              disabled={atCurrent}
+              onClick={() => setPeriod(shiftPeriodKey(period, 1))}
+              className="rounded-md border px-2 py-1.5 text-sm disabled:opacity-40"
+              style={{ borderColor: "var(--border)", color: "var(--text)" }}
+            >
+              →
+            </button>
+          </div>
           <Link
             to="/"
             className="rounded-md border px-3 py-1.5 text-sm font-medium"
@@ -92,17 +125,17 @@ function TrendsPage() {
           <h2 className="text-sm font-semibold" style={{ color: "var(--text)" }}>
             {t("trends.distribution")}
           </h2>
-          <DimensionToggle dimension={dimension} onChange={setDimension} />
+          <LevelBar value={level} onChange={setLevel} />
         </div>
-        {monthly.isLoading && <InsightsSkeleton />}
-        {!monthly.isLoading && !hasDistribution && (
+        {tree.isLoading && <InsightsSkeleton />}
+        {!tree.isLoading && !hasDistribution && (
           <p className="py-8 text-center text-sm" style={{ color: "var(--text-muted)" }}>
             {t("dashboard.empty")}
           </p>
         )}
-        {!monthly.isLoading && hasDistribution && monthly.data && (
+        {!tree.isLoading && hasDistribution && tree.data && (
           <Suspense fallback={<ChartFallback />}>
-            <CategoryDonut slices={slices} currency={monthly.data.currency} />
+            <CategoryDonut slices={slices} currency={tree.data.currency} />
           </Suspense>
         )}
       </section>
@@ -116,7 +149,6 @@ function TrendsPage() {
           <h2 className="text-sm font-semibold" style={{ color: "var(--text)" }}>
             {t("trends.overTime")}
           </h2>
-          <GranularityToggle value={granularity} onChange={setGranularity} />
         </div>
         {series.isLoading && <ChartFallback />}
         {!series.isLoading && !hasSeriesSpend && (
@@ -138,15 +170,16 @@ function TrendsPage() {
   );
 }
 
-function GranularityToggle({
+function TemporalBar({
   value,
   onChange,
 }: {
-  value: SeriesGranularity;
-  onChange: (value: SeriesGranularity) => void;
+  value: PeriodGranularity;
+  onChange: (value: PeriodGranularity) => void;
 }) {
   const { t } = useI18n();
-  const options: { value: SeriesGranularity; label: string }[] = [
+  const options: { value: PeriodGranularity; label: string }[] = [
+    { value: "week", label: "W" },
     { value: "month", label: t("trends.granularity.month") },
     { value: "quarter", label: t("trends.granularity.quarter") },
     { value: "year", label: t("trends.granularity.year") },
@@ -156,7 +189,8 @@ function GranularityToggle({
       className="inline-flex rounded-lg border p-0.5 text-xs"
       style={{ borderColor: "var(--border)" }}
       role="group"
-      aria-label="Series granularity"
+      aria-label="Temporal granularity"
+      data-testid="temporal-bar"
     >
       {options.map((option) => {
         const active = option.value === value;
@@ -165,6 +199,7 @@ function GranularityToggle({
             key={option.value}
             type="button"
             aria-pressed={active}
+            data-testid={`temporal-pill-${option.value}`}
             onClick={() => onChange(option.value)}
             className="rounded-md px-3 py-1 font-medium transition-colors"
             style={{
@@ -173,6 +208,41 @@ function GranularityToggle({
             }}
           >
             {option.label}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+
+/** The L1–L4 classification-level bar (legacy DonutViewMode port): flatten the spend
+ * tree at Industry (L1) / Store-type (L2) / Item-family (L3) / Item (L4). */
+function LevelBar({ value, onChange }: { value: number; onChange: (level: number) => void }) {
+  return (
+    <div
+      className="inline-flex rounded-lg border p-0.5 text-xs"
+      style={{ borderColor: "var(--border)" }}
+      role="group"
+      aria-label="Classification level"
+      data-testid="level-bar"
+    >
+      {[1, 2, 3, 4].map((level) => {
+        const active = level === value;
+        return (
+          <button
+            key={level}
+            type="button"
+            aria-pressed={active}
+            data-testid={`level-pill-${level}`}
+            onClick={() => onChange(level)}
+            className="rounded-md px-3 py-1 font-medium transition-colors"
+            style={{
+              backgroundColor: active ? "var(--primary-light)" : "transparent",
+              color: active ? "var(--primary)" : "var(--text-secondary)",
+            }}
+          >
+            {`L${level}`}
           </button>
         );
       })}
