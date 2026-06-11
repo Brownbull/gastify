@@ -72,3 +72,30 @@ export async function cleanupTestGroups(prefix = "E2E "): Promise<void> {
     // Best-effort: cleanup must never fail a spec.
   }
 }
+
+
+/** List the scope's transaction ids on a given date (API; paginated past the UI). */
+export async function transactionIdsOn(dateISO: string): Promise<Set<string>> {
+  const base = env.VITE_API_BASE_URL;
+  const token = await idToken();
+  if (!base || !token) return new Set();
+  const res = await fetch(
+    `${base}/api/v1/transactions?date_from=${dateISO}&date_to=${dateISO}&limit=200`,
+    { headers: { Authorization: `Bearer ${token}` } },
+  );
+  if (!res.ok) return new Set();
+  const body = await res.json();
+  return new Set((body.data as Array<{ id: string }>).map((t) => t.id));
+}
+
+/** Delete one transaction via the API (within the 90-day window). */
+export async function deleteTransaction(id: string): Promise<boolean> {
+  const base = env.VITE_API_BASE_URL;
+  const token = await idToken();
+  if (!base || !token) return false;
+  const res = await fetch(`${base}/api/v1/transactions/${id}`, {
+    method: "DELETE",
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return res.status === 204;
+}
