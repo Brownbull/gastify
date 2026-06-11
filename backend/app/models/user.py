@@ -54,6 +54,11 @@ class User(Base):
     firebase_uid: Mapped[str] = mapped_column(Text, nullable=False, unique=True)
     email: Mapped[str | None] = mapped_column(Text, nullable=True)
     display_name: Mapped[str | None] = mapped_column(Text, nullable=True)
+    # Display preference for date fields (placeholders + rendering): day-first vs
+    # month-first. The wire format stays ISO; this is presentation only.
+    date_format: Mapped[str] = mapped_column(
+        String, nullable=False, default="dd/MM/yyyy", server_default="dd/MM/yyyy"
+    )
     default_currency: Mapped[str] = mapped_column(
         String(3), ForeignKey("currencies.code"), nullable=False, server_default="CLP"
     )

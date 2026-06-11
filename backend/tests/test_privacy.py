@@ -293,3 +293,23 @@ async def test_default_currency_switch_round_trip(client):
     back = await client.post("/api/v1/privacy/rectification", json={"default_currency": "CLP"})
     assert back.status_code == 200
     assert (await client.get("/api/v1/privacy/profile")).json()["default_currency"] == "CLP"
+
+
+@pytest.mark.asyncio
+async def test_date_format_preference_round_trip(client):
+    """Phase-2 (manual-entry hardening): the date-format display preference persists
+    and rejects unknown formats."""
+    assert (await client.get("/api/v1/privacy/profile")).json()["date_format"] == "dd/MM/yyyy"
+    ok = await client.post(
+        "/api/v1/privacy/rectification", json={"date_format": "MM/dd/yyyy"}
+    )
+    assert ok.status_code == 200
+    assert (await client.get("/api/v1/privacy/profile")).json()["date_format"] == "MM/dd/yyyy"
+    bad = await client.post(
+        "/api/v1/privacy/rectification", json={"date_format": "yyyy/dd/mm"}
+    )
+    assert bad.status_code == 422
+    back = await client.post(
+        "/api/v1/privacy/rectification", json={"date_format": "dd/MM/yyyy"}
+    )
+    assert back.status_code == 200

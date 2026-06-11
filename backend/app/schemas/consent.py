@@ -91,6 +91,7 @@ class ProfileResponse(BaseModel):
     display_name: str | None
     email: str | None
     default_currency: str
+    date_format: str
     locale: str | None
 
 
@@ -98,6 +99,7 @@ class RectificationRequest(BaseModel):
     display_name: str | None = None
     email: str | None = None
     default_currency: str | None = Field(default=None, max_length=3)
+    date_format: Literal["dd/MM/yyyy", "MM/dd/yyyy"] | None = None
     locale: str | None = None
 
 

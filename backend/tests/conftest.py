@@ -165,6 +165,7 @@ def mock_auth_context() -> AuthContext:
         display_name="Test User",
         ownership_scope_id=TEST_SCOPE_ID,
         default_currency="CLP",
+        date_format="dd/MM/yyyy",
         locale="es",
         created_at=now,
         updated_at=now,

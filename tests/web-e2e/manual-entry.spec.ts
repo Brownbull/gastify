@@ -21,15 +21,24 @@ test("manual entry: create with items, find via the source filter", async ({ pag
 
   await page.goto("/transactions/new");
   await page.getByTestId("manual-merchant").fill(merchant);
-  await page.getByTestId("manual-date").fill("2026-06-09");
+  // The date field advertises the USER'S configured format as its placeholder and
+  // accepts input in that format (default dd/MM/yyyy).
+  await expect(page.getByTestId("manual-date")).toHaveAttribute(
+    "placeholder",
+    /dd\/MM\/yyyy|MM\/dd\/yyyy/,
+  );
+  const fmt = await page.getByTestId("manual-date").getAttribute("placeholder");
+  await page.getByTestId("manual-date").fill(fmt === "MM/dd/yyyy" ? "06/09/2026" : "09/06/2026");
   await page.getByTestId("manual-time").fill("13:45");
   await page.getByTestId("manual-country").fill("CL");
   await page.getByTestId("manual-city").fill("Santiago");
 
-  // Items one by one; the total auto-sums.
+  // Items one by one (qty + price + category); the total auto-sums.
   await page.getByTestId("manual-add-item").click();
   await page.getByTestId("manual-item-name-0").fill("Pan Integral");
+  await page.getByTestId("manual-item-qty-0").fill("2");
   await page.getByTestId("manual-item-price-0").fill("2500");
+  await page.getByTestId("manual-item-category-0").selectOption({ index: 1 });
   await page.getByTestId("manual-add-item").click();
   await page.getByTestId("manual-item-name-1").fill("Queso Chanco");
   await page.getByTestId("manual-item-price-1").fill("4800");

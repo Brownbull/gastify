@@ -109,6 +109,7 @@ async def get_profile(auth: Auth) -> ProfileResponse:
         display_name=user.display_name,
         email=user.email,
         default_currency=user.default_currency,
+        date_format=user.date_format,
         locale=user.locale,
     )
 
@@ -146,6 +147,9 @@ async def rectification(
             )
         user.default_currency = update_data["default_currency"]
         updated_fields.append("default_currency")
+    if "date_format" in update_data:
+        user.date_format = update_data["date_format"]
+        updated_fields.append("date_format")
     if "locale" in update_data:
         user.locale = update_data["locale"]
         updated_fields.append("locale")

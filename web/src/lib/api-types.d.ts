@@ -2084,6 +2084,8 @@ export interface components {
             email: string | null;
             /** Default Currency */
             default_currency: string;
+            /** Date Format */
+            date_format: string;
             /** Locale */
             locale: string | null;
         };
@@ -2172,6 +2174,8 @@ export interface components {
             email?: string | null;
             /** Default Currency */
             default_currency?: string | null;
+            /** Date Format */
+            date_format?: ("dd/MM/yyyy" | "MM/dd/yyyy") | null;
             /** Locale */
             locale?: string | null;
         };

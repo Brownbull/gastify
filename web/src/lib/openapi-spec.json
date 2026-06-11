@@ -5571,6 +5571,10 @@
             "type": "string",
             "title": "Default Currency"
           },
+          "date_format": {
+            "type": "string",
+            "title": "Date Format"
+          },
           "locale": {
             "anyOf": [
               {
@@ -5588,6 +5592,7 @@
           "display_name",
           "email",
           "default_currency",
+          "date_format",
           "locale"
         ],
         "title": "ProfileResponse",
@@ -5824,6 +5829,21 @@
               }
             ],
             "title": "Default Currency"
+          },
+          "date_format": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "dd/MM/yyyy",
+                  "MM/dd/yyyy"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Date Format"
           },
           "locale": {
             "anyOf": [

@@ -23,6 +23,7 @@ function SettingsPage() {
       </h1>
       <ProfileSection />
       <CurrencySection />
+      <DateFormatSection />
       <LearnedMappingsSection />
       <AppearanceSection />
       <DataSection />
@@ -140,6 +141,56 @@ type LearnedMappings = {
   merchants: Array<{ id: string; original_merchant: string; target_merchant: string }>;
   items: Array<{ id: string; original_item: string; target_item: string | null }>;
 };
+
+const DATE_FORMATS = ["dd/MM/yyyy", "MM/dd/yyyy"] as const;
+
+function DateFormatSection() {
+  const [current, setCurrent] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    apiClient.GET("/api/v1/privacy/profile").then(({ data }) => {
+      if (!cancelled && data) setCurrent(data.date_format);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const onChange = async (value: string) => {
+    setSaving(true);
+    const previous = current;
+    setCurrent(value);
+    const { error } = await apiClient.POST("/api/v1/privacy/rectification", {
+      body: { date_format: value as (typeof DATE_FORMATS)[number] },
+    });
+    setSaving(false);
+    if (error) setCurrent(previous);
+  };
+
+  return (
+    <SectionCard title="Date format">
+      <FieldRow label="Dates shown as">
+        <select
+          data-testid="settings-date-format"
+          value={current ?? ""}
+          disabled={current === null || saving}
+          onChange={(e) => onChange(e.target.value)}
+          className="rounded-md border px-2 py-1 text-sm"
+          style={{ borderColor: "var(--border)", color: "var(--text-primary)" }}
+        >
+          {current === null && <option value="">…</option>}
+          {DATE_FORMATS.map((f) => (
+            <option key={f} value={f}>
+              {f}
+            </option>
+          ))}
+        </select>
+      </FieldRow>
+    </SectionCard>
+  );
+}
 
 function LearnedMappingsSection() {
   const [data, setData] = useState<LearnedMappings | null>(null);
