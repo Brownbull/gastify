@@ -61,6 +61,7 @@ Engineering's read per regime; the per-data-class detail lives in
 | P78 | `audit_events` "append-only" comment vs no trigger | **ACCEPT + claim corrected:** the honest invariant is "append-only except two governed mutations (PII scrub, TTL purge)" — documented in `schema/RLS.md`. A DB trigger enforcing exactly that = hardening backlog. |
 | P79 | Register-declared TTLs vs enforced retention | **ACCEPT (launch).** Declared "account + Ny" purposes are satisfied by erasure-on-request + account-lifetime retention; the runner enforces the two operational TTLs. Reconciliation test = backlog; no declared period is *exceeded*. |
 | P82 | E2E group-spec hygiene (cap fills) | Test-infra only; not launch-relevant. |
+| P59 | No rate-limiting on invite/auth endpoints (caught post-signing, 2026-06-11) | **ACCEPT (launch).** Invite tokens are 192-bit (`secrets.token_urlsafe(24)`) — brute-force infeasible; the residual is bulk-probing/DoS defence-in-depth, not access control. The P16 plan listed P59 as folded in but it was NOT implemented — disclosed here rather than silent. Fix (slowapi per-user/IP on invite + auth endpoints) = first security-hardening pass post-launch. |
 
 ## 5. Incident-runbook rehearsal (executed 2026-06-11, read-only, PRODUCTION)
 
