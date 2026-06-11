@@ -374,7 +374,11 @@ function MemberRoster({ detail, groupId }: { detail: GroupDetail; groupId: strin
             >
               <span className="truncate" style={{ color: "var(--text-secondary)" }}>
                 {member.display_name ?? member.user_id.slice(0, 8)}
-                <span className="ml-2 text-xs" style={{ color: "var(--text-muted)" }}>
+                <span
+                  className="ml-2 text-xs"
+                  data-testid={`member-role-${member.user_id}`}
+                  style={{ color: "var(--text-muted)" }}
+                >
                   {t(ROLE_KEYS[member.role])}
                 </span>
               </span>
@@ -382,6 +386,7 @@ function MemberRoster({ detail, groupId }: { detail: GroupDetail; groupId: strin
                 <span className="flex shrink-0 gap-2 text-xs">
                   <button
                     type="button"
+                    data-testid={`member-role-toggle-${member.user_id}`}
                     onClick={() =>
                       updateRole.mutate({
                         memberUserId: member.user_id,
@@ -394,6 +399,7 @@ function MemberRoster({ detail, groupId }: { detail: GroupDetail; groupId: strin
                   </button>
                   <button
                     type="button"
+                    data-testid={`member-remove-${member.user_id}`}
                     onClick={() => {
                       if (!window.confirm(t("group.confirmRemoveMember"))) return;
                       removeMember.mutate(member.user_id);
@@ -430,6 +436,7 @@ function GroupActions({ detail, groupId }: { detail: GroupDetail; groupId: strin
     <div className="flex flex-wrap gap-3 border-t pt-3" style={{ borderColor: "var(--border)" }}>
       <button
         type="button"
+        data-testid="group-leave-button"
         onClick={() => leaveGroup.mutate(groupId, { onSuccess: resetScopeIfActive })}
         className="text-xs font-medium"
         style={{ color: "var(--text-secondary)" }}
@@ -439,6 +446,7 @@ function GroupActions({ detail, groupId }: { detail: GroupDetail; groupId: strin
       {detail.role === "owner" && (
         <button
           type="button"
+          data-testid="group-delete-button"
           onClick={() => {
             if (!window.confirm(t("group.confirmDelete"))) return;
             deleteGroup.mutate(groupId, {
