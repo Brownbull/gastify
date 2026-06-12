@@ -4512,3 +4512,28 @@ Promoted feat/phase6-items-reports → staging → main. Carried: Phase 1 (e3e9c
 CI: main + staging both GREEN on 37d0bc5 (runs 27397589482 / 27389222465). The d79caa6 staging failure was ONLY the mobile drift gate — backend/web all passed — resolved by regenerating mobile/src/lib/{openapi-spec.json,api-types.d.ts}.
 PROD VERIFIED (read-only superuser): alembic head 042; usage_counters table present + RLS forced; credit_balances ck = free|premium; 0 stranded basic/pro rows (empty table — no prod users yet, legacy collapse was a no-op). Health 200.
 PLAN: Phases 1 + 2 Push ticked ✅ (all 4 gates). Current → Phase 3 (ENT HIGH limits). Enforcement (GASTIFY_BILLING_ENFORCEMENT_ENABLED) stays OFF everywhere until launch cutover — the interim 5/day statement cap is the live prod guard meanwhile. staging-e2e GASTIFY_RATE_LIMIT_ENABLED=false set (was unset → silently true) so the statement e2e suites don't hit the cap.
+- 2026-06-12 10:51 | Edit | /home/khujta/projects/apps/gastify/backend/app/rate_limit.py
+- 2026-06-12 10:51 | Edit | /home/khujta/projects/apps/gastify/backend/app/rate_limit.py
+- 2026-06-12 10:52 | Edit | /home/khujta/projects/apps/gastify/backend/app/api/groups.py
+- 2026-06-12 10:52 | Edit | /home/khujta/projects/apps/gastify/backend/app/api/groups.py
+- 2026-06-12 10:52 | Edit | /home/khujta/projects/apps/gastify/backend/app/api/groups.py
+- 2026-06-12 10:52 | Edit | /home/khujta/projects/apps/gastify/backend/app/api/groups.py
+- 2026-06-12 10:53 | Edit | /home/khujta/projects/apps/gastify/backend/app/api/consent.py
+- 2026-06-12 10:53 | Edit | /home/khujta/projects/apps/gastify/backend/app/api/consent.py
+- 2026-06-12 10:53 | Edit | /home/khujta/projects/apps/gastify/backend/app/api/consent.py
+- 2026-06-12 10:54 | Edit | /home/khujta/projects/apps/gastify/backend/app/api/privacy.py
+- 2026-06-12 10:54 | Edit | /home/khujta/projects/apps/gastify/backend/app/api/privacy.py
+- 2026-06-12 10:54 | Edit | /home/khujta/projects/apps/gastify/backend/app/api/privacy.py
+- 2026-06-12 10:54 | Edit | /home/khujta/projects/apps/gastify/backend/app/api/privacy.py
+- 2026-06-12 10:54 | Edit | /home/khujta/projects/apps/gastify/backend/app/api/privacy.py
+
+## 2026-06-12 — RATE-LIMIT Phase 3: ENT HIGH limits (group churn, consent, DSR exports)
+Wired the user-keyed limits from RATE-LIMIT-PLAN rows 2-4 onto the abuse surfaces:
+- Group LEAVE: 3/day per-(user,group) [user_group_key — the leave→rejoin flip-flop lever] + 6/h & 20/day per-user aggregate (3 stacked decorators).
+- Group JOIN: +20/day/user (user_or_ip_key) on top of the existing 10/min/IP invite limit.
+- Group CONSENT (5e shares_detail toggle): 10/day/user.
+- GDPR CONSENT grant+revoke: 10/day SHARED via limiter.shared_limit(scope="consent_toggle") — see finding below.
+- Erasure: 2/day/user. Portability + data-access: 4/h SHARED export budget (scope="dsr_export").
+FINDING (caught by a contract test): slowapi buckets per-ENDPOINT by default (scope = endpoint name), so two endpoints with the same limit string + key_func still get SEPARATE buckets. My first cut gave grant/revoke (and the two DSR exports) double the intended allowance — a flip-flop could do 10 grants + 10 revokes. Fixed with limiter.shared_limit(..., scope=<shared>) so grant↔revoke and data-access↔portability draw from ONE budget each. This is the right model: the abuse is the flip-flop, not either verb alone.
+PATTERN (re-confirmed): every limited endpoint needs BOTH request: Request and response: Response params — slowapi injects X-RateLimit-* into the Response on the SUCCESS path, and a missing param 500s the 200 (the regression the invite-avatar e2e first caught). Added response params to leave/group-consent/erasure/grant/revoke; data-access+portability already had request, added response. A dedicated test asserts a 200 export carries x-ratelimit-limit.
+TESTS: 12 in test_rate_limit.py (per-group leave isolation, consent per-day + grant/revoke shared, erasure 2/day, DSR shared budget + header contract). Gates: 937 pytest + ruff + format + mypy(app) all green. No OpenAPI drift (decorators are transparent) → no client regen, Mobile API Drift gate unaffected.

@@ -27,7 +27,17 @@ from app.auth.deps import Auth, _is_scope_member, _set_postgres_ownership_scope 
 from app.db import get_db
 from app.models.transaction import Transaction, TransactionItem
 from app.models.user import OwnershipScope, OwnershipScopeMember, User
-from app.rate_limit import INVITE_JOIN_LIMIT, INVITE_PREVIEW_LIMIT, limiter
+from app.rate_limit import (
+    CONSENT_TOGGLE_LIMIT,
+    GROUP_JOIN_USER_LIMIT,
+    GROUP_LEAVE_LIMITS,
+    GROUP_LEAVE_PER_GROUP_LIMIT,
+    INVITE_JOIN_LIMIT,
+    INVITE_PREVIEW_LIMIT,
+    limiter,
+    user_group_key,
+    user_or_ip_key,
+)
 from app.schemas.groups import (
     ConsentUpdate,
     GroupCreate,
@@ -381,8 +391,9 @@ async def set_member_visibility(
 
 
 @router.post("/{group_id}/consent", response_model=GroupDetail)
+@limiter.limit(CONSENT_TOGGLE_LIMIT, key_func=user_or_ip_key)
 async def set_member_consent(
-    group_id: UUID, body: ConsentUpdate, auth: Auth, db: DB
+    request: Request, response: Response, group_id: UUID, body: ConsentUpdate, auth: Auth, db: DB
 ) -> GroupDetail:
     """A member opts their own shared transactions in/out of the group list (5e/D73)."""
     await _resolve_membership(db, auth, group_id)  # any member; validates + swaps GUC
@@ -571,7 +582,12 @@ async def remove_member(group_id: UUID, member_user_id: UUID, auth: Auth, db: DB
 
 
 @router.post("/{group_id}/leave", status_code=status.HTTP_204_NO_CONTENT)
+@limiter.limit(GROUP_LEAVE_PER_GROUP_LIMIT, key_func=user_group_key)
+@limiter.limit(GROUP_LEAVE_LIMITS[0], key_func=user_or_ip_key)
+@limiter.limit(GROUP_LEAVE_LIMITS[1], key_func=user_or_ip_key)
 async def leave_group(
+    request: Request,
+    response: Response,
     group_id: UUID,
     auth: Auth,
     db: DB,
@@ -836,6 +852,7 @@ async def preview_invite(
 
 @invites_router.post("/{token}/join", response_model=JoinResponse)
 @limiter.limit(INVITE_JOIN_LIMIT)
+@limiter.limit(GROUP_JOIN_USER_LIMIT, key_func=user_or_ip_key)
 async def join_via_invite(
     request: Request, response: Response, token: str, auth: Auth, db: DB
 ) -> JoinResponse:

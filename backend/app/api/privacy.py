@@ -9,7 +9,7 @@ import uuid
 from datetime import UTC, datetime
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -22,6 +22,7 @@ from app.auth.deps import Auth, _set_postgres_ownership_scope
 from app.db import get_db
 from app.models.transaction import Transaction
 from app.models.user import OwnershipScopeMember
+from app.rate_limit import DSR_EXPORT_LIMIT, ERASURE_LIMIT, limiter, user_or_ip_key
 from app.schemas.consent import (
     ConsentResponse,
     DataAccessResponse,
@@ -51,7 +52,10 @@ DB = Annotated[AsyncSession, Depends(get_db)]
 
 
 @router.get("/data-access", response_model=DataAccessResponse)
-async def data_access(request: Request, auth: Auth, db: DB) -> DataAccessResponse:
+@limiter.shared_limit(DSR_EXPORT_LIMIT, scope="dsr_export", key_func=user_or_ip_key)
+async def data_access(
+    request: Request, response: Response, auth: Auth, db: DB
+) -> DataAccessResponse:
     """GDPR Art 15 / Law 21.719 Art 8 / PIPEDA / CCPA — right of access."""
     now = datetime.now(UTC)
     ip = request.client.host if request.client else None
@@ -228,7 +232,8 @@ async def _void_user_group_shares(
 
 
 @router.post("/erasure", response_model=ErasureResponse)
-async def erasure(auth: Auth, db: DB) -> ErasureResponse:
+@limiter.limit(ERASURE_LIMIT, key_func=user_or_ip_key)
+async def erasure(request: Request, response: Response, auth: Auth, db: DB) -> ErasureResponse:
     """GDPR Art 17 / Law 21.719 / CCPA — right to erasure (account deletion).
 
     Account deletion is TOTAL (D82): hard-delete ALL the user's personal-scope data
@@ -311,7 +316,10 @@ async def erasure(auth: Auth, db: DB) -> ErasureResponse:
 
 
 @router.get("/portability", response_model=PortabilityResponse)
-async def portability(request: Request, auth: Auth, db: DB) -> PortabilityResponse:
+@limiter.shared_limit(DSR_EXPORT_LIMIT, scope="dsr_export", key_func=user_or_ip_key)
+async def portability(
+    request: Request, response: Response, auth: Auth, db: DB
+) -> PortabilityResponse:
     """GDPR Art 20 / Law 21.719 / CCPA — right to data portability.
 
     Returns all user data in machine-readable JSON format.

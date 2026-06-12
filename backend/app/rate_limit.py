@@ -35,6 +35,29 @@ INVITE_JOIN_LIMIT = "10/minute"
 # monthly quota system (free: none, premium: 3/month) supersedes it.
 STATEMENT_UPLOAD_DAILY_LIMIT = "5/day"
 
+# --- ENT HIGH limits (RATE-LIMIT-PLAN rows 2-4) — user-keyed unless noted. ---
+# Group membership churn: each leave-delete writes an immutable 6y audit row + tombstone
+# churn; a leave→rejoin→leave flip-flop flips OTHER members' stats every cycle. The
+# tight PER-GROUP leave window is the flip-flop lever (the leaver can't cycle the same
+# group fast); the looser per-user windows bound aggregate churn across all groups.
+GROUP_LEAVE_PER_GROUP_LIMIT = "3/day"  # keyed (user, group) — kills the rejoin flip-flop
+GROUP_LEAVE_LIMITS = ["6/hour", "20/day"]  # user-keyed aggregate
+GROUP_JOIN_USER_LIMIT = "20/day"  # per-user; the existing INVITE_JOIN_LIMIT is the per-IP half
+# Consent toggles (both surfaces: /consent/{purpose}/grant|revoke + group /consent) each
+# write an append-only audit row → storage-growth loop.
+CONSENT_TOGGLE_LIMIT = "10/day"
+# Erasure: heavy cascade (deletes + group voids + scrubs); a loop re-runs all of it.
+ERASURE_LIMIT = "2/day"
+# Portability + data-access: up-to-10k-row exports — cheap to ask, expensive to serve.
+DSR_EXPORT_LIMIT = "4/hour"
+
+
+def user_group_key(request: Request) -> str:
+    """Bucket = (user, group_id path param) — for limits that must be PER GROUP per
+    user (e.g. leave/rejoin flip-flop), so churning ONE group doesn't spend the user's
+    budget on others, and vice versa."""
+    return f"{user_or_ip_key(request)}:grp:{request.path_params.get('group_id', '')}"
+
 
 def _client_key(request: Request) -> str:
     forwarded = request.headers.get("x-forwarded-for", "")

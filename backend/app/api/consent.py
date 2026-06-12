@@ -2,11 +2,12 @@
 
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.deps import Auth
 from app.db import get_db
+from app.rate_limit import CONSENT_TOGGLE_LIMIT, limiter, user_or_ip_key
 from app.schemas.consent import (
     AuditEventResponse,
     AuditListResponse,
@@ -45,10 +46,12 @@ async def get_consents(auth: Auth, db: DB) -> ConsentListResponse:
     status_code=status.HTTP_201_CREATED,
     response_model=ConsentResponse,
 )
+@limiter.shared_limit(CONSENT_TOGGLE_LIMIT, scope="consent_toggle", key_func=user_or_ip_key)
 async def grant(
     purpose: str,
     body: ConsentGrant,
     request: Request,
+    response: Response,
     auth: Auth,
     db: DB,
 ) -> ConsentResponse:
@@ -81,9 +84,11 @@ async def grant(
     "/{purpose}/revoke",
     response_model=ConsentResponse,
 )
+@limiter.shared_limit(CONSENT_TOGGLE_LIMIT, scope="consent_toggle", key_func=user_or_ip_key)
 async def revoke(
     purpose: str,
     request: Request,
+    response: Response,
     auth: Auth,
     db: DB,
 ) -> ConsentResponse:
