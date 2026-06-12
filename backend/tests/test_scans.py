@@ -387,68 +387,59 @@ class TestCreditEnforcement:
 
     @pytest.mark.asyncio
     async def test_exhausted_credits_blocks_scan_with_402(self, client, engine, monkeypatch):
-        from sqlalchemy import update
         from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
         from app.config import settings as _settings
-        from app.models.credit import CreditBalance
-        from app.services.billing import get_or_create_balance
+        from app.services.billing import consume_quota, current_period
         from tests.conftest import TEST_SCOPE_ID
 
         monkeypatch.setattr(_settings, "billing_enforcement_enabled", True)
         factory = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+        # Exhaust the free tier's 20-scan monthly quota (D96).
         async with factory() as db:
-            await get_or_create_balance(db, ownership_scope_id=TEST_SCOPE_ID)
-            await db.execute(
-                update(CreditBalance)
-                .where(CreditBalance.ownership_scope_id == TEST_SCOPE_ID)
-                .values(scan_credits=0)
-            )
+            for _ in range(20):
+                assert await consume_quota(
+                    db, ownership_scope_id=TEST_SCOPE_ID, feature="scan", period=current_period()
+                )
             await db.commit()
 
         resp = await client.post(
             "/api/v1/scans", files={"file": ("r.jpg", _make_test_jpeg(800, 600), "image/jpeg")}
         )
         assert resp.status_code == 402
-        assert "credit" in resp.json()["detail"].lower()
+        assert "quota" in resp.json()["detail"].lower()
 
     @pytest.mark.asyncio
     async def test_scan_with_credits_deducts_exactly_one(
         self, client, engine, monkeypatch, tmp_path
     ):
-        from sqlalchemy import select, update
+        from sqlalchemy import select
         from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
         from app.config import settings as _settings
-        from app.models.credit import CreditBalance
-        from app.services.billing import get_or_create_balance
+        from app.models.usage_counter import UsageCounter
+        from app.services.billing import current_period
         from tests.conftest import TEST_SCOPE_ID
 
         monkeypatch.setattr(_settings, "billing_enforcement_enabled", True)
         monkeypatch.setattr(_settings, "scan_storage_dir", str(tmp_path))
         # No-op the background worker (it would hit the unpatched real async_session DB);
-        # this test only cares that the SUBMIT path deducts a credit.
+        # this test only cares that the SUBMIT path consumes a quota unit.
         monkeypatch.setattr("app.api.scans.process_scan", lambda *a, **k: None)
         factory = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
-        async with factory() as db:
-            await get_or_create_balance(db, ownership_scope_id=TEST_SCOPE_ID)
-            await db.execute(
-                update(CreditBalance)
-                .where(CreditBalance.ownership_scope_id == TEST_SCOPE_ID)
-                .values(scan_credits=5)
-            )
-            await db.commit()
 
         resp = await client.post(
             "/api/v1/scans", files={"file": ("r.jpg", _make_test_jpeg(800, 600), "image/jpeg")}
         )
         assert resp.status_code == 201
         async with factory() as db:
-            credits = (
+            used = (
                 await db.execute(
-                    select(CreditBalance.scan_credits).where(
-                        CreditBalance.ownership_scope_id == TEST_SCOPE_ID
+                    select(UsageCounter.used).where(
+                        UsageCounter.ownership_scope_id == TEST_SCOPE_ID,
+                        UsageCounter.feature == "scan",
+                        UsageCounter.period == current_period(),
                     )
                 )
             ).scalar_one()
-        assert credits == 4  # observable: 5 → 4, exactly one deducted on a successful submit
+        assert used == 1  # observable: exactly one unit consumed on a successful submit

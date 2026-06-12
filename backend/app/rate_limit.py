@@ -13,12 +13,18 @@ Disabled via GASTIFY_RATE_LIMIT_ENABLED=false (the test suites set this — they
 endpoints far faster than any human).
 """
 
-from collections.abc import Callable
+from __future__ import annotations
 
-from fastapi import Request
+from typing import TYPE_CHECKING
+
 from slowapi import Limiter
 
 from app.config import settings
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    from fastapi import Request
 
 # Generous per-IP windows (documented here, asserted in tests):
 INVITE_PREVIEW_LIMIT = "30/minute"
@@ -48,7 +54,7 @@ def user_or_ip_key(request: Request) -> str:
     return _client_key(request)
 
 
-def per_resource_key(param: str) -> "Callable[[Request], str]":
+def per_resource_key(param: str) -> Callable[[Request], str]:
     """A key_func factory for PER-RESOURCE windows (e.g. edits per TRANSACTION):
     the bucket is (user, path-param value), so hammering one resource throttles
     without touching the caller's budget on other resources."""

@@ -41,6 +41,7 @@ from app.schemas.statement import (
     StatementRecordResponse,
     StatementUploadResponse,
 )
+from app.services.billing import consume_quota, feature_available
 from app.services.statement_extraction import inspect_statement_pdf
 from app.services.statement_reconciliation import (
     StatementNotReadyForReconciliationError,
@@ -89,6 +90,26 @@ async def upload_statement(
             status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
             detail=f"File exceeds maximum size of {MAX_FILE_SIZE // (1024 * 1024)} MB",
         )
+
+    # D96 tier gate (gated by billing_enforcement_enabled): statement scanning is a
+    # PREMIUM feature — free tier gets a 403 feature gate, a premium scope over its
+    # 3/month gets a 402. Consumed here, before any storage/provider work; the unit
+    # commits with the statement row below (a failed upload rolls it back).
+    if settings.billing_enforcement_enabled:
+        if not await feature_available(
+            db, ownership_scope_id=auth.ownership_scope_id, feature="statement"
+        ):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Statement scanning requires the Premium plan.",
+            )
+        if not await consume_quota(
+            db, ownership_scope_id=auth.ownership_scope_id, feature="statement"
+        ):
+            raise HTTPException(
+                status_code=status.HTTP_402_PAYMENT_REQUIRED,
+                detail="Monthly statement quota exhausted for your plan.",
+            )
 
     if card_alias_id is not None:
         await _assert_card_alias(db, auth=auth, card_alias_id=card_alias_id)

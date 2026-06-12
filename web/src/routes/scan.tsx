@@ -8,6 +8,7 @@ import { useScanUpload } from "@/hooks/useScanUpload";
 import { useScanStream } from "@/hooks/useScanStream";
 import { useScanStore } from "@/stores/scanStore";
 import { PersonalOnlyNotice } from "@/components/PersonalOnlyNotice";
+import { useQuota } from "@/hooks/useQuota";
 import { useUiStore } from "@/stores/uiStore";
 
 export const Route = createFileRoute("/scan")({
@@ -19,6 +20,7 @@ function ScanPage() {
   const { upload, isUploading } = useScanUpload();
   useScanStream();
   const inGroupMode = useUiStore((s) => s.activeScope.kind === "group");
+  const quota = useQuota();
 
   const handleFileSelected = useCallback(
     (file: File) => {
@@ -59,6 +61,11 @@ function ScanPage() {
         >
           Upload a receipt image to extract transaction data.
         </p>
+        {quota.data && (
+          <p className="mt-1 text-xs" data-testid="scan-quota" style={{ color: "var(--text-muted)" }}>
+            {quota.data.features.scan.used}/{quota.data.features.scan.limit}
+          </p>
+        )}
       </div>
 
       {showUpload && (

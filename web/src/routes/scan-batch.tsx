@@ -6,6 +6,7 @@ import { useBatchScan } from "@/hooks/useBatchScan";
 import { useBatchScanStore } from "@/stores/batchScanStore";
 import { useI18n } from "@/hooks/useI18n";
 import { PersonalOnlyNotice } from "@/components/PersonalOnlyNotice";
+import { useQuota } from "@/hooks/useQuota";
 import { useUiStore } from "@/stores/uiStore";
 
 export const Route = createFileRoute("/scan-batch")({
@@ -26,6 +27,7 @@ function BatchScanPage() {
   const items = useBatchScanStore((s) => s.items);
   const { start, discard, retry } = useBatchScan();
   const inGroupMode = useUiStore((s) => s.activeScope.kind === "group");
+  const quota = useQuota();
 
   const [queued, setQueued] = useState<readonly QueuedFile[]>([]);
   const urlsRef = useRef<Set<string>>(new Set());
@@ -89,6 +91,19 @@ function BatchScanPage() {
   }, [revokeAll]);
 
   if (inGroupMode) return <PersonalOnlyNotice />;
+
+  // D96: batch scanning is premium-only — gate ONLY when quotas are enforced.
+  if (quota.data?.enforced && quota.data.features.batch.limit === 0) {
+    return (
+      <p
+        className="mx-auto max-w-xl rounded-lg border p-6 text-center text-sm"
+        data-testid="batch-premium-notice"
+        style={{ borderColor: "var(--border)", color: "var(--text-secondary)" }}
+      >
+        {t("batch.premiumOnly")}
+      </p>
+    );
+  }
 
   return (
     <div className="mx-auto max-w-xl space-y-6" data-testid="batch-scan-page">

@@ -38,6 +38,29 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/billing/quota": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Quota
+         * @description The caller's tier + per-feature used/limit for the current quota month.
+         *
+         *     Quotas are personal-scope (D70: capture features are personal-only), so this
+         *     reads the caller's personal scope regardless of any active group.
+         */
+        get: operations["get_quota_api_v1_billing_quota_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/card-aliases": {
         parameters: {
             query?: never;
@@ -1312,6 +1335,13 @@ export interface components {
              */
             erased_at: string;
         };
+        /** FeatureQuota */
+        FeatureQuota: {
+            /** Used */
+            used: number;
+            /** Limit */
+            limit: number;
+        };
         /** GroupCreate */
         GroupCreate: {
             /** Name */
@@ -2165,6 +2195,23 @@ export interface components {
         PushTokenUnregisterResponse: {
             /** Revoked Count */
             revoked_count: number;
+        };
+        /**
+         * QuotaResponse
+         * @description Tier + per-feature monthly quota state — clients render 'X of Y left' and
+         *     gate premium-only UI (statements, batch) off `limit > 0`.
+         */
+        QuotaResponse: {
+            /** Tier */
+            tier: string;
+            /** Period */
+            period: string;
+            /** Enforced */
+            enforced: boolean;
+            /** Features */
+            features: {
+                [key: string]: components["schemas"]["FeatureQuota"];
+            };
         };
         /** RectificationRequest */
         RectificationRequest: {
@@ -3366,6 +3413,26 @@ export interface operations {
                     "application/json": {
                         [key: string]: string | null;
                     };
+                };
+            };
+        };
+    };
+    get_quota_api_v1_billing_quota_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QuotaResponse"];
                 };
             };
         };

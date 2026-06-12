@@ -25,9 +25,11 @@ pytestmark = pytest.mark.skipif(
 )
 
 _TABLE = "billing_conc_test"
-_DEDUCT = (
-    f"UPDATE {_TABLE} SET scan_credits = scan_credits - 1 "
-    "WHERE ownership_scope_id = $1 AND scan_credits > 0 RETURNING scan_credits"
+# D96 consume_quota shape: increment-toward-a-limit (the inverse of the old
+# decrement-toward-zero; identical row-lock concurrency argument).
+_CONSUME = (
+    f"UPDATE {_TABLE} SET used = used + 1 "
+    "WHERE ownership_scope_id = $1 AND used < $2 RETURNING used"
 )
 
 
@@ -49,20 +51,17 @@ async def test_concurrent_deducts_never_double_spend_or_go_negative() -> None:
             f"CREATE TABLE IF NOT EXISTS {_TABLE} ("
             " id uuid PRIMARY KEY DEFAULT gen_random_uuid(),"
             " ownership_scope_id uuid UNIQUE NOT NULL,"
-            " scan_credits bigint NOT NULL,"
-            " plan_tier text NOT NULL DEFAULT 'free')"
+            " used integer NOT NULL DEFAULT 0)"
         )
         await admin.execute(f"DELETE FROM {_TABLE} WHERE ownership_scope_id=$1", scope)
         await admin.execute(
-            f"INSERT INTO {_TABLE} (ownership_scope_id, scan_credits) VALUES ($1,$2)",
-            scope,
-            k_credits,
+            f"INSERT INTO {_TABLE} (ownership_scope_id, used) VALUES ($1, 0)", scope
         )
 
         async def _one_deduct() -> bool:
             conn = await asyncpg.connect(PG_DSN, timeout=5)
             try:
-                return await conn.fetchval(_DEDUCT, scope) is not None
+                return await conn.fetchval(_CONSUME, scope, k_credits) is not None
             finally:
                 await conn.close()
 
@@ -71,12 +70,12 @@ async def test_concurrent_deducts_never_double_spend_or_go_negative() -> None:
 
         # Observable state: the ROW (not the return values).
         final = await admin.fetchval(
-            f"SELECT scan_credits FROM {_TABLE} WHERE ownership_scope_id=$1", scope
+            f"SELECT used FROM {_TABLE} WHERE ownership_scope_id=$1", scope
         )
         assert succeeded == k_credits, (
-            f"expected exactly {k_credits} deducts to win, got {succeeded}"
+            f"expected exactly {k_credits} consumes to win, got {succeeded}"
         )
-        assert final == 0, f"balance went to {final} — double-spend / negative"
+        assert final == k_credits, f"counter went to {final} — over-consume past the limit"
     finally:
         await admin.execute(f"DELETE FROM {_TABLE} WHERE ownership_scope_id=$1", scope)
         await admin.close()

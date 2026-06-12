@@ -6,6 +6,7 @@ import structlog
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.api.billing import router as billing_router
 from app.api.card_aliases import router as card_aliases_router
 from app.api.consent import router as consent_router
 from app.api.groups import invites_router
@@ -100,6 +101,7 @@ app.add_middleware(
 )
 
 app.include_router(health_router, prefix="/api/v1")
+app.include_router(billing_router, prefix="/api/v1")
 app.include_router(card_aliases_router, prefix="/api/v1")
 app.include_router(transactions_router, prefix="/api/v1")
 app.include_router(items_router, prefix="/api/v1")

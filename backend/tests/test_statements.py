@@ -340,3 +340,59 @@ class TestStatementUploadEndpoint:
         assert line["source_row_index"] == 42
         assert line["source_page"] == 2
         assert line["field_provenance"] == {"amount_role": "unknown"}
+
+
+# --- D96 statement tier gate (gated by billing_enforcement_enabled) ---
+
+
+def _stmt_upload():
+    return {
+        "files": {"file": ("s.pdf", b"%PDF-1.4 tiny", "application/pdf")},
+        "data": {"ai_processing_consent": "true"},
+    }
+
+
+@pytest.mark.asyncio
+async def test_free_tier_statement_upload_is_feature_gated_403(client, engine, monkeypatch):
+    from app.config import settings as _settings
+
+    monkeypatch.setattr(_settings, "billing_enforcement_enabled", True)
+    resp = await client.post("/api/v1/statements", **_stmt_upload())
+    assert resp.status_code == 403
+    assert "premium" in resp.json()["detail"].lower()
+
+
+@pytest.mark.asyncio
+async def test_premium_statement_quota_consumes_three_then_402(
+    client, engine, monkeypatch, tmp_path
+):
+    from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
+
+    from app.config import settings as _settings
+    from app.services.billing import set_plan
+    from tests.conftest import TEST_SCOPE_ID
+
+    monkeypatch.setattr(_settings, "billing_enforcement_enabled", True)
+    monkeypatch.setattr(_settings, "statement_storage_dir", str(tmp_path))
+    monkeypatch.setattr("app.api.statements.process_statement", lambda *a, **k: None)
+    factory = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+    async with factory() as db:
+        await set_plan(db, ownership_scope_id=TEST_SCOPE_ID, plan="premium")
+        await db.commit()
+
+    # 3 distinct uploads consume the monthly allowance; the 4th is a 402 (quota),
+    # NOT a 403 (the tier HAS the feature).
+    statuses = []
+    for i in range(4):
+        # Distinct valid PDFs (a page-count marker differentiates the sha256 dedup).
+        pdf = _pdf_bytes()
+        body = {
+            "files": {"file": (f"s{i}.pdf", pdf + b"\n%" + bytes([65 + i]), "application/pdf")},
+            "data": {"ai_processing_consent": "true"},
+        }
+        r = await client.post("/api/v1/statements", **body)
+        statuses.append(r.status_code)
+        if r.status_code not in (201, 402):
+            raise AssertionError(f"unexpected {r.status_code}: {r.json()}")
+    assert statuses[:3].count(201) == 3
+    assert statuses[3] == 402

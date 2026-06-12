@@ -25,6 +25,7 @@ from app.models.transaction import (
     TransactionItem,
     TransactionItemFlag,
 )
+from app.models.usage_counter import UsageCounter
 from app.models.user import MobilePushToken, OwnershipScope, OwnershipScopeMember, User
 
 __all__ = [
@@ -33,6 +34,7 @@ __all__ = [
     "CategoryMapping",
     "ConsentRecord",
     "CreditBalance",
+    "UsageCounter",
     "Currency",
     "FxRate",
     "GroupStatTombstone",
