@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import { GroupSwitcher } from "@/components/GroupSwitcher";
 import { NotificationBell } from "@/components/NotificationBell";
+import { RateLimitToast } from "@/components/RateLimitToast";
 import { useAuth } from "@/hooks/useAuth";
 import { useI18n } from "@/hooks/useI18n";
 import { SUPPORTED_LOCALES, type SupportedLocale } from "@/lib/i18n";
@@ -35,6 +36,7 @@ export function AppLayout({ children }: AppLayoutProps) {
         </main>
       </div>
       <MobileNav />
+      <RateLimitToast />
     </div>
   );
 }

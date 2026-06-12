@@ -4558,3 +4558,20 @@ Wired RATE-LIMIT-PLAN rows 5-9:
 COLLISION CAUGHT: share_transaction had a LOCAL var named `response` (the SharedTransactionResponse it builds). Adding a FastAPI `response: Response` param would shadow it → slowapi's header injection reads a reassigned object on the success path (the 500 regression class). Renamed the local to `share_result`; the injected `response` param stays untouched.
 DEFERRED (P88): the deleted-rows DAILY budget (1000/day) — row 6's second half. The call-frequency + mutation-ceiling already bound bulk deletion (~2000 rows/h max via batch); a true per-day row counter needs app-side accounting (slowapi counts calls not rows) and would mean widening D96 usage_counters' feature CHECK. Marginal → deferred.
 TESTS: +6 in test_rate_limit.py (create hourly, per-txn edit isolation, shared mutation ceiling across verbs, batch-delete call freq, group-create daily, invite-gen per-group) = 18 total. Gates: 943 pytest + ruff + format + mypy(app) green. No OpenAPI drift → no client regen.
+- 2026-06-12 11:17 | Edit | /home/khujta/projects/apps/gastify/web/src/lib/api.ts
+- 2026-06-12 11:17 | Write | /home/khujta/projects/apps/gastify/web/src/components/RateLimitToast.tsx
+- 2026-06-12 11:18 | Edit | /home/khujta/projects/apps/gastify/web/src/components/AppLayout.tsx
+- 2026-06-12 11:18 | Edit | /home/khujta/projects/apps/gastify/web/src/components/AppLayout.tsx
+- 2026-06-12 11:18 | Write | /home/khujta/projects/apps/gastify/web/src/components/RateLimitToast.test.tsx
+- 2026-06-12 11:23 | Edit | /home/khujta/projects/apps/gastify/mobile/src/lib/api.ts
+- 2026-06-12 11:23 | Write | /home/khujta/projects/apps/gastify/mobile/src/components/RateLimitToast.tsx
+- 2026-06-12 11:24 | Edit | /home/khujta/projects/apps/gastify/mobile/src/App.tsx
+- 2026-06-12 11:24 | Write | /home/khujta/projects/apps/gastify/mobile/src/components/__tests__/RateLimitToast.test.tsx
+- 2026-06-12 11:27 | Write | /home/khujta/projects/apps/gastify/tests/web-e2e/billing-quota.spec.ts
+- 2026-06-12 11:27 | Edit | /home/khujta/projects/apps/gastify/tests/web-e2e/billing-quota.spec.ts
+
+## 2026-06-12 — RATE-LIMIT Phase 5: 429 UX (web + mobile toast) + quota display + e2e
+RATE-LIMIT-PLAN row 10 shipped. WEB: api.ts onResponse interceptor fires a RATE_LIMIT_EVENT CustomEvent on any 429 (carrying Retry-After secs); RateLimitToast (mounted at the AppLayout root) listens, shows a friendly "going too fast, try again in Ns" message (es/en/pt), auto-dismisses 5s + manual dismiss; 5 vitest. MOBILE: same shape via a module-level onRateLimited emitter (RN has no window CustomEvent) + an RN RateLimitToast at the App root; 5 jest.
+QUOTA DISPLAY e2e (the Phase-2 web wiring, now live-proven): new billing-quota.spec.ts — scan-quota line shows "N/20" + GET /billing/quota returns the D96 shape {tier:free, scan limit 20, statement/batch 0, enforced bool}. 2/2 green vs deployed staging-e2e (606cd5c). The tier-GATE 403/402 itself stays pytest-proven: it only fires under billing_enforcement_enabled, which staging-e2e keeps OFF so the statement-journey suite uploads freely — flipping it on globally there would break that suite, so the e2e proves the wiring + endpoint, pytest proves the gate.
+TEST-MOCK FIX: two web tests (statements, webJourney) render AppLayout → now transitively import RateLimitToast → their full vi.mock("@/lib/api") needed RATE_LIMIT_EVENT added (else "no export defined" crash). Caught by the full vitest run, fixed in both mocks.
+DEFERRED (P89): mobile quota DISPLAY (the X-of-Y line + premium gates — rides the overhaul, D96 mobile parity) + the S23 on-device toast proof (device offline; toast unit-proven both platforms, web e2e-proven live). Gates: web tsc + eslint(0 err) + 134 vitest; mobile tsc + 255 jest. No OpenAPI drift.

@@ -9,9 +9,26 @@ export const apiClient = createClient<paths>({
   baseUrl: mobileConfig.apiBaseUrl,
 });
 
+/** Minimal module-level pub/sub for rate-limit (429) events — RN has no window
+ * CustomEvent, so the toast subscribes to this instead. */
+type RateLimitListener = (retryAfterSeconds: number) => void;
+const rateLimitListeners = new Set<RateLimitListener>();
+
+export function onRateLimited(listener: RateLimitListener): () => void {
+  rateLimitListeners.add(listener);
+  return () => rateLimitListeners.delete(listener);
+}
+
 apiClient.use({
   async onRequest({ request }) {
     return attachAuthHeader(request);
+  },
+  onResponse({ response }) {
+    if (response.status === 429) {
+      const retryAfter = Number(response.headers.get("retry-after")) || 0;
+      for (const listener of rateLimitListeners) listener(retryAfter);
+    }
+    return response;
   },
 });
 

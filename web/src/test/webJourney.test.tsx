@@ -48,6 +48,7 @@ vi.mock("@/lib/api", () => ({
     PATCH: vi.fn(),
   },
   setAuthToken: vi.fn(),
+  RATE_LIMIT_EVENT: "gastify:rate-limited",
 }));
 
 const mockGet = vi.mocked(apiClient.GET);
