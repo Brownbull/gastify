@@ -25,7 +25,43 @@ AUTHENTICATED USER (stash `auth.user_id` on `request.state` in `get_auth_context
 custom `key_func` reads it, falls back to IP). Per-resource limits (e.g. per
 transaction) append the path param to the key.
 
-## Proposed limits
+## Tier model supersedes the cost items (D96, 2026-06-12)
+
+The credit/tier decision changes two rows below: **statement scanning** and **batch
+scanning** are now TIER-QUOTA gated, not rate-limited — Free has neither; Premium
+(CLP $5.000/mo) gets 3 statement + 3 batch scans/month and 60 scan credits (Free: 20).
+Monthly reset, no rollover (P87). The tiny monthly scan quotas also make a per-user
+scan burst cap pointless — demoted to LOW. Until P87 ships, an interim 5/day statement
+limit is the stopgap (one decorator).
+
+## Ranked plan (priority × effort)
+
+Effort: S < 30m · M 1–3h · L 3–8h · XL > 1d. Items above the line are P86's
+implementation order; the two ★ rows are the D96 billing work (P87), listed here
+because they replace former HIGH rate-limit items.
+
+| # | Item | Priority | Effort | Why this rank |
+|---|------|----------|--------|---------------|
+| ★1 | D96 tier/quota system: monthly credits 20/60, statements 0/3, batch 0/3, reset + no-rollover, free-tier 403s | HIGH | XL | THE cost guard — real Gemini money; enforcement doesn't wait for the payment provider (premium = manual flag) |
+| ★2 | Interim statement cap 5/day/user until ★1 ships | HIGH | S | One decorator; closes the open Gemini spend TODAY |
+| 1 | User-keyed `key_func` infra (request.state.user_id; per-resource variant) | HIGH | M | Prerequisite for every row below; IP keys are wrong for authed abuse |
+| 2 | Group leave 6/h + 20/day; join 20/day/user + 3/day per (user, group) | HIGH | M | Immutable audit-row growth (6y, uncleanable) + member-stat flip-flops |
+| 3 | Consent toggles 10/purpose/day (both consent surfaces) | HIGH | S | Same append-only-row growth vector |
+| 4 | Erasure 2/day; portability + data-access 4/h | HIGH | S | Heavy cascade / 10k-row reads; trivially loopable |
+| 5 | Per-transaction edit cap 30/h (per-resource key) + 300 mutations/h/user | MED | M | The "edited many, many times" case; protects learned-mapping integrity |
+| 6 | Batch-delete 10 calls/h (slowapi) + 1 000 deleted rows/day (app counter) | MED | M | 200-id cap exists; this caps FREQUENCY; the row budget needs a small app-side counter |
+| 7 | Manual create 60/h + 500/day | MED | S | Storage growth + the mapping-minting feeder |
+| 8 | Share-to-group 30/h + 200/day | MED | S | Spam pollutes OTHER members' lists/stats |
+| 9 | Group create 10/day; invite generation 10/h per group | MED | S | Churn under the concurrent cap; rotation invalidates pending links |
+| 10 | 429 handling in web + mobile (Retry-After toast) | MED | M | Ship WITH the first user-visible limits, not after |
+| 11 | Push-token registrations 20/day | LOW | S | Row growth + FCM noise; unique-constraint already bounds steady state |
+| 12 | Group rename/icon/visibility 30/day; role changes 10/day per group | LOW | S | UI-churn hygiene |
+| 13 | Rectification 30/day; notifications mutations 120/min | LOW | S | Cheap writes |
+| 14 | Insights reads 120/min/user (after caching); public /reference 60/min/IP | LOW | S | Read hammering; caching is the better first lever |
+| 15 | Per-user scan burst cap | LOW | S | Demoted: 20–60 credits/MONTH self-limits bursts; global queue throttle already protects the queue |
+| 16 | Redis limiter storage | LOW | M | Only when replicas > 1 or daily windows must survive deploys |
+
+## Original analysis tables (pre-D96 detail)
 
 Priorities: **HIGH** = real cost or irreversible-row growth, implement first.
 **MED** = churn/pollution guards, implement at launch. **LOW** = hygiene, Ent tier.
