@@ -138,7 +138,11 @@ async def test_leave_delete_is_scoped_to_the_left_group_only(client, engine):
 
 @pytest.mark.asyncio
 async def test_leave_delete_emits_a_proof_of_processing_audit_event(client, engine):
-    """Leave-delete is a user-initiated data deletion → it must leave a D4 audit trail."""
+    """Leave-delete is a user-initiated data deletion → it must leave a D4 audit trail.
+
+    D95: the proof lives in the LEAVER'S PERSONAL scope (mirrors dsr_erasure) — it is
+    the leaver's proof, it shows in their own /consent/audit trail, and a group-scoped
+    row would FK-block delete_group forever."""
     group_id, b_uid, b_scope = await _setup_sharer_in_group(
         client, engine, when=date(2026, 3, 15), total_minor=50_000
     )
@@ -152,7 +156,6 @@ async def test_leave_delete_emits_a_proof_of_processing_audit_event(client, engi
             (
                 await s.execute(
                     select(AuditEvent).where(
-                        AuditEvent.ownership_scope_id == uuid.UUID(group_id),
                         AuditEvent.event_type == "dsr_group_leave_delete",
                     )
                 )
@@ -162,6 +165,36 @@ async def test_leave_delete_emits_a_proof_of_processing_audit_event(client, engi
         )
     assert len(events) == 1
     assert events[0].user_id == b_uid
+    assert events[0].ownership_scope_id == b_scope  # personal scope, NOT the group
+    assert events[0].resource_id == uuid.UUID(group_id)
+
+
+@pytest.mark.asyncio
+async def test_group_deletable_after_leave_delete(client, engine):
+    """D95 end-to-end: leave-delete writes tombstones + the personal-scope audit row,
+    then the (D94-promoted) remaining owner can still DELETE the whole group — no
+    FK-blocked, permanently undeletable scope."""
+    group_id, b_uid, b_scope = await _setup_sharer_in_group(
+        client, engine, when=date(2026, 3, 15), total_minor=50_000
+    )
+    with _acting_as(_make_auth(b_uid, b_scope, "B")):
+        assert (
+            await client.post(f"/api/v1/groups/{group_id}/leave", params={"delete_shared": "true"})
+        ).status_code == 204
+
+    # The group has tombstone rows now; the owner (TEST_USER) deletes the group.
+    deleted = await client.delete(f"/api/v1/groups/{group_id}")
+    assert deleted.status_code == 204
+    assert (await client.get(f"/api/v1/groups/{group_id}")).status_code == 404
+
+    # The leaver's proof-of-processing SURVIVES the group deletion (personal scope).
+    async with _sf(engine)() as s:
+        survivor = (
+            await s.execute(
+                select(AuditEvent).where(AuditEvent.event_type == "dsr_group_leave_delete")
+            )
+        ).scalar_one()
+    assert survivor.ownership_scope_id == b_scope
 
 
 @pytest.mark.asyncio

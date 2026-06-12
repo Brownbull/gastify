@@ -59,9 +59,15 @@ class GroupStatTombstone(Base):
     id: Mapped[uuid.UUID] = mapped_column(
         Uuid, primary_key=True, default=uuid.uuid4, server_default=func.gen_random_uuid()
     )
-    # The GROUP scope whose stats are voided — never a personal scope.
+    # The GROUP scope whose stats are voided — never a personal scope. CASCADE (D95):
+    # a deleted group has no stats left to void, and the app role deliberately has no
+    # DELETE policy (036 append-only) — referential actions are RLS-exempt, so this is
+    # the only path that may remove tombstones, and only ever with their whole group.
     ownership_scope_id: Mapped[uuid.UUID] = mapped_column(
-        Uuid, ForeignKey("ownership_scopes.id"), nullable=False, index=True
+        Uuid,
+        ForeignKey("ownership_scopes.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
     )
     # The voided month as canonical "YYYY-MM" (zero-padded, so a lexicographic range
     # over the column is identical to a chronological one).

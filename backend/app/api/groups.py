@@ -605,23 +605,13 @@ async def leave_group(
             status_code=status.HTTP_409_CONFLICT,
             detail="Promote another admin before leaving",
         )
+    periods_voided = 0
     if delete_shared:
         periods_voided = await tombstone_member_shares(
             db,
             ownership_scope_id=group_id,
             user_id=auth.user_id,
             reason="member_removed_data",
-        )
-        # D4 proof-of-processing for this user-initiated data deletion (parallel to the
-        # dsr_erasure event). Group-scoped — the action runs under the group GUC.
-        await log_audit_event(
-            db,
-            ownership_scope_id=group_id,
-            user_id=auth.user_id,
-            event_type="dsr_group_leave_delete",
-            resource_type="ownership_scope",
-            resource_id=group_id,
-            details=json.dumps({"group_periods_voided": periods_voided}),
         )
     target = await db.scalar(
         select(OwnershipScopeMember).where(
@@ -648,11 +638,29 @@ async def leave_group(
             )
             if successor is not None:
                 successor.role = "owner"
-    # Commit unconditionally so the delete_shared tombstones + audit event persist even
-    # if the membership row is already gone (commit runs under the group GUC, so the
-    # membership DELETE is RLS-correct — see the erasure-path R1 fix for the contrast).
-    await db.commit()
+    # Flush the group-scoped writes (tombstones, membership delete, promotion) while
+    # the GROUP GUC is still active — flushing after the swap would RLS-block the
+    # membership DELETE (the erasure-path R1 bug class).
+    await db.flush()
     await _restore_personal_scope(db, auth)
+    if delete_shared:
+        # D4 proof-of-processing for this user-initiated data deletion — written to the
+        # leaver's PERSONAL scope (D95, mirrors dsr_erasure): it is the LEAVER's proof,
+        # it shows in their own /consent/audit trail, and it must survive a later
+        # delete_group (a group-scoped row FK-blocked scope deletion forever).
+        await log_audit_event(
+            db,
+            ownership_scope_id=auth.ownership_scope_id,
+            user_id=auth.user_id,
+            event_type="dsr_group_leave_delete",
+            resource_type="ownership_scope",
+            resource_id=group_id,
+            details=json.dumps({"group_periods_voided": periods_voided}),
+        )
+    # Commit unconditionally so the writes persist even if the membership row was
+    # already gone; the only pending ORM work at this point is the personal-scope
+    # audit row, which is RLS-correct under the restored personal GUC.
+    await db.commit()
 
 
 @router.patch("/{group_id}/members/{member_user_id}", response_model=MemberSummary)
