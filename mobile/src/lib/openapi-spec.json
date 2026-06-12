@@ -63,6 +63,28 @@
         }
       }
     },
+    "/api/v1/billing/quota": {
+      "get": {
+        "tags": [
+          "billing"
+        ],
+        "summary": "Get Quota",
+        "description": "The caller's tier + per-feature used/limit for the current quota month.\n\nQuotas are personal-scope (D70: capture features are personal-only), so this\nreads the caller's personal scope regardless of any active group.",
+        "operationId": "get_quota_api_v1_billing_quota_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuotaResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/card-aliases": {
       "get": {
         "tags": [
@@ -3883,6 +3905,24 @@
         ],
         "title": "ErasureResponse"
       },
+      "FeatureQuota": {
+        "properties": {
+          "used": {
+            "type": "integer",
+            "title": "Used"
+          },
+          "limit": {
+            "type": "integer",
+            "title": "Limit"
+          }
+        },
+        "type": "object",
+        "required": [
+          "used",
+          "limit"
+        ],
+        "title": "FeatureQuota"
+      },
       "GroupCreate": {
         "properties": {
           "name": {
@@ -5793,6 +5833,38 @@
           "revoked_count"
         ],
         "title": "PushTokenUnregisterResponse"
+      },
+      "QuotaResponse": {
+        "properties": {
+          "tier": {
+            "type": "string",
+            "title": "Tier"
+          },
+          "period": {
+            "type": "string",
+            "title": "Period"
+          },
+          "enforced": {
+            "type": "boolean",
+            "title": "Enforced"
+          },
+          "features": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/FeatureQuota"
+            },
+            "type": "object",
+            "title": "Features"
+          }
+        },
+        "type": "object",
+        "required": [
+          "tier",
+          "period",
+          "enforced",
+          "features"
+        ],
+        "title": "QuotaResponse",
+        "description": "Tier + per-feature monthly quota state \u2014 clients render 'X of Y left' and\ngate premium-only UI (statements, batch) off `limit > 0`."
       },
       "RectificationRequest": {
         "properties": {
