@@ -13,6 +13,7 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 import sqlalchemy as sa
+from fastapi import Request
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy import event
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
@@ -181,7 +182,10 @@ async def client(engine, mock_auth_context) -> AsyncGenerator[AsyncClient, None]
         async with session_factory() as session:
             yield session
 
-    async def override_auth() -> AuthContext:
+    async def override_auth(request: Request) -> AuthContext:
+        # Mirror the real get_auth_context: stash the user id for user-keyed
+        # rate limiting (rate_limit.user_or_ip_key reads request.state).
+        request.state.user_id = str(mock_auth_context.user.id)
         return mock_auth_context
 
     app.dependency_overrides[get_db] = override_get_db

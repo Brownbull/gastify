@@ -4484,3 +4484,16 @@ CI: staging 13/13 + main green (same SHA b9a7138); prod deploy SUCCESS, /health 
 PROMOTION: promoted staging -> main (116c7e0 -> b9a7138). Two-user hardening fixes now LIVE in production.
 DEPLOYMENTS: P81.
 RATE-LIMIT ANALYSIS (user request): docs/runbooks/RATE-LIMIT-PLAN.md — full abuse-surface sweep. HIGH: statement upload is NOT credit-gated and burns real Gemini in prod (credit-gate or 5/day); group leave/join churn (immutable audit-row growth + member-stat flip-flops, 6h/20d + 3 joins/day per user-group); consent-toggle loops (append-only audit rows, 10/purpose/day); erasure 2/day; portability/data-access 4/hour. MED: per-TRANSACTION edit cap 30/h (the user's "modified many many times" case), bulk-delete frequency (batch 200-cap exists but not request frequency — 10 calls/h + 1000 rows/day), manual-create 60/h, share-spam 30/h, invite rotation 10/h/group, per-user scan fairness 30/h. Verified already-bounded: mapping dedup, tombstone idempotence, re-share 409, 192-bit invite tokens + P59 IP limits. Implementation = P86 (user-keyed key_func, per-resource keys, Redis-at-replicas, 429 toasts both clients).
+- 2026-06-11 20:51 | Edit | /home/khujta/projects/apps/gastify/docs/runbooks/RATE-LIMIT-PLAN.md
+- 2026-06-11 21:19 | Edit | /home/khujta/projects/apps/gastify/backend/app/rate_limit.py
+- 2026-06-11 21:19 | Edit | /home/khujta/projects/apps/gastify/backend/app/rate_limit.py
+- 2026-06-11 21:19 | Edit | /home/khujta/projects/apps/gastify/backend/app/auth/deps.py
+- 2026-06-11 21:19 | Edit | /home/khujta/projects/apps/gastify/backend/app/auth/deps.py
+- 2026-06-11 21:19 | Edit | /home/khujta/projects/apps/gastify/backend/app/auth/deps.py
+- 2026-06-11 21:20 | Edit | /home/khujta/projects/apps/gastify/backend/app/api/statements.py
+- 2026-06-11 21:20 | Edit | /home/khujta/projects/apps/gastify/backend/app/api/statements.py
+- 2026-06-11 21:20 | Edit | /home/khujta/projects/apps/gastify/backend/app/api/statements.py
+
+## 2026-06-12 (cont) - RATE-LIMIT Phase 1: user-keyed limiter infra + statement 5/day stopgap
+rate_limit.py gains user_or_ip_key (reads request.state.user_id stashed by get_auth_context - slowapi key_funcs evaluate inside the route wrapper AFTER deps, so the stash is visible) + per_resource_key(param) factory for later per-transaction windows. POST /statements decorated 5/day user-keyed (★2 - closes the un-gated real-Gemini spend until D96/P87 supersedes). conftest override_auth mirrors the stash so the keying is testable. Contract tests: 6th upload 429 + Retry-After; ROTATING IPs share the user's bucket (the keying proof). Gates: 924 pass + ruff + format + mypy(app).
+ENV FIX: deployed staging-e2e had NO GASTIFY_RATE_LIMIT_ENABLED (default true - the per-minute invite limits just never bit) - a 5/DAY cap would break the statement e2e suites; set =false on the service (the documented e2e posture; limit contracts live in pytest with the limiter flipped on).

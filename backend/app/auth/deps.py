@@ -3,7 +3,7 @@
 import uuid
 from typing import Annotated
 
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, Request, status
 from sqlalchemy import func, select, text
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -98,6 +98,7 @@ async def resolve_analytics_scope(
 
 
 async def get_auth_context(
+    request: Request,
     firebase_user: CurrentUser,
     db: Annotated[AsyncSession, Depends(get_db)],
 ) -> AuthContext:
@@ -140,6 +141,10 @@ async def get_auth_context(
     scope_id = user.ownership_scope_id
 
     await _set_postgres_ownership_scope(db, scope_id)
+
+    # User-keyed rate limiting (RATE-LIMIT-PLAN): slowapi key_funcs evaluate inside
+    # the route wrapper, AFTER dependencies — so this stash is visible to them.
+    request.state.user_id = str(user.id)
 
     return AuthContext(user=user, ownership_scope_id=scope_id)
 

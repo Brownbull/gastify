@@ -75,3 +75,45 @@ async def test_successful_preview_passes_through_the_limiter(client, engine, ena
     r = await client.get(f"/api/v1/invites/{token}", headers={"X-Forwarded-For": "203.0.113.99"})
     assert r.status_code == 200  # the regression: this 500'd without the response param
     assert "x-ratelimit-limit" in {k.lower() for k in r.headers}
+
+
+# --- ★2 interim statement-upload cap (RATE-LIMIT-PLAN Phase 1) ---
+
+
+def _pdf_upload(consent: bool = False):
+    """Minimal multipart body. consent=False 422s fast (no provider work) — limiting
+    runs in the route wrapper BEFORE the body, so cheap 422s still count, exactly
+    like the invite 404s above."""
+    return {
+        "files": {"file": ("s.pdf", b"%PDF-1.4 tiny", "application/pdf")},
+        "data": {"ai_processing_consent": "true" if consent else "false"},
+    }
+
+
+@pytest.mark.asyncio
+async def test_statement_upload_throttles_daily(client, enabled_limiter):
+    statuses = []
+    for _ in range(6):
+        r = await client.post("/api/v1/statements", **_pdf_upload())
+        statuses.append(r.status_code)
+    assert all(s == 422 for s in statuses[:5])  # consent-less uploads, cheap
+    assert statuses[5] == 429
+    blocked = await client.post("/api/v1/statements", **_pdf_upload())
+    assert blocked.status_code == 429
+    assert "retry-after" in {k.lower() for k in blocked.headers}
+
+
+@pytest.mark.asyncio
+async def test_statement_limit_keys_on_the_user_not_the_ip(client, enabled_limiter):
+    """The same authenticated user must share ONE bucket across addresses — a
+    rotating-IP loop may not reset the window."""
+    for i in range(5):
+        await client.post(
+            "/api/v1/statements",
+            headers={"X-Forwarded-For": f"203.0.113.{i}"},
+            **_pdf_upload(),
+        )
+    rotated = await client.post(
+        "/api/v1/statements", headers={"X-Forwarded-For": "203.0.113.250"}, **_pdf_upload()
+    )
+    assert rotated.status_code == 429  # fresh IP, same user → still throttled

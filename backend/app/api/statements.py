@@ -15,6 +15,7 @@ from fastapi import (
     Depends,
     Form,
     HTTPException,
+    Request,
     Response,
     UploadFile,
     status,
@@ -32,6 +33,7 @@ from app.models.statement import (
     StatementReconciliationRun,
     StatementStatus,
 )
+from app.rate_limit import STATEMENT_UPLOAD_DAILY_LIMIT, limiter, user_or_ip_key
 from app.schemas.statement import (
     StatementLineRecordResponse,
     StatementProcessRequest,
@@ -57,7 +59,9 @@ MAX_FILE_SIZE = 25 * 1024 * 1024
 
 
 @router.post("", status_code=status.HTTP_201_CREATED, response_model=StatementUploadResponse)
+@limiter.limit(STATEMENT_UPLOAD_DAILY_LIMIT, key_func=user_or_ip_key)
 async def upload_statement(
+    request: Request,
     file: UploadFile,
     auth: Auth,
     db: DB,
