@@ -5,7 +5,7 @@ from datetime import UTC, date, datetime, timedelta
 from typing import TYPE_CHECKING, Annotated, Any, Literal, cast
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response, status
 from sqlalchemy import delete, func, select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -21,6 +21,15 @@ from app.models.transaction import (
     TransactionImage,
     TransactionItem,
     TransactionItemFlag,
+)
+from app.rate_limit import (
+    BATCH_DELETE_CALL_LIMIT,
+    TXN_CREATE_LIMITS,
+    TXN_EDIT_PER_RESOURCE_LIMIT,
+    TXN_MUTATION_LIMITS,
+    limiter,
+    per_resource_key,
+    user_or_ip_key,
 )
 from app.schemas.common import PaginatedResponse
 from app.schemas.insights import ItemInsightFlagKind, as_item_insight_flag_kind
@@ -229,7 +238,12 @@ async def get_transaction(
 
 
 @router.post("", status_code=status.HTTP_201_CREATED)
+@limiter.limit(TXN_CREATE_LIMITS[0], key_func=user_or_ip_key)
+@limiter.limit(TXN_CREATE_LIMITS[1], key_func=user_or_ip_key)
+@limiter.shared_limit(TXN_MUTATION_LIMITS[0], scope="txn_mutation", key_func=user_or_ip_key)
 async def create_transaction(
+    request: Request,
+    response: Response,
     body: TransactionCreate,
     auth: Auth,
     db: DB,
@@ -351,7 +365,11 @@ async def create_transaction(
 
 
 @router.patch("/{transaction_id}", response_model=TransactionDetail)
+@limiter.limit(TXN_EDIT_PER_RESOURCE_LIMIT, key_func=per_resource_key("transaction_id"))
+@limiter.shared_limit(TXN_MUTATION_LIMITS[0], scope="txn_mutation", key_func=user_or_ip_key)
 async def update_transaction(
+    request: Request,
+    response: Response,
     transaction_id: UUID,
     body: TransactionUpdate,
     auth: Auth,
@@ -628,7 +646,10 @@ def _assert_within_delete_window(dates: list[date]) -> None:
 
 
 @router.delete("/{transaction_id}", status_code=status.HTTP_204_NO_CONTENT)
+@limiter.shared_limit(TXN_MUTATION_LIMITS[0], scope="txn_mutation", key_func=user_or_ip_key)
 async def delete_transaction(
+    request: Request,
+    response: Response,
     transaction_id: UUID,
     auth: Auth,
     db: DB,
@@ -657,7 +678,10 @@ async def delete_transaction(
 
 
 @router.post("/batch-update", response_model=BatchResult)
+@limiter.shared_limit(TXN_MUTATION_LIMITS[0], scope="txn_mutation", key_func=user_or_ip_key)
 async def batch_update_transactions(
+    request: Request,
+    response: Response,
     body: BatchUpdateRequest,
     auth: Auth,
     db: DB,
@@ -746,7 +770,11 @@ async def batch_update_transactions(
 
 
 @router.post("/batch-delete", response_model=BatchResult)
+@limiter.limit(BATCH_DELETE_CALL_LIMIT, key_func=user_or_ip_key)
+@limiter.shared_limit(TXN_MUTATION_LIMITS[0], scope="txn_mutation", key_func=user_or_ip_key)
 async def batch_delete_transactions(
+    request: Request,
+    response: Response,
     body: BatchDeleteRequest,
     auth: Auth,
     db: DB,

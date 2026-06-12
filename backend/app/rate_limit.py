@@ -51,6 +51,24 @@ ERASURE_LIMIT = "2/day"
 # Portability + data-access: up-to-10k-row exports — cheap to ask, expensive to serve.
 DSR_EXPORT_LIMIT = "4/hour"
 
+# --- ENT MED limits (RATE-LIMIT-PLAN rows 5-9) — user-keyed unless per-resource. ---
+# Per-transaction edit storms pollute learned mappings + edited_at provenance: a
+# PER-(user, transaction) window plus a global per-user mutation ceiling.
+TXN_EDIT_PER_RESOURCE_LIMIT = "30/hour"  # keyed (user, transaction_id)
+TXN_MUTATION_LIMITS = ["300/hour"]  # user-keyed across all PATCH/create/delete
+# Bulk deletion: the 200-id batch cap bounds ONE request; this bounds FREQUENCY. The
+# per-day DELETED-ROW budget is enforced app-side (a slowapi window can't count rows).
+BATCH_DELETE_CALL_LIMIT = "10/hour"
+DELETED_ROWS_DAILY_BUDGET = 1000  # app-side counter (sum of single + batch deletes)
+# Manual create: storage growth + the mapping-minting feeder.
+TXN_CREATE_LIMITS = ["60/hour", "500/day"]
+# Share-to-group spam floods OTHER members' lists/stats.
+SHARE_LIMITS = ["30/hour", "200/day"]
+# Group create churn under the 5-group concurrent cap.
+GROUP_CREATE_LIMIT = "10/day"
+# Invite generation rotates the token (invalidates pending links) — per group.
+INVITE_GENERATE_LIMIT = "10/hour"
+
 
 def user_group_key(request: Request) -> str:
     """Bucket = (user, group_id path param) — for limits that must be PER GROUP per

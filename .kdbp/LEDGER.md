@@ -4537,3 +4537,24 @@ Wired the user-keyed limits from RATE-LIMIT-PLAN rows 2-4 onto the abuse surface
 FINDING (caught by a contract test): slowapi buckets per-ENDPOINT by default (scope = endpoint name), so two endpoints with the same limit string + key_func still get SEPARATE buckets. My first cut gave grant/revoke (and the two DSR exports) double the intended allowance — a flip-flop could do 10 grants + 10 revokes. Fixed with limiter.shared_limit(..., scope=<shared>) so grant↔revoke and data-access↔portability draw from ONE budget each. This is the right model: the abuse is the flip-flop, not either verb alone.
 PATTERN (re-confirmed): every limited endpoint needs BOTH request: Request and response: Response params — slowapi injects X-RateLimit-* into the Response on the SUCCESS path, and a missing param 500s the 200 (the regression the invite-avatar e2e first caught). Added response params to leave/group-consent/erasure/grant/revoke; data-access+portability already had request, added response. A dedicated test asserts a 200 export carries x-ratelimit-limit.
 TESTS: 12 in test_rate_limit.py (per-group leave isolation, consent per-day + grant/revoke shared, erasure 2/day, DSR shared budget + header contract). Gates: 937 pytest + ruff + format + mypy(app) all green. No OpenAPI drift (decorators are transparent) → no client regen, Mobile API Drift gate unaffected.
+- 2026-06-12 11:02 | Edit | /home/khujta/projects/apps/gastify/backend/app/rate_limit.py
+- 2026-06-12 11:08 | Edit | /home/khujta/projects/apps/gastify/backend/app/api/transactions.py
+- 2026-06-12 11:09 | Edit | /home/khujta/projects/apps/gastify/backend/app/api/transactions.py
+- 2026-06-12 11:09 | Edit | /home/khujta/projects/apps/gastify/backend/app/api/transactions.py
+- 2026-06-12 11:09 | Edit | /home/khujta/projects/apps/gastify/backend/app/api/transactions.py
+- 2026-06-12 11:09 | Edit | /home/khujta/projects/apps/gastify/backend/app/api/transactions.py
+- 2026-06-12 11:10 | Edit | /home/khujta/projects/apps/gastify/backend/app/api/transactions.py
+- 2026-06-12 11:10 | Edit | /home/khujta/projects/apps/gastify/backend/app/api/groups.py
+- 2026-06-12 11:10 | Edit | /home/khujta/projects/apps/gastify/backend/app/api/groups.py
+- 2026-06-12 11:11 | Edit | /home/khujta/projects/apps/gastify/backend/app/api/groups.py
+- 2026-06-12 11:11 | Edit | /home/khujta/projects/apps/gastify/backend/app/api/groups.py
+- 2026-06-12 11:11 | Edit | /home/khujta/projects/apps/gastify/backend/app/api/groups.py
+
+## 2026-06-12 — RATE-LIMIT Phase 4: ENT MED limits (txn churn, share, group create, invite gen)
+Wired RATE-LIMIT-PLAN rows 5-9:
+- TXN edit cap: 30/h PER (user, transaction) via per_resource_key("transaction_id") — an edit storm on one row can't pollute its learned mappings, and a different row is a fresh bucket.
+- TXN mutation ceiling: 300/h SHARED across create/patch/delete/batch-update/batch-delete (limiter.shared_limit scope="txn_mutation") — no verb exceeds it, mixing can't dodge it.
+- TXN create: 60/h + 500/day. Batch-delete: 10 CALLS/h (the 200-id cap bounds one call; this bounds frequency). Share: 30/h + 200/day. Group create: 10/day. Invite gen: 10/h PER group (user_group_key).
+COLLISION CAUGHT: share_transaction had a LOCAL var named `response` (the SharedTransactionResponse it builds). Adding a FastAPI `response: Response` param would shadow it → slowapi's header injection reads a reassigned object on the success path (the 500 regression class). Renamed the local to `share_result`; the injected `response` param stays untouched.
+DEFERRED (P88): the deleted-rows DAILY budget (1000/day) — row 6's second half. The call-frequency + mutation-ceiling already bound bulk deletion (~2000 rows/h max via batch); a true per-day row counter needs app-side accounting (slowapi counts calls not rows) and would mean widening D96 usage_counters' feature CHECK. Marginal → deferred.
+TESTS: +6 in test_rate_limit.py (create hourly, per-txn edit isolation, shared mutation ceiling across verbs, batch-delete call freq, group-create daily, invite-gen per-group) = 18 total. Gates: 943 pytest + ruff + format + mypy(app) green. No OpenAPI drift → no client regen.

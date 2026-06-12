@@ -29,11 +29,14 @@ from app.models.transaction import Transaction, TransactionItem
 from app.models.user import OwnershipScope, OwnershipScopeMember, User
 from app.rate_limit import (
     CONSENT_TOGGLE_LIMIT,
+    GROUP_CREATE_LIMIT,
     GROUP_JOIN_USER_LIMIT,
     GROUP_LEAVE_LIMITS,
     GROUP_LEAVE_PER_GROUP_LIMIT,
+    INVITE_GENERATE_LIMIT,
     INVITE_JOIN_LIMIT,
     INVITE_PREVIEW_LIMIT,
+    SHARE_LIMITS,
     limiter,
     user_group_key,
     user_or_ip_key,
@@ -255,7 +258,10 @@ async def list_groups(auth: Auth, db: DB) -> list[GroupSummary]:
 
 
 @router.post("", status_code=status.HTTP_201_CREATED, response_model=GroupSummary)
-async def create_group(body: GroupCreate, auth: Auth, db: DB) -> GroupSummary:
+@limiter.limit(GROUP_CREATE_LIMIT, key_func=user_or_ip_key)
+async def create_group(
+    request: Request, response: Response, body: GroupCreate, auth: Auth, db: DB
+) -> GroupSummary:
     if len(await _user_group_rows(db, auth.user_id)) >= MAX_GROUPS_PER_USER:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
@@ -749,8 +755,10 @@ def _copy_transaction(source: Transaction, *, group_id: UUID, user_id: UUID) -> 
     status_code=status.HTTP_201_CREATED,
     response_model=SharedTransactionResponse,
 )
+@limiter.limit(SHARE_LIMITS[0], key_func=user_or_ip_key)
+@limiter.limit(SHARE_LIMITS[1], key_func=user_or_ip_key)
 async def share_transaction(
-    group_id: UUID, body: ShareRequest, auth: Auth, db: DB
+    request: Request, response: Response, group_id: UUID, body: ShareRequest, auth: Auth, db: DB
 ) -> SharedTransactionResponse:
     """Copy one of the caller's PERSONAL transactions into a group they belong to.
 
@@ -796,9 +804,10 @@ async def share_transaction(
             status_code=status.HTTP_409_CONFLICT,
             detail="Transaction already shared to this group",
         ) from None
-    # Build the response while the GUC is still the group (copy.* refresh under the
-    # group scope; source.id is the PK so it needs no refresh).
-    response = SharedTransactionResponse(
+    # Build the result while the GUC is still the group (copy.* refresh under the
+    # group scope; source.id is the PK so it needs no refresh). Named distinctly from
+    # the FastAPI `response` param (slowapi injects rate-limit headers into THAT).
+    share_result = SharedTransactionResponse(
         id=copy.id,
         group_id=group_id,
         merchant=copy.merchant,
@@ -814,11 +823,14 @@ async def share_transaction(
     source.is_shared = True
     source.share_count = (source.share_count or 0) + 1  # P83: live-copy counter
     await db.commit()
-    return response
+    return share_result
 
 
 @router.post("/{group_id}/invite", response_model=InviteResponse)
-async def create_invite(group_id: UUID, auth: Auth, db: DB) -> InviteResponse:
+@limiter.limit(INVITE_GENERATE_LIMIT, key_func=user_group_key)
+async def create_invite(
+    request: Request, response: Response, group_id: UUID, auth: Auth, db: DB
+) -> InviteResponse:
     role = await _resolve_membership(db, auth, group_id)
     _require_role(role, _MUTATE_ROLES)
     scope = await db.get(OwnershipScope, group_id)

@@ -227,3 +227,100 @@ async def test_dsr_export_success_path_carries_ratelimit_headers(client, enabled
     r = await client.get("/api/v1/privacy/data-access")
     assert r.status_code == 200
     assert "x-ratelimit-limit" in {k.lower() for k in r.headers}
+
+
+# --- Phase 4: ENT MED limits (transaction churn, share, group create, invite gen) ---
+
+
+def _txn_body(merchant="RL Txn"):
+    return {
+        "merchant": merchant,
+        "transaction_date": "2026-06-12",
+        "currency": "CLP",
+        "total_minor": 1000,
+        "items": [],
+    }
+
+
+@pytest.mark.asyncio
+async def test_transaction_create_throttles_hourly(client, enabled_limiter):
+    """60 creates/hour/user — the 61st 429s. A creation storm grows storage + mints
+    learned-mapping rows."""
+    last = None
+    for _ in range(61):
+        last = await client.post("/api/v1/transactions", json=_txn_body())
+    assert last.status_code == 429
+    assert "retry-after" in {k.lower() for k in last.headers}
+
+
+@pytest.mark.asyncio
+async def test_transaction_edit_cap_is_per_transaction(client, enabled_limiter):
+    """30 edits/hour PER transaction: hammering txn A 429s on the 31st PATCH, but a
+    DIFFERENT txn is a fresh bucket — the per-resource key isolates them."""
+    a = (await client.post("/api/v1/transactions", json=_txn_body("A"))).json()["id"]
+    b = (await client.post("/api/v1/transactions", json=_txn_body("B"))).json()["id"]
+
+    last = None
+    for i in range(31):
+        last = await client.patch(f"/api/v1/transactions/{a}", json={"merchant": f"A{i}"})
+    assert last.status_code == 429  # 31st edit of A
+
+    # B untouched by A's churn — its own bucket is fresh.
+    other = await client.patch(f"/api/v1/transactions/{b}", json={"merchant": "B-edit"})
+    assert other.status_code == 200
+
+
+@pytest.mark.asyncio
+async def test_mutation_ceiling_is_shared_across_create_patch_delete(client, enabled_limiter):
+    """The 300/hour mutation ceiling is SHARED (scope=txn_mutation) across create,
+    patch, delete + batch ops — so no single verb can exceed it, and mixing verbs
+    can't dodge it. Proven by exhausting it via creates, then a PATCH/DELETE on a
+    pre-made row also 429s."""
+    pre = (await client.post("/api/v1/transactions", json=_txn_body("pre"))).json()["id"]
+    # 299 more creates (300 total with `pre`) exhausts the shared ceiling.
+    for _ in range(299):
+        await client.post("/api/v1/transactions", json=_txn_body())
+    # The ceiling is spent: a DIFFERENT verb (delete) on an existing row 429s too.
+    blocked = await client.delete(f"/api/v1/transactions/{pre}")
+    assert blocked.status_code == 429
+
+
+@pytest.mark.asyncio
+async def test_batch_delete_call_frequency_throttles(client, enabled_limiter):
+    """10 batch-delete CALLS/hour (the 200-id cap bounds one call; this bounds
+    frequency). An empty-id batch is a cheap 200 but still counts toward the call
+    window — the 11th call 429s."""
+    statuses = []
+    for _ in range(11):
+        r = await client.post("/api/v1/transactions/batch-delete", json={"transaction_ids": []})
+        statuses.append(r.status_code)
+    assert all(s == 200 for s in statuses[:10])
+    assert statuses[10] == 429
+
+
+@pytest.mark.asyncio
+async def test_group_create_throttles_daily(client, enabled_limiter):
+    """10 group creations/day/user — the 11th 429s (create→delete churn under the
+    5-group concurrent cap). The MAX_GROUPS 409 also counts toward the window."""
+    last = None
+    for i in range(11):
+        last = await client.post("/api/v1/groups", json={"name": f"RL Grp {i}"})
+    # First 5 create (201), next 5 hit the concurrent-cap 409, 11th 429s — either way
+    # the 11th call is rate-limited.
+    assert last.status_code == 429
+
+
+@pytest.mark.asyncio
+async def test_invite_generation_is_per_group(client, enabled_limiter):
+    """10 invite generations/hour PER group: rotating ONE group's token 429s on the
+    11th, but a second group is a fresh (user, group) bucket."""
+    g1 = (await client.post("/api/v1/groups", json={"name": "RL Inv 1"})).json()["id"]
+    g2 = (await client.post("/api/v1/groups", json={"name": "RL Inv 2"})).json()["id"]
+
+    last = None
+    for _ in range(11):
+        last = await client.post(f"/api/v1/groups/{g1}/invite")
+    assert last.status_code == 429
+
+    other = await client.post(f"/api/v1/groups/{g2}/invite")
+    assert other.status_code in (200, 201)  # g2's own bucket — not throttled
