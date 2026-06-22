@@ -18,10 +18,13 @@ const fs = require("node:fs");
 const path = require("node:path");
 const { PixelLabClient } = require("/home/khujta/.claude/mcp-servers/pixellab/node_modules/@pixellab-code/pixellab");
 
+// Per ICON-STYLE-SPEC.md: "centered, fills ~80% of canvas, single clear object,
+// minimal scene" — small even padding so each icon matches the family scale
+// (the old "fills the frame" made new icons oversized vs. siblings like chart-pie).
 const STYLE_SUFFIX =
-  "single object, centered, fills the frame, pixel art game icon, clean thick dark outline, flat warm colors, simple";
+  "single object, centered, fills about 80 percent of the canvas with small even padding around the edges, pixel art game icon, clean thick dark outline, flat warm colors, simple, minimal";
 const NEGATIVE =
-  "glossy, gradient, 3d render, realistic, photo, drop shadow, blurry, anti-aliased, text, watermark, multiple objects";
+  "glossy, gradient, 3d render, realistic, photo, drop shadow, blurry, anti-aliased, text, watermark, multiple objects, cluttered, busy, many tiny parts";
 const LOCKED = {
   imageSize: { width: 64, height: 64 },
   noBackground: true,

@@ -5,7 +5,8 @@ import { ChevronLeftIcon, LogOutIcon, XIcon } from "@design-system/assets/icons"
 /**
  * Nav + header chrome (Phase 7, DM-5) — the real navigation/header organisms,
  * rebuilt from the legacy BoletApp "Gastify" shell (NAV-HEADER-SPEC.md). IA =
- * 4 tabs (Inicio·Compras·Gastos·Perfil) + scan as a FAB (NOT a tab); legacy and
+ * 4 tabs (Inicio·Compras·Gastos·Historial) + scan as a FAB (NOT a tab); Perfil is
+ * reached from the top-right avatar dropdown (PerfilMenu), not a tab; legacy and
  * DM-5 agree on the count. Tabs are PixelIcon, icon-only, no text labels (legacy
  * parity). Spikes settle: scan-FAB placement, header density, Perfil treatment,
  * desktop chrome.
@@ -27,7 +28,7 @@ export const MAIN_NAV: NavTab[] = [
   { key: "inicio", label: "Inicio", icon: "nav-home" },
   { key: "compras", label: "Compras", icon: "nav-history" },
   { key: "gastos", label: "Gastos", icon: "chart-pie" },
-  { key: "perfil", label: "Perfil", icon: "nav-profile" },
+  { key: "historial", label: "Historial", icon: "nav-historial" },
 ];
 
 // ── Wordmark + profile avatar ───────────────────────────────────────────
@@ -425,11 +426,10 @@ export interface PerfilMenuItem {
   badge?: string;
 }
 
+// Historial de productos / transacciones + Reportes moved to the Historial tab
+// (the avatar dropdown is now just account-level actions).
 export const PERFIL_MENU: PerfilMenuItem[] = [
   { key: "notificaciones", label: "Notificaciones", icon: "nav-alerts", badge: "3" },
-  { key: "hist-productos", label: "Historial de productos", icon: "item-pantry" },
-  { key: "hist-transacciones", label: "Historial de transacciones", icon: "nav-history" },
-  { key: "reportes", label: "Reportes", icon: "nav-reports" },
   { key: "ajustes", label: "Ajustes", icon: "nav-settings" },
   { key: "logout", label: "Cerrar sesión", icon: "svg:logout", danger: true, divider: true },
 ];

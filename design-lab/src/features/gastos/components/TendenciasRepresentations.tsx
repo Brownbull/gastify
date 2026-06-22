@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { SegmentedToggle } from "@design-system/atoms/SegmentedToggle";
+import { useEffect, useState } from "react";
 import { DonutRing } from "@design-system/atoms/DonutRing";
 import { DonutCenterLabel } from "@design-system/atoms/DonutCenterLabel";
 import { DonutLegend } from "@design-system/molecules/DonutLegend";
@@ -35,10 +34,11 @@ import { clpK, SEGMENTS, TOTAL_SPEND, drillChildren, sankeyForLevels, pressLevel
  */
 export type SpendRepresentation = "dona" | "mapa" | "flujo";
 
-const REP_SEGMENTS: { id: SpendRepresentation; label: string }[] = [
-  { id: "dona", label: "Dona" },
-  { id: "mapa", label: "Mapa" },
-  { id: "flujo", label: "Flujo" },
+/** the three representations + their header-switcher pixel icons (donut / treemap / sankey). */
+export const SPEND_REPS: { id: SpendRepresentation; label: string; icon: string }[] = [
+  { id: "dona", label: "Dona", icon: "chart-donut" },
+  { id: "mapa", label: "Mapa", icon: "chart-treemap" },
+  { id: "flujo", label: "Flujo", icon: "chart-sankey" },
 ];
 
 /** donut/legend wedge fills = the category's tile color (the icon background). */
@@ -67,8 +67,7 @@ function ShowMore({ canExpand, canCollapse, otroCount, onExpand, onCollapse }: {
   );
 }
 
-export function TendenciasRepresentations() {
-  const [rep, setRepState] = useState<SpendRepresentation>("dona");
+export function TendenciasRepresentations({ rep }: { rep: SpendRepresentation }) {
   // ONE drill path shared by the donut + treemap (two views of the same data).
   const [donutPath, setDonutPath] = useState<{ id: string; label: string }[]>([]);
   const [countMode, setCountMode] = useState<CountMode>("transactions");
@@ -79,11 +78,14 @@ export function TendenciasRepresentations() {
   const [sankeySel, setSankeySel] = useState<SankeySelection | null>(null); // sankey node/link detail
   const bump = () => setAnimKey((k) => k + 1);
 
+  // rep is controlled by the header diagram switcher; switching it clears the
+  // per-diagram selection + replays the entrance (the shared drill path is kept).
+  useEffect(() => { setExpanded(0); setSelected(null); setSankeySel(null); bump(); }, [rep]);
+
   const canDrill = (id: string) => id !== "otros" && drillChildren(id) != null;
 
   // nav handlers — reset the show-more counter + replay the entrance (legacy bumps
-  // animationKey on view/level/drill change).
-  const setRep = (r: SpendRepresentation) => { setRepState(r); setExpanded(0); setSelected(null); setSankeySel(null); bump(); };
+  // animationKey on drill/level change).
   const drill = (id: string) => {
     if (!canDrill(id)) return;
     setDonutPath((p) => [...p, { id, label: getCategoryToken(id).label }]);
@@ -127,8 +129,6 @@ export function TendenciasRepresentations() {
 
   return (
     <div className="flex min-h-0 w-full flex-1 flex-col gap-gt-12">
-      <SegmentedToggle segments={REP_SEGMENTS} value={rep} onChange={setRep} fill flush />
-
       {/* shared controls. Flujo: a level-RANGE bar (≥2 levels, expand to 3–4) +
           the spend details readout. Dona/Mapa: single-level bar + count toggle. */}
       <div className="flex items-center justify-between gap-gt-8">
@@ -138,14 +138,17 @@ export function TendenciasRepresentations() {
           <LevelToggle value={donutDepth} onChange={donutGoLevel} />
         )}
         {rep === "flujo" ? (
-          // the tapped node's NAME + amount/% (green) live here; "Total" + the
-          // grand total when nothing is selected.
-          <div className="flex flex-col items-end gap-gt-1 leading-none" style={sankeySel ? { color: "var(--positive-primary)" } : undefined}>
-            <span className={`truncate font-gt-display text-gt-xs font-extrabold ${sankeySel ? "" : "text-gt-ink-3"}`} style={{ maxWidth: 150 }}>
+          // two columns: the label (left) + the %/amount stacked (right). "Total"
+          // + grand total when nothing is selected; the tapped node's name + its
+          // figures (green) when selected.
+          <div className="flex items-center gap-gt-8 leading-none" style={sankeySel ? { color: "var(--positive-primary)" } : undefined}>
+            <span className={`truncate font-gt-display text-gt-xs font-extrabold ${sankeySel ? "" : "text-gt-ink-3"}`} style={{ maxWidth: 120 }}>
               {sankeySel ? (sankeySel.kind === "node" ? sankeySel.label : `${sankeySel.sourceLabel ?? ""} › ${sankeySel.targetLabel ?? ""}`) : "Total"}
             </span>
-            <span className={`font-gt-display text-gt-md font-extrabold ${sankeySel ? "" : "text-gt-ink"}`}>{sankeySel ? sankeySel.percent : "100%"}</span>
-            <span className={`font-gt-display text-gt-sm font-extrabold ${sankeySel ? "" : "text-gt-ink-2"}`}>{sankeySel ? sankeySel.amountK : clpK(TOTAL_SPEND)}</span>
+            <span className="flex shrink-0 flex-col items-end gap-gt-1">
+              <span className={`font-gt-display text-gt-md font-extrabold ${sankeySel ? "" : "text-gt-ink"}`}>{sankeySel ? sankeySel.percent : "100%"}</span>
+              <span className={`font-gt-display text-gt-sm font-extrabold ${sankeySel ? "" : "text-gt-ink-2"}`}>{sankeySel ? sankeySel.amountK : clpK(TOTAL_SPEND)}</span>
+            </span>
           </div>
         ) : (
           <CountModeToggle value={countMode} onChange={setCountMode} />

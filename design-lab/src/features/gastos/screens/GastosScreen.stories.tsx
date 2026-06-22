@@ -4,13 +4,14 @@ import { AppSurface, platformFromGlobals, type Platform } from "@design-system/o
 import { AppScaffold } from "@design-system/organisms/AppScaffold";
 import { HeaderAction } from "@design-system/organisms/Nav";
 import { ScanModeChooserScreen } from "@features/scan/screens/ScanModeChooserScreen";
-import { GastosScreen, type GastosView } from "./GastosScreen";
+import { GastosScreen } from "./GastosScreen";
+import { SPEND_REPS, type SpendRepresentation } from "../components/TendenciasRepresentations";
 
 /**
  * Features/Gastos/Screens/GastosScreen — the analytics tab inside AppScaffold.
- * Tendencias / Reportes are SUBSECTIONS: switched from the header (icon buttons
- * next to the profile, Gustify pattern); the active subsection is the title and
- * drives the content. The dimension bar + draggable period bar live in-screen.
+ * Gastos shows the three spending representations; Dona / Mapa / Flujo are
+ * switched from the HEADER (diagram icon buttons next to the profile, Gustify
+ * pattern). The dimension picker + draggable period bar live in-screen.
  */
 const meta: Meta = {
   title: "Features/Gastos/Screens/GastosScreen",
@@ -20,25 +21,21 @@ const meta: Meta = {
 export default meta;
 type Story = StoryObj;
 
-const SUBSECTIONS: { id: GastosView; icon: string; label: string }[] = [
-  { id: "tendencias", icon: "nav-trends", label: "Tendencias" },
-  { id: "reportes", icon: "nav-reports", label: "Reportes" },
-];
-
 function GastosInShell({ platform }: { platform: Platform }) {
   const [scanOpen, setScanOpen] = useState(false);
-  const [view, setView] = useState<GastosView>("tendencias");
-  const title = SUBSECTIONS.find((s) => s.id === view)?.label ?? "Gastos";
+  const [rep, setRep] = useState<SpendRepresentation>("dona");
 
-  const switcher = SUBSECTIONS.map((s) => (
-    <HeaderAction key={s.id} icon={s.icon} label={s.label} active={view === s.id} onClick={() => setView(s.id)} />
+  // the diagram switcher (donut / treemap / sankey) lives in the header, next to
+  // the profile avatar — the slot the old Tendencias/Reportes switcher used.
+  const switcher = SPEND_REPS.map((r) => (
+    <HeaderAction key={r.id} icon={r.icon} label={r.label} active={rep === r.id} onClick={() => setRep(r.id)} />
   ));
 
   return (
     <AppScaffold
       platform={platform}
       active="gastos"
-      title={title}
+      title="Gastos"
       headerActions={switcher}
       onScan={() => setScanOpen(true)}
       overlay={
@@ -52,7 +49,7 @@ function GastosInShell({ platform }: { platform: Platform }) {
         ) : undefined
       }
     >
-      <GastosScreen platform={platform} view={view} />
+      <GastosScreen platform={platform} rep={rep} />
     </AppScaffold>
   );
 }

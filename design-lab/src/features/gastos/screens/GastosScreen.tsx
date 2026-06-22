@@ -1,32 +1,29 @@
 import { useRef, useState } from "react";
 import { SegmentedToggle } from "@design-system/atoms/SegmentedToggle";
-import { ReportDetail } from "@design-system/molecules/ReportDetail";
 import type { Platform } from "@design-system/organisms/AppSurface";
-import { TendenciasRepresentations } from "../components/TendenciasRepresentations";
-import { TIMEFRAME_REPORTS, REPORT_PERIOD_META, type ReportPeriod } from "@lib/reportTimeframeFixtures";
+import { TendenciasRepresentations, type SpendRepresentation } from "../components/TendenciasRepresentations";
+import { REPORT_PERIOD_META, type ReportPeriod } from "@lib/reportTimeframeFixtures";
 import { PERIOD_WEEKS, periodDimLabel, stepPeriod, type PeriodDimId } from "@lib/browseFixtures";
 
 /**
  * GastosScreen (Phase 9) — the spending-analytics tab, content-only for
- * AppScaffold. The Tendencias / Reportes subsection is now driven from the
- * HEADER (subsection switcher next to the profile, Gustify pattern) and arrives
- * as the controlled `view` prop; the active subsection is also the header title.
+ * AppScaffold. Shows the three spending representations (Dona / Mapa / Flujo);
+ * the active one is chosen from the HEADER (diagram icon-buttons next to the
+ * profile) and arrives as the controlled `rep` prop.
  *
- * The content is a tall dimension toggle (Semanal / Mensual / Trimestral /
- * Anual) + a draggable period bar:
+ * Above the diagram sits a compact period row: an S/M/T/A dimension picker + a
+ * draggable period navigator:
  *   - ‹ › steps WITHIN the dimension (prev/next month, quarter, …)
  *   - drag DOWN → finer dimension (toward Semanal); drag UP → coarser (toward
  *     Anual); clamped at both ends (Anual has no coarser, Semanal no finer).
  *
- * Tendencias = SpendingDonut + TrendList; Reportes = the density-escalating
- * ReportDetail. One column, capped + centered on desktop.
+ * One column, capped + centered on desktop. (Reportes moved out to the Historial
+ * tab — Gastos is now graphics-only.)
  */
-export type GastosView = "tendencias" | "reportes";
-
 export interface GastosScreenProps {
   platform?: Platform;
-  /** active subsection — controlled by the header switcher in the host. */
-  view: GastosView;
+  /** active spending representation — controlled by the header switcher in the host. */
+  rep: SpendRepresentation;
 }
 
 /** report timeframe → the period-navigator grain. */
@@ -171,7 +168,7 @@ function DraggablePeriodBar({
   );
 }
 
-export function GastosScreen({ platform = "mobile", view }: GastosScreenProps) {
+export function GastosScreen({ platform = "mobile", rep }: GastosScreenProps) {
   const [dimension, setDimension] = useState<ReportPeriod>("monthly");
   const [anchorIndex, setAnchorIndex] = useState(PERIOD_WEEKS.length - 1);
   const contentMax = platform === "desktop" ? "60rem" : undefined;
@@ -190,7 +187,7 @@ export function GastosScreen({ platform = "mobile", view }: GastosScreenProps) {
   const coarser = dimIndex < REPORT_PERIOD_META.length - 1 ? REPORT_PERIOD_META[dimIndex + 1] : null;
 
   return (
-    <div className={`mx-auto flex w-full flex-col gap-gt-12 pt-gt-4 ${view === "tendencias" ? "h-full" : ""}`} style={{ maxWidth: contentMax }}>
+    <div className="mx-auto flex h-full w-full flex-col gap-gt-12 pt-gt-4" style={{ maxWidth: contentMax }}>
       {/* one compact row, two columns: the S/M/T/A dimension picker (left) +
           the period navigator (right), same height. The picker selects the
           dimension; the navigator's ↑ ↓ drag changes it too, ← → steps the period. */}
@@ -210,13 +207,7 @@ export function GastosScreen({ platform = "mobile", view }: GastosScreenProps) {
         />
       </div>
 
-      {view === "tendencias" ? (
-        <TendenciasRepresentations />
-      ) : (
-        <div className="pt-gt-2">
-          <ReportDetail report={TIMEFRAME_REPORTS[dimension]} />
-        </div>
-      )}
+      <TendenciasRepresentations rep={rep} />
     </div>
   );
 }
