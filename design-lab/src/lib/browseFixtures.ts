@@ -206,13 +206,19 @@ export function parsePeriodToken(token: string): { dim: PeriodDimId; index: numb
   return { dim: dim as PeriodDimId, index };
 }
 
-/** The display label for a dimension at a given anchor week. */
-export function periodDimLabel(dim: PeriodDimId, w: PeriodWeek): string {
+/**
+ * The display label for a dimension at a given anchor week. `compact` (opt-in)
+ * narrows the wide grains so a tight navigator fits: week drops the "Sem N ·"
+ * prefix to just the date range ("15 jun–21 jun"); month shows the 3-letter
+ * month + year ("Jun 2026"). Quarter + year are already short, so unchanged.
+ * Default (false) keeps the full labels FilterFacets uses.
+ */
+export function periodDimLabel(dim: PeriodDimId, w: PeriodWeek, compact = false): string {
   switch (dim) {
     case "year": return `${w.year}`;
     case "quarter": return `Q${w.quarter} ${w.year}`;
-    case "month": return `${w.monthFull} ${w.year}`;
-    case "week": return `Sem ${w.week} · ${w.range}`;
+    case "month": return compact ? `${w.monthFull.slice(0, 3)} ${w.year}` : `${w.monthFull} ${w.year}`;
+    case "week": return compact ? w.range : `Sem ${w.week} · ${w.range}`;
   }
 }
 

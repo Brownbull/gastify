@@ -8,7 +8,6 @@ import { LevelRangeBar } from "@design-system/molecules/LevelRangeBar";
 import { CountModeToggle } from "@design-system/molecules/CountModeToggle";
 import { SankeyChart, type SankeySelection } from "@design-system/molecules/SankeyChart";
 import { Treemap } from "@design-system/organisms/Treemap";
-import type { Platform } from "@design-system/organisms/AppSurface";
 import { getCategoryToken } from "@lib/categoryTokens";
 import { OTROS_GREY, type DiagramColorFor } from "@lib/diagramSkin";
 import { groupByThreshold, type GroupAggregate } from "@lib/categoryGrouping";
@@ -16,22 +15,23 @@ import { useCountUp } from "@lib/useCountUp";
 import { clpK, SEGMENTS, TOTAL_SPEND, drillChildren, sankeyForLevels, pressLevel, type TaxLevel, type CountMode, type SankeyLevel, type LevelRange, type SegmentDatum, type TreemapFullDatum } from "@lib/analyticsFixtures";
 
 /**
- * SPIKE — Tendencias spending representations. Three views of the same spend
+ * TendenciasRepresentations (Gastos) — the Tendencias spend shown three ways
  * behind a representation switcher, with a SHARED control row beneath it (level
- * navigator left, transactions/items count toggle right).
+ * navigator left, transactions/items count toggle right). Promoted from the
+ * design-lab spike into the production Gastos → Tendencias subsection.
  *
  *   Dona  → bare ring + per-category detail legend, colored by each category's
- *           token. Rows DRILL into the real taxonomy (DRILL_TREE: rubro → giro →
- *           familia → categoría) via the › button (almost every rubro drills);
- *           a back button climbs up.
- *   Mapa  → Treemap of the chosen level.
- *   Flujo → SankeyChart flow window derived from the level.
+ *           token. Rows DRILL into the real taxonomy (rubro → giro → familia →
+ *           categoría) via the › button; a back button climbs up.
+ *   Mapa  → Treemap of the chosen level (cells drill on click).
+ *   Flujo → SankeyChart flow window derived from the level RANGE.
  *
- * Both Dona + Mapa use progressive disclosure (legacy applyTreemapGrouping): show
- * the >10% categories + the top one below + a "Más" fold for the tail, with
- * Mostrar más / menos to reveal/fold one at a time.
+ * Dona + Mapa use progressive disclosure (legacy applyTreemapGrouping): show the
+ * >10% categories + the top one below + a "Más" fold for the tail, with Mostrar
+ * más / menos to reveal/fold one at a time.
  *
- * Exploratory: not yet wired into the production GastosScreen Tendencias.
+ * Layout: fills its parent (flex-1, min-h-0) so Mapa/Flujo adapt to the device
+ * frame. GastosScreen owns the outer column, max-width, and period chrome.
  */
 export type SpendRepresentation = "dona" | "mapa" | "flujo";
 
@@ -67,11 +67,7 @@ function ShowMore({ canExpand, canCollapse, otroCount, onExpand, onCollapse }: {
   );
 }
 
-export interface TendenciasRepresentationsProps {
-  platform?: Platform;
-}
-
-export function TendenciasRepresentations({ platform = "mobile" }: TendenciasRepresentationsProps) {
+export function TendenciasRepresentations() {
   const [rep, setRepState] = useState<SpendRepresentation>("dona");
   // ONE drill path shared by the donut + treemap (two views of the same data).
   const [donutPath, setDonutPath] = useState<{ id: string; label: string }[]>([]);
@@ -81,7 +77,6 @@ export function TendenciasRepresentations({ platform = "mobile" }: TendenciasRep
   const [animKey, setAnimKey] = useState(0); // bumped on every nav to replay the staggered entrance
   const [range, setRange] = useState<LevelRange>({ lo: 1, hi: 2 }); // sankey level range (≥2 levels)
   const [sankeySel, setSankeySel] = useState<SankeySelection | null>(null); // sankey node/link detail
-  const contentMax = platform === "desktop" ? "60rem" : undefined;
   const bump = () => setAnimKey((k) => k + 1);
 
   const canDrill = (id: string) => id !== "otros" && drillChildren(id) != null;
@@ -131,7 +126,7 @@ export function TendenciasRepresentations({ platform = "mobile" }: TendenciasRep
   const animTotal = useCountUp(donutTotal, { animKey });
 
   return (
-    <div className="mx-auto flex h-full w-full flex-col gap-gt-12 pt-gt-4" style={{ maxWidth: contentMax }}>
+    <div className="flex min-h-0 w-full flex-1 flex-col gap-gt-12">
       <SegmentedToggle segments={REP_SEGMENTS} value={rep} onChange={setRep} fill flush />
 
       {/* shared controls. Flujo: a level-RANGE bar (≥2 levels, expand to 3–4) +
