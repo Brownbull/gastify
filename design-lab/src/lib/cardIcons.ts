@@ -56,10 +56,6 @@ export const CARD_ICONS: CardIcon[] = [
   { id: "redcompra", label: "Redcompra (débito)", icon: "card-teal", color: "#0d9488", kind: "network" },
 ];
 
-export function getCardIcon(id: string): CardIcon | undefined {
-  return CARD_ICONS.find((c) => c.id === id);
-}
-
 /** All distinct color glyphs available (for the assets-page swatch grid). */
 export const CARD_COLOR_GLYPHS = [
   "card-green", "card-blue", "card-red", "card-navy", "card-orange",

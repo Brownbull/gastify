@@ -8,22 +8,6 @@
  * Amounts are stored in MINOR units (like the app); helpers format per currency.
  */
 
-// ── Card aliases (tag which card a statement belongs to) ────────────────
-export interface CardAlias {
-  id: string;
-  name: string;
-  /** fin-* pixel icon. */
-  icon: string;
-  /** accent color hex (data, applied inline). */
-  color: string;
-}
-
-export const CARD_ALIASES: CardAlias[] = [
-  { id: "falabella", name: "CMR Falabella", icon: "fin-credit-card", color: "#16a34a" },
-  { id: "bci", name: "Visa BCI", icon: "fin-credit-card", color: "#1d4ed8" },
-  { id: "santander", name: "Mastercard Santander", icon: "fin-credit-card", color: "#dc2626" },
-];
-
 // ── Processing stages (mirrors statementStore StatementPhase) ───────────
 export type StatementPhase =
   | "uploading"
@@ -100,15 +84,6 @@ export interface ReconcileItem {
   candidates?: ReceiptTxn[];
 }
 
-export interface ReconcileRun {
-  coverageRatio: number; // 0–1 of statement amount covered by matches
-  matchedCount: number;
-  statementOnlyCount: number;
-  receiptOnlyCount: number;
-  ambiguousCount: number;
-  failedCount: number;
-}
-
 const line = (id: string, date: string, description: string, amountMinor: number, opts: { installment?: string; storeIcon?: string; warnings?: string[]; rawText?: string } = {}): StatementLine =>
   ({ id, date, description, amountMinor, currency: "CLP", rowType: "charge", storeIcon: "store-other", ...opts });
 const rtxn = (id: string, date: string, merchant: string, totalMinor: number, category: string, storeIcon: string): ReceiptTxn =>
@@ -150,15 +125,6 @@ export const SAMPLE_RECONCILE: ReconcileItem[] = [
       rawText: "*** 4523 ··· TEF 0x9F2 ···· $—,—— 31/0",
     }) },
 ];
-
-export const SAMPLE_RUN: ReconcileRun = {
-  coverageRatio: 0.82,
-  matchedCount: 2,
-  statementOnlyCount: 2,
-  receiptOnlyCount: 1,
-  ambiguousCount: 1,
-  failedCount: 1,
-};
 
 // ── Confirm step (the staged outcome the user commits) ──────────────────
 /** what a resolved statement line becomes on submit. */

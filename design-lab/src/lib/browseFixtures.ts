@@ -7,40 +7,6 @@
 
 import { clp, type TxnItem } from "./transactionFixtures";
 
-// ── Filter types ───────────────────────────────────────────────────────
-
-export type SortKey = "date" | "total" | "merchant";
-export type SortDir = "desc" | "asc";
-
-export interface BrowseFilters {
-  query: string;
-  category: string | null;
-  /** year-month string "2026-06" or null = all. */
-  period: string | null;
-  location: string | null;
-  sort: SortKey;
-  sortDir: SortDir;
-}
-
-export const DEFAULT_FILTERS: BrowseFilters = {
-  query: "",
-  category: null,
-  period: null,
-  location: null,
-  sort: "date",
-  sortDir: "desc",
-};
-
-export function activeFilterCount(f: BrowseFilters): number {
-  let n = 0;
-  if (f.query) n++;
-  if (f.category) n++;
-  if (f.period) n++;
-  if (f.location) n++;
-  if (f.sort !== "date" || f.sortDir !== "desc") n++;
-  return n;
-}
-
 // ── Filter facet definitions ───────────────────────────────────────────
 
 export interface FilterFacetOption {

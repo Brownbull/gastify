@@ -52,39 +52,6 @@ export const COUNT_MODES: CountModeDef[] = [
 /** Sample period labels for the stepper. */
 export const PERIODS = ["Ene '26", "Feb '26", "Mar '26", "Abr '26", "May '26", "Jun '26"];
 
-export interface TreemapDatum {
-  /** category id (resolved via getCategoryToken). */
-  id: string;
-  pct: number;
-  /** value per count mode. */
-  txns: number;
-  items: number;
-}
-
-/** Sample treemap cells, keyed by whether we're at a store level (L1/L2) or item level (L3/L4). */
-export const TREEMAP: Record<"store" | "item", TreemapDatum[]> = {
-  store: [
-    { id: "transporte-vehiculo", pct: 49, txns: 5, items: 8 },
-    { id: "supermercados", pct: 35, txns: 15, items: 87 },
-    { id: "otros", pct: 9, txns: 4, items: 12 },
-    { id: "tiendas-especializadas", pct: 7, txns: 2, items: 5 },
-  ],
-  item: [
-    { id: "food-packaged", pct: 42, txns: 12, items: 64 },
-    { id: "food-fresh", pct: 28, txns: 8, items: 35 },
-    { id: "servicios-cargos", pct: 18, txns: 6, items: 14 },
-    { id: "hogar", pct: 12, txns: 3, items: 8 },
-  ],
-};
-
-export function treemapFor(level: TaxLevel): TreemapDatum[] {
-  return level === "L1" || level === "L2" ? TREEMAP.store : TREEMAP.item;
-}
-
-export function countValue(d: TreemapDatum, mode: CountMode): number {
-  return mode === "transactions" ? d.txns : d.items;
-}
-
 /**
  * Full treemap dataset (DM-13) — adds the CLP `value` the squarified algorithm
  * needs for area, plus count + itemCount + percent, for a realistic 8-category

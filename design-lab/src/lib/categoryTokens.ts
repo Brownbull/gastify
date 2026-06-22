@@ -181,11 +181,6 @@ export const CATEGORY_TOKENS: Record<string, CategoryToken> = Object.fromEntries
   [...RUBROS, ...GIROS, ...FAMILIAS, ...CATEGORIAS].map((t) => [t.id, t]),
 );
 
-/** All tokens at one taxonomy level. */
-export function categoriesByLevel(level: CategoryLevel): CategoryToken[] {
-  return Object.values(CATEGORY_TOKENS).filter((t) => t.level === level);
-}
-
 /** Direct children of a category (rubro→giros, familia→categorías). */
 export function childrenOf(parentId: string): CategoryToken[] {
   return Object.values(CATEGORY_TOKENS).filter((t) => t.parent === parentId);

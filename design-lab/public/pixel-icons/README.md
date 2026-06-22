@@ -13,5 +13,6 @@ credit/rubro/store/item/familia) were regenerated as ONE coherent warm pixel-art
 family via the direct PixelLab SDK (design-lab/scripts/generate-icons.cjs;
 manifest in docs/rebuild/ux/ICON-STYLE-SPEC.md). nav-profile is now a real
 person-bust icon (no longer a mascot alias). Mascots + a few legacy loose files
-preserved. Pre-regen originals backed up at public/pixel-icons-backup-pre-regen/.
+preserved. Pre-regen originals are recoverable from git history (commit 9f0dc39,
+before the cleanup that removed the pixel-icons-backup-pre-regen/ dir).
 To redo a single icon: add it to a 1-line manifest and re-run the generator.
