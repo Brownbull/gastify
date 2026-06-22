@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Sections 4 & 5 · visual examples</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Baloo+2:wght@500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#FFFDF5; --surface:#FFFFFF; --primary:#8B5CF6; --primary-light:#EDE9FE; --primary-hover:#7C3AED;
+    --accent:#FBBF24; --ink:#1E293B; --ink2:#64748B; --ink3:#94A3B8;
+    --line:#E2E8F0; --line-strong:#1E293B;
+    --pos:#10B981; --posbg:#D1FAE5; --neg:#EF4444; --negbg:#FEE2E2;
+    --info:#3B82F6; --infobg:#DBEAFE; --warn:#FBBF24; --warnbg:#FEF3C7;
+    --bg3:#F1F5F9;
+    --display:'Baloo 2','Outfit',system-ui,sans-serif;
+    --body:'Outfit',system-ui,sans-serif; --alt:'Space Grotesk',system-ui,sans-serif;
+    --sh-xs:1px 1px 0 0 var(--ink); --sh-sm:2px 2px 0 0 var(--ink); --sh-md:4px 4px 0 0 var(--ink);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);line-height:1.5;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1040px;margin:0 auto;padding:32px 20px 80px}
+  h1{font-family:var(--display);font-weight:800;font-size:32px;margin:0 0 4px}
+  .sub{color:var(--ink2);font-weight:600;margin:0 0 28px}
+  h2{font-family:var(--display);font-weight:800;font-size:23px;margin:38px 0 4px;padding-top:18px;border-top:2px solid var(--line)}
+  .lead{color:var(--ink2);font-weight:500;margin:0 0 16px;font-size:15px}
+  .change{border:2px solid var(--line-strong);border-radius:16px;background:var(--surface);box-shadow:var(--sh-md);padding:20px;margin:0 0 26px}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:8px 0 0}
+  @media(max-width:680px){.grid{grid-template-columns:1fr}}
+  .panel{border:2px solid var(--line);border-radius:12px;padding:16px;background:var(--bg);min-height:120px}
+  .panel .plabel{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--ink3);margin-bottom:12px}
+  .panel.now .plabel{color:var(--neg)}
+  .panel.next .plabel{color:var(--pos)}
+  .why{margin:14px 0 0;padding:12px 14px;background:var(--bg3);border-radius:10px;font-size:14px}
+  .why b{font-weight:800}
+  .trade{margin:8px 0 0;font-size:13px;color:var(--ink2)}
+  .trade b{color:var(--ink);font-weight:800}
+  .q{margin:10px 0 0;font-size:14px;font-weight:800;color:var(--primary-hover)}
+  code{background:var(--bg3);border-radius:4px;padding:1px 5px;font-size:12px;font-family:var(--alt)}
+
+  /* ---------- mockup primitives ---------- */
+  /* framed icon tile */
+  .tile{height:44px;width:44px;display:grid;place-items:center;border-radius:8px;border:2px solid var(--line-strong);background:var(--bg3);box-shadow:var(--sh-xs);font-size:26px;line-height:1}
+  .tile.big{height:64px;width:64px;border-radius:12px;font-size:36px}
+  .tile.bare{border:none;box-shadow:none;background:none}
+  /* rows */
+  .roww{display:grid;grid-template-columns:44px minmax(0,1fr) auto;align-items:center;gap:10px;padding:10px;background:var(--surface)}
+  .roww+.roww{border-top:1px solid var(--line)}
+  .nm{font-family:var(--display);font-weight:800;font-size:14px;line-height:1.15;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .mt{font-size:12px;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .mt.bold{font-weight:700;color:var(--ink)}
+  .mt.med{font-weight:500;color:var(--ink2)}
+  .pill{display:inline-flex;align-items:center;border:2px solid var(--line-strong);border-radius:999px;background:var(--surface);padding:4px 8px;font-weight:800;font-size:12px;box-shadow:var(--sh-xs);white-space:nowrap}
+  /* status card */
+  .status{display:flex;gap:12px;border:2px solid var(--line-strong);border-radius:16px;padding:14px;box-shadow:var(--sh-sm)}
+  .status .disc{height:36px;width:36px;flex:none;display:grid;place-items:center;border-radius:999px;border:2px solid var(--line-strong);font-weight:800;color:#fff;font-size:18px}
+  .status h4{font-family:var(--display);font-weight:800;font-size:14px;margin:0 0 2px}
+  .status p{margin:0;font-size:12px;font-weight:500;color:var(--ink2);line-height:1.5}
+  /* the "current" way: a plain badge */
+  .oldnotice{border:2px solid var(--line-strong);border-radius:12px;background:var(--warnbg);padding:10px 12px;font-weight:700;font-size:13px;box-shadow:var(--sh-sm)}
+  /* empty state */
+  .empty{display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px;padding:24px;border:2px dashed var(--line-strong);border-radius:16px}
+  .empty.now{gap:6px}
+  .empty .et{font-family:var(--display);font-weight:800;font-size:18px}
+  .empty .eb{font-size:13px;color:var(--ink2);font-weight:500;max-width:240px}
+  .empty .ebtn{margin-top:4px;display:inline-flex;gap:6px;align-items:center;border:2px solid var(--line-strong);border-radius:10px;background:var(--primary);color:#fff;font-weight:800;font-size:13px;padding:8px 14px;box-shadow:var(--sh-sm)}
+  .empty .actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+  .ebtn2{display:inline-flex;gap:6px;align-items:center;border:2px solid var(--line-strong);border-radius:10px;background:var(--surface);color:var(--ink);font-weight:800;font-size:13px;padding:8px 14px;box-shadow:var(--sh-xs)}
+  /* selection-depth chips */
+  .chiprow{display:flex;gap:10px;flex-wrap:wrap}
+  .selchip{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:7px 14px;font-weight:800;font-size:13px;font-family:var(--display)}
+  /* current: both look similar (soft) */
+  .selchip.now-off{border:2px solid var(--line);background:var(--surface);color:var(--ink2)}
+  .selchip.now-on{border:2px solid var(--line);background:var(--accent);color:var(--ink)}
+  /* proposed: depth difference */
+  .selchip.dep-off{border:2px solid var(--line);background:var(--surface);color:var(--ink2)}
+  .selchip.dep-on{border:2px solid var(--line-strong);background:var(--accent);color:var(--ink);box-shadow:var(--sh-sm)}
+  .note{font-size:12px;color:var(--ink3);margin-top:8px}
+
+  /* typeface samples */
+  .typed{display:flex;flex-direction:column;gap:6px}
+  .bignum{font-weight:800;font-size:34px;line-height:1}
+  .baloo{font-family:var(--display)}
+  .outfit{font-family:var(--body)}
+  .grotesk{font-family:var(--alt)}
+  .tlabel{font-size:11px;font-weight:800;color:var(--ink3);text-transform:uppercase}
+  /* radius samples */
+  .radrow{display:flex;gap:14px;align-items:flex-end;flex-wrap:wrap}
+  .radbox{width:96px;border:2px solid var(--line-strong);background:var(--surface);box-shadow:var(--sh-sm);padding:14px 10px;text-align:center;font-weight:800;font-size:12px}
+  .legend{font-size:13px;color:var(--ink2);margin:0 0 24px;padding:10px 14px;border:2px dashed var(--line-strong);border-radius:10px}
+  .legend b{color:var(--ink)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Sections 4 & 5 · what they actually look like</h1>
+  <p class="sub">Visual before/after for the “smaller adopts” and the deferred conventions, so you can decide each.</p>
+  <div class="legend"><b>Each block:</b> <span style="color:var(--neg);font-weight:800">CURRENT/PLAIN</span> vs <span style="color:var(--pos);font-weight:800">PROPOSED</span>, then a one-line question. Nothing built yet.</div>
+
+  <!-- ============ SECTION 4 ============ -->
+  <h2>4 · Smaller adopts</h2>
+
+  <!-- 4a IconTile -->
+  <div class="change">
+    <h3 style="font-family:var(--display);margin:0 0 2px">4a · Framed IconTile</h3>
+    <p class="lead">A reusable “icon in a bordered well”. Today our icons float bare; the tile gives them a consistent frame everywhere they appear.</p>
+    <div class="grid">
+      <div class="panel now"><div class="plabel">Now — bare icon</div>
+        <div style="display:flex;gap:18px;align-items:center">
+          <span style="font-size:26px">🥖</span><span style="font-size:26px">🍗</span><span style="font-size:36px">📦</span>
+        </div>
+        <div class="note">floats, no frame — alignment drifts between rows</div>
+      </div>
+      <div class="panel next"><div class="plabel">Proposed — framed tile</div>
+        <div style="display:flex;gap:14px;align-items:center">
+          <span class="tile">🥖</span><span class="tile">🍗</span><span class="tile big">📦</span>
+        </div>
+        <div class="note">44px (rows) / 64px (empty states) — same well everywhere</div>
+      </div>
+    </div>
+    <div class="why"><b>Where it shows up:</b> every ItemRow icon, the EmptyState hero icon, and StatusCard. One recipe → consistent look.</div>
+    <p class="q">→ Adopt the framed tile? (it’s already part of the approved ItemRow)</p>
+  </div>
+
+  <!-- 4b medium meta -->
+  <div class="change">
+    <h3 style="font-family:var(--display);margin:0 0 2px">4b · Medium-muted meta line</h3>
+    <p class="lead">Right now every line is bold. Dropping the secondary line to medium-grey makes the row breathe and the name stand out.</p>
+    <div class="grid">
+      <div class="panel now"><div class="plabel">Now — all bold</div>
+        <div style="border:2px solid var(--line-strong);border-radius:12px;overflow:hidden;box-shadow:var(--sh-sm)">
+          <div class="roww"><span class="tile">🥖</span><span style="min-width:0"><div class="nm">Pan amasado</div><div class="mt bold">Pan y Repostería · $1.600 ×3</div></span><span class="pill">$4.800</span></div>
+        </div>
+        <div class="note">name and meta compete — both bold</div>
+      </div>
+      <div class="panel next"><div class="plabel">Proposed — medium meta</div>
+        <div style="border:2px solid var(--line-strong);border-radius:12px;overflow:hidden;box-shadow:var(--sh-sm)">
+          <div class="roww"><span class="tile">🥖</span><span style="min-width:0"><div class="nm">Pan amasado</div><div class="mt med">Pan y Repostería · $1.600 ×3</div></span><span class="pill">$4.800</span></div>
+        </div>
+        <div class="note">name leads, meta recedes — easier scan</div>
+      </div>
+    </div>
+    <p class="q">→ Use medium-muted for secondary/meta lines app-wide?</p>
+  </div>
+
+  <!-- 4c StatusCard -->
+  <div class="change">
+    <h3 style="font-family:var(--display);margin:0 0 2px">4c · StatusCard / Notice</h3>
+    <p class="lead">An inline alert card (over-budget, scan warning, tip). Today we’d use a plain colored Badge/box; the StatusCard adds a bordered icon disc + readable body.</p>
+    <div class="grid">
+      <div class="panel now"><div class="plabel">Now — plain colored box</div>
+        <div class="oldnotice">⚠ Te pasaste del presupuesto de Supermercado este mes.</div>
+        <div class="note">one block of bold text, no hierarchy</div>
+      </div>
+      <div class="panel next"><div class="plabel">Proposed — StatusCard</div>
+        <div class="status" style="background:var(--warnbg)">
+          <span class="disc" style="background:var(--warn);color:var(--ink)">⚠</span>
+          <div><h4>Sobre el presupuesto</h4><p>Gastaste $182k en Supermercado — 14% más que tu meta mensual.</p></div>
+        </div>
+        <div class="note">icon disc + title + readable medium body</div>
+      </div>
+    </div>
+    <div class="why"><b>Tones:</b> info / success / warning / error — tinted surface + solid bordered disc.</div>
+    <p class="q">→ Build a StatusCard molecule? (used for budget/scan/sync notices)</p>
+  </div>
+
+  <!-- 4d EmptyState -->
+  <div class="change">
+    <h3 style="font-family:var(--display);margin:0 0 2px">4d · EmptyState polish</h3>
+    <p class="lead">We already have an EmptyState; the polish is a framed hero icon + (on wider screens) actions side-by-side instead of stacked.</p>
+    <div class="grid">
+      <div class="panel now"><div class="plabel">Now</div>
+        <div class="empty now">
+          <span style="font-size:44px">🧾</span>
+          <div class="et">Sin transacciones</div>
+          <div class="eb">Escanea tu primera boleta.</div>
+          <span class="ebtn">＋ Escanear</span>
+        </div>
+      </div>
+      <div class="panel next"><div class="plabel">Proposed</div>
+        <div class="empty">
+          <span class="tile big">🧾</span>
+          <div class="et">Sin transacciones</div>
+          <div class="eb">Escanea tu primera boleta para ver tus gastos aquí.</div>
+          <div class="actions"><span class="ebtn">＋ Escanear</span><span class="ebtn2">Ingresar manual</span></div>
+        </div>
+      </div>
+    </div>
+    <p class="q">→ Apply the framed-hero + side-by-side actions to EmptyState?</p>
+  </div>
+
+  <!-- 4e selection depth -->
+  <div class="change">
+    <h3 style="font-family:var(--display);margin:0 0 2px">4e · “Selection = depth” rule</h3>
+    <p class="lead">A consistent rule for any pick-one control: <b>unselected = flat & soft</b> (recedes), <b>selected = ink border + little shadow</b> (pops). Today selection is mostly just a fill change.</p>
+    <div class="grid">
+      <div class="panel now"><div class="plabel">Now — fill only</div>
+        <div class="chiprow">
+          <span class="selchip now-off">Hoy</span>
+          <span class="selchip now-on">Semana</span>
+          <span class="selchip now-off">Mes</span>
+        </div>
+        <div class="note">selected just changes color — soft border on both</div>
+      </div>
+      <div class="panel next"><div class="plabel">Proposed — depth</div>
+        <div class="chiprow">
+          <span class="selchip dep-off">Hoy</span>
+          <span class="selchip dep-on">Semana</span>
+          <span class="selchip dep-off">Mes</span>
+        </div>
+        <div class="note">selected gains ink border + 2px hard shadow → clearly “on”</div>
+      </div>
+    </div>
+    <div class="why"><b>Where:</b> filter chips, tabs, option grids, segmented controls — one rule so “what’s selected” is always obvious.</div>
+    <p class="q">→ Codify selection-depth across selectable controls?</p>
+  </div>
+
+  <!-- ============ SECTION 5 ============ -->
+  <h2>5 · Conventions to lock (visual impact)</h2>
+
+  <!-- 5a typeface -->
+  <div class="change">
+    <h3 style="font-family:var(--display);margin:0 0 2px">5a · Display typeface — Baloo vs Outfit</h3>
+    <p class="lead">Our big numbers/titles currently use <b>Baloo 2</b> (rounded, friendly). Gustify uses <b>Outfit-extrabold</b> everywhere (cleaner, more neutral). Same content, both fonts:</p>
+    <div class="grid">
+      <div class="panel now" style="border-color:var(--line)"><div class="plabel" style="color:var(--ink3)">Baloo 2 (current)</div>
+        <div class="typed">
+          <span class="tlabel">Total del mes</span>
+          <span class="bignum baloo">$384.520</span>
+          <span class="nm baloo" style="font-size:18px">Supermercado Líder</span>
+          <span class="selchip dep-on baloo" style="align-self:flex-start">RESTAURANTE</span>
+        </div>
+        <div class="note">rounded, playful, “app-y”</div>
+      </div>
+      <div class="panel next" style="border-color:var(--line)"><div class="plabel" style="color:var(--ink3)">Outfit-extrabold (Gustify parity)</div>
+        <div class="typed">
+          <span class="tlabel">Total del mes</span>
+          <span class="bignum outfit">$384.520</span>
+          <span class="nm outfit" style="font-size:18px">Supermercado Líder</span>
+          <span class="selchip dep-on outfit" style="align-self:flex-start;font-family:var(--body)">RESTAURANTE</span>
+        </div>
+        <div class="note">cleaner, more neutral / “fintech”</div>
+      </div>
+    </div>
+    <div class="why"><b>Impact:</b> affects every title, big number, chip, and label app-wide. Baloo = gastify keeps a distinct friendly identity; Outfit = exact Gustify match, more sober.</div>
+    <p class="q">→ Keep Baloo 2, or switch to Outfit everywhere? (or decide per-component later)</p>
+  </div>
+
+  <!-- 5b radius -->
+  <div class="change">
+    <h3 style="font-family:var(--display);margin:0 0 2px">5b · Corner radius — tight vs soft</h3>
+    <p class="lead">Cards/containers currently use a tighter radius (12px). Gustify uses softer corners (16–20px). Same card, three radii:</p>
+    <div class="grid">
+      <div class="panel now" style="border-color:var(--line)"><div class="plabel" style="color:var(--ink3)">Current (tight)</div>
+        <div class="radrow">
+          <div class="radbox" style="border-radius:8px">8px<br><span style="font-weight:500;color:var(--ink2)">controls</span></div>
+          <div class="radbox" style="border-radius:12px">12px<br><span style="font-weight:500;color:var(--ink2)">cards</span></div>
+        </div>
+        <div class="note">crisper, more geometric</div>
+      </div>
+      <div class="panel next" style="border-color:var(--line)"><div class="plabel" style="color:var(--ink3)">Gustify (soft)</div>
+        <div class="radrow">
+          <div class="radbox" style="border-radius:12px">12px<br><span style="font-weight:500;color:var(--ink2)">controls</span></div>
+          <div class="radbox" style="border-radius:20px">20px<br><span style="font-weight:500;color:var(--ink2)">cards</span></div>
+        </div>
+        <div class="note">rounder, softer, friendlier</div>
+      </div>
+    </div>
+    <div class="why"><b>Impact:</b> every card/chip/button corner. Mostly a feel choice — tight reads more “geometric/serious”, soft reads more “friendly/playful”.</div>
+    <p class="q">→ Keep tight (8/12), match Gustify (12/20), or decide later?</p>
+  </div>
+
+  <p class="lead" style="margin-top:24px">Tell me for each: <b>adopt / skip / later</b>. I’ll only build what you approve.</p>
+</div>
+</body>
+</html>
