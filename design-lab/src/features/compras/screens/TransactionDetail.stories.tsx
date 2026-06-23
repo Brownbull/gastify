@@ -25,7 +25,7 @@ export const Default: Story = {
     const platform = platformFromGlobals(globals);
     return (
       <AppSurface platform={platform}>
-        <TransactionDetail txn={sampleTxn} platform={platform} onBack={() => {}} onEdit={() => {}} onPaymentClick={() => {}} onSave={() => {}} />
+        <TransactionDetail txn={sampleTxn} platform={platform} onBack={() => {}} onSave={() => {}} onDelete={() => {}} />
       </AppSurface>
     );
   },
@@ -37,7 +37,7 @@ export const Supermercado: Story = {
     const platform = platformFromGlobals(globals);
     return (
       <AppSurface platform={platform}>
-        <TransactionDetail txn={SUPERMARKET_TXN} platform={platform} onBack={() => {}} onEdit={() => {}} onPaymentClick={() => {}} onSave={() => {}} />
+        <TransactionDetail txn={SUPERMARKET_TXN} platform={platform} onBack={() => {}} onSave={() => {}} onDelete={() => {}} />
       </AppSurface>
     );
   },

@@ -27,6 +27,21 @@ export interface TxnGroup {
   items: TxnItem[];
 }
 
+/** How often a transaction recurs — a transaction-level attribute. */
+export type TxnCadence = "one-time" | "weekly" | "biweekly" | "monthly" | "yearly";
+
+/** Spanish display label per cadence. */
+export const CADENCE_LABEL: Record<TxnCadence, string> = {
+  "one-time": "Única vez",
+  weekly: "Semanal",
+  biweekly: "Quincenal",
+  monthly: "Mensual",
+  yearly: "Anual",
+};
+
+/** Canonical display order of cadences (single source — pickers iterate this). */
+export const CADENCE_ORDER: TxnCadence[] = ["one-time", "weekly", "biweekly", "monthly", "yearly"];
+
 export interface TxnDetail {
   merchant: string;
   /** L1 store-category id. */
@@ -37,6 +52,8 @@ export interface TxnDetail {
   time: string;
   /** payment-method id (see paymentMethods.ts). */
   payment: string;
+  /** recurrence (one-time vs a recurring cadence). */
+  cadence: TxnCadence;
   total: number;
   groups: TxnGroup[];
 }
@@ -49,6 +66,7 @@ export const sampleTxn: TxnDetail = {
   date: "17 Mar 2026",
   time: "17:10",
   payment: "falabella",
+  cadence: "one-time",
   total: 11500,
   groups: [
     {

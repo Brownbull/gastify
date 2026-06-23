@@ -14,6 +14,7 @@ export const SUPERMARKET_TXN: TxnDetail = {
   date: "15 Mar 2026",
   time: "11:24",
   payment: "cash",
+  cadence: "monthly",
   total: 28800,
   groups: [
     {

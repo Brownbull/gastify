@@ -47,7 +47,7 @@ function ComprasInShell({ platform }: { platform: Platform }) {
   // frame. Desktop: a dimmed backdrop over the content pane with the form capped
   // at a max width and centered (it never uses the full pane width).
   const overlay = detailTxn ? (
-    <TransactionDetail txn={pickDetailFor(detailTxn)} platform={platform} onBack={() => setDetailTxn(null)} />
+    <TransactionDetail txn={pickDetailFor(detailTxn)} platform={platform} onBack={() => setDetailTxn(null)} onDelete={() => setDetailTxn(null)} />
   ) : filterOpen ? (
     platform === "desktop" ? (
       <div className="flex h-full w-full justify-center bg-gt-ink/30 px-gt-16 py-gt-16">

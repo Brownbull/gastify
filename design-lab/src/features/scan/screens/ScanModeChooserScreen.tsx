@@ -28,7 +28,7 @@ interface ModeCard {
 const MODES: ModeCard[] = [
   { key: "single", icon: "action-camera", title: "Escanear boleta", desc: "Toma una foto de tu recibo", tint: "rgba(139,92,246,0.10)" },
   { key: "statement", icon: "scan-statement", title: "Subir cartola", desc: "Sube el PDF de tu estado de cuenta", tint: "rgba(244,114,182,0.12)" },
-  { key: "manual", icon: "action-edit", title: "Ingreso manual", desc: "Ingresa los datos a mano", tint: "rgba(30,41,59,0.06)" },
+  { key: "manual", icon: "fin-receipt", title: "Ingreso manual", desc: "Ingresa los datos a mano", tint: "rgba(30,41,59,0.06)" },
 ];
 
 function ModeOption({ mode, onPress }: { mode: ModeCard; onPress?: () => void }) {
