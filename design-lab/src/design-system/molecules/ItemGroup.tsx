@@ -18,11 +18,13 @@ export interface ItemGroupProps {
   total: number;
   count: number;
   defaultOpen?: boolean;
+  /** amount formatter for the subtotal (defaults to CLP). */
+  format?: (n: number) => string;
   children: ReactNode;
   className?: string;
 }
 
-export function ItemGroup({ familia, total, count, defaultOpen = true, children, className = "" }: ItemGroupProps) {
+export function ItemGroup({ familia, total, count, defaultOpen = true, format = clp, children, className = "" }: ItemGroupProps) {
   const [open, setOpen] = useState(defaultOpen);
   const token = getCategoryToken(familia);
   const panelId = useId();
@@ -44,7 +46,7 @@ export function ItemGroup({ familia, total, count, defaultOpen = true, children,
         <span className="grid h-7 w-7 shrink-0 place-items-center rounded-gt-pill border-2 border-gt-line-strong bg-gt-surface text-gt-sm font-extrabold leading-none text-gt-ink">
           {count}
         </span>
-        <span className="ml-gt-2 shrink-0 font-gt-display text-gt-md font-extrabold text-gt-primary">{clp(total)}</span>
+        <span className="ml-gt-2 shrink-0 font-gt-display text-gt-md font-extrabold text-gt-primary">{format(total)}</span>
         <span
           aria-hidden="true"
           className={`ml-gt-2 h-2 w-2 shrink-0 border-b-2 border-r-2 border-gt-ink transition-transform duration-150 ease-gt-bounce ${

@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { PixelIcon } from "@design-system/assets/PixelIcon";
 import { CategoryChip } from "./CategoryChip";
 import { inlineInputClass } from "./InlineText";
@@ -43,6 +44,16 @@ export function EditableItem({ item, currency, editing, onEnterEdit, onCommit, o
   const cur = getCurrency(currency);
   const total = item.unitPrice * item.units; // derived, read-only
 
+  // Hold qty/price as in-progress STRINGS so a trailing decimal survives typing
+  // (the parent stores numbers, but rendering String(number) would drop "1.").
+  const [qtyDraft, setQtyDraft] = useState(String(item.units));
+  const [priceDraft, setPriceDraft] = useState(String(item.unitPrice));
+  useEffect(() => {
+    if (editing) { setQtyDraft(String(item.units)); setPriceDraft(String(item.unitPrice)); }
+    // reset drafts only when the editor (re)opens — not on every keystroke patch.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editing]);
+
   // collapsed — whole row taps into edit; no trailing icon.
   if (!editing) {
     return (
@@ -73,12 +84,12 @@ export function EditableItem({ item, currency, editing, onEnterEdit, onCommit, o
     <li className="bg-gt-bg-3 p-gt-12">
       <div className="flex flex-col gap-gt-10">
         <label className="flex flex-col gap-gt-2">
-          <span className="font-gt-display text-[10px] font-extrabold uppercase text-gt-ink-3">Nombre</span>
+          <span className="font-gt-display text-[10px] font-extrabold uppercase text-gt-ink-2">Nombre</span>
           <input autoFocus aria-label="Nombre del ítem" className={`${inlineInputClass} text-gt-sm`} value={item.name} maxLength={60} onChange={(e) => onChange({ name: e.target.value })} />
         </label>
 
         <div className="flex flex-col items-start gap-gt-2">
-          <span className="font-gt-display text-[10px] font-extrabold uppercase text-gt-ink-3">Categoría</span>
+          <span className="font-gt-display text-[10px] font-extrabold uppercase text-gt-ink-2">Categoría</span>
           <div className="flex items-center gap-gt-6">
             <button type="button" aria-label="Cambiar categoría del ítem" onClick={onPickCategory} className="rounded-gt-pill transition hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-gt-primary/25">
               <CategoryChip category={item.category} size="sm" />
@@ -91,15 +102,15 @@ export function EditableItem({ item, currency, editing, onEnterEdit, onCommit, o
 
         <div className="grid grid-cols-3 gap-gt-8">
           <label className="flex flex-col gap-gt-2">
-            <span className="font-gt-display text-[10px] font-extrabold uppercase text-gt-ink-3">Cantidad</span>
-            <input inputMode="decimal" aria-label="Cantidad" className={`${inlineInputClass} text-gt-sm`} value={String(item.units)} onChange={(e) => onChange({ units: Number(sanitizeQty(e.target.value)) || 0 })} />
+            <span className="font-gt-display text-[10px] font-extrabold uppercase text-gt-ink-2">Cantidad</span>
+            <input inputMode="decimal" aria-label="Cantidad" className={`${inlineInputClass} text-gt-sm`} value={qtyDraft} onChange={(e) => { const s = sanitizeQty(e.target.value); setQtyDraft(s); onChange({ units: Number(s) || 0 }); }} />
           </label>
           <label className="flex flex-col gap-gt-2">
-            <span className="font-gt-display text-[10px] font-extrabold uppercase text-gt-ink-3">P. unit. ({cur.symbol})</span>
-            <input inputMode="decimal" aria-label="Precio unitario" className={`${inlineInputClass} text-gt-sm`} value={String(item.unitPrice)} onChange={(e) => onChange({ unitPrice: Number(sanitizePrice(e.target.value, cur.decimals)) || 0 })} />
+            <span className="font-gt-display text-[10px] font-extrabold uppercase text-gt-ink-2">P. unit. ({cur.symbol})</span>
+            <input inputMode="decimal" aria-label="Precio unitario" className={`${inlineInputClass} text-gt-sm`} value={priceDraft} onChange={(e) => { const s = sanitizePrice(e.target.value, cur.decimals); setPriceDraft(s); onChange({ unitPrice: Number(s) || 0 }); }} />
           </label>
           <label className="flex flex-col gap-gt-2">
-            <span className="font-gt-display text-[10px] font-extrabold uppercase text-gt-ink-3">Total</span>
+            <span className="font-gt-display text-[10px] font-extrabold uppercase text-gt-ink-2">Total</span>
             <span className="rounded-gt-md border-2 border-gt-line bg-gt-surface px-gt-8 py-gt-2 font-gt-display text-gt-sm font-extrabold text-gt-ink-2">{formatMoney(total, currency)}</span>
           </label>
         </div>
@@ -108,7 +119,7 @@ export function EditableItem({ item, currency, editing, onEnterEdit, onCommit, o
           <button type="button" aria-label="Cancelar" onClick={onCancelEdit} className="flex h-10 items-center justify-center rounded-gt-lg border-2 border-gt-line-strong bg-gt-surface text-gt-ink shadow-gt-xs transition hover:-translate-y-0.5">
             <span className="font-gt-display text-gt-lg font-extrabold leading-none">✕</span>
           </button>
-          <button type="button" aria-label="Eliminar ítem" onClick={onDelete} className="flex h-10 items-center justify-center gap-gt-4 rounded-gt-lg border-2 border-gt-line-strong bg-gt-surface text-gt-negative shadow-gt-xs transition hover:-translate-y-0.5 hover:border-gt-negative">
+          <button type="button" aria-label="Eliminar ítem" onClick={onDelete} className="flex h-10 items-center justify-center gap-gt-4 rounded-gt-lg border-2 border-gt-line-strong bg-gt-surface text-gt-ink-2 shadow-gt-xs transition hover:-translate-y-0.5 hover:border-gt-negative hover:text-gt-negative">
             <PixelIcon name="action-delete" size={18} />
             <span className="font-gt-display text-gt-xs font-extrabold">Eliminar</span>
           </button>

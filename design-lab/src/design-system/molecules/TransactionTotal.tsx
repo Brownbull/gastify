@@ -23,6 +23,8 @@ export interface TransactionTotalProps {
   /** when set, a danger delete-icon button sits left of the save CTA. */
   onDelete?: () => void;
   saveLabel?: string;
+  /** amount formatter for the total (defaults to CLP). */
+  format?: (n: number) => string;
   className?: string;
 }
 
@@ -34,6 +36,7 @@ export function TransactionTotal({
   onSave,
   onDelete,
   saveLabel = "Guardar",
+  format = clp,
   className = "",
 }: TransactionTotalProps) {
   return (
@@ -61,7 +64,7 @@ export function TransactionTotal({
           <span className="flex items-center gap-gt-8">
             <PixelIcon name="scan-success" size={24} /> {saveLabel}
           </span>
-          <span className="font-gt-display text-gt-xl">{clp(total)}</span>
+          <span className="font-gt-display text-gt-xl">{format(total)}</span>
         </Button>
       </div>
     </div>

@@ -10,13 +10,14 @@ import { LocationPicker } from "@design-system/molecules/LocationPicker";
 import { DatePicker } from "@design-system/molecules/DatePicker";
 import { TimePicker } from "@design-system/molecules/TimePicker";
 import { CurrencyPicker } from "@design-system/molecules/CurrencyPicker";
+import { SegmentedToggle } from "@design-system/atoms/SegmentedToggle";
 import { Modal } from "@design-system/atoms/Modal";
 import { Button } from "@design-system/atoms/Button";
 import { PixelIcon } from "@design-system/assets/PixelIcon";
 import type { Platform } from "@design-system/organisms/AppSurface";
 import { CADENCE_LABEL, CADENCE_ORDER, sampleTxn, type TxnCadence, type TxnDetail, type TxnItem } from "@lib/transactionFixtures";
 import { CASH, SAMPLE_CARDS } from "@lib/paymentMethods";
-import { type CurrencyCode } from "@lib/scanFixtures";
+import { formatMoney, type CurrencyCode } from "@lib/scanFixtures";
 
 /**
  * TransactionDetail (Phase 9) — a SAVED boleta, reached by tapping a transaction
@@ -97,6 +98,8 @@ export function TransactionDetail({ txn = sampleTxn, onBack, onSave, onDelete, p
   const [editKey, setEditKey] = useState<string | null>(null);
   const [editSnapshot, setEditSnapshot] = useState<TxnItem | null>(null);
   const [itemCatKey, setItemCatKey] = useState<string | null>(null);
+  // item view: "group" = by L3 familia · "original" = receipt order (as scanned)
+  const [view, setView] = useState<"group" | "original">("group");
 
   const setItem = (gi: number, ii: number, patch: Partial<TxnItem>) =>
     setGroups((prev) => prev.map((g, x) => (x === gi ? { ...g, items: g.items.map((it, y) => (y === ii ? { ...it, ...patch } : it)) } : g)));
@@ -117,6 +120,28 @@ export function TransactionDetail({ txn = sampleTxn, onBack, onSave, onDelete, p
   // total + count are derived from the (edited) items so the footer stays live.
   const itemCount = groups.reduce((n, g) => n + g.items.length, 0);
   const total = groups.reduce((s, g) => s + g.items.reduce((t, it) => t + it.unitPrice * it.units, 0), 0);
+  // all amounts on this screen follow the chosen currency.
+  const fmt = (n: number) => formatMoney(n, currency);
+  // flat receipt-order list (the "Original" view) — items as they came on the image.
+  const flatItems = groups.flatMap((g, gi) => g.items.map((item, ii) => ({ gi, ii, item })));
+  // one EditableItem wired to its (groupIdx, itemIdx) — reused by both views.
+  const renderItem = (gi: number, ii: number, item: TxnItem) => {
+    const key = `${gi}-${ii}`;
+    return (
+      <EditableItem
+        key={key}
+        item={item}
+        currency={currency}
+        editing={editKey === key}
+        onEnterEdit={() => enterEdit(gi, ii)}
+        onCommit={commitEdit}
+        onCancelEdit={cancelEdit}
+        onChange={(patch) => setItem(gi, ii, patch)}
+        onDelete={() => deleteItem(gi, ii)}
+        onPickCategory={() => setItemCatKey(key)}
+      />
+    );
+  };
   // desktop: cap + center the single column (it never fills the wide pane).
   const contentMax = platform === "desktop" ? "44rem" : undefined;
 
@@ -146,40 +171,41 @@ export function TransactionDetail({ txn = sampleTxn, onBack, onSave, onDelete, p
             onCurrencyClick={() => setCurOpen(true)}
           />
 
-          <div className="flex flex-col gap-gt-12">
-            {groups.map((group, gi) => {
-              if (group.items.length === 0) return null;
-              const subtotal = group.items.reduce((sum, it) => sum + it.unitPrice * it.units, 0);
-              return (
-                <ItemGroup key={group.familia} familia={group.familia} total={subtotal} count={group.items.length}>
-                  {group.items.map((item, ii) => {
-                    const key = `${gi}-${ii}`;
-                    return (
-                      <EditableItem
-                        key={key}
-                        item={item}
-                        currency={currency}
-                        editing={editKey === key}
-                        onEnterEdit={() => enterEdit(gi, ii)}
-                        onCommit={commitEdit}
-                        onCancelEdit={cancelEdit}
-                        onChange={(patch) => setItem(gi, ii, patch)}
-                        onDelete={() => deleteItem(gi, ii)}
-                        onPickCategory={() => setItemCatKey(key)}
-                      />
-                    );
-                  })}
-                </ItemGroup>
-              );
-            })}
-          </div>
+          {/* view toggle — Original (receipt order, as the image) vs Por grupo (L3 familia) */}
+          <SegmentedToggle
+            fill
+            flush
+            segments={[{ id: "group", label: "Por grupo" }, { id: "original", label: "Original" }]}
+            value={view}
+            onChange={(v) => setView(v as "group" | "original")}
+          />
+
+          {view === "group" ? (
+            <div className="flex flex-col gap-gt-12">
+              {groups.map((group, gi) => {
+                if (group.items.length === 0) return null;
+                const subtotal = group.items.reduce((sum, it) => sum + it.unitPrice * it.units, 0);
+                return (
+                  <ItemGroup key={group.familia} familia={group.familia} total={subtotal} count={group.items.length} format={fmt}>
+                    {group.items.map((item, ii) => renderItem(gi, ii, item))}
+                  </ItemGroup>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="overflow-hidden rounded-gt-2xl border-2 border-gt-line-strong bg-gt-surface shadow-gt-sm">
+              <ul className="divide-y-2 divide-gt-line">
+                {flatItems.map(({ gi, ii, item }) => renderItem(gi, ii, item))}
+              </ul>
+            </div>
+          )}
         </div>
       </div>
 
       {/* sticky footer: delete + the total folded into the save CTA */}
       <div className="shrink-0 border-t-2 border-gt-line bg-gt-surface px-gt-16 py-gt-12">
         <div className="mx-auto w-full" style={{ maxWidth: contentMax }}>
-          <TransactionTotal total={total} itemCount={itemCount} onSave={onSave} onDelete={() => setConfirmDelete(true)} saveLabel="Guardar" />
+          <TransactionTotal total={total} itemCount={itemCount} onSave={onSave} onDelete={() => setConfirmDelete(true)} saveLabel="Guardar" format={fmt} />
         </div>
       </div>
 
