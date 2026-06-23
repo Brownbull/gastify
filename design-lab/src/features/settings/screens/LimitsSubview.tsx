@@ -117,7 +117,7 @@ function LimitAmountField({ value, onChange }: { value: string; onChange: (next:
 
 /**
  * A nested L4 categoría row inside a familia card. Mirrors the L3 header — a
- * color-filled icon tile, the categoría name with a (narrower) fill bar, and the
+ * tinted icon tile, the categoría name with a (narrower) fill bar, and the
  * % + amount on the right — but the % / bar are measured against the FAMILIA's
  * L3 limit, so the L4 shares decompose the L3 percentage. `limit` is the parent
  * familia's limit.
@@ -127,7 +127,7 @@ function L4SpendRow({ row, limit }: { row: L4Spend; limit: number }) {
   const pct = limit > 0 ? Math.round((row.spent / limit) * 100) : 0;
   return (
     <li className="flex items-center gap-gt-10 px-gt-12 py-gt-8">
-      <IconTile size="sm" tint={token.color} icon={token.icon} />
+      <IconTile size="sm" tint={token.tint} icon={token.icon} />
       <span className="flex min-w-0 flex-1 flex-col gap-gt-4">
         <span className="truncate text-gt-sm font-bold text-gt-ink-2">{token.label}</span>
         {/* deliberately narrower than the full-width L3 title bar */}
@@ -161,7 +161,7 @@ function FamiliaLimitCard({ row, onEdit }: { row: FamiliaLimit; onEdit: (id: str
         aria-label={`Editar límite de ${fam.label}`}
         className="flex w-full items-center gap-gt-12 px-gt-12 py-gt-12 text-left transition duration-150 ease-gt-bounce hover:bg-gt-bg-3 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-inset focus-visible:ring-gt-primary/20"
       >
-        <IconTile size="md" tint={fam.color} icon={fam.icon} />
+        <IconTile size="md" tint={fam.tint} icon={fam.icon} />
         <span className="flex min-w-0 flex-1 flex-col gap-gt-6">
           <span className="truncate font-gt-display text-gt-md font-extrabold text-gt-ink">{fam.label}</span>
           <SettingsUsageBar value={spent} max={row.limit} />
@@ -236,7 +236,7 @@ function LimitEditor({
           </div>
         ) : fam ? (
           <div className="flex items-center gap-gt-10 rounded-gt-lg border-2 border-gt-line-strong bg-gt-surface px-gt-12 py-gt-10">
-            <IconTile size="sm" tint={fam.color} icon={fam.icon} />
+            <IconTile size="sm" tint={fam.tint} icon={fam.icon} />
             <span className="font-gt-display text-gt-md font-extrabold text-gt-ink">{fam.label}</span>
           </div>
         ) : null}
