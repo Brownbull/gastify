@@ -30,10 +30,13 @@ export interface CompactRowProps {
   /** Controlled expanded state. */
   expanded?: boolean;
   onClick?: () => void;
+  /** accessible name for the whole-row click target (so it isn't the concatenated
+   * row text). Only used when `onClick` is set. */
+  clickLabel?: string;
   className?: string;
 }
 
-export function CompactRow({ leading, title, meta, tags, trailing, detail, detailLabel, expanded: controlledExpanded, onClick, className = "" }: CompactRowProps) {
+export function CompactRow({ leading, title, meta, tags, trailing, detail, detailLabel, expanded: controlledExpanded, onClick, clickLabel, className = "" }: CompactRowProps) {
   const [internalExpanded, setInternalExpanded] = useState(false);
   const isExpanded = controlledExpanded ?? internalExpanded;
   const hasDetail = detail != null;
@@ -57,7 +60,7 @@ export function CompactRow({ leading, title, meta, tags, trailing, detail, detai
               aria-label={isExpanded ? "Contraer" : "Ver detalle"}
               aria-expanded={isExpanded}
               onClick={(e) => { e.stopPropagation(); toggleExpand(); }}
-              className="flex items-center gap-gt-2 rounded-gt-md px-gt-4 py-gt-2 text-gt-ink-3 transition duration-150 ease-gt-bounce hover:bg-gt-bg-3 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-gt-primary/20"
+              className="pointer-events-auto relative flex items-center gap-gt-2 rounded-gt-md px-gt-4 py-gt-2 text-gt-ink-3 transition duration-150 ease-gt-bounce hover:bg-gt-bg-3 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-gt-primary/20"
             >
               {detailLabel ? <span className="whitespace-nowrap text-gt-xs font-bold">{detailLabel}</span> : null}
               <ChevronDownIcon className={`h-4 w-4 transition-transform duration-150 ${isExpanded ? "rotate-180" : ""}`} />
@@ -68,19 +71,23 @@ export function CompactRow({ leading, title, meta, tags, trailing, detail, detai
     </div>
   );
 
+  // When a row is both clickable (opens) AND has an expand chevron (a button),
+  // a button-wrapping-button would be invalid HTML. Use the "stretched-link"
+  // pattern instead: an absolutely-positioned click target behind the content,
+  // with the content non-interactive except the chevron (pointer-events-auto).
   return (
     <li>
-      {onClick ? (
-        <button
-          type="button"
-          onClick={onClick}
-          className="w-full rounded-gt-lg transition duration-150 ease-gt-bounce hover:bg-gt-bg-3 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-gt-primary/20"
-        >
-          {row}
-        </button>
-      ) : (
-        row
-      )}
+      <div className="relative">
+        {onClick ? (
+          <button
+            type="button"
+            onClick={onClick}
+            aria-label={clickLabel}
+            className="absolute inset-0 rounded-gt-lg transition duration-150 ease-gt-bounce hover:bg-gt-bg-3 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-inset focus-visible:ring-gt-primary/20"
+          />
+        ) : null}
+        <div className={onClick ? "pointer-events-none relative" : undefined}>{row}</div>
+      </div>
       {isExpanded && detail ? (
         <div className="px-gt-12 pb-gt-10">{detail}</div>
       ) : null}

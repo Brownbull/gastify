@@ -32,7 +32,12 @@ export function MerchantHeader({ txn, onEdit, onPaymentClick, paymentId, classNa
         <div className="flex items-center gap-gt-6">
           <h2 className="min-w-0 truncate text-gt-lg font-extrabold text-gt-ink">{txn.merchant}</h2>
           {onEdit ? (
-            <button type="button" onClick={onEdit} aria-label="Editar" className="shrink-0 opacity-40 hover:opacity-100">
+            <button
+              type="button"
+              onClick={onEdit}
+              aria-label="Editar"
+              className="shrink-0 rounded-gt-md p-gt-2 opacity-40 transition hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-gt-primary/20"
+            >
               <PixelIcon name="action-edit" size={18} />
             </button>
           ) : null}

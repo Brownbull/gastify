@@ -3,9 +3,11 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { AppSurface, platformFromGlobals, type Platform } from "@design-system/organisms/AppSurface";
 import { AppScaffold } from "@design-system/organisms/AppScaffold";
 import { FilterSheet, type FilterSelection } from "@design-system/organisms/FilterSheet";
-import { BROWSE_FACETS, BROWSE_TXN_COUNT } from "@lib/browseFixtures";
+import { BROWSE_FACETS, BROWSE_TXN_COUNT, type BrowseTransaction } from "@lib/browseFixtures";
 import { ScanModeChooserScreen } from "@features/scan/screens/ScanModeChooserScreen";
 import { ComprasScreen } from "./ComprasScreen";
+import { TransactionDetail } from "./TransactionDetail";
+import { pickDetailFor } from "../model/detailFixtures";
 
 /**
  * Features/Compras/Screens/ComprasScreen — the transactions browse, rendered
@@ -26,6 +28,7 @@ function ComprasInShell({ platform }: { platform: Platform }) {
   const [scanOpen, setScanOpen] = useState(false);
   const [filterOpen, setFilterOpen] = useState(false);
   const [selection, setSelection] = useState<FilterSelection>({});
+  const [detailTxn, setDetailTxn] = useState<BrowseTransaction | null>(null);
 
   const sheet = (
     <FilterSheet
@@ -43,7 +46,9 @@ function ComprasInShell({ platform }: { platform: Platform }) {
   // the filter rides AppScaffold's overlay slot. Mobile/tablet: fills the whole
   // frame. Desktop: a dimmed backdrop over the content pane with the form capped
   // at a max width and centered (it never uses the full pane width).
-  const overlay = filterOpen ? (
+  const overlay = detailTxn ? (
+    <TransactionDetail txn={pickDetailFor(detailTxn)} platform={platform} onBack={() => setDetailTxn(null)} />
+  ) : filterOpen ? (
     platform === "desktop" ? (
       <div className="flex h-full w-full justify-center bg-gt-ink/30 px-gt-16 py-gt-16">
         <div className="flex h-full w-full flex-col" style={{ maxWidth: "44rem" }}>{sheet}</div>
@@ -69,7 +74,7 @@ function ComprasInShell({ platform }: { platform: Platform }) {
       onScan={() => setScanOpen(true)}
       overlay={overlay}
     >
-      <ComprasScreen platform={platform} selection={selection} onOpenFilter={() => setFilterOpen(true)} />
+      <ComprasScreen platform={platform} selection={selection} onOpenFilter={() => setFilterOpen(true)} onSelectTxn={setDetailTxn} />
     </AppScaffold>
   );
 }

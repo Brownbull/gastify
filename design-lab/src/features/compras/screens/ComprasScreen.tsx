@@ -31,6 +31,8 @@ export interface ComprasScreenProps {
   selection?: FilterSelection;
   /** open the full-surface filter (rendered by the host via AppScaffold overlay). */
   onOpenFilter?: () => void;
+  /** a transaction row was tapped — open its full detail (host-owned overlay). */
+  onSelectTxn?: (txn: BrowseTransaction) => void;
   platform?: Platform;
 }
 
@@ -65,10 +67,12 @@ function PreviewItems({ txn }: { txn: BrowseTransaction }) {
   );
 }
 
-function TxnRow({ txn }: { txn: BrowseTransaction }) {
+function TxnRow({ txn, onSelect }: { txn: BrowseTransaction; onSelect?: (txn: BrowseTransaction) => void }) {
   return (
     <CompactRow
       className="px-gt-0!"
+      onClick={onSelect ? () => onSelect(txn) : undefined}
+      clickLabel={`Ver boleta de ${txn.merchant}`}
       leading={<ThumbnailBadge icon={txn.storeIcon} category={txn.category} />}
       title={txn.merchant}
       meta={<MetaLine txn={txn} />}
@@ -82,7 +86,7 @@ function TxnRow({ txn }: { txn: BrowseTransaction }) {
 
 const PAGE_SIZE = 12; // transactions per page
 
-export function ComprasScreen({ groups = BROWSE_TRANSACTIONS, selection = {}, onOpenFilter, platform = "mobile" }: ComprasScreenProps) {
+export function ComprasScreen({ groups = BROWSE_TRANSACTIONS, selection = {}, onOpenFilter, onSelectTxn, platform = "mobile" }: ComprasScreenProps) {
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(1);
   const activeCount = selectionCount(selection);
@@ -156,7 +160,7 @@ export function ComprasScreen({ groups = BROWSE_TRANSACTIONS, selection = {}, on
               </div>
               <CompactRowList>
                 {group.transactions.map((txn) => (
-                  <TxnRow key={txn.id} txn={txn} />
+                  <TxnRow key={txn.id} txn={txn} onSelect={onSelectTxn} />
                 ))}
               </CompactRowList>
             </section>
