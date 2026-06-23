@@ -1,10 +1,14 @@
 import { useState, type ComponentType } from "react";
 import { SettingsScreen } from "./SettingsScreen";
+import { ProfileSubview } from "./ProfileSubview";
+import { SubscriptionSubview } from "./SubscriptionSubview";
 import { GroupsSubview } from "./GroupsSubview";
 import { NotificationsSubview } from "./NotificationsSubview";
+import { LimitsSubview } from "./LimitsSubview";
 import { HelpSubview } from "./HelpSubview";
 import { PreferencesSubview } from "./PreferencesSubview";
 import { ScanSubview } from "./ScanSubview";
+import { MemorySubview } from "./MemorySubview";
 import { DataSubview } from "./DataSubview";
 
 /**
@@ -17,11 +21,15 @@ import { DataSubview } from "./DataSubview";
 type SubviewProps = { onBack?: () => void };
 
 const SUBVIEWS: Record<string, ComponentType<SubviewProps>> = {
+  profile: ProfileSubview,
+  subscription: SubscriptionSubview,
   groups: GroupsSubview,
   notifications: NotificationsSubview,
+  limits: LimitsSubview,
   help: HelpSubview,
   preferences: PreferencesSubview,
   scanning: ScanSubview,
+  memory: MemorySubview,
   data: DataSubview,
 };
 
