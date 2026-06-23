@@ -44,7 +44,7 @@ function LinkRow({ label, onClick }: { label: string; onClick: () => void }) {
   );
 }
 
-export function AyudaSubview({ onBack }: { onBack?: () => void }) {
+export function HelpSubview({ onBack }: { onBack?: () => void }) {
   const [active, setActive] = useState<LegalLink | null>(null);
 
   return (

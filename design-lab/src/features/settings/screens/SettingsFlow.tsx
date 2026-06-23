@@ -1,8 +1,11 @@
 import { useState, type ComponentType } from "react";
 import { SettingsScreen } from "./SettingsScreen";
-import { GruposSubview } from "./GruposSubview";
-import { NotificacionesSubview } from "./NotificacionesSubview";
-import { AyudaSubview } from "./AyudaSubview";
+import { GroupsSubview } from "./GroupsSubview";
+import { NotificationsSubview } from "./NotificationsSubview";
+import { HelpSubview } from "./HelpSubview";
+import { PreferencesSubview } from "./PreferencesSubview";
+import { ScanSubview } from "./ScanSubview";
+import { DataSubview } from "./DataSubview";
 
 /**
  * SettingsFlow — the Ajustes navigation container mounted as the AppScaffold
@@ -14,9 +17,12 @@ import { AyudaSubview } from "./AyudaSubview";
 type SubviewProps = { onBack?: () => void };
 
 const SUBVIEWS: Record<string, ComponentType<SubviewProps>> = {
-  grupos: GruposSubview,
-  notificaciones: NotificacionesSubview,
-  ayuda: AyudaSubview,
+  groups: GroupsSubview,
+  notifications: NotificationsSubview,
+  help: HelpSubview,
+  preferences: PreferencesSubview,
+  scanning: ScanSubview,
+  data: DataSubview,
 };
 
 export function SettingsFlow({ onClose }: { onClose?: () => void }) {

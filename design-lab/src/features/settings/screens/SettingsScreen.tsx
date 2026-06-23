@@ -39,30 +39,30 @@ const GROUPS: SettingsGroup[] = [
   {
     heading: "Cuenta",
     rows: [
-      { key: "perfil", label: "Perfil", subtitle: "Nombre, correo y foto", icon: "snowshoe-face-wave" },
-      { key: "suscripcion", label: "Suscripción", subtitle: "Plan y créditos de escaneo", icon: "credit-super" },
-      { key: "notificaciones", label: "Notificaciones", subtitle: "Alertas y recordatorios", icon: "nav-alerts" },
-      { key: "grupos", label: "Grupos", subtitle: "Comparte gastos con tu familia", icon: "settings-groups", badge: "Próximamente" },
+      { key: "profile", label: "Perfil", subtitle: "Nombre, correo y foto", icon: "snowshoe-face-wave" },
+      { key: "subscription", label: "Suscripción", subtitle: "Plan y créditos de escaneo", icon: "credit-super" },
+      { key: "notifications", label: "Notificaciones", subtitle: "Alertas y recordatorios", icon: "nav-alerts" },
+      { key: "groups", label: "Grupos", subtitle: "Comparte gastos con tu familia", icon: "settings-groups", badge: "Próximamente" },
     ],
   },
   {
     heading: "Preferencias",
     rows: [
-      { key: "limites", label: "Límites de gasto", subtitle: "Límites mensuales por categoría", icon: "fin-budget" },
-      { key: "escaneo", label: "Escaneo", subtitle: "Moneda y ubicación por defecto", icon: "nav-scan" },
-      { key: "app", label: "Preferencias de la app", subtitle: "Idioma, fecha y tema", icon: "settings-sliders" },
+      { key: "limits", label: "Límites de gasto", subtitle: "Límites mensuales por categoría", icon: "fin-budget" },
+      { key: "scanning", label: "Escaneo", subtitle: "Moneda y ubicación por defecto", icon: "nav-scan" },
+      { key: "preferences", label: "Preferencias de la app", subtitle: "Idioma, fecha y tema", icon: "settings-sliders" },
     ],
   },
   {
     heading: "Datos y privacidad",
     rows: [
-      { key: "memoria", label: "Mi memoria", subtitle: "Categorización aprendida", icon: "settings-memory" },
-      { key: "datos", label: "Datos y respaldo", subtitle: "Exporta o restablece tus gastos", icon: "shield-finance" },
+      { key: "memory", label: "Mi memoria", subtitle: "Categorización aprendida", icon: "settings-memory" },
+      { key: "data", label: "Datos y respaldo", subtitle: "Exporta o restablece tus gastos", icon: "shield-finance" },
     ],
   },
   {
     heading: "Soporte",
-    rows: [{ key: "ayuda", label: "Ayuda e información", subtitle: "Acerca de gastify, versión", icon: "status-info" }],
+    rows: [{ key: "help", label: "Ayuda e información", subtitle: "Acerca de gastify, versión", icon: "status-info" }],
   },
 ];
 

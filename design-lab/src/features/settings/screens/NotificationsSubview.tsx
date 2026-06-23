@@ -39,7 +39,7 @@ function ActionRow({ icon, title, subtitle, action }: { icon: string; title: str
   );
 }
 
-export function NotificacionesSubview({ onBack }: { onBack?: () => void }) {
+export function NotificationsSubview({ onBack }: { onBack?: () => void }) {
   const [push, setPush] = useState(true);
   const [reminders, setReminders] = useState(false);
 

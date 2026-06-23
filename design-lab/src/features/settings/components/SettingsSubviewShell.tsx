@@ -19,3 +19,21 @@ export function SettingsSubviewShell({ title, onBack, children }: { title: strin
     </div>
   );
 }
+
+/** uppercase micro-heading over a settings group. */
+export function SettingsGroupHeading({ children }: { children: ReactNode }) {
+  return <p className="px-gt-4 pt-gt-4 font-gt-display text-gt-sm font-extrabold uppercase tracking-wide text-gt-ink-3">{children}</p>;
+}
+
+/** a labelled control field (label + optional hint above the control). */
+export function SettingsField({ label, hint, children }: { label: string; hint?: string; children: ReactNode }) {
+  return (
+    <div className="flex flex-col gap-gt-6">
+      <span className="flex flex-col gap-gt-1 px-gt-2">
+        <span className="font-gt-display text-gt-sm font-bold text-gt-ink-2">{label}</span>
+        {hint ? <span className="text-gt-xs font-medium text-gt-ink-3">{hint}</span> : null}
+      </span>
+      {children}
+    </div>
+  );
+}
