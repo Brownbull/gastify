@@ -4,44 +4,88 @@ import { Switch } from "@design-system/atoms/Switch";
 import { Input } from "@design-system/atoms/Input";
 import { Select } from "@design-system/atoms/Select";
 import { Modal } from "@design-system/atoms/Modal";
+import { IconTile } from "@design-system/atoms/IconTile";
 import { PixelIcon } from "@design-system/assets/PixelIcon";
-import { FAMILIAS } from "@lib/categoryTokens";
+import { FAMILIAS, getCategoryToken } from "@lib/categoryTokens";
 import { SettingsSubviewShell, SettingsGroupHeading } from "../components/SettingsSubviewShell";
 import { SettingsUsageBar, clp } from "../components/SettingsUsageBar";
 
 /**
  * Límites de gasto subview — a master monthly-limits Switch, an editable total
- * budget, then a per-FAMILIA (L3) spend list. Tracking is ALWAYS at the familia
- * level (item-category groups) — there is no level selector. The total card and
- * each familia row are tappable to edit their assigned limit, and "Agregar
- * límite de categoría" opens the SAME editor in add mode (pick an untracked
- * familia + assign a limit). Spent values are actual data; only limits are
- * editable. Presentational mockup with live local state.
+ * budget, then a per-FAMILIA (L3) spend list rendered like the transaction
+ * cards: a category-bordered card whose header has a tinted icon tile, the
+ * familia title, a full-width fill bar, and the % + amount on the right; the
+ * L4 categorías that make up the spend are listed nested below ("coming out of"
+ * the L3). The LIMIT is set per familia (L3) only — tapping a card edits it;
+ * the L4 rows are a read-only spend breakdown. "Agregar" reuses the editor in
+ * add mode (pick an untracked familia + assign a limit). Spent is actual data
+ * (sum of the L4 breakdown); only limits are editable. Live local-state mockup.
  */
 
-const FAMILIA_BY_ID: Record<string, (typeof FAMILIAS)[number]> = Object.fromEntries(
-  FAMILIAS.map((f) => [f.id, f]),
-);
+interface L4Spend {
+  /** L4 categoría id — see @lib/categoryTokens CATEGORIAS. */
+  id: string;
+  spent: number;
+}
 
 interface FamiliaLimit {
   /** familia (L3) id — see @lib/categoryTokens FAMILIAS. */
   id: string;
-  /** actual spend this month (read-only). */
-  spent: number;
   /** user-assigned monthly limit (editable). */
   limit: number;
+  /** L4 breakdown of this month's actual spend (read-only). */
+  breakdown: L4Spend[];
 }
 
-const TOTAL_SPENT = 520000;
 const INITIAL_TOTAL_LIMIT = 800000;
 
 const INITIAL_LIMITS: FamiliaLimit[] = [
-  { id: "food-fresh", spent: 182000, limit: 200000 },
-  { id: "food-packaged", spent: 96000, limit: 120000 },
-  { id: "food-prepared", spent: 61000, limit: 80000 },
-  { id: "vicios", spent: 54000, limit: 40000 },
-  { id: "hogar", spent: 27000, limit: 60000 },
+  {
+    id: "food-fresh",
+    limit: 200000,
+    breakdown: [
+      { id: "Produce", spent: 78000 },
+      { id: "MeatSeafood", spent: 64000 },
+      { id: "DairyEggs", spent: 28000 },
+      { id: "BreadPastry", spent: 12000 },
+    ],
+  },
+  {
+    id: "food-packaged",
+    limit: 120000,
+    breakdown: [
+      { id: "Pantry", spent: 41000 },
+      { id: "Beverages", spent: 30000 },
+      { id: "Snacks", spent: 17000 },
+      { id: "FrozenFoods", spent: 8000 },
+    ],
+  },
+  {
+    id: "food-prepared",
+    limit: 80000,
+    breakdown: [{ id: "PreparedFood", spent: 61000 }],
+  },
+  {
+    id: "vicios",
+    limit: 40000,
+    breakdown: [
+      { id: "Alcohol", spent: 32000 },
+      { id: "Tobacco", spent: 15000 },
+      { id: "GamesOfChance", spent: 7000 },
+    ],
+  },
+  {
+    id: "hogar",
+    limit: 60000,
+    breakdown: [
+      { id: "CleaningSupplies", spent: 12000 },
+      { id: "HomeEssentials", spent: 9000 },
+      { id: "PetFood", spent: 6000 },
+    ],
+  },
 ];
+
+const spentOf = (row: FamiliaLimit) => row.breakdown.reduce((sum, b) => sum + b.spent, 0);
 
 /** Editor target: the total budget, an existing familia limit, or a new one. */
 interface EditorState {
@@ -64,38 +108,79 @@ function LimitAmountField({ value, onChange }: { value: string; onChange: (next:
         aria-label="Monto del límite mensual"
         inputMode="numeric"
         value={value}
-        onChange={(e) => onChange(e.target.value.replace(/\D/g, ""))}
+        onChange={(e) => onChange(e.target.value.replace(/\D/g, "").slice(0, 9))}
         placeholder="0"
       />
     </div>
   );
 }
 
-/** One tappable familia row: icon · label · spent/limit · edit glyph · usage bar. */
-function FamiliaLimitRow({ row, onEdit }: { row: FamiliaLimit; onEdit: (id: string, limit: number) => void }) {
-  const fam = FAMILIA_BY_ID[row.id];
-  const over = row.spent > row.limit;
+/**
+ * A nested L4 categoría row inside a familia card. Mirrors the L3 header — a
+ * color-filled icon tile, the categoría name with a (narrower) fill bar, and the
+ * % + amount on the right — but the % / bar are measured against the FAMILIA's
+ * L3 limit, so the L4 shares decompose the L3 percentage. `limit` is the parent
+ * familia's limit.
+ */
+function L4SpendRow({ row, limit }: { row: L4Spend; limit: number }) {
+  const token = getCategoryToken(row.id);
+  const pct = limit > 0 ? Math.round((row.spent / limit) * 100) : 0;
   return (
-    <button
-      type="button"
-      onClick={() => onEdit(row.id, row.limit)}
-      aria-label={`Editar límite de ${fam.label}`}
-      className="flex w-full items-center gap-gt-12 rounded-gt-lg px-gt-4 py-gt-10 text-left transition duration-150 ease-gt-bounce hover:bg-gt-bg-3 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-inset focus-visible:ring-gt-primary/20"
-    >
-      <span className="grid h-11 w-11 shrink-0 place-items-center">
-        <PixelIcon name={fam.icon} size={36} />
-      </span>
-      <span className="flex min-w-0 flex-1 flex-col gap-gt-6">
-        <span className="truncate font-gt-display text-gt-md font-extrabold text-gt-ink">{fam.label}</span>
-        <span className={`text-gt-sm font-bold ${over ? "text-gt-negative" : "text-gt-ink-3"}`}>
-          {clp(row.spent)} / {clp(row.limit)}
+    <li className="flex items-center gap-gt-10 px-gt-12 py-gt-8">
+      <IconTile size="sm" tint={token.color} icon={token.icon} />
+      <span className="flex min-w-0 flex-1 flex-col gap-gt-4">
+        <span className="truncate text-gt-sm font-bold text-gt-ink-2">{token.label}</span>
+        {/* deliberately narrower than the full-width L3 title bar */}
+        <span className="block w-24">
+          <SettingsUsageBar value={row.spent} max={limit} />
         </span>
-        <SettingsUsageBar value={row.spent} max={row.limit} />
       </span>
-      <span aria-hidden="true" className="grid h-7 w-7 shrink-0 place-items-center">
-        <PixelIcon name="action-edit" size={20} />
+      <span className="flex w-32 shrink-0 flex-col items-end gap-gt-4">
+        <span className="text-gt-sm font-extrabold leading-none text-gt-ink-2">{pct}%</span>
+        <span className="text-gt-sm font-extrabold leading-none text-gt-ink">{clp(row.spent)}</span>
       </span>
-    </button>
+    </li>
+  );
+}
+
+/**
+ * A familia (L3) limit card — transaction-card grammar: category-color border,
+ * a tinted icon tile, the title with a full-width fill bar, the % + amount on
+ * the right, and the L4 spend breakdown nested below. The header taps to edit.
+ */
+function FamiliaLimitCard({ row, onEdit }: { row: FamiliaLimit; onEdit: (id: string, limit: number) => void }) {
+  const fam = getCategoryToken(row.id);
+  const spent = spentOf(row);
+  const over = spent > row.limit;
+  const pct = row.limit > 0 ? Math.round((spent / row.limit) * 100) : 0;
+  return (
+    <section className="overflow-hidden rounded-gt-2xl border-2 bg-gt-surface shadow-gt-sm" style={{ borderColor: fam.color }}>
+      <button
+        type="button"
+        onClick={() => onEdit(row.id, row.limit)}
+        aria-label={`Editar límite de ${fam.label}`}
+        className="flex w-full items-center gap-gt-12 px-gt-12 py-gt-12 text-left transition duration-150 ease-gt-bounce hover:bg-gt-bg-3 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-inset focus-visible:ring-gt-primary/20"
+      >
+        <IconTile size="md" tint={fam.color} icon={fam.icon} />
+        <span className="flex min-w-0 flex-1 flex-col gap-gt-6">
+          <span className="truncate font-gt-display text-gt-md font-extrabold text-gt-ink">{fam.label}</span>
+          <SettingsUsageBar value={spent} max={row.limit} />
+        </span>
+        <span className="flex w-32 shrink-0 flex-col items-end gap-gt-6">
+          <span className={`font-gt-display text-gt-md font-extrabold leading-none ${over ? "text-gt-negative" : "text-gt-ink"}`}>{pct}%</span>
+          <span className="whitespace-nowrap text-gt-sm font-bold leading-none text-gt-ink-2">
+            {clp(spent)} / {clp(row.limit)}
+          </span>
+        </span>
+      </button>
+      {row.breakdown.length > 0 ? (
+        <ul className="divide-y divide-gt-line border-t-2 border-gt-line bg-gt-bg-3">
+          {row.breakdown.map((b) => (
+            <L4SpendRow key={b.id} row={b} limit={row.limit} />
+          ))}
+        </ul>
+      ) : null}
+    </section>
   );
 }
 
@@ -115,7 +200,7 @@ function LimitEditor({
   onRemove: () => void;
   onClose: () => void;
 }) {
-  const fam = editor.categoryId ? FAMILIA_BY_ID[editor.categoryId] : null;
+  const fam = editor.categoryId ? getCategoryToken(editor.categoryId) : null;
   const title =
     editor.mode === "total" ? "Editar límite total" : editor.mode === "add" ? "Nuevo límite de categoría" : "Editar límite";
   const canSave = editor.value !== "" && Number.parseInt(editor.value, 10) > 0 && (editor.mode !== "add" || editor.categoryId !== "");
@@ -151,7 +236,7 @@ function LimitEditor({
           </div>
         ) : fam ? (
           <div className="flex items-center gap-gt-10 rounded-gt-lg border-2 border-gt-line-strong bg-gt-surface px-gt-12 py-gt-10">
-            <PixelIcon name={fam.icon} size={32} />
+            <IconTile size="sm" tint={fam.color} icon={fam.icon} />
             <span className="font-gt-display text-gt-md font-extrabold text-gt-ink">{fam.label}</span>
           </div>
         ) : null}
@@ -172,6 +257,9 @@ export function LimitsSubview({ onBack }: { onBack?: () => void }) {
   const [editor, setEditor] = useState<EditorState | null>(null);
 
   const available = FAMILIAS.filter((f) => !limits.some((l) => l.id === f.id));
+  // Total spent is derived from the familia breakdowns (same source as the cards)
+  // so the total meter stays consistent as familias are added / edited / removed.
+  const totalSpent = limits.reduce((sum, l) => sum + spentOf(l), 0);
 
   const openTotal = () => setEditor({ mode: "total", categoryId: "", value: String(totalLimit) });
   const openEdit = (id: string, limit: number) => setEditor({ mode: "edit", categoryId: id, value: String(limit) });
@@ -187,7 +275,7 @@ export function LimitsSubview({ onBack }: { onBack?: () => void }) {
     } else if (editor.mode === "edit") {
       setLimits((prev) => prev.map((l) => (l.id === editor.categoryId ? { ...l, limit: amount } : l)));
     } else if (editor.categoryId) {
-      setLimits((prev) => [...prev, { id: editor.categoryId, spent: 0, limit: amount }]);
+      setLimits((prev) => [...prev, { id: editor.categoryId, limit: amount, breakdown: [] }]);
     }
     closeEditor();
   };
@@ -223,23 +311,20 @@ export function LimitsSubview({ onBack }: { onBack?: () => void }) {
               className="flex flex-col gap-gt-8 rounded-gt-2xl border-2 border-gt-line-strong bg-gt-surface px-gt-16 py-gt-12 text-left shadow-gt-sm transition duration-150 ease-gt-bounce hover:-translate-y-0.5 hover:shadow-gt-md focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-gt-primary/20"
             >
               <div className="flex items-end justify-between gap-gt-8">
-                <span className="font-gt-display text-gt-lg font-extrabold text-gt-ink">{clp(TOTAL_SPENT)}</span>
-                <span className="flex shrink-0 items-center gap-gt-6">
-                  <span className="text-gt-sm font-bold text-gt-ink-3">de {clp(totalLimit)}</span>
-                  <PixelIcon name="action-edit" size={18} />
-                </span>
+                <span className="font-gt-display text-gt-lg font-extrabold text-gt-ink">{clp(totalSpent)}</span>
+                <span className="shrink-0 text-gt-sm font-bold text-gt-ink-2">de {clp(totalLimit)}</span>
               </div>
-              <SettingsUsageBar value={TOTAL_SPENT} max={totalLimit} />
+              <SettingsUsageBar value={totalSpent} max={totalLimit} />
             </button>
 
-            {/* per familia (L3) */}
+            {/* per familia (L3) with nested L4 breakdown */}
             <div className="flex flex-col gap-gt-1">
               <SettingsGroupHeading>Por familia</SettingsGroupHeading>
-              <p className="px-gt-4 text-gt-xs font-medium text-gt-ink-3">El seguimiento de gasto se hace por familia de productos.</p>
+              <p className="px-gt-4 text-gt-xs font-medium text-gt-ink-3">El límite se fija por familia (L3); abajo se detalla el gasto por categoría (L4).</p>
             </div>
-            <div className="flex flex-col">
+            <div className="flex flex-col gap-gt-12">
               {limits.map((row) => (
-                <FamiliaLimitRow key={row.id} row={row} onEdit={openEdit} />
+                <FamiliaLimitCard key={row.id} row={row} onEdit={openEdit} />
               ))}
             </div>
             <Button variant="secondary" fullWidth onClick={openAdd} disabled={available.length === 0}>
