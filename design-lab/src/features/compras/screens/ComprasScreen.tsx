@@ -3,6 +3,7 @@ import { PixelIcon } from "@design-system/assets/PixelIcon";
 import { MapPinIcon } from "@design-system/assets/icons";
 import { Badge } from "@design-system/atoms/Badge";
 import { SearchRow } from "@design-system/molecules/SearchRow";
+import { SectionFade } from "@design-system/atoms/SectionFade";
 import { CategoryChip } from "@design-system/molecules/CategoryChip";
 import { CompactRow, CompactRowList } from "@design-system/molecules/CompactRowList";
 import { ThumbnailBadge } from "@design-system/molecules/ThumbnailBadge";
@@ -109,8 +110,9 @@ export function ComprasScreen({ groups = BROWSE_TRANSACTIONS, selection = {}, on
 
   return (
     <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden">
-      {/* sticky search / filter band — full-width chrome, content centered on desktop */}
-      <div className="shrink-0 border-b-2 border-gt-line bg-gt-surface px-gt-16 pb-gt-12 pt-gt-12">
+      {/* sticky search / filter band — full-width chrome, content centered on desktop
+          (no divider line; it fades into the list below) */}
+      <div className="shrink-0 bg-gt-surface px-gt-16 pb-gt-12 pt-gt-12">
         <div className="mx-auto w-full" style={{ maxWidth: contentMax }}>
         <div className="flex items-center gap-gt-8">
           <span className="min-w-0 flex-1">
@@ -146,6 +148,9 @@ export function ComprasScreen({ groups = BROWSE_TRANSACTIONS, selection = {}, on
         ) : null}
         </div>
       </div>
+
+      {/* white band melts into the page before the list (replaces the divider) */}
+      <SectionFade />
 
       {/* date-grouped transaction list — bare CompactRowList per group */}
       <div className="min-h-0 flex-1 overflow-y-auto px-gt-16 pb-gt-16">

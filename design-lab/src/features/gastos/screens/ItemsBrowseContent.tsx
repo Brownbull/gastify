@@ -3,6 +3,7 @@ import { PixelIcon } from "@design-system/assets/PixelIcon";
 import { FilterSheet, selectionCount, type FilterSelection } from "@design-system/organisms/FilterSheet";
 import { LinkSourcePopup, AddItemSheet, type LinkSource } from "@design-system/organisms/LinkItemFlow";
 import { SearchRow } from "@design-system/molecules/SearchRow";
+import { SectionFade } from "@design-system/atoms/SectionFade";
 import { HistoryItemRow } from "@design-system/molecules/HistoryItemRow";
 import { sampleHistoryItems, clp, type HistoryItem } from "@lib/transactionFixtures";
 import { PERIOD_FACET, SORT_FACET, type FilterFacet } from "@lib/browseFixtures";
@@ -51,8 +52,8 @@ export function ItemsBrowseContent() {
 
   return (
     <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden bg-gt-bg">
-      {/* content band: search + filter button + stats */}
-      <div className="shrink-0 border-b-2 border-gt-line bg-gt-surface px-gt-16 pb-gt-12 pt-gt-12">
+      {/* content band: search + filter button + stats (no divider — fades below) */}
+      <div className="shrink-0 bg-gt-surface px-gt-16 pb-gt-12 pt-gt-12">
         <div className="flex items-center gap-gt-8">
           <span className="min-w-0 flex-1">
             <SearchRow
@@ -80,8 +81,11 @@ export function ItemsBrowseContent() {
         </p>
       </div>
 
+      {/* white band melts into the page before the list (replaces the divider) */}
+      <SectionFade />
+
       {/* items list — single container, divided rows (Gustify pattern) */}
-      <div className="min-h-0 flex-1 overflow-y-auto p-gt-16">
+      <div className="min-h-0 flex-1 overflow-y-auto px-gt-16 pb-gt-16 pt-gt-8">
         <div className="overflow-hidden rounded-gt-xl border-2 border-gt-line bg-gt-surface">
           <div className="divide-y divide-gt-line">
             {sampleHistoryItems.map((item) => (

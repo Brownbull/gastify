@@ -41,6 +41,10 @@ function HistorialInShell({ platform }: { platform: Platform }) {
   const switcher = SUBS.map((s) => (
     <HeaderAction key={s.id} icon={s.icon} label={s.label} active={sub === s.id} onClick={() => setSub(s.id)} />
   ));
+  // header title reflects the active subsection (never the generic "Historial").
+  // `sub` is exhaustive over SUBS, so the fallback never renders — kept as a guard
+  // against future drift, and it still avoids the generic "Historial" string.
+  const title = SUBS.find((s) => s.id === sub)?.label ?? SUBS[0].label;
 
   // the Compras filter sheet rides AppScaffold's overlay slot (only on Transacciones).
   const sheet = (
@@ -79,7 +83,7 @@ function HistorialInShell({ platform }: { platform: Platform }) {
     <AppScaffold
       platform={platform}
       active="historial"
-      title="Historial"
+      title={title}
       bleed
       headerActions={switcher}
       onScan={() => setScanOpen(true)}

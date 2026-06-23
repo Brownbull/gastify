@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ReportDetail } from "@design-system/molecules/ReportDetail";
 import { PeriodControl, LATEST_PERIOD_INDEX } from "@design-system/molecules/PeriodControl";
+import { SectionFade } from "@design-system/atoms/SectionFade";
 import type { Platform } from "@design-system/organisms/AppSurface";
 import type { FilterSelection } from "@design-system/organisms/FilterSheet";
 import { ComprasScreen } from "@features/compras/screens/ComprasScreen";
@@ -41,8 +42,11 @@ export function HistorialScreen({ platform = "mobile", sub, comprasSelection = {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      {/* shared period control — scopes every subsection */}
-      <div className="shrink-0 border-b-2 border-gt-line bg-gt-surface px-gt-16 pb-gt-12 pt-gt-12">
+      {/* shared period control — scopes every subsection (no divider line; the
+          control pills are already self-contained, and the band melts into the
+          subsection below — directly into the white search band on Transacciones/
+          Productos, or via a SectionFade into the gt-bg (cream) report area on Reportes) */}
+      <div className="shrink-0 bg-gt-surface px-gt-16 pb-gt-12 pt-gt-12">
         <div className="mx-auto w-full" style={{ maxWidth: contentMax }}>
           <PeriodControl dimension={dimension} onDimensionChange={setDimension} anchorIndex={anchorIndex} onAnchorChange={setAnchorIndex} />
         </div>
@@ -53,11 +57,14 @@ export function HistorialScreen({ platform = "mobile", sub, comprasSelection = {
       ) : sub === "productos" ? (
         <ItemsBrowseContent />
       ) : (
-        <div className="min-h-0 flex-1 overflow-y-auto px-gt-16 pb-gt-16">
-          <div className="mx-auto flex w-full flex-col gap-gt-16 pt-gt-12" style={{ maxWidth: contentMax }}>
-            <ReportDetail report={TIMEFRAME_REPORTS[dimension]} />
+        <>
+          <SectionFade />
+          <div className="min-h-0 flex-1 overflow-y-auto px-gt-16 pb-gt-16">
+            <div className="mx-auto flex w-full flex-col gap-gt-16 pt-gt-12" style={{ maxWidth: contentMax }}>
+              <ReportDetail report={TIMEFRAME_REPORTS[dimension]} />
+            </div>
           </div>
-        </div>
+        </>
       )}
     </div>
   );
