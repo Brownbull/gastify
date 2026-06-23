@@ -150,11 +150,11 @@ export function ComprasScreen({ groups = BROWSE_TRANSACTIONS, selection = {}, on
       </div>
 
       {/* white band melts into the page before the list (replaces the divider) */}
-      <SectionFade />
+      <SectionFade heightClassName="h-4" />
 
       {/* date-grouped transaction list — bare CompactRowList per group */}
       <div className="min-h-0 flex-1 overflow-y-auto px-gt-16 pb-gt-16">
-        <div className="mx-auto flex w-full flex-col gap-gt-16 pt-gt-12" style={{ maxWidth: contentMax }}>
+        <div className="mx-auto flex w-full flex-col gap-gt-16 pt-gt-4" style={{ maxWidth: contentMax }}>
           {pageGroups.map((group) => (
             <section key={group.date} className="flex flex-col gap-gt-6">
               <div className="flex items-center justify-between gap-gt-8">

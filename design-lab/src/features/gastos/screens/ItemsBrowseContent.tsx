@@ -82,10 +82,10 @@ export function ItemsBrowseContent() {
       </div>
 
       {/* white band melts into the page before the list (replaces the divider) */}
-      <SectionFade />
+      <SectionFade heightClassName="h-4" />
 
       {/* items list — single container, divided rows (Gustify pattern) */}
-      <div className="min-h-0 flex-1 overflow-y-auto px-gt-16 pb-gt-16 pt-gt-8">
+      <div className="min-h-0 flex-1 overflow-y-auto px-gt-16 pb-gt-16 pt-gt-4">
         <div className="overflow-hidden rounded-gt-xl border-2 border-gt-line bg-gt-surface">
           <div className="divide-y divide-gt-line">
             {sampleHistoryItems.map((item) => (
