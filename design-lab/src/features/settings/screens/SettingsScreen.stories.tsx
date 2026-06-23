@@ -3,6 +3,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { AppSurface, platformFromGlobals } from "@design-system/organisms/AppSurface";
 import { AppScaffold } from "@design-system/organisms/AppScaffold";
 import { SettingsScreen } from "./SettingsScreen";
+import { SettingsFlow } from "./SettingsFlow";
 
 /**
  * Features/Settings/Screens/SettingsScreen — the Ajustes hub. Reached from the
@@ -41,7 +42,7 @@ export const FromAvatar: Story = {
           onProfileSelect={(k) => {
             if (k === "ajustes") setOpen(true);
           }}
-          overlay={open ? <SettingsScreen onBack={() => setOpen(false)} onSelect={() => {}} /> : undefined}
+          overlay={open ? <SettingsFlow onClose={() => setOpen(false)} /> : undefined}
         >
           <div className="flex h-full flex-col items-center justify-center gap-gt-8 px-gt-16 text-center">
             <p className="font-gt-display text-gt-lg font-extrabold text-gt-ink">Abre Ajustes desde el avatar</p>
