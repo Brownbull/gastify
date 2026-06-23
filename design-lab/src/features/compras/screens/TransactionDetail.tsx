@@ -2,7 +2,7 @@ import { useState } from "react";
 import { AppHeader } from "@design-system/organisms/Nav";
 import { MerchantHeader } from "@design-system/molecules/MerchantHeader";
 import { ItemGroup } from "@design-system/molecules/ItemGroup";
-import { ItemRow } from "@design-system/molecules/ItemRow";
+import { EditableItem } from "@design-system/molecules/EditableItem";
 import { TransactionTotal } from "@design-system/molecules/TransactionTotal";
 import { PaymentPicker } from "@design-system/molecules/PaymentPicker";
 import { GroupedCategoryPicker } from "@design-system/molecules/GroupedCategoryPicker";
@@ -14,7 +14,7 @@ import { Modal } from "@design-system/atoms/Modal";
 import { Button } from "@design-system/atoms/Button";
 import { PixelIcon } from "@design-system/assets/PixelIcon";
 import type { Platform } from "@design-system/organisms/AppSurface";
-import { CADENCE_LABEL, CADENCE_ORDER, sampleTxn, type TxnCadence, type TxnDetail } from "@lib/transactionFixtures";
+import { CADENCE_LABEL, CADENCE_ORDER, sampleTxn, type TxnCadence, type TxnDetail, type TxnItem } from "@lib/transactionFixtures";
 import { CASH, SAMPLE_CARDS } from "@lib/paymentMethods";
 import { type CurrencyCode } from "@lib/scanFixtures";
 
@@ -25,8 +25,10 @@ import { type CurrencyCode } from "@lib/scanFixtures";
  * pencil) — the payment and cadence chips open their pickers; a danger delete
  * button (left of the save CTA) confirms before removing the transaction.
  *
- *   header → MerchantHeader (thumbnail · merchant · category/payment/cadence)
- *   body   → one ItemGroup per L3 familia, each holding its ItemRows (L4)
+ *   header → MerchantHeader (merchant · category/payment/cadence/location/date/
+ *            time/currency — all tap-to-edit)
+ *   body   → one ItemGroup per L3 familia of EditableItems (tap an item to edit
+ *            its name/category/qty/price; total is derived live)
  *   footer → TransactionTotal (delete button + total folded into the save CTA)
  */
 export interface TransactionDetailProps {
@@ -90,7 +92,31 @@ export function TransactionDetail({ txn = sampleTxn, onBack, onSave, onDelete, p
   const [curOpen, setCurOpen] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
 
-  const itemCount = txn.groups.reduce((n, g) => n + g.items.length, 0);
+  // editable items (per familia group). editKey = `${groupIdx}-${itemIdx}`.
+  const [groups, setGroups] = useState(txn.groups);
+  const [editKey, setEditKey] = useState<string | null>(null);
+  const [editSnapshot, setEditSnapshot] = useState<TxnItem | null>(null);
+  const [itemCatKey, setItemCatKey] = useState<string | null>(null);
+
+  const setItem = (gi: number, ii: number, patch: Partial<TxnItem>) =>
+    setGroups((prev) => prev.map((g, x) => (x === gi ? { ...g, items: g.items.map((it, y) => (y === ii ? { ...it, ...patch } : it)) } : g)));
+  const deleteItem = (gi: number, ii: number) => {
+    setGroups((prev) => prev.map((g, x) => (x === gi ? { ...g, items: g.items.filter((_, y) => y !== ii) } : g)));
+    setEditKey(null);
+    setEditSnapshot(null);
+  };
+  const enterEdit = (gi: number, ii: number) => { setEditKey(`${gi}-${ii}`); setEditSnapshot({ ...groups[gi].items[ii] }); };
+  const commitEdit = () => { setEditKey(null); setEditSnapshot(null); };
+  const cancelEdit = () => {
+    if (editKey && editSnapshot) { const [gi, ii] = editKey.split("-").map(Number); setItem(gi, ii, editSnapshot); }
+    setEditKey(null);
+    setEditSnapshot(null);
+  };
+  const itemCatTarget = itemCatKey ? groups[Number(itemCatKey.split("-")[0])]?.items[Number(itemCatKey.split("-")[1])] : null;
+
+  // total + count are derived from the (edited) items so the footer stays live.
+  const itemCount = groups.reduce((n, g) => n + g.items.length, 0);
+  const total = groups.reduce((s, g) => s + g.items.reduce((t, it) => t + it.unitPrice * it.units, 0), 0);
   // desktop: cap + center the single column (it never fills the wide pane).
   const contentMax = platform === "desktop" ? "44rem" : undefined;
 
@@ -121,13 +147,28 @@ export function TransactionDetail({ txn = sampleTxn, onBack, onSave, onDelete, p
           />
 
           <div className="flex flex-col gap-gt-12">
-            {txn.groups.map((group) => {
-              const subtotal = group.items.reduce((sum, it) => sum + it.total, 0);
+            {groups.map((group, gi) => {
+              if (group.items.length === 0) return null;
+              const subtotal = group.items.reduce((sum, it) => sum + it.unitPrice * it.units, 0);
               return (
                 <ItemGroup key={group.familia} familia={group.familia} total={subtotal} count={group.items.length}>
-                  {group.items.map((item, i) => (
-                    <ItemRow key={`${group.familia}-${i}`} item={item} />
-                  ))}
+                  {group.items.map((item, ii) => {
+                    const key = `${gi}-${ii}`;
+                    return (
+                      <EditableItem
+                        key={key}
+                        item={item}
+                        currency={currency}
+                        editing={editKey === key}
+                        onEnterEdit={() => enterEdit(gi, ii)}
+                        onCommit={commitEdit}
+                        onCancelEdit={cancelEdit}
+                        onChange={(patch) => setItem(gi, ii, patch)}
+                        onDelete={() => deleteItem(gi, ii)}
+                        onPickCategory={() => setItemCatKey(key)}
+                      />
+                    );
+                  })}
                 </ItemGroup>
               );
             })}
@@ -138,7 +179,7 @@ export function TransactionDetail({ txn = sampleTxn, onBack, onSave, onDelete, p
       {/* sticky footer: delete + the total folded into the save CTA */}
       <div className="shrink-0 border-t-2 border-gt-line bg-gt-surface px-gt-16 py-gt-12">
         <div className="mx-auto w-full" style={{ maxWidth: contentMax }}>
-          <TransactionTotal total={txn.total} itemCount={itemCount} onSave={onSave} onDelete={() => setConfirmDelete(true)} saveLabel="Guardar" />
+          <TransactionTotal total={total} itemCount={itemCount} onSave={onSave} onDelete={() => setConfirmDelete(true)} saveLabel="Guardar" />
         </div>
       </div>
 
@@ -152,6 +193,13 @@ export function TransactionDetail({ txn = sampleTxn, onBack, onSave, onDelete, p
         onAddCard={(card) => setMethods((m) => [...m, card])}
       />
       <GroupedCategoryPicker open={catOpen} onClose={() => setCatOpen(false)} mode="establishment" selectedId={category} onSelect={setCategory} />
+      <GroupedCategoryPicker
+        open={itemCatKey != null}
+        onClose={() => setItemCatKey(null)}
+        mode="item"
+        selectedId={itemCatTarget?.category ?? ""}
+        onSelect={(id) => { if (itemCatKey) { const [gi, ii] = itemCatKey.split("-").map(Number); setItem(gi, ii, { category: id }); } }}
+      />
       <LocationPicker open={locOpen} onClose={() => setLocOpen(false)} selectedCity={location} onSelect={setLocation} />
       <DatePicker open={dateOpen} onClose={() => setDateOpen(false)} value={date} onSelect={setDate} />
       <TimePicker open={timeOpen} onClose={() => setTimeOpen(false)} value={time} onSelect={setTime} />

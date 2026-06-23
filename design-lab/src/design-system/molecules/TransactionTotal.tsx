@@ -52,14 +52,14 @@ export function TransactionTotal({
             type="button"
             onClick={onDelete}
             aria-label="Eliminar transacción"
-            className="grid place-items-center rounded-gt-xl border-2 border-gt-line-strong bg-gt-negative py-gt-10 text-white shadow-gt-sm transition duration-150 ease-gt-bounce hover:-translate-y-0.5 hover:shadow-gt-md active:translate-y-0 active:shadow-gt-xs focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-gt-primary/30"
+            className="grid place-items-center rounded-gt-xl border-2 border-gt-line-strong bg-gt-negative-bg py-gt-10 text-gt-negative shadow-gt-sm transition duration-150 ease-gt-bounce hover:-translate-y-0.5 hover:shadow-gt-md active:translate-y-0 active:shadow-gt-xs focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-gt-primary/30"
           >
-            <PixelIcon name="action-delete" size={28} />
+            <PixelIcon name="action-delete" size={34} />
           </button>
         ) : null}
-        <Button variant="primary" onClick={onSave} className="justify-between bg-gt-success px-gt-16 text-gt-ink!">
+        <Button variant="primary" onClick={onSave} className="justify-between bg-gt-positive-bg! px-gt-16 text-gt-ink!">
           <span className="flex items-center gap-gt-8">
-            <PixelIcon name="scan-success" size={18} /> {saveLabel}
+            <PixelIcon name="scan-success" size={24} /> {saveLabel}
           </span>
           <span className="font-gt-display text-gt-xl">{clp(total)}</span>
         </Button>

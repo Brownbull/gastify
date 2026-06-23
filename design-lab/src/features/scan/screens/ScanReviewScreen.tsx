@@ -9,8 +9,9 @@ import { GroupedCategoryPicker } from "@design-system/molecules/GroupedCategoryP
 import { LocationPicker } from "@design-system/molecules/LocationPicker";
 import { DatePicker } from "@design-system/molecules/DatePicker";
 import { TimePicker } from "@design-system/molecules/TimePicker";
-import { InlineText, inlineInputClass } from "@design-system/molecules/InlineText";
+import { InlineText } from "@design-system/molecules/InlineText";
 import { CurrencyPicker } from "@design-system/molecules/CurrencyPicker";
+import { EditableItem } from "@design-system/molecules/EditableItem";
 import { MetaPill } from "@design-system/atoms/MetaPill";
 import { ScanSaveConfirmScreen, type Correction } from "./ScanSaveConfirmScreen";
 import { getCategoryToken } from "@lib/categoryTokens";
@@ -18,10 +19,8 @@ import { CASH, SAMPLE_CARDS } from "@lib/paymentMethods";
 import { type TxnItem } from "@lib/transactionFixtures";
 import {
   SAMPLE_RECEIPT,
-  getCurrency,
   formatMoney,
   type ScanReceipt,
-  type CurrencyCode,
 } from "@lib/scanFixtures";
 
 /**
@@ -48,115 +47,6 @@ export interface ScanReviewScreenProps {
 
 const PAYMENT_METHODS = [CASH, ...SAMPLE_CARDS];
 const NAME_CAP = 30;
-
-function sanitizePrice(raw: string, decimals: 0 | 2): string {
-  const s = raw.replace(/[^\d.]/g, "");
-  if (decimals === 0) return s.replace(/\./g, "");
-  const [int, dec] = s.split(".");
-  return dec != null ? `${int}.${dec.slice(0, 2)}` : int;
-}
-function sanitizeQty(raw: string): string {
-  const s = raw.replace(/[^\d.]/g, "");
-  const [int, dec] = s.split(".");
-  return dec != null ? `${int}.${dec.slice(0, 3)}` : int;
-}
-
-// ── Editable item row ───────────────────────────────────────────────────
-function EditableItem({ item, currency, editing, onEnterEdit, onCommit, onCancelEdit, onChange, onDelete, onPickCategory }: {
-  item: TxnItem;
-  currency: CurrencyCode;
-  editing: boolean;
-  onEnterEdit: () => void;
-  onCommit: () => void;
-  onCancelEdit: () => void;
-  onChange: (patch: Partial<TxnItem>) => void;
-  onDelete: () => void;
-  onPickCategory: () => void;
-}) {
-  const cur = getCurrency(currency);
-  const total = item.unitPrice * item.units; // derived, read-only
-
-  // collapsed — whole row taps into edit; no trailing icon.
-  if (!editing) {
-    return (
-      <li>
-        <button type="button" onClick={onEnterEdit} className="flex w-full items-center gap-gt-10 px-gt-12 py-gt-10 text-left transition hover:bg-gt-bg-3">
-          <span className="min-w-0 flex-1">
-            <span className="block truncate font-gt-display text-gt-md font-extrabold text-gt-ink">{item.name}</span>
-            <span className="mt-gt-2 flex min-w-0 items-center gap-gt-6">
-              <CategoryChip category={item.category} size="sm" />
-              {item.subcategory ? (
-                // free-text subcategory — plain text, category's prominent color, no icon.
-                <span className="truncate font-gt-display text-gt-xs font-extrabold" style={{ color: getCategoryToken(item.category).color }}>
-                  {item.subcategory}
-                </span>
-              ) : null}
-            </span>
-          </span>
-          <span className="flex shrink-0 flex-col items-end">
-            <span className="font-gt-display text-gt-md font-extrabold text-gt-ink">{formatMoney(total, currency)}</span>
-            <span className="text-gt-xs font-medium text-gt-ink-2">{formatMoney(item.unitPrice, currency)} ×{item.units}</span>
-          </span>
-        </button>
-      </li>
-    );
-  }
-
-  // expanded — all fields editable; only cancel/accept (no trash by the name).
-  return (
-    <li className="bg-gt-bg-3 p-gt-12">
-      <div className="flex flex-col gap-gt-10">
-        <label className="flex flex-col gap-gt-2">
-          <span className="font-gt-display text-[10px] font-extrabold uppercase text-gt-ink-3">Nombre</span>
-          <input autoFocus aria-label="Nombre del ítem" className={`${inlineInputClass} text-gt-sm`} value={item.name} maxLength={60} onChange={(e) => onChange({ name: e.target.value })} />
-        </label>
-
-        {/* category — just the chip (no outer container); tap to open the grouped picker.
-            Subcategory (free text, not editable) sits next to it in the category color. */}
-        <div className="flex flex-col items-start gap-gt-2">
-          <span className="font-gt-display text-[10px] font-extrabold uppercase text-gt-ink-3">Categoría</span>
-          <div className="flex items-center gap-gt-6">
-            <button type="button" aria-label="Cambiar categoría del ítem" onClick={onPickCategory} className="transition hover:-translate-y-0.5">
-              <CategoryChip category={item.category} size="sm" />
-            </button>
-            {item.subcategory ? (
-              <span className="font-gt-display text-gt-xs font-extrabold" style={{ color: getCategoryToken(item.category).color }}>{item.subcategory}</span>
-            ) : null}
-          </div>
-        </div>
-
-        <div className="grid grid-cols-3 gap-gt-8">
-          <label className="flex flex-col gap-gt-2">
-            <span className="font-gt-display text-[10px] font-extrabold uppercase text-gt-ink-3">Cantidad</span>
-            <input inputMode="decimal" aria-label="Cantidad" className={`${inlineInputClass} text-gt-sm`} value={String(item.units)} onChange={(e) => onChange({ units: Number(sanitizeQty(e.target.value)) || 0 })} />
-          </label>
-          <label className="flex flex-col gap-gt-2">
-            <span className="font-gt-display text-[10px] font-extrabold uppercase text-gt-ink-3">P. unit. ({cur.symbol})</span>
-            <input inputMode="decimal" aria-label="Precio unitario" className={`${inlineInputClass} text-gt-sm`} value={String(item.unitPrice)} onChange={(e) => onChange({ unitPrice: Number(sanitizePrice(e.target.value, cur.decimals)) || 0 })} />
-          </label>
-          <label className="flex flex-col gap-gt-2">
-            <span className="font-gt-display text-[10px] font-extrabold uppercase text-gt-ink-3">Total</span>
-            <span className="rounded-gt-md border-2 border-gt-line bg-gt-surface px-gt-8 py-gt-2 font-gt-display text-gt-sm font-extrabold text-gt-ink-2">{formatMoney(total, currency)}</span>
-          </label>
-        </div>
-
-        {/* full-width 3-col footer: ✕ cancel (left) · Eliminar (middle) · ✓ accept (right) */}
-        <div className="grid grid-cols-3 gap-gt-8">
-          <button type="button" aria-label="Cancelar" onClick={onCancelEdit} className="flex h-10 items-center justify-center rounded-gt-lg border-2 border-gt-line-strong bg-gt-surface text-gt-ink shadow-gt-xs transition hover:-translate-y-0.5">
-            <span className="font-gt-display text-gt-lg font-extrabold leading-none">✕</span>
-          </button>
-          <button type="button" aria-label="Eliminar ítem" onClick={onDelete} className="flex h-10 items-center justify-center gap-gt-4 rounded-gt-lg border-2 border-gt-line-strong bg-gt-surface text-gt-negative shadow-gt-xs transition hover:-translate-y-0.5 hover:border-gt-negative">
-            <PixelIcon name="action-delete" size={18} />
-            <span className="font-gt-display text-gt-xs font-extrabold">Eliminar</span>
-          </button>
-          <button type="button" aria-label="Aceptar" onClick={onCommit} className="flex h-10 items-center justify-center rounded-gt-lg border-2 border-gt-line-strong bg-gt-positive text-white shadow-gt-sm transition hover:-translate-y-0.5">
-            <PixelIcon name="scan-success" size={22} />
-          </button>
-        </div>
-      </div>
-    </li>
-  );
-}
 
 /** Diff the original vs current receipt to collect storable corrections. */
 function collectCorrections(orig: ScanReceipt, cur: ScanReceipt): Correction[] {
