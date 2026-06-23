@@ -5,7 +5,7 @@ import { ArrowLeftIcon } from "@design-system/assets/icons";
 import { CategoryChip } from "@design-system/molecules/CategoryChip";
 import { StatementSteps } from "../components/StatementSteps";
 import { ReconcileGroup } from "../components/ReconcileGroup";
-import { GroupedCategoryPicker } from "../components/GroupedCategoryPicker";
+import { GroupedCategoryPicker } from "@design-system/molecules/GroupedCategoryPicker";
 import { CancelStatementDialog } from "../components/CancelStatementDialog";
 import {
   SAMPLE_RECONCILE,

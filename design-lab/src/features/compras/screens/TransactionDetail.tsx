@@ -5,12 +5,18 @@ import { ItemGroup } from "@design-system/molecules/ItemGroup";
 import { ItemRow } from "@design-system/molecules/ItemRow";
 import { TransactionTotal } from "@design-system/molecules/TransactionTotal";
 import { PaymentPicker } from "@design-system/molecules/PaymentPicker";
+import { GroupedCategoryPicker } from "@design-system/molecules/GroupedCategoryPicker";
+import { LocationPicker } from "@design-system/molecules/LocationPicker";
+import { DatePicker } from "@design-system/molecules/DatePicker";
+import { TimePicker } from "@design-system/molecules/TimePicker";
+import { CurrencyPicker } from "@design-system/molecules/CurrencyPicker";
 import { Modal } from "@design-system/atoms/Modal";
 import { Button } from "@design-system/atoms/Button";
 import { PixelIcon } from "@design-system/assets/PixelIcon";
 import type { Platform } from "@design-system/organisms/AppSurface";
 import { CADENCE_LABEL, CADENCE_ORDER, sampleTxn, type TxnCadence, type TxnDetail } from "@lib/transactionFixtures";
 import { CASH, SAMPLE_CARDS } from "@lib/paymentMethods";
+import { type CurrencyCode } from "@lib/scanFixtures";
 
 /**
  * TransactionDetail (Phase 9) — a SAVED boleta, reached by tapping a transaction
@@ -63,11 +69,25 @@ function CadencePicker({ open, value, onPick, onClose }: { open: boolean; value:
 }
 
 export function TransactionDetail({ txn = sampleTxn, onBack, onSave, onDelete, platform = "mobile" }: TransactionDetailProps) {
+  // editable transaction-level fields (tap to edit, like the scan review).
+  const [merchant, setMerchant] = useState<string>(txn.merchant);
+  const [category, setCategory] = useState<string>(txn.category);
   const [cadence, setCadence] = useState<TxnCadence>(txn.cadence);
-  const [cadenceOpen, setCadenceOpen] = useState(false);
   const [payment, setPayment] = useState<string>(txn.payment);
+  const [location, setLocation] = useState<string>(txn.location);
+  const [date, setDate] = useState<string>(txn.date);
+  const [time, setTime] = useState<string>(txn.time);
+  const [currency, setCurrency] = useState<CurrencyCode>("CLP");
   const [methods, setMethods] = useState(PAYMENT_METHODS);
+
+  // which picker / modal is open
+  const [cadenceOpen, setCadenceOpen] = useState(false);
   const [payOpen, setPayOpen] = useState(false);
+  const [catOpen, setCatOpen] = useState(false);
+  const [locOpen, setLocOpen] = useState(false);
+  const [dateOpen, setDateOpen] = useState(false);
+  const [timeOpen, setTimeOpen] = useState(false);
+  const [curOpen, setCurOpen] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
 
   const itemCount = txn.groups.reduce((n, g) => n + g.items.length, 0);
@@ -82,10 +102,22 @@ export function TransactionDetail({ txn = sampleTxn, onBack, onSave, onDelete, p
         <div className="mx-auto flex w-full flex-col gap-gt-16 pt-gt-12" style={{ maxWidth: contentMax }}>
           <MerchantHeader
             txn={txn}
+            merchantValue={merchant}
+            onMerchantChange={setMerchant}
+            categoryId={category}
+            onCategoryClick={() => setCatOpen(true)}
             paymentId={payment}
             onPaymentClick={() => setPayOpen(true)}
             cadenceId={cadence}
             onCadenceClick={() => setCadenceOpen(true)}
+            location={location}
+            onLocationClick={() => setLocOpen(true)}
+            date={date}
+            onDateClick={() => setDateOpen(true)}
+            time={time}
+            onTimeClick={() => setTimeOpen(true)}
+            currencyValue={currency}
+            onCurrencyClick={() => setCurOpen(true)}
           />
 
           <div className="flex flex-col gap-gt-12">
@@ -106,7 +138,7 @@ export function TransactionDetail({ txn = sampleTxn, onBack, onSave, onDelete, p
       {/* sticky footer: delete + the total folded into the save CTA */}
       <div className="shrink-0 border-t-2 border-gt-line bg-gt-surface px-gt-16 py-gt-12">
         <div className="mx-auto w-full" style={{ maxWidth: contentMax }}>
-          <TransactionTotal total={txn.total} itemCount={itemCount} onSave={onSave} onDelete={() => setConfirmDelete(true)} saveLabel="Guardar cambios" />
+          <TransactionTotal total={txn.total} itemCount={itemCount} onSave={onSave} onDelete={() => setConfirmDelete(true)} saveLabel="Guardar" />
         </div>
       </div>
 
@@ -119,6 +151,11 @@ export function TransactionDetail({ txn = sampleTxn, onBack, onSave, onDelete, p
         onSelect={setPayment}
         onAddCard={(card) => setMethods((m) => [...m, card])}
       />
+      <GroupedCategoryPicker open={catOpen} onClose={() => setCatOpen(false)} mode="establishment" selectedId={category} onSelect={setCategory} />
+      <LocationPicker open={locOpen} onClose={() => setLocOpen(false)} selectedCity={location} onSelect={setLocation} />
+      <DatePicker open={dateOpen} onClose={() => setDateOpen(false)} value={date} onSelect={setDate} />
+      <TimePicker open={timeOpen} onClose={() => setTimeOpen(false)} value={time} onSelect={setTime} />
+      <CurrencyPicker open={curOpen} onClose={() => setCurOpen(false)} selected={currency} onSelect={setCurrency} />
 
       <Modal
         open={confirmDelete}

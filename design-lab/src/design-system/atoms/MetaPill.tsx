@@ -15,6 +15,8 @@ export interface MetaPillProps {
   size?: MetaPillSize;
   /** render as a button (tappable to edit) instead of a static span. */
   onClick?: () => void;
+  /** accessible name for the tappable variant (visible text is the value). */
+  ariaLabel?: string;
   className?: string;
   children: ReactNode;
 }
@@ -24,13 +26,14 @@ const sizeClasses: Record<MetaPillSize, string> = {
   md: "gap-gt-8 px-gt-12 py-gt-6 text-gt-md",
 };
 
-export function MetaPill({ icon, size = "sm", onClick, className = "", children }: MetaPillProps) {
+export function MetaPill({ icon, size = "sm", onClick, ariaLabel, className = "", children }: MetaPillProps) {
   const base = `inline-flex items-center rounded-gt-pill border-2 border-gt-line-strong bg-gt-surface font-extrabold leading-none text-gt-ink ${sizeClasses[size]} ${className}`;
   if (onClick) {
     return (
       <button
         type="button"
         onClick={onClick}
+        aria-label={ariaLabel}
         className={`${base} transition duration-150 ease-gt-bounce hover:-translate-y-0.5 hover:shadow-gt-xs focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-gt-primary/25`}
       >
         {icon}

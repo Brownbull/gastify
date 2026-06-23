@@ -10,7 +10,7 @@ export const SUPERMARKET_TXN: TxnDetail = {
   merchant: "Líder",
   category: "supermercados",
   storeIcon: "store-supermarket",
-  location: "Santiago, Chile",
+  location: "Santiago",
   date: "15 Mar 2026",
   time: "11:24",
   payment: "cash",

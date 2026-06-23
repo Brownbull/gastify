@@ -62,7 +62,7 @@ export const sampleTxn: TxnDetail = {
   merchant: "Nido Gastronómico",
   category: "restaurantes",
   storeIcon: "store-restaurant",
-  location: "Villarrica, Chile",
+  location: "Villarrica",
   date: "17 Mar 2026",
   time: "17:10",
   payment: "falabella",

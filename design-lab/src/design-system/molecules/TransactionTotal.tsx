@@ -46,18 +46,18 @@ export function TransactionTotal({
           <PaymentChip method={payment} onClick={onPaymentClick} />
         </div>
       ) : null}
-      <div className="flex items-stretch gap-gt-8">
+      <div className={`grid items-stretch gap-gt-8 ${onDelete ? "grid-cols-[3fr_7fr]" : "grid-cols-1"}`}>
         {onDelete ? (
           <button
             type="button"
             onClick={onDelete}
             aria-label="Eliminar transacción"
-            className="grid aspect-square shrink-0 place-items-center rounded-gt-xl border-2 border-gt-line-strong bg-gt-negative text-white shadow-gt-sm transition duration-150 ease-gt-bounce hover:-translate-y-0.5 hover:shadow-gt-md active:translate-y-0 active:shadow-gt-xs focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-gt-primary/30"
+            className="grid place-items-center rounded-gt-xl border-2 border-gt-line-strong bg-gt-negative py-gt-10 text-white shadow-gt-sm transition duration-150 ease-gt-bounce hover:-translate-y-0.5 hover:shadow-gt-md active:translate-y-0 active:shadow-gt-xs focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-gt-primary/30"
           >
-            <PixelIcon name="action-delete" size={24} />
+            <PixelIcon name="action-delete" size={28} />
           </button>
         ) : null}
-        <Button variant="primary" onClick={onSave} className="flex-1 justify-between bg-gt-success px-gt-16 text-gt-ink!">
+        <Button variant="primary" onClick={onSave} className="justify-between bg-gt-success px-gt-16 text-gt-ink!">
           <span className="flex items-center gap-gt-8">
             <PixelIcon name="scan-success" size={18} /> {saveLabel}
           </span>

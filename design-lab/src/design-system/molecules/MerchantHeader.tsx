@@ -1,29 +1,48 @@
 import { PixelIcon } from "@design-system/assets/PixelIcon";
 import { MapPinIcon } from "@design-system/assets/icons";
+import { MetaPill } from "@design-system/atoms/MetaPill";
 import { CategoryChip } from "./CategoryChip";
 import { PaymentChip } from "./PaymentChip";
 import { ThumbnailBadge } from "./ThumbnailBadge";
+import { InlineText } from "./InlineText";
 import { CADENCE_LABEL, type TxnCadence, type TxnDetail } from "@lib/transactionFixtures";
 
 /**
- * MerchantHeader — the transaction-detail header block (compact variant, the
- * picked "B" treatment): ThumbnailBadge (store icon + category overlay), the
- * merchant name, a chip row (category · payment · cadence) and an inline
- * location · date · time line.
+ * MerchantHeader — the transaction-detail header block: ThumbnailBadge (store
+ * icon + category overlay), the merchant name, a chip row (category · payment ·
+ * cadence) and a meta line (location · date · time).
  *
- * No explicit edit affordance — fields are edited by tapping them (the payment
- * and cadence chips open their pickers; the merchant/category are tap-to-edit).
+ * Progressive edit-in-place (no edit pencil): when an `on*` handler / `*Change`
+ * is passed, that field becomes tappable to edit (merchant → inline text;
+ * category/payment/cadence → their pickers; location/date/time → MetaPills that
+ * open their pickers). Without handlers it renders display-only.
  */
+const NAME_CAP = 30;
+
 export interface MerchantHeaderProps {
   txn: TxnDetail;
-  /** tap the payment chip — opens the PaymentPicker (parent-owned). */
-  onPaymentClick?: () => void;
-  /** override the displayed payment method id (defaults to txn.payment). */
+  /** merchant name override + inline-edit handler (defaults to txn.merchant). */
+  merchantValue?: string;
+  onMerchantChange?: (v: string) => void;
+  /** category id override + tap handler (defaults to txn.category). */
+  categoryId?: string;
+  onCategoryClick?: () => void;
+  /** payment-method id override + tap handler (defaults to txn.payment). */
   paymentId?: string;
-  /** tap the cadence chip — opens the cadence picker (parent-owned). */
-  onCadenceClick?: () => void;
-  /** override the displayed cadence (defaults to txn.cadence). */
+  onPaymentClick?: () => void;
+  /** cadence override + tap handler (defaults to txn.cadence). */
   cadenceId?: TxnCadence;
+  onCadenceClick?: () => void;
+  /** meta overrides + tap handlers (default to txn.*). */
+  location?: string;
+  onLocationClick?: () => void;
+  date?: string;
+  onDateClick?: () => void;
+  time?: string;
+  onTimeClick?: () => void;
+  /** currency code override + tap handler (defaults to "CLP"). */
+  currencyValue?: string;
+  onCurrencyClick?: () => void;
   className?: string;
 }
 
@@ -51,25 +70,66 @@ function CadenceChip({ cadence, onClick }: { cadence: TxnCadence; onClick?: () =
   );
 }
 
-export function MerchantHeader({ txn, onPaymentClick, paymentId, onCadenceClick, cadenceId, className = "" }: MerchantHeaderProps) {
+export function MerchantHeader({
+  txn,
+  merchantValue,
+  onMerchantChange,
+  categoryId,
+  onCategoryClick,
+  paymentId,
+  onPaymentClick,
+  cadenceId,
+  onCadenceClick,
+  location,
+  onLocationClick,
+  date,
+  onDateClick,
+  time,
+  onTimeClick,
+  currencyValue,
+  onCurrencyClick,
+  className = "",
+}: MerchantHeaderProps) {
+  const merchant = merchantValue ?? txn.merchant;
+  const category = categoryId ?? txn.category;
+  const loc = location ?? txn.location;
+  const day = date ?? txn.date;
+  const hour = time ?? txn.time;
+  const currency = currencyValue ?? "CLP";
+
   return (
     <div className={`flex items-center gap-gt-12 border-b-2 border-gt-line pb-gt-12 ${className}`}>
-      <ThumbnailBadge icon={txn.storeIcon} category={txn.category} size="md" />
+      <ThumbnailBadge icon={txn.storeIcon} category={category} size="md" />
       <div className="flex min-w-0 flex-1 flex-col gap-gt-6">
-        <h2 className="min-w-0 truncate text-gt-lg font-extrabold text-gt-ink">{txn.merchant}</h2>
+        {onMerchantChange ? (
+          <InlineText value={merchant} onChange={(v) => onMerchantChange(v.slice(0, NAME_CAP))} cap={NAME_CAP} ariaLabel="Nombre del comercio" className="min-w-0 truncate text-gt-lg font-extrabold text-gt-ink" />
+        ) : (
+          <h2 className="min-w-0 truncate text-gt-lg font-extrabold text-gt-ink">{merchant}</h2>
+        )}
+
+        {/* row 1 — category · payment */}
         <div className="flex flex-wrap items-center gap-gt-6">
-          <CategoryChip category={txn.category} size="sm" />
+          {onCategoryClick ? (
+            <button type="button" aria-label="Cambiar categoría" onClick={onCategoryClick} className="rounded-gt-pill transition duration-150 ease-gt-bounce hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-gt-primary/25">
+              <CategoryChip category={category} size="sm" />
+            </button>
+          ) : (
+            <CategoryChip category={category} size="sm" />
+          )}
           <PaymentChip method={paymentId ?? txn.payment} size="sm" onClick={onPaymentClick} />
-          <CadenceChip cadence={cadenceId ?? txn.cadence} onClick={onCadenceClick} />
         </div>
-        <div className="flex items-center gap-gt-4 text-gt-xs font-bold text-gt-ink-3">
-          <MapPinIcon className="h-3 w-3" />
-          <span className="truncate">{txn.location}</span>
-          <span className="text-gt-line-strong">·</span>
-          <PixelIcon name="chart-calendar" size={14} />
-          <span>{txn.date}</span>
-          <span className="text-gt-line-strong">·</span>
-          <span>{txn.time}</span>
+
+        {/* row 2 — cadence · location */}
+        <div className="flex flex-wrap items-center gap-gt-6">
+          <CadenceChip cadence={cadenceId ?? txn.cadence} onClick={onCadenceClick} />
+          <MetaPill icon={<MapPinIcon className="h-3 w-3" />} onClick={onLocationClick} ariaLabel="Cambiar ubicación">{loc}</MetaPill>
+        </div>
+
+        {/* row 3 — date · time · currency */}
+        <div className="flex flex-wrap items-center gap-gt-6">
+          <MetaPill icon={<PixelIcon name="chart-calendar" size={14} />} onClick={onDateClick} ariaLabel="Cambiar fecha">{day}</MetaPill>
+          <MetaPill onClick={onTimeClick} ariaLabel="Cambiar hora">{hour}</MetaPill>
+          <MetaPill onClick={onCurrencyClick} ariaLabel="Cambiar moneda">{currency}</MetaPill>
         </div>
       </div>
     </div>

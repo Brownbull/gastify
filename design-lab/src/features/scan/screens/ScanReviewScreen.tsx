@@ -1,22 +1,23 @@
 import { useState } from "react";
 import { AppHeader } from "@design-system/organisms/Nav";
 import { PixelIcon } from "@design-system/assets/PixelIcon";
-import { Modal } from "@design-system/atoms/Modal";
 import { CategoryChip } from "@design-system/molecules/CategoryChip";
 import { PaymentChip } from "@design-system/molecules/PaymentChip";
 import { PaymentPicker } from "@design-system/molecules/PaymentPicker";
 import { ThumbnailBadge } from "@design-system/molecules/ThumbnailBadge";
-import { GroupedCategoryPicker } from "../components/GroupedCategoryPicker";
-import { LocationPicker } from "../components/LocationPicker";
-import { DatePicker } from "../components/DatePicker";
-import { TimePicker } from "../components/TimePicker";
+import { GroupedCategoryPicker } from "@design-system/molecules/GroupedCategoryPicker";
+import { LocationPicker } from "@design-system/molecules/LocationPicker";
+import { DatePicker } from "@design-system/molecules/DatePicker";
+import { TimePicker } from "@design-system/molecules/TimePicker";
+import { InlineText, inlineInputClass } from "@design-system/molecules/InlineText";
+import { CurrencyPicker } from "@design-system/molecules/CurrencyPicker";
+import { MetaPill } from "@design-system/atoms/MetaPill";
 import { ScanSaveConfirmScreen, type Correction } from "./ScanSaveConfirmScreen";
 import { getCategoryToken } from "@lib/categoryTokens";
 import { CASH, SAMPLE_CARDS } from "@lib/paymentMethods";
 import { type TxnItem } from "@lib/transactionFixtures";
 import {
   SAMPLE_RECEIPT,
-  AVAILABLE_CURRENCIES,
   getCurrency,
   formatMoney,
   type ScanReceipt,
@@ -58,60 +59,6 @@ function sanitizeQty(raw: string): string {
   const s = raw.replace(/[^\d.]/g, "");
   const [int, dec] = s.split(".");
   return dec != null ? `${int}.${dec.slice(0, 3)}` : int;
-}
-
-const inlineInput =
-  "rounded-gt-md border-2 border-gt-primary bg-gt-surface px-gt-8 py-gt-2 font-gt-display font-extrabold text-gt-ink shadow-gt-xs focus:outline-none";
-
-/** A tap-to-edit text value: text at rest, an input when active. */
-function InlineText({ value, onChange, cap, className = "", ariaLabel }: { value: string; onChange: (v: string) => void; cap?: number; className?: string; ariaLabel: string }) {
-  const [editing, setEditing] = useState(false);
-  if (editing) {
-    return (
-      <input
-        autoFocus aria-label={ariaLabel} className={`${inlineInput} ${className}`}
-        value={value} maxLength={cap}
-        onChange={(e) => onChange(e.target.value)}
-        onBlur={() => setEditing(false)}
-        onKeyDown={(e) => { if (e.key === "Enter") setEditing(false); }}
-      />
-    );
-  }
-  return (
-    <button type="button" aria-label={ariaLabel} onClick={() => setEditing(true)} className={`text-left ${className}`}>{value}</button>
-  );
-}
-
-/** Small tappable meta pill (location · date · hora · currency triggers). */
-function MetaPill({ icon, onClick, children, ariaLabel }: { icon?: string; onClick: () => void; children: React.ReactNode; ariaLabel: string }) {
-  return (
-    <button type="button" aria-label={ariaLabel} onClick={onClick} className="inline-flex items-center gap-gt-4 rounded-gt-pill border-2 border-gt-line bg-gt-surface px-gt-8 py-gt-2 font-gt-display text-gt-xs font-extrabold text-gt-ink shadow-gt-xs transition hover:-translate-y-0.5 hover:border-gt-line-strong">
-      {icon ? <PixelIcon name={icon} size={14} /> : null}
-      {children}
-    </button>
-  );
-}
-
-// ── Currency picker (kept — full-screen list) ───────────────────────────
-function CurrencyPicker({ open, onClose, selected, onSelect }: { open: boolean; onClose: () => void; selected: CurrencyCode; onSelect: (c: CurrencyCode) => void }) {
-  return (
-    <Modal open={open} onClose={onClose} title="Moneda">
-      <ul className="flex flex-col gap-gt-6">
-        {AVAILABLE_CURRENCIES.map((c) => {
-          const active = c.code === selected;
-          return (
-            <li key={c.code}>
-              <button type="button" onClick={() => { onSelect(c.code); onClose(); }} className={`flex w-full items-center gap-gt-10 rounded-gt-lg border-2 px-gt-12 py-gt-10 text-left font-gt-display text-gt-sm font-extrabold transition hover:-translate-y-0.5 ${active ? "border-gt-line-strong bg-gt-primary text-white" : "border-gt-line-strong bg-gt-surface text-gt-ink shadow-gt-xs"}`}>
-                <span className={`grid h-8 w-8 shrink-0 place-items-center rounded-gt-md border-2 ${active ? "border-white/40 bg-white/10" : "border-gt-line-strong bg-gt-bg-3"} font-gt-display text-gt-sm font-extrabold`}>{c.symbol}</span>
-                <span className="flex-1">{c.code}</span>
-                <span className={`text-gt-xs font-medium ${active ? "text-white/80" : "text-gt-ink-3"}`}>{c.decimals === 0 ? "Sin decimales" : "2 decimales"}</span>
-              </button>
-            </li>
-          );
-        })}
-      </ul>
-    </Modal>
-  );
 }
 
 // ── Editable item row ───────────────────────────────────────────────────
@@ -161,7 +108,7 @@ function EditableItem({ item, currency, editing, onEnterEdit, onCommit, onCancel
       <div className="flex flex-col gap-gt-10">
         <label className="flex flex-col gap-gt-2">
           <span className="font-gt-display text-[10px] font-extrabold uppercase text-gt-ink-3">Nombre</span>
-          <input autoFocus aria-label="Nombre del ítem" className={`${inlineInput} text-gt-sm`} value={item.name} maxLength={60} onChange={(e) => onChange({ name: e.target.value })} />
+          <input autoFocus aria-label="Nombre del ítem" className={`${inlineInputClass} text-gt-sm`} value={item.name} maxLength={60} onChange={(e) => onChange({ name: e.target.value })} />
         </label>
 
         {/* category — just the chip (no outer container); tap to open the grouped picker.
@@ -181,11 +128,11 @@ function EditableItem({ item, currency, editing, onEnterEdit, onCommit, onCancel
         <div className="grid grid-cols-3 gap-gt-8">
           <label className="flex flex-col gap-gt-2">
             <span className="font-gt-display text-[10px] font-extrabold uppercase text-gt-ink-3">Cantidad</span>
-            <input inputMode="decimal" aria-label="Cantidad" className={`${inlineInput} text-gt-sm`} value={String(item.units)} onChange={(e) => onChange({ units: Number(sanitizeQty(e.target.value)) || 0 })} />
+            <input inputMode="decimal" aria-label="Cantidad" className={`${inlineInputClass} text-gt-sm`} value={String(item.units)} onChange={(e) => onChange({ units: Number(sanitizeQty(e.target.value)) || 0 })} />
           </label>
           <label className="flex flex-col gap-gt-2">
             <span className="font-gt-display text-[10px] font-extrabold uppercase text-gt-ink-3">P. unit. ({cur.symbol})</span>
-            <input inputMode="decimal" aria-label="Precio unitario" className={`${inlineInput} text-gt-sm`} value={String(item.unitPrice)} onChange={(e) => onChange({ unitPrice: Number(sanitizePrice(e.target.value, cur.decimals)) || 0 })} />
+            <input inputMode="decimal" aria-label="Precio unitario" className={`${inlineInputClass} text-gt-sm`} value={String(item.unitPrice)} onChange={(e) => onChange({ unitPrice: Number(sanitizePrice(e.target.value, cur.decimals)) || 0 })} />
           </label>
           <label className="flex flex-col gap-gt-2">
             <span className="font-gt-display text-[10px] font-extrabold uppercase text-gt-ink-3">Total</span>
@@ -303,8 +250,8 @@ export function ScanReviewScreen({ receipt: initialReceipt = SAMPLE_RECEIPT, pay
               </div>
               {/* meta row: location · date · hora · currency — each opens a picker */}
               <div className="flex flex-wrap items-center gap-gt-6">
-                <MetaPill icon="nav-home" onClick={() => setLocOpen(true)} ariaLabel="Cambiar ubicación">{receipt.location}</MetaPill>
-                <MetaPill icon="chart-calendar" onClick={() => setDateOpen(true)} ariaLabel="Cambiar fecha">{receipt.date}</MetaPill>
+                <MetaPill icon={<PixelIcon name="nav-home" size={14} />} onClick={() => setLocOpen(true)} ariaLabel="Cambiar ubicación">{receipt.location}</MetaPill>
+                <MetaPill icon={<PixelIcon name="chart-calendar" size={14} />} onClick={() => setDateOpen(true)} ariaLabel="Cambiar fecha">{receipt.date}</MetaPill>
                 <MetaPill onClick={() => setTimeOpen(true)} ariaLabel="Cambiar hora">{receipt.time}</MetaPill>
                 <MetaPill onClick={() => setCurOpen(true)} ariaLabel="Cambiar moneda">{receipt.currency}</MetaPill>
               </div>
