@@ -8,6 +8,16 @@ import { SettingsSubviewShell, SettingsGroupHeading, SettingsField } from "../co
  * color de fuente / tipografía / tamaño (Apariencia). 2–3 option pickers use
  * SegmentedToggle; the wider lists use the Select dropdown.
  */
+
+/** Sample date (7 Nov 2026) shown under the date-format toggle so the user sees
+ * how the chosen pattern renders. The friendly date stays fixed; only the
+ * formatted result flips with the selected format. */
+const SAMPLE_DATE = { day: "07", month: "11", year: "2026" };
+function formatSampleDate(format: string): string {
+  const { day, month, year } = SAMPLE_DATE;
+  return format === "us" ? `${month}/${day}/${year}` : `${day}/${month}/${year}`;
+}
+
 export function PreferencesSubview({ onBack }: { onBack?: () => void }) {
   const [language, setLanguage] = useState("es");
   const [dateFormat, setDateFormat] = useState("latam");
@@ -24,7 +34,12 @@ export function PreferencesSubview({ onBack }: { onBack?: () => void }) {
         <SegmentedToggle fill flush segments={[{ id: "es", label: "Español" }, { id: "en", label: "English" }]} value={language} onChange={setLanguage} />
       </SettingsField>
       <SettingsField label="Formato de fecha">
-        <SegmentedToggle fill flush segments={[{ id: "latam", label: "DD/MM/AAAA" }, { id: "us", label: "MM/DD/AAAA" }]} value={dateFormat} onChange={setDateFormat} />
+        <div className="flex flex-col gap-gt-4">
+          <SegmentedToggle fill flush segments={[{ id: "latam", label: "DD/MM/AAAA" }, { id: "us", label: "MM/DD/AAAA" }]} value={dateFormat} onChange={setDateFormat} />
+          <span className="px-gt-2 text-gt-sm font-medium text-gt-ink-3">
+            7 de noviembre de 2026 → <span className="font-extrabold text-gt-ink">{formatSampleDate(dateFormat)}</span>
+          </span>
+        </div>
       </SettingsField>
       <SettingsField label="Modo">
         <SegmentedToggle fill flush tone="primary" segments={[{ id: "light", label: "Claro" }, { id: "dark", label: "Oscuro" }, { id: "auto", label: "Auto" }]} value={mode} onChange={setMode} />
