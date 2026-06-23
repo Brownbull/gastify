@@ -6,6 +6,7 @@ import type { FilterSelection } from "@design-system/organisms/FilterSheet";
 import { ComprasScreen } from "@features/compras/screens/ComprasScreen";
 import { ItemsBrowseContent } from "@features/gastos/screens/ItemsBrowseContent";
 import { TIMEFRAME_REPORTS, type ReportPeriod } from "@lib/reportTimeframeFixtures";
+import type { BrowseTransaction } from "@lib/browseFixtures";
 
 /**
  * HistorialScreen (Phase 9 / IA rework) — the 4th-tab "Historial" hub,
@@ -29,9 +30,11 @@ export interface HistorialScreenProps {
   /** Compras filter selection (host owns it; the FilterSheet rides AppScaffold's overlay). */
   comprasSelection?: FilterSelection;
   onOpenComprasFilter?: () => void;
+  /** a transaction was tapped in Transacciones — open its detail (host-owned overlay). */
+  onSelectTxn?: (txn: BrowseTransaction) => void;
 }
 
-export function HistorialScreen({ platform = "mobile", sub, comprasSelection = {}, onOpenComprasFilter }: HistorialScreenProps) {
+export function HistorialScreen({ platform = "mobile", sub, comprasSelection = {}, onOpenComprasFilter, onSelectTxn }: HistorialScreenProps) {
   const [dimension, setDimension] = useState<ReportPeriod>("monthly");
   const [anchorIndex, setAnchorIndex] = useState(LATEST_PERIOD_INDEX);
   const contentMax = platform === "desktop" ? "56rem" : undefined;
@@ -46,7 +49,7 @@ export function HistorialScreen({ platform = "mobile", sub, comprasSelection = {
       </div>
 
       {sub === "transacciones" ? (
-        <ComprasScreen platform={platform} selection={comprasSelection} onOpenFilter={onOpenComprasFilter} />
+        <ComprasScreen platform={platform} selection={comprasSelection} onOpenFilter={onOpenComprasFilter} onSelectTxn={onSelectTxn} />
       ) : sub === "productos" ? (
         <ItemsBrowseContent />
       ) : (
