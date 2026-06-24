@@ -28,7 +28,7 @@ export function SignUpScreen({ onBack, onSubmit, onGoogle, onApple, onSignIn }: 
           </button>
         ) : null}
       </div>
-      <div className="mx-auto flex w-full max-w-sm flex-1 flex-col gap-gt-16 px-gt-20 pb-gt-24">
+      <div className="mx-auto flex w-full max-w-sm flex-1 flex-col gap-gt-16 px-gt-16 pb-gt-24">
         <div className="flex flex-col items-center gap-gt-4 text-center">
           <Wordmark />
           <h1 className="mt-gt-4 font-gt-display text-gt-3xl font-extrabold text-gt-ink">Crea tu cuenta</h1>
@@ -59,7 +59,9 @@ export function SignUpScreen({ onBack, onSubmit, onGoogle, onApple, onSignIn }: 
           Al continuar aceptas los <span className="font-extrabold text-gt-ink-2">Términos</span> y la <span className="font-extrabold text-gt-ink-2">Privacidad</span>.
         </p>
 
-        <p className="mt-auto text-center text-gt-sm font-bold text-gt-ink-2">
+        <div className="flex-1" />
+
+        <p className="text-center text-gt-sm font-bold text-gt-ink-2">
           ¿Ya tienes cuenta?{" "}
           <button type="button" onClick={onSignIn} className="font-gt-display font-extrabold text-gt-primary">Iniciar sesión</button>
         </p>
