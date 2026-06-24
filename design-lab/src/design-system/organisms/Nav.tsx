@@ -430,6 +430,7 @@ export interface PerfilMenuItem {
 // (the avatar dropdown is now just account-level actions).
 export const PERFIL_MENU: PerfilMenuItem[] = [
   { key: "notificaciones", label: "Notificaciones", icon: "nav-alerts", badge: "3" },
+  { key: "grupos", label: "Grupos", icon: "settings-groups" },
   { key: "ajustes", label: "Ajustes", icon: "nav-settings" },
   { key: "logout", label: "Cerrar sesión", icon: "svg:logout", danger: true, divider: true },
 ];
