@@ -4599,3 +4599,453 @@ STILL OFF UNTIL LAUNCH: billing_enforcement_enabled (so tier 403/402 gates are p
 
 ## 2026-06-12 — docs(ux): OVERHAUL-ASSEMBLY-GUIDE.md (design-lab→app wiring bridge)
 Wrote docs/rebuild/ux/OVERHAUL-ASSEMBLY-GUIDE.md — the assembly contract for the frontend overhaul. Recon via a 4-agent parallel workflow (web routes/hooks/120 testids, mobile screens/testIDs, design-lab structure + shared/design-tokens.ts, existing UX docs). The doc owns the HOW-it-wires (the bridge that doesn't exist yet — today shared/ feeds only design-lab): §1 token bridge (web = port the generated :root + @theme into global.css keeping the same var names so var(--primary) auto-picks-up violet, collapse the 6-theme matrix to DM-1 single theme; mobile = a TS adapter since RN can't read CSS, + offsetShadow helper for the hard-shadow look); §2 six load-bearing invariants (testids preserved, hooks/stores untouched, behavior contracts, scope-awareness, i18n keyed web-only, hard-shadow identity); §3 per-surface assembly map (route↔screen↔testids↔DL-component); §4 the assembly forks (theme-selector fate, DM-5 4-tab nav, category taxonomy, mobile i18n, typeface, gt-* adoption); §5 web↔mobile divergence cheat-sheet; §6 sequence + verification ladder. COMPLEMENTS UI-FEATURE-INVENTORY (WHAT) + STORYBOOK-STRUCTURE (taxonomy) + ICON-STYLE-SPEC (icons) without duplicating. Every path/token/testid verified against real code. BOUNDARY HONORED: staged only the one doc; design-lab/, shared/, .kdbp/PLAN-MOCKUPS.md and the mockup-lane doc edits left dirty/untouched.
+- 2026-06-14 13:51 | Write | /home/khujta/projects/apps/gastify/design-lab/src/lib/paymentMethods.ts
+- 2026-06-14 13:51 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/PaymentChip.tsx
+- 2026-06-14 13:51 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/atoms/Modal.tsx
+- 2026-06-14 13:52 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/AddCardForm.tsx
+- 2026-06-14 13:52 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/PaymentPicker.tsx
+- 2026-06-14 13:52 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/PaymentPicker.stories.tsx
+- 2026-06-14 13:52 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/atoms/Modal.stories.tsx
+- 2026-06-14 13:53 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/AddCardForm.stories.tsx
+- 2026-06-14 14:24 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/lib/paymentMethods.ts
+- 2026-06-14 21:17 | Write | /home/khujta/projects/apps/gastify/design-lab/src/lib/treemapLayout.ts
+- 2026-06-14 21:17 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/lib/analyticsFixtures.ts
+- 2026-06-14 21:52 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/organisms/Treemap.tsx
+- 2026-06-14 22:26 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/organisms/Treemap.tsx
+- 2026-06-14 22:26 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/organisms/Treemap.tsx
+- 2026-06-14 22:26 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/organisms/Treemap.tsx
+- 2026-06-14 22:26 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/organisms/Treemap.stories.tsx
+- 2026-06-14 22:38 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/Toast.tsx
+- 2026-06-14 22:38 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/Toast.tsx
+- 2026-06-14 22:38 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/ItemGroup.tsx
+- 2026-06-14 22:38 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/ItemGroup.tsx
+- 2026-06-14 22:39 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/ItemRow.tsx
+- 2026-06-14 22:39 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/ItemRow.tsx
+- 2026-06-14 22:40 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/ItemGroup.stories.tsx
+- 2026-06-14 22:40 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/CountModeToggle.tsx
+- 2026-06-14 22:41 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/LevelToggle.tsx
+- 2026-06-14 22:41 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/LevelToggle.tsx
+- 2026-06-14 22:41 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/LevelToggle.tsx
+- 2026-06-14 22:41 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/styles/index.css
+- 2026-06-14 22:44 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/LevelToggle.stories.tsx
+- 2026-06-14 22:55 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/CountModeToggle.tsx
+- 2026-06-14 22:55 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/LevelToggle.tsx
+- 2026-06-14 23:01 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/CountModeToggle.tsx
+- 2026-06-14 23:01 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/LevelToggle.tsx
+- 2026-06-14 23:03 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/LevelToggle.tsx
+- 2026-06-14 23:03 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/CountModeToggle.tsx
+- 2026-06-14 23:17 | Write | /home/khujta/projects/apps/gastify/docs/rebuild/ux/gustify-emulation-4-5-examples.html
+- 2026-06-14 23:21 | Edit | /home/khujta/projects/apps/gastify/shared/design-tokens.ts
+- 2026-06-14 23:21 | Edit | /home/khujta/projects/apps/gastify/shared/design-tokens.ts
+- 2026-06-14 23:21 | Edit | /home/khujta/projects/apps/gastify/shared/design-tokens.ts
+- 2026-06-14 23:22 | Edit | /home/khujta/projects/apps/gastify/shared/design-tokens.ts
+- 2026-06-14 23:22 | Edit | /home/khujta/projects/apps/gastify/design-lab/scripts/generate-tokens-css.mjs
+- 2026-06-14 23:22 | Edit | /home/khujta/projects/apps/gastify/design-lab/scripts/generate-tokens-css.mjs
+- 2026-06-14 23:32 | Write | /home/khujta/projects/apps/gastify/docs/rebuild/ux/LAYOUT-CONVENTIONS.md
+- 2026-06-15 00:04 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/lib/transactionFixtures.ts
+- 2026-06-15 00:04 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/_spikes/TxnItemRowSpike.stories.tsx
+- 2026-06-15 00:05 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/_spikes/HistoryItemRowSpike.stories.tsx
+- 2026-06-15 00:12 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/_spikes/HistoryItemRowSpike.stories.tsx
+- 2026-06-15 00:12 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/_spikes/HistoryItemRowSpike.stories.tsx
+- 2026-06-15 00:35 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/assets/PixelIcon.tsx
+- 2026-06-15 00:35 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/assets/PixelIcon.tsx
+- 2026-06-15 00:35 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/lib/transactionFixtures.ts
+- 2026-06-15 00:42 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/_spikes/HistoryItemRowSpike.stories.tsx
+- 2026-06-15 00:43 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/_spikes/HistoryItemRowSpike.stories.tsx
+- 2026-06-15 00:46 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/CategoryChip.tsx
+- 2026-06-15 00:47 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/PaymentChip.tsx
+- 2026-06-15 08:37 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/ItemRow.tsx
+- 2026-06-15 09:19 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/atoms/DonutRing.tsx
+- 2026-06-15 09:22 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/DonutLegend.tsx
+- 2026-06-15 09:22 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/DonutLegend.stories.tsx
+- 2026-06-15 09:23 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/_spikes/DonutSpike.stories.tsx
+- 2026-06-15 09:38 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/_spikes/DonutSpike.stories.tsx
+- 2026-06-15 09:53 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/_spikes/SankeySpike.stories.tsx
+- 2026-06-15 10:19 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/SankeyChart.tsx
+- 2026-06-15 10:19 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/SankeyChart.tsx
+- 2026-06-15 10:20 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/SankeyChart.tsx
+- 2026-06-15 10:20 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/SankeyChart.tsx
+- 2026-06-15 10:21 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/SankeyChart.tsx
+- 2026-06-15 10:47 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/lib/analyticsFixtures.ts
+- 2026-06-15 11:01 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/SankeyChart.tsx
+- 2026-06-15 11:02 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/SankeyChart.tsx
+- 2026-06-15 11:02 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/SankeyChart.tsx
+- 2026-06-15 11:02 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/SankeyChart.tsx
+- 2026-06-15 11:03 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/SankeyChart.tsx
+- 2026-06-15 11:04 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/_spikes/SankeySpike.stories.tsx
+- 2026-06-15 12:18 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/SankeyChart.tsx
+- 2026-06-15 12:35 | Write | /home/khujta/projects/apps/gastify/docs/rebuild/ux/TREND-SPEC.md
+- 2026-06-15 14:21 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/lib/analyticsFixtures.ts
+- 2026-06-15 14:22 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/TrendList.tsx
+- 2026-06-15 14:32 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/TrendRow.tsx
+- 2026-06-15 14:32 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/TrendList.tsx
+- 2026-06-15 14:33 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/TrendList.tsx
+- 2026-06-15 14:33 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/TrendList.tsx
+- 2026-06-15 14:33 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/TrendList.tsx
+- 2026-06-15 14:33 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/_spikes/TrendSpike.stories.tsx
+- 2026-06-15 14:34 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/TrendList.stories.tsx
+- 2026-06-15 14:34 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/TrendList.stories.tsx
+- 2026-06-15 14:40 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/TrendRow.tsx
+- 2026-06-15 15:02 | Write | /home/khujta/projects/apps/gastify/docs/rebuild/ux/REPORTS-SPEC.md
+- 2026-06-15 15:42 | Write | /home/khujta/projects/apps/gastify/docs/rebuild/ux/REPORTS-TIMEFRAMES-SPEC.md
+- 2026-06-15 16:03 | Write | /home/khujta/projects/apps/gastify/docs/rebuild/ux/NAV-HEADER-SPEC.md
+- 2026-06-15 16:04 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/assets/icons.tsx
+- 2026-06-15 16:24 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/organisms/Nav.tsx
+- 2026-06-15 16:24 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/organisms/Nav.tsx
+- 2026-06-15 16:25 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/organisms/Nav.tsx
+- 2026-06-15 16:25 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/organisms/Nav.tsx
+- 2026-06-15 16:26 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/organisms/Nav.tsx
+- 2026-06-15 16:26 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/organisms/Nav.tsx
+- 2026-06-15 16:38 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/organisms/Nav.tsx
+- 2026-06-15 16:38 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/organisms/Nav.tsx
+- 2026-06-15 17:38 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/lib/diagramSkin.ts
+- 2026-06-15 18:19 | Write | /home/khujta/projects/apps/gastify/design-lab/src/lib/browseFixtures.ts
+- 2026-06-15 18:19 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/SearchRow.tsx
+- 2026-06-15 18:20 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/TransactionCard.tsx
+- 2026-06-15 18:21 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/organisms/FilterSheet.tsx
+- 2026-06-15 18:21 | Write | /home/khujta/projects/apps/gastify/design-lab/src/features/compras/screens/ComprasScreen.tsx
+- 2026-06-15 18:21 | Write | /home/khujta/projects/apps/gastify/design-lab/src/features/gastos/screens/ItemsBrowseScreen.tsx
+- 2026-06-15 18:22 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/SearchRow.stories.tsx
+- 2026-06-15 18:22 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/TransactionCard.stories.tsx
+- 2026-06-15 18:22 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/organisms/FilterSheet.stories.tsx
+- 2026-06-15 18:22 | Write | /home/khujta/projects/apps/gastify/design-lab/src/features/compras/screens/ComprasScreen.stories.tsx
+- 2026-06-15 18:22 | Write | /home/khujta/projects/apps/gastify/design-lab/src/features/gastos/screens/ItemsBrowseScreen.stories.tsx
+- 2026-06-15 18:32 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/organisms/Nav.tsx
+- 2026-06-15 18:33 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/organisms/Nav.tsx
+- 2026-06-15 18:33 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/organisms/Nav.tsx
+- 2026-06-15 18:33 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/organisms/Nav.tsx
+- 2026-06-15 18:34 | Write | /home/khujta/projects/apps/gastify/design-lab/src/features/compras/screens/ComprasScreen.tsx
+- 2026-06-15 18:34 | Write | /home/khujta/projects/apps/gastify/design-lab/src/features/gastos/screens/ItemsBrowseScreen.tsx
+- 2026-06-15 18:38 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/organisms/FilterIconPicker.stories.tsx
+- 2026-06-15 18:47 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/organisms/FilterSheet.tsx
+- 2026-06-15 18:49 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/compras/screens/ComprasScreen.tsx
+- 2026-06-15 18:49 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/gastos/screens/ItemsBrowseScreen.tsx
+- 2026-06-15 18:49 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/gastos/screens/ItemsBrowseScreen.tsx
+- 2026-06-15 18:50 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/gastos/screens/ItemsBrowseScreen.tsx
+- 2026-06-15 18:51 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/organisms/FilterIconPicker.stories.tsx
+- 2026-06-15 18:51 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/compras/screens/ComprasScreen.tsx
+- 2026-06-15 18:51 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/gastos/screens/ItemsBrowseScreen.tsx
+- 2026-06-15 18:52 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/compras/screens/ComprasScreen.tsx
+- 2026-06-15 18:55 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/gastos/screens/ItemsBrowseScreen.tsx
+- 2026-06-15 18:57 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/HistoryItemRow.tsx
+- 2026-06-15 18:58 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/HistoryItemRow.tsx
+- 2026-06-15 19:18 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/HistoryItemRow.tsx
+- 2026-06-15 19:19 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/gastos/screens/ItemsBrowseScreen.tsx
+- 2026-06-15 19:19 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/TransactionCard.tsx
+- 2026-06-15 19:19 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/compras/screens/ComprasScreen.tsx
+- 2026-06-15 23:18 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/organisms/Nav.tsx
+- 2026-06-15 23:18 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/organisms/Nav.tsx
+- 2026-06-15 23:19 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/organisms/Nav.tsx
+- 2026-06-15 23:28 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/organisms/Nav.tsx
+- 2026-06-15 23:29 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/organisms/Nav.tsx
+- 2026-06-15 23:29 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/organisms/Nav.tsx
+- 2026-06-15 23:29 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/organisms/Nav.tsx
+- 2026-06-15 23:29 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/organisms/Nav.tsx
+- 2026-06-15 23:29 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/organisms/Nav.tsx
+- 2026-06-16 10:04 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/HistoryItemRow.tsx
+- 2026-06-16 10:04 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/HistoryItemRow.tsx
+- 2026-06-16 11:18 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/organisms/Nav.tsx
+- 2026-06-16 11:19 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/organisms/Nav.tsx
+- 2026-06-16 11:58 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/scan/screens/ScanCaptureScreen.tsx
+- 2026-06-16 11:58 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/scan/screens/ScanCaptureScreen.tsx
+- 2026-06-16 12:58 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/lib/scanFixtures.ts
+- 2026-06-16 18:53 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/lib/scanFixtures.ts
+- 2026-06-16 18:55 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/scan/screens/ScanReviewScreen.tsx
+- 2026-06-16 18:56 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/scan/screens/ScanReviewScreen.tsx
+- 2026-06-16 18:57 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/scan/screens/ScanReviewScreen.tsx
+- 2026-06-16 18:57 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/scan/screens/ScanReviewScreen.tsx
+- 2026-06-16 18:58 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/scan/screens/ScanReviewScreen.tsx
+- 2026-06-16 18:58 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/scan/screens/ScanReviewScreen.tsx
+- 2026-06-16 23:37 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/scan/screens/ScanReviewScreen.tsx
+- 2026-06-16 23:38 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/scan/screens/ScanReviewScreen.tsx
+- 2026-06-17 00:01 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/scan/screens/ScanReviewScreen.tsx
+- 2026-06-17 00:02 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/scan/screens/ScanReviewScreen.tsx
+- 2026-06-17 00:50 | Write | /home/khujta/projects/apps/gastify/design-lab/src/lib/statementFixtures.ts
+- 2026-06-17 00:59 | Write | /tmp/gen_test_icons.sh
+- 2026-06-17 01:04 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/_design/IconStyleTest.stories.tsx
+- 2026-06-17 01:09 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/assets/PixelIcon.tsx
+- 2026-06-17 01:10 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/_design/IconStyleTest.stories.tsx
+- 2026-06-17 01:12 | Write | /tmp/gen_style_variants.sh
+- 2026-06-17 01:18 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/_design/IconStyleTest.stories.tsx
+- 2026-06-17 01:26 | Write | /tmp/icon_full_descriptions.json
+- 2026-06-17 01:44 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/lib/paymentMethods.ts
+- 2026-06-17 01:44 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/lib/paymentMethods.ts
+- 2026-06-17 02:20 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/scan/screens/ScanStatementUploadScreen.tsx
+- 2026-06-17 02:21 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/scan/screens/ScanStatementUploadScreen.tsx
+- 2026-06-17 02:21 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/scan/screens/ScanStatementUploadScreen.tsx
+- 2026-06-17 02:22 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/scan/screens/ScanStatementUploadScreen.tsx
+- 2026-06-17 02:22 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/scan/screens/ScanStatementUploadScreen.stories.tsx
+- 2026-06-17 02:35 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/scan/screens/ScanStatementUploadScreen.tsx
+- 2026-06-17 02:35 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/scan/screens/ScanStatementUploadScreen.tsx
+- 2026-06-17 02:47 | Write | /home/khujta/projects/apps/gastify/design-lab/src/features/scan/components/StatementSteps.tsx
+- 2026-06-17 02:47 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/scan/screens/ScanStatementUploadScreen.tsx
+- 2026-06-17 02:48 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/scan/screens/ScanStatementUploadScreen.tsx
+- 2026-06-17 02:48 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/scan/screens/ScanStatementUploadScreen.tsx
+- 2026-06-18 19:10 | Edit | /home/khujta/projects/apps/gastify/design-lab/.storybook/main.ts
+- 2026-06-18 19:10 | Edit | /home/khujta/projects/apps/gastify/design-lab/.storybook/main.ts
+- 2026-06-18 19:11 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/_design/IconSelection.stories.tsx
+- 2026-06-19 18:26 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/scan/screens/ScanStatementReconcileScreen.tsx
+- 2026-06-19 18:27 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/scan/screens/ScanStatementReconcileScreen.tsx
+- 2026-06-19 18:33 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/scan/components/ReconcileGroup.tsx
+- 2026-06-19 18:34 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/scan/components/ReconcileGroup.tsx
+- 2026-06-19 18:34 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/scan/components/ReconcileGroup.tsx
+- 2026-06-19 18:34 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/scan/screens/ScanStatementReconcileScreen.tsx
+- 2026-06-21 10:47 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/scan/screens/ScanStatementReconcileScreen.tsx
+- 2026-06-21 11:09 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/scan/screens/ScanStatementReconcileScreen.tsx
+- 2026-06-21 11:22 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/lib/statementFixtures.ts
+- 2026-06-21 11:23 | Write | /home/khujta/projects/apps/gastify/design-lab/src/features/scan/screens/ScanStatementConfirmScreen.tsx
+- 2026-06-21 11:23 | Write | /home/khujta/projects/apps/gastify/design-lab/src/features/scan/screens/ScanStatementConfirmScreen.stories.tsx
+- 2026-06-21 11:41 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/scan/screens/ScanFlow.stories.tsx
+- 2026-06-21 11:42 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/scan/screens/ScanFlow.stories.tsx
+- 2026-06-21 11:42 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/scan/screens/ScanFlow.stories.tsx
+- 2026-06-21 12:34 | Write | /home/khujta/.claude/projects/-home-khujta-projects-apps-gastify/memory/feedback_storybook_urls.md
+- 2026-06-21 12:34 | Edit | /home/khujta/.claude/projects/-home-khujta-projects-apps-gastify/memory/MEMORY.md
+- 2026-06-21 13:13 | Write | /home/khujta/projects/apps/gastify/design-lab/src/features/home/screens/InicioScreen.tsx
+- 2026-06-21 13:14 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/home/model/HomeScreenModel.ts
+- 2026-06-21 13:14 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/home/model/HomeScreenModel.ts
+- 2026-06-21 13:14 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/home/model/HomeScreenModel.ts
+- 2026-06-21 13:14 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/home/screens/InicioScreen.stories.tsx
+- 2026-06-21 13:45 | Write | /home/khujta/projects/apps/gastify/design-lab/src/features/home/components/MonthTreemapCard.tsx
+- 2026-06-21 13:45 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/home/components/RecentTransactionsCard.tsx
+- 2026-06-21 13:45 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/home/components/RecentTransactionsCard.tsx
+- 2026-06-21 13:46 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/home/components/RecentTransactionsCard.tsx
+- 2026-06-21 14:32 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/organisms/AppScaffold.tsx
+- 2026-06-21 14:33 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/organisms/AppScaffold.tsx
+- 2026-06-21 14:34 | Write | /home/khujta/projects/apps/gastify/design-lab/src/features/compras/screens/ComprasScreen.tsx
+- 2026-06-21 14:35 | Write | /home/khujta/projects/apps/gastify/design-lab/src/features/compras/screens/ComprasScreen.stories.tsx
+- 2026-06-21 17:57 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/styles/index.css
+- 2026-06-21 17:58 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/organisms/FilterSheet.tsx
+- 2026-06-21 17:59 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/organisms/FilterSheet.tsx
+- 2026-06-21 17:59 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/organisms/FilterSheet.tsx
+- 2026-06-21 18:00 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/organisms/FilterSheet.tsx
+- 2026-06-21 19:23 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/gastos/spikes/TendenciasRepresentations.tsx
+- 2026-06-21 19:23 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/gastos/spikes/TendenciasRepresentations.tsx
+- 2026-06-22 12:11 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/atoms/DonutRing.tsx
+- 2026-06-22 12:12 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/DonutLegend.tsx
+- 2026-06-22 12:13 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/gastos/spikes/TendenciasRepresentations.tsx
+- 2026-06-22 12:13 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/gastos/spikes/TendenciasRepresentations.tsx
+- 2026-06-22 12:21 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/DonutLegend.tsx
+- 2026-06-22 12:22 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/DonutLegend.tsx
+- 2026-06-22 12:22 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/DonutLegend.tsx
+- 2026-06-22 12:23 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/DonutLegend.tsx
+- 2026-06-22 12:40 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/CountModeToggle.tsx
+- 2026-06-22 12:41 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/CountModeToggle.tsx
+- 2026-06-22 12:41 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/LevelToggle.tsx
+- 2026-06-22 12:42 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/DonutLegend.tsx
+- 2026-06-22 12:44 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/lib/analyticsFixtures.ts
+- 2026-06-22 12:46 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/styles/index.css
+- 2026-06-22 12:46 | Write | /home/khujta/projects/apps/gastify/design-lab/src/lib/useCountUp.ts
+- 2026-06-22 12:46 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/DonutLegend.tsx
+- 2026-06-22 12:47 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/DonutLegend.tsx
+- 2026-06-22 12:47 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/DonutLegend.tsx
+- 2026-06-22 12:47 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/gastos/spikes/TendenciasRepresentations.tsx
+- 2026-06-22 12:47 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/gastos/spikes/TendenciasRepresentations.tsx
+- 2026-06-22 12:47 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/gastos/spikes/TendenciasRepresentations.tsx
+- 2026-06-22 12:48 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/gastos/spikes/TendenciasRepresentations.tsx
+- 2026-06-22 12:48 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/gastos/spikes/TendenciasRepresentations.tsx
+- 2026-06-22 12:48 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/gastos/spikes/TendenciasRepresentations.tsx
+- 2026-06-22 15:46 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/TreemapCell.tsx
+- 2026-06-22 15:46 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/organisms/Treemap.tsx
+- 2026-06-22 15:46 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/organisms/Treemap.tsx
+- 2026-06-22 15:46 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/organisms/Treemap.tsx
+- 2026-06-22 15:47 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/gastos/spikes/TendenciasRepresentations.tsx
+- 2026-06-22 15:48 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/gastos/spikes/TendenciasRepresentations.tsx
+- 2026-06-22 15:48 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/gastos/spikes/TendenciasRepresentations.tsx
+- 2026-06-22 15:48 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/gastos/spikes/TendenciasRepresentations.tsx
+- 2026-06-22 15:48 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/gastos/spikes/TendenciasRepresentations.tsx
+- 2026-06-22 15:49 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/gastos/spikes/TendenciasRepresentations.tsx
+- 2026-06-22 16:13 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/SankeyChart.tsx
+- 2026-06-22 16:13 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/SankeyChart.tsx
+- 2026-06-22 16:36 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/gastos/spikes/TendenciasRepresentations.tsx
+
+## 2026-06-22 16:45 — [9f0dc39] feat(design-lab): mockup workspace + Gastos Tendencias representations
+FINDINGS: 0 (tsc green, build-storybook green; lint/tests/coverage n/a for mockup-mvp)
+ACTIONS: none
+DEFERRED: none
+NOTE: first commit of the design-lab/ React mockup lane (981 files); Tendencias Dona/Mapa/Flujo representations milestone. Mockup lane = PLAN-MOCKUPS.md (PLAN.md untouched — P16 owns it).
+
+## 2026-06-22 17:10 — [0020b5b] chore(design-lab): remove dead archive, backups, legacy shell, fixtures
+FINDINGS: 0 (tsc green, build-storybook green; lint/tests/coverage n/a for mockup-mvp)
+ACTIONS: none
+DEFERRED: none
+NOTE: cleanup pass — 539 deletions (35 archived spikes + 2 harness helpers, 499 dead icon assets ~2.4MB, 4 legacy-shell files) + 6 lib files trimmed of dead fixture exports. Decisions: kept batch-scan archive (+ SCAN_CREDITS), deleted legacy HomeScreen/AppShell, trimmed fixtures. Survey: workflow wbnpcnwkq. PLAN.md untouched (P16's lane).
+- 2026-06-22 17:16 | Write | /home/khujta/projects/apps/gastify/design-lab/src/features/gastos/components/TendenciasRepresentations.tsx
+- 2026-06-22 17:16 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/gastos/screens/GastosScreen.tsx
+- 2026-06-22 17:16 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/gastos/screens/GastosScreen.tsx
+- 2026-06-22 17:16 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/gastos/screens/GastosScreen.tsx
+- 2026-06-22 17:16 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/gastos/screens/GastosScreen.tsx
+- 2026-06-22 17:16 | Write | /home/khujta/projects/apps/gastify/design-lab/src/features/gastos/components/TendenciasRepresentations.stories.tsx
+- 2026-06-22 17:25 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/gastos/screens/GastosScreen.tsx
+- 2026-06-22 17:26 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/gastos/screens/GastosScreen.tsx
+- 2026-06-22 17:26 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/gastos/screens/GastosScreen.tsx
+
+## 2026-06-22 17:43 — [cff74b3] feat(gastos): promote Tendencias representations + compact period control
+FINDINGS: 0 (tsc green, build-storybook green; lint/tests/coverage n/a for mockup-mvp)
+ACTIONS: none
+DEFERRED: none
+NOTE: promoted TendenciasRepresentations spike → features/gastos/components/ (production), wired into GastosScreen Tendencias (Dona default); spike retired (git rename). Period control: 2 stacked bars → 1 compact 44px row (Sem/Men/Tri/Anu picker + navigator); periodDimLabel gains opt-in compact mode (week=range, month=3-char+year). Verified Playwright (mobile). PLAN.md untouched (P16's lane).
+- 2026-06-22 17:54 | Write | /home/khujta/projects/apps/gastify/design-lab/src/features/profile/model/ProfileScreenModel.ts
+- 2026-06-22 17:54 | Write | /home/khujta/projects/apps/gastify/design-lab/src/features/profile/screens/PerfilScreen.tsx
+- 2026-06-22 17:55 | Write | /home/khujta/projects/apps/gastify/design-lab/src/features/profile/screens/PerfilScreen.stories.tsx
+- 2026-06-22 18:32 | Edit | /home/khujta/projects/apps/gastify/design-lab/scripts/generate-icons.cjs
+- 2026-06-22 18:40 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/gastos/components/TendenciasRepresentations.tsx
+
+## 2026-06-22 19:07 — [f92ed29] feat(nav): Perfil→Historial tab, avatar dropdown, Gastos diagram switcher
+FINDINGS: 0 (tsc green, build-storybook green; lint/tests/coverage n/a for mockup-mvp)
+ACTIONS: none
+DEFERRED: none
+NOTE: IA rework chunk 1 + 2a. Gastos diagram switcher → header icons (3 generated chart-* icons at ~80% canvas + generate-icons.cjs spec-align fix) + Flujo 2-col readout. Nav: perfil→historial tab (nav-historial clock icon); avatar→PerfilMenu dropdown (AppScaffold onProfileSelect/profileName/profileEmail + click-outside); PERFIL_MENU trimmed to 3; rich PerfilScreen removed. Verified Playwright mobile+desktop. Pending 2b: Historial screen (Transacciones·Productos·Reportes) + ItemsBrowseContent extraction. PLAN.md untouched (P16's lane).
+- 2026-06-22 19:11 | Write | /home/khujta/projects/apps/gastify/design-lab/src/features/gastos/screens/ItemsBrowseContent.tsx
+- 2026-06-22 19:11 | Write | /home/khujta/projects/apps/gastify/design-lab/src/features/gastos/screens/ItemsBrowseScreen.tsx
+- 2026-06-22 19:11 | Write | /home/khujta/projects/apps/gastify/design-lab/src/features/historial/screens/HistorialScreen.tsx
+- 2026-06-22 19:11 | Write | /home/khujta/projects/apps/gastify/design-lab/src/features/historial/screens/HistorialScreen.stories.tsx
+- 2026-06-22 19:20 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/PeriodControl.tsx
+- 2026-06-22 19:20 | Write | /home/khujta/projects/apps/gastify/design-lab/src/features/gastos/screens/GastosScreen.tsx
+- 2026-06-22 19:21 | Write | /home/khujta/projects/apps/gastify/design-lab/src/features/historial/screens/HistorialScreen.tsx
+
+## 2026-06-22 21:23 — [f9393f4] feat(historial): Historial screen (3 subsections) + shared PeriodControl
+FINDINGS: 0 (tsc green, build-storybook green; lint/tests/coverage n/a for mockup-mvp)
+ACTIONS: none
+DEFERRED: none
+NOTE: IA rework chunk 2b. HistorialScreen (Transacciones=ComprasScreen / Productos=ItemsBrowseContent / Reportes=ReportDetail) with header subsection switcher, single chrome verified. Extracted ItemsBrowseContent from ItemsBrowseScreen (now thin wrapper). PeriodControl molecule (picker + draggable navigator) extracted from GastosScreen + shared into Historial (band above all 3 subsections, scopes the timeframe). Verified Playwright mobile+desktop + filter overlay. PLAN.md untouched (P16's lane).
+- 2026-06-23 08:39 | Write | /home/khujta/projects/apps/gastify/design-lab/src/features/settings/screens/SettingsScreen.tsx
+- 2026-06-23 08:52 | Write | /home/khujta/projects/apps/gastify/design-lab/src/features/settings/screens/SettingsScreen.tsx
+
+## 2026-06-23 09:01 — [168e0e1] feat(settings): Ajustes hub reached from the avatar dropdown
+FINDINGS: 0 (tsc green, build-storybook green; lint/tests/coverage n/a for mockup-mvp)
+ACTIONS: none
+DEFERRED: none
+NOTE: Settings hub (Features/Settings/SettingsScreen) — container-light grouped rows, reached via avatar→PerfilMenu→Ajustes as a full-surface AppScaffold overlay (settings header back arrow). Bare pixel icons (no tile/divider chrome); 3 new icons (settings-groups/sliders/memory) + nav-profile refreshed; Perfil = snowshoe mascot. Subviews wired via onSelect, not yet built (NEXT: per-section sub-screens). Verified Playwright mobile+desktop. PLAN.md untouched.
+- 2026-06-23 09:21 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/atoms/Switch.tsx
+- 2026-06-23 09:21 | Write | /home/khujta/projects/apps/gastify/design-lab/src/features/settings/screens/AyudaSubview.tsx
+- 2026-06-23 09:27 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/atoms/Switch.tsx
+
+## 2026-06-23 09:31 — [582997c] feat(settings): subview flow + Switch atom + 3 subviews
+FINDINGS: 0 (tsc green, build-storybook green; lint/tests/coverage n/a for mockup-mvp)
+ACTIONS: none
+DEFERRED: none
+NOTE: Settings subviews batch 1. NEW Switch atom (atoms/Switch.tsx, role=switch, symmetric knob-only-lit, sm/md, disabled/loading) + story. SettingsFlow (list↔subview nav, AppScaffold overlay) + SettingsSubviewShell (shared settings back-header). Subviews: Grupos (EmptyState), Notificaciones (Switch toggles), Ayuda (Gastify wordmark + version + install + link Modals). Remaining 7 subviews (Perfil/Suscripción/Límites/Escaneo/Preferencias/Mi memoria/Datos) in later batches; Select atom pending for batch 2. Verified Playwright. PLAN.md untouched.
+- 2026-06-23 09:33 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/atoms/Select.tsx
+- 2026-06-23 09:33 | Write | /home/khujta/projects/apps/gastify/design-lab/src/design-system/atoms/Select.stories.tsx
+
+## 2026-06-23 09:55 — [f9bca3f] feat(settings): Select atom + Preferencias/Escaneo/Datos subviews; English code
+FINDINGS: 0 (tsc green, build-storybook green; lint/tests/coverage n/a for mockup-mvp)
+ACTIONS: none
+DEFERRED: none
+NOTE: Settings subviews batch 2. NEW Select atom (atoms/Select.tsx dropdown) + Preferences/Scan/Data subviews (incl. destructive reset Modal). Plus the no-Spanish-in-code rule [[feedback-code-english-only]]: renamed the whole Settings feature's source identifiers to English (keys profile/scanning/data/..., component+file names GroupsSubview/ScanSubview/..., state vars language/currency/...) — UI display strings stay Spanish (interface bilingual). Remaining settings subviews (profile/subscription/limits/memory) + Gastos/Historial Spanish identifiers still pending rename. Verified Playwright. PLAN.md untouched.
+- 2026-06-23 09:56 | Edit | /home/khujta/.claude/projects/-home-khujta-projects-apps-gastify/memory/feedback_code_english_only.md
+- 2026-06-23 10:00 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/settings/screens/PreferencesSubview.tsx
+- 2026-06-23 10:00 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/settings/screens/PreferencesSubview.tsx
+
+## 2026-06-23 10:08 — [a9c9e7a] feat(settings): live date-format example under Formato de fecha
+FINDINGS: 0 (tsc green, build-storybook green)
+ACTIONS: none
+DEFERRED: none
+NOTE: PreferencesSubview — sample date (7 Nov 2026) shown under the date-format toggle, flips DD/MM <-> MM/DD with the selection. English code [[feedback-code-english-only]], Spanish display. Playwright verified both states. PLAN.md untouched.
+- 2026-06-23 10:44 | Write | /tmp/batch3-commit-msg.txt
+
+## 2026-06-23 10:44 — [48d529a] feat(settings): Batch-3 subviews + usage bar + simulated Pro upgrade  [MOCKUPS]
+FINDINGS: 2 from adversarial review workflow (0 critical, 1 high, 1 low) — both fixed pre-commit
+ACTIONS: fixed HIGH (ProfileSubview inputs: aria-label accessible names) + LOW (SettingsUsageBar over-cap gt-error -> gt-negative)
+GATES: types ✅ · unit ✅ (passWithNoTests) · storybook 169/169 ✅ · build ✅
+DEFERRED: none
+NOTE: Batch 3 = Perfil (wired) · Suscripción · Límites · Mi memoria + shared SettingsUsageBar/clp. Suscripción "Mejorar a Pro" opens a simulated upgrade popup (confirm->success) that flips the screen to its Pro state — no payment gateway, labelled a simulation. English code [[feedback-code-english-only]], Spanish display. Playwright-verified (11 shots: 4 subviews + memory remove/clear-modal + upgrade confirm/success/Pro state). PLAN.md untouched (mockup lane).
+
+## 2026-06-23 11:02 — [54f12a6] feat(settings): familia-level limit editing + two-memory split  [MOCKUPS]
+FINDINGS: 0 (adversarial review workflow weck5e3zo: 9 agents, logic/conventions/tokens+a11y — 0 confirmed)
+GATES: types ✅ · storybook 169/169 ✅ · build ✅
+DEFERRED: none
+NOTE: Límites now tracks L3 FAMILIAS only (no level selector) via @lib/categoryTokens; total + per-familia limits editable through a shared LimitEditor Modal (total|edit|add), "Agregar" picks an untracked familia + assigns a limit (Guardar gated on positive amount, Quitar on edit). Mi memoria split into Transacciones (merchant→rubro) + Productos (item→L4 categoría) via shared MemorySection. English code [[feedback-code-english-only]], Spanish display. Playwright-verified (5 shots: familia list, edit/total-edit/add modals, memory two-sections). PLAN.md untouched (mockup lane).
+- 2026-06-23 11:13 | Write | /home/khujta/projects/apps/gastify/design-lab/src/features/settings/screens/LimitsSubview.tsx
+- 2026-06-23 11:22 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/settings/screens/LimitsSubview.tsx
+- 2026-06-23 11:38 | Write | /tmp/limits-cards-commit-msg.txt
+
+## 2026-06-23 11:38 — [2d35ca8] feat(settings): familia-colored limit cards + L4 spend breakdown  [MOCKUPS]
+FINDINGS: review workflow w04yp60rh (13 agents) flagged 7 on the prior version → addressed: derive total spent (med), amount-line contrast text-gt-ink-2 (med), 9-digit input cap (low); gap-gt-1 undefined-token left as system-wide pre-existing (reviewer: out of scope for this file).
+GATES: types ✅ · storybook 169/169 ✅ · build ✅
+DEFERRED: none
+NOTE: User refinements to Límites — (1) icon tile background uses the category's own saturated color (IconTile tint=token.color) for L3 + L4 + editor; (2) each L4 row now shows its % + a deliberately narrower bar (w-24) measured vs the familia L3 limit, so the L4 %s decompose the L3 %. Rows rebuilt in transaction-card grammar (category-bordered card · color icon tile · title · full-width L3 bar · %/amount right · nested L4SpendRow breakdown); edit glyph removed, tap-the-card edits. Total spent derived from breakdowns (consistent + reactive). NOTE: novel arbitrary Tailwind class max-w-[%] did NOT render on the running dev server (only classes already in the compiled CSS apply on hot-reload) — used compiled w-24 instead. Playwright-verified (zoom: food-fresh green card + Vicios 135% over card, L4 bars clearly narrower). PLAN.md untouched (mockup lane).
+- 2026-06-23 13:04 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/settings/screens/LimitsSubview.tsx
+- 2026-06-23 13:04 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/settings/screens/LimitsSubview.tsx
+- 2026-06-23 13:04 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/settings/screens/LimitsSubview.tsx
+
+## 2026-06-23 13:06 — [77c13fc] refactor(settings): revert limit icon tiles to soft category tints  [MOCKUPS]
+FINDINGS: 0 (trivial value revert) · GATES: types ✅ · storybook 169/169 ✅ · build ✅
+NOTE: User reverted L3+L4 icon-well backgrounds from saturated token.color back to soft token.tint (icons read more clearly; card border still carries the saturated category color). Closes the Límites + Mi-memoria settings-subview work. PLAN.md untouched (mockup lane).
+- 2026-06-23 13:28 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/CompactRowList.tsx
+- 2026-06-23 13:28 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/CompactRowList.tsx
+- 2026-06-23 13:28 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/CompactRowList.tsx
+- 2026-06-23 13:29 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/compras/screens/ComprasScreen.tsx
+- 2026-06-23 13:29 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/MerchantHeader.tsx
+
+## 2026-06-23 13:32 — [3e35b57] feat(compras): transaction detail screen + list-to-detail wiring  [MOCKUPS]
+FINDINGS: review workflow whmv0jx2t (10 agents) → 3 confirmed, all fixed pre-commit: (med×2) CompactRow button-in-button when onClick+detail both set — fixed via stretched-link (absolute click target + clickLabel); (low) MerchantHeader edit pencil no focus-visible ring — added.
+GATES: types ✅ · storybook 171/171 ✅ (was 169; +2 TransactionDetail stories) · build ✅
+NOTE: Built the "items" half of Compras (Phase 9). NEW TransactionDetail screen (full-surface overlay: AppHeader detail back · MerchantHeader · one ItemGroup per L3 familia w/ ItemRows · TransactionTotal total-on-CTA footer; platform-aware desktop cap). NEW compras/model/detailFixtures.ts (SUPERMARKET_TXN 3-group fixture + pickDetailFor by store category; sampleTxn for the rest). ComprasScreen gained onSelectTxn → opens the boleta detail via AppScaffold overlay (precedence detail>filter>scan); the chevron inline-peek still works independently. Shared CompactRowList reworked to stretched-link (ComprasScreen is its only onClick consumer; RecentTransactionsCard/HistoryItemRow unaffected — verified). Playwright-verified (restaurant + supermarket detail mobile, supermarket desktop capped/centered, live list→detail flow). PLAN.md untouched (mockup lane).
+
+## 2026-06-23 14:?? — [uncommitted→folded] feat(compras): cadence + remove edit pencil  [MOCKUPS]
+NOTE: (Cadence/pencil work from the 13:5x turn was reviewed by workflow wil8aj4gq — 3 findings (med: CadencePicker dup of PaymentPicker; low: chip icon 20 vs 22; low: CADENCE_ORDER dup) — then folded UNCOMMITTED into the next commit 6e154f7 with all 3 fixed. Recorded here for traceability.)
+
+## 2026-06-23 16:07 — [6e154f7] feat(compras): editable saved-boleta detail — no pencil, cadence, delete  [MOCKUPS]
+FINDINGS: 0 new (the prior cadence review wil8aj4gq's 3 findings all fixed in this commit: CadencePicker now matches PaymentPicker row grammar; CadenceChip icon 22; CADENCE_ORDER exported from @lib).
+GATES: types ✅ · storybook 171/171 ✅ · build ✅
+NOTE: TransactionDetail is now a view-AND-edit of a SAVED boleta. (1) Edit pencil removed everywhere (action-edit): MerchantHeader pencil gone; scan "Ingreso manual" mode icon → fin-receipt. (2) NEW transaction-level cadence field (TxnCadence one-time|weekly|biweekly|monthly|yearly; CADENCE_LABEL + CADENCE_ORDER in @lib) shown as a chip (calendar=one-time neutral / sync=recurring violet) → CadencePicker. (3) Delete: TransactionTotal gained onDelete → a danger trash-icon button LEFT of the save CTA → "¿Eliminar transacción?" confirm (Cancelar/Eliminar); ComprasScreen overlay wires onDelete→close. (4) Header chips now tap-to-edit like the scan review — payment opens the shared PaymentPicker; cadence opens CadencePicker. DEFERRED (next): merchant-name inline edit, location/date/time pickers, per-item qty/price/category editing — the clean path is to extract ScanReviewScreen's InlineText/MetaPill/EditableItem + relocate GroupedCategoryPicker to design-system (avoid cross-feature import / duplication). Footer is still the "Guardar cambios" total-on-CTA (asked user whether to keep vs a pure-view total). Playwright-verified (delete button + confirm, payment picker, cadence chip/picker). PLAN.md untouched (mockup lane).
+- 2026-06-23 16:24 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/TransactionTotal.tsx
+- 2026-06-23 16:24 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/compras/screens/TransactionDetail.tsx
+
+## 2026-06-23 16:53 — [43eb707] feat(compras): editable detail — shared editors, 3-row header, currency  [MOCKUPS]
+FINDINGS: review wm9jpbpbo (12 agents, on the prior editable-header state) → 6 confirmed, addressed: (HIGH) location desync — fixtures seed BARE city ("Villarrica"/"Santiago") so LocationPicker highlights + round-trips; (MED) ScanReviewScreen local MetaPill shadowed the atom → now uses @design-system/atoms/MetaPill (gained optional ariaLabel); (LOW) InlineText focus-visible ring added; (LOW×3) grid-cols-[3fr_7fr] verified OK, establishment L1/L2 selection = parity-with-scan (no action), full header-layout dup between ScanReview + MerchantHeader = accepted divergence (different fields: scan=currency, compras=cadence).
+GATES: types ✅ · storybook 171/171 ✅ (scan unaffected) · build ✅
+NOTE: Saved-boleta header now fully editable by SHARING editors (not duplicating). RELOCATED (git mv) GroupedCategoryPicker/DatePicker/LocationPicker/TimePicker scan/components→design-system/molecules; EXTRACTED InlineText(+inlineInputClass) + CurrencyPicker → design-system (ScanReviewScreen consumes them, local copies removed). MerchantHeader rewritten editable+progressive: merchant→InlineText, category/payment/cadence chips + location/date/time/currency MetaPills → pickers. USER layout: header rows = [category·payment] / [cadence·location] / [date·time·currency]; NEW currency field after the hour (default CLP)→CurrencyPicker. Footer = 30% delete / 70% save grid, label "Guardar". DEFERRED (last piece): per-item editing (EditableItem qty/price/category in familia groups) — EditableItem still local to ScanReviewScreen, extract next. Playwright-verified (3-row header, currency picker, category/date pickers, 30/70 footer). PLAN.md untouched (mockup lane).
+
+## 2026-06-23 17:08 — [5ec625f] feat(compras): per-item editing + softened save/delete buttons  [MOCKUPS]
+FINDINGS: review w4bpmxg3a running at commit time (background). GATES: types ✅ · storybook 171/171 ✅ (scan unaffected) · build ✅.
+NOTE: Closes the "editable like scan" arc. EXTRACTED EditableItem (+ sanitizePrice/sanitizeQty) → design-system/molecules (verbatim from ScanReviewScreen; scan now imports it, local removed). TransactionDetail: items editable per familia group — `groups` state, editKey="gi-ii", setItem/deleteItem/enterEdit/commitEdit/cancelEdit(snapshot revert), item GroupedCategoryPicker(mode=item); empty groups hidden; itemCount + total derived LIVE from edited items (unitPrice*units). TransactionTotal softened: delete bg-gt-negative-bg+text-gt-negative (plain btn), save bg-gt-positive-bg! (! beats Button's bg-gt-primary by CSS source order — both *-bg classes already compiled elsewhere so they render); icons trash 28→34, check 18→24. NOTE for future: overriding a Button-atom variant bg needs `!` (CSS order), mirrors the existing text-gt-ink!. Playwright-verified (item editor expand: name/category/qty/price + cancel/Eliminar/accept; soft pink delete + soft green save). PLAN.md untouched (mockup lane).
+
+## 2026-06-23 17:24 — [930a393] feat(compras): item view toggle (Original / Por grupo) + edit fixes  [MOCKUPS]
+FINDINGS: review w4bpmxg3a (14 agents, on 5ec625f) → 5 confirmed, 4 fixed + 1 deferred: (HIGH) decimals untypeable in qty/price — state round-tripped through Number() each keystroke, dropping trailing "." → EditableItem now holds in-progress STRING drafts (reset on editor (re)open; parent keeps numbers); fixes scan+compras. (MED) currency-switch desync — ItemGroup subtotal + TransactionTotal total hardcoded clp() while item rows used formatMoney(currency) → both molecules gained optional `format`; TransactionDetail threads formatMoney(currency) so all amounts agree. (MED×2) expanded item-editor label contrast gt-ink-3→gt-ink-2; "Eliminar" label ink-2 default + red on hover. (LOW deferred) edit-state-machine dup between ScanReview + TransactionDetail — extract a useInlineItemEdit hook later (mockup scope).
+GATES: types ✅ · storybook 171/171 ✅ · build ✅
+NOTE: USER request — added the receipt-order vs grouped item view (the toggle from the scan-register flow) to the saved boleta. SegmentedToggle "Por grupo"(default, familia ItemGroups) / "Original"(flat receipt-order list = items as they came on the image). Both views render the SAME tap-to-edit EditableItems via one renderItem(gi,ii,item) helper, so editing works in either. flatItems = groups.flatMap. Playwright-verified (toggle switches grouped↔flat; editing intact). NOTE: "Original" order = groups flattened in group order (true scan interleaving not in the fixtures) — acceptable mockup approximation. PLAN.md untouched (mockup lane).
+
+## 2026-06-23 17:34 — [6a42a3e] feat(historial): tap a transaction in Transacciones → its detail  [MOCKUPS]
+GATES: types ✅ · storybook 171/171 ✅ · build ✅
+NOTE: USER picked Historial next. HistorialScreen is already a hub (header switcher Transacciones/Productos/Reportes + shared PeriodControl; reuses ComprasScreen / ItemsBrowseContent / ReportDetail — Reportes rich: total/insight/highlights/donut). The gap: Transacciones reused ComprasScreen but never wired list→detail. Fixed: HistorialScreen + onSelectTxn passthrough to ComprasScreen; story adds detailTxn state + TransactionDetail in the AppScaffold overlay (precedence detail > filter > scan; onBack/onDelete close), mirroring ComprasScreen.stories EXACTLY (onBack+onDelete, no onSave). Playwright-verified (tap row in Historial → full Boleta detail w/ toggle/groups/soft footer). No separate review — identical to the already-reviewed Compras detail pattern. KNOWN (mockup): the shared PeriodControl only drives Reportes (TIMEFRAME_REPORTS[dimension]); it does NOT filter Transacciones/Productos counts. PLAN.md untouched (mockup lane).
+
+## 2026-06-23 17:57 — [79c0b11] feat(historial): per-subsection titles + SectionFade (drop band dividers)  [MOCKUPS]
+FINDINGS: review wjj11963f (13 agents) → KEY RISK (does SectionFade's gt-bg bottom match the bleed bg behind ComprasScreen/Historial-reportes where the outer div sets no bg?) came back CLEAN — AppScaffold bleed bg IS gt-bg (cream #FFFDF5), so seamless in every context (standalone + Historial). 7 confirmed, all LOW/MED, fixed: (MED) SectionFade was the only atom w/o a story → added SectionFade.stories.tsx (Default+Tall); (LOW) prop className→heightClassName (it only sets height); (LOW) comment "gray"→cream; (LOW×3 dup) dead title fallback ?? "Historial" → ?? SUBS[0].label.
+GATES: types ✅ · storybook 173/173 ✅ (+2 atom story) · build ✅
+NOTE: USER feedback on Historial Productos/Transacciones (+Reportes for consistency): (1) removed the hard border-b-2 border-gt-line divider lines between the stacked white bands (shared PeriodControl band + each subsection's search band) — the controls already have their own rounded containers so the lines were redundant; (2) new SectionFade atom = slim white→gt-bg gradient via INLINE STYLE on var(--color-gt-surface)/var(--color-gt-bg) (JIT-proof, since from-gt-surface/to-gt-bg are novel stops that may not compile on the dev server) — placed after the search band (Compras/Items) and after the period band (Reportes); (3) AppScaffold title now = active subsection label (Transacciones/Productos/Reportes), never "Historial" — set in HistorialScreen.stories via SUBS lookup. Applies to standalone ComprasScreen/ItemsBrowseScreen too (shared comps). Story URL: http://localhost:6008/?path=/story/design-system-atoms-sectionfade--default. Playwright-verified all 3 subs + the atom story. Item-row hairlines INSIDE the list cards left intact (user's cropped shot targeted the band dividers). PLAN.md untouched (mockup lane).
+
+## 2026-06-23 18:07 — [ed2d4fe] fix(historial): tighten the band→first-item gap in both lists  [MOCKUPS]
+GATES: types ✅ · storybook 173/173 ✅ · build ✅
+NOTE: USER follow-up — the gap between the search/stats band and the first row was too tall (fade h-6 + list pt-gt-12/pt-gt-8 stacked to ~44-48px). Shrank to <SectionFade heightClassName="h-4"/> + list pt-gt-4 at the two list call sites only (Transacciones/ComprasScreen, Productos/ItemsBrowseContent) → ~32px. Reportes fade kept at default h-6 (not flagged). Playwright-verified cropped band→first-item region for both lists. Trivial spacing tweak, no review. PLAN.md untouched (mockup lane).
+
+## 2026-06-24 01:06 — [a5904a2] feat(groups): Grupos feature — hub, shared dashboard, create + invite  [MOCKUPS]
+FINDINGS: review wxle2bzfw (20 agents) → 16 confirmed; fixed the substantive ones, deferred pre-existing/low: (HIGH a11y) MemberAvatar white initials failed WCAG AA on EVERY accent (amber #F59E0B 2.15:1 worst, emerald 2.54, violet/pink/blue 3.5-3.9) → new @lib/hexColor readableTextColor() picks ink/white by actual WCAG contrast (all now ink, amber→6.8:1); +N chip gt-ink-2→gt-ink; you-row primary-soft highlight (subtitle 2.16:1) → violet left-accent border + subtitle gt-ink-2. (HIGH fidelity) 5e consent gate VIOLATED — feed itemized others' txns while group.memberVisibilityEnabled=false → GroupDetailScreen now itemizes only isOwn when the gate is off + rolls others into a "solo totales · detalle privado" summary CompactRow; MemberRow effective consent = memberVisibilityEnabled && member.sharesDetail (fixes the dead field). (LOW) GroupAvatar expandHex tolerates backend #RGB; added the 2 missing atom stories (GroupAvatar/MemberAvatar). DEFERRED (noted, pre-existing app-wide): Badge primary 4.23:1 + negative 3.76:1 tone contrast; member_count vs members.length; viewer_shares_detail toggle; GroupCard/MemberCluster stories.
+GATES: types ✅ · storybook 181/181 ✅ (+8 stories) · build ✅
+NOTE: USER picked Groups next (no existing feature; backend/app/schemas/groups.py is the real model — roles owner/admin/member, emoji+hex avatar D75, 5e consent visibility, token invites). Built features/groups/{model,components,screens}: GruposScreen hub (GroupCard: GroupAvatar emoji tile + role Badge + MemberCluster overlap + shared total; dashed Crear CTA; EmptyState) → GroupDetailScreen (identity + shared total, Compartir/Invitar, member roster w/ consent, gated shared-txn feed) → CreateGroupSheet (name + emoji + color, live preview, gated submit) + InviteSheet (7-day link). New atoms GroupAvatar + MemberAvatar (design-system) + @lib/hexColor. Reached from the avatar dropdown — Nav PERFIL_MENU gained {key:"grupos"}. NOTE: emoji group avatars (faithful to D75 emoji model, distinct from system pixel icons). Story URLs: design-system-atoms-groupavatar / -memberavatar; features-groups-screens-gruposscreen--{default,detail,empty,from-avatar}. Playwright-verified hub/detail/empty/create/invite + Roommates consent-gate (visibility off) + avatar auto-contrast. KNOWN (mockup): "Compartir gasto" is a prop hook (no txn-picker sheet yet). PLAN.md untouched (mockup lane).
+
+## 2026-06-24 16:43 — [2343ba8] fix(historial): tighten period-band→content + subtitle→item gaps further  [MOCKUPS]
+GATES: types ✅ · storybook 181/181 ✅ · build ✅
+NOTE: USER (red-marked screenshots) — still too much room in all Historial subsections + Compras. HistorialScreen period band pb-gt-12→pb-gt-4 (period→subsection gap); Reportes fade h-6→h-3 + report pt-gt-12→pt-gt-4. ComprasScreen/ItemsBrowseContent search band pb-gt-12→pb-gt-6, fade h-4→h-3, list top pt→pt-gt-2 (subtitle→first item). Covers Productos/Reportes/Transacciones + standalone Compras. Playwright-verified all 3. PLAN.md untouched.
+
+## 2026-06-24 16:54 — [e4d8265] feat(groups): scope switcher on the top-left logo + nav re-theming  [MOCKUPS]
+GATES: types ✅ · storybook 182/182 ✅ (+1 ScopeSwitcher) · build ✅ · no workflow review (ultracode off, no opt-in) — self-reviewed (active-tab tint = ink on light `${color}40` is legible; additive props keep all existing stories green).
+NOTE: USER groups-nav rework. (2a) Removed the redundant "Grupos" row from SettingsScreen + deleted GroupsSubview + its SettingsFlow route (mgmt lives in PERFIL_MENU avatar dropdown). (2b) Workspace SCOPE switcher on the top-left logo: Nav gained NavScope + ScopeTrigger (Wordmark for Personal, GroupAvatar+name for a group, chevron) + ScopeMenu (Personal + groups, ✓ active). Picking a group tailors the chrome — BottomNav (mobile) bar gradient + active-tab tint via inline `linear-gradient(...${color}33...)` / `${color}40` (JIT-proof), SideNav (desktop) rail gradient + active-row tint, header shows the group identity. ADDITIVE shell props (default=current): AppHeader `brand`, BottomNav/SideNav `accentColor`, SideNav `scope`/`onScopeClick`, AppScaffold `scope`/`scopes`/`onScopeSelect`. Demo story Features/Groups/Screens/ScopeSwitcher (platform toolbar). Playwright-verified mobile (Familia violet + menu + Viaje amber) + desktop rail. KNOWN (mockup/follow-up): scope is wired in the DEMO only — other screens' stories still mount AppScaffold without `scopes` (no scope theming until each passes it); on mobile the trigger shows only on the home/no-title header variant (title screens keep the tint but switch from desktop/home). PLAN.md untouched.
+
+## 2026-06-24 17:?? — [9badc9a] refactor(spending,history): rename Spanish code identifiers to English  [MOCKUPS]
+GATES: types ✅ · storybook 182/182 ✅ · build ✅ · no-stale-refs grep clean. Git tracked all moves as renames (R, 78-100% similarity).
+NOTE: USER picked the deferred English-rename refactor (memory feedback_code_english_only) scoped to Gastos+Historial. gastos/→spending/, GastosScreen→SpendingScreen(+Props), TendenciasRepresentations→TrendsRepresentations, diagram keys "dona"/"mapa"/"flujo"→"donut"/"treemap"/"sankey" (isDona→isDonut). historial/→history/, HistorialScreen→HistoryScreen(+Props), HistorialSub→HistorySub, sub keys "transacciones"/"productos"/"reportes"→"transactions"/"products"/"reports". Story titles Features/Gastos|Historial→Features/Spending|History; cross-import History→@features/spending/ItemsBrowseContent; PeriodControl doc comment. METHOD: git mv folders+files → sed the UNAMBIGUOUS renames (component/type/path/title + lowercase-quoted keys whose display labels are Capitalized) → ANCHORED sed for "transacciones" keys (HistorySub=/sub ===/id:/<HistorySub>(...) ) so display matchNoun="transacciones" + title="Buscar transacciones" stay Spanish. DISPLAY untouched: labels "Dona"/"Transacciones", matchNoun/title, "Gastos"/"Historial" nav labels. KEPT (out of scope, noted): nav ROUTE keys "gastos"/"historial" in MAIN_NAV (+ active= usages) — renaming only 2 of 4 tabs splits the scheme; full app-wide rename (incl. Compras/Inicio/Grupos + nav keys) is a separate pass. New story URLs: features-spending-screens-spendingscreen / -itemsbrowsescreen / -components-trendsrepresentations ; features-history-screens-historyscreen. Playwright-verified History switcher (Productos→"products" key) still works + display Spanish intact. PLAN.md untouched (mockup lane).
+
+## 2026-06-24 17:?? — [a8e6852] refactor: app-wide rename of remaining Spanish code identifiers to English  [MOCKUPS]
+GATES: types ✅ · storybook 182/182 ✅ · build ✅ · no-stale-refs grep clean. Git tracked all moves as renames (R, 82-99%).
+NOTE: USER said "do the app-wide pass" (completing the deferred English-rename across the rest of the app; display stays Spanish). compras/→purchases/, ComprasScreen→PurchasesScreen(+Props), comprasSelection/onOpenComprasFilter→purchasesSelection/onOpenPurchasesFilter. InicioScreen→HomeScreen(+Props) (folder home/ already EN), GruposScreen→GroupsScreen(+Props) (folder groups/ already EN). PerfilMenu/Item/Row/PERFIL_MENU→ProfileMenu*/PROFILE_MENU. ROUTE KEYS (labels kept Spanish): MAIN_NAV inicio/compras/gastos/historial→home/purchases/spending/history + every active="X"/active==="X"/useState("X")/alertsTab="X". ProfileMenu keys notificaciones/grupos/ajustes→notifications/groups/settings + the onProfileSelect ===checks. Story titles Features/Compras|Inicio→Features/Purchases|Home (home COMPONENT stories had Features/Inicio titles despite the home/ folder); export const Perfil→Profile, Escanear→Scan. METHOD: git mv → global sed for specific identifiers/paths/titles/story-exports → anchored sed for keys (key:/active=/===/useState/alertsTab) → inspected 6 stragglers (active==="inicio", alertsTab="gastos"×3, useState("gastos"), and matchNoun="compras"=DISPLAY→kept). DISPLAY untouched: nav labels Inicio/Compras/Gastos/Historial, matchNoun "compras", aria "Perfil y ajustes", "gastify" wordmark. DELIBERATELY KEPT: domain taxonomy rubro/giro/familia/categoria + boleta (Chilean SII/receipt vocabulary, proper nouns — not UI churn). New story URLs: features-purchases-screens-purchasesscreen / -transactiondetail ; features-home-screens-homescreen ; features-groups-screens-groupsscreen ; flows-scan--scan ; design-system-organisms-nav--profile. Playwright-verified HomeScreen renders at new URL w/ Spanish display intact. PLAN.md untouched (mockup lane).
+- 2026-06-24 16:37 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/historial/screens/HistorialScreen.tsx
+- 2026-06-24 16:38 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/historial/screens/HistorialScreen.tsx
+- 2026-06-24 16:38 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/compras/screens/ComprasScreen.tsx
+- 2026-06-24 16:38 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/compras/screens/ComprasScreen.tsx
+- 2026-06-24 16:38 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/gastos/screens/ItemsBrowseContent.tsx
+- 2026-06-24 16:38 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/gastos/screens/ItemsBrowseContent.tsx
+- 2026-06-24 16:43 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/settings/screens/SettingsScreen.tsx
+- 2026-06-24 16:43 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/settings/screens/SettingsFlow.tsx
+- 2026-06-24 16:43 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/settings/screens/SettingsFlow.tsx
