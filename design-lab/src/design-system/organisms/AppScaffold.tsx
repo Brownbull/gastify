@@ -1,6 +1,6 @@
 import { useState, type CSSProperties, type ReactNode } from "react";
 import type { Platform } from "./AppSurface";
-import { AppHeader, BottomNav, SideNav, ScanFab, MAIN_NAV, PerfilMenu, type NavTab } from "./Nav";
+import { AppHeader, BottomNav, SideNav, ScanFab, MAIN_NAV, PerfilMenu, ScopeTrigger, ScopeMenu, type NavTab, type NavScope } from "./Nav";
 
 /**
  * AppScaffold (Phase 7, DM-5) — the composed application frame every screen
@@ -42,6 +42,14 @@ export interface AppScaffoldProps {
   headerActions?: ReactNode;
   /** nav key that carries the alerts dot. */
   alertsTab?: string;
+  /**
+   * active workspace scope (Personal / a group). When `scopes` is provided the
+   * top-left wordmark becomes a ScopeTrigger; a group scope tints the nav chrome
+   * (BottomNav gradient / SideNav rail) with `scope.color`.
+   */
+  scope?: NavScope;
+  scopes?: NavScope[];
+  onScopeSelect?: (id: string) => void;
   children: ReactNode;
   /**
    * raw content area — no scroll/padding wrapper. Use for screens that manage
@@ -70,6 +78,9 @@ export function AppScaffold({
   profileEmail,
   headerActions,
   alertsTab,
+  scope,
+  scopes,
+  onScopeSelect,
   children,
   bleed = false,
   overlay,
@@ -96,10 +107,38 @@ export function AppScaffold({
       </>
     ) : null;
 
+  // scope switcher (top-left): the wordmark opens a Personal/groups menu; a group
+  // scope tints the nav chrome with its accent.
+  const scopeEnabled = scopes != null;
+  const accentColor = scope?.color ?? undefined;
+  const [scopeOpen, setScopeOpen] = useState(false);
+  const toggleScope = () => setScopeOpen((o) => !o);
+  const closeScope = () => setScopeOpen(false);
+  const scopeDropdown = (pos: CSSProperties) =>
+    scopeOpen && scopes ? (
+      <>
+        <button type="button" aria-label="Cerrar menú de espacios" onClick={closeScope} className="absolute z-40" style={{ inset: 0 }} />
+        <div className="absolute z-50" style={pos}>
+          <ScopeMenu scopes={scopes} activeId={scope?.id ?? "personal"} onSelect={(id) => { onScopeSelect?.(id); closeScope(); }} />
+        </div>
+      </>
+    ) : null;
+
   if (platform === "desktop") {
     return (
       <div className="flex min-h-0 flex-1 overflow-hidden bg-gt-bg">
-        <SideNav active={active} onSelect={onSelect} items={items} onProfile={toggleProfile} />
+        <div className="relative flex shrink-0">
+          <SideNav
+            active={active}
+            onSelect={onSelect}
+            items={items}
+            onProfile={toggleProfile}
+            scope={scope}
+            onScopeClick={scopeEnabled ? toggleScope : undefined}
+            accentColor={accentColor}
+          />
+          {scopeDropdown({ top: 60, left: 12 })}
+        </div>
         <div className="relative flex min-h-0 flex-1 flex-col">
           <div className="flex items-center gap-gt-12 px-gt-16 pb-gt-12 pt-gt-16">
             <h1 className="min-w-0 flex-1 truncate font-gt-display text-gt-3xl font-extrabold text-gt-ink">{title ?? "Inicio"}</h1>
@@ -120,12 +159,18 @@ export function AppScaffold({
       {title ? (
         <AppHeader variant="browse" title={title} actions={headerActions} onProfile={toggleProfile} />
       ) : (
-        <AppHeader variant="home" actions={headerActions} onProfile={toggleProfile} />
+        <AppHeader
+          variant="home"
+          brand={scopeEnabled ? <ScopeTrigger scope={scope} onClick={toggleScope} /> : undefined}
+          actions={headerActions}
+          onProfile={toggleProfile}
+        />
       )}
       {profileDropdown({ top: 60, right: 16 })}
+      {scopeDropdown({ top: 60, left: 16 })}
       {content}
       <ScanFab placement="corner" withMenu={false} onScan={onScan} />
-      <BottomNav active={active} onSelect={onSelect} items={items} alertsTab={alertsTab} />
+      <BottomNav active={active} onSelect={onSelect} items={items} alertsTab={alertsTab} accentColor={accentColor} />
       {overlay ? <div className="absolute inset-0 z-50 flex flex-col">{overlay}</div> : null}
     </div>
   );

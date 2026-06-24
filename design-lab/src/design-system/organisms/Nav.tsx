@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from "react";
 import { PixelIcon } from "@design-system/assets/PixelIcon";
-import { ChevronLeftIcon, LogOutIcon, XIcon } from "@design-system/assets/icons";
+import { ChevronDownIcon, ChevronLeftIcon, LogOutIcon, XIcon } from "@design-system/assets/icons";
+import { GroupAvatar } from "@design-system/atoms/GroupAvatar";
 
 /**
  * Nav + header chrome (Phase 7, DM-5) — the real navigation/header organisms,
@@ -54,22 +55,100 @@ export function ProfileButton({ initials = "R", onClick }: { initials?: string; 
   );
 }
 
+// ── Scope (Personal / group) switcher ───────────────────────────────────
+/** An active workspace: Personal (no color/icon) or a group (emoji + accent). */
+export interface NavScope {
+  id: string;
+  name: string;
+  color?: string | null;
+  icon?: string | null;
+}
+
+const isGroupScope = (s?: NavScope): s is NavScope & { color: string; icon: string } =>
+  !!s && !!s.color && !!s.icon;
+
+/**
+ * ScopeTrigger — the top-left brand button: the `gastify` wordmark in Personal,
+ * or the group's avatar + name when a group is the active scope. Opens the
+ * ScopeMenu. A chevron signals it's switchable.
+ */
+export function ScopeTrigger({ scope, onClick }: { scope?: NavScope; onClick?: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label="Cambiar de espacio"
+      aria-haspopup="menu"
+      className="flex min-w-0 items-center gap-gt-6 rounded-gt-lg px-gt-2 py-gt-2 transition duration-150 ease-gt-bounce hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-gt-primary/25"
+    >
+      {isGroupScope(scope) ? (
+        <>
+          <GroupAvatar icon={scope.icon} color={scope.color} size="sm" />
+          <span className="min-w-0 truncate font-gt-display text-gt-lg font-extrabold text-gt-ink">{scope.name}</span>
+        </>
+      ) : (
+        <Wordmark />
+      )}
+      <ChevronDownIcon className="h-4 w-4 shrink-0 text-gt-ink-3" />
+    </button>
+  );
+}
+
+/** ScopeMenu — the dropdown of switchable workspaces (Personal + groups). */
+export function ScopeMenu({ scopes, activeId, onSelect }: { scopes: NavScope[]; activeId: string; onSelect?: (id: string) => void }) {
+  return (
+    <div className="w-64 overflow-hidden rounded-gt-2xl border-2 border-gt-line-strong bg-gt-surface shadow-gt-lg">
+      <p className="border-b-2 border-gt-line px-gt-12 py-gt-8 font-gt-display text-gt-xs font-extrabold uppercase tracking-wide text-gt-ink-3">Tus espacios</p>
+      <ul className="flex flex-col gap-gt-2 p-gt-6">
+        {scopes.map((s) => {
+          const active = s.id === activeId;
+          return (
+            <li key={s.id}>
+              <button
+                type="button"
+                onClick={() => onSelect?.(s.id)}
+                aria-current={active ? "true" : undefined}
+                className={`flex w-full items-center gap-gt-10 rounded-gt-lg border-2 px-gt-10 py-gt-8 text-left transition duration-150 ease-gt-bounce ${
+                  active ? "border-gt-line-strong bg-gt-primary-soft" : "border-transparent hover:bg-gt-bg-3"
+                }`}
+              >
+                {isGroupScope(s) ? (
+                  <GroupAvatar icon={s.icon} color={s.color} size="sm" />
+                ) : (
+                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-gt-lg border-2 border-gt-line-strong bg-gt-bg-3">
+                    <PixelIcon name="nav-profile" size={20} />
+                  </span>
+                )}
+                <span className="min-w-0 flex-1 truncate font-gt-display text-gt-md font-extrabold text-gt-ink">{s.name}</span>
+                {active ? <span className="shrink-0 font-gt-display text-gt-md font-extrabold text-gt-primary">✓</span> : null}
+              </button>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+}
+
 // ── Bottom nav (mobile/tablet) ──────────────────────────────────────────
 export interface BottomNavProps {
   active: string;
   onSelect?: (key: string) => void;
   items?: NavTab[];
   alertsTab?: string; // tab key that carries the alerts dot
+  /** group accent hex — tints the bar (gradient) + the active tab for a group scope. */
+  accentColor?: string;
   className?: string;
 }
 
-export function BottomNav({ active, onSelect, items = MAIN_NAV, alertsTab, className = "" }: BottomNavProps) {
+export function BottomNav({ active, onSelect, items = MAIN_NAV, alertsTab, accentColor, className = "" }: BottomNavProps) {
   // Gustify nav-bar geometry (3px ink top edge, 4-col grid, generous top pad,
   // 32px tab icons, filled-active tab) with gastify colors.
   return (
     <nav
       aria-label="Navegación principal"
-      className={`mt-gt-2 grid grid-cols-4 items-stretch gap-gt-4 border-t-[3px] border-gt-line-strong bg-gt-surface px-gt-6 pb-gt-2 pt-gt-6 ${className}`}
+      className={`mt-gt-2 grid grid-cols-4 items-stretch gap-gt-4 border-t-[3px] border-gt-line-strong px-gt-6 pb-gt-2 pt-gt-6 ${accentColor ? "" : "bg-gt-surface"} ${className}`}
+      style={accentColor ? { background: `linear-gradient(to top, ${accentColor}33, var(--color-gt-surface) 75%)` } : undefined}
     >
       {items.map((tab) => {
         const isActive = tab.key === active;
@@ -80,9 +159,10 @@ export function BottomNav({ active, onSelect, items = MAIN_NAV, alertsTab, class
             aria-label={tab.label}
             aria-current={isActive ? "page" : undefined}
             onClick={() => onSelect?.(tab.key)}
+            style={isActive && accentColor ? { backgroundColor: `${accentColor}40` } : undefined}
             className={`relative flex min-w-0 flex-col items-center gap-gt-2 rounded-gt-2xl border-2 px-gt-4 pb-gt-4 pt-gt-6 font-gt-display font-extrabold transition duration-150 ease-gt-bounce ${
               isActive
-                ? "border-gt-line-strong bg-gt-primary-soft text-gt-primary shadow-gt-xs"
+                ? `border-gt-line-strong shadow-gt-xs ${accentColor ? "text-gt-ink" : "bg-gt-primary-soft text-gt-primary"}`
                 : "border-transparent text-gt-ink-3 hover:border-gt-line hover:bg-gt-bg-3"
             }`}
           >
@@ -110,6 +190,11 @@ export interface SideNavProps {
   profileName?: string;
   profileEmail?: string;
   onProfile?: () => void;
+  /** active scope + handler — the wordmark becomes a ScopeTrigger when set. */
+  scope?: NavScope;
+  onScopeClick?: () => void;
+  /** group accent hex — tints the rail (gradient) + the active row for a group scope. */
+  accentColor?: string;
   className?: string;
 }
 
@@ -128,16 +213,20 @@ export function SideNav({
   profileName = "Rosa",
   profileEmail = "rosa@correo.cl",
   onProfile,
+  scope,
+  onScopeClick,
+  accentColor,
   className = "",
 }: SideNavProps) {
   return (
     <nav
       aria-label="Navegación principal"
-      className={`flex shrink-0 flex-col border-r-2 border-gt-line-strong bg-gt-surface p-gt-12 ${collapsed ? "w-18 items-center" : "w-60"} ${className}`}
+      className={`flex shrink-0 flex-col border-r-2 border-gt-line-strong p-gt-12 ${accentColor ? "" : "bg-gt-surface"} ${collapsed ? "w-18 items-center" : "w-60"} ${className}`}
+      style={accentColor ? { background: `linear-gradient(to bottom, ${accentColor}33, var(--color-gt-surface) 45%)` } : undefined}
     >
-      {/* header: wordmark + the options/collapse icon top-right */}
+      {/* header: scope trigger / wordmark + the options/collapse icon top-right */}
       <div className={`flex items-center ${collapsed ? "justify-center" : "justify-between"} py-gt-8`}>
-        {collapsed ? null : <Wordmark />}
+        {collapsed ? null : onScopeClick ? <ScopeTrigger scope={scope} onClick={onScopeClick} /> : <Wordmark />}
         <button
           type="button"
           aria-label={collapsed ? "Expandir navegación" : "Opciones de navegación"}
@@ -160,11 +249,12 @@ export function SideNav({
                 aria-current={isActive ? "page" : undefined}
                 title={collapsed ? tab.label : undefined}
                 onClick={() => onSelect?.(tab.key)}
+                style={isActive && accentColor ? { backgroundColor: `${accentColor}40` } : undefined}
                 className={`flex w-full items-center rounded-gt-lg border-2 font-gt-display text-gt-md font-extrabold transition duration-150 ease-gt-bounce ${
                   collapsed ? "justify-center px-gt-8 py-gt-8" : "gap-gt-10 px-gt-12 py-gt-8"
                 } ${
                   isActive
-                    ? "border-gt-line-strong bg-gt-primary-soft text-gt-primary shadow-gt-xs"
+                    ? `border-gt-line-strong shadow-gt-xs ${accentColor ? "text-gt-ink" : "bg-gt-primary-soft text-gt-primary"}`
                     : "border-gt-line bg-gt-surface text-gt-ink-2 hover:border-gt-line-strong hover:text-gt-ink"
                 }`}
               >
@@ -201,6 +291,8 @@ export interface AppHeaderProps {
   variant?: HeaderVariant;
   title?: string;
   subtitle?: ReactNode;
+  /** replaces the wordmark in the "home" variant (e.g. the scope trigger). */
+  brand?: ReactNode;
   /** trailing action slot (search/filter/period steppers) before the avatar. */
   actions?: ReactNode;
   /** optional second band under the header row (search/sort/export). */
@@ -218,6 +310,7 @@ export function AppHeader({
   variant = "home",
   title,
   subtitle,
+  brand,
   actions,
   band,
   onBack,
@@ -244,7 +337,7 @@ export function AppHeader({
         ) : null}
 
         {variant === "home" ? (
-          <Wordmark />
+          brand ?? <Wordmark />
         ) : (
           <div className="flex min-w-0 flex-col">
             <h1 className="truncate font-gt-display text-gt-3xl font-extrabold leading-tight text-gt-ink">{title}</h1>

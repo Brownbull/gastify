@@ -42,7 +42,6 @@ const GROUPS: SettingsGroup[] = [
       { key: "profile", label: "Perfil", subtitle: "Nombre, correo y foto", icon: "snowshoe-face-wave" },
       { key: "subscription", label: "Suscripción", subtitle: "Plan y créditos de escaneo", icon: "credit-super" },
       { key: "notifications", label: "Notificaciones", subtitle: "Alertas y recordatorios", icon: "nav-alerts" },
-      { key: "groups", label: "Grupos", subtitle: "Comparte gastos con tu familia", icon: "settings-groups", badge: "Próximamente" },
     ],
   },
   {
