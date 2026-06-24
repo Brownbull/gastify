@@ -29,6 +29,8 @@ function GruposFlow({ platform, onClose }: { platform: Platform; onClose?: () =>
         platform={platform}
         onBack={() => setOpenGroup(null)}
         onShare={() => {}}
+        onLeave={() => setOpenGroup(null)}
+        onDelete={() => setOpenGroup(null)}
       />
     );
   }
@@ -46,12 +48,25 @@ export const Default: Story = {
   },
 };
 
+/** Owner view (SAMPLE_GROUPS[0]): tap a member to manage, the visibility toggle, and "Eliminar grupo". */
 export const Detail: Story = {
   render: (_a, { globals }) => {
     const platform = platformFromGlobals(globals);
     return (
       <AppSurface platform={platform}>
-        <GroupDetailScreen group={SAMPLE_GROUPS[0]} platform={platform} onBack={() => {}} onShare={() => {}} />
+        <GroupDetailScreen group={SAMPLE_GROUPS[0]} platform={platform} onBack={() => {}} onShare={() => {}} onLeave={() => {}} onDelete={() => {}} />
+      </AppSurface>
+    );
+  },
+};
+
+/** Member view (SAMPLE_GROUPS[1]): no member management / visibility toggle — just your consent + "Salir del grupo". */
+export const DetailAsMember: Story = {
+  render: (_a, { globals }) => {
+    const platform = platformFromGlobals(globals);
+    return (
+      <AppSurface platform={platform}>
+        <GroupDetailScreen group={SAMPLE_GROUPS[1]} platform={platform} onBack={() => {}} onShare={() => {}} onLeave={() => {}} onDelete={() => {}} />
       </AppSurface>
     );
   },
