@@ -25,13 +25,13 @@ export interface AppNotification {
   read: boolean;
 }
 
-/** icon + accent hex per kind (tinted tile). */
-export const KIND_META: Record<NotificationKind, { icon: string; color: string }> = {
+/** icon + accent hex per kind (tinted tile); `size` overrides the default glyph size. */
+export const KIND_META: Record<NotificationKind, { icon: string; color: string; size?: number }> = {
   scan_complete: { icon: "scan-success", color: "#10B981" },
   scan_needs_review: { icon: "status-warning", color: "#F59E0B" },
   statement_reconciled: { icon: "scan-statement", color: "#7B6EF6" },
   budget_alert: { icon: "fin-budget", color: "#EF4444" },
-  group_shared: { icon: "settings-groups", color: "#3B82F6" },
+  group_shared: { icon: "settings-groups", color: "#3B82F6", size: 34 },
 };
 
 export const BUCKET_ORDER: TimeBucket[] = ["Hoy", "Esta semana", "Antes"];
