@@ -1,6 +1,7 @@
 import { useState, type ComponentType } from "react";
 import { SettingsScreen } from "./SettingsScreen";
 import { ProfileSubview } from "./ProfileSubview";
+import { CardsSubview } from "./CardsSubview";
 import { SubscriptionSubview } from "./SubscriptionSubview";
 import { NotificationsSubview } from "./NotificationsSubview";
 import { LimitsSubview } from "./LimitsSubview";
@@ -21,6 +22,7 @@ type SubviewProps = { onBack?: () => void };
 
 const SUBVIEWS: Record<string, ComponentType<SubviewProps>> = {
   profile: ProfileSubview,
+  cards: CardsSubview,
   subscription: SubscriptionSubview,
   notifications: NotificationsSubview,
   limits: LimitsSubview,

@@ -41,6 +41,7 @@ const GROUPS: SettingsGroup[] = [
     rows: [
       { key: "profile", label: "Perfil", subtitle: "Nombre, correo y foto", icon: "snowshoe-face-wave" },
       { key: "subscription", label: "Suscripción", subtitle: "Plan y créditos de escaneo", icon: "credit-super" },
+      { key: "cards", label: "Mis tarjetas", subtitle: "Tarjetas para conciliar cartolas", icon: "card-blue" },
       { key: "notifications", label: "Notificaciones", subtitle: "Alertas y recordatorios", icon: "nav-alerts" },
     ],
   },
