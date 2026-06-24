@@ -2,6 +2,7 @@ import { useState } from "react";
 import { AppHeader } from "@design-system/organisms/Nav";
 import { PixelIcon } from "@design-system/assets/PixelIcon";
 import { EmptyState } from "@design-system/molecules/EmptyState";
+import { Pagination } from "@design-system/molecules/Pagination";
 import { expandHex } from "@lib/hexColor";
 import { SAMPLE_NOTIFICATIONS, KIND_META, BUCKET_ORDER, unreadCount, type AppNotification } from "../model/notificationFixtures";
 
@@ -36,11 +37,18 @@ export interface NotificationsScreenProps {
  * from the avatar dropdown. Time-grouped (Hoy / Esta semana / Antes), with an
  * unread dot + bolder title per item; tapping marks read, plus "marcar todo".
  */
+const PAGE_SIZE = 12; // notifications per page (feed keeps ~30 days)
+
 export function NotificationsScreen({ notifications = SAMPLE_NOTIFICATIONS, onBack }: NotificationsScreenProps) {
   const [items, setItems] = useState(notifications);
+  const [page, setPage] = useState(1);
   const unread = unreadCount(items);
   const markRead = (id: string) => setItems((prev) => prev.map((n) => (n.id === id ? { ...n, read: true } : n)));
   const markAll = () => setItems((prev) => prev.map((n) => ({ ...n, read: true })));
+  // paginate the flat feed (12/page), then group the current page under buckets.
+  const pageCount = Math.max(1, Math.ceil(items.length / PAGE_SIZE));
+  const current = Math.min(page, pageCount);
+  const pageItems = items.slice((current - 1) * PAGE_SIZE, current * PAGE_SIZE);
 
   return (
     <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden bg-gt-bg">
@@ -65,11 +73,11 @@ export function NotificationsScreen({ notifications = SAMPLE_NOTIFICATIONS, onBa
                   </button>
                 </div>
               ) : null}
-              {BUCKET_ORDER.filter((b) => items.some((n) => n.bucket === b)).map((bucket) => (
+              {BUCKET_ORDER.filter((b) => pageItems.some((n) => n.bucket === b)).map((bucket) => (
                 <section key={bucket} className="flex flex-col gap-gt-6">
                   <p className="px-gt-4 font-gt-display text-gt-sm font-extrabold uppercase tracking-wide text-gt-ink-3">{bucket}</p>
                   <div className="flex flex-col divide-y-2 divide-gt-line overflow-hidden rounded-gt-2xl border-2 border-gt-line-strong bg-gt-surface shadow-gt-sm">
-                    {items
+                    {pageItems
                       .filter((n) => n.bucket === bucket)
                       .map((n) => (
                         <NotificationRow key={n.id} n={n} onClick={() => markRead(n.id)} />
@@ -77,6 +85,12 @@ export function NotificationsScreen({ notifications = SAMPLE_NOTIFICATIONS, onBa
                   </div>
                 </section>
               ))}
+
+              {pageCount > 1 ? <Pagination page={current} pageCount={pageCount} onPage={setPage} className="pt-gt-2" /> : null}
+
+              <p className="px-gt-4 pt-gt-2 text-center text-gt-xs font-medium text-gt-ink-3">
+                Se guardan las notificaciones de los últimos 30 días.
+              </p>
             </>
           )}
         </div>
