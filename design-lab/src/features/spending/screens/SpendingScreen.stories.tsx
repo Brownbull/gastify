@@ -5,6 +5,7 @@ import { AppScaffold } from "@design-system/organisms/AppScaffold";
 import { HeaderAction } from "@design-system/organisms/Nav";
 import { ScanModeChooserScreen } from "@features/scan/screens/ScanModeChooserScreen";
 import { SpendingScreen } from "./SpendingScreen";
+import { CategoryDetailScreen } from "./CategoryDetailScreen";
 import { SPEND_REPS, type SpendRepresentation } from "../components/TrendsRepresentations";
 
 /**
@@ -24,6 +25,7 @@ type Story = StoryObj;
 function GastosInShell({ platform }: { platform: Platform }) {
   const [scanOpen, setScanOpen] = useState(false);
   const [rep, setRep] = useState<SpendRepresentation>("donut");
+  const [detailCat, setDetailCat] = useState<string | null>(null);
 
   // the diagram switcher (donut / treemap / sankey) lives in the header, next to
   // the profile avatar — the slot the old Tendencias/Reportes switcher used.
@@ -39,7 +41,9 @@ function GastosInShell({ platform }: { platform: Platform }) {
       headerActions={switcher}
       onScan={() => setScanOpen(true)}
       overlay={
-        scanOpen ? (
+        detailCat ? (
+          <CategoryDetailScreen categoryId={detailCat} platform={platform} onBack={() => setDetailCat(null)} />
+        ) : scanOpen ? (
           <ScanModeChooserScreen
             onClose={() => setScanOpen(false)}
             onSingle={() => setScanOpen(false)}
@@ -49,7 +53,7 @@ function GastosInShell({ platform }: { platform: Platform }) {
         ) : undefined
       }
     >
-      <SpendingScreen platform={platform} rep={rep} />
+      <SpendingScreen platform={platform} rep={rep} onOpenCategory={setDetailCat} />
     </AppScaffold>
   );
 }

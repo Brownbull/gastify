@@ -67,7 +67,7 @@ function ShowMore({ canExpand, canCollapse, otroCount, onExpand, onCollapse }: {
   );
 }
 
-export function TrendsRepresentations({ rep }: { rep: SpendRepresentation }) {
+export function TrendsRepresentations({ rep, onOpenCategory }: { rep: SpendRepresentation; onOpenCategory?: (id: string) => void }) {
   // ONE drill path shared by the donut + treemap (two views of the same data).
   const [donutPath, setDonutPath] = useState<{ id: string; label: string }[]>([]);
   const [countMode, setCountMode] = useState<CountMode>("transactions");
@@ -187,6 +187,7 @@ export function TrendsRepresentations({ rep }: { rep: SpendRepresentation }) {
               colorFor={categoryColor}
               canDrill={canDrill}
               onDrill={drill}
+              onCountClick={onOpenCategory}
               animKey={animKey}
               className="w-full"
             />
@@ -198,7 +199,7 @@ export function TrendsRepresentations({ rep }: { rep: SpendRepresentation }) {
           <div className="relative flex min-h-0 flex-1 flex-col gap-gt-10">
             {/* key re-mounts the treemap on drill/show-more change → replays the fade */}
             <div key={animKey} className="gt-anim-fade min-h-0 flex-1">
-              <Treemap data={treemapGroup.display} countMode={countMode} tint={0.5} height="100%" inkBorder onCellClick={drill} onCountClick={() => {}} />
+              <Treemap data={treemapGroup.display} countMode={countMode} tint={0.5} height="100%" inkBorder onCellClick={drill} onCountClick={onOpenCategory} />
             </div>
             {donutPath.length > 0 ? (
               <button

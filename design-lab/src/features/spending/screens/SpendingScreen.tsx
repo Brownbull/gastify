@@ -16,9 +16,11 @@ export interface SpendingScreenProps {
   platform?: Platform;
   /** active spending representation — controlled by the header switcher in the host. */
   rep: SpendRepresentation;
+  /** a category's count pill was tapped — open its detail (host-owned overlay). */
+  onOpenCategory?: (id: string) => void;
 }
 
-export function SpendingScreen({ platform = "mobile", rep }: SpendingScreenProps) {
+export function SpendingScreen({ platform = "mobile", rep, onOpenCategory }: SpendingScreenProps) {
   const [dimension, setDimension] = useState<ReportPeriod>("monthly");
   const [anchorIndex, setAnchorIndex] = useState(LATEST_PERIOD_INDEX);
   const contentMax = platform === "desktop" ? "60rem" : undefined;
@@ -26,7 +28,7 @@ export function SpendingScreen({ platform = "mobile", rep }: SpendingScreenProps
   return (
     <div className="mx-auto flex h-full w-full flex-col gap-gt-12 pt-gt-4" style={{ maxWidth: contentMax }}>
       <PeriodControl dimension={dimension} onDimensionChange={setDimension} anchorIndex={anchorIndex} onAnchorChange={setAnchorIndex} />
-      <TrendsRepresentations rep={rep} />
+      <TrendsRepresentations rep={rep} onOpenCategory={onOpenCategory} />
     </div>
   );
 }
