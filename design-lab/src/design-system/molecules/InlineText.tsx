@@ -13,6 +13,8 @@ export interface InlineTextProps {
   onChange: (v: string) => void;
   /** maxLength cap. */
   cap?: number;
+  /** muted hint shown at rest when the value is empty (e.g. manual entry). */
+  placeholder?: string;
   className?: string;
   ariaLabel: string;
 }
@@ -22,7 +24,7 @@ export interface InlineTextProps {
  * when tapped (commit on blur / Enter). The edit-in-place primitive shared by
  * the scan review and the saved-transaction detail.
  */
-export function InlineText({ value, onChange, cap, className = "", ariaLabel }: InlineTextProps) {
+export function InlineText({ value, onChange, cap, placeholder, className = "", ariaLabel }: InlineTextProps) {
   const [editing, setEditing] = useState(false);
   if (editing) {
     return (
@@ -45,7 +47,7 @@ export function InlineText({ value, onChange, cap, className = "", ariaLabel }: 
       onClick={() => setEditing(true)}
       className={`rounded-gt-sm text-left focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-gt-primary/25 ${className}`}
     >
-      {value}
+      {value || (placeholder ? <span className="text-gt-ink-3 opacity-70">{placeholder}</span> : value)}
     </button>
   );
 }

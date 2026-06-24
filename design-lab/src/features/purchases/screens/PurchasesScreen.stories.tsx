@@ -7,6 +7,7 @@ import { BROWSE_FACETS, BROWSE_TXN_COUNT, type BrowseTransaction } from "@lib/br
 import { ScanModeChooserScreen } from "@features/scan/screens/ScanModeChooserScreen";
 import { PurchasesScreen } from "./PurchasesScreen";
 import { TransactionDetail } from "./TransactionDetail";
+import { NewTransactionScreen } from "./NewTransactionScreen";
 import { pickDetailFor } from "../model/detailFixtures";
 
 /**
@@ -26,6 +27,7 @@ type Story = StoryObj;
 
 function ComprasInShell({ platform }: { platform: Platform }) {
   const [scanOpen, setScanOpen] = useState(false);
+  const [newOpen, setNewOpen] = useState(false);
   const [filterOpen, setFilterOpen] = useState(false);
   const [selection, setSelection] = useState<FilterSelection>({});
   const [detailTxn, setDetailTxn] = useState<BrowseTransaction | null>(null);
@@ -48,6 +50,8 @@ function ComprasInShell({ platform }: { platform: Platform }) {
   // at a max width and centered (it never uses the full pane width).
   const overlay = detailTxn ? (
     <TransactionDetail txn={pickDetailFor(detailTxn)} platform={platform} onBack={() => setDetailTxn(null)} onDelete={() => setDetailTxn(null)} />
+  ) : newOpen ? (
+    <NewTransactionScreen platform={platform} onBack={() => setNewOpen(false)} onCreate={() => setNewOpen(false)} />
   ) : filterOpen ? (
     platform === "desktop" ? (
       <div className="flex h-full w-full justify-center bg-gt-ink/30 px-gt-16 py-gt-16">
@@ -61,7 +65,7 @@ function ComprasInShell({ platform }: { platform: Platform }) {
       onClose={() => setScanOpen(false)}
       onSingle={() => setScanOpen(false)}
       onStatement={() => setScanOpen(false)}
-      onManual={() => setScanOpen(false)}
+      onManual={() => { setScanOpen(false); setNewOpen(true); }}
     />
   ) : undefined;
 

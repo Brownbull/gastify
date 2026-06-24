@@ -24,6 +24,8 @@ export interface MerchantHeaderProps {
   /** merchant name override + inline-edit handler (defaults to txn.merchant). */
   merchantValue?: string;
   onMerchantChange?: (v: string) => void;
+  /** muted hint when the merchant name is empty (manual entry). */
+  merchantPlaceholder?: string;
   /** category id override + tap handler (defaults to txn.category). */
   categoryId?: string;
   onCategoryClick?: () => void;
@@ -74,6 +76,7 @@ export function MerchantHeader({
   txn,
   merchantValue,
   onMerchantChange,
+  merchantPlaceholder,
   categoryId,
   onCategoryClick,
   paymentId,
@@ -102,7 +105,7 @@ export function MerchantHeader({
       <ThumbnailBadge icon={txn.storeIcon} category={category} size="md" />
       <div className="flex min-w-0 flex-1 flex-col gap-gt-6">
         {onMerchantChange ? (
-          <InlineText value={merchant} onChange={(v) => onMerchantChange(v.slice(0, NAME_CAP))} cap={NAME_CAP} ariaLabel="Nombre del comercio" className="min-w-0 truncate text-gt-lg font-extrabold text-gt-ink" />
+          <InlineText value={merchant} onChange={(v) => onMerchantChange(v.slice(0, NAME_CAP))} cap={NAME_CAP} placeholder={merchantPlaceholder} ariaLabel="Nombre del comercio" className="min-w-0 truncate text-gt-lg font-extrabold text-gt-ink" />
         ) : (
           <h2 className="min-w-0 truncate text-gt-lg font-extrabold text-gt-ink">{merchant}</h2>
         )}
