@@ -11,6 +11,7 @@ import { CompactRow, CompactRowList } from "@design-system/molecules/CompactRowL
 import { ThumbnailBadge } from "@design-system/molecules/ThumbnailBadge";
 import { InviteSheet } from "../components/InviteSheet";
 import { MemberActionsSheet } from "../components/MemberActionsSheet";
+import { ShareTransactionSheet } from "../components/ShareTransactionSheet";
 import { LeaveGroupDialog, DeleteGroupDialog } from "../components/GroupLeaveDeleteDialogs";
 import { ROLE_LABEL, ROLE_TONE, type Group, type GroupMember, type GroupRole } from "../model/groupFixtures";
 import { clp } from "@lib/transactionFixtures";
@@ -59,6 +60,7 @@ function MemberRow({ member, visibilityEnabled, onManage }: { member: GroupMembe
 export function GroupDetailScreen({ group, onBack, onShare, onLeave, onDelete, platform = "mobile" }: GroupDetailScreenProps) {
   const [g, setG] = useState(group);
   const [inviteOpen, setInviteOpen] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
   const [actionMember, setActionMember] = useState<GroupMember | null>(null);
   const [leaveOpen, setLeaveOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -75,6 +77,15 @@ export function GroupDetailScreen({ group, onBack, onShare, onLeave, onDelete, p
   const removeMember = (userId: string) => setG((p) => ({ ...p, members: p.members.filter((m) => m.userId !== userId) }));
   const setVisibility = (v: boolean) => setG((p) => ({ ...p, memberVisibilityEnabled: v }));
   const setMyConsent = (v: boolean) => setG((p) => ({ ...p, members: p.members.map((m) => (m.isYou ? { ...m, sharesDetail: v } : m)) }));
+  // share a personal transaction into the group → prepend it to the feed as yours.
+  const shareTxn = (t: { id: string; merchant: string; total: number; category?: string; storeIcon: string }) => {
+    setG((p) => ({
+      ...p,
+      sharedTotal: p.sharedTotal + t.total,
+      sharedTxns: [{ id: `shared-${t.id}-${p.sharedTxns.length}`, date: "hoy", merchant: t.merchant, total: t.total, currency: "CLP", sharedByName: "Tú", isOwn: true, category: t.category ?? "otros", storeIcon: t.storeIcon }, ...p.sharedTxns],
+    }));
+    onShare?.();
+  };
 
   const contentMax = platform === "desktop" ? "42rem" : undefined;
   // 5e consent gate: itemize a shared txn only when the group exposes member
@@ -105,7 +116,7 @@ export function GroupDetailScreen({ group, onBack, onShare, onLeave, onDelete, p
 
           {/* primary actions */}
           <div className="grid grid-cols-2 gap-gt-8">
-            <Button variant="primary" onClick={onShare}>
+            <Button variant="primary" onClick={() => setShareOpen(true)}>
               <PixelIcon name="action-split" size={20} /> Compartir gasto
             </Button>
             <Button variant="secondary" onClick={() => setInviteOpen(true)}>
@@ -207,6 +218,7 @@ export function GroupDetailScreen({ group, onBack, onShare, onLeave, onDelete, p
       </div>
 
       <InviteSheet open={inviteOpen} onClose={() => setInviteOpen(false)} group={g} />
+      <ShareTransactionSheet open={shareOpen} groupName={g.name} onClose={() => setShareOpen(false)} onShare={shareTxn} />
       <MemberActionsSheet
         member={actionMember}
         canPromote={actionMember ? canPromote(actionMember) : false}
