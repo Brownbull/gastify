@@ -28,9 +28,9 @@ function NotificationRow({ n, onRead, onDelete }: { n: AppNotification; onRead?:
             type="button"
             aria-label="Eliminar notificación"
             onClick={onDelete}
-            className="grid h-7 w-7 place-items-center rounded-gt-md text-gt-ink-3 transition duration-150 ease-gt-bounce hover:-translate-y-0.5 hover:bg-gt-negative-bg hover:text-gt-negative"
+            className="grid h-9 w-9 place-items-center rounded-gt-md text-gt-ink-3 transition duration-150 ease-gt-bounce hover:-translate-y-0.5 hover:bg-gt-negative-bg hover:text-gt-negative"
           >
-            <PixelIcon name="action-delete" size={18} />
+            <PixelIcon name="action-delete" size={26} />
           </button>
         ) : (
           <span aria-label="No leída" className="block h-2.5 w-2.5 rounded-gt-pill bg-gt-primary" />

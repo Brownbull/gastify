@@ -31,7 +31,7 @@ export const KIND_META: Record<NotificationKind, { icon: string; color: string; 
   scan_needs_review: { icon: "status-warning", color: "#F59E0B" },
   statement_reconciled: { icon: "scan-statement", color: "#7B6EF6" },
   budget_alert: { icon: "fin-budget", color: "#EF4444" },
-  group_shared: { icon: "settings-groups", color: "#3B82F6", size: 34 },
+  group_shared: { icon: "settings-groups", color: "#3B82F6", size: 42 },
 };
 
 export const BUCKET_ORDER: TimeBucket[] = ["Hoy", "Esta semana", "Antes"];
