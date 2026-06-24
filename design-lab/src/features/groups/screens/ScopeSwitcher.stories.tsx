@@ -60,7 +60,7 @@ function ScopeContent({ scopeId }: { scopeId: string }) {
 
 function Demo({ platform }: { platform: Platform }) {
   const [scopeId, setScopeId] = useState("g-familia");
-  const [active, setActive] = useState("inicio");
+  const [active, setActive] = useState("home");
   const scope = SCOPES.find((s) => s.id === scopeId) ?? PERSONAL;
   return (
     <AppScaffold

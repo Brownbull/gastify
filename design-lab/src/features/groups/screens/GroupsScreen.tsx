@@ -8,12 +8,12 @@ import { CreateGroupSheet, type CreateGroupDraft } from "../components/CreateGro
 import { SAMPLE_GROUPS, type Group } from "../model/groupFixtures";
 
 /**
- * GruposScreen — the Grupos hub, reached from the avatar dropdown (peer to
+ * GroupsScreen — the Grupos hub, reached from the avatar dropdown (peer to
  * Ajustes), mounted as a full-surface overlay with its own back-arrow header.
  * Lists the user's groups (GroupCard each) with a dashed "Crear grupo" CTA, or a
  * first-run EmptyState when there are none.
  */
-export interface GruposScreenProps {
+export interface GroupsScreenProps {
   groups?: Group[];
   onBack?: () => void;
   onOpenGroup?: (group: Group) => void;
@@ -21,7 +21,7 @@ export interface GruposScreenProps {
   onCreate?: (draft: CreateGroupDraft) => void;
 }
 
-export function GruposScreen({ groups = SAMPLE_GROUPS, onBack, onOpenGroup, onCreate }: GruposScreenProps) {
+export function GroupsScreen({ groups = SAMPLE_GROUPS, onBack, onOpenGroup, onCreate }: GroupsScreenProps) {
   const [createOpen, setCreateOpen] = useState(false);
   return (
     <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden bg-gt-bg">

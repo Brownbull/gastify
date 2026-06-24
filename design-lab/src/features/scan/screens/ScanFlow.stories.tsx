@@ -146,7 +146,7 @@ export default meta;
 type Story = StoryObj;
 
 /** The unified scan entry. Pick a mode → run that sub-flow → return to the chooser. */
-export const Escanear: Story = {
+export const Scan: Story = {
   render: (_args, { globals }) => (
     <AppSurface platform={platformFromGlobals(globals)}>
       <EscanearJourney />

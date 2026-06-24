@@ -4,7 +4,7 @@ import { PeriodControl, LATEST_PERIOD_INDEX } from "@design-system/molecules/Per
 import { SectionFade } from "@design-system/atoms/SectionFade";
 import type { Platform } from "@design-system/organisms/AppSurface";
 import type { FilterSelection } from "@design-system/organisms/FilterSheet";
-import { ComprasScreen } from "@features/compras/screens/ComprasScreen";
+import { PurchasesScreen } from "@features/purchases/screens/PurchasesScreen";
 import { ItemsBrowseContent } from "@features/spending/screens/ItemsBrowseContent";
 import { TIMEFRAME_REPORTS, type ReportPeriod } from "@lib/reportTimeframeFixtures";
 import type { BrowseTransaction } from "@lib/browseFixtures";
@@ -17,7 +17,7 @@ import type { BrowseTransaction } from "@lib/browseFixtures";
  * active subsection is chosen from the HEADER switcher (icons next to the profile)
  * and arrives as the controlled `sub` prop:
  *
- *   Transacciones → ComprasScreen (filter rides the host AppScaffold overlay).
+ *   Transacciones → PurchasesScreen (filter rides the host AppScaffold overlay).
  *   Productos     → ItemsBrowseContent (self-managed overlays).
  *   Reportes      → ReportDetail for the selected timeframe (no own picker — the
  *                   shared PeriodControl drives it).
@@ -29,13 +29,13 @@ export interface HistoryScreenProps {
   /** active subsection — controlled by the header switcher in the host. */
   sub: HistorySub;
   /** Compras filter selection (host owns it; the FilterSheet rides AppScaffold's overlay). */
-  comprasSelection?: FilterSelection;
-  onOpenComprasFilter?: () => void;
+  purchasesSelection?: FilterSelection;
+  onOpenPurchasesFilter?: () => void;
   /** a transaction was tapped in Transacciones — open its detail (host-owned overlay). */
   onSelectTxn?: (txn: BrowseTransaction) => void;
 }
 
-export function HistoryScreen({ platform = "mobile", sub, comprasSelection = {}, onOpenComprasFilter, onSelectTxn }: HistoryScreenProps) {
+export function HistoryScreen({ platform = "mobile", sub, purchasesSelection = {}, onOpenPurchasesFilter, onSelectTxn }: HistoryScreenProps) {
   const [dimension, setDimension] = useState<ReportPeriod>("monthly");
   const [anchorIndex, setAnchorIndex] = useState(LATEST_PERIOD_INDEX);
   const contentMax = platform === "desktop" ? "56rem" : undefined;
@@ -53,7 +53,7 @@ export function HistoryScreen({ platform = "mobile", sub, comprasSelection = {},
       </div>
 
       {sub === "transactions" ? (
-        <ComprasScreen platform={platform} selection={comprasSelection} onOpenFilter={onOpenComprasFilter} onSelectTxn={onSelectTxn} />
+        <PurchasesScreen platform={platform} selection={purchasesSelection} onOpenFilter={onOpenPurchasesFilter} onSelectTxn={onSelectTxn} />
       ) : sub === "products" ? (
         <ItemsBrowseContent />
       ) : (

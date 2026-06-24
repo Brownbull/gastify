@@ -34,7 +34,7 @@ function GastosInShell({ platform }: { platform: Platform }) {
   return (
     <AppScaffold
       platform={platform}
-      active="gastos"
+      active="spending"
       title="Gastos"
       headerActions={switcher}
       onScan={() => setScanOpen(true)}

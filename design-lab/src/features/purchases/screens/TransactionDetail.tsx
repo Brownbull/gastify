@@ -21,7 +21,7 @@ import { formatMoney, type CurrencyCode } from "@lib/scanFixtures";
 
 /**
  * TransactionDetail (Phase 9) — a SAVED boleta, reached by tapping a transaction
- * in ComprasScreen. Full-surface (rides AppScaffold's overlay slot) with a
+ * in PurchasesScreen. Full-surface (rides AppScaffold's overlay slot) with a
  * `detail` back header. Fields are edited in place by tapping them (no edit
  * pencil) — the payment and cadence chips open their pickers; a danger delete
  * button (left of the save CTA) confirms before removing the transaction.

@@ -35,11 +35,11 @@ function SampleContent({ label }: { label: string }) {
 }
 
 function ShellDemo({ platform }: { platform: Platform }) {
-  const [active, setActive] = useState("inicio");
+  const [active, setActive] = useState("home");
   const [scanOpen, setScanOpen] = useState(false);
   const tab = MAIN_NAV.find((t) => t.key === active);
   // Inicio shows the wordmark (no title); other tabs show their label.
-  const title = active === "inicio" ? undefined : tab?.label;
+  const title = active === "home" ? undefined : tab?.label;
 
   return (
     <AppScaffold
@@ -47,7 +47,7 @@ function ShellDemo({ platform }: { platform: Platform }) {
       active={active}
       onSelect={setActive}
       title={title}
-      alertsTab="gastos"
+      alertsTab="spending"
       onScan={() => setScanOpen(true)}
       overlay={
         scanOpen ? (

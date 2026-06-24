@@ -5,14 +5,14 @@ import { TransactionDetail } from "./TransactionDetail";
 import { SUPERMARKET_TXN } from "../model/detailFixtures";
 
 /**
- * Features/Compras/Screens/TransactionDetail — the boleta detail (the "items"
- * half of Compras), reached by tapping a transaction in ComprasScreen. Full-
+ * Features/Purchases/Screens/TransactionDetail — the boleta detail (the "items"
+ * half of Compras), reached by tapping a transaction in PurchasesScreen. Full-
  * surface with a `detail` back header: MerchantHeader · familia-grouped
  * ItemGroups · the total folded into the save CTA. Platform toolbar switches
- * device; the integration (list → detail) lives in the ComprasScreen story.
+ * device; the integration (list → detail) lives in the PurchasesScreen story.
  */
 const meta: Meta = {
-  title: "Features/Compras/Screens/TransactionDetail",
+  title: "Features/Purchases/Screens/TransactionDetail",
   parameters: { layout: "fullscreen" },
 };
 

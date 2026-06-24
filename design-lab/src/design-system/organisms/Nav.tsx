@@ -7,7 +7,7 @@ import { GroupAvatar } from "@design-system/atoms/GroupAvatar";
  * Nav + header chrome (Phase 7, DM-5) — the real navigation/header organisms,
  * rebuilt from the legacy BoletApp "Gastify" shell (NAV-HEADER-SPEC.md). IA =
  * 4 tabs (Inicio·Compras·Gastos·Historial) + scan as a FAB (NOT a tab); Perfil is
- * reached from the top-right avatar dropdown (PerfilMenu), not a tab; legacy and
+ * reached from the top-right avatar dropdown (ProfileMenu), not a tab; legacy and
  * DM-5 agree on the count. Tabs are PixelIcon, icon-only, no text labels (legacy
  * parity). Spikes settle: scan-FAB placement, header density, Perfil treatment,
  * desktop chrome.
@@ -26,10 +26,10 @@ export interface NavTab {
 
 /** The single source of truth — 4 main destinations (DM-5). */
 export const MAIN_NAV: NavTab[] = [
-  { key: "inicio", label: "Inicio", icon: "nav-home" },
-  { key: "compras", label: "Compras", icon: "nav-history" },
-  { key: "gastos", label: "Gastos", icon: "chart-pie" },
-  { key: "historial", label: "Historial", icon: "nav-historial" },
+  { key: "home", label: "Inicio", icon: "nav-home" },
+  { key: "purchases", label: "Compras", icon: "nav-history" },
+  { key: "spending", label: "Gastos", icon: "chart-pie" },
+  { key: "history", label: "Historial", icon: "nav-historial" },
 ];
 
 // ── Wordmark + profile avatar ───────────────────────────────────────────
@@ -506,7 +506,7 @@ export function ScanFab({ placement = "corner", onScan, onModeSelect, withMenu =
  * (Notificaciones). The list is data-driven — a `divider: true` item draws the
  * separator before it.
  */
-export interface PerfilMenuItem {
+export interface ProfileMenuItem {
   key: string;
   label: string;
   icon: string;
@@ -521,14 +521,14 @@ export interface PerfilMenuItem {
 
 // Historial de productos / transacciones + Reportes moved to the Historial tab
 // (the avatar dropdown is now just account-level actions).
-export const PERFIL_MENU: PerfilMenuItem[] = [
-  { key: "notificaciones", label: "Notificaciones", icon: "nav-alerts", badge: "3" },
-  { key: "grupos", label: "Grupos", icon: "settings-groups" },
-  { key: "ajustes", label: "Ajustes", icon: "nav-settings" },
+export const PROFILE_MENU: ProfileMenuItem[] = [
+  { key: "notifications", label: "Notificaciones", icon: "nav-alerts", badge: "3" },
+  { key: "groups", label: "Grupos", icon: "settings-groups" },
+  { key: "settings", label: "Ajustes", icon: "nav-settings" },
   { key: "logout", label: "Cerrar sesión", icon: "svg:logout", danger: true, divider: true },
 ];
 
-function PerfilMenuRow({ item, onSelect }: { item: PerfilMenuItem; onSelect?: (key: string) => void }) {
+function ProfileMenuRow({ item, onSelect }: { item: ProfileMenuItem; onSelect?: (key: string) => void }) {
   return (
     <button
       type="button"
@@ -553,16 +553,16 @@ function PerfilMenuRow({ item, onSelect }: { item: PerfilMenuItem; onSelect?: (k
   );
 }
 
-export function PerfilMenu({
+export function ProfileMenu({
   name = "Rosa",
   email = "rosa@correo.cl",
-  items = PERFIL_MENU,
+  items = PROFILE_MENU,
   onSelect,
   className = "",
 }: {
   name?: string;
   email?: string;
-  items?: PerfilMenuItem[];
+  items?: ProfileMenuItem[];
   onSelect?: (key: string) => void;
   className?: string;
 }) {
@@ -581,7 +581,7 @@ export function PerfilMenu({
         {items.map((it) => (
           <div key={it.key}>
             {it.divider ? <div className="my-gt-6 border-t-2 border-gt-line" /> : null}
-            <PerfilMenuRow item={it} onSelect={onSelect} />
+            <ProfileMenuRow item={it} onSelect={onSelect} />
           </div>
         ))}
       </div>

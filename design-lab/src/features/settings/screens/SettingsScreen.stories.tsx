@@ -7,7 +7,7 @@ import { SettingsFlow } from "./SettingsFlow";
 
 /**
  * Features/Settings/Screens/SettingsScreen — the Ajustes hub. Reached from the
- * top-right avatar → PerfilMenu → "Ajustes", mounted as a full-surface overlay.
+ * top-right avatar → ProfileMenu → "Ajustes", mounted as a full-surface overlay.
  * Grouped card-of-rows with a back-arrow header. `Default` shows it in isolation;
  * `FromAvatar` proves the real reach (open the avatar dropdown → Ajustes).
  */
@@ -38,9 +38,9 @@ export const FromAvatar: Story = {
       return (
         <AppScaffold
           platform={platform}
-          active="inicio"
+          active="home"
           onProfileSelect={(k) => {
-            if (k === "ajustes") setOpen(true);
+            if (k === "settings") setOpen(true);
           }}
           overlay={open ? <SettingsFlow onClose={() => setOpen(false)} /> : undefined}
         >

@@ -5,7 +5,7 @@ import { PixelIcon } from "@design-system/assets/PixelIcon";
 import { LogOutIcon } from "@design-system/assets/icons";
 
 /**
- * SettingsScreen (Ajustes) — reached from the top-right avatar → PerfilMenu →
+ * SettingsScreen (Ajustes) — reached from the top-right avatar → ProfileMenu →
  * "Ajustes", mounted as a full-surface overlay via AppScaffold's overlay slot.
  * Its own `settings` AppHeader gives the back arrow (onBack pops the overlay).
  *

@@ -3,7 +3,7 @@ import { emptyHome, sampleHome } from "../model/HomeScreenModel";
 import { RecentTransactionsCard } from "./RecentTransactionsCard";
 
 const meta = {
-  title: "Features/Inicio/Components/Recent Transactions",
+  title: "Features/Home/Components/Recent Transactions",
   component: RecentTransactionsCard,
   parameters: { layout: "padded" },
   tags: ["autodocs"],

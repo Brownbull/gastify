@@ -5,18 +5,18 @@ import { AppScaffold } from "@design-system/organisms/AppScaffold";
 import { FilterSheet, type FilterSelection } from "@design-system/organisms/FilterSheet";
 import { BROWSE_FACETS, BROWSE_TXN_COUNT, type BrowseTransaction } from "@lib/browseFixtures";
 import { ScanModeChooserScreen } from "@features/scan/screens/ScanModeChooserScreen";
-import { ComprasScreen } from "./ComprasScreen";
+import { PurchasesScreen } from "./PurchasesScreen";
 import { TransactionDetail } from "./TransactionDetail";
 import { pickDetailFor } from "../model/detailFixtures";
 
 /**
- * Features/Compras/Screens/ComprasScreen — the transactions browse, rendered
+ * Features/Purchases/Screens/PurchasesScreen — the transactions browse, rendered
  * inside AppScaffold (`bleed` mode so the screen owns its sticky search/filter
  * band + scroll + filter overlay). The "+" FAB opens the scan mode chooser; the
  * filter button opens the FilterSheet. Platform toolbar switches device.
  */
 const meta: Meta = {
-  title: "Features/Compras/Screens/ComprasScreen",
+  title: "Features/Purchases/Screens/PurchasesScreen",
   // fullscreen so the desktop scaffold (SideNav + content pane) gets real width.
   parameters: { layout: "fullscreen" },
 };
@@ -68,13 +68,13 @@ function ComprasInShell({ platform }: { platform: Platform }) {
   return (
     <AppScaffold
       platform={platform}
-      active="compras"
+      active="purchases"
       title="Compras"
       bleed
       onScan={() => setScanOpen(true)}
       overlay={overlay}
     >
-      <ComprasScreen platform={platform} selection={selection} onOpenFilter={() => setFilterOpen(true)} onSelectTxn={setDetailTxn} />
+      <PurchasesScreen platform={platform} selection={selection} onOpenFilter={() => setFilterOpen(true)} onSelectTxn={setDetailTxn} />
     </AppScaffold>
   );
 }

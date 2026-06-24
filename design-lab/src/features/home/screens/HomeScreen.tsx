@@ -9,7 +9,7 @@ import { RecentTransactionsCard } from "../components/RecentTransactionsCard";
 import { sampleHome, type HomeScreenModel } from "../model/HomeScreenModel";
 
 /**
- * InicioScreen (Phase 8, DM-5) — the home dashboard CONTENT, designed to live
+ * HomeScreen (Phase 8, DM-5) — the home dashboard CONTENT, designed to live
  * inside AppScaffold (which supplies the header / 4-tab nav / scan FAB):
  *
  *   top bar  → greeting + interactive period stepper (‹ junio 2026 ›)
@@ -25,7 +25,7 @@ import { sampleHome, type HomeScreenModel } from "../model/HomeScreenModel";
  * then the treemap and the recent list each span the full content width.
  * default / empty / loading states.
  */
-export interface InicioScreenProps {
+export interface HomeScreenProps {
   model?: HomeScreenModel;
   loading?: boolean;
   platform?: Platform;
@@ -62,7 +62,7 @@ function InicioSkeleton({ platform }: { platform: Platform }) {
   );
 }
 
-export function InicioScreen({ model = sampleHome, loading = false, platform = "mobile" }: InicioScreenProps) {
+export function HomeScreen({ model = sampleHome, loading = false, platform = "mobile" }: HomeScreenProps) {
   const [monthIdx, setMonthIdx] = useState(MONTHS.length - 1);
 
   if (loading) return <InicioSkeleton platform={platform} />;

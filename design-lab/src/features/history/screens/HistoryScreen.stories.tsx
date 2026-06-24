@@ -6,13 +6,13 @@ import { HeaderAction } from "@design-system/organisms/Nav";
 import { FilterSheet, type FilterSelection } from "@design-system/organisms/FilterSheet";
 import { BROWSE_FACETS, BROWSE_TXN_COUNT, type BrowseTransaction } from "@lib/browseFixtures";
 import { ScanModeChooserScreen } from "@features/scan/screens/ScanModeChooserScreen";
-import { TransactionDetail } from "@features/compras/screens/TransactionDetail";
-import { pickDetailFor } from "@features/compras/model/detailFixtures";
+import { TransactionDetail } from "@features/purchases/screens/TransactionDetail";
+import { pickDetailFor } from "@features/purchases/model/detailFixtures";
 import { HistoryScreen, type HistorySub } from "./HistoryScreen";
 
 /**
  * Features/History/Screens/HistoryScreen — the 4th-tab Historial hub inside
- * AppScaffold (active="historial", bleed). The header switcher (Transacciones ·
+ * AppScaffold (active="history", bleed). The header switcher (Transacciones ·
  * Productos · Reportes, icons next to the profile) drives the subsection. The "+"
  * FAB opens the scan chooser; on Transacciones the filter button opens the
  * FilterSheet over AppScaffold's overlay. Platform toolbar switches device.
@@ -82,7 +82,7 @@ function HistorialInShell({ platform }: { platform: Platform }) {
   return (
     <AppScaffold
       platform={platform}
-      active="historial"
+      active="history"
       title={title}
       bleed
       headerActions={switcher}
@@ -92,8 +92,8 @@ function HistorialInShell({ platform }: { platform: Platform }) {
       <HistoryScreen
         platform={platform}
         sub={sub}
-        comprasSelection={selection}
-        onOpenComprasFilter={() => setFilterOpen(true)}
+        purchasesSelection={selection}
+        onOpenPurchasesFilter={() => setFilterOpen(true)}
         onSelectTxn={setDetailTxn}
       />
     </AppScaffold>

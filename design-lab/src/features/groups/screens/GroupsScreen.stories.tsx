@@ -2,18 +2,18 @@ import { useState } from "react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { AppSurface, platformFromGlobals, type Platform } from "@design-system/organisms/AppSurface";
 import { AppScaffold } from "@design-system/organisms/AppScaffold";
-import { GruposScreen } from "./GruposScreen";
+import { GroupsScreen } from "./GroupsScreen";
 import { GroupDetailScreen } from "./GroupDetailScreen";
 import { SAMPLE_GROUPS, type Group } from "../model/groupFixtures";
 
 /**
- * Features/Groups/Screens/GruposScreen — the Grupos feature, reached from the
+ * Features/Groups/Screens/GroupsScreen — the Grupos feature, reached from the
  * avatar dropdown (peer to Ajustes). `Default` is the hub→detail flow; `Detail`
  * shows a group's shared dashboard in isolation; `Empty` is first-run; `FromAvatar`
  * proves the real reach (open the avatar dropdown → Grupos).
  */
 const meta: Meta = {
-  title: "Features/Groups/Screens/GruposScreen",
+  title: "Features/Groups/Screens/GroupsScreen",
   parameters: { layout: "fullscreen" },
 };
 
@@ -32,7 +32,7 @@ function GruposFlow({ platform, onClose }: { platform: Platform; onClose?: () =>
       />
     );
   }
-  return <GruposScreen onBack={onClose} onOpenGroup={setOpenGroup} onCreate={() => {}} />;
+  return <GroupsScreen onBack={onClose} onOpenGroup={setOpenGroup} onCreate={() => {}} />;
 }
 
 export const Default: Story = {
@@ -62,7 +62,7 @@ export const Empty: Story = {
     const platform = platformFromGlobals(globals);
     return (
       <AppSurface platform={platform}>
-        <GruposScreen groups={[]} onBack={() => {}} onCreate={() => {}} />
+        <GroupsScreen groups={[]} onBack={() => {}} onCreate={() => {}} />
       </AppSurface>
     );
   },
@@ -76,9 +76,9 @@ export const FromAvatar: Story = {
       return (
         <AppScaffold
           platform={platform}
-          active="inicio"
+          active="home"
           onProfileSelect={(k) => {
-            if (k === "grupos") setOpen(true);
+            if (k === "groups") setOpen(true);
           }}
           overlay={open ? <GruposFlow platform={platform} onClose={() => setOpen(false)} /> : undefined}
         >

@@ -3,11 +3,11 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { AppSurface, platformFromGlobals, type Platform } from "@design-system/organisms/AppSurface";
 import { AppScaffold } from "@design-system/organisms/AppScaffold";
 import { ScanModeChooserScreen } from "@features/scan/screens/ScanModeChooserScreen";
-import { InicioScreen } from "./InicioScreen";
+import { HomeScreen } from "./HomeScreen";
 import { sampleHome, emptyHome } from "../model/HomeScreenModel";
 
 /**
- * Features/Home/Screens/InicioScreen — the home dashboard, rendered inside the
+ * Features/Home/Screens/HomeScreen — the home dashboard, rendered inside the
  * AppScaffold (4-tab nav + scan FAB). The "+" FAB opens the scan mode chooser.
  * `state` switches default / empty / loading; the platform toolbar switches
  * mobile/tablet/desktop.
@@ -15,7 +15,7 @@ import { sampleHome, emptyHome } from "../model/HomeScreenModel";
 type ScreenState = "default" | "empty" | "loading";
 
 const meta: Meta<{ state: ScreenState }> = {
-  title: "Features/Home/Screens/InicioScreen",
+  title: "Features/Home/Screens/HomeScreen",
   // fullscreen so the desktop scaffold (SideNav + content pane) gets real width.
   parameters: { layout: "fullscreen" },
   argTypes: {
@@ -34,8 +34,8 @@ function InicioInShell({ platform, state }: { platform: Platform; state: ScreenS
   return (
     <AppScaffold
       platform={platform}
-      active="inicio"
-      alertsTab="gastos"
+      active="home"
+      alertsTab="spending"
       onScan={() => setScanOpen(true)}
       overlay={
         scanOpen ? (
@@ -48,7 +48,7 @@ function InicioInShell({ platform, state }: { platform: Platform; state: ScreenS
         ) : undefined
       }
     >
-      <InicioScreen model={model} loading={state === "loading"} platform={platform} />
+      <HomeScreen model={model} loading={state === "loading"} platform={platform} />
     </AppScaffold>
   );
 }

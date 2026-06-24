@@ -28,7 +28,7 @@ function Demo({ platform }: { platform: Platform }) {
     <HeaderAction key={r.id} icon={r.icon} label={r.label} active={rep === r.id} onClick={() => setRep(r.id)} />
   ));
   return (
-    <AppScaffold platform={platform} active="gastos" title="Gastos" headerActions={switcher}>
+    <AppScaffold platform={platform} active="spending" title="Gastos" headerActions={switcher}>
       {/* mirror SpendingScreen's fill column so Mapa/Flujo have a definite height */}
       <div className="mx-auto flex h-full w-full flex-col pt-gt-4" style={{ maxWidth: contentMax }}>
         <TrendsRepresentations rep={rep} />

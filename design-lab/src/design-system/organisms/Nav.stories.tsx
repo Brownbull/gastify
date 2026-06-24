@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { AppHeader, BottomNav, SideNav, ScanFab, HeaderAction, PerfilMenu } from "./Nav";
+import { AppHeader, BottomNav, SideNav, ScanFab, HeaderAction, ProfileMenu } from "./Nav";
 
 const meta = {
   title: "Design System/Organisms/Nav",
@@ -24,12 +24,12 @@ function Body({ rows = 5 }: { rows?: number }) {
 /** The settled mobile chrome — Gustify icon+label bottom nav + corner square-plus FAB. */
 export const MobileShell: Story = {
   render: () => {
-    const [active, setActive] = useState("inicio");
+    const [active, setActive] = useState("home");
     return (
       <div className="relative mx-auto flex h-140 w-[360px] flex-col overflow-hidden rounded-gt-2xl border-2 border-gt-line-strong">
         <AppHeader variant="home" />
         <Body />
-        <BottomNav active={active} onSelect={setActive} alertsTab="gastos" />
+        <BottomNav active={active} onSelect={setActive} alertsTab="spending" />
         <ScanFab placement="corner" />
       </div>
     );
@@ -59,7 +59,7 @@ export const Headers: Story = {
 /** The desktop left panel — icon+label rows, profile block, top-right options/collapse. */
 export const DesktopLeftPanel: Story = {
   render: () => {
-    const [active, setActive] = useState("gastos");
+    const [active, setActive] = useState("spending");
     const [collapsed, setCollapsed] = useState(false);
     return (
       <div className="flex h-105 overflow-hidden rounded-gt-2xl border-2 border-gt-line-strong">
@@ -75,10 +75,10 @@ export const DesktopLeftPanel: Story = {
 };
 
 /** The Perfil / overflow menu. */
-export const Perfil: Story = {
+export const Profile: Story = {
   render: () => (
     <div className="bg-gt-bg p-gt-16">
-      <PerfilMenu />
+      <ProfileMenu />
     </div>
   ),
 };

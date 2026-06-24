@@ -12,7 +12,7 @@ export function ItemsBrowseScreen() {
     <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden bg-gt-bg">
       <AppHeader variant="browse" title="Productos" />
       <ItemsBrowseContent />
-      <BottomNav active="historial" />
+      <BottomNav active="history" />
       <ScanFab placement="corner" />
     </div>
   );

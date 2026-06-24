@@ -14,7 +14,7 @@ import { BROWSE_TRANSACTIONS, BROWSE_FACETS, BROWSE_TOTAL, BROWSE_TXN_COUNT, per
 import { clp } from "@lib/transactionFixtures";
 
 /**
- * ComprasScreen (Phase 9) — the transactions browse, content-only for
+ * PurchasesScreen (Phase 9) — the transactions browse, content-only for
  * AppScaffold (which supplies the header / 4-tab nav / scan FAB; runs in
  * `bleed` mode so this screen owns its sticky band + scroll + filter overlay):
  *
@@ -26,7 +26,7 @@ import { clp } from "@lib/transactionFixtures";
  *
  * Grounded on the shipped transactions route + legacy HistoryView.
  */
-export interface ComprasScreenProps {
+export interface PurchasesScreenProps {
   groups?: DateGroup[];
   /** active filter selection (drives the chips + count). The host owns it. */
   selection?: FilterSelection;
@@ -87,7 +87,7 @@ function TxnRow({ txn, onSelect }: { txn: BrowseTransaction; onSelect?: (txn: Br
 
 const PAGE_SIZE = 12; // transactions per page
 
-export function ComprasScreen({ groups = BROWSE_TRANSACTIONS, selection = {}, onOpenFilter, onSelectTxn, platform = "mobile" }: ComprasScreenProps) {
+export function PurchasesScreen({ groups = BROWSE_TRANSACTIONS, selection = {}, onOpenFilter, onSelectTxn, platform = "mobile" }: PurchasesScreenProps) {
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(1);
   const activeCount = selectionCount(selection);
