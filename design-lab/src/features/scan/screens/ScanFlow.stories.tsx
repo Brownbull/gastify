@@ -4,6 +4,8 @@ import { AppSurface, platformFromGlobals } from "@design-system/organisms/AppSur
 import { ScanCaptureScreen } from "./ScanCaptureScreen";
 import { ScanProcessingScreen } from "./ScanProcessingScreen";
 import { ScanReviewScreen } from "./ScanReviewScreen";
+import { ScanBatchCaptureScreen } from "./ScanBatchCaptureScreen";
+import { ScanBatchReviewScreen } from "./ScanBatchReviewScreen";
 import { ScanStatementUploadScreen } from "./ScanStatementUploadScreen";
 import { ScanStatementProcessingScreen } from "./ScanStatementProcessingScreen";
 import { ScanStatementReconcileScreen } from "./ScanStatementReconcileScreen";
@@ -118,19 +120,39 @@ function StatementScanJourney({ onExit }: JourneyProps) {
   return <ScanStatementSuccessScreen onHome={reset} onViewTransactions={reset} />;
 }
 
+/** The batch (lote) journey: capture grid → per-receipt review queue. The
+ * still-processing rows finish on their own; failed rows wait for retry/discard. */
+type BatchStep = "capture" | "review";
+
+function BatchScanJourney({ onExit }: JourneyProps) {
+  const [step, setStep] = useState<BatchStep>("capture");
+  if (step === "capture") {
+    return <ScanBatchCaptureScreen onBack={onExit} onProcess={() => setStep("review")} />;
+  }
+  return (
+    <ScanBatchReviewScreen
+      onBack={() => setStep("capture")}
+      onScanMore={() => setStep("capture")}
+      onSave={() => (onExit ? onExit() : setStep("capture"))}
+    />
+  );
+}
+
 /** The unified front door: the mode chooser routes into a sub-flow; each
- * sub-flow returns here when done or cancelled. (Manual entry isn't built yet.) */
-type Mode = "chooser" | "single" | "statement";
+ * sub-flow returns here when done or cancelled. (Manual entry lives in Purchases.) */
+type Mode = "chooser" | "single" | "batch" | "statement";
 
 function EscanearJourney() {
   const [mode, setMode] = useState<Mode>("chooser");
   const toChooser = () => setMode("chooser");
 
   if (mode === "single") return <SingleScanJourney onExit={toChooser} />;
+  if (mode === "batch") return <BatchScanJourney onExit={toChooser} />;
   if (mode === "statement") return <StatementScanJourney onExit={toChooser} />;
   return (
     <ScanModeChooserScreen
       onSingle={() => setMode("single")}
+      onBatch={() => setMode("batch")}
       onStatement={() => setMode("statement")}
       onClose={toChooser}
     />
@@ -168,6 +190,16 @@ export const StatementScan: Story = {
   render: (_args, { globals }) => (
     <AppSurface platform={platformFromGlobals(globals)}>
       <StatementScanJourney />
+    </AppSurface>
+  ),
+};
+
+/** Batch (lote) scan, end to end. Gather images → "Procesar lote" → the review
+ * queue: processing rows finish, the failed row waits for retry/descartar. */
+export const BatchScan: Story = {
+  render: (_args, { globals }) => (
+    <AppSurface platform={platformFromGlobals(globals)}>
+      <BatchScanJourney />
     </AppSurface>
   ),
 };

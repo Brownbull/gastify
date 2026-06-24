@@ -1,4 +1,3 @@
-/* ARCHIVED 2026-06-17: batch-scan capture grid component (feature deferred). */
 import { useState } from "react";
 import { PixelIcon } from "@design-system/assets/PixelIcon";
 import { ChevronLeftIcon } from "@design-system/assets/icons";
@@ -89,7 +88,8 @@ export function ScanBatchCaptureScreen({ initialCount = 3, onBack, onProcess }: 
               type="button"
               aria-label="Agregar imagen"
               onClick={addImage}
-              className="grid aspect-[4/5] place-items-center rounded-gt-lg border-2 border-dashed border-gt-line bg-gt-surface text-gt-ink-3 transition hover:-translate-y-0.5 hover:border-gt-primary hover:text-gt-primary"
+              className="grid aspect-[4/5] place-items-center rounded-gt-lg border-2 bg-gt-surface text-gt-ink-3 transition hover:-translate-y-0.5 hover:border-gt-primary hover:text-gt-primary"
+              style={{ borderStyle: "dashed", borderColor: "var(--color-gt-line)" }}
             >
               <span className="flex flex-col items-center gap-gt-2">
                 <PixelIcon name="scan-batch" size={24} />
@@ -118,7 +118,7 @@ export function ScanBatchCaptureScreen({ initialCount = 3, onBack, onProcess }: 
       </div>
 
       {/* footer — Cancelar · Procesar lote */}
-      <div className="shrink-0 border-t-2 border-gt-line-strong bg-gt-surface px-gt-16 pb-gt-32 pt-gt-12">
+      <div className="shrink-0 border-t-2 border-gt-line-strong bg-gt-surface px-gt-16 pb-gt-16 pt-gt-12">
         <div className="grid grid-cols-[auto_minmax(0,1fr)] gap-gt-10">
           <button type="button" aria-label="Cancelar" onClick={onBack} className="grid h-12 w-12 place-items-center rounded-gt-xl border-2 border-gt-line-strong bg-gt-surface text-gt-ink shadow-gt-xs transition hover:-translate-y-0.5">
             <span className="font-gt-display text-gt-xl font-extrabold leading-none">✕</span>
