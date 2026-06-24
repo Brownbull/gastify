@@ -5,7 +5,7 @@ import { ItemsBrowseContent } from "./ItemsBrowseContent";
  * ItemsBrowseScreen (Roadmap B) — the standalone "Productos" browse: the
  * ItemsBrowseContent (search/filter band + HistoryItemRow list + overlays)
  * wrapped in its own chrome (AppHeader + BottomNav + ScanFab). The same content
- * also powers the Productos subsection of HistorialScreen (without this chrome).
+ * also powers the Productos subsection of HistoryScreen (without this chrome).
  */
 export function ItemsBrowseScreen() {
   return (

@@ -14,7 +14,7 @@ import { useCountUp } from "@lib/useCountUp";
 import { clpK, SEGMENTS, TOTAL_SPEND, drillChildren, sankeyForLevels, pressLevel, type TaxLevel, type CountMode, type SankeyLevel, type LevelRange, type SegmentDatum, type TreemapFullDatum } from "@lib/analyticsFixtures";
 
 /**
- * TendenciasRepresentations (Gastos) — the Tendencias spend shown three ways
+ * TrendsRepresentations (Gastos) — the Tendencias spend shown three ways
  * behind a representation switcher, with a SHARED control row beneath it (level
  * navigator left, transactions/items count toggle right). Promoted from the
  * design-lab spike into the production Gastos → Tendencias subsection.
@@ -30,15 +30,15 @@ import { clpK, SEGMENTS, TOTAL_SPEND, drillChildren, sankeyForLevels, pressLevel
  * más / menos to reveal/fold one at a time.
  *
  * Layout: fills its parent (flex-1, min-h-0) so Mapa/Flujo adapt to the device
- * frame. GastosScreen owns the outer column, max-width, and period chrome.
+ * frame. SpendingScreen owns the outer column, max-width, and period chrome.
  */
-export type SpendRepresentation = "dona" | "mapa" | "flujo";
+export type SpendRepresentation = "donut" | "treemap" | "sankey";
 
 /** the three representations + their header-switcher pixel icons (donut / treemap / sankey). */
 export const SPEND_REPS: { id: SpendRepresentation; label: string; icon: string }[] = [
-  { id: "dona", label: "Dona", icon: "chart-donut" },
-  { id: "mapa", label: "Mapa", icon: "chart-treemap" },
-  { id: "flujo", label: "Flujo", icon: "chart-sankey" },
+  { id: "donut", label: "Dona", icon: "chart-donut" },
+  { id: "treemap", label: "Mapa", icon: "chart-treemap" },
+  { id: "sankey", label: "Flujo", icon: "chart-sankey" },
 ];
 
 /** donut/legend wedge fills = the category's tile color (the icon background). */
@@ -67,7 +67,7 @@ function ShowMore({ canExpand, canCollapse, otroCount, onExpand, onCollapse }: {
   );
 }
 
-export function TendenciasRepresentations({ rep }: { rep: SpendRepresentation }) {
+export function TrendsRepresentations({ rep }: { rep: SpendRepresentation }) {
   // ONE drill path shared by the donut + treemap (two views of the same data).
   const [donutPath, setDonutPath] = useState<{ id: string; label: string }[]>([]);
   const [countMode, setCountMode] = useState<CountMode>("transactions");
@@ -119,7 +119,7 @@ export function TendenciasRepresentations({ rep }: { rep: SpendRepresentation })
   const sankey = sankeyForLevels(range.lo, range.hi);
   const onPressLevel = (k: SankeyLevel) => { setRange((r) => pressLevel(r, k)); bump(); };
 
-  const isDona = rep === "dona";
+  const isDonut = rep === "donut";
   const onExpand = () => { setExpanded((e) => e + 1); bump(); };
   const onCollapse = () => { setExpanded((e) => Math.max(0, e - 1)); bump(); };
 
@@ -132,12 +132,12 @@ export function TendenciasRepresentations({ rep }: { rep: SpendRepresentation })
       {/* shared controls. Flujo: a level-RANGE bar (≥2 levels, expand to 3–4) +
           the spend details readout. Dona/Mapa: single-level bar + count toggle. */}
       <div className="flex items-center justify-between gap-gt-8">
-        {rep === "flujo" ? (
+        {rep === "sankey" ? (
           <LevelRangeBar range={range} onPressLevel={onPressLevel} />
         ) : (
           <LevelToggle value={donutDepth} onChange={donutGoLevel} />
         )}
-        {rep === "flujo" ? (
+        {rep === "sankey" ? (
           // two columns: the label (left) + the %/amount stacked (right). "Total"
           // + grand total when nothing is selected; the tapped node's name + its
           // figures (green) when selected.
@@ -156,7 +156,7 @@ export function TendenciasRepresentations({ rep }: { rep: SpendRepresentation })
       </div>
 
       <div className="flex min-h-0 flex-1 flex-col overflow-y-auto pt-gt-2">
-        {isDona ? (
+        {isDonut ? (
           <div className="flex flex-col items-center gap-gt-12">
             <div className="relative flex w-full justify-center">
               <DonutRing segments={donutSegs} selected={selected} onSelect={setSelected} colorFor={categoryColor} inkBorder animKey={animKey}>
@@ -192,7 +192,7 @@ export function TendenciasRepresentations({ rep }: { rep: SpendRepresentation })
             />
             <ShowMore canExpand={donutGroup.canExpand} canCollapse={donutGroup.canCollapse} otroCount={donutGroup.otroCount} onExpand={onExpand} onCollapse={onCollapse} />
           </div>
-        ) : rep === "mapa" ? (
+        ) : rep === "treemap" ? (
           // treemap fills the available height (adaptive to the device frame);
           // clicking a cell drills into it (the count pill stays a separate action).
           <div className="relative flex min-h-0 flex-1 flex-col gap-gt-10">

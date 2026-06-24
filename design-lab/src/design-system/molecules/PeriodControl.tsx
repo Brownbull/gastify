@@ -6,7 +6,7 @@ import { PERIOD_WEEKS, periodDimLabel, stepPeriod, type PeriodDimId } from "@lib
 /**
  * PeriodControl — the shared analytics period selector: a compact row with the
  * S/M/T/A dimension picker (left) + a draggable period navigator (right). Used
- * by GastosScreen (above the diagrams) and HistorialScreen (above every
+ * by SpendingScreen (above the diagrams) and HistoryScreen (above every
  * subsection). Controlled — the host owns the `dimension` + `anchorIndex` state.
  *
  * Navigator gestures: ‹ › (or horizontal drag) step WITHIN the dimension; a

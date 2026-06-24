@@ -14,7 +14,7 @@ import { PERIOD_FACET, SORT_FACET, type FilterFacet } from "@lib/browseFixtures"
  * (DM-17d, Gustify-link chip + expandable receipts) + the filter + link-flow
  * overlays, all self-managed; the overlays pin to this box. Used standalone by
  * ItemsBrowseScreen (which adds the chrome) and as the Productos subsection of
- * HistorialScreen.
+ * HistoryScreen.
  */
 const ITEMS_FACETS: FilterFacet[] = [
   {

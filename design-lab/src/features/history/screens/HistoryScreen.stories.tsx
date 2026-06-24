@@ -8,31 +8,31 @@ import { BROWSE_FACETS, BROWSE_TXN_COUNT, type BrowseTransaction } from "@lib/br
 import { ScanModeChooserScreen } from "@features/scan/screens/ScanModeChooserScreen";
 import { TransactionDetail } from "@features/compras/screens/TransactionDetail";
 import { pickDetailFor } from "@features/compras/model/detailFixtures";
-import { HistorialScreen, type HistorialSub } from "./HistorialScreen";
+import { HistoryScreen, type HistorySub } from "./HistoryScreen";
 
 /**
- * Features/Historial/Screens/HistorialScreen — the 4th-tab Historial hub inside
+ * Features/History/Screens/HistoryScreen — the 4th-tab Historial hub inside
  * AppScaffold (active="historial", bleed). The header switcher (Transacciones ·
  * Productos · Reportes, icons next to the profile) drives the subsection. The "+"
  * FAB opens the scan chooser; on Transacciones the filter button opens the
  * FilterSheet over AppScaffold's overlay. Platform toolbar switches device.
  */
 const meta: Meta = {
-  title: "Features/Historial/Screens/HistorialScreen",
+  title: "Features/History/Screens/HistoryScreen",
   parameters: { layout: "fullscreen" },
 };
 
 export default meta;
 type Story = StoryObj;
 
-const SUBS: { id: HistorialSub; label: string; icon: string }[] = [
-  { id: "transacciones", label: "Transacciones", icon: "nav-history" },
-  { id: "productos", label: "Productos", icon: "item-pantry" },
-  { id: "reportes", label: "Reportes", icon: "nav-reports" },
+const SUBS: { id: HistorySub; label: string; icon: string }[] = [
+  { id: "transactions", label: "Transacciones", icon: "nav-history" },
+  { id: "products", label: "Productos", icon: "item-pantry" },
+  { id: "reports", label: "Reportes", icon: "nav-reports" },
 ];
 
 function HistorialInShell({ platform }: { platform: Platform }) {
-  const [sub, setSub] = useState<HistorialSub>("transacciones");
+  const [sub, setSub] = useState<HistorySub>("transactions");
   const [scanOpen, setScanOpen] = useState(false);
   const [filterOpen, setFilterOpen] = useState(false);
   const [selection, setSelection] = useState<FilterSelection>({});
@@ -62,7 +62,7 @@ function HistorialInShell({ platform }: { platform: Platform }) {
   );
   const overlay = detailTxn ? (
     <TransactionDetail txn={pickDetailFor(detailTxn)} platform={platform} onBack={() => setDetailTxn(null)} onDelete={() => setDetailTxn(null)} />
-  ) : sub === "transacciones" && filterOpen ? (
+  ) : sub === "transactions" && filterOpen ? (
       platform === "desktop" ? (
         <div className="flex h-full w-full justify-center bg-gt-ink/30 px-gt-16 py-gt-16">
           <div className="flex h-full w-full flex-col" style={{ maxWidth: "44rem" }}>{sheet}</div>
@@ -89,7 +89,7 @@ function HistorialInShell({ platform }: { platform: Platform }) {
       onScan={() => setScanOpen(true)}
       overlay={overlay}
     >
-      <HistorialScreen
+      <HistoryScreen
         platform={platform}
         sub={sub}
         comprasSelection={selection}

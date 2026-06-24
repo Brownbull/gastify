@@ -4,17 +4,17 @@ import { AppSurface, platformFromGlobals, type Platform } from "@design-system/o
 import { AppScaffold } from "@design-system/organisms/AppScaffold";
 import { HeaderAction } from "@design-system/organisms/Nav";
 import { ScanModeChooserScreen } from "@features/scan/screens/ScanModeChooserScreen";
-import { GastosScreen } from "./GastosScreen";
-import { SPEND_REPS, type SpendRepresentation } from "../components/TendenciasRepresentations";
+import { SpendingScreen } from "./SpendingScreen";
+import { SPEND_REPS, type SpendRepresentation } from "../components/TrendsRepresentations";
 
 /**
- * Features/Gastos/Screens/GastosScreen — the analytics tab inside AppScaffold.
+ * Features/Spending/Screens/SpendingScreen — the analytics tab inside AppScaffold.
  * Gastos shows the three spending representations; Dona / Mapa / Flujo are
  * switched from the HEADER (diagram icon buttons next to the profile, Gustify
  * pattern). The dimension picker + draggable period bar live in-screen.
  */
 const meta: Meta = {
-  title: "Features/Gastos/Screens/GastosScreen",
+  title: "Features/Spending/Screens/SpendingScreen",
   parameters: { layout: "fullscreen" },
 };
 
@@ -23,7 +23,7 @@ type Story = StoryObj;
 
 function GastosInShell({ platform }: { platform: Platform }) {
   const [scanOpen, setScanOpen] = useState(false);
-  const [rep, setRep] = useState<SpendRepresentation>("dona");
+  const [rep, setRep] = useState<SpendRepresentation>("donut");
 
   // the diagram switcher (donut / treemap / sankey) lives in the header, next to
   // the profile avatar — the slot the old Tendencias/Reportes switcher used.
@@ -49,7 +49,7 @@ function GastosInShell({ platform }: { platform: Platform }) {
         ) : undefined
       }
     >
-      <GastosScreen platform={platform} rep={rep} />
+      <SpendingScreen platform={platform} rep={rep} />
     </AppScaffold>
   );
 }
