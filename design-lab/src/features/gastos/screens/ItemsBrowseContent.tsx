@@ -53,7 +53,7 @@ export function ItemsBrowseContent() {
   return (
     <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden bg-gt-bg">
       {/* content band: search + filter button + stats (no divider — fades below) */}
-      <div className="shrink-0 bg-gt-surface px-gt-16 pb-gt-12 pt-gt-12">
+      <div className="shrink-0 bg-gt-surface px-gt-16 pb-gt-6 pt-gt-12">
         <div className="flex items-center gap-gt-8">
           <span className="min-w-0 flex-1">
             <SearchRow
@@ -82,10 +82,10 @@ export function ItemsBrowseContent() {
       </div>
 
       {/* white band melts into the page before the list (replaces the divider) */}
-      <SectionFade heightClassName="h-4" />
+      <SectionFade heightClassName="h-3" />
 
       {/* items list — single container, divided rows (Gustify pattern) */}
-      <div className="min-h-0 flex-1 overflow-y-auto px-gt-16 pb-gt-16 pt-gt-4">
+      <div className="min-h-0 flex-1 overflow-y-auto px-gt-16 pb-gt-16 pt-gt-2">
         <div className="overflow-hidden rounded-gt-xl border-2 border-gt-line bg-gt-surface">
           <div className="divide-y divide-gt-line">
             {sampleHistoryItems.map((item) => (

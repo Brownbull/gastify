@@ -46,7 +46,7 @@ export function HistorialScreen({ platform = "mobile", sub, comprasSelection = {
           control pills are already self-contained, and the band melts into the
           subsection below — directly into the white search band on Transacciones/
           Productos, or via a SectionFade into the gt-bg (cream) report area on Reportes) */}
-      <div className="shrink-0 bg-gt-surface px-gt-16 pb-gt-12 pt-gt-12">
+      <div className="shrink-0 bg-gt-surface px-gt-16 pb-gt-4 pt-gt-12">
         <div className="mx-auto w-full" style={{ maxWidth: contentMax }}>
           <PeriodControl dimension={dimension} onDimensionChange={setDimension} anchorIndex={anchorIndex} onAnchorChange={setAnchorIndex} />
         </div>
@@ -58,9 +58,9 @@ export function HistorialScreen({ platform = "mobile", sub, comprasSelection = {
         <ItemsBrowseContent />
       ) : (
         <>
-          <SectionFade />
+          <SectionFade heightClassName="h-3" />
           <div className="min-h-0 flex-1 overflow-y-auto px-gt-16 pb-gt-16">
-            <div className="mx-auto flex w-full flex-col gap-gt-16 pt-gt-12" style={{ maxWidth: contentMax }}>
+            <div className="mx-auto flex w-full flex-col gap-gt-16 pt-gt-4" style={{ maxWidth: contentMax }}>
               <ReportDetail report={TIMEFRAME_REPORTS[dimension]} />
             </div>
           </div>
