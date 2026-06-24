@@ -30,12 +30,14 @@ Legend: ✅ mocked · 🟡 partial · ❌ missing in mockups.
 
 ## Gaps — app features NOT in the mockups (build candidates, ~priority order)
 
-1. **Manual transaction entry** — `/transactions/new` (merchant/date/total/category/items). No scan. Core, entirely unmocked.
-2. **Batch scan** — multi-receipt queue + per-item retry/discard + summary. Our `ScanBatchCaptureScreen` is **archived**; the real app ships it on mobile + web.
-3. **Card aliases** — name your cards + pick a card when uploading a statement; settings CRUD. Whole feature unmocked.
-4. **Share a transaction into a group** — wire the detail's `onShare` ("Compartir gasto") to a transaction picker → group (currently a prop hook).
-5. **Group join flow** — `/invite/:token`: preview (group name + member count + expired) → Join / error. We only mocked invite *generation*.
-6. **Group management actions** — promote/remove admin, remove member (confirm), **leave group (keep-vs-delete dialog)**, **delete group**, and the **visibility + per-member consent toggles** (we *display* consent state but can't change it).
+> **Update 2026-06-24:** the top 4 gaps (#1–6 below) were built — see `.kdbp/LEDGER.md` [MOCKUPS] entries (commits d36ef2b, 870deff, 3bb26c6, d4d8ef0, cc50162). Remaining open: #7 onward.
+
+1. ✅ **Manual transaction entry** — `/transactions/new`. Built: NewTransactionScreen (reached from the scan chooser's "Ingreso manual").
+2. ✅ **Batch scan** — multi-receipt queue + per-item retry/discard + summary. Built: ScanBatchCaptureScreen (revived) + ScanBatchReviewScreen + chooser "Escaneo en lote".
+3. ✅ **Card aliases** — Built: CardsSubview ("Mis tarjetas"). (The statement upload already had the card *picker*.)
+4. ✅ **Share a transaction into a group** — Built: ShareTransactionSheet wired into "Compartir gasto".
+5. ✅ **Group join flow** — `/invite/:token`. Built: InviteJoinScreen (preview / join / expired).
+6. ✅ **Group management actions** — Built: member promote/demote/remove, leave (keep-vs-delete), delete group, visibility + consent toggles.
 7. **Locked-transaction states** — a statement-**matched** txn (badge, 409 on edit) and a **shared** txn (banner, read-only) collapse the editable detail to read-only. Our detail is always editable.
 8. **Batch operations on the transaction list** — select-all + per-row checkboxes → batch delete + batch category reassign.
 9. **Line-item flagging** — flag/unflag a line item (allergy/dietary/insight); excluded from all aggregates.
