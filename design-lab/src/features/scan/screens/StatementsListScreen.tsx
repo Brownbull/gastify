@@ -1,6 +1,9 @@
+import { useState } from "react";
 import { AppHeader } from "@design-system/organisms/Nav";
 import { PixelIcon } from "@design-system/assets/PixelIcon";
 import { EmptyState } from "@design-system/molecules/EmptyState";
+import { Modal } from "@design-system/atoms/Modal";
+import { Button } from "@design-system/atoms/Button";
 import type { Platform } from "@design-system/organisms/AppSurface";
 import { SAMPLE_STATEMENTS, type StatementSummary } from "../model/statementListFixtures";
 
@@ -10,11 +13,12 @@ const STATUS_META: Record<StatementSummary["status"], { label: string; cls: stri
   failed: { label: "Con error", cls: "border-gt-negative bg-gt-negative-bg text-gt-negative" },
 };
 
-function StatementRow({ s, onOpen }: { s: StatementSummary; onOpen?: () => void }) {
+function StatementRow({ s, onOpen, onDelete }: { s: StatementSummary; onOpen?: () => void; onDelete?: () => void }) {
   const meta = STATUS_META[s.status];
   const pct = Math.round(s.coverageRatio * 100);
   return (
-    <button type="button" onClick={onOpen} className="flex w-full items-center gap-gt-10 px-gt-12 py-gt-10 text-left transition hover:bg-gt-bg-3">
+    <div className="flex items-stretch">
+      <button type="button" onClick={onOpen} className="flex min-w-0 flex-1 items-center gap-gt-10 px-gt-12 py-gt-10 text-left transition hover:bg-gt-bg-3">
       <span className="grid h-11 w-11 shrink-0 place-items-center rounded-gt-xl border-2 border-gt-line-strong" style={{ backgroundColor: "rgba(139,92,246,0.12)" }}>
         <PixelIcon name="scan-statement" size={26} />
       </span>
@@ -38,7 +42,11 @@ function StatementRow({ s, onOpen }: { s: StatementSummary; onOpen?: () => void 
         ) : null}
       </span>
       <span className={`shrink-0 rounded-gt-pill border-2 px-gt-8 py-gt-0 font-gt-display text-gt-xs font-extrabold ${meta.cls}`}>{meta.label}</span>
-    </button>
+      </button>
+      <button type="button" aria-label={`Eliminar cartola ${s.card} ${s.period}`} onClick={onDelete} className="grid w-12 shrink-0 place-items-center text-gt-ink-3 transition hover:bg-gt-negative-bg hover:text-gt-negative">
+        <PixelIcon name="action-delete" size={22} />
+      </button>
+    </div>
   );
 }
 
@@ -60,6 +68,10 @@ export interface StatementsListScreenProps {
  */
 export function StatementsListScreen({ statements = SAMPLE_STATEMENTS, onBack, onUpload, onOpenStatement, platform = "mobile" }: StatementsListScreenProps) {
   const contentMax = platform === "desktop" ? "44rem" : undefined;
+  const [items, setItems] = useState(statements);
+  const [confirmId, setConfirmId] = useState<string | null>(null);
+  const target = confirmId ? items.find((s) => s.id === confirmId) : null;
+  const removeStatement = () => { setItems((prev) => prev.filter((s) => s.id !== confirmId)); setConfirmId(null); };
   return (
     <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden bg-gt-bg">
       <AppHeader variant="detail" title="Cartolas" onBack={onBack} />
@@ -73,15 +85,15 @@ export function StatementsListScreen({ statements = SAMPLE_STATEMENTS, onBack, o
             <PixelIcon name="scan-statement" size={22} /> Subir cartola
           </button>
 
-          {statements.length === 0 ? (
+          {items.length === 0 ? (
             <div className="grid place-items-center py-gt-24" style={{ minHeight: "40vh" }}>
               <EmptyState iconName="scan-statement" title="Sin cartolas" message="Sube el PDF de tu estado de cuenta para conciliar tus gastos automáticamente." />
             </div>
           ) : (
             <div className="overflow-hidden rounded-gt-2xl border-2 border-gt-line-strong bg-gt-surface shadow-gt-sm">
               <div className="flex flex-col divide-y-2 divide-gt-line">
-                {statements.map((s) => (
-                  <StatementRow key={s.id} s={s} onOpen={() => onOpenStatement?.(s.id)} />
+                {items.map((s) => (
+                  <StatementRow key={s.id} s={s} onOpen={() => onOpenStatement?.(s.id)} onDelete={() => setConfirmId(s.id)} />
                 ))}
               </div>
             </div>
@@ -92,6 +104,22 @@ export function StatementsListScreen({ statements = SAMPLE_STATEMENTS, onBack, o
           </p>
         </div>
       </div>
+
+      <Modal
+        open={confirmId != null}
+        onClose={() => setConfirmId(null)}
+        title="¿Eliminar cartola?"
+        footer={
+          <div className="flex justify-end gap-gt-8">
+            <Button variant="ghost" size="sm" onClick={() => setConfirmId(null)}>Cancelar</Button>
+            <Button variant="danger" size="sm" onClick={removeStatement}>Eliminar</Button>
+          </div>
+        }
+      >
+        <p className="font-gt-body text-gt-sm leading-relaxed text-gt-ink-2">
+          Se eliminará la cartola de <span className="font-extrabold text-gt-ink">{target?.card}</span> ({target?.period}). Las transacciones que había conciliado se desbloquearán y volverán a ser editables.
+        </p>
+      </Modal>
     </div>
   );
 }

@@ -6,15 +6,15 @@ import { Pagination } from "@design-system/molecules/Pagination";
 import { expandHex } from "@lib/hexColor";
 import { SAMPLE_NOTIFICATIONS, KIND_META, BUCKET_ORDER, unreadCount, type AppNotification } from "../model/notificationFixtures";
 
-function NotificationRow({ n, onRead, onDelete, removing }: { n: AppNotification; onRead?: () => void; onDelete?: () => void; removing?: boolean }) {
+function NotificationRow({ n, onToggleRead, onDelete, removing }: { n: AppNotification; onToggleRead?: () => void; onDelete?: () => void; removing?: boolean }) {
   const meta = KIND_META[n.kind];
   return (
     <div
       className={`flex items-start gap-gt-10 overflow-hidden px-gt-12 py-gt-12 ${n.read ? "bg-gt-bg-3" : "hover:bg-gt-bg-3"}`}
       style={{ maxHeight: removing ? 0 : 200, opacity: removing ? 0 : 1, transition: "max-height 320ms ease, opacity 320ms ease, background-color 400ms ease" }}
     >
-      {/* main tap area — marks an unread notification read (deep-links in the app) */}
-      <button type="button" onClick={() => (n.read ? undefined : onRead?.())} className="flex min-w-0 flex-1 items-start gap-gt-10 text-left">
+      {/* main tap area — toggles read/unread (a real deep-link in the app) */}
+      <button type="button" aria-label={n.read ? "Marcar como no leída" : "Marcar como leída"} onClick={() => onToggleRead?.()} className="flex min-w-0 flex-1 items-start gap-gt-10 text-left">
         <span className="grid h-11 w-11 shrink-0 place-items-center rounded-gt-xl border-2 border-gt-line-strong" style={{ backgroundColor: `${expandHex(meta.color)}26` }}>
           <PixelIcon name={meta.icon} size={meta.size ?? 26} />
         </span>
@@ -58,7 +58,7 @@ export function NotificationsScreen({ notifications = SAMPLE_NOTIFICATIONS, onBa
   const [page, setPage] = useState(1);
   const [removing, setRemoving] = useState<string[]>([]);
   const unread = unreadCount(items);
-  const markRead = (id: string) => setItems((prev) => prev.map((n) => (n.id === id ? { ...n, read: true } : n)));
+  const toggleRead = (id: string) => setItems((prev) => prev.map((n) => (n.id === id ? { ...n, read: !n.read } : n)));
   const markAll = () => setItems((prev) => prev.map((n) => ({ ...n, read: true })));
   // delete = collapse the row first, then drop it from the feed once the animation ends.
   const requestDelete = (id: string) => {
@@ -107,7 +107,7 @@ export function NotificationsScreen({ notifications = SAMPLE_NOTIFICATIONS, onBa
                           key={n.id}
                           n={n}
                           removing={removing.includes(n.id)}
-                          onRead={() => markRead(n.id)}
+                          onToggleRead={() => toggleRead(n.id)}
                           onDelete={() => requestDelete(n.id)}
                         />
                       ))}
