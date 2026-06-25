@@ -11,7 +11,6 @@ import { PixelIcon } from "@design-system/assets/PixelIcon";
  */
 export interface ScanModeChooserScreenProps {
   onSingle?: () => void;
-  onBatch?: () => void;
   onStatement?: () => void;
   onManual?: () => void;
   /** dismiss the chooser. */
@@ -28,7 +27,6 @@ interface ModeCard {
 
 const MODES: ModeCard[] = [
   { key: "single", icon: "action-camera", title: "Escanear boleta", desc: "Toma una foto de tu recibo", tint: "rgba(139,92,246,0.10)" },
-  { key: "batch", icon: "scan-batch", title: "Escaneo en lote", desc: "Varias boletas de una vez", tint: "rgba(139,92,246,0.10)" },
   { key: "statement", icon: "scan-statement", title: "Subir cartola", desc: "Sube el PDF de tu estado de cuenta", tint: "rgba(244,114,182,0.12)" },
   { key: "manual", icon: "fin-receipt", title: "Ingreso manual", desc: "Ingresa los datos a mano", tint: "rgba(30,41,59,0.06)" },
 ];
@@ -52,8 +50,8 @@ function ModeOption({ mode, onPress }: { mode: ModeCard; onPress?: () => void })
   );
 }
 
-export function ScanModeChooserScreen({ onSingle, onBatch, onStatement, onManual, onClose }: ScanModeChooserScreenProps) {
-  const handlers: Record<string, (() => void) | undefined> = { single: onSingle, batch: onBatch, statement: onStatement, manual: onManual };
+export function ScanModeChooserScreen({ onSingle, onStatement, onManual, onClose }: ScanModeChooserScreenProps) {
+  const handlers: Record<string, (() => void) | undefined> = { single: onSingle, statement: onStatement, manual: onManual };
 
   return (
     <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden bg-gt-bg">

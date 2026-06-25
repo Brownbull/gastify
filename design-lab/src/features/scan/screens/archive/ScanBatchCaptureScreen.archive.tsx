@@ -1,3 +1,4 @@
+/* ARCHIVED 2026-06-24: batch-scan deferred (per user — not in MVP scope for now). */
 import { useState } from "react";
 import { PixelIcon } from "@design-system/assets/PixelIcon";
 import { ChevronLeftIcon } from "@design-system/assets/icons";

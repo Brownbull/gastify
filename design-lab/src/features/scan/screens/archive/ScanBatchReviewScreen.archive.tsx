@@ -1,3 +1,4 @@
+/* ARCHIVED 2026-06-24: batch-scan deferred (per user — not in MVP scope for now). */
 import { useEffect, useState } from "react";
 import { AppHeader } from "@design-system/organisms/Nav";
 import { PixelIcon } from "@design-system/assets/PixelIcon";
@@ -5,7 +6,7 @@ import { Button } from "@design-system/atoms/Button";
 import type { Platform } from "@design-system/organisms/AppSurface";
 import { getCategoryToken } from "@lib/categoryTokens";
 import { clp } from "@lib/transactionFixtures";
-import { SAMPLE_BATCH, batchCounts, type BatchReceipt } from "../model/batchFixtures";
+import { SAMPLE_BATCH, batchCounts, type BatchReceipt } from "./batchFixtures";
 
 /** extracted outcomes a still-processing receipt resolves into (mockup). */
 const OUTCOMES: Array<{ merchant: string; total: number; category: string }> = [
