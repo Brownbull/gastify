@@ -5325,3 +5325,8 @@ FINDINGS: 1 (0 critical, 0 high, 0 medium, 1 low) — doc-drift README card (dep
 ACTIONS: 1:accept
 DEFERRED: none
 VERIFIED: backend 943 pass/88% cov; pip-audit clean; npm audit-high clean; mobile jest 255 pass; ruff+tsc green
+
+## 2026-06-25 15:45 — CI round 2 fixes (PR #4)
+- "Backend Test" job failed on `ruff format --check` (not pytest) → reformatted test_group_hardening.py.
+- "SCA Audit" job also runs web `npm audit` → undici high (TLS bypass et al., newly published); pinned undici ^7.28.0 (jsdom test-env transitive, not shipped).
+VERIFIED: web 137 tests + tsc + vite build green; web npm audit-high clean; ruff format --check clean.

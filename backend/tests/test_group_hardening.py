@@ -207,9 +207,7 @@ async def test_full_lifecycle_delete_then_readd_makes_a_new_copy(client, engine)
     """Edit-before-share works; share locks; delete is allowed and the group copy
     survives; sharing a FRESH source makes a second copy (no false dedup)."""
     group_id = await _make_group(client)
-    t1 = await _seed_personal_txn(
-        engine, merchant="Lider", total_minor=50_000, when=date.today()
-    )
+    t1 = await _seed_personal_txn(engine, merchant="Lider", total_minor=50_000, when=date.today())
 
     # Editable before sharing.
     assert (
@@ -230,9 +228,7 @@ async def test_full_lifecycle_delete_then_readd_makes_a_new_copy(client, engine)
 
     # A brand-new transaction shared in is a SECOND copy — the dedup only guards the
     # same source id, so re-adding after a delete legitimately adds (not duplicates).
-    t2 = await _seed_personal_txn(
-        engine, merchant="Jumbo", total_minor=12_000, when=date.today()
-    )
+    t2 = await _seed_personal_txn(engine, merchant="Jumbo", total_minor=12_000, when=date.today())
     assert (
         await client.post(f"/api/v1/groups/{group_id}/share", json={"transaction_id": str(t2)})
     ).status_code == 201
