@@ -5319,3 +5319,9 @@ CI: 11/14 pass; 3 FAIL — all pre-existing branch debt, unrelated to 2a7b4be:
   - ALL Web checks (Build/Lint/Test/Typecheck) PASS — the test-login change is clean.
 MERGE: held pending user decision (do not merge over red CI unilaterally).
 - 2026-06-25 15:22 | Edit | /home/khujta/projects/apps/gastify/mobile/package.json
+
+## 2026-06-25 15:34 — [0f3214c] fix(ci): green PR #4 (group-test time-bomb + backend dep CVEs + mobile audit)
+FINDINGS: 1 (0 critical, 0 high, 0 medium, 1 low) — doc-drift README card (dep change) ACCEPTED
+ACTIONS: 1:accept
+DEFERRED: none
+VERIFIED: backend 943 pass/88% cov; pip-audit clean; npm audit-high clean; mobile jest 255 pass; ruff+tsc green
