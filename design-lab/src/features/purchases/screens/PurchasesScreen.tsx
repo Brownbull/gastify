@@ -72,6 +72,16 @@ function PreviewItems({ txn }: { txn: BrowseTransaction }) {
   );
 }
 
+/** reconciled / shared lock pill, shown under the category on a row. */
+function StatusPill({ status }: { status: "matched" | "shared" }) {
+  const matched = status === "matched";
+  return (
+    <span className={`inline-flex items-center gap-gt-2 rounded-gt-pill border-2 px-gt-6 py-gt-0 font-gt-display text-gt-xs font-extrabold ${matched ? "border-gt-positive bg-gt-positive-bg text-gt-positive" : "border-gt-primary bg-gt-primary-soft text-gt-primary"}`}>
+      <PixelIcon name={matched ? "scan-statement" : "action-split"} size={13} /> {matched ? "Conciliada" : "Compartida"}
+    </span>
+  );
+}
+
 function TxnRow({ txn, onSelect, selectMode, selected, onToggle, onLongPress }: { txn: BrowseTransaction; onSelect?: (txn: BrowseTransaction) => void; selectMode?: boolean; selected?: boolean; onToggle?: () => void; onLongPress?: () => void }) {
   return (
     <CompactRow
@@ -93,7 +103,7 @@ function TxnRow({ txn, onSelect, selectMode, selected, onToggle, onLongPress }: 
       }
       title={txn.merchant}
       meta={<MetaLine txn={txn} />}
-      tags={<CategoryChip category={txn.category} size="sm" />}
+      tags={<><CategoryChip category={txn.category} size="sm" />{txn.status ? <StatusPill status={txn.status} /> : null}</>}
       trailing={<span className="font-gt-display text-gt-md font-extrabold text-gt-ink">{clp(txn.total)}</span>}
       detailLabel={`${txn.itemCount} ${txn.itemCount === 1 ? "ítem" : "ítems"}`}
       detail={<PreviewItems txn={txn} />}
