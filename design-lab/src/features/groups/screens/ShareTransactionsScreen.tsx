@@ -6,6 +6,7 @@ import { Modal } from "@design-system/atoms/Modal";
 import { SegmentedToggle } from "@design-system/atoms/SegmentedToggle";
 import { Pagination } from "@design-system/molecules/Pagination";
 import { ThumbnailBadge } from "@design-system/molecules/ThumbnailBadge";
+import { ShareIcon } from "@design-system/assets/icons";
 import type { Platform } from "@design-system/organisms/AppSurface";
 import { clp } from "@lib/transactionFixtures";
 import { SAMPLE_SHAREABLE, type ShareableTxn } from "../model/shareFixtures";
@@ -18,8 +19,9 @@ function TxnRow({ t, selectable, selected, onToggle }: { t: ShareableTxn; select
   const inner = (
     <>
       {selectable ? (
-        <span className={`grid h-6 w-6 shrink-0 place-items-center rounded-gt-md border-2 ${selected ? "border-gt-primary bg-gt-primary text-white" : "border-gt-line-strong bg-gt-surface"}`}>
-          {selected ? <span className="font-gt-display text-gt-xs font-extrabold leading-none">✓</span> : null}
+        <span className={`grid h-6 w-6 shrink-0 place-items-center rounded-gt-md border-2 transition-colors duration-200 ${selected ? "border-gt-primary bg-gt-primary text-white" : "border-gt-line-strong bg-gt-surface"}`}>
+          {/* check pops in on select (inline transition — JIT-proof) */}
+          <span className="font-gt-display text-gt-xs font-extrabold leading-none" style={{ transition: "transform 150ms ease, opacity 150ms ease", transform: selected ? "scale(1)" : "scale(0)", opacity: selected ? 1 : 0 }}>✓</span>
         </span>
       ) : (
         <span className="grid h-6 w-6 shrink-0 place-items-center text-gt-positive">
@@ -38,7 +40,7 @@ function TxnRow({ t, selectable, selected, onToggle }: { t: ShareableTxn; select
   );
   const base = "flex w-full items-center gap-gt-10 px-gt-12 py-gt-10 text-left";
   return selectable ? (
-    <button type="button" onClick={onToggle} aria-pressed={selected} className={`${base} transition ${selected ? "bg-gt-primary-soft" : "hover:bg-gt-bg-3"}`}>{inner}</button>
+    <button type="button" onClick={onToggle} aria-pressed={selected} className={`${base} transition-colors duration-200 ${selected ? "bg-gt-primary-soft" : "hover:bg-gt-bg-3"}`}>{inner}</button>
   ) : (
     <div className={base}>{inner}</div>
   );
@@ -110,16 +112,30 @@ export function ShareTransactionsScreen({ groupName, txns: initial = SAMPLE_SHAR
             onChange={(v) => switchTab(v as ShareTab)}
           />
 
-          {/* batch bar — appears once anything is selected */}
-          {selectable && selected.size > 0 ? (
-            <div className="flex items-center gap-gt-8 rounded-gt-xl border-2 border-gt-line-strong bg-gt-primary-soft px-gt-12 py-gt-8">
-              <span className="min-w-0 flex-1 font-gt-display text-gt-sm font-extrabold text-gt-ink">{selected.size} seleccionada{selected.size === 1 ? "" : "s"}</span>
-              <button type="button" onClick={clearSel} className="shrink-0 rounded-gt-pill border-2 border-gt-line-strong bg-gt-surface px-gt-10 py-gt-2 font-gt-display text-gt-xs font-extrabold text-gt-ink-2 transition hover:-translate-y-0.5">
+          {/* batch bar — always present in the share tab; the count circle + buttons
+              activate once you select something (disabled at 0). */}
+          {selectable ? (
+            <div className="flex items-center gap-gt-8 rounded-gt-xl border-2 border-gt-line-strong bg-gt-surface px-gt-12 py-gt-8">
+              <span aria-label={`${selected.size} seleccionadas`} className={`grid h-9 w-9 shrink-0 place-items-center rounded-gt-pill border-2 font-gt-display text-gt-md font-extrabold transition-colors duration-200 ${selected.size > 0 ? "border-gt-primary bg-gt-primary-soft text-gt-primary" : "border-gt-line bg-gt-bg-3 text-gt-ink-3"}`}>
+                {selected.size}
+              </span>
+              <span className="flex-1" />
+              <button
+                type="button"
+                disabled={selected.size === 0}
+                onClick={clearSel}
+                className="shrink-0 rounded-gt-pill border-2 border-gt-line-strong bg-gt-surface px-gt-10 py-gt-2 font-gt-display text-gt-xs font-extrabold text-gt-ink-2 transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0"
+              >
                 Deseleccionar
               </button>
-              <Button variant="primary" size="sm" onClick={() => setConfirm(true)}>
-                <PixelIcon name="action-split" size={18} /> Compartir
-              </Button>
+              <button
+                type="button"
+                disabled={selected.size === 0}
+                onClick={() => setConfirm(true)}
+                className="inline-flex shrink-0 items-center gap-gt-4 rounded-gt-pill border-2 border-gt-line-strong bg-gt-primary px-gt-12 py-gt-2 font-gt-display text-gt-xs font-extrabold text-white shadow-gt-xs transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0"
+              >
+                <ShareIcon className="h-4 w-4" /> Compartir
+              </button>
             </div>
           ) : null}
 
