@@ -5465,3 +5465,12 @@ DEFERRED: P92 (settings section titles hardcoded English → settings i18n pass)
 SECURITY: verified clean — no .env/secret files or credential strings in the commit; .env.prod-e2e gitignored + untracked (gitignore .env.*-e2e fix landed in the commit).
 ALIGNMENT: ALIGNED | TIER: mvp | DRIFT: none | TICK: ✅
 NOTES: clean restyle, all data wiring + data-testids preserved. Dismissed: L#2 card-title top spacing (cosmetic). Proven against real prod data.
+
+## 2026-06-25 23:00 — MERGE+DEPLOY: PR #6 (W2) → main → production
+PR: #6 MERGED (merge commit fbfe701). W2 app shell live on production.
+PROD VERIFY: gastify-web-production HTTP 200; /pixel-icons/nav-home.png 200 (W2-added assets serve) — geometric shell deployed.
+PHASE 2: W2 COMPLETE — Exec/Review/Commit/Push all ✅. DEPLOYMENTS P88.
+
+## 2026-06-25 23:00 — PUSH feat/web-migration -> main (W3 PR)
+PR: https://github.com/Brownbull/gastify/pull/7 (#7, OPEN) — W3 settings+notifications, delta vs main = W3 + bookkeeping (W2 already merged).
+CI: all web + security green; backend/mobile tests finishing. NOT merged — W3 ship is the user's next call.

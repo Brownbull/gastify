@@ -106,6 +106,7 @@
 | P85 | 2026-06-12 | feat/phase6-items-reports → staging → main (promotion) | — | ✅ staging+main CI green / prod ok (health 200, no migration) | promoted staging → main; rate-limit Phase 5 (429 retry toast web+mobile + live quota-display e2e). Deferred mobile quota display + S23 toast proof (P89). RATE-LIMIT-PLAN mvp+ent COMPLETE | — |
 | P86 | 2026-06-25 17:50 | feat/web-migration → main | #5 | ⏳ running at push (Web Build ✅ + Web Lint ✅ incl. check:token-classes; test/typecheck/backend/mobile pending) | Web Migration epic W1 token foundation (Playful Geometric recolor + gt-*). PR OPEN, NOT merged — production deploy awaits user merge (production-direct, D97; staging promotion N/A) | D98 |
 | P87 | 2026-06-25 22:32 | feat/web-migration → main (merge #5) | #5 | ✅ all web + security green / prod live (HTTP 200, --primary:#8b5cf6 violet in deployed CSS) | W1 token foundation MERGED + deployed to production — recolor LIVE (verified: deployed CSS :root --primary is violet, not the old green). Phase 1 complete (Exec/Review/Commit/Push ✅). | D98 |
+| P88 | 2026-06-25 23:00 | feat/web-migration → main (merge #6) | #6 | ✅ all web + security green / prod live (HTTP 200, /pixel-icons/nav-home.png 200) | W2 app shell MERGED + deployed to production — geometric nav shell LIVE (verified: W2-added pixel icons serve on prod). Phase 2 complete (Exec/Review/Commit/Push ✅). | D99 |
 
 <!-- Example rows:
 | P1 | 2026-04-17 14:22 | feature/add-auth → main | #42 | ✅ 3/3 (47s) | promoted main → (none) | — |
