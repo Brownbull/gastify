@@ -27,6 +27,7 @@ type Story = StoryObj;
 
 function ComprasInShell({ platform }: { platform: Platform }) {
   const [scanOpen, setScanOpen] = useState(false);
+  const [selectMode, setSelectMode] = useState(false);
   const [newOpen, setNewOpen] = useState(false);
   const [filterOpen, setFilterOpen] = useState(false);
   const [selection, setSelection] = useState<FilterSelection>({});
@@ -75,10 +76,10 @@ function ComprasInShell({ platform }: { platform: Platform }) {
       active="purchases"
       title="Compras"
       bleed
-      onScan={() => setScanOpen(true)}
+      onScan={selectMode ? undefined : () => setScanOpen(true)}
       overlay={overlay}
     >
-      <PurchasesScreen platform={platform} selection={selection} onOpenFilter={() => setFilterOpen(true)} onSelectTxn={setDetailTxn} />
+      <PurchasesScreen platform={platform} selection={selection} onOpenFilter={() => setFilterOpen(true)} onSelectTxn={setDetailTxn} onSelectModeChange={setSelectMode} />
     </AppScaffold>
   );
 }

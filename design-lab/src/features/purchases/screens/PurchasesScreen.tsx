@@ -1,13 +1,16 @@
 import { useState } from "react";
 import { PixelIcon } from "@design-system/assets/PixelIcon";
-import { MapPinIcon } from "@design-system/assets/icons";
+import { MapPinIcon, XIcon } from "@design-system/assets/icons";
 import { Badge } from "@design-system/atoms/Badge";
+import { Button } from "@design-system/atoms/Button";
+import { Modal } from "@design-system/atoms/Modal";
 import { SearchRow } from "@design-system/molecules/SearchRow";
 import { SectionFade } from "@design-system/atoms/SectionFade";
 import { CategoryChip } from "@design-system/molecules/CategoryChip";
 import { CompactRow, CompactRowList } from "@design-system/molecules/CompactRowList";
 import { ThumbnailBadge } from "@design-system/molecules/ThumbnailBadge";
 import { Pagination } from "@design-system/molecules/Pagination";
+import { GroupedCategoryPicker } from "@design-system/molecules/GroupedCategoryPicker";
 import type { Platform } from "@design-system/organisms/AppSurface";
 import { selectionCount, type FilterSelection } from "@design-system/organisms/FilterSheet";
 import { BROWSE_TRANSACTIONS, BROWSE_FACETS, BROWSE_TOTAL, BROWSE_TXN_COUNT, periodLabel, type DateGroup, type BrowseTransaction } from "@lib/browseFixtures";
@@ -18,13 +21,12 @@ import { clp } from "@lib/transactionFixtures";
  * AppScaffold (which supplies the header / 4-tab nav / scan FAB; runs in
  * `bleed` mode so this screen owns its sticky band + scroll + filter overlay):
  *
- *   sticky band → search + filter button + "N boletas · $total" + active chips
- *   list        → date-grouped, each group a bare CompactRowList using the
- *                 settled transaction-row layout (category chip + "N ítems ⌄"
- *                 expand, the same as Inicio's Recientes)
+ *   sticky band → search + filter + "N boletas · $total" (+ "Seleccionar")
+ *   list        → date-grouped CompactRowLists
+ *   select mode → per-row checkboxes + a batch bar (re-categorize / delete)
  *   filter      → FilterSheet bottom-sheet overlay
  *
- * Grounded on the shipped transactions route + legacy HistoryView.
+ * Grounded on the shipped transactions route + legacy HistoryView + batch ops.
  */
 export interface PurchasesScreenProps {
   groups?: DateGroup[];
@@ -34,6 +36,8 @@ export interface PurchasesScreenProps {
   onOpenFilter?: () => void;
   /** a transaction row was tapped — open its full detail (host-owned overlay). */
   onSelectTxn?: (txn: BrowseTransaction) => void;
+  /** entered/left batch-select mode — the host hides the scan FAB while selecting. */
+  onSelectModeChange?: (active: boolean) => void;
   platform?: Platform;
 }
 
@@ -68,13 +72,24 @@ function PreviewItems({ txn }: { txn: BrowseTransaction }) {
   );
 }
 
-function TxnRow({ txn, onSelect }: { txn: BrowseTransaction; onSelect?: (txn: BrowseTransaction) => void }) {
+function TxnRow({ txn, onSelect, selectMode, selected, onToggle }: { txn: BrowseTransaction; onSelect?: (txn: BrowseTransaction) => void; selectMode?: boolean; selected?: boolean; onToggle?: () => void }) {
   return (
     <CompactRow
-      className="px-gt-0!"
-      onClick={onSelect ? () => onSelect(txn) : undefined}
-      clickLabel={`Ver boleta de ${txn.merchant}`}
-      leading={<ThumbnailBadge icon={txn.storeIcon} category={txn.category} />}
+      className={`px-gt-0! ${selected ? "rounded-gt-lg bg-gt-primary-soft" : ""}`}
+      onClick={selectMode ? onToggle : onSelect ? () => onSelect(txn) : undefined}
+      clickLabel={selectMode ? `Seleccionar boleta de ${txn.merchant}` : `Ver boleta de ${txn.merchant}`}
+      leading={
+        selectMode ? (
+          <span className="flex items-center gap-gt-8">
+            <span className={`grid h-6 w-6 shrink-0 place-items-center rounded-gt-md border-2 transition-colors duration-150 ${selected ? "border-gt-primary bg-gt-primary text-white" : "border-gt-line-strong bg-gt-surface"}`}>
+              {selected ? <span className="font-gt-display text-gt-xs font-extrabold leading-none">✓</span> : null}
+            </span>
+            <ThumbnailBadge icon={txn.storeIcon} category={txn.category} />
+          </span>
+        ) : (
+          <ThumbnailBadge icon={txn.storeIcon} category={txn.category} />
+        )
+      }
       title={txn.merchant}
       meta={<MetaLine txn={txn} />}
       tags={<CategoryChip category={txn.category} size="sm" />}
@@ -87,17 +102,27 @@ function TxnRow({ txn, onSelect }: { txn: BrowseTransaction; onSelect?: (txn: Br
 
 const PAGE_SIZE = 12; // transactions per page
 
-export function PurchasesScreen({ groups = BROWSE_TRANSACTIONS, selection = {}, onOpenFilter, onSelectTxn, platform = "mobile" }: PurchasesScreenProps) {
+export function PurchasesScreen({ groups = BROWSE_TRANSACTIONS, selection = {}, onOpenFilter, onSelectTxn, onSelectModeChange, platform = "mobile" }: PurchasesScreenProps) {
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(1);
+  // batch ops: select mode + the local edits it makes (deletes / re-categorize).
+  const [selectMode, setSelectMode] = useState(false);
+  const [selected, setSelected] = useState<Set<string>>(() => new Set());
+  const [removedIds, setRemovedIds] = useState<Set<string>>(() => new Set());
+  const [categoryOverride, setCategoryOverride] = useState<Record<string, string>>({});
+  const [catPickerOpen, setCatPickerOpen] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+
   const activeCount = selectionCount(selection);
-  // desktop: cap the content + center it (the right pane never fills full width).
   const contentMax = platform === "desktop" ? "56rem" : undefined;
 
-  // paginate at the TRANSACTION level (12/page), then re-group the current
-  // page's transactions back under their date headers (a day can split pages;
-  // the header total then reflects the transactions shown on this page).
-  const flat = groups.flatMap((g) => g.transactions.map((t) => ({ t, groupDate: g.date })));
+  // flat list — drop deleted, apply category overrides — then paginate (12/page)
+  // and re-group the current page's transactions under their date headers.
+  const flat = groups.flatMap((g) =>
+    g.transactions
+      .filter((t) => !removedIds.has(t.id))
+      .map((t) => ({ t: categoryOverride[t.id] ? { ...t, category: categoryOverride[t.id] } : t, groupDate: g.date })),
+  );
   const pageCount = Math.max(1, Math.ceil(flat.length / PAGE_SIZE));
   const current = Math.min(page, pageCount);
   const pageFlat = flat.slice((current - 1) * PAGE_SIZE, current * PAGE_SIZE);
@@ -108,51 +133,70 @@ export function PurchasesScreen({ groups = BROWSE_TRANSACTIONS, selection = {}, 
     else pageGroups.push({ date: groupDate, transactions: [t] });
   }
 
+  const pageIds = pageFlat.map(({ t }) => t.id);
+  const allSelected = pageIds.length > 0 && pageIds.every((id) => selected.has(id));
+  const toggle = (id: string) => setSelected((prev) => { const n = new Set(prev); if (n.has(id)) n.delete(id); else n.add(id); return n; });
+  const toggleAll = () => setSelected((prev) => { const n = new Set(prev); if (allSelected) pageIds.forEach((id) => n.delete(id)); else pageIds.forEach((id) => n.add(id)); return n; });
+  const enterSelect = () => { setSelectMode(true); onSelectModeChange?.(true); };
+  const exitSelect = () => { setSelectMode(false); setSelected(new Set()); onSelectModeChange?.(false); };
+  const batchDelete = () => { setRemovedIds((prev) => new Set([...prev, ...selected])); setConfirmDelete(false); exitSelect(); };
+  const batchReassign = (catId: string) => { setCategoryOverride((prev) => { const n = { ...prev }; selected.forEach((id) => (n[id] = catId)); return n; }); exitSelect(); };
+
   return (
     <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden">
-      {/* sticky search / filter band — full-width chrome, content centered on desktop
-          (no divider line; it fades into the list below) */}
+      {/* sticky band — search/filter + count + "Seleccionar", OR the selection header */}
       <div className="shrink-0 bg-gt-surface px-gt-16 pb-gt-6 pt-gt-12">
         <div className="mx-auto w-full" style={{ maxWidth: contentMax }}>
-        <div className="flex items-center gap-gt-8">
-          <span className="min-w-0 flex-1">
-            <SearchRow icon="action-search" label="Buscar boletas" placeholder="Buscar comercio o producto…" value={query} onValueChange={setQuery} />
-          </span>
-          <button
-            type="button"
-            aria-label="Filtros"
-            onClick={onOpenFilter}
-            className="relative grid h-11 w-11 shrink-0 place-items-center rounded-gt-xl border-2 border-gt-line-strong bg-gt-surface shadow-gt-xs transition hover:-translate-y-0.5"
-          >
-            <PixelIcon name="action-filter-e" size={24} />
-            {activeCount > 0 ? (
-              <span className="absolute -right-1 -top-1 grid h-5 w-5 place-items-center rounded-full border-2 border-gt-surface bg-gt-primary text-[10px] font-extrabold leading-none text-white">{activeCount}</span>
-            ) : null}
-          </button>
-        </div>
-        <p className="mt-gt-8 text-gt-sm font-bold text-gt-ink-2">
-          {BROWSE_TXN_COUNT} boletas · <span className="font-extrabold text-gt-primary">{clp(BROWSE_TOTAL)}</span>
-        </p>
-        {activeCount > 0 ? (
-          <div className="mt-gt-6 flex flex-wrap gap-gt-6">
-            {BROWSE_FACETS.flatMap((facet) =>
-              (selection[facet.id] ?? []).map((token) => {
-                let label = token;
-                if (facet.kind === "period") label = periodLabel(token) ?? token;
-                else if (facet.kind === "sort") label = facet.options.find((o) => o.id === token.split(":")[0])?.label ?? token;
-                else label = facet.options.find((o) => o.id === token)?.label ?? token;
-                return <Badge key={`${facet.id}:${token}`} tone="primary">{label}</Badge>;
-              }),
-            )}
-          </div>
-        ) : null}
+          {selectMode ? (
+            <div className="flex items-center gap-gt-8">
+              <button type="button" aria-label="Cancelar selección" onClick={exitSelect} className="-ml-gt-2 grid h-8 w-8 shrink-0 place-items-center text-gt-ink transition hover:scale-110">
+                <XIcon className="h-6 w-6" />
+              </button>
+              <span className="min-w-0 flex-1 font-gt-display text-gt-lg font-extrabold text-gt-ink">{selected.size} seleccionada{selected.size === 1 ? "" : "s"}</span>
+              <button type="button" onClick={toggleAll} className="shrink-0 rounded-gt-pill border-2 border-gt-line-strong bg-gt-surface px-gt-10 py-gt-2 font-gt-display text-gt-xs font-extrabold text-gt-ink-2 transition hover:-translate-y-0.5">
+                {allSelected ? "Quitar todo" : "Seleccionar todo"}
+              </button>
+            </div>
+          ) : (
+            <>
+              <div className="flex items-center gap-gt-8">
+                <span className="min-w-0 flex-1">
+                  <SearchRow icon="action-search" label="Buscar boletas" placeholder="Buscar comercio o producto…" value={query} onValueChange={setQuery} />
+                </span>
+                <button type="button" aria-label="Filtros" onClick={onOpenFilter} className="relative grid h-11 w-11 shrink-0 place-items-center rounded-gt-xl border-2 border-gt-line-strong bg-gt-surface shadow-gt-xs transition hover:-translate-y-0.5">
+                  <PixelIcon name="action-filter-e" size={24} />
+                  {activeCount > 0 ? (
+                    <span className="absolute -right-1 -top-1 grid h-5 w-5 place-items-center rounded-full border-2 border-gt-surface bg-gt-primary text-[10px] font-extrabold leading-none text-white">{activeCount}</span>
+                  ) : null}
+                </button>
+              </div>
+              <div className="mt-gt-8 flex items-center justify-between gap-gt-8">
+                <p className="text-gt-sm font-bold text-gt-ink-2">
+                  {BROWSE_TXN_COUNT} boletas · <span className="font-extrabold text-gt-primary">{clp(BROWSE_TOTAL)}</span>
+                </p>
+                <button type="button" onClick={enterSelect} className="shrink-0 font-gt-display text-gt-sm font-extrabold text-gt-primary">Seleccionar</button>
+              </div>
+              {activeCount > 0 ? (
+                <div className="mt-gt-6 flex flex-wrap gap-gt-6">
+                  {BROWSE_FACETS.flatMap((facet) =>
+                    (selection[facet.id] ?? []).map((token) => {
+                      let label = token;
+                      if (facet.kind === "period") label = periodLabel(token) ?? token;
+                      else if (facet.kind === "sort") label = facet.options.find((o) => o.id === token.split(":")[0])?.label ?? token;
+                      else label = facet.options.find((o) => o.id === token)?.label ?? token;
+                      return <Badge key={`${facet.id}:${token}`} tone="primary">{label}</Badge>;
+                    }),
+                  )}
+                </div>
+              ) : null}
+            </>
+          )}
         </div>
       </div>
 
-      {/* white band melts into the page before the list (replaces the divider) */}
       <SectionFade heightClassName="h-3" />
 
-      {/* date-grouped transaction list — bare CompactRowList per group */}
+      {/* date-grouped transaction list */}
       <div className="min-h-0 flex-1 overflow-y-auto px-gt-16 pb-gt-16">
         <div className="mx-auto flex w-full flex-col gap-gt-16 pt-gt-2" style={{ maxWidth: contentMax }}>
           {pageGroups.map((group) => (
@@ -165,7 +209,7 @@ export function PurchasesScreen({ groups = BROWSE_TRANSACTIONS, selection = {}, 
               </div>
               <CompactRowList>
                 {group.transactions.map((txn) => (
-                  <TxnRow key={txn.id} txn={txn} onSelect={onSelectTxn} />
+                  <TxnRow key={txn.id} txn={txn} onSelect={onSelectTxn} selectMode={selectMode} selected={selected.has(txn.id)} onToggle={() => toggle(txn.id)} />
                 ))}
               </CompactRowList>
             </section>
@@ -174,6 +218,40 @@ export function PurchasesScreen({ groups = BROWSE_TRANSACTIONS, selection = {}, 
           <Pagination page={current} pageCount={pageCount} onPage={setPage} className="pt-gt-4" />
         </div>
       </div>
+
+      {/* batch action bar — re-categorize / delete the selection */}
+      {selectMode ? (
+        <div className="shrink-0 border-t-2 border-gt-line bg-gt-surface px-gt-16 py-gt-12">
+          <div className="mx-auto grid grid-cols-2 gap-gt-8" style={{ maxWidth: contentMax }}>
+            <Button variant="secondary" disabled={selected.size === 0} onClick={() => setCatPickerOpen(true)}>
+              <PixelIcon name="action-tag" size={18} /> Categoría
+            </Button>
+            <Button variant="danger" disabled={selected.size === 0} onClick={() => setConfirmDelete(true)}>
+              <PixelIcon name="action-delete" size={18} /> Eliminar ({selected.size})
+            </Button>
+          </div>
+        </div>
+      ) : null}
+
+      {/* batch re-categorize */}
+      <GroupedCategoryPicker open={catPickerOpen} onClose={() => setCatPickerOpen(false)} mode="establishment" selectedId="" onSelect={(id) => { setCatPickerOpen(false); batchReassign(id); }} />
+
+      {/* batch delete confirm */}
+      <Modal
+        open={confirmDelete}
+        onClose={() => setConfirmDelete(false)}
+        title="¿Eliminar transacciones?"
+        footer={
+          <div className="flex justify-end gap-gt-8">
+            <Button variant="ghost" size="sm" onClick={() => setConfirmDelete(false)}>Cancelar</Button>
+            <Button variant="danger" size="sm" onClick={batchDelete}>Eliminar {selected.size}</Button>
+          </div>
+        }
+      >
+        <p className="font-gt-body text-gt-sm leading-relaxed text-gt-ink-2">
+          Se eliminarán {selected.size} transacci{selected.size === 1 ? "ón" : "ones"} de forma permanente. Las transacciones conciliadas o compartidas se conservan.
+        </p>
+      </Modal>
     </div>
   );
 }

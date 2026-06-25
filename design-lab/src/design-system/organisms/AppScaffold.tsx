@@ -143,7 +143,7 @@ export function AppScaffold({
           <div className="flex items-center gap-gt-12 px-gt-16 pb-gt-12 pt-gt-16">
             <h1 className="min-w-0 flex-1 truncate font-gt-display text-gt-3xl font-extrabold text-gt-ink">{title ?? "Inicio"}</h1>
             {headerActions ? <span className="flex shrink-0 items-center gap-gt-6">{headerActions}</span> : null}
-            <ScanFab placement="title" withMenu={false} onScan={onScan} />
+            {onScan ? <ScanFab placement="title" withMenu={false} onScan={onScan} /> : null}
           </div>
           {content}
           {profileDropdown({ bottom: 16, left: 16 })}
@@ -169,7 +169,7 @@ export function AppScaffold({
       {profileDropdown({ top: 60, right: 16 })}
       {scopeDropdown({ top: 60, left: 16 })}
       {content}
-      <ScanFab placement="corner" withMenu={false} onScan={onScan} />
+      {onScan ? <ScanFab placement="corner" withMenu={false} onScan={onScan} /> : null}
       <BottomNav active={active} onSelect={onSelect} items={items} alertsTab={alertsTab} accentColor={accentColor} />
       {overlay ? <div className="absolute inset-0 z-50 flex flex-col">{overlay}</div> : null}
     </div>
