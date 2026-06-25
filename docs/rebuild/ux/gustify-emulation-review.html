@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>gastify ← Gustify · Layout polish review</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Baloo+2:wght@500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#FFFDF5; --surface:#FFFFFF; --primary:#8B5CF6; --primary-light:#EDE9FE;
+    --accent:#FBBF24; --ink:#1E293B; --ink2:#64748B; --ink3:#94A3B8;
+    --line:#E2E8F0; --line-strong:#1E293B;
+    --c1:#8B5CF6; --c2:#FBBF24; --c3:#F472B6; --c4:#34D399; --c5:#3B82F6; --c6:#64748B;
+    --pos:#10B981; --posbg:#D1FAE5; --neg:#EF4444; --negbg:#FEE2E2;
+    --bg3:#F1F5F9;
+    --display:'Baloo 2','Outfit',system-ui,sans-serif;
+    --body:'Outfit',system-ui,sans-serif;
+    --sh-xs:1px 1px 0 0 var(--ink); --sh-sm:2px 2px 0 0 var(--ink); --sh-md:4px 4px 0 0 var(--ink);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);line-height:1.5;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1040px;margin:0 auto;padding:32px 20px 80px}
+  h1{font-family:var(--display);font-weight:800;font-size:34px;margin:0 0 4px}
+  .sub{color:var(--ink2);font-weight:600;margin:0 0 28px}
+  h2{font-family:var(--display);font-weight:800;font-size:24px;margin:40px 0 6px;padding-top:20px;border-top:2px solid var(--line)}
+  .lead{color:var(--ink2);font-weight:500;margin:0 0 18px}
+  .change{border:2px solid var(--line-strong);border-radius:16px;background:var(--surface);box-shadow:var(--sh-md);padding:20px;margin:0 0 26px}
+  .change h3{font-family:var(--display);font-weight:800;font-size:18px;margin:0 0 2px}
+  .tag{display:inline-block;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;border:2px solid var(--line-strong);border-radius:999px;padding:2px 8px;margin-left:8px;vertical-align:middle}
+  .tag.quick{background:var(--posbg);color:#065F46}
+  .tag.med{background:var(--primary-light);color:#5B21B6}
+  .tag.big{background:var(--accent);color:#78350F}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:14px 0}
+  @media(max-width:680px){.grid{grid-template-columns:1fr}}
+  .panel{border:2px solid var(--line);border-radius:12px;padding:14px;background:var(--bg)}
+  .panel .label{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--ink3);margin-bottom:10px}
+  .panel.now .label{color:var(--neg)}
+  .panel.next .label{color:var(--pos)}
+  .why{margin:12px 0 0;padding:12px 14px;background:var(--bg3);border-radius:10px;font-size:14px}
+  .why b{font-weight:800}
+  .trade{margin:8px 0 0;font-size:13px;color:var(--ink2)}
+  .trade b{color:var(--ink);font-weight:800}
+  ul.adopt{margin:0;padding:0;list-style:none}
+  ul.adopt li{border:2px solid var(--line);border-radius:10px;padding:10px 12px;margin:0 0 8px;background:var(--surface);font-size:14px}
+  ul.adopt li b{font-weight:800}
+  .pri{font-weight:800;color:var(--primary);margin-right:6px}
+
+  /* ---- mockup primitives (real tokens) ---- */
+  .ph{font-family:var(--body)}
+  /* current ItemRow: accent-bar tile */
+  .row-now{display:flex;align-items:center;gap:10px;border-radius:8px;border-left:5px solid var(--c1);background:var(--bg3);padding:8px 10px;margin:6px 0}
+  .row-now .ic{font-size:24px;line-height:1}
+  .row-now .nm{font-weight:700;font-size:14px}
+  .row-now .mt{font-weight:700;font-size:11px;color:var(--c1)}
+  .row-now .tot{margin-left:auto;font-weight:800;font-size:14px}
+  /* proposed ItemRow: framed tile + trailing pill */
+  .roww{display:grid;grid-template-columns:44px minmax(0,1fr) auto;align-items:center;gap:10px;padding:10px;background:var(--surface)}
+  .roww+.roww{border-top:1px solid var(--line)}
+  .tile{height:44px;width:44px;display:grid;place-items:center;border-radius:8px;border:2px solid var(--line-strong);background:var(--bg3);box-shadow:var(--sh-xs);font-size:26px;line-height:1}
+  .roww .nm{font-family:var(--display);font-weight:800;font-size:14px;line-height:1.15;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .roww .mt{font-weight:500;font-size:12px;color:var(--ink2);line-height:1.15;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .pill{display:inline-flex;align-items:center;border:2px solid var(--line-strong);border-radius:999px;background:var(--surface);padding:4px 8px;font-weight:800;font-size:12px;box-shadow:var(--sh-xs);white-space:nowrap}
+  .pill.amt{background:var(--surface)}
+  .pill.neg{background:var(--neg);color:#fff;border-color:var(--line-strong)}
+  /* group containers */
+  .card{border:2px solid var(--line-strong);border-radius:12px;overflow:hidden;box-shadow:var(--sh-sm);background:var(--surface);margin:6px 0}
+  .ghead-now{display:flex;align-items:center;gap:8px;padding:10px 12px;background:#DCFCE7}
+  .ghead-now .gt{flex:1;font-weight:800;font-size:14px}
+  .badge-pill{border:2px solid var(--line-strong);border-radius:999px;background:var(--bg3);padding:2px 9px;font-weight:800;font-size:12px}
+  .chev{width:8px;height:8px;border-bottom:2px solid var(--ink);border-right:2px solid var(--ink);transform:rotate(45deg)}
+  .gbody-now>.row-now{margin:8px}
+  /* proposed group: tone-card + round side controls */
+  .gcard{border:2px solid var(--c4);border-radius:12px;overflow:hidden;box-shadow:var(--sh-sm);background:#DCFCE7;margin:6px 0}
+  .ghead{display:flex;align-items:center;gap:8px;padding:10px 12px}
+  .ghead .gtog{display:flex;align-items:center;gap:8px;flex:1;min-width:0}
+  .ghead .gt{font-family:var(--display);font-weight:800;font-size:14px}
+  .cbadge{height:28px;width:28px;display:grid;place-items:center;border-radius:999px;border:2px solid var(--line-strong);background:var(--surface);font-weight:800;font-size:12px;line-height:1}
+  .sub-amt{font-weight:800;font-size:14px;color:var(--primary)}
+  .rbtn{height:28px;width:28px;display:grid;place-items:center;border-radius:999px;border:2px solid var(--line-strong);background:var(--surface);box-shadow:var(--sh-xs);font-size:13px}
+  .gbody{background:var(--surface)}
+  .gbody>.roww+.roww{border-top:1px solid var(--line)}
+  /* toggles */
+  .tog{display:inline-flex;align-items:center;border:2px solid var(--line-strong);border-radius:999px;background:var(--surface);box-shadow:var(--sh-sm);overflow:hidden}
+  .seg{height:32px;width:32px;display:grid;place-items:center;position:relative;font-size:18px}
+  .seg .fill{position:absolute;left:50%;top:50%;height:36px;width:36px;transform:translate(-50%,-50%);border-radius:999px;background:var(--primary)}
+  .seg .gl{position:relative}
+  .seg.sq{border-radius:999px}
+  .seg.sqfill{background:var(--primary)}
+  .seg.sliver{border-radius:999px}
+  /* the BAD version: square fill in pill track to show sliver */
+  .tog.bad{overflow:hidden}
+  .tog.bad .seg.on{background:var(--primary)}
+  .note{font-size:12px;color:var(--ink3);margin-top:6px}
+  code{background:var(--bg3);border-radius:4px;padding:1px 5px;font-size:12px;font-family:'Space Grotesk',monospace}
+  .legend{font-size:13px;color:var(--ink2);margin:0 0 24px;padding:10px 14px;border:2px dashed var(--line-strong);border-radius:10px}
+  .legend b{color:var(--ink)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>gastify ← Gustify · layout polish</h1>
+  <p class="sub">Proposed changes from the Gustify study — review before any code. Mockups use the real Playful Geometric tokens.</p>
+
+  <div class="legend">
+    <b>How to read this:</b> each card shows <span style="color:var(--neg);font-weight:800">CURRENT</span> vs
+    <span style="color:var(--pos);font-weight:800">PROPOSED</span>, a plain reason, and the tradeoff.
+    Tags: <span class="tag quick">quick win</span> <span class="tag med">medium</span> <span class="tag big">bigger change</span>.
+    Nothing here is built yet — tell me which to do.
+  </div>
+
+  <!-- 0. Toggle fix (DONE) -->
+  <h2>0 · Toggle white-corner fix <span class="tag quick">already done</span></h2>
+  <p class="lead">The active circle left white in the rounded track corners. Fixed by oversizing the selection circle so it bleeds into the corners (track clips it). Circles kept — no squares.</p>
+  <div class="change">
+    <div class="grid">
+      <div class="panel now"><div class="label">Before — white in corners</div>
+        <div class="tog bad"><div class="seg on sqfill">🧾</div><div class="seg">🍔</div></div>
+        <div class="note">square fill in a pill track → white crescent at the rounded end</div>
+      </div>
+      <div class="panel next"><div class="label">After — clean circle</div>
+        <div class="tog"><div class="seg"><span class="fill"></span><span class="gl">🧾</span></div><div class="seg">🍔</div></div>
+        <div class="note">oversized circle bleeds into corners; no white</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 1. Spacing scale -->
+  <h2>1 · Add a spacing scale <span class="tag quick">foundation</span></h2>
+  <p class="lead">The study's #1 finding. Gustify routes every gap/padding through named steps (<code>pg-8</code>, <code>pg-10</code>…); gastify has none, so components improvise (<code>gap-2.5</code>, <code>p-4</code>, <code>px-3</code>). One vocabulary is the main reason Gustify feels cohesive.</p>
+  <div class="change">
+    <div class="why"><b>Reason:</b> consistent spacing across every component, set once. Pure-additive (new <code>gt-N</code> utilities), no visual change on its own — it just makes every later change land consistently.</div>
+    <p class="trade"><b>Tradeoff:</b> a one-time pass converting components from raw Tailwind to <code>gt-N</code>. Low risk, some churn. <b>Decision needed:</b> keep off-grid 6/10px steps (recommended — matches Gustify) or grid-only 4/8/12.</p>
+  </div>
+
+  <!-- 2. ItemRow redesign -->
+  <h2>2 · ItemRow → Despensa style <span class="tag big">the main one</span></h2>
+  <p class="lead">Your linked screen. Move from a bare-icon accent-bar tile to a <b>framed icon tile + name/meta + trailing pill</b> row.</p>
+  <div class="change">
+    <div class="grid">
+      <div class="panel now"><div class="label">Current</div>
+        <div class="row-now"><span class="ic">🥖</span><span><div class="nm">Pan amasado</div><div class="mt">Pan y Repostería · $1.600 ×3</div></span><span class="tot">$4.800</span></div>
+        <div class="row-now"><span class="ic">🧈</span><span><div class="nm">Mantequilla</div><div class="mt">Lácteos y Huevos · $2.432 ×2</div></span><span class="tot">$4.864</span></div>
+        <div class="note">bare icon · colored meta line · plain total · 5px accent bar</div>
+      </div>
+      <div class="panel next"><div class="label">Proposed</div>
+        <div style="border:2px solid var(--line-strong);border-radius:12px;overflow:hidden;box-shadow:var(--sh-sm)">
+          <div class="roww"><span class="tile">🥖</span><span style="min-width:0"><div class="nm">Pan amasado</div><div class="mt">Pan y Repostería · $1.600 ×3</div></span><span class="pill amt">$4.800</span></div>
+          <div class="roww"><span class="tile">🧈</span><span style="min-width:0"><div class="nm">Mantequilla</div><div class="mt">Lácteos y Huevos · $2.432 ×2</div></span><span class="pill amt">$4.864</span></div>
+        </div>
+        <div class="note">framed 44px tile · muted meta · amount in a pill · 3-col grid</div>
+      </div>
+    </div>
+    <div class="why"><b>Reason:</b> the framed tile + trailing pill is what makes Despensa look polished. The <code>[44px · minmax(0,1fr) · auto]</code> grid guarantees rows align and long names ellipsize without shoving the amount off-screen. Meta drops to medium-muted so the row isn't all-bold.</div>
+    <p class="trade"><b>Tradeoff:</b> rows get a touch taller (44px tile). The category color moves from a left bar to the framed tile — still present, just calmer. The amount-pill can also flip red for negatives / show a stepper when editing (bonus reuse).</p>
+  </div>
+
+  <!-- urgency state -->
+  <div class="change">
+    <h3>2b · Row state colors (optional)</h3>
+    <div class="panel next" style="background:var(--bg)">
+      <div style="border:2px solid var(--line-strong);border-radius:12px;overflow:hidden;box-shadow:var(--sh-sm)">
+        <div class="roww"><span class="tile">🍗</span><span style="min-width:0"><div class="nm">Pollo</div><div class="mt">Refrigerador · hoy</div></span><span class="pill neg">500 g</span></div>
+        <div class="roww"><span class="tile">🍅</span><span style="min-width:0"><div class="nm">Tomate</div><div class="mt">Refrigerador · 5 días</div></span><span class="pill amt">4 un</span></div>
+      </div>
+    </div>
+    <div class="why"><b>Reason:</b> Despensa colors the trailing pill red when an item is urgent (expiring). For gastify this maps to negative amounts / over-budget / alerts. Same row, the pill carries the signal.</div>
+    <p class="trade"><b>Tradeoff:</b> adds a <code>tone</code> prop. Skip if we don't want state coloring on rows yet.</p>
+  </div>
+
+  <!-- 3. ItemGroup -->
+  <h2>3 · ItemGroup → tone-card + side controls <span class="tag big"></span></h2>
+  <p class="lead">From a flat tinted header to a <b>color-coded card</b> (like Despensa/Refrigerador zones) with a round count badge, the little trailing icon-buttons you pointed at, and a weightless CSS chevron.</p>
+  <div class="change">
+    <div class="grid">
+      <div class="panel now"><div class="label">Current</div>
+        <div class="card">
+          <div class="ghead-now"><span style="font-size:22px">🥕</span><span class="gt">Alimentos Frescos</span><span class="badge-pill">2</span><span class="sub-amt">$9.664</span><span class="chev"></span></div>
+          <div class="gbody-now"><div class="row-now"><span class="ic">🥖</span><span><div class="nm">Pan amasado</div><div class="mt">Pan y Repostería</div></span><span class="tot">$4.800</span></div></div>
+        </div>
+        <div class="note">tinted header only · pill count · stroke chevron · whole header is the toggle (no room for side actions)</div>
+      </div>
+      <div class="panel next"><div class="label">Proposed</div>
+        <div class="gcard">
+          <div class="ghead">
+            <span class="gtog"><span style="font-size:22px">🥕</span><span class="gt">Alimentos Frescos</span><span class="cbadge">2</span></span>
+            <span class="sub-amt">$9.664</span>
+            <span class="rbtn">⚙</span>
+            <span class="rbtn"><span class="chev"></span></span>
+          </div>
+          <div class="gbody">
+            <div class="roww"><span class="tile">🥖</span><span style="min-width:0"><div class="nm">Pan amasado</div><div class="mt">Pan y Repostería · $1.600 ×3</div></span><span class="pill amt">$4.800</span></div>
+            <div class="roww"><span class="tile">🧈</span><span style="min-width:0"><div class="nm">Mantequilla</div><div class="mt">Lácteos y Huevos · $2.432 ×2</div></span><span class="pill amt">$4.864</span></div>
+          </div>
+        </div>
+        <div class="note">whole card tinted + colored border · round 28px count · round side-buttons (⚙ action + chevron) · 1px hairline rows</div>
+      </div>
+    </div>
+    <div class="why"><b>Reason:</b> the tinted whole-card reads as a zone (your Despensa/Refrigerador example). Splitting the header into a <i>toggle region</i> + independent round side-buttons is what lets the little action icons live there without collapsing the group. Round count badge stays centered for 1 or 2 digits.</div>
+    <p class="trade"><b>Tradeoff:</b> more color per group (some may prefer the calmer white card). The CSS chevron drops the icon asset. Dividers go 2px → 1px (lighter inside one card).</p>
+  </div>
+
+  <!-- 4. smaller adopts -->
+  <h2>4 · Smaller adopts (pick any)</h2>
+  <ul class="adopt">
+    <li><b>Framed IconTile atom</b> — one reusable icon-well (44/64px, border + tiny shadow) shared by ItemRow, EmptyState, notices. <span style="color:var(--ink2)">Falls out of the ItemRow work.</span></li>
+    <li><b>font-medium muted meta</b> — drop the meta/sub line from bold to medium-muted so long copy reads. Tiny change, big legibility win.</li>
+    <li><b>StatusCard / Notice molecule</b> — tinted surface + solid bordered icon disc + medium body, for over-budget / scan warnings. New molecule.</li>
+    <li><b>EmptyState polish</b> — 64px framed icon tile + stacked→row actions on wider screens.</li>
+    <li><b>“Selection = depth” rule</b> — unselected controls recede (soft border, no shadow); selected/hover gain ink border + tiny shadow. Codify across chips/tabs/options.</li>
+  </ul>
+
+  <!-- conventions deferred -->
+  <h2>5 · Conventions left open (your call later)</h2>
+  <ul class="adopt">
+    <li><b>Typeface</b> — keep <b>Baloo 2</b> display (gastify identity) or switch to Outfit-extrabold for full Gustify parity. <span style="color:var(--ink2)">Deferred per your note — decide per-component.</span></li>
+    <li><b>Radius scale</b> — keep our tighter 12/8 or re-map to Gustify's softer 16/20/24. <span style="color:var(--ink2)">Deferred.</span></li>
+  </ul>
+
+  <h2 style="border:none">Suggested order</h2>
+  <p class="lead"><span class="pri">1</span>spacing scale → <span class="pri">2</span>ItemRow (Despensa) → <span class="pri">3</span>IconTile atom → <span class="pri">4</span>ItemGroup (tone-card) → <span class="pri">5</span>smaller adopts. Each is reviewable on its own.</p>
+</div>
+</body>
+</html>

@@ -136,6 +136,10 @@ bash scripts/staging/check-backend-ready.sh https://<gastify-api-staging-e2e-dom
 
 ## Hobby-Plan Idle State
 
+> To fully drop the staging lanes (delete environments, zero their cost) and
+> restore them later, use [`RAILWAY-STAGING-TEARDOWN.md`](RAILWAY-STAGING-TEARDOWN.md).
+> The idle state below only stops stateless compute; Postgres keeps billing.
+
 When no staging test run is active, keep only the two Postgres services running
 and stop the stateless deployments:
 

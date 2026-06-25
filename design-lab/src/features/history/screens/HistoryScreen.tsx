@@ -1,0 +1,71 @@
+import { useState } from "react";
+import { ReportDetail } from "@design-system/molecules/ReportDetail";
+import { PeriodControl, LATEST_PERIOD_INDEX } from "@design-system/molecules/PeriodControl";
+import { SectionFade } from "@design-system/atoms/SectionFade";
+import type { Platform } from "@design-system/organisms/AppSurface";
+import type { FilterSelection } from "@design-system/organisms/FilterSheet";
+import { PurchasesScreen } from "@features/purchases/screens/PurchasesScreen";
+import { ItemsBrowseContent } from "@features/spending/screens/ItemsBrowseContent";
+import { TIMEFRAME_REPORTS, type ReportPeriod } from "@lib/reportTimeframeFixtures";
+import type { BrowseTransaction } from "@lib/browseFixtures";
+
+/**
+ * HistoryScreen (Phase 9 / IA rework) — the 4th-tab "Historial" hub,
+ * content-only for AppScaffold (runs in `bleed`; each subsection owns its scroll).
+ * A shared PeriodControl band sits at the top, scoping EVERY subsection (the
+ * timeframe + period applies to transactions, products, and reports alike). The
+ * active subsection is chosen from the HEADER switcher (icons next to the profile)
+ * and arrives as the controlled `sub` prop:
+ *
+ *   Transacciones → PurchasesScreen (filter rides the host AppScaffold overlay).
+ *   Productos     → ItemsBrowseContent (self-managed overlays).
+ *   Reportes      → ReportDetail for the selected timeframe (no own picker — the
+ *                   shared PeriodControl drives it).
+ */
+export type HistorySub = "transactions" | "products" | "reports";
+
+export interface HistoryScreenProps {
+  platform?: Platform;
+  /** active subsection — controlled by the header switcher in the host. */
+  sub: HistorySub;
+  /** Compras filter selection (host owns it; the FilterSheet rides AppScaffold's overlay). */
+  purchasesSelection?: FilterSelection;
+  onOpenPurchasesFilter?: () => void;
+  /** a transaction was tapped in Transacciones — open its detail (host-owned overlay). */
+  onSelectTxn?: (txn: BrowseTransaction) => void;
+}
+
+export function HistoryScreen({ platform = "mobile", sub, purchasesSelection = {}, onOpenPurchasesFilter, onSelectTxn }: HistoryScreenProps) {
+  const [dimension, setDimension] = useState<ReportPeriod>("monthly");
+  const [anchorIndex, setAnchorIndex] = useState(LATEST_PERIOD_INDEX);
+  const contentMax = platform === "desktop" ? "56rem" : undefined;
+
+  return (
+    <div className="flex min-h-0 flex-1 flex-col">
+      {/* shared period control — scopes every subsection (no divider line; the
+          control pills are already self-contained, and the band melts into the
+          subsection below — directly into the white search band on Transacciones/
+          Productos, or via a SectionFade into the gt-bg (cream) report area on Reportes) */}
+      <div className="shrink-0 bg-gt-surface px-gt-16 pb-gt-4 pt-gt-12">
+        <div className="mx-auto w-full" style={{ maxWidth: contentMax }}>
+          <PeriodControl dimension={dimension} onDimensionChange={setDimension} anchorIndex={anchorIndex} onAnchorChange={setAnchorIndex} />
+        </div>
+      </div>
+
+      {sub === "transactions" ? (
+        <PurchasesScreen platform={platform} selection={purchasesSelection} onOpenFilter={onOpenPurchasesFilter} onSelectTxn={onSelectTxn} />
+      ) : sub === "products" ? (
+        <ItemsBrowseContent />
+      ) : (
+        <>
+          <SectionFade heightClassName="h-3" />
+          <div className="min-h-0 flex-1 overflow-y-auto px-gt-16 pb-gt-16">
+            <div className="mx-auto flex w-full flex-col gap-gt-16 pt-gt-4" style={{ maxWidth: contentMax }}>
+              <ReportDetail report={TIMEFRAME_REPORTS[dimension]} />
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}

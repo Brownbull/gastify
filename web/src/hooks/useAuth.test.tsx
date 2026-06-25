@@ -3,7 +3,12 @@ import { renderHook, act, waitFor } from "@testing-library/react";
 import type { ReactNode } from "react";
 
 const mockFirebaseSignOut = vi.fn();
+const mockSignInWithEmailAndPassword = vi.fn();
 let authStateCallback: ((user: unknown) => void) | null = null;
+
+const { prodTestAuthMock } = vi.hoisted(() => ({
+  prodTestAuthMock: { enabled: false },
+}));
 
 vi.mock("firebase/auth", () => ({
   onAuthStateChanged: (_auth: unknown, cb: (user: unknown) => void) => {
@@ -11,7 +16,13 @@ vi.mock("firebase/auth", () => ({
     return vi.fn();
   },
   signInWithPopup: vi.fn(),
+  signInWithEmailAndPassword: (...args: unknown[]) =>
+    mockSignInWithEmailAndPassword(...args),
   signOut: (...args: unknown[]) => mockFirebaseSignOut(...args),
+}));
+
+vi.mock("@/lib/prodTestAuth", () => ({
+  prodTestAuthConfig: prodTestAuthMock,
 }));
 
 vi.mock("@/lib/firebase", () => ({
@@ -68,6 +79,7 @@ describe("AuthProvider", () => {
     vi.clearAllMocks();
     authStateCallback = null;
     mockIsSignOutBroadcast.mockReturnValue(false);
+    prodTestAuthMock.enabled = false;
   });
 
   afterEach(() => {
@@ -144,6 +156,53 @@ describe("AuthProvider", () => {
 
     expect(result.current.user).not.toBeNull();
     expect(mockFirebaseSignOut).not.toHaveBeenCalled();
+  });
+
+  it("exposes no email/password sign-in when prod test auth is disabled", () => {
+    const { result } = renderHook(() => useAuth(), { wrapper: Wrapper });
+    expect(result.current.signInWithEmailPassword).toBeNull();
+  });
+
+  it("signs in with email/password when prod test auth is enabled", async () => {
+    prodTestAuthMock.enabled = true;
+    mockSignInWithEmailAndPassword.mockResolvedValue(undefined);
+
+    const { result } = renderHook(() => useAuth(), { wrapper: Wrapper });
+
+    expect(result.current.signInWithEmailPassword).not.toBeNull();
+
+    await act(async () => {
+      await result.current.signInWithEmailPassword!(
+        "tester@example.com",
+        "pw-123",
+      );
+    });
+
+    expect(mockSignInWithEmailAndPassword).toHaveBeenCalledWith(
+      expect.anything(),
+      "tester@example.com",
+      "pw-123",
+    );
+    expect(result.current.error).toBeNull();
+  });
+
+  it("surfaces an error when email/password sign-in fails", async () => {
+    prodTestAuthMock.enabled = true;
+    mockSignInWithEmailAndPassword.mockRejectedValue(
+      new Error("auth/wrong-password"),
+    );
+
+    const { result } = renderHook(() => useAuth(), { wrapper: Wrapper });
+
+    await act(async () => {
+      await result.current.signInWithEmailPassword!(
+        "tester@example.com",
+        "bad",
+      );
+    });
+
+    expect(result.current.error).toBe("auth/wrong-password");
+    expect(result.current.user).toBeNull();
   });
 
   it("sets session-expired error when token refresh fails", async () => {

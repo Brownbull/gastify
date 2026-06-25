@@ -1,6 +1,8 @@
 # React + Storybook Mockup Workflow (gastify)
 
-**Status:** active.
+> **STATUS UPDATE 2026-06-10:** the active mockup surface is now **`design-lab/`** per `.kdbp/PLAN-MOCKUPS.md` (parallel mockup lane). The taxonomy contract is [STORYBOOK-STRUCTURE.md](STORYBOOK-STRUCTURE.md) (rewritten for design-lab); tokens come from `shared/design-tokens.ts`; Storybook dev port **6008**; verification gate: `typecheck` → `build` → `build-storybook` → `test-storybook` from `design-lab/`. Everything below this note describes the earlier frontend/-era workflow — `frontend/` is frozen and its content is kept for reference until the full Phase 4 rewrite of this file.
+
+**Status:** active (design-lab); frontend/ sections historical.
 **Active since:** 2026-04-28 (Ladle pivot, commits `d562685` → `8dc7262`).
 **Re-added:** 2026-04-29 — original landed in `1c75ef4`, reverted with the IdleState batch in `5a39a10`. Content was sound; restored with current screen-story list and post-revert scope updates.
 **Marker for `/gabe-mockup`:** this file's existence routes `/gabe-mockup` to React + Storybook mode (skill SKILL.md "Backward-compatible dispatch" rule 1).

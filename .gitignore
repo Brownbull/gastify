@@ -160,3 +160,4 @@ docs/rebuild/FIRESTORE-EXPORT.json
 tests/web-e2e/proof/
 tests/web-e2e/test-results/
 playwright-report/
+design-lab/storybook-static/

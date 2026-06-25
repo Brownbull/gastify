@@ -29,12 +29,15 @@ def _sf(engine):
 
 
 async def _seed_personal_txn(
-    engine, *, scope_id=TEST_SCOPE_ID, total_minor=50_000, merchant="Tienda"
+    engine, *, scope_id=TEST_SCOPE_ID, total_minor=50_000, merchant="Tienda", when=None
 ) -> uuid.UUID:
+    # `when` defaults to a fixed date (load-bearing for the 2026-03 insights-period
+    # assertions below). Delete-lifecycle tests pass a recent date so the 90-day
+    # delete window (transaction_delete_window_days) doesn't block the delete.
     async with _sf(engine)() as s:
         txn = Transaction(
             ownership_scope_id=scope_id,
-            transaction_date=date(2026, 3, 15),
+            transaction_date=when or date(2026, 3, 15),
             merchant=merchant,
             total_minor=total_minor,
             currency="CLP",

@@ -1,135 +1,82 @@
-# STORYBOOK-STRUCTURE.md — local taxonomy contract
+# Storybook Structure — design-lab taxonomy contract
 
-This file is the **local taxonomy contract** consumed by the `gabe-mockup` skill (per `~/.claude/skills/gabe-mockup/SKILL.md` line 56) and by RALPH iterations during the rebuild. It overrides the skill's default `apps/web/` assumption and pins Gastify-specific story-title and file-path conventions.
+**Status:** active.
+**Applies to:** `design-lab/**`, `shared/design-tokens.ts`.
+**Since:** 2026-06-10 — supersedes the frontend/-era version (git history preserves it). The mockup surface moved to `design-lab/` per `.kdbp/PLAN-MOCKUPS.md`; `frontend/` is frozen (reference-only) and `docs/mockups/**` is a frozen visual archive (D27).
+**Shape:** mirrors Gustify's `docs/rebuild/ux/STORYBOOK-STRUCTURE.md` — the structure this project follows for mockups.
 
-## Path overrides (the apps/web → frontend rebinding)
+This file is the **local taxonomy contract** consumed by the `gabe-mockup` skill ("Backward-compatible dispatch" + react-story mode). It rebinds the skill's `apps/web/` default to `design-lab/`. Correspondence script invocation: `node ~/.claude/skills/gabe-mockup/scripts/check-storybook-correspondence.mjs --web-dir design-lab`.
 
-The `gabe-mockup` skill and its `check-storybook-correspondence.mjs` script default to `apps/web/` when present. **Gastify uses `frontend/` as the React app root.** All path references in skill instructions, RALPH prompts, and verification commands MUST be rewritten as follows:
+## Physical structure
 
-| Skill default | Gastify reality |
-|---|---|
-| `apps/web/package.json` | `frontend/package.json` |
-| `apps/web/.storybook/` | `frontend/.storybook/` |
-| `apps/web/src/design-system/{atoms,molecules,organisms}/**` | `frontend/src/design-system/{atoms,molecules,organisms}/**` *(to be created in rebuild)* |
-| `apps/web/src/features/<area>/{components,screens,model,spikes}/**` | `frontend/src/features/<area>/{components,screens,model,spikes}/**` |
-| `apps/web/src/**/*.stories.*` | `frontend/src/**/*.stories.*` |
-| `apps/web/storybook-static/index.json` | `frontend/storybook-static/index.json` |
-| `apps/web/tailwind.config.ts` | n/a — Gastify uses Tailwind 4 with `@theme` in `frontend/src/styles/global.css` (no separate config file) |
-| `shared/design-tokens.ts` | n/a — tokens live in `frontend/src/styles/global.css` as CSS custom properties |
-| `from apps/web, run npm run typecheck` | `cd frontend && npm run typecheck` |
-| `from apps/web, run npm run build-storybook` | `cd frontend && npm run build-storybook` |
+```text
+shared/
+  design-tokens.ts          # single TS token source (themes × modes, fonts, radii, shadows, motion)
 
-When invoking the correspondence script, always pass `--web-dir frontend`:
-
-```bash
-node ~/.claude/skills/gabe-mockup/scripts/check-storybook-correspondence.mjs --web-dir frontend
+design-lab/src/
+  design-system/
+    assets/                 # icons.tsx + future Storybook-only catalogs
+    atoms/                  # leaf primitives (Button, Chip, Badge, Input, …)
+    molecules/              # composed reusable patterns (Card, StateTabs, …)
+    organisms/              # shell-level: AppSurface (device frames), AppShell (header/navs/drawer/profile)
+    _design/                # token inspection surfaces (TokenShowcase)
+  features/
+    <area>/                 # English code path (home, scan, purchases, expenses, profile, groups, …)
+      components/           # feature-owned cards, rows, headers (+ colocated stories)
+      model/                # mock state catalogs + screen types (no data layer)
+      screens/              # composed screen assemblies (+ colocated stories)
+      spikes/               # OPEN decision surfaces only
+      spikes/archive/       # settled spikes → *.archive.tsx (typechecked, hidden from Storybook)
+  flows/                    # multi-screen journey stories — only when a real journey exists
 ```
 
-## Story-title taxonomy
+## Storybook hierarchy
 
-Story `title` strings (CSF3 `meta.title`) MUST follow this physical-taxonomy mapping. The correspondence script enforces these prefixes:
+```text
+Design System/
+  Tokens/                   # Colors · Theme Matrix · Typography · Radii & Elevation
+  Atoms/<Atom>
+  Molecules/<Molecule>
+  Organisms/App Surface · App Shell
 
-| Story file location | Required title prefix |
-|---|---|
-| `frontend/src/_design/*.stories.tsx` | `Design System/<Topic>` (e.g., `Design System/Colors`, `Design System/Typography`, `Design System/Icons`) |
-| `frontend/src/design-system/atoms/<Atom>/*.stories.tsx` | `Design System/Atoms/<Atom>` |
-| `frontend/src/design-system/molecules/<Molecule>/*.stories.tsx` | `Design System/Molecules/<Molecule>` |
-| `frontend/src/design-system/organisms/<Organism>/*.stories.tsx` | `Design System/Organisms/<Organism>` |
-| `frontend/src/features/<area>/components/<Component>/*.stories.tsx` | `Features/<Area>/Components/<Component>` |
-| `frontend/src/features/<area>/views/<View>/*.stories.tsx` *(legacy path — still valid)* | `Features/<Area>/Screens/<View>` |
-| `frontend/src/features/<area>/screens/<Screen>/*.stories.tsx` *(rebuild path)* | `Features/<Area>/Screens/<Screen>` |
-| `frontend/src/features/<area>/spikes/<Spike>/*.stories.tsx` | `Features/<Area>/Spikes/<Spike>` |
-| `frontend/src/Welcome.stories.tsx` | `Welcome` (root-level only — keep this exception) |
-| Cross-screen flow stories | `Flows/<FlowName>` *(only when story walks across multiple screens — do not create empty groups)* |
+Features/
+  <Área>/                   # product vocabulary, Spanish (Inicio, Compras, Escanear, Gastos, Perfil, …)
+    Components/<Component>
+    Screens/<Screen>
+    Spikes/<Decision>       # only while the decision is open
 
-### Title-area mapping (kebab-case folders → Title Case story prefix)
-
-| Folder | Story title `Area` |
-|---|---|
-| `analytics` | `Analytics` |
-| `batch-review` | `Batch Review` |
-| `categories` | `Categories` |
-| `credit` | `Credit` |
-| `dashboard` | `Dashboard` |
-| `history` | `History` |
-| `insights` | `Insights` |
-| `items` | `Items` |
-| `reports` | `Reports` |
-| `scan` | `Scan` |
-| `settings` | `Settings` |
-| `transaction-editor` | `Transaction Editor` |
-
-## File path conventions for new code
-
-The rebuild introduces a `design-system/` tree alongside the existing `features/`. New files MUST land here:
-
-```
-frontend/src/
-├── design-system/          # NEW — shared, feature-agnostic UI
-│   ├── atoms/
-│   │   └── <Atom>/
-│   │       ├── <Atom>.tsx
-│   │       ├── <Atom>.stories.tsx
-│   │       └── index.ts
-│   ├── molecules/
-│   └── organisms/
-├── features/               # EXISTING — feature-scoped
-│   └── <area>/
-│       ├── components/     # feature-scoped UI (NOT shared)
-│       ├── screens/        # rebuild path; new screens land here
-│       ├── views/          # legacy path; existing screens stay until migrated
-│       ├── model/          # types, mocks, fixtures
-│       └── spikes/         # exploratory, time-boxed work
-├── hooks/
-│   ├── ui/                 # NEW — adapter boundary (Phase A.1); RALPH imports from here
-│   └── data/               # NEW — Firestore-aware; UNTOUCHABLE by RALPH
-├── locales/
-│   └── es-CL.json          # NEW (Phase A.4) — frozen translation source
-├── services/               # UNTOUCHABLE by RALPH
-├── repositories/           # UNTOUCHABLE by RALPH
-└── styles/
-    └── global.css          # design tokens; single source of truth
+Flows/
+  <Área>/<Journey>          # only for real multi-screen journeys
 ```
 
-## Story-shape rules (canonical exemplars)
+## Rules
 
-The 5 frozen exemplars at `docs/rebuild/ux/reference-stories/` are the canonical shape. New stories MUST match their pattern:
+1. **Sidebar mirrors the physical folders.** A story's title is derived from its path: `design-system/atoms/Button` → `Design System/Atoms/Button`; `features/home/screens` → `Features/Inicio/Screens`.
+2. **Code paths English, Storybook labels product-Spanish.** `features/home` ↔ `Features/Inicio`; `features/purchases` ↔ `Features/Compras`.
+3. **One responsive screen implementation.** Platform (mobile/tablet/desktop), state (default/empty/loading/error), and any open option (e.g. `ia`) are story args with curated exports (`MobileRedesigned`, `DesktopCurrent`, `MobileRedesignedEmpty`, …) — never separate per-platform screen components.
+4. **Component stories expose the parts; screen stories assemble them.** Every reusable piece (shell organism, feature card) gets its own story; the screen story shows the composition.
+5. **Promotion by reuse, not tidiness.** Feature-local components stay in `features/<area>/components` until a second feature needs them or the pattern is an intentional shared primitive — then they move to `design-system/` with a component story in the same change.
+6. **Spikes are decision surfaces, not destinations.** A spike exists only while a choice is open; story names state the choice (`IA Comparison`). On decision: record it (DECISIONS entry), wire the winner, move the spike source to `spikes/archive/*.archive.tsx` (excluded from the stories glob), and note it in the consolidation map (Phase 10 artifact).
+7. **Tokens only.** Tailwind `gt-*` utilities backed by `shared/design-tokens.ts` via the generated `tokens.css`; no raw hex/RGB in components; new tokens are added to the TS source first, then `npm run generate:tokens`. Documented exceptions: device-frame constants (390/844/820/1280) in `AppSurface`, white-on-chart-block text.
+8. **Aliases, no barrels.** `@shared/*`, `@design-system/*`, `@features/*`, `@lib/*`.
+9. **Showcase defaults stay byte-identical.** Live-app behavior (chromeless, navigation handlers) arrives via opt-in props that default to showcase mode.
+10. **`Flows/` only for real journeys.** No empty groups, no placeholder flows.
+11. **Every batch ends with the verification gate** (from `design-lab/`): `npm run typecheck` → `npm run build` → `npm run build-storybook` → `npm run test-storybook`, plus a browser/screenshot check for visual work. Storybook dev port: **6008**.
 
-1. **Mountable with no required props.** The default export's `args` provide every value the screen needs.
-2. **Platform × state cartesian.** Use `args.platform: "mobile" | "tablet" | "desktop"` and a state arg (`args.state` or domain-specific equivalent) to drive variants. Export named stories per cell of the cartesian product you want covered (e.g., `MobileDefault`, `MobileEmpty`, `DesktopDefault`).
-3. **Stub-`t` strategy** for components that call `useTranslation()`. Pattern: see `ReportsView.stories.tsx`.
-4. **Provider stack** comes from `frontend/.storybook/preview.tsx` — do not re-bootstrap providers in individual stories.
-5. **Mock at `hooks/ui/` only.** Never mock `services/`, `repositories/`, or Firestore directly. If a screen still pulls from these, it is not yet rebuild-ready and belongs in Phase A.1 work, not Phase D RALPH iteration.
+## Current mapping
 
-## Verification gate (per-tier — embedded in `prd.json` schema)
+| File glob | Storybook title |
+|---|---|
+| `design-lab/src/design-system/_design/Tokens.stories.tsx` | `Design System/Tokens` |
+| `design-lab/src/design-system/atoms/*.stories.tsx` | `Design System/Atoms/<Atom>` |
+| `design-lab/src/design-system/molecules/*.stories.tsx` | `Design System/Molecules/<Molecule>` |
+| `design-lab/src/design-system/organisms/AppSurface.stories.tsx` | `Design System/Organisms/App Surface` |
+| `design-lab/src/design-system/organisms/AppShell.stories.tsx` | `Design System/Organisms/App Shell` |
+| `design-lab/src/features/home/components/*.stories.tsx` | `Features/Inicio/Components/<Component>` |
+| `design-lab/src/features/home/screens/HomeScreen.stories.tsx` | `Features/Inicio/Screens/Home` |
+| `design-lab/src/features/home/spikes/IAComparisonSpike.stories.tsx` | `Features/Inicio/Spikes/IA Comparison` (open — Phase 3) |
 
-The PRD format defined in `RALPH-PRD-FORMAT.md` (forthcoming, Phase B.4) embeds a `gate` field per entry. Tiered cost:
+## Open decisions encoded in the tree
 
-| Tier | Gate steps | Approx cost |
-|---|---|---|
-| `atom` | typecheck + render test + axe + i18n leak regex | ~5s |
-| `molecule` | atom gate + interaction test | ~15s |
-| `screen` | molecule gate + Playwright iframe screenshot + visual diff vs `docs/rebuild/ux/baseline-snapshots/` | ~60s |
-
-The i18n leak regex (`\b[a-z]+[A-Z][a-zA-Z]+\b`) is the canonical check inherited from `frontend/STORIES.md`.
-
-## Forbidden patterns
-
-The skill's hardcoded `apps/web/` is one of several skill defaults that **do not apply** here. Also do NOT:
-
-- Create new `docs/mockups/**/*.html` files. The mockup baselines at `docs/mockups/` and `docs/mockups-legacy/` are frozen per DECISIONS.md D27. New UI work lands as React + Storybook, never new HTML mockups.
-- Edit files under `docs/rebuild/ux/reference-stories/` — they are read-only exemplars (see that folder's `README.md`).
-- Re-bootstrap providers per-story; use `preview.tsx`.
-- Hardcode hex colors in React; use `var(--*)` tokens from `frontend/src/styles/global.css`.
-- Stack multiple platform frames vertically in one story; use Storybook's viewport addon and per-story `args.platform`.
-
-## Pointers
-
-- gabe-mockup skill — `~/.claude/skills/gabe-mockup/SKILL.md`
-- Correspondence script — `~/.claude/skills/gabe-mockup/scripts/check-storybook-correspondence.mjs`
-- Story conventions — `frontend/STORIES.md`
-- Design tokens — `frontend/src/styles/global.css`
-- Storybook config — `frontend/.storybook/main.ts`, `frontend/.storybook/preview.tsx`
-- React + Storybook workflow marker — `docs/rebuild/ux/REACT-STORYBOOK-WORKFLOW.md`
-- Frozen exemplars — `docs/rebuild/ux/reference-stories/`
-- Rebuild feasibility plan — `~/.claude/plans/i-would-like-to-elegant-tarjan.md`
+- **IA candidate (Phase 3):** both nav catalogs live in `design-system/organisms/AppShell.tsx` (`currentNavCatalog` / `redesignedNavCatalog`); `HomeScreen` takes `ia` as an arg. On decision the loser is deleted, the winner becomes the single catalog, and the spike is archived.
+- **Typeface (Phase 4):** lab renders the locked design language (Outfit/Baloo 2); production web/ ships Inter. Settle in the design grammar (DESIGN.md).
