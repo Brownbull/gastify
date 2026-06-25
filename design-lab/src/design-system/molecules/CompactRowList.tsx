@@ -1,5 +1,6 @@
 import { useState, type ReactNode } from "react";
 import { ChevronDownIcon } from "@design-system/assets/icons";
+import { useLongPress } from "@design-system/hooks/useLongPress";
 
 /**
  * CompactRow / CompactRowList — geometric list rows (transactions, items,
@@ -30,14 +31,17 @@ export interface CompactRowProps {
   /** Controlled expanded state. */
   expanded?: boolean;
   onClick?: () => void;
+  /** long-press the row (e.g. enter batch-select on mobile). Touch + mouse. */
+  onLongPress?: () => void;
   /** accessible name for the whole-row click target (so it isn't the concatenated
    * row text). Only used when `onClick` is set. */
   clickLabel?: string;
   className?: string;
 }
 
-export function CompactRow({ leading, title, meta, tags, trailing, detail, detailLabel, expanded: controlledExpanded, onClick, clickLabel, className = "" }: CompactRowProps) {
+export function CompactRow({ leading, title, meta, tags, trailing, detail, detailLabel, expanded: controlledExpanded, onClick, onLongPress, clickLabel, className = "" }: CompactRowProps) {
   const [internalExpanded, setInternalExpanded] = useState(false);
+  const longPress = useLongPress(onLongPress);
   const isExpanded = controlledExpanded ?? internalExpanded;
   const hasDetail = detail != null;
 
@@ -81,7 +85,11 @@ export function CompactRow({ leading, title, meta, tags, trailing, detail, detai
         {onClick ? (
           <button
             type="button"
-            onClick={onClick}
+            onClick={() => { if (longPress.consumeClick()) return; onClick(); }}
+            onPointerDown={longPress.onPointerDown}
+            onPointerUp={longPress.onPointerUp}
+            onPointerLeave={longPress.onPointerLeave}
+            onPointerMove={longPress.onPointerMove}
             aria-label={clickLabel}
             className="absolute inset-0 rounded-gt-lg transition duration-150 ease-gt-bounce hover:bg-gt-bg-3 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-inset focus-visible:ring-gt-primary/20"
           />

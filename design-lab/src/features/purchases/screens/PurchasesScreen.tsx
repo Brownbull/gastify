@@ -72,11 +72,12 @@ function PreviewItems({ txn }: { txn: BrowseTransaction }) {
   );
 }
 
-function TxnRow({ txn, onSelect, selectMode, selected, onToggle }: { txn: BrowseTransaction; onSelect?: (txn: BrowseTransaction) => void; selectMode?: boolean; selected?: boolean; onToggle?: () => void }) {
+function TxnRow({ txn, onSelect, selectMode, selected, onToggle, onLongPress }: { txn: BrowseTransaction; onSelect?: (txn: BrowseTransaction) => void; selectMode?: boolean; selected?: boolean; onToggle?: () => void; onLongPress?: () => void }) {
   return (
     <CompactRow
       className={`px-gt-0! ${selected ? "rounded-gt-lg bg-gt-primary-soft" : ""}`}
       onClick={selectMode ? onToggle : onSelect ? () => onSelect(txn) : undefined}
+      onLongPress={onLongPress}
       clickLabel={selectMode ? `Seleccionar boleta de ${txn.merchant}` : `Ver boleta de ${txn.merchant}`}
       leading={
         selectMode ? (
@@ -138,6 +139,8 @@ export function PurchasesScreen({ groups = BROWSE_TRANSACTIONS, selection = {}, 
   const toggle = (id: string) => setSelected((prev) => { const n = new Set(prev); if (n.has(id)) n.delete(id); else n.add(id); return n; });
   const toggleAll = () => setSelected((prev) => { const n = new Set(prev); if (allSelected) pageIds.forEach((id) => n.delete(id)); else pageIds.forEach((id) => n.add(id)); return n; });
   const enterSelect = () => { setSelectMode(true); onSelectModeChange?.(true); };
+  // long-press a row (mobile/tablet) → enter select mode with that row selected.
+  const startSelectionWith = (id: string) => { setSelectMode(true); onSelectModeChange?.(true); setSelected(new Set([id])); };
   const exitSelect = () => { setSelectMode(false); setSelected(new Set()); onSelectModeChange?.(false); };
   const batchDelete = () => { setRemovedIds((prev) => new Set([...prev, ...selected])); setConfirmDelete(false); exitSelect(); };
   const batchReassign = (catId: string) => { setCategoryOverride((prev) => { const n = { ...prev }; selected.forEach((id) => (n[id] = catId)); return n; }); exitSelect(); };
@@ -209,7 +212,15 @@ export function PurchasesScreen({ groups = BROWSE_TRANSACTIONS, selection = {}, 
               </div>
               <CompactRowList>
                 {group.transactions.map((txn) => (
-                  <TxnRow key={txn.id} txn={txn} onSelect={onSelectTxn} selectMode={selectMode} selected={selected.has(txn.id)} onToggle={() => toggle(txn.id)} />
+                  <TxnRow
+                    key={txn.id}
+                    txn={txn}
+                    onSelect={onSelectTxn}
+                    selectMode={selectMode}
+                    selected={selected.has(txn.id)}
+                    onToggle={() => toggle(txn.id)}
+                    onLongPress={!selectMode && platform !== "desktop" ? () => startSelectionWith(txn.id) : undefined}
+                  />
                 ))}
               </CompactRowList>
             </section>

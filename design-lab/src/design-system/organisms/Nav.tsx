@@ -524,6 +524,7 @@ export interface ProfileMenuItem {
 export const PROFILE_MENU: ProfileMenuItem[] = [
   { key: "notifications", label: "Notificaciones", icon: "nav-alerts", badge: "3" },
   { key: "groups", label: "Grupos", icon: "settings-groups" },
+  { key: "statements", label: "Cartolas", icon: "scan-statement" },
   { key: "settings", label: "Ajustes", icon: "nav-settings" },
   { key: "logout", label: "Cerrar sesión", icon: "svg:logout", danger: true, divider: true },
 ];
