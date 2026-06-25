@@ -5433,3 +5433,44 @@ PHASE 1: W1 COMPLETE — Exec ✅ Review ✅ Commit ✅ Push ✅. DEPLOYMENTS P8
 ## 2026-06-25 22:32 — PUSH feat/web-migration -> main (W2 PR)
 PR: https://github.com/Brownbull/gastify/pull/6 (#6, OPEN) — W2 app shell, delta vs main = W2 + bookkeeping (W1 already merged).
 CI: all web + security green; backend/mobile tests finishing. NOT merged — W2 ship is the user's next call.
+- 2026-06-25 18:46 | Write | /home/khujta/projects/apps/gastify/web/src/components/ui/Button.tsx
+- 2026-06-25 18:46 | Write | /home/khujta/projects/apps/gastify/web/src/components/ui/Card.tsx
+- 2026-06-25 18:47 | Write | /home/khujta/projects/apps/gastify/web/src/components/ui/Badge.tsx
+- 2026-06-25 18:47 | Write | /home/khujta/projects/apps/gastify/web/src/components/ui/IconTile.tsx
+- 2026-06-25 18:47 | Write | /home/khujta/projects/apps/gastify/web/src/components/ui/EmptyState.tsx
+- 2026-06-25 18:48 | Write | /home/khujta/projects/apps/gastify/web/src/routes/settings.tsx
+- 2026-06-25 18:49 | Write | /home/khujta/projects/apps/gastify/web/src/routes/notifications.tsx
+- 2026-06-25 18:53 | Edit | /home/khujta/projects/apps/gastify/web/.gitignore
+- 2026-06-25 18:54 | Write | /home/khujta/projects/apps/gastify/tests/web-e2e/w3-settings-notifications.spec.ts
+- 2026-06-25 18:55 | Write | /tmp/claude-1000/-home-khujta-projects-apps-gastify/54614bed-7177-4b86-813f-86de68955392/scratchpad/w3-commit-msg.txt
+
+## 2026-06-25 18:56 — [3b88c81] feat(web): W3 settings + notifications — geometric screen port + ui primitives
+FINDINGS: 0 (gate clean — CHECK6 no PENDING match on touched files; CHECK7 routes/components map to skip; CHECK8 ui/*.tsx + tests/** allowed)
+ACTIONS: none
+DEFERRED: none
+
+## 2026-06-25 18:56 — PHASE EXEC COMPLETE: Phase 3 — W3 · Settings + Notifications
+TIER: mvp
+TASKS: 6 (T1  port ui primitives Button/Card/Badge/IconTile/EmptyState → web/src/components/ui/ · T2 settings restyle · T3 notifications restyle · T4 no new i18n keys · T5 verify · T6 prod-data Playwright proof), 1 commit (3b88c81)
+DEVIATIONS: 0 structural, 1 minor (added web/.gitignore .env.*-e2e pattern so the prod-pointing proof env with creds can't be committed — security fix caught when the new env file showed untracked-not-ignored)
+VERIFIED: tsc + vite build green; vitest 137/137; eslint 0 errors; check:token-classes green (108 files); Playwright proof against REAL PROD DATA — settings shows live profile/currency(CLP)/date-format from the prod API, notifications shows the geometric empty state.
+RUNTIME EVIDENCE: tests/web-e2e/proof/w3-settings-notifications/{settings-desktop,notifications-mobile}.png (vite --mode prod-e2e :5174 → prod API, e2e test-user auth via shared Firebase). First use of the prod-data proof path (creds the user surfaced).
+
+## 2026-06-25 18:58 — PHASE 3 REVIEW: W3 · Settings + Notifications
+VERDICT: APPROVE
+FINDINGS: 2 total (0 critical, 0 high, 0 medium, 2 low)
+COVERAGE: MEDIUM — screens covered by data-testids + 137 vitest; ui primitives presentational (no unit tests, covered via screens)
+CONFIDENCE: 88/100
+DEFERRED: P92 (settings section titles hardcoded English → settings i18n pass)
+SECURITY: verified clean — no .env/secret files or credential strings in the commit; .env.prod-e2e gitignored + untracked (gitignore .env.*-e2e fix landed in the commit).
+ALIGNMENT: ALIGNED | TIER: mvp | DRIFT: none | TICK: ✅
+NOTES: clean restyle, all data wiring + data-testids preserved. Dismissed: L#2 card-title top spacing (cosmetic). Proven against real prod data.
+
+## 2026-06-25 23:00 — MERGE+DEPLOY: PR #6 (W2) → main → production
+PR: #6 MERGED (merge commit fbfe701). W2 app shell live on production.
+PROD VERIFY: gastify-web-production HTTP 200; /pixel-icons/nav-home.png 200 (W2-added assets serve) — geometric shell deployed.
+PHASE 2: W2 COMPLETE — Exec/Review/Commit/Push all ✅. DEPLOYMENTS P88.
+
+## 2026-06-25 23:00 — PUSH feat/web-migration -> main (W3 PR)
+PR: https://github.com/Brownbull/gastify/pull/7 (#7, OPEN) — W3 settings+notifications, delta vs main = W3 + bookkeeping (W2 already merged).
+CI: all web + security green; backend/mobile tests finishing. NOT merged — W3 ship is the user's next call.
