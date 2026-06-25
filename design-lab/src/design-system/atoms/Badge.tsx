@@ -15,8 +15,8 @@ export interface BadgeProps {
 }
 
 const toneClasses: Record<BadgeTone, string> = {
-  positive: "bg-gt-success text-gt-ink",
-  negative: "bg-gt-error text-white",
+  positive: "bg-gt-positive text-gt-ink",
+  negative: "bg-gt-negative text-white",
   neutral: "bg-gt-bg-3 text-gt-ink",
   warning: "bg-gt-accent text-gt-ink",
   primary: "bg-gt-primary text-white",

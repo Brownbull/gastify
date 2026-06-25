@@ -114,7 +114,7 @@ function SelectionSlots({ facet, selected, flash }: { facet: FilterFacet; select
           className="pointer-events-none absolute inset-y-0 right-0 flex items-center gap-gt-4"
           style={{ animation: "gt-flash-in 2000ms ease-out both" }}
         >
-          <span className="max-w-[150px] truncate rounded-gt-pill px-gt-8 py-gt-2 font-gt-display text-gt-sm font-extrabold leading-none text-gt-ink" style={{ backgroundColor: "rgba(251,191,36,0.30)" }}>
+          <span className="max-w-[150px] truncate rounded-gt-pill px-gt-8 py-gt-2 font-gt-display text-gt-sm font-extrabold leading-none text-gt-ink" style={{ backgroundColor: "color-mix(in srgb, var(--accent) 30%, transparent)" }}>
             {flash.label}
           </span>
           <span className="grid h-8 w-8 shrink-0 place-items-center rounded-gt-md border-2 border-gt-line-strong bg-gt-bg-3 shadow-gt-xs">

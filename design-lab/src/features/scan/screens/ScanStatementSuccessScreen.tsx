@@ -49,7 +49,7 @@ export function ScanStatementSuccessScreen({
     <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden bg-gt-bg">
       {/* celebration hero + result recap */}
       <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-gt-16 overflow-y-auto px-gt-16 py-gt-16 text-center">
-        <div className="grid h-24 w-24 shrink-0 place-items-center rounded-gt-pill border-2 border-gt-line-strong shadow-gt-sm" style={{ backgroundColor: "rgba(16,185,129,0.15)" }}>
+        <div className="grid h-24 w-24 shrink-0 place-items-center rounded-gt-pill border-2 border-gt-line-strong shadow-gt-sm" style={{ backgroundColor: "color-mix(in srgb, var(--positive-primary) 15%, transparent)" }}>
           <PixelIcon name="scan-success" size={56} />
         </div>
 

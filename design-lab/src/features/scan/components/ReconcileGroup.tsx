@@ -69,7 +69,7 @@ export function ReconcileGroup({ label, count, icon, accent, tint, open, onToggl
         <span
           className="grid h-7 min-w-7 shrink-0 place-items-center rounded-gt-pill border-2 px-gt-4 text-gt-sm font-extrabold leading-none transition"
           style={done
-            ? { borderColor: "var(--positive-primary)", backgroundColor: "rgba(16,185,129,0.16)", color: "var(--positive-primary)" }
+            ? { borderColor: "var(--positive-primary)", backgroundColor: "color-mix(in srgb, var(--positive-primary) 16%, transparent)", color: "var(--positive-primary)" }
             : { borderColor: "var(--border-medium)", backgroundColor: "var(--surface)", color: "var(--text-primary)" }}
         >
           {count}

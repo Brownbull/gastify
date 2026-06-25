@@ -66,7 +66,7 @@ export function TxnLockPopup({ txn, onClose, onOpenDetail }: { txn: BrowseTransa
           {matched ? (
             <>
               <LinkRow icon="status-sync" label="conciliada con" />
-              <div className="flex flex-col gap-gt-6 rounded-gt-xl border-2 border-gt-line-strong px-gt-12 py-gt-10 shadow-gt-xs" style={{ backgroundColor: "rgba(139,92,246,0.08)" }}>
+              <div className="flex flex-col gap-gt-6 rounded-gt-xl border-2 border-gt-line-strong px-gt-12 py-gt-10 shadow-gt-xs" style={{ backgroundColor: "color-mix(in srgb, var(--primary) 8%, transparent)" }}>
                 <div className="flex items-center gap-gt-10">
                   <span className="grid h-10 w-10 shrink-0 place-items-center rounded-gt-lg border-2 border-gt-line-strong bg-gt-surface">
                     <PixelIcon name="scan-statement" size={22} />

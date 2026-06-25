@@ -32,7 +32,7 @@ export function ItemRow({ item, index, density = "tight", tone = "default", acce
 
   const numbers = accessory ?? (
     <span className="flex shrink-0 flex-col items-end">
-      <span className={`font-gt-display text-gt-md font-extrabold leading-tight ${tone === "negative" ? "text-gt-error" : "text-gt-ink"}`}>
+      <span className={`font-gt-display text-gt-md font-extrabold leading-tight ${tone === "negative" ? "text-gt-negative" : "text-gt-ink"}`}>
         {clp(item.total)}
       </span>
       <span className="text-gt-xs font-medium leading-tight text-gt-ink-2">{clp(item.unitPrice)} ×{item.units}</span>

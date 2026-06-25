@@ -19,7 +19,7 @@ function StatementRow({ s, onOpen, onDelete }: { s: StatementSummary; onOpen?: (
   return (
     <div className="flex items-stretch">
       <button type="button" onClick={onOpen} className="flex min-w-0 flex-1 items-center gap-gt-10 px-gt-12 py-gt-10 text-left transition hover:bg-gt-bg-3">
-      <span className="grid h-11 w-11 shrink-0 place-items-center rounded-gt-xl border-2 border-gt-line-strong" style={{ backgroundColor: "rgba(139,92,246,0.12)" }}>
+      <span className="grid h-11 w-11 shrink-0 place-items-center rounded-gt-xl border-2 border-gt-line-strong" style={{ backgroundColor: "color-mix(in srgb, var(--primary) 12%, transparent)" }}>
         <PixelIcon name="scan-statement" size={26} />
       </span>
       <span className="flex min-w-0 flex-1 flex-col gap-gt-2">
