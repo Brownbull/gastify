@@ -30,14 +30,21 @@ export interface Currency {
   symbol: string;
   /** max decimal places allowed in prices for this currency. */
   decimals: 0 | 2;
+  /** USD per 1 unit (the write-once FX shadow; mock rates). */
+  usdRate: number;
 }
 
 export const AVAILABLE_CURRENCIES: Currency[] = [
-  { code: "CLP", symbol: "$", decimals: 0 },
-  { code: "USD", symbol: "US$", decimals: 2 },
-  { code: "EUR", symbol: "€", decimals: 2 },
-  { code: "GBP", symbol: "£", decimals: 2 },
+  { code: "CLP", symbol: "$", decimals: 0, usdRate: 0.00108 },
+  { code: "USD", symbol: "US$", decimals: 2, usdRate: 1 },
+  { code: "EUR", symbol: "€", decimals: 2, usdRate: 1.08 },
+  { code: "GBP", symbol: "£", decimals: 2, usdRate: 1.27 },
 ];
+
+/** USD-equivalent of an amount (the FX shadow shown next to local totals). */
+export function toUsd(amount: number, code: CurrencyCode): number {
+  return amount * getCurrency(code).usdRate;
+}
 
 export function getCurrency(code: CurrencyCode): Currency {
   return AVAILABLE_CURRENCIES.find((c) => c.code === code) ?? AVAILABLE_CURRENCIES[0];

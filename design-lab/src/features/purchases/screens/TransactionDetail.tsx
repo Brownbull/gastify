@@ -19,7 +19,7 @@ import { PixelIcon } from "@design-system/assets/PixelIcon";
 import type { Platform } from "@design-system/organisms/AppSurface";
 import { sampleTxn, type TxnCadence, type TxnDetail, type TxnItem } from "@lib/transactionFixtures";
 import { CASH, SAMPLE_CARDS } from "@lib/paymentMethods";
-import { formatMoney, type CurrencyCode } from "@lib/scanFixtures";
+import { formatMoney, toUsd, type CurrencyCode } from "@lib/scanFixtures";
 
 /**
  * TransactionDetail (Phase 9) — a SAVED boleta, reached by tapping a transaction
@@ -214,6 +214,10 @@ export function TransactionDetail({ txn = sampleTxn, onBack, onSave, onDelete, l
           ) : (
             <TransactionTotal total={total} itemCount={itemCount} onSave={onSave} onDelete={() => setConfirmDelete(true)} saveLabel="Guardar" format={fmt} />
           )}
+          {/* FX shadow — USD-equivalent of the total (write-once historical rate) */}
+          {currency !== "USD" ? (
+            <p className="pt-gt-4 text-center text-gt-xs font-medium text-gt-ink-3">≈ US${Math.round(toUsd(total, currency)).toLocaleString("es-CL")} al tipo de cambio del día</p>
+          ) : null}
         </div>
       </div>
 
