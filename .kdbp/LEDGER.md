@@ -5298,3 +5298,15 @@ NOTE: USER — follow-up to [1603007]: the standalone Features/Spending/Screens/
 - 2026-06-25 14:16 | Write | /home/khujta/.claude/projects/-home-khujta-projects-apps-gastify/memory/project_production_direct.md
 - 2026-06-25 14:17 | Edit | /home/khujta/.claude/projects/-home-khujta-projects-apps-gastify/memory/MEMORY.md
 - 2026-06-25 14:20 | Write | /tmp/claude-1000/-home-khujta-projects-apps-gastify/5dd2ff51-a253-4a0a-ad11-7fe2bffdb43d/scratchpad/commitmsg.txt
+
+## 2026-06-25 14:21 — [2a7b4be] feat(infra): production-direct policy + drop staging lanes + prod test login
+FINDINGS: 0 (0 critical, 0 high, 0 medium, 0 low)
+ACTIONS: none
+DEFERRED: none
+NOTE: Railway staging + staging-e2e environments deleted (live infra); prod web VITE_* + API CORS provisioned with --skip-deploys (inert until deploy). Code not yet deployed to prod web.
+
+## 2026-06-25 14:28 — PUSH feat/phase6-items-reports -> main
+PR: https://github.com/Brownbull/gastify/pull/4 (99 commits; NOT merged)
+CI: running (watch in progress)
+PROMOTION: N/A (PR open; merge triggers prod web+api redeploy)
+DEPLOYMENTS: P7 (added row to .kdbp/DEPLOYMENTS.md)
