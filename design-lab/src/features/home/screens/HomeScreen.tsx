@@ -5,6 +5,7 @@ import { StatusCard } from "@design-system/molecules/StatusCard";
 import { PeriodNav } from "@design-system/molecules/PeriodNav";
 import type { Platform } from "@design-system/organisms/AppSurface";
 import { MonthTreemapCard } from "../components/MonthTreemapCard";
+import { GravityCentersCard } from "../components/GravityCentersCard";
 import { RecentTransactionsCard } from "../components/RecentTransactionsCard";
 import { sampleHome, type HomeScreenModel } from "../model/HomeScreenModel";
 
@@ -77,6 +78,7 @@ export function HomeScreen({ model = sampleHome, loading = false, platform = "mo
     </StatusCard>
   ) : null;
   const treemap = <MonthTreemapCard blocks={model.treemap} />;
+  const gravity = <GravityCentersCard />;
   const recent = <RecentTransactionsCard transactions={model.recent} />;
 
   const topBar = (
@@ -105,6 +107,7 @@ export function HomeScreen({ model = sampleHome, loading = false, platform = "mo
           hero
         )}
         {treemap}
+        {gravity}
         {recent}
       </div>
     );
@@ -116,6 +119,7 @@ export function HomeScreen({ model = sampleHome, loading = false, platform = "mo
       {hero}
       {insight}
       {treemap}
+      {gravity}
       {recent}
     </div>
   );
