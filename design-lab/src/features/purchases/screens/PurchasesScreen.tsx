@@ -12,7 +12,7 @@ import { Pagination } from "@design-system/molecules/Pagination";
 import { GroupedCategoryPicker } from "@design-system/molecules/GroupedCategoryPicker";
 import type { Platform } from "@design-system/organisms/AppSurface";
 import { selectionCount, type FilterSelection } from "@design-system/organisms/FilterSheet";
-import { BROWSE_TRANSACTIONS, BROWSE_FACETS, BROWSE_TOTAL, BROWSE_TXN_COUNT, periodLabel, type DateGroup, type BrowseTransaction } from "@lib/browseFixtures";
+import { BROWSE_TRANSACTIONS, BROWSE_FACETS, periodLabel, type DateGroup, type BrowseTransaction } from "@lib/browseFixtures";
 import { clp } from "@lib/transactionFixtures";
 
 /**
@@ -148,6 +148,10 @@ export function PurchasesScreen({ groups = BROWSE_TRANSACTIONS, selection = {}, 
       .filter((t) => !removedIds.has(t.id))
       .map((t) => ({ t: categoryOverride[t.id] ? { ...t, category: categoryOverride[t.id] } : t, groupDate: g.date })),
   );
+  // band count/total reflect what's actually shown (the groups prop, minus deletes)
+  // — equal to the global totals for the full Compras tab, accurate when filtered.
+  const visibleCount = flat.length;
+  const visibleTotal = flat.reduce((s, { t }) => s + t.total, 0);
   const pageCount = Math.max(1, Math.ceil(flat.length / PAGE_SIZE));
   const current = Math.min(page, pageCount);
   const pageFlat = flat.slice((current - 1) * PAGE_SIZE, current * PAGE_SIZE);
@@ -199,7 +203,7 @@ export function PurchasesScreen({ groups = BROWSE_TRANSACTIONS, selection = {}, 
               </div>
               <div className="mt-gt-8 flex items-center justify-between gap-gt-8">
                 <p className="text-gt-sm font-bold text-gt-ink-2">
-                  {BROWSE_TXN_COUNT} boletas · <span className="font-extrabold text-gt-primary">{clp(BROWSE_TOTAL)}</span>
+                  {visibleCount} boletas · <span className="font-extrabold text-gt-primary">{clp(visibleTotal)}</span>
                 </p>
                 <button type="button" onClick={enterSelect} className="shrink-0 font-gt-display text-gt-sm font-extrabold text-gt-primary">Seleccionar</button>
               </div>

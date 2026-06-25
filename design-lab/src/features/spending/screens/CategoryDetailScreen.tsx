@@ -1,5 +1,6 @@
 import { AppHeader } from "@design-system/organisms/Nav";
 import { PixelIcon } from "@design-system/assets/PixelIcon";
+import { Button } from "@design-system/atoms/Button";
 import { CompactRow, CompactRowList } from "@design-system/molecules/CompactRowList";
 import { ThumbnailBadge } from "@design-system/molecules/ThumbnailBadge";
 import type { Platform } from "@design-system/organisms/AppSurface";
@@ -31,6 +32,8 @@ function findSegment(id: string): SegmentDatum | undefined {
 export interface CategoryDetailScreenProps {
   categoryId: string;
   onBack?: () => void;
+  /** open the full transaction list filtered to this category (host-owned). */
+  onOpenTransactions?: () => void;
   platform?: Platform;
 }
 
@@ -39,12 +42,13 @@ export interface CategoryDetailScreenProps {
  * Gastos legend count-pill opens it): a summary (icon + total + share + trend),
  * the sub-category breakdown (drillChildren), and that category's transactions.
  */
-export function CategoryDetailScreen({ categoryId, onBack, platform = "mobile" }: CategoryDetailScreenProps) {
+export function CategoryDetailScreen({ categoryId, onBack, onOpenTransactions, platform = "mobile" }: CategoryDetailScreenProps) {
   const token = getCategoryToken(categoryId);
   const seg = findSegment(categoryId);
   const children = drillChildren(categoryId) ?? [];
   const childMax = children.reduce((m, c) => Math.max(m, c.value), 0) || 1;
-  const txns: BrowseTransaction[] = BROWSE_TRANSACTIONS.flatMap((g) => g.transactions).filter((t) => t.category === categoryId).slice(0, 5);
+  const allTxns: BrowseTransaction[] = BROWSE_TRANSACTIONS.flatMap((g) => g.transactions).filter((t) => t.category === categoryId);
+  const txns = allTxns.slice(0, 5);
   const delta = TREND[categoryId] ?? -5;
   const down = delta <= 0;
   const contentMax = platform === "desktop" ? "44rem" : undefined;
@@ -121,6 +125,11 @@ export function CategoryDetailScreen({ categoryId, onBack, platform = "mobile" }
                   />
                 ))}
               </CompactRowList>
+              {onOpenTransactions ? (
+                <Button variant="secondary" size="md" fullWidth onClick={onOpenTransactions}>
+                  Ver todas las transacciones ({allTxns.length})
+                </Button>
+              ) : null}
             </section>
           ) : null}
         </div>
