@@ -9,7 +9,7 @@ import { HelpSubview } from "./HelpSubview";
 import { PreferencesSubview } from "./PreferencesSubview";
 import { ScanSubview } from "./ScanSubview";
 import { MemorySubview } from "./MemorySubview";
-import { DataSubview } from "./DataSubview";
+import { PrivacySubview } from "./PrivacySubview";
 
 /**
  * SettingsFlow — the Ajustes navigation container mounted as the AppScaffold
@@ -30,7 +30,7 @@ const SUBVIEWS: Record<string, ComponentType<SubviewProps>> = {
   preferences: PreferencesSubview,
   scanning: ScanSubview,
   memory: MemorySubview,
-  data: DataSubview,
+  data: PrivacySubview,
 };
 
 export function SettingsFlow({ onClose }: { onClose?: () => void }) {

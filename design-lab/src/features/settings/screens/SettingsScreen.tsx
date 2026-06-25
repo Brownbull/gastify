@@ -57,7 +57,7 @@ const GROUPS: SettingsGroup[] = [
     heading: "Datos y privacidad",
     rows: [
       { key: "memory", label: "Mi memoria", subtitle: "Categorización aprendida", icon: "settings-memory" },
-      { key: "data", label: "Datos y respaldo", subtitle: "Exporta o restablece tus gastos", icon: "shield-finance" },
+      { key: "data", label: "Datos y privacidad", subtitle: "Consentimiento, exportar y eliminar", icon: "shield-finance" },
     ],
   },
   {
