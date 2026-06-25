@@ -5148,6 +5148,10 @@ NOTE: USER (on flows-spending--spending) reworked the donut + treemap click mode
 ## 2026-06-25 — reflect icon/count model in standalone SpendingScreen story [1adc5ce]  [MOCKUPS]
 GATES: gates ✅ · types ✅ · build ✅ · storybook 222/222 · Playwright proof
 NOTE: USER — follow-up to [1603007]: the standalone Features/Spending/Screens/SpendingScreen story's count pills were inert (GastosInShell only wired onOpenCategory). Mirrored the Flows/Spending routing — +onOpenHistory → transactions(Compras filtered to L1) / items(Productos) overlay, CategoryDetail "Ver todas" → transactions list, overlay precedence history > detail > scan(FAB). Now the count pills route the same as the flow. Verified the standalone story's "15 transacciones — ver" → Movimientos · Supermercados (9 boletas · $165.750). PLAN.md untouched (mockup lane).
+
+## 2026-06-25 — standardize flow-story titles under Flows/ [a894b68]  [MOCKUPS]
+GATES: gates ✅ · types ✅ · build ✅ · storybook 222/222
+NOTE: USER chose "polish & close the mockups". (1) Flow-title standardization: AuthFlow ("Features/Auth/Screens/AuthFlow" → "Flows/Auth") + SettingsFlow ("Features/Settings/Screens/SettingsFlow" → "Flows/Settings") so all four journey stories share the Flows/* namespace (Scan/Spending were already there). Title-only; story-baseline coverage HELD (40/40) — the subview/auth-screen references are file-based (a .stories.tsx referencing them), not title-based. Handoff §4 updated. STORY IDs changed: features-auth-screens-authflow--* → flows-auth--*; features-settings-screens-settingsflow--* → flows-settings--{menu,profile,subscription,…}. (2) IconButton consolidation of the square h-12 w-12 X footer buttons — NOT DONE (correctly): IconButton is rounded-pill (circle), the X buttons are rounded-gt-xl SQUARES by design to pair with the adjacent square CTA; consolidating would change their shape (regression, not cleanup). === MOCKUP PROJECT (PLAN-MOCKUPS Phases 1–10) FUNCTIONALLY COMPLETE: atoms/molecules/organisms/screens/flows ✅ · gates ✅ · handoff ✅ · 76 components · 40 screens · 4 flows · 222 storybook tests. Next lane (user's call): web/ integration · mobile/ token adapter · mockup-only product-flag decisions. === PLAN.md untouched (mockup lane).
 - 2026-06-24 16:37 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/historial/screens/HistorialScreen.tsx
 - 2026-06-24 16:38 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/historial/screens/HistorialScreen.tsx
 - 2026-06-24 16:38 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/compras/screens/ComprasScreen.tsx
@@ -5337,3 +5341,6 @@ VERIFIED: web 137 tests + tsc + vite build green; web npm audit-high clean; ruff
 - 2026-06-25 16:03 | Edit | /home/khujta/projects/apps/gastify/docs/runbooks/PRODUCTION-TEST-USER.md
 - 2026-06-25 16:03 | Write | /home/khujta/.claude/projects/-home-khujta-projects-apps-gastify/memory/project_railway_vite_build_args.md
 - 2026-06-25 16:03 | Edit | /home/khujta/.claude/projects/-home-khujta-projects-apps-gastify/memory/MEMORY.md
+- 2026-06-25 16:20 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/auth/screens/AuthFlow.stories.tsx
+- 2026-06-25 16:20 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/settings/screens/SettingsFlow.stories.tsx
+- 2026-06-25 16:20 | Edit | /home/khujta/projects/apps/gastify/docs/mockups/HANDOFF.md
