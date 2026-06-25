@@ -14,7 +14,7 @@ const meta: Meta<typeof ScanProcessingScreen> = {
   parameters: { layout: "centered" },
   tags: ["autodocs"],
   argTypes: {
-    phase: { control: "inline-radio", options: ["uploading", "processing", "ready"] as ScanPhase[] },
+    phase: { control: "inline-radio", options: ["uploading", "processing", "ready", "failed"] as ScanPhase[] },
     progress: { control: { type: "range", min: 0, max: 100, step: 5 } },
   },
   args: { phase: "uploading", progress: 45, eta: "~5 segundos" },
@@ -32,3 +32,7 @@ const inFrame: Story["render"] = (args, { globals }) => (
 export const Uploading: Story = { args: { phase: "uploading", progress: 45 }, render: inFrame };
 export const Processing: Story = { args: { phase: "processing" }, render: inFrame };
 export const Ready: Story = { args: { phase: "ready" }, render: inFrame };
+/** Failed to read the receipt → Reintentar. */
+export const Failed: Story = { args: { phase: "failed", failReason: "read" }, render: inFrame };
+/** Out of scan credits → Mejorar a Pro. */
+export const InsufficientCredits: Story = { args: { phase: "failed", failReason: "credits" }, render: inFrame };

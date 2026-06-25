@@ -101,4 +101,4 @@ export const SAMPLE_RECEIPT: ScanReceipt = {
 };
 
 /** The processing phases a scan moves through. */
-export type ScanPhase = "uploading" | "processing" | "ready";
+export type ScanPhase = "uploading" | "processing" | "ready" | "failed";
