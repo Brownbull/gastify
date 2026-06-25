@@ -5474,3 +5474,22 @@ PHASE 2: W2 COMPLETE — Exec/Review/Commit/Push all ✅. DEPLOYMENTS P88.
 ## 2026-06-25 23:00 — PUSH feat/web-migration -> main (W3 PR)
 PR: https://github.com/Brownbull/gastify/pull/7 (#7, OPEN) — W3 settings+notifications, delta vs main = W3 + bookkeeping (W2 already merged).
 CI: all web + security green; backend/mobile tests finishing. NOT merged — W3 ship is the user's next call.
+- 2026-06-25 19:17 | Write | /home/khujta/projects/apps/gastify/scripts/staging/.check-e2e-users.py
+
+## 2026-06-25 19:20 — SEED + VERIFY: prod e2e user B seeded with demo data
+TRIGGER: user asked whether the e2e test user has data + to verify features work. Both A and B had 0 transactions on prod (e2e specs create+clean in-test).
+PROD DSN: pulled from Railway (postgres-b8-i service DATABASE_PUBLIC_URL = acela.proxy.rlwy.net:44433) → .secrets/prod-dsn (gitignored, never echoed/committed). Internal GASTIFY_DATABASE_URL is railway.internal (unreachable locally); the public proxy works.
+SEEDED: ran a scratchpad copy of scripts/staging/seed-analytics-demo.py (E2E_EMAIL → user B) against the prod DSN → 101 demo transactions across 34 weeks (2025-11-03 .. today), items across all L1–L4 category levels, "Demo " prefixed + idempotent (only touches its own rows).
+VERIFIED (tests/web-e2e/seeded-data-verify.spec.ts, button B, prod-e2e :5174 → prod API): transactions list renders all 101 txns; dashboard shows CLP 95,869 / 11 txns / 27 items + the donut category breakdown + "What's shifting" insights (Minimarket GROWTH 1.54x, Open Market SHRINK) — analytics + insights work with real data. Screens are current W1-recolored (geometric port is W4/W7/W10).
+NOTE: the prod-data proof path can now show data-rich screens for W4+ by signing in as B.
+- 2026-06-25 19:24 | Write | /home/khujta/.claude/projects/-home-khujta-projects-apps-gastify/memory/project_prod_seed_e2e_data.md
+- 2026-06-25 19:24 | Edit | /home/khujta/.claude/projects/-home-khujta-projects-apps-gastify/memory/MEMORY.md
+- 2026-06-25 19:32 | Write | /home/khujta/projects/apps/gastify/web/src/routes/transactions.index.tsx
+- 2026-06-25 19:32 | Write | /home/khujta/projects/apps/gastify/web/src/routes/transactions.new.tsx
+- 2026-06-25 19:40 | Write | /home/khujta/projects/apps/gastify/tests/web-e2e/w4-transactions.spec.ts
+
+## 2026-06-25 19:45 — [commit] W4 · Transactions geometric port (list + detail + new)
+FINDINGS: 0 critical · lint 0 errors/89 warnings (pre-existing react-refresh) · types clean · vitest 137/137 · check:token-classes green (108 files) · vite build OK
+SCOPE: web/src/routes/transactions.index.tsx (list), transactions.new.tsx (new), transactions.$transactionId.tsx (detail) — restyled to Playful Geometric (Card/Button/Badge/IconTile + gt-* + geometric inputs). All logic, TanStack Query wiring, inline-edit behavior, and testids preserved (add-transaction-link, batch-*, filter-source/matched, select-all-checkbox, select-txn-{id}, txn-matched-badge, manual-*, shared-lock-badge/banner). Legacy txn specs' selectors (title="Click to edit", (edited), USD equivalent, Urgency, item names) verified intact.
+RUNTIME PROOF: tests/web-e2e/w4-transactions.spec.ts 4/4 GREEN vs LIVE prod API + user B's ~101 seeded txns (list desktop+mobile, detail w/ real items + flag pills, new form). Screenshots: tests/web-e2e/proof/w4-transactions/{list-desktop,list-mobile,detail-desktop,new-desktop}.png — visually confirmed geometric grammar (ink borders, hard shadows, violet primary, extrabold Outfit, cream canvas).
+PLAN: Phase 4 Exec ✅ Commit ✅ (Review/Push pending).

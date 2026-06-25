@@ -3,6 +3,8 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { apiClient } from "@/lib/api";
 import { PersonalOnlyNotice } from "@/components/PersonalOnlyNotice";
 import { useUiStore } from "@/stores/uiStore";
+import { Card } from "@/components/ui/Card";
+import { Button } from "@/components/ui/Button";
 
 type RefCategory = { id: string; key: string; level: number; display_labels?: Record<string, string> };
 
@@ -22,14 +24,6 @@ export const Route = createFileRoute("/transactions/new")({
   component: NewTransactionPage,
 });
 
-/**
- * Manual transaction entry (statement-hardening plan, Phase 3) over the
- * long-existing POST /transactions: merchant, date, time, place (country/city) and
- * items one-by-one; the total auto-sums from items (or can be typed when no items).
- * receipt_type="manual" — the ledger's source filter isolates these. Minimal
- * functional markup with stable testids; the visual overhaul re-skins.
- */
-
 interface DraftItem {
   name: string;
   qty: string;
@@ -40,10 +34,11 @@ interface DraftItem {
 
 const EMPTY_ITEM: DraftItem = { name: "", qty: "1", price: "", cents: "0", categoryId: "" };
 
+const inputClass =
+  "rounded-gt-lg border-2 border-gt-line bg-gt-surface px-gt-10 py-gt-8 text-gt-sm font-bold text-gt-ink focus-visible:outline-none focus-visible:border-gt-line-strong";
+
 function NewTransactionPage() {
   const navigate = useNavigate();
-  // D70: capture is personal-only. POST /transactions always writes the personal
-  // scope, so creating "inside" a group view would silently land elsewhere.
   const inGroupMode = useUiStore((s) => s.activeScope.kind === "group");
   const [merchant, setMerchant] = useState("");
   const [txDate, setTxDate] = useState("");
@@ -54,19 +49,16 @@ function NewTransactionPage() {
   const [manualTotal, setManualTotal] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
-  // User prefs + reference taxonomies (date format drives the placeholder; currency
-  // exponent decides single-integer vs whole+cents price entry).
   const [dateFormat, setDateFormat] = useState("dd/MM/yyyy");
   const [currency, setCurrency] = useState("CLP");
   const [storeCategories, setStoreCategories] = useState<RefCategory[]>([]);
   const [itemCategories, setItemCategories] = useState<RefCategory[]>([]);
   const [storeCategoryId, setStoreCategoryId] = useState("");
-  const hasCents = currency === "USD"; // exponent>0 currencies get the cents field
+  const hasCents = currency === "USD";
 
   useEffect(() => {
     apiClient.GET("/api/v1/privacy/profile").then(({ data }) => {
       if (data) {
-        // Tolerate older backends that predate these profile fields.
         setDateFormat(data.date_format ?? "dd/MM/yyyy");
         setCurrency(data.default_currency ?? "CLP");
       }
@@ -130,213 +122,124 @@ function NewTransactionPage() {
     });
   };
 
-  const inputStyle = { borderColor: "var(--border)", color: "var(--text)" };
-
   if (inGroupMode) return <PersonalOnlyNotice />;
 
   return (
-    <div className="mx-auto max-w-xl space-y-4">
-      <h1 className="text-2xl font-semibold" style={{ color: "var(--text)" }}>
-        Add transaction
-      </h1>
-      <p className="text-sm" style={{ color: "var(--text-muted)" }}>
-        No receipt photo needed — enter the details manually. With a photo, use Scan
-        instead.
-      </p>
-
-      <label className="flex flex-col gap-1 text-xs" style={{ color: "var(--text-muted)" }}>
-        Merchant *
-        <input
-          data-testid="manual-merchant"
-          value={merchant}
-          onChange={(e) => setMerchant(e.target.value)}
-          className="rounded-md border px-2 py-1.5 text-sm"
-          style={inputStyle}
-        />
-      </label>
-      <div className="flex gap-3">
-        <label className="flex flex-1 flex-col gap-1 text-xs" style={{ color: "var(--text-muted)" }}>
-          Date *
-          <input
-            type="text"
-            inputMode="numeric"
-            data-testid="manual-date"
-            placeholder={dateFormat}
-            value={txDate}
-            onChange={(e) => setTxDate(e.target.value)}
-            className="rounded-md border px-2 py-1.5 text-sm"
-            style={inputStyle}
-          />
-        </label>
-        <label className="flex flex-1 flex-col gap-1 text-xs" style={{ color: "var(--text-muted)" }}>
-          Time
-          <input
-            type="time"
-            data-testid="manual-time"
-            value={txTime}
-            onChange={(e) => setTxTime(e.target.value)}
-            className="rounded-md border px-2 py-1.5 text-sm"
-            style={inputStyle}
-          />
-        </label>
-      </div>
-      <div className="flex gap-3">
-        <label className="flex flex-1 flex-col gap-1 text-xs" style={{ color: "var(--text-muted)" }}>
-          Country
-          <input
-            data-testid="manual-country"
-            value={country}
-            onChange={(e) => setCountry(e.target.value)}
-            placeholder="CL"
-            className="rounded-md border px-2 py-1.5 text-sm"
-            style={inputStyle}
-          />
-        </label>
-        <label className="flex flex-1 flex-col gap-1 text-xs" style={{ color: "var(--text-muted)" }}>
-          City
-          <input
-            data-testid="manual-city"
-            value={city}
-            onChange={(e) => setCity(e.target.value)}
-            className="rounded-md border px-2 py-1.5 text-sm"
-            style={inputStyle}
-          />
-        </label>
+    <div className="mx-auto max-w-xl space-y-gt-16">
+      <div>
+        <h1 className="font-gt-display text-gt-4xl font-extrabold text-gt-ink">Add transaction</h1>
+        <p className="mt-gt-2 text-gt-sm font-medium text-gt-ink-2">
+          No receipt photo needed — enter the details manually. With a photo, use Scan instead.
+        </p>
       </div>
 
-      <label className="flex flex-col gap-1 text-xs" style={{ color: "var(--text-muted)" }}>
-        Category
-        <select
-          data-testid="manual-store-category"
-          value={storeCategoryId}
-          onChange={(e) => setStoreCategoryId(e.target.value)}
-          className="rounded-md border px-2 py-1.5 text-sm"
-          style={inputStyle}
-        >
-          <option value="">(none)</option>
-          {storeCategories.map((c) => (
-            <option key={c.id} value={c.id}>
-              {c.display_labels?.es ?? c.key}
-            </option>
-          ))}
-        </select>
-      </label>
-
-      <fieldset className="space-y-2">
-        <legend className="text-xs" style={{ color: "var(--text-muted)" }}>
-          Items (one by one)
-        </legend>
-        {items.map((it, i) => (
-          <div key={i} className="flex items-center gap-2">
-            <input
-              data-testid={`manual-item-name-${i}`}
-              value={it.name}
-              onChange={(e) => updateItem(i, { name: e.target.value })}
-              placeholder="Item"
-              className="flex-1 rounded-md border px-2 py-1.5 text-sm"
-              style={inputStyle}
-            />
-            <input
-              data-testid={`manual-item-qty-${i}`}
-              type="number"
-              min="0"
-              step="1"
-              value={it.qty}
-              onChange={(e) => updateItem(i, { qty: e.target.value })}
-              placeholder="Qty"
-              className="w-16 rounded-md border px-2 py-1.5 text-sm"
-              style={inputStyle}
-            />
-            <input
-              data-testid={`manual-item-price-${i}`}
-              type="number"
-              min="0"
-              step="1"
-              value={it.price}
-              onChange={(e) => updateItem(i, { price: e.target.value })}
-              placeholder={currency}
-              className="w-24 rounded-md border px-2 py-1.5 text-sm"
-              style={inputStyle}
-            />
-            {hasCents && (
-              <input
-                data-testid={`manual-item-cents-${i}`}
-                type="number"
-                min="0"
-                max="99"
-                step="1"
-                value={it.cents}
-                onChange={(e) => updateItem(i, { cents: e.target.value })}
-                placeholder="¢"
-                className="w-16 rounded-md border px-2 py-1.5 text-sm"
-                style={inputStyle}
-              />
-            )}
-            <select
-              data-testid={`manual-item-category-${i}`}
-              value={it.categoryId}
-              onChange={(e) => updateItem(i, { categoryId: e.target.value })}
-              className="w-32 rounded-md border px-2 py-1.5 text-sm"
-              style={inputStyle}
-            >
-              <option value="">(category)</option>
-              {itemCategories.map((c) => (
+      <Card>
+        <div className="space-y-gt-12">
+          <FormField label="Merchant *">
+            <input data-testid="manual-merchant" value={merchant} onChange={(e) => setMerchant(e.target.value)} className={inputClass} />
+          </FormField>
+          <div className="flex gap-gt-10">
+            <FormField label="Date *" className="flex-1">
+              <input type="text" inputMode="numeric" data-testid="manual-date" placeholder={dateFormat} value={txDate} onChange={(e) => setTxDate(e.target.value)} className={inputClass} />
+            </FormField>
+            <FormField label="Time" className="flex-1">
+              <input type="time" data-testid="manual-time" value={txTime} onChange={(e) => setTxTime(e.target.value)} className={inputClass} />
+            </FormField>
+          </div>
+          <div className="flex gap-gt-10">
+            <FormField label="Country" className="flex-1">
+              <input data-testid="manual-country" value={country} onChange={(e) => setCountry(e.target.value)} placeholder="CL" className={inputClass} />
+            </FormField>
+            <FormField label="City" className="flex-1">
+              <input data-testid="manual-city" value={city} onChange={(e) => setCity(e.target.value)} className={inputClass} />
+            </FormField>
+          </div>
+          <FormField label="Category">
+            <select data-testid="manual-store-category" value={storeCategoryId} onChange={(e) => setStoreCategoryId(e.target.value)} className={inputClass}>
+              <option value="">(none)</option>
+              {storeCategories.map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.display_labels?.es ?? c.key}
                 </option>
               ))}
             </select>
-            <button
-              type="button"
-              aria-label={`Remove item ${i + 1}`}
-              onClick={() => setItems(items.filter((_, j) => j !== i))}
-              className="text-xs"
-              style={{ color: "var(--danger, #dc2626)" }}
-            >
-              ✕
-            </button>
-          </div>
-        ))}
-        <button
-          type="button"
-          data-testid="manual-add-item"
-          onClick={() => setItems([...items, { ...EMPTY_ITEM }])}
-          className="rounded-md border px-3 py-1.5 text-sm"
-          style={{ borderColor: "var(--border)", color: "var(--primary)" }}
-        >
-          + Add item
-        </button>
-      </fieldset>
+          </FormField>
+        </div>
+      </Card>
 
-      <label className="flex flex-col gap-1 text-xs" style={{ color: "var(--text-muted)" }}>
-        Total ({currency}{hasCents ? ", in cents-composed minor units" : ""}) {items.length > 0 ? "— auto-summed from items" : "*"}
-        <input
-          type="number"
-          min="0"
-          data-testid="manual-total"
-          value={items.length > 0 ? String(itemsTotal) : manualTotal}
-          readOnly={items.length > 0}
-          onChange={(e) => setManualTotal(e.target.value)}
-          className="rounded-md border px-2 py-1.5 text-sm"
-          style={inputStyle}
-        />
-      </label>
+      <Card title="Items">
+        <fieldset className="space-y-gt-8">
+          <legend className="sr-only">Items (one by one)</legend>
+          {items.map((it, i) => (
+            <div key={i} className="flex flex-wrap items-center gap-gt-6 rounded-gt-lg border-2 border-gt-line bg-gt-surface p-gt-8">
+              <input data-testid={`manual-item-name-${i}`} value={it.name} onChange={(e) => updateItem(i, { name: e.target.value })} placeholder="Item" className={`${inputClass} flex-1`} />
+              <input data-testid={`manual-item-qty-${i}`} type="number" min="0" step="1" value={it.qty} onChange={(e) => updateItem(i, { qty: e.target.value })} placeholder="Qty" className={`${inputClass} w-16`} />
+              <input data-testid={`manual-item-price-${i}`} type="number" min="0" step="1" value={it.price} onChange={(e) => updateItem(i, { price: e.target.value })} placeholder={currency} className={`${inputClass} w-24`} />
+              {hasCents && (
+                <input data-testid={`manual-item-cents-${i}`} type="number" min="0" max="99" step="1" value={it.cents} onChange={(e) => updateItem(i, { cents: e.target.value })} placeholder="¢" className={`${inputClass} w-16`} />
+              )}
+              <select data-testid={`manual-item-category-${i}`} value={it.categoryId} onChange={(e) => updateItem(i, { categoryId: e.target.value })} className={`${inputClass} w-32`}>
+                <option value="">(category)</option>
+                {itemCategories.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.display_labels?.es ?? c.key}
+                  </option>
+                ))}
+              </select>
+              <button
+                type="button"
+                aria-label={`Remove item ${i + 1}`}
+                onClick={() => setItems(items.filter((_, j) => j !== i))}
+                className="grid h-7 w-7 place-items-center rounded-gt-md text-gt-negative transition hover:bg-gt-negative/10"
+              >
+                ✕
+              </button>
+            </div>
+          ))}
+          <button
+            type="button"
+            data-testid="manual-add-item"
+            onClick={() => setItems([...items, { ...EMPTY_ITEM }])}
+            className="flex w-full items-center justify-center gap-gt-6 rounded-gt-xl bg-gt-surface px-gt-12 py-gt-10 font-gt-display text-gt-sm font-extrabold text-gt-primary transition duration-150 ease-gt-bounce hover:-translate-y-0.5 hover:bg-gt-primary-soft"
+            style={{ border: "2px dashed var(--border-medium)" }}
+          >
+            <span className="text-gt-lg leading-none">+</span> Add item
+          </button>
+        </fieldset>
+      </Card>
 
-      {error && (
-        <p className="text-sm" role="alert" style={{ color: "var(--danger, #dc2626)" }}>
-          {error}
-        </p>
-      )}
-      <button
-        type="button"
-        data-testid="manual-save"
-        disabled={!canSave}
-        onClick={submit}
-        className="rounded-md px-4 py-2 text-sm font-medium disabled:opacity-40"
-        style={{ backgroundColor: "var(--primary)", color: "white" }}
-      >
-        Save transaction
-      </button>
+      <Card>
+        <FormField label={`Total (${currency}${hasCents ? ", cents-composed minor units" : ""}) ${items.length > 0 ? "— auto-summed from items" : "*"}`}>
+          <input
+            type="number"
+            min="0"
+            data-testid="manual-total"
+            value={items.length > 0 ? String(itemsTotal) : manualTotal}
+            readOnly={items.length > 0}
+            onChange={(e) => setManualTotal(e.target.value)}
+            className={`${inputClass} ${items.length > 0 ? "opacity-70" : ""}`}
+          />
+        </FormField>
+        {error && (
+          <p className="mt-gt-8 text-gt-sm font-bold text-gt-negative" role="alert">
+            {error}
+          </p>
+        )}
+        <div className="mt-gt-12">
+          <Button variant="success" fullWidth data-testid="manual-save" disabled={!canSave} onClick={submit}>
+            Save transaction
+          </Button>
+        </div>
+      </Card>
     </div>
+  );
+}
+
+function FormField({ label, className = "", children }: { label: string; className?: string; children: React.ReactNode }) {
+  return (
+    <label className={`flex flex-col gap-gt-4 ${className}`}>
+      <span className="font-gt-display text-gt-xs font-extrabold uppercase tracking-wide text-gt-ink-3">{label}</span>
+      {children}
+    </label>
   );
 }

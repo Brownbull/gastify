@@ -9,11 +9,14 @@ import {
 import { useStoreCategories } from "@/hooks/useCategories";
 import { formatMinorAmount, formatDate } from "@/lib/format";
 import type { components } from "@/lib/api-types";
+import { Card } from "@/components/ui/Card";
+import { Button } from "@/components/ui/Button";
+import { Badge } from "@/components/ui/Badge";
+import { IconTile } from "@/components/ui/IconTile";
+import { EmptyState } from "@/components/ui/EmptyState";
 
 type TransactionListItem = components["schemas"]["TransactionListItem"];
 
-/** URL search for deep-linking the list pre-filtered (e.g. the Reports "view
- *  transactions" drill seeds a period's date range). */
 interface TransactionsSearch {
   dateFrom?: string;
   dateTo?: string;
@@ -27,9 +30,11 @@ export const Route = createFileRoute("/transactions/")({
   component: TransactionsListPage,
 });
 
+const inputClass =
+  "rounded-gt-lg border-2 border-gt-line bg-gt-surface px-gt-10 py-gt-6 text-gt-sm font-bold text-gt-ink focus-visible:outline-none focus-visible:border-gt-line-strong";
+
 function TransactionsListPage() {
   const search = Route.useSearch();
-  // Seed the filter from the URL (drill-in), then it's local component state.
   const [filters, setFilters] = useState<TransactionFilters>(() => ({
     dateFrom: search.dateFrom,
     dateTo: search.dateTo,
@@ -37,14 +42,8 @@ function TransactionsListPage() {
   const deferredFilters = useDeferredValue(filters);
   const [selected, setSelected] = useState<Set<string>>(new Set());
 
-  const {
-    data,
-    isLoading,
-    isFetchingNextPage,
-    hasNextPage,
-    fetchNextPage,
-    error,
-  } = useTransactions(deferredFilters);
+  const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage, error } =
+    useTransactions(deferredFilters);
 
   const transactions = data?.pages.flatMap((page) => page.data) ?? [];
 
@@ -59,78 +58,77 @@ function TransactionsListPage() {
 
   const toggleAll = useCallback(() => {
     setSelected((prev) =>
-      prev.size === transactions.length
-        ? new Set()
-        : new Set(transactions.map((t) => t.id)),
+      prev.size === transactions.length ? new Set() : new Set(transactions.map((t) => t.id)),
     );
   }, [transactions]);
 
   const clearSelection = useCallback(() => setSelected(new Set()), []);
+  const allSelected = transactions.length > 0 && selected.size === transactions.length;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-gt-16">
       <div>
-        <h1
-          className="text-2xl font-semibold"
-          style={{ color: "var(--text)" }}
-        >
-          Transactions
-        </h1>
-        <p
-          className="mt-1 text-sm"
-          style={{ color: "var(--text-secondary)" }}
-        >
-          View and manage your expense history.
-        </p>
+        <h1 className="font-gt-display text-gt-4xl font-extrabold text-gt-ink">Transactions</h1>
+        <p className="mt-gt-2 text-gt-sm font-medium text-gt-ink-2">View and manage your expense history.</p>
       </div>
 
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex items-start justify-between gap-gt-12">
         <FilterBar filters={filters} onChange={setFilters} />
-        <Link
-          to="/transactions/new"
-          data-testid="add-transaction-link"
-          className="shrink-0 rounded-md border px-3 py-1.5 text-sm font-medium"
-          style={{ borderColor: "var(--border)", color: "var(--primary)" }}
-        >
-          + Add
+        <Link to="/transactions/new" data-testid="add-transaction-link" className="shrink-0">
+          <Button size="sm">+ Add</Button>
         </Link>
       </div>
 
       {selected.size > 0 && (
-        <BatchActionBar
-          count={selected.size}
-          selectedIds={[...selected]}
-          onDone={clearSelection}
-        />
+        <BatchActionBar count={selected.size} selectedIds={[...selected]} onDone={clearSelection} />
       )}
 
       {error && <ErrorBanner message={error.message} />}
 
       {isLoading ? (
-        <SkeletonTable />
+        <SkeletonList />
       ) : transactions.length === 0 ? (
-        <EmptyState hasFilters={Object.values(filters).some(Boolean)} />
+        <EmptyState
+          iconName="nav-history"
+          title={Object.values(filters).some(Boolean) ? "No transactions match your filters" : "No transactions yet"}
+          message={
+            Object.values(filters).some(Boolean)
+              ? "Try adjusting your date range or search terms."
+              : "Scan a receipt to create your first transaction."
+          }
+        />
       ) : (
         <>
-          <TransactionTable
-            transactions={transactions}
-            selected={selected}
-            onToggle={toggleSelect}
-            onToggleAll={toggleAll}
-          />
+          <Card padded={false}>
+            <div className="flex items-center gap-gt-10 border-b-2 border-gt-line px-gt-12 py-gt-8">
+              <input
+                type="checkbox"
+                checked={allSelected}
+                onChange={toggleAll}
+                aria-label="Select all transactions"
+                data-testid="select-all-checkbox"
+                className="h-5 w-5 accent-gt-primary"
+              />
+              <span className="text-gt-xs font-extrabold uppercase tracking-wide text-gt-ink-3">
+                {transactions.length} transactions
+              </span>
+            </div>
+            <ul className="flex flex-col divide-y-2 divide-gt-line">
+              {transactions.map((txn) => (
+                <TransactionRow
+                  key={txn.id}
+                  txn={txn}
+                  isSelected={selected.has(txn.id)}
+                  onToggle={() => toggleSelect(txn.id)}
+                />
+              ))}
+            </ul>
+          </Card>
           {hasNextPage && (
-            <div className="flex justify-center pt-2">
-              <button
-                onClick={() => void fetchNextPage()}
-                disabled={isFetchingNextPage}
-                className="rounded-lg px-6 py-2 text-sm font-medium transition-colors disabled:opacity-50"
-                style={{
-                  color: "var(--primary)",
-                  backgroundColor: "var(--primary-light)",
-                }}
-              >
+            <div className="flex justify-center pt-gt-2">
+              <Button variant="secondary" size="sm" onClick={() => void fetchNextPage()} disabled={isFetchingNextPage}>
                 {isFetchingNextPage ? "Loading..." : "Load more"}
-              </button>
+              </Button>
             </div>
           )}
         </>
@@ -168,53 +166,24 @@ function BatchActionBar({ count, selectedIds, onDone }: BatchActionBarProps) {
 
   return (
     <div
-      className="flex flex-wrap items-center gap-3 rounded-lg border px-4 py-3"
-      style={{
-        backgroundColor: "var(--primary-light)",
-        borderColor: "var(--primary)",
-      }}
+      className="flex flex-wrap items-center gap-gt-10 rounded-gt-xl border-2 border-gt-line-strong bg-gt-primary-soft px-gt-16 py-gt-12 shadow-gt-sm"
       data-testid="batch-action-bar"
     >
-      <span className="text-sm font-medium" style={{ color: "var(--primary)" }}>
-        {count} selected
-      </span>
-
-      <button
-        onClick={() => void handleDelete()}
-        disabled={batchDelete.isPending}
-        className="rounded-md px-3 py-1.5 text-sm font-medium text-white"
-        style={{ backgroundColor: "var(--error)" }}
-        data-testid="batch-delete-button"
-      >
+      <span className="font-gt-display text-gt-sm font-extrabold text-gt-primary">{count} selected</span>
+      <Button variant="danger" size="sm" onClick={() => void handleDelete()} disabled={batchDelete.isPending} data-testid="batch-delete-button">
         {batchDelete.isPending ? "Deleting..." : "Delete"}
-      </button>
-
+      </Button>
       <div className="relative">
-        <button
-          onClick={() => setShowCategoryPicker((v) => !v)}
-          className="rounded-md border px-3 py-1.5 text-sm font-medium"
-          style={{
-            borderColor: "var(--primary)",
-            color: "var(--primary)",
-          }}
-          data-testid="batch-reassign-button"
-        >
+        <Button variant="secondary" size="sm" onClick={() => setShowCategoryPicker((v) => !v)} data-testid="batch-reassign-button">
           Reassign category
-        </button>
+        </Button>
         {showCategoryPicker && categories && (
-          <div
-            className="absolute left-0 top-full z-10 mt-1 max-h-60 w-56 overflow-y-auto rounded-lg border shadow-lg"
-            style={{
-              backgroundColor: "var(--surface)",
-              borderColor: "var(--border)",
-            }}
-          >
+          <div className="absolute left-0 top-full z-10 mt-gt-2 max-h-60 w-56 overflow-y-auto rounded-gt-xl border-2 border-gt-line-strong bg-gt-surface p-gt-4 shadow-gt-md">
             {categories.map((cat) => (
               <button
                 key={cat.id}
                 onClick={() => void handleReassign(cat.id)}
-                className="block w-full px-3 py-2 text-left text-sm hover:bg-(--primary-light)"
-                style={{ color: "var(--text)" }}
+                className="block w-full rounded-gt-md px-gt-10 py-gt-8 text-left text-gt-sm font-bold text-gt-ink transition hover:bg-gt-bg-3"
               >
                 {(cat.display_labels?.en as string) ?? cat.key}
               </button>
@@ -222,12 +191,7 @@ function BatchActionBar({ count, selectedIds, onDone }: BatchActionBarProps) {
           </div>
         )}
       </div>
-
-      <button
-        onClick={onDone}
-        className="ml-auto text-sm"
-        style={{ color: "var(--text-secondary)" }}
-      >
+      <button onClick={onDone} className="ml-auto text-gt-sm font-bold text-gt-ink-2">
         Cancel
       </button>
     </div>
@@ -240,121 +204,48 @@ interface FilterBarProps {
 }
 
 function FilterBar({ filters, onChange }: FilterBarProps) {
-  const update = (partial: Partial<TransactionFilters>) =>
-    onChange({ ...filters, ...partial });
+  const update = (partial: Partial<TransactionFilters>) => onChange({ ...filters, ...partial });
   const { data: categories } = useStoreCategories();
 
   return (
-    <fieldset
-      className="flex flex-wrap gap-3 rounded-lg border p-4"
-      style={{
-        backgroundColor: "var(--surface)",
-        borderColor: "var(--border)",
-      }}
-    >
+    <fieldset className="flex flex-wrap items-end gap-gt-10 rounded-gt-2xl border-2 border-gt-line-strong bg-gt-surface p-gt-16 shadow-gt-sm">
       <legend className="sr-only">Filter transactions</legend>
-
-      <label className="flex flex-col gap-1">
-        <span className="text-xs" style={{ color: "var(--text-muted)" }}>
-          From
-        </span>
-        <input
-          type="date"
-          value={filters.dateFrom ?? ""}
-          onChange={(e) => update({ dateFrom: e.target.value || undefined })}
-          className="rounded-md border px-3 py-1.5 text-sm"
-          style={{
-            borderColor: "var(--border)",
-            backgroundColor: "var(--bg-secondary)",
-            color: "var(--text)",
-          }}
-        />
-      </label>
-
-      <label className="flex flex-col gap-1">
-        <span className="text-xs" style={{ color: "var(--text-muted)" }}>
-          To
-        </span>
-        <input
-          type="date"
-          value={filters.dateTo ?? ""}
-          onChange={(e) => update({ dateTo: e.target.value || undefined })}
-          className="rounded-md border px-3 py-1.5 text-sm"
-          style={{
-            borderColor: "var(--border)",
-            backgroundColor: "var(--bg-secondary)",
-            color: "var(--text)",
-          }}
-        />
-      </label>
-
-      <label className="flex flex-col gap-1">
-        <span className="text-xs" style={{ color: "var(--text-muted)" }}>
-          Merchant
-        </span>
-        <input
-          type="text"
-          placeholder="Search..."
-          value={filters.merchant ?? ""}
-          onChange={(e) => update({ merchant: e.target.value || undefined })}
-          className="rounded-md border px-3 py-1.5 text-sm"
-          style={{
-            borderColor: "var(--border)",
-            backgroundColor: "var(--bg-secondary)",
-            color: "var(--text)",
-          }}
-        />
-      </label>
-      <label className="flex flex-col gap-1 text-xs" style={{ color: "var(--text-muted)" }}>
-        Source
+      <Field label="From">
+        <input type="date" value={filters.dateFrom ?? ""} onChange={(e) => update({ dateFrom: e.target.value || undefined })} className={inputClass} />
+      </Field>
+      <Field label="To">
+        <input type="date" value={filters.dateTo ?? ""} onChange={(e) => update({ dateTo: e.target.value || undefined })} className={inputClass} />
+      </Field>
+      <Field label="Merchant">
+        <input type="text" placeholder="Search..." value={filters.merchant ?? ""} onChange={(e) => update({ merchant: e.target.value || undefined })} className={inputClass} />
+      </Field>
+      <Field label="Source">
         <select
           data-testid="filter-source"
           value={filters.source ?? ""}
-          onChange={(e) =>
-            update({ source: (e.target.value || undefined) as TransactionFilters["source"] })
-          }
-          className="rounded-md border px-2 py-1.5 text-sm"
-          style={{ borderColor: "var(--border)", color: "var(--text)" }}
+          onChange={(e) => update({ source: (e.target.value || undefined) as TransactionFilters["source"] })}
+          className={inputClass}
         >
           <option value="">All</option>
           <option value="scan">Scan</option>
           <option value="manual">Manual</option>
           <option value="statement">Statement</option>
         </select>
-      </label>
-      <label className="flex flex-col gap-1 text-xs" style={{ color: "var(--text-muted)" }}>
-        Statement match
+      </Field>
+      <Field label="Statement match">
         <select
           data-testid="filter-matched"
           value={filters.matched === undefined ? "" : String(filters.matched)}
-          onChange={(e) =>
-            update({
-              matched: e.target.value === "" ? undefined : e.target.value === "true",
-            })
-          }
-          className="rounded-md border px-2 py-1.5 text-sm"
-          style={{ borderColor: "var(--border)", color: "var(--text)" }}
+          onChange={(e) => update({ matched: e.target.value === "" ? undefined : e.target.value === "true" })}
+          className={inputClass}
         >
           <option value="">All</option>
           <option value="true">Matched</option>
           <option value="false">Unmatched</option>
         </select>
-      </label>
-
-      <label className="flex flex-col gap-1">
-        <span className="text-xs" style={{ color: "var(--text-muted)" }}>
-          Category
-        </span>
-        <select
-          value={filters.category ?? ""}
-          onChange={(e) => update({ category: e.target.value || undefined })}
-          className="rounded-md border px-3 py-1.5 text-sm"
-          style={{
-            borderColor: "var(--border)",
-            backgroundColor: "var(--bg-secondary)",
-            color: "var(--text)",
-          }}
-        >
+      </Field>
+      <Field label="Category">
+        <select value={filters.category ?? ""} onChange={(e) => update({ category: e.target.value || undefined })} className={inputClass}>
           <option value="">All</option>
           {categories?.map((cat) => (
             <option key={cat.id} value={cat.id}>
@@ -362,113 +253,25 @@ function FilterBar({ filters, onChange }: FilterBarProps) {
             </option>
           ))}
         </select>
-      </label>
-
-      <label className="flex flex-col gap-1">
-        <span className="text-xs" style={{ color: "var(--text-muted)" }}>
-          Currency
-        </span>
-        <input
-          type="text"
-          placeholder="e.g. CLP"
-          maxLength={3}
-          value={filters.currency ?? ""}
-          onChange={(e) =>
-            update({ currency: e.target.value.toUpperCase() || undefined })
-          }
-          className="w-20 rounded-md border px-3 py-1.5 text-sm uppercase"
-          style={{
-            borderColor: "var(--border)",
-            backgroundColor: "var(--bg-secondary)",
-            color: "var(--text)",
-          }}
-        />
-      </label>
-
+      </Field>
+      <Field label="Currency">
+        <input type="text" placeholder="CLP" maxLength={3} value={filters.currency ?? ""} onChange={(e) => update({ currency: e.target.value.toUpperCase() || undefined })} className={`${inputClass} w-20 uppercase`} />
+      </Field>
       {Object.values(filters).some(Boolean) && (
-        <button
-          type="button"
-          onClick={() => onChange({})}
-          className="self-end rounded-md px-3 py-1.5 text-sm"
-          style={{ color: "var(--text-secondary)" }}
-        >
+        <Button variant="ghost" size="sm" onClick={() => onChange({})}>
           Clear
-        </button>
+        </Button>
       )}
     </fieldset>
   );
 }
 
-interface TransactionTableProps {
-  transactions: readonly TransactionListItem[];
-  selected: Set<string>;
-  onToggle: (id: string) => void;
-  onToggleAll: () => void;
-}
-
-function TransactionTable({
-  transactions,
-  selected,
-  onToggle,
-  onToggleAll,
-}: TransactionTableProps) {
-  const allSelected = transactions.length > 0 && selected.size === transactions.length;
-
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div
-      className="overflow-x-auto rounded-lg border"
-      style={{
-        backgroundColor: "var(--surface)",
-        borderColor: "var(--border)",
-      }}
-    >
-      <table className="w-full text-sm">
-        <thead>
-          <tr
-            className="border-b text-left"
-            style={{ borderColor: "var(--border)" }}
-          >
-            <th scope="col" className="w-10 px-3 py-3">
-              <input
-                type="checkbox"
-                checked={allSelected}
-                onChange={onToggleAll}
-                aria-label="Select all transactions"
-                data-testid="select-all-checkbox"
-              />
-            </th>
-            <th scope="col" className="px-4 py-3 font-medium" style={{ color: "var(--text-muted)" }}>
-              Date
-            </th>
-            <th scope="col" className="px-4 py-3 font-medium" style={{ color: "var(--text-muted)" }}>
-              Merchant
-            </th>
-            <th scope="col" className="px-4 py-3 text-right font-medium" style={{ color: "var(--text-muted)" }}>
-              Amount
-            </th>
-            <th scope="col" className="hidden px-4 py-3 text-right font-medium sm:table-cell" style={{ color: "var(--text-muted)" }}>
-              USD
-            </th>
-            <th scope="col" className="hidden px-4 py-3 text-center font-medium md:table-cell" style={{ color: "var(--text-muted)" }}>
-              Items
-            </th>
-            <th scope="col" className="hidden px-4 py-3 font-medium lg:table-cell" style={{ color: "var(--text-muted)" }}>
-              Type
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {transactions.map((txn) => (
-            <TransactionRow
-              key={txn.id}
-              txn={txn}
-              isSelected={selected.has(txn.id)}
-              onToggle={() => onToggle(txn.id)}
-            />
-          ))}
-        </tbody>
-      </table>
-    </div>
+    <label className="flex flex-col gap-gt-2">
+      <span className="px-gt-2 text-gt-xs font-extrabold uppercase tracking-wide text-gt-ink-3">{label}</span>
+      {children}
+    </label>
   );
 }
 
@@ -479,182 +282,80 @@ interface TransactionRowProps {
 }
 
 function TransactionRow({ txn, isSelected, onToggle }: TransactionRowProps) {
-  const isEdited =
-    txn.merchant_user_edited_at != null ||
-    txn.store_category_user_edited_at != null;
+  const isEdited = txn.merchant_user_edited_at != null || txn.store_category_user_edited_at != null;
 
   return (
-    <tr
-      className="border-b transition-colors last:border-b-0 hover:bg-(--primary-light)"
-      style={{
-        borderColor: "var(--border)",
-        backgroundColor: isSelected ? "var(--primary-light)" : undefined,
-      }}
-    >
-      <td className="px-3 py-3">
-        <input
-          type="checkbox"
-          checked={isSelected}
-          onChange={onToggle}
-          aria-label={`Select ${txn.merchant}`}
-          data-testid={`select-txn-${txn.id}`}
-        />
-      </td>
-      <td className="px-4 py-3" style={{ color: "var(--text-secondary)" }}>
-        {formatDate(txn.transaction_date)}
-      </td>
-      <td className="px-4 py-3">
-        <Link
-          to="/transactions/$transactionId"
-          params={{ transactionId: txn.id }}
-          className="font-medium hover:underline"
-          style={{ color: "var(--text)" }}
-        >
-          {txn.merchant}
-        </Link>
-        {isEdited && (
-          <span
-            className="ml-1.5 text-xs"
-            style={{ color: "var(--secondary)" }}
-            title="User edited"
+    <li className={`flex items-center gap-gt-10 px-gt-12 py-gt-10 transition hover:bg-gt-bg-3 ${isSelected ? "bg-gt-primary-soft" : ""}`}>
+      <input
+        type="checkbox"
+        checked={isSelected}
+        onChange={onToggle}
+        aria-label={`Select ${txn.merchant}`}
+        data-testid={`select-txn-${txn.id}`}
+        className="h-5 w-5 shrink-0 accent-gt-primary"
+      />
+      <IconTile icon="nav-history" size="md" />
+      <div className="flex min-w-0 flex-1 flex-col gap-gt-2">
+        <span className="flex items-center gap-gt-6">
+          <Link
+            to="/transactions/$transactionId"
+            params={{ transactionId: txn.id }}
+            className="truncate font-gt-display text-gt-md font-extrabold text-gt-ink hover:underline"
           >
-            (edited)
-          </span>
-        )}
-        {txn.alias && (
-          <span
-            className="ml-1.5 text-xs"
-            style={{ color: "var(--text-muted)" }}
-          >
-            {txn.alias}
-          </span>
-        )}
-      </td>
-      <td
-        className="px-4 py-3 text-right font-medium tabular-nums"
-        style={{ color: "var(--text)" }}
-      >
-        {formatMinorAmount(txn.total_minor, txn.currency)}
-      </td>
-      <td
-        className="hidden px-4 py-3 text-right tabular-nums sm:table-cell"
-        style={{ color: "var(--text-muted)" }}
-      >
-        {txn.amount_usd_minor != null
-          ? formatMinorAmount(txn.amount_usd_minor, "USD")
-          : "—"}
-      </td>
-      <td
-        className="hidden px-4 py-3 text-center md:table-cell"
-        style={{ color: "var(--text-muted)" }}
-      >
-        {txn.item_count}
-      </td>
-      <td className="hidden px-4 py-3 lg:table-cell">
-        {txn.statement_matched && (
-          <span
-            data-testid="txn-matched-badge"
-            className="mr-1 inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium"
-            style={{ color: "var(--success, #15803d)", backgroundColor: "var(--success-light, #dcfce7)" }}
-            title="Matched against a card statement"
-          >
-            ✓ Matched
-          </span>
-        )}
-        {txn.receipt_type && (
-          <span
-            className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium"
-            style={{
-              color: "var(--primary)",
-              backgroundColor: "var(--primary-light)",
-            }}
-          >
-            {txn.receipt_type}
-          </span>
-        )}
-      </td>
-    </tr>
+            {txn.merchant}
+          </Link>
+          {isEdited && <span className="shrink-0 text-gt-xs font-bold text-gt-secondary" title="User edited">(edited)</span>}
+          {txn.alias && <span className="shrink-0 truncate text-gt-xs font-medium text-gt-ink-3">{txn.alias}</span>}
+        </span>
+        <span className="flex flex-wrap items-center gap-gt-6 text-gt-xs font-bold text-gt-ink-3">
+          <span>{formatDate(txn.transaction_date)}</span>
+          <span aria-hidden>·</span>
+          <span>{txn.item_count} items</span>
+          {txn.amount_usd_minor != null && (
+            <>
+              <span aria-hidden>·</span>
+              <span>{formatMinorAmount(txn.amount_usd_minor, "USD")}</span>
+            </>
+          )}
+        </span>
+      </div>
+      <div className="flex shrink-0 flex-col items-end gap-gt-2">
+        <span className="font-gt-display text-gt-md font-extrabold tabular-nums text-gt-ink">
+          {formatMinorAmount(txn.total_minor, txn.currency)}
+        </span>
+        <span className="flex items-center gap-gt-4">
+          {txn.statement_matched && (
+            <span data-testid="txn-matched-badge">
+              <Badge tone="positive">✓ Matched</Badge>
+            </span>
+          )}
+          {txn.receipt_type && <Badge tone="neutral">{txn.receipt_type}</Badge>}
+        </span>
+      </div>
+    </li>
   );
 }
 
-function SkeletonTable() {
+function SkeletonList() {
   return (
-    <div
-      className="overflow-hidden rounded-lg border"
-      style={{
-        backgroundColor: "var(--surface)",
-        borderColor: "var(--border)",
-      }}
-      aria-busy="true"
-      aria-label="Loading transactions"
-    >
-      {Array.from({ length: 8 }, (_, i) => (
-        <div
-          key={i}
-          className="flex items-center gap-4 border-b px-4 py-3 last:border-b-0"
-          style={{ borderColor: "var(--border)" }}
-        >
-          <div
-            className="h-4 w-20 animate-pulse rounded"
-            style={{ backgroundColor: "var(--border)" }}
-          />
-          <div
-            className="h-4 w-32 animate-pulse rounded"
-            style={{ backgroundColor: "var(--border)" }}
-          />
-          <div
-            className="ml-auto h-4 w-24 animate-pulse rounded"
-            style={{ backgroundColor: "var(--border)" }}
-          />
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function EmptyState({ hasFilters }: { hasFilters: boolean }) {
-  return (
-    <div
-      className="rounded-lg border p-12 text-center"
-      style={{
-        backgroundColor: "var(--surface)",
-        borderColor: "var(--border)",
-      }}
-    >
-      <p
-        className="text-lg font-medium"
-        style={{ color: "var(--text-secondary)" }}
-      >
-        {hasFilters
-          ? "No transactions match your filters"
-          : "No transactions yet"}
-      </p>
-      <p className="mt-1 text-sm" style={{ color: "var(--text-muted)" }}>
-        {hasFilters
-          ? "Try adjusting your date range or search terms."
-          : "Scan a receipt to create your first transaction."}
-      </p>
-    </div>
+    <Card padded={false}>
+      <ul className="flex flex-col divide-y-2 divide-gt-line" aria-busy="true" aria-label="Loading transactions">
+        {Array.from({ length: 8 }, (_, i) => (
+          <li key={i} className="flex items-center gap-gt-10 px-gt-12 py-gt-10">
+            <span className="h-11 w-11 shrink-0 animate-pulse rounded-gt-lg bg-gt-bg-3" />
+            <span className="h-4 w-40 animate-pulse rounded-gt-md bg-gt-bg-3" />
+            <span className="ml-auto h-4 w-24 animate-pulse rounded-gt-md bg-gt-bg-3" />
+          </li>
+        ))}
+      </ul>
+    </Card>
   );
 }
 
 function ErrorBanner({ message }: { message: string }) {
   return (
-    <div
-      className="rounded-lg border p-4"
-      style={{
-        borderColor: "var(--error)",
-        backgroundColor:
-          "color-mix(in srgb, var(--error) 10%, transparent)",
-      }}
-      role="alert"
-    >
-      <p
-        className="text-sm font-medium"
-        style={{ color: "var(--error)" }}
-      >
-        {message}
-      </p>
+    <div className="rounded-gt-xl border-2 border-gt-error bg-gt-error/5 px-gt-16 py-gt-12" role="alert">
+      <p className="text-gt-sm font-bold text-gt-error">{message}</p>
     </div>
   );
 }
