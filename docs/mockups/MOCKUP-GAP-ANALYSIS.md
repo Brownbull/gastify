@@ -47,6 +47,26 @@ Legend: ✅ mocked · 🟡 partial · ❌ missing in mockups.
 13. ✅ **Statements list** screen + password-protected note. Built (StatementsListScreen, 115625c).
 14. Minor states: insufficient-credit error, scan-disabled-in-group-scope notice. _Open._
 
+## Audit round 2 (2026-06-25) — use-cases ↔ mockups
+
+Cross-checked every documented use case (PLAN-MOCKUPS, SCOPE, UI-FEATURE-INVENTORY, the completed feature-parity / insights / statement plans) against the current 95-story mockup surface. Coverage is high; the genuinely-missing pieces:
+
+**Screens / views still missing**
+- **Temporal trend chart ("Tendencia")** — spend over time (weeks/months/quarters/years, bar/line). Gastos has the 3 *distribution* reps (Dona/Mapa/Flujo) + Reportes (cards + within-period sparklines), but no spend-over-time series chart. This is the app's "Trends/Tendencia series" view. _The most notable missing view (also = open gap #12)._
+- **Single-scan failure + retry** state and **insufficient-credit error** (ScanProcessingScreen has uploading/processing/ready only — no `failed`), plus the **scan-disabled-in-group-scope** notice. _( = open gap #14)._
+
+**Options missing on existing screens**
+- **Matched/shared badge on transaction LIST rows** — only the *detail* shows the locked state; the Compras rows don't flag reconciled/shared txns.
+- **Delete-statement action** on the statements list (the unlock note exists, no affordance).
+- **Mark-as-unread** on a notification (only mark-read + delete exist).
+- **Scan review "needs review" / math-warning** banner (math-gate fail / low confidence on a single scan).
+- **Donut dimension toggle** (by store-category vs by item) — partial.
+- **USD-equivalent display** (FX shadow) — not surfaced anywhere (nice-to-have).
+
+**Intentionally deferred (not gaps)** — batch scan (deferred by user), cohort benchmarking + boleta-QR (post-MVP).
+
+**Fully covered** — auth/landing, home (+ gravity), manual entry (+ cancel), transactions list (+ batch/long-press), transaction detail (+ edit/flag/locked/view-toggle), items browse, single-scan capture→review→save, statement upload→reconcile→confirm→success + statements list, spending donut/treemap/sankey + category drill-down, history (txns/products/reports + report detail), groups (create/invite/join/scope/share/member-admin/leave/delete/consent), notifications (paginate/read/delete), settings (profile/subscription/cards+default/limits/scanning/preferences/memory/privacy+consent/help), card aliases, privacy/consent + audit + export + delete.
+
 ## Mockup-only / not backed by the app (flag — decide keep-aspirational vs needs-backend)
 
 - **Límites de gasto** (Settings) — user-set spending budgets/limits. The app has gravity-center *alerts* but **no budgets** → aspirational or needs a backend.
