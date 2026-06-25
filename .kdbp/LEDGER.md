@@ -5360,3 +5360,28 @@ HTML_ARTIFACT: none
 BRANCH: feat/web-migration (off the real tip; 305 commits ahead of stale local main)
 - 2026-06-25 17:12 | Write | /home/khujta/projects/apps/gastify/web/scripts/generate-tokens-css.mjs
 - 2026-06-25 17:12 | Edit | /home/khujta/projects/apps/gastify/web/package.json
+
+## 2026-06-25 17:30 — [b01d2fc] feat(web): W1 token foundation — Playful Geometric palette + gt-* utilities
+FINDINGS: 1 (0 critical, 0 high, 1 medium, 0 low)
+ACTIONS: 1:update-structure (added web/scripts/**/*.mjs allowed pattern, mirrors design-lab/scripts)
+DEFERRED: none
+
+## 2026-06-25 17:30 — PHASE EXEC COMPLETE: Phase 1 — W1 · Token foundation
+TIER: mvp
+TASKS: 6 (T1 tokens+generator · T2 global.css swap+fonts · T3 theme collapse · T4 token-check+CI · T5 verify · T6 Playwright proof), 1 commit (b01d2fc)
+DEVIATIONS: 0 structural, 1 minor (settings e2e theme-toggle test removed — direct consequence of dropping the switcher; orphaned i18n theme keys left for the Wf sweep)
+VERIFIED: tsc + vite build green; vitest 137/137; eslint 0 errors (88 pre-existing warnings); check:token-classes green (100 files); Playwright /sign-in recolor proof desktop+mobile — gastify violet-on-cream + Outfit confirmed.
+RUNTIME EVIDENCE: tests/web-e2e/proof/w1-token-foundation/{sign-in-desktop,sign-in-mobile}.png (local vite :5188 staging-e2e mode). Protected-route visual proof deferred to production verify at /gabe-push (no local backend; D97).
+- 2026-06-25 17:32 | Write | /home/khujta/.claude/projects/-home-khujta-projects-apps-gastify/memory/project_web_e2e_clean_port.md
+- 2026-06-25 17:33 | Edit | /home/khujta/.claude/projects/-home-khujta-projects-apps-gastify/memory/MEMORY.md
+
+## 2026-06-25 17:35 — PHASE 1 REVIEW: W1 · Token foundation
+VERDICT: APPROVE
+FINDINGS: 4 total (0 critical, 0 high, 1 medium, 3 low)
+COVERAGE: MEDIUM — CSS/token changes inherently unit-test-free; behavioral change (theme removal) covered by build + updated e2e + 137 vitest green
+CONFIDENCE: 84/100
+DEFERRED: P90 (orphaned i18n theme keys → Wf sweep)
+ALIGNMENT: ALIGNED (W1 token-foundation diff + epic-opening KDBP scaffolding)
+TIER: mvp | DRIFT: none
+TICK: ✅
+NOTES: blast radius verified clean (0 dangling theme-API consumers, 0 dead data-theme/.dark writes). Accepted: M#1 runtime-evidence-partial (sign-in proven; protected-route recolor planned for production verify at /gabe-push). Dismissed: L#3 stale localStorage theme keys (harmless), L#4 Google-Fonts CDN (standard, mirrors design-lab, Enterprise-gate).
