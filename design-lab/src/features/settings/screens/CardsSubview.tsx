@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { PixelIcon } from "@design-system/assets/PixelIcon";
-import { InlineText } from "@design-system/molecules/InlineText";
 import { AddCardForm } from "@design-system/molecules/AddCardForm";
 import { SettingsSubviewShell, SettingsGroupHeading } from "../components/SettingsSubviewShell";
 import { SAMPLE_CARDS, MAX_CARDS, softBgFor, type PaymentMethod } from "@lib/paymentMethods";
@@ -14,17 +13,22 @@ function CardTile({ card }: { card: PaymentMethod }) {
   );
 }
 
-function ActiveCardRow({ card, onRename, onArchive }: { card: PaymentMethod; onRename: (v: string) => void; onArchive: () => void }) {
+function ActiveCardRow({ card, isDefault, onEdit, onArchive }: { card: PaymentMethod; isDefault: boolean; onEdit: () => void; onArchive: () => void }) {
   return (
-    <div className="flex items-center gap-gt-12 px-gt-4 py-gt-8">
-      <CardTile card={card} />
-      <InlineText
-        value={card.label}
-        onChange={(v) => onRename(v.slice(0, 20))}
-        cap={20}
-        ariaLabel="Nombre de la tarjeta"
-        className="min-w-0 flex-1 truncate font-gt-display text-gt-md font-extrabold text-gt-ink"
-      />
+    <div className="flex items-center gap-gt-8 px-gt-4 py-gt-6">
+      {/* tap the card → edit popup (name / color / icon / default) */}
+      <button type="button" onClick={onEdit} aria-label={`Editar ${card.label}`} className="flex min-w-0 flex-1 items-center gap-gt-12 rounded-gt-lg px-gt-2 py-gt-4 text-left transition hover:bg-gt-bg-3">
+        <CardTile card={card} />
+        <span className="flex min-w-0 flex-1 flex-col gap-gt-2">
+          <span className="truncate font-gt-display text-gt-md font-extrabold text-gt-ink">{card.label}</span>
+          {isDefault ? (
+            <span className="inline-flex w-fit items-center gap-gt-2 rounded-gt-pill bg-gt-primary-soft px-gt-6 py-gt-0 font-gt-display text-gt-xs font-extrabold text-gt-primary">
+              <PixelIcon name="scan-success" size={13} /> Predeterminada
+            </span>
+          ) : null}
+        </span>
+        <span aria-hidden="true" className="h-2.5 w-2.5 shrink-0 -rotate-45 border-b-2 border-r-2 border-gt-ink-3" />
+      </button>
       <button
         type="button"
         onClick={onArchive}
@@ -55,21 +59,29 @@ function ArchivedCardRow({ card, onRestore }: { card: PaymentMethod; onRestore: 
 /**
  * Mis tarjetas subview — card aliases for statement reconciliation (backend
  * card_aliases, REQ-09). You NAME your cards ("CMR Falabella", "Débito BCI");
- * NO numbers / CVV / expiry are ever stored. Rename inline, add (AddCardForm),
- * or archive (kept for historical pairings, restorable). Picked when uploading a
- * cartola so its charges reconcile to the right card.
+ * NO numbers / CVV / expiry are ever stored. Tap a card to edit it (alias, color,
+ * icon, and whether it's your default method — marked "Predeterminada"); add via
+ * AddCardForm; archive (kept for historical pairings, restorable).
  */
 export function CardsSubview({ onBack }: { onBack?: () => void }) {
   const [cards, setCards] = useState<PaymentMethod[]>(SAMPLE_CARDS);
   const [archived, setArchived] = useState<PaymentMethod[]>([]);
+  const [defaultId, setDefaultId] = useState<string | null>(SAMPLE_CARDS[0]?.id ?? null);
   const [addOpen, setAddOpen] = useState(false);
+  const [editCard, setEditCard] = useState<PaymentMethod | null>(null);
 
-  const rename = (id: string, label: string) => setCards((prev) => prev.map((c) => (c.id === id ? { ...c, label } : c)));
+  const saveCard = (card: PaymentMethod, makeDefault?: boolean) => {
+    setCards((prev) => (prev.some((c) => c.id === card.id) ? prev.map((c) => (c.id === card.id ? card : c)) : [...prev, card]));
+    if (makeDefault) setDefaultId(card.id);
+    else if (defaultId === card.id) setDefaultId(null); // toggled off on its own card
+  };
   const archive = (id: string) => {
     const card = cards.find((c) => c.id === id);
     if (!card) return;
-    setCards((prev) => prev.filter((c) => c.id !== id));
+    const rest = cards.filter((c) => c.id !== id);
+    setCards(rest);
     setArchived((prev) => [...prev, card]);
+    if (defaultId === id) setDefaultId(rest[0]?.id ?? null);
   };
   const restore = (id: string) => {
     const card = archived.find((c) => c.id === id);
@@ -89,7 +101,7 @@ export function CardsSubview({ onBack }: { onBack?: () => void }) {
         {cards.length > 0 ? (
           <div className="flex flex-col">
             {cards.map((c) => (
-              <ActiveCardRow key={c.id} card={c} onRename={(v) => rename(c.id, v)} onArchive={() => archive(c.id)} />
+              <ActiveCardRow key={c.id} card={c} isDefault={c.id === defaultId} onEdit={() => setEditCard(c)} onArchive={() => archive(c.id)} />
             ))}
           </div>
         ) : (
@@ -120,7 +132,17 @@ export function CardsSubview({ onBack }: { onBack?: () => void }) {
         ) : null}
       </SettingsSubviewShell>
 
-      <AddCardForm open={addOpen} onClose={() => setAddOpen(false)} onSave={(card) => setCards((prev) => [...prev, card])} />
+      {/* add */}
+      <AddCardForm open={addOpen} onClose={() => setAddOpen(false)} defaultable onSave={(card, makeDefault) => saveCard(card, makeDefault)} />
+      {/* edit (prefilled with the tapped card) */}
+      <AddCardForm
+        open={editCard != null}
+        initial={editCard ?? undefined}
+        defaultable
+        initialDefault={editCard != null && editCard.id === defaultId}
+        onClose={() => setEditCard(null)}
+        onSave={(card, makeDefault) => saveCard(card, makeDefault)}
+      />
     </div>
   );
 }

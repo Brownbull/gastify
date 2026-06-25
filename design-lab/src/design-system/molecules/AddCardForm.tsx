@@ -1,40 +1,52 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { PixelIcon } from "@design-system/assets/PixelIcon";
 import { Button } from "@design-system/atoms/Button";
 import { Input } from "@design-system/atoms/Input";
+import { Switch } from "@design-system/atoms/Switch";
 import { Modal } from "@design-system/atoms/Modal";
 import { CARD_COLOR_CHOICES, CARD_ICON_CHOICES, hexToRgba, type PaymentMethod } from "@lib/paymentMethods";
 
 /**
- * AddCardForm — the "Agregar tarjeta" popup (DM-10). Pick an alias, a fin-*
- * pixel icon, and an accent color. No card data is stored — these are display
- * attributes only. On save, emits a new card PaymentMethod (kind "card").
+ * AddCardForm — the card alias popup (DM-10). Pick an alias, a fin-* pixel icon,
+ * and an accent color. No card data is stored — these are display attributes
+ * only. Emits a card PaymentMethod (kind "card") + whether to make it default.
+ * Pass `initial` to EDIT an existing card (prefilled, keeps its id).
  */
 export interface AddCardFormProps {
   open: boolean;
   onClose: () => void;
-  onSave: (card: PaymentMethod) => void;
+  /** when set, edit that card (prefilled, keeps its id) instead of adding a new one. */
+  initial?: PaymentMethod;
+  /** show the "Método predeterminado" toggle. */
+  defaultable?: boolean;
+  initialDefault?: boolean;
+  onSave: (card: PaymentMethod, makeDefault?: boolean) => void;
 }
 
 function slug(s: string): string {
   return s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "card";
 }
 
-export function AddCardForm({ open, onClose, onSave }: AddCardFormProps) {
+export function AddCardForm({ open, onClose, initial, defaultable = false, initialDefault = false, onSave }: AddCardFormProps) {
+  const editing = initial != null;
   const [alias, setAlias] = useState("");
   const [icon, setIcon] = useState<string>(CARD_ICON_CHOICES[0]);
   const [color, setColor] = useState<string>(CARD_COLOR_CHOICES[0]);
+  const [makeDefault, setMakeDefault] = useState(false);
 
-  const reset = () => {
-    setAlias("");
-    setIcon(CARD_ICON_CHOICES[0]);
-    setColor(CARD_COLOR_CHOICES[0]);
-  };
+  // seed (or reseed) from `initial` whenever the form opens.
+  useEffect(() => {
+    if (!open) return;
+    setAlias(initial?.label ?? "");
+    setIcon(initial?.icon ?? CARD_ICON_CHOICES[0]);
+    setColor(initial?.color ?? CARD_COLOR_CHOICES[0]);
+    setMakeDefault(initialDefault);
+  }, [open, initial, initialDefault]);
 
   const handleSave = () => {
     const label = alias.trim() || "Nueva tarjeta";
-    onSave({ id: slug(label), kind: "card", label, icon, color });
-    reset();
+    const id = initial?.id ?? slug(label);
+    onSave({ id, kind: "card", label, icon, color }, makeDefault);
     onClose();
   };
 
@@ -42,7 +54,7 @@ export function AddCardForm({ open, onClose, onSave }: AddCardFormProps) {
     <Modal
       open={open}
       onClose={onClose}
-      title="Agregar tarjeta"
+      title={editing ? "Editar tarjeta" : "Agregar tarjeta"}
       footer={
         <div className="flex gap-gt-8">
           <Button variant="secondary" fullWidth onClick={onClose}>
@@ -108,6 +120,18 @@ export function AddCardForm({ open, onClose, onSave }: AddCardFormProps) {
             ))}
           </div>
         </div>
+
+        {/* default-method toggle (CardsSubview) */}
+        {defaultable ? (
+          <div className="flex items-center gap-gt-10 rounded-gt-xl border-2 border-gt-line-strong bg-gt-bg-3 px-gt-12 py-gt-10">
+            <PixelIcon name="scan-success" size={24} className="shrink-0" />
+            <span className="flex min-w-0 flex-1 flex-col gap-gt-1">
+              <span className="font-gt-display text-gt-sm font-extrabold text-gt-ink">Método predeterminado</span>
+              <span className="text-gt-xs font-medium text-gt-ink-3">Se preselecciona al registrar un gasto.</span>
+            </span>
+            <Switch checked={makeDefault} onChange={setMakeDefault} label="Método predeterminado" />
+          </div>
+        ) : null}
       </div>
     </Modal>
   );
