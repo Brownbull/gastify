@@ -245,7 +245,9 @@ describe("web golden journey", () => {
 
     expect(await screen.findByRole("heading", { name: "Dashboard" })).toBeInTheDocument();
 
-    await user.click(screen.getAllByRole("link", { name: /scan/i })[0]);
+    // scan is a FAB (DM-5), not a tab: open it, pick single-scan
+    await user.click(screen.getByRole("button", { name: "Agregar transacción" }));
+    await user.click(await screen.findByRole("menuitem", { name: "Scan" }));
     expect(await screen.findByRole("heading", { name: "Scan Receipt" })).toBeInTheDocument();
 
     const input = document.querySelector('input[type="file"]');
@@ -285,7 +287,8 @@ describe("web golden journey", () => {
     expect(await screen.findByRole("heading", { name: "Scan Complete" })).toBeInTheDocument();
     expect(MockEventSource.instances[0].closed).toBe(true);
 
-    await user.click(screen.getAllByRole("link", { name: /transactions/i })[0]);
+    // Compras tab (en: "Purchases") -> /transactions
+    await user.click(screen.getAllByRole("button", { name: "Purchases" })[0]);
 
     expect(await screen.findByRole("heading", { name: "Transactions" })).toBeInTheDocument();
     await user.click(await screen.findByRole("link", { name: "Jumbo Providencia" }));
@@ -305,7 +308,9 @@ describe("web golden journey", () => {
     window.localStorage.setItem("cached-user", "private");
     window.sessionStorage.setItem("draft", "merchant");
 
-    await user.click(screen.getAllByRole("button", { name: "Sign out" })[0]);
+    // sign out now lives in the Perfil avatar dropdown
+    await user.click(screen.getAllByRole("button", { name: "Perfil y ajustes" })[0]);
+    await user.click(await screen.findByRole("button", { name: "Sign out" }));
 
     expect(await screen.findByRole("button", { name: "Sign in with Google" })).toBeInTheDocument();
     expect(queryClient.getQueryData(["private"])).toBeUndefined();

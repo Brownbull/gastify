@@ -5385,3 +5385,51 @@ ALIGNMENT: ALIGNED (W1 token-foundation diff + epic-opening KDBP scaffolding)
 TIER: mvp | DRIFT: none
 TICK: ✅
 NOTES: blast radius verified clean (0 dangling theme-API consumers, 0 dead data-theme/.dark writes). Accepted: M#1 runtime-evidence-partial (sign-in proven; protected-route recolor planned for production verify at /gabe-push). Dismissed: L#3 stale localStorage theme keys (harmless), L#4 Google-Fonts CDN (standard, mirrors design-lab, Enterprise-gate).
+- 2026-06-25 17:49 | Write | /tmp/claude-1000/-home-khujta-projects-apps-gastify/54614bed-7177-4b86-813f-86de68955392/scratchpad/w1-pr-body.md
+
+## 2026-06-25 17:50 — PUSH feat/web-migration -> main (PR)
+PR: https://github.com/Brownbull/gastify/pull/5 (#5, OPEN, mergeable)
+CI: running at push — Web Build ✅ + Web Lint ✅ (incl. new check:token-classes); Web Test/Typecheck + backend/mobile pending
+PROMOTION: N/A — production-direct (D97); staging promotion suspended. PR NOT merged: production deploy awaits user confirmation (merge → main → Railway prod).
+DEPLOYMENTS: P86 (added row to .kdbp/DEPLOYMENTS.md)
+NOTE: branch pushed to origin/feat/web-migration (not direct-to-main); Push column stays ⬜ until merged + prod-verified.
+- 2026-06-25 18:08 | Write | /home/khujta/projects/apps/gastify/web/src/components/shell/Nav.tsx
+- 2026-06-25 18:11 | Edit | /home/khujta/projects/apps/gastify/web/src/components/shell/Nav.tsx
+- 2026-06-25 18:11 | Write | /home/khujta/projects/apps/gastify/web/src/components/AppLayout.tsx
+- 2026-06-25 18:19 | Edit | /home/khujta/projects/apps/gastify/web/src/components/shell/Nav.tsx
+- 2026-06-25 18:19 | Edit | /home/khujta/projects/apps/gastify/web/src/components/shell/Nav.tsx
+
+## 2026-06-25 18:24 — [ba5b68c] feat(web): W2 app shell — Playful Geometric 4-tab nav + ScanFab + Perfil avatar
+FINDINGS: 1 (0 critical, 0 high, 0 medium, 1 low)
+ACTIONS: CHECK6 P90 (orphaned i18n theme keys on the touched i18n.ts) — skip, deferred to Wf
+DEFERRED: none new
+
+## 2026-06-25 18:24 — PHASE EXEC COMPLETE: Phase 2 — W2 · App shell + navigation
+TIER: mvp
+TASKS: 6 (T1 assets: PixelIcon+233 PNGs+icons · T2 Nav organism port · T3 AppLayout rewrite · T4 i18n nav.purchases/spending/history · T5 verify · T6 Playwright shell proof), 1 commit (ba5b68c)
+DEVIATIONS: 0 structural, 1 minor (scope switcher not ported — reused web's existing GroupSwitcher; fixed an inherited nested-<button> bug in the SideNav profile row via AvatarCircle)
+DECISIONS: W2 IA resolved as Option A (Inicio·Compras·Gastos·Historial tabs + Perfil-as-avatar + ScanFab) — resolves the HANDOFF §4 vs Nav-component conflict in favor of the as-built Nav.
+VERIFIED: tsc + vite build green; vitest 137/137 (golden-journey nav steps updated to buttons/FAB/avatar); eslint 0 errors; check:token-classes green (103 files); Playwright shell proof desktop (SideNav) + mobile (AppHeader+BottomNav+FAB) — geometric nav renders recolored, verified by eye.
+RUNTIME EVIDENCE: tests/web-e2e/proof/w2-app-shell/{shell-desktop,shell-mobile}.png (local vite :5189 staging-e2e, e2e test-auth). Dashboard DATA empty (no live backend) — shell is data-free; full data screens verify on production.
+- 2026-06-25 18:19 | Edit | /home/khujta/projects/apps/gastify/web/src/components/shell/Nav.tsx
+
+## 2026-06-25 18:28 — PHASE 2 REVIEW: W2 · App shell + navigation
+VERDICT: APPROVE
+FINDINGS: 4 total (0 critical, 0 high, 1 medium, 3 low)
+COVERAGE: MEDIUM — nav covered by the golden journey + shell-render spec; some switch arms + presentational shell untested
+CONFIDENCE: 84/100
+DEFERRED: P91 (shell aria-labels hardcoded Spanish → i18n/a11y polish)
+DECISIONS: +D99 (W2 nav IA = Option A — resolves HANDOFF §4 vs Nav-component conflict)
+ALIGNMENT: ALIGNED
+TIER: mvp | DRIFT: none
+TICK: ✅
+NOTES: M#1 hardcoded Spanish aria-labels → deferred P91. Dismissed: L#2 dead fixture defaults (always overridden), L#3 empty FAB cost line, L#4 untested nav switch arms (trivial navigate calls). Nested-<button> bug found+fixed during exec (AvatarCircle).
+
+## 2026-06-25 22:32 — MERGE+DEPLOY: PR #5 (W1) → main → production
+PR: #5 MERGED (merge commit 1c5062c). W1 token foundation live on production.
+PROD VERIFY: gastify-web-production HTTP 200; deployed CSS :root --primary:#8b5cf6 (violet) — recolor confirmed live (not old green).
+PHASE 1: W1 COMPLETE — Exec ✅ Review ✅ Commit ✅ Push ✅. DEPLOYMENTS P87.
+
+## 2026-06-25 22:32 — PUSH feat/web-migration -> main (W2 PR)
+PR: https://github.com/Brownbull/gastify/pull/6 (#6, OPEN) — W2 app shell, delta vs main = W2 + bookkeeping (W1 already merged).
+CI: all web + security green; backend/mobile tests finishing. NOT merged — W2 ship is the user's next call.
