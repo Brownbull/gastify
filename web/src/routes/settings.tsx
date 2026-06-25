@@ -4,19 +4,22 @@ import { useAuth } from "@/hooks/useAuth";
 import { useI18n } from "@/hooks/useI18n";
 import { SUPPORTED_LOCALES, type SupportedLocale } from "@/lib/i18n";
 import { apiClient } from "@/lib/api";
+import { Card } from "@/components/ui/Card";
+import { Button } from "@/components/ui/Button";
 
 export const Route = createFileRoute("/settings")({
   component: SettingsPage,
 });
 
+const selectClass =
+  "rounded-gt-lg border-2 border-gt-line bg-gt-surface px-gt-10 py-gt-6 font-gt-display text-gt-sm font-bold text-gt-ink focus-visible:outline-none focus-visible:border-gt-line-strong disabled:opacity-50";
+
 function SettingsPage() {
   const { t } = useI18n();
 
   return (
-    <div className="mx-auto max-w-2xl space-y-8">
-      <h1 className="text-2xl font-semibold" style={{ color: "var(--text-primary)" }}>
-        {t("settings.title")}
-      </h1>
+    <div className="mx-auto max-w-2xl space-y-gt-16">
+      <h1 className="font-gt-display text-gt-4xl font-extrabold text-gt-ink">{t("settings.title")}</h1>
       <ProfileSection />
       <CurrencySection />
       <DateFormatSection />
@@ -28,27 +31,19 @@ function SettingsPage() {
   );
 }
 
-function SectionCard({ title, children }: { title: string; children: React.ReactNode }) {
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section
-      className="rounded-xl border p-6"
-      style={{ backgroundColor: "var(--surface)", borderColor: "var(--border-light)" }}
-    >
-      <h2 className="mb-4 text-lg font-semibold" style={{ color: "var(--text-primary)" }}>
-        {title}
-      </h2>
-      <div className="space-y-4">{children}</div>
-    </section>
+    <Card title={title}>
+      <div className="space-y-gt-12">{children}</div>
+    </Card>
   );
 }
 
 function FieldRow({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="flex items-center justify-between gap-4">
-      <span className="text-sm" style={{ color: "var(--text-secondary)" }}>
-        {label}
-      </span>
-      <div className="shrink-0">{children}</div>
+    <div className="flex items-center justify-between gap-gt-12">
+      <span className="font-gt-display text-gt-sm font-bold text-gt-ink-2">{label}</span>
+      <div className="flex shrink-0 items-center gap-gt-8">{children}</div>
     </div>
   );
 }
@@ -58,18 +53,14 @@ function ProfileSection() {
   const { t } = useI18n();
 
   return (
-    <SectionCard title={t("settings.profile")}>
+    <Section title={t("settings.profile")}>
       <FieldRow label={t("settings.email")}>
-        <span className="text-sm" style={{ color: "var(--text-primary)" }}>
-          {user?.email ?? "—"}
-        </span>
+        <span className="text-gt-md font-bold text-gt-ink">{user?.email ?? "—"}</span>
       </FieldRow>
       <FieldRow label={t("settings.displayName")}>
-        <span className="text-sm" style={{ color: "var(--text-primary)" }}>
-          {user?.displayName ?? "—"}
-        </span>
+        <span className="text-gt-md font-bold text-gt-ink">{user?.displayName ?? "—"}</span>
       </FieldRow>
-    </SectionCard>
+    </Section>
   );
 }
 
@@ -106,15 +97,14 @@ function CurrencySection() {
   };
 
   return (
-    <SectionCard title="Currency">
+    <Section title="Currency">
       <FieldRow label="Default currency">
         <select
           data-testid="settings-currency-select"
           value={current ?? ""}
           disabled={current === null || saving}
           onChange={(e) => onChange(e.target.value)}
-          className="rounded-md border px-2 py-1 text-sm"
-          style={{ borderColor: "var(--border)", color: "var(--text-primary)" }}
+          className={selectClass}
         >
           {current === null && <option value="">…</option>}
           {CURRENCY_CHOICES.map((code) => (
@@ -123,13 +113,9 @@ function CurrencySection() {
             </option>
           ))}
         </select>
-        {error && (
-          <span className="ml-2 text-xs" style={{ color: "var(--error)" }}>
-            {error}
-          </span>
-        )}
+        {error && <span className="text-gt-xs font-bold text-gt-error">{error}</span>}
       </FieldRow>
-    </SectionCard>
+    </Section>
   );
 }
 
@@ -166,15 +152,14 @@ function DateFormatSection() {
   };
 
   return (
-    <SectionCard title="Date format">
+    <Section title="Date format">
       <FieldRow label="Dates shown as">
         <select
           data-testid="settings-date-format"
           value={current ?? ""}
           disabled={current === null || saving}
           onChange={(e) => onChange(e.target.value)}
-          className="rounded-md border px-2 py-1 text-sm"
-          style={{ borderColor: "var(--border)", color: "var(--text-primary)" }}
+          className={selectClass}
         >
           {current === null && <option value="">…</option>}
           {DATE_FORMATS.map((f) => (
@@ -184,7 +169,7 @@ function DateFormatSection() {
           ))}
         </select>
       </FieldRow>
-    </SectionCard>
+    </Section>
   );
 }
 
@@ -213,49 +198,44 @@ function LearnedMappingsSection() {
 
   const empty = data && data.merchants.length === 0 && data.items.length === 0;
   return (
-    <SectionCard title="Learned mappings">
-      <div className="space-y-1 text-sm" data-testid="learned-mappings-section">
-        {!data && <p style={{ color: "var(--text-muted)" }}>…</p>}
+    <Section title="Learned mappings">
+      <div className="space-y-gt-8" data-testid="learned-mappings-section">
+        {!data && <p className="text-gt-sm font-medium text-gt-ink-3">…</p>}
         {empty && (
-          <p style={{ color: "var(--text-muted)" }} data-testid="learned-mappings-empty">
-            Nothing learned yet — corrections you make to merchants and items will appear
-            here and auto-apply to future scans.
+          <p className="text-gt-sm font-medium text-gt-ink-3" data-testid="learned-mappings-empty">
+            Nothing learned yet — corrections you make to merchants and items will appear here and
+            auto-apply to future scans.
           </p>
         )}
         {data?.merchants.map((m) => (
-          <div key={m.id} className="flex items-center justify-between gap-2">
-            <span className="truncate" style={{ color: "var(--text-secondary)" }}>
-              {m.original_merchant} → {m.target_merchant}
-            </span>
-            <button
-              type="button"
-              data-testid={`mapping-delete-${m.id}`}
-              onClick={() => remove("merchant", m.id)}
-              className="shrink-0 text-xs"
-              style={{ color: "var(--danger, #dc2626)" }}
-            >
-              Delete
-            </button>
-          </div>
+          <MappingRow
+            key={m.id}
+            id={m.id}
+            label={`${m.original_merchant} → ${m.target_merchant}`}
+            onRemove={() => remove("merchant", m.id)}
+          />
         ))}
         {data?.items.map((m) => (
-          <div key={m.id} className="flex items-center justify-between gap-2">
-            <span className="truncate" style={{ color: "var(--text-secondary)" }}>
-              {m.original_item} → {m.target_item ?? "(category only)"}
-            </span>
-            <button
-              type="button"
-              data-testid={`mapping-delete-${m.id}`}
-              onClick={() => remove("item", m.id)}
-              className="shrink-0 text-xs"
-              style={{ color: "var(--danger, #dc2626)" }}
-            >
-              Delete
-            </button>
-          </div>
+          <MappingRow
+            key={m.id}
+            id={m.id}
+            label={`${m.original_item} → ${m.target_item ?? "(category only)"}`}
+            onRemove={() => remove("item", m.id)}
+          />
         ))}
       </div>
-    </SectionCard>
+    </Section>
+  );
+}
+
+function MappingRow({ id, label, onRemove }: { id: string; label: string; onRemove: () => void }) {
+  return (
+    <div className="flex items-center justify-between gap-gt-8 rounded-gt-lg border-2 border-gt-line bg-gt-surface px-gt-12 py-gt-8">
+      <span className="truncate text-gt-sm font-medium text-gt-ink-2">{label}</span>
+      <Button variant="ghost" size="sm" data-testid={`mapping-delete-${id}`} onClick={onRemove} className="shrink-0 text-gt-negative">
+        Delete
+      </Button>
+    </div>
   );
 }
 
@@ -263,13 +243,13 @@ function LanguageSection() {
   const { t, locale, setLocale } = useI18n();
 
   return (
-    <SectionCard title={t("locale.label")}>
+    <Section title={t("locale.label")}>
       <div className="flex items-center justify-end">
         <select
           value={locale}
+          aria-label={t("locale.label")}
           onChange={(e) => setLocale(e.target.value as SupportedLocale)}
-          className="rounded-md border bg-transparent px-3 py-1.5 text-sm"
-          style={{ borderColor: "var(--border-light)", color: "var(--text-primary)" }}
+          className={selectClass}
         >
           {SUPPORTED_LOCALES.map((l) => (
             <option key={l} value={l}>
@@ -278,7 +258,7 @@ function LanguageSection() {
           ))}
         </select>
       </div>
-    </SectionCard>
+    </Section>
   );
 }
 
@@ -304,19 +284,12 @@ function DataSection() {
   }
 
   return (
-    <SectionCard title={t("settings.exportData")}>
-      <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
-        {t("settings.exportDataDesc")}
-      </p>
-      <button
-        onClick={() => void handleExport()}
-        disabled={exporting}
-        className="rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors disabled:opacity-50"
-        style={{ backgroundColor: "var(--primary)" }}
-      >
+    <Section title={t("settings.exportData")}>
+      <p className="text-gt-sm font-medium text-gt-ink-2">{t("settings.exportDataDesc")}</p>
+      <Button onClick={() => void handleExport()} disabled={exporting}>
         {exporting ? "..." : t("settings.exportData")}
-      </button>
-    </SectionCard>
+      </Button>
+    </Section>
   );
 }
 
@@ -341,44 +314,27 @@ function AccountSection() {
   }
 
   return (
-    <SectionCard title={t("settings.account")}>
-      <button
-        onClick={() => void signOut()}
-        className="w-full rounded-lg border px-4 py-2 text-sm font-medium transition-colors"
-        style={{ borderColor: "var(--border-light)", color: "var(--text-primary)" }}
-      >
+    <Section title={t("settings.account")}>
+      <Button variant="secondary" fullWidth onClick={() => void signOut()}>
         {t("auth.signOut")}
-      </button>
+      </Button>
 
-      <div
-        className="mt-4 rounded-lg border p-4"
-        style={{ borderColor: "var(--error)", backgroundColor: "rgba(239, 68, 68, 0.05)" }}
-      >
-        <h3 className="text-sm font-semibold" style={{ color: "var(--error)" }}>
-          {t("settings.dangerZone")}
-        </h3>
-        <p className="mt-1 text-xs" style={{ color: "var(--text-secondary)" }}>
-          {t("settings.deleteAccountDesc")}
-        </p>
-        <div className="mt-3 flex gap-2">
+      <div className="mt-gt-4 rounded-gt-xl border-2 border-gt-error bg-gt-error/5 p-gt-16">
+        <h3 className="font-gt-display text-gt-sm font-extrabold text-gt-error">{t("settings.dangerZone")}</h3>
+        <p className="mt-gt-2 text-gt-xs font-medium text-gt-ink-2">{t("settings.deleteAccountDesc")}</p>
+        <div className="mt-gt-12 flex gap-gt-8">
           <input
             type="text"
             value={confirmText}
             onChange={(e) => setConfirmText(e.target.value)}
             placeholder={t("settings.deleteConfirm")}
-            className="flex-1 rounded-md border bg-transparent px-3 py-1.5 text-sm"
-            style={{ borderColor: "var(--border-light)", color: "var(--text-primary)" }}
+            className="flex-1 rounded-gt-lg border-2 border-gt-line bg-gt-surface px-gt-12 py-gt-6 text-gt-sm font-bold text-gt-ink focus-visible:outline-none focus-visible:border-gt-line-strong"
           />
-          <button
-            onClick={() => void handleDelete()}
-            disabled={!canDelete || deleting}
-            className="rounded-lg px-4 py-1.5 text-sm font-medium text-white transition-colors disabled:opacity-30"
-            style={{ backgroundColor: "var(--error)" }}
-          >
+          <Button variant="danger" disabled={!canDelete || deleting} onClick={() => void handleDelete()}>
             {t("settings.deleteAccount")}
-          </button>
+          </Button>
         </div>
       </div>
-    </SectionCard>
+    </Section>
   );
 }

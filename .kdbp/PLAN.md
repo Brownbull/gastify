@@ -21,7 +21,7 @@ Migrate the **Playful Geometric** design system from `design-lab/` into the live
 |---|-------|-------------|------|------------|------|--------|--------|------|
 | 1 | W1 · Token foundation | Port `shared/design-tokens.ts` → web `tokens.css`; add Tailwind `@theme inline` gt-* block; swap warm `:root` for Playful Geometric; re-point compat aliases `--text/--text-muted/--border` (342 of 721 uses); collapse to single theme + drop the 3-theme×dark switcher UI (D-B); wire `check:token-classes` into web CI. Outcome: 721 inline vars recolor, gt-* available, nothing renders broken. | mvp | low-med | ✅ | ✅ | ✅ | ✅ |
 | 2 | W2 · App shell + navigation | Port AppScaffold/Nav → 4-tab BottomNav (Inicio·Compras·Gastos·Historial) + ScanFab (DM-5) + AppHeader + Perfil-avatar menu + framed surface, adapted to TanStack Router (tabs = `<Link>`); replace `AppLayout`; resolve the 11→4 IA (homes for statements/groups/notifications/reports/trends/items inside tabs/Perfil); port shell atoms. | mvp | med | ✅ | ✅ | ✅ | ⬜ |
-| 3 | W3 · Settings + Notifications | Lowest-risk screens; port `SettingsScreen` (+ subviews as needed) and `NotificationsScreen`; establish the screen-port playbook + first batch of atoms/molecules. | mvp | low-med | ⬜ | ⬜ | ⬜ | ⬜ |
+| 3 | W3 · Settings + Notifications | Lowest-risk screens; port `SettingsScreen` (+ subviews as needed) and `NotificationsScreen`; establish the screen-port playbook + first batch of atoms/molecules. | mvp | low-med | 🔄 | ⬜ | ⬜ | ⬜ |
 | 4 | W4 · Transactions (list+detail+new) | PurchasesScreen (list+filters), TransactionDetail (DM-7 decomposition: MerchantHeader, ItemRow/ItemGroup, TransactionTotal, PaymentChip…), NewTransaction (manual entry); core daily-use, wired to existing hooks. | mvp | med-high | ⬜ | ⬜ | ⬜ | ⬜ |
 | 5 | W5 · Items browse | `items` route ↔ ItemsBrowse/History; product search across receipts + infinite scroll + filters. | mvp | med | ⬜ | ⬜ | ⬜ | ⬜ |
 | 6 | W6 · Scan (single+batch+statements) | Multi-step SSE-driven scan flow (mode chooser → capture → processing → review → save), statement upload → reconcile → confirm, StatementsList; preserve real EventSource + StatementReconciliationPanel; full state + error coverage. | ent | high | ⬜ | ⬜ | ⬜ | ⬜ |
@@ -219,7 +219,7 @@ decisions_entry: D98
 
 ## Current Phase
 
-Phase 2: W2 · App shell + navigation (tier mvp)
+Phase 3: W3 · Settings + Notifications (tier mvp)
 
 ## Dependencies
 

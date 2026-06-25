@@ -9,6 +9,9 @@ import {
 } from "@/hooks/useNotifications";
 import { useI18n } from "@/hooks/useI18n";
 import { formatTimestamp } from "@/lib/format";
+import { Button } from "@/components/ui/Button";
+import { IconTile } from "@/components/ui/IconTile";
+import { EmptyState } from "@/components/ui/EmptyState";
 
 export const Route = createFileRoute("/notifications")({
   component: NotificationsPage,
@@ -33,66 +36,61 @@ function NotificationsPage() {
   const notifications = data?.pages.flatMap((page) => page.data) ?? [];
 
   return (
-    <div className="space-y-6" data-testid="notifications-screen">
-      <div className="flex items-start justify-between gap-3">
+    <div className="space-y-gt-16" data-testid="notifications-screen">
+      <div className="flex items-start justify-between gap-gt-12">
         <div>
-          <h1 className="text-2xl font-semibold" style={{ color: "var(--text)" }}>
+          <h1 className="font-gt-display text-gt-4xl font-extrabold text-gt-ink">
             {t("notifications.title")}
           </h1>
-          <p className="mt-1 text-sm" style={{ color: "var(--text-secondary)" }}>
-            {t("notifications.subtitle")}
-          </p>
+          <p className="mt-gt-2 text-gt-sm font-medium text-gt-ink-2">{t("notifications.subtitle")}</p>
         </div>
         {(unreadCount ?? 0) > 0 && (
-          <button
+          <Button
+            variant="ghost"
+            size="sm"
             data-testid="notifications-mark-all"
             onClick={() => markAll.mutate()}
             disabled={markAll.isPending}
-            className="rounded-lg px-4 py-2 text-sm font-medium transition-colors disabled:opacity-50"
-            style={{ color: "var(--primary)", backgroundColor: "var(--primary-light)" }}
+            className="text-gt-primary"
           >
             {t("notifications.markAll")}
-          </button>
+          </Button>
         )}
       </div>
 
       {error && (
         <div
-          className="rounded-lg border p-4"
-          style={{
-            borderColor: "var(--error)",
-            backgroundColor: "color-mix(in srgb, var(--error) 10%, transparent)",
-          }}
+          className="rounded-gt-xl border-2 border-gt-error bg-gt-error/5 px-gt-16 py-gt-12"
           role="alert"
         >
-          <p className="text-sm font-medium" style={{ color: "var(--error)" }}>
-            {t("notifications.loadError")}
-          </p>
+          <p className="text-gt-sm font-bold text-gt-error">{t("notifications.loadError")}</p>
         </div>
       )}
 
       {isLoading ? (
         <NotificationsSkeleton />
       ) : notifications.length === 0 ? (
-        <EmptyState />
+        <div data-testid="notifications-empty">
+          <EmptyState iconName="nav-alerts" title={t("notifications.empty")} />
+        </div>
       ) : (
         <>
-          <ul className="space-y-2">
+          <ul className="flex flex-col divide-y-2 divide-gt-line overflow-hidden rounded-gt-2xl border-2 border-gt-line-strong bg-gt-surface shadow-gt-sm">
             {notifications.map((n) => (
               <NotificationCard key={n.id} notification={n} />
             ))}
           </ul>
           {hasNextPage && (
-            <div className="flex justify-center pt-2">
-              <button
+            <div className="flex justify-center pt-gt-2">
+              <Button
+                variant="secondary"
+                size="sm"
                 data-testid="notifications-load-more"
                 onClick={() => void fetchNextPage()}
                 disabled={isFetchingNextPage}
-                className="rounded-lg px-6 py-2 text-sm font-medium transition-colors disabled:opacity-50"
-                style={{ color: "var(--primary)", backgroundColor: "var(--primary-light)" }}
               >
                 {isFetchingNextPage ? t("notifications.loading") : t("notifications.loadMore")}
-              </button>
+              </Button>
             </div>
           )}
         </>
@@ -108,69 +106,60 @@ function NotificationCard({ notification }: { notification: NotificationRow }) {
   const isUnread = !notification.read_at;
   const transactionId = deepLinkTransactionId(notification.data);
 
+  const titleClass = `truncate font-gt-display text-gt-md ${
+    isUnread ? "font-extrabold text-gt-ink" : "font-bold text-gt-ink-2"
+  }`;
   const titleNode = transactionId ? (
     <Link
       to="/transactions/$transactionId"
       params={{ transactionId }}
       onClick={() => isUnread && markRead.mutate(notification.id)}
-      className="font-medium hover:underline"
-      style={{ color: "var(--text)" }}
+      className={`${titleClass} hover:underline`}
     >
       {notification.title}
     </Link>
   ) : (
-    <span className="font-medium" style={{ color: "var(--text)" }}>
-      {notification.title}
-    </span>
+    <span className={titleClass}>{notification.title}</span>
   );
 
   return (
     <li
       data-testid="notifications-row"
       data-unread={isUnread ? "true" : "false"}
-      className="flex items-start justify-between gap-3 rounded-lg border p-3"
-      style={{
-        backgroundColor: isUnread ? "var(--primary-light)" : "var(--surface)",
-        borderColor: "var(--border)",
-      }}
+      className={`flex items-start gap-gt-10 px-gt-12 py-gt-12 ${isUnread ? "bg-gt-primary-soft" : ""}`}
     >
-      <div className="min-w-0">
-        <div className="flex items-center gap-2">
+      <IconTile icon="nav-alerts" size="md" />
+      <div className="flex min-w-0 flex-1 flex-col gap-gt-2">
+        <div className="flex items-center gap-gt-6">
           {isUnread && (
-            <span
-              aria-hidden
-              className="h-2 w-2 shrink-0 rounded-full"
-              style={{ backgroundColor: "var(--primary)" }}
-            />
+            <span aria-hidden className="h-2 w-2 shrink-0 rounded-gt-pill bg-gt-primary" />
           )}
           {titleNode}
         </div>
         {notification.body && (
-          <p className="mt-0.5 truncate text-sm" style={{ color: "var(--text-secondary)" }}>
-            {notification.body}
-          </p>
+          <p className="truncate text-gt-sm font-medium text-gt-ink-2">{notification.body}</p>
         )}
-        <p className="mt-0.5 text-xs" style={{ color: "var(--text-muted)" }}>
+        <p className="text-gt-xs font-bold text-gt-ink-3">
           {formatTimestamp(notification.created_at)}
         </p>
       </div>
-      <div className="flex shrink-0 items-center gap-2">
+      <div className="flex shrink-0 items-center gap-gt-8">
         {isUnread && (
           <button
+            type="button"
             data-testid="notifications-mark-read"
             onClick={() => markRead.mutate(notification.id)}
-            className="text-xs font-medium"
-            style={{ color: "var(--primary)" }}
+            className="text-gt-xs font-extrabold text-gt-primary"
           >
             {t("notifications.markRead")}
           </button>
         )}
         <button
+          type="button"
           data-testid="notifications-delete"
           onClick={() => remove.mutate(notification.id)}
           aria-label={t("notifications.delete")}
-          className="text-xs"
-          style={{ color: "var(--text-muted)" }}
+          className="grid h-7 w-7 place-items-center rounded-gt-md text-gt-ink-3 transition hover:bg-gt-bg-3 hover:text-gt-ink"
         >
           ×
         </button>
@@ -181,38 +170,17 @@ function NotificationCard({ notification }: { notification: NotificationRow }) {
 
 function NotificationsSkeleton() {
   return (
-    <div className="space-y-2" aria-busy="true" aria-label="Loading notifications">
-      {Array.from({ length: 6 }, (_, i) => (
-        <div
-          key={i}
-          className="flex items-center justify-between rounded-lg border p-3"
-          style={{ backgroundColor: "var(--surface)", borderColor: "var(--border)" }}
-        >
-          <div
-            className="h-4 w-48 animate-pulse rounded"
-            style={{ backgroundColor: "var(--border)" }}
-          />
-          <div
-            className="h-4 w-16 animate-pulse rounded"
-            style={{ backgroundColor: "var(--border)" }}
-          />
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function EmptyState() {
-  const { t } = useI18n();
-  return (
-    <div
-      className="rounded-lg border p-12 text-center"
-      data-testid="notifications-empty"
-      style={{ backgroundColor: "var(--surface)", borderColor: "var(--border)" }}
+    <ul
+      className="flex flex-col divide-y-2 divide-gt-line overflow-hidden rounded-gt-2xl border-2 border-gt-line-strong bg-gt-surface shadow-gt-sm"
+      aria-busy="true"
+      aria-label="Loading notifications"
     >
-      <p className="text-sm font-medium" style={{ color: "var(--text-secondary)" }}>
-        {t("notifications.empty")}
-      </p>
-    </div>
+      {Array.from({ length: 6 }, (_, i) => (
+        <li key={i} className="flex items-center gap-gt-10 px-gt-12 py-gt-12">
+          <span className="h-11 w-11 shrink-0 animate-pulse rounded-gt-lg bg-gt-bg-3" />
+          <span className="h-4 w-48 animate-pulse rounded-gt-md bg-gt-bg-3" />
+        </li>
+      ))}
+    </ul>
   );
 }
