@@ -1,15 +1,24 @@
 # Environment-Gated Development
 
-Gastify uses three durable development trees plus one deterministic support lane.
-This operating model is mandatory for user-facing, upload, realtime, auth, DB,
-native, and media changes.
+> **Current operating mode — production-direct (set 2026-06-25, DECISIONS.md D97).**
+> The `staging` and `staging-e2e` lanes are **dropped** (cost control during the
+> local/mockup phase — see [`RAILWAY-STAGING-TEARDOWN.md`](RAILWAY-STAGING-TEARDOWN.md)).
+> Until decided otherwise, **`production` is the single deployed environment and the
+> source of truth for all deployed and end-to-end testing**, and its **data is
+> disposable** (seed / destroy / recreate freely). The promotion ladder below is the
+> *target* model — currently suspended; `local` + unit/typecheck still drive the
+> implementation loop, but deployed/runtime proof now happens directly on production.
+
+Gastify's *target* operating model uses three durable development trees plus one
+deterministic support lane (mandatory for user-facing, upload, realtime, auth, DB,
+native, and media changes — restored when the staging lanes return):
 
 | Lane | Database | Scan provider | Purpose | Can close runtime gates? |
 |---|---|---|---|---|
 | `local` | SQLite | `mock` | Fast local iteration | No |
-| `staging-e2e` | Isolated Railway Postgres | `fixture` | Deterministic S23 proof | Yes, for deterministic journeys |
-| `staging` | Railway Postgres | `gemini` | Deployed/provider proof | Yes |
-| `production` | Railway Postgres | `gemini` | Real users | Not before staging is green |
+| `staging-e2e` | Isolated Railway Postgres | `fixture` | Deterministic S23 proof | **Dropped 2026-06-25** |
+| `staging` | Railway Postgres | `gemini` | Deployed/provider proof | **Dropped 2026-06-25** |
+| `production` | Railway Postgres | `gemini` | **Active: working + all deployed/e2e testing; disposable data** | Yes — current source of truth |
 
 ## Development Rule
 
@@ -20,13 +29,21 @@ Start every feature locally where possible, then promote evidence upward:
    fixture-backed deterministic S23 results.
 3. `staging` proves deployed Railway, Postgres, Firebase, Gemini, CORS,
    multiuser isolation, cache/idempotency, and SPA behavior.
-4. `production` is documented and guarded now. Do not provision or smoke real
-   production user journeys until staging evidence is green.
+4. `production` is, as of 2026-06-25, the **active deployed + e2e target** with
+   disposable data — provision, seed, smoke, and destroy freely here (D97). (Target
+   model: this lane was "guarded until staging green"; suspended while
+   production-direct is in effect.)
 
 Unit tests, lint, typechecks, and local mocks remain necessary but are not
 sufficient for changed runtime journeys.
 
 ## Gabe Gate Order
+
+> **Production-direct override (2026-06-25, D97):** with the staging lanes dropped,
+> "after staging" below means **after production** — deploy the candidate to
+> production, capture deployed proof there, then run `/gabe-review`. Restore the
+> staging-first order from [`RAILWAY-STAGING-TEARDOWN.md`](RAILWAY-STAGING-TEARDOWN.md)
+> when staging returns.
 
 For runtime-gated phase types (`auth`, `session`, `DB`, `upload`, `realtime`,
 `streaming`, `native-mobile`, `notifications`, `file-media`, `web`, and
@@ -47,6 +64,8 @@ runtime-gated phases.
 
 - Local quickstart: [`LOCAL.md`](LOCAL.md)
 - Railway setup: [`RAILWAY-STAGING-SETUP.md`](RAILWAY-STAGING-SETUP.md)
+- Railway staging drop/restore (cost control): [`RAILWAY-STAGING-TEARDOWN.md`](RAILWAY-STAGING-TEARDOWN.md)
+- Production test-user login (smoke without staging): [`PRODUCTION-TEST-USER.md`](PRODUCTION-TEST-USER.md)
 - Staging testing: [`STAGING-TESTING.md`](STAGING-TESTING.md)
 - Production checklist: [`PRODUCTION-CHECKLIST.md`](PRODUCTION-CHECKLIST.md)
 

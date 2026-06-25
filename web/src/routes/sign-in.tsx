@@ -1,15 +1,22 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useAuth } from "@/hooks/useAuth";
 import { useI18n } from "@/hooks/useI18n";
-import { useEffect } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 
 export const Route = createFileRoute("/sign-in")({
   component: SignInPage,
 });
 
 function SignInPage() {
-  const { user, loading, error, signInWithGoogle, signInWithTestAuth, signInWithTestAuthB } =
-    useAuth();
+  const {
+    user,
+    loading,
+    error,
+    signInWithGoogle,
+    signInWithTestAuth,
+    signInWithTestAuthB,
+    signInWithEmailPassword,
+  } = useAuth();
   const { t } = useI18n();
   const navigate = useNavigate();
 
@@ -101,8 +108,82 @@ function SignInPage() {
             Use test auth (B)
           </button>
         )}
+
+        {signInWithEmailPassword && (
+          <EmailPasswordForm signIn={signInWithEmailPassword} />
+        )}
       </div>
     </div>
+  );
+}
+
+interface EmailPasswordFormProps {
+  signIn: (email: string, password: string) => Promise<void>;
+}
+
+function EmailPasswordForm({ signIn }: EmailPasswordFormProps) {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    await signIn(email.trim(), password);
+  }
+
+  return (
+    <form
+      onSubmit={handleSubmit}
+      data-testid="sign-in-email-password-form"
+      className="space-y-3"
+    >
+      <div
+        className="flex items-center gap-3 text-xs uppercase tracking-wide"
+        style={{ color: "var(--text-secondary)" }}
+      >
+        <span className="h-px flex-1" style={{ backgroundColor: "var(--border)" }} />
+        or
+        <span className="h-px flex-1" style={{ backgroundColor: "var(--border)" }} />
+      </div>
+
+      <input
+        type="email"
+        autoComplete="email"
+        required
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        placeholder="Email"
+        data-testid="sign-in-email-input"
+        className="w-full rounded-lg border px-4 py-3 text-sm"
+        style={{
+          borderColor: "var(--border)",
+          color: "var(--text)",
+          backgroundColor: "var(--bg)",
+        }}
+      />
+      <input
+        type="password"
+        autoComplete="current-password"
+        required
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        placeholder="Password"
+        data-testid="sign-in-password-input"
+        className="w-full rounded-lg border px-4 py-3 text-sm"
+        style={{
+          borderColor: "var(--border)",
+          color: "var(--text)",
+          backgroundColor: "var(--bg)",
+        }}
+      />
+      <button
+        type="submit"
+        data-testid="sign-in-email-password-button"
+        className="flex w-full items-center justify-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-white transition-colors"
+        style={{ backgroundColor: "var(--primary)" }}
+      >
+        Sign in
+      </button>
+    </form>
   );
 }
 

@@ -14,6 +14,7 @@ import {
 } from "firebase/auth";
 import { auth, googleProvider } from "@/lib/firebase";
 import { e2eAuthConfig } from "@/lib/e2eAuth";
+import { prodTestAuthConfig } from "@/lib/prodTestAuth";
 import { setAuthToken } from "@/lib/api";
 import {
   broadcastSignOut,
@@ -34,6 +35,11 @@ interface AuthContextValue extends AuthState {
   signInWithTestAuth: (() => Promise<void>) | null;
   /** E2E-only: second test user (B) for multi-user e2e; null when B not configured. */
   signInWithTestAuthB: (() => Promise<void>) | null;
+  /**
+   * Production-allowed email/password sign-in for a disposable test account.
+   * Present (non-null) only when `VITE_PROD_TEST_AUTH_ENABLED === "true"`.
+   */
+  signInWithEmailPassword: ((email: string, password: string) => Promise<void>) | null;
   signOut: () => Promise<void>;
 }
 
@@ -130,6 +136,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signInWithTestAuthB = () =>
     signInWithTestUser(e2eAuthConfig.emailB, e2eAuthConfig.passwordB);
 
+  async function signInWithEmailPassword(email: string, password: string) {
+    if (!prodTestAuthConfig.enabled || !email) return;
+    setState((prev) => ({ ...prev, error: null }));
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Sign-in failed";
+      setState((prev) => ({ ...prev, error: message }));
+    }
+  }
+
   async function signOut() {
     try {
       await firebaseSignOut(auth);
@@ -149,6 +166,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         signInWithTestAuth: e2eAuthConfig.enabled ? signInWithTestAuth : null,
         signInWithTestAuthB:
           e2eAuthConfig.enabled && e2eAuthConfig.emailB ? signInWithTestAuthB : null,
+        signInWithEmailPassword: prodTestAuthConfig.enabled
+          ? signInWithEmailPassword
+          : null,
         signOut,
       }}
     >

@@ -5285,3 +5285,16 @@ NOTE: USER — follow-up to [1603007]: the standalone Features/Spending/Screens/
 - 2026-06-25 13:51 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/spending/screens/SpendingScreen.stories.tsx
 - 2026-06-25 13:52 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/spending/screens/SpendingScreen.stories.tsx
 - 2026-06-25 13:52 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/spending/screens/SpendingScreen.stories.tsx
+- 2026-06-25 13:59 | Write | /tmp/claude-1000/-home-khujta-projects-apps-gastify/5dd2ff51-a253-4a0a-ad11-7fe2bffdb43d/scratchpad/fb_filter.py
+- 2026-06-25 14:00 | Write | /home/khujta/projects/apps/gastify/scripts/ops/setup-production-test-user.py
+- 2026-06-25 14:00 | Edit | /home/khujta/projects/apps/gastify/docs/runbooks/PRODUCTION-TEST-USER.md
+- 2026-06-25 14:01 | Edit | /home/khujta/projects/apps/gastify/docs/runbooks/PRODUCTION-TEST-USER.md
+- 2026-06-25 14:07 | Edit | /home/khujta/projects/apps/gastify/docs/runbooks/PRODUCTION-TEST-USER.md
+- 2026-06-25 14:07 | Edit | /home/khujta/projects/apps/gastify/docs/runbooks/PRODUCTION-TEST-USER.md
+- 2026-06-25 14:09 | Write | /tmp/claude-1000/-home-khujta-projects-apps-gastify/5dd2ff51-a253-4a0a-ad11-7fe2bffdb43d/scratchpad/provision_prod_web.py
+- 2026-06-25 14:15 | Edit | /home/khujta/projects/apps/gastify/docs/runbooks/ENVIRONMENTS.md
+- 2026-06-25 14:16 | Edit | /home/khujta/projects/apps/gastify/docs/runbooks/ENVIRONMENTS.md
+- 2026-06-25 14:16 | Edit | /home/khujta/projects/apps/gastify/docs/runbooks/ENVIRONMENTS.md
+- 2026-06-25 14:16 | Write | /home/khujta/.claude/projects/-home-khujta-projects-apps-gastify/memory/project_production_direct.md
+- 2026-06-25 14:17 | Edit | /home/khujta/.claude/projects/-home-khujta-projects-apps-gastify/memory/MEMORY.md
+- 2026-06-25 14:20 | Write | /tmp/claude-1000/-home-khujta-projects-apps-gastify/5dd2ff51-a253-4a0a-ad11-7fe2bffdb43d/scratchpad/commitmsg.txt
