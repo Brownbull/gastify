@@ -52,7 +52,7 @@ function ComprasInShell({ platform }: { platform: Platform }) {
   // frame. Desktop: a dimmed backdrop over the content pane with the form capped
   // at a max width and centered (it never uses the full pane width).
   const overlay = detailTxn ? (
-    <TransactionDetail txn={pickDetailFor(detailTxn)} platform={platform} locked={detailTxn.status ? { reason: detailTxn.status } : undefined} onBack={() => setDetailTxn(null)} onDelete={() => setDetailTxn(null)} />
+    <TransactionDetail txn={pickDetailFor(detailTxn)} platform={platform} locked={detailTxn.matched || detailTxn.shared ? { reason: detailTxn.matched ? "matched" : "shared" } : undefined} onBack={() => setDetailTxn(null)} onDelete={() => setDetailTxn(null)} />
   ) : newOpen ? (
     <NewTransactionScreen platform={platform} onCancel={() => setNewOpen(false)} onCreate={() => setNewOpen(false)} />
   ) : filterOpen ? (
@@ -86,7 +86,7 @@ function ComprasInShell({ platform }: { platform: Platform }) {
           platform={platform}
           selection={selection}
           onOpenFilter={() => setFilterOpen(true)}
-          onSelectTxn={(t) => (t.status ? setLockTxn(t) : setDetailTxn(t))}
+          onSelectTxn={(t) => (t.matched || t.shared ? setLockTxn(t) : setDetailTxn(t))}
           onSelectModeChange={setSelectMode}
         />
       </AppScaffold>

@@ -300,8 +300,10 @@ export interface BrowseTransaction {
   payment: string;
   /** preview items (first 3 shown in collapsed row). */
   previewItems: Pick<TxnItem, "name" | "total" | "category">[];
-  /** reconciliation/sharing lock — flags the row (read-only in the detail). */
-  status?: "matched" | "shared";
+  /** reconciled with a statement line (read-only). */
+  matched?: boolean;
+  /** shared into a group (read-only). A txn can be BOTH matched and shared. */
+  shared?: boolean;
 }
 
 export interface DateGroup {
@@ -315,8 +317,8 @@ const tx = (
   location: string, date: string, time: string, total: number,
   itemCount: number, payment: string,
   previewItems: Pick<TxnItem, "name" | "total" | "category">[],
-  status?: BrowseTransaction["status"],
-): BrowseTransaction => ({ id, merchant, category, storeIcon, location, date, time, total, itemCount, payment, previewItems, status });
+  flags?: { matched?: boolean; shared?: boolean },
+): BrowseTransaction => ({ id, merchant, category, storeIcon, location, date, time, total, itemCount, payment, previewItems, matched: flags?.matched, shared: flags?.shared });
 
 const BASE_GROUPS: DateGroup[] = [
   {
@@ -327,7 +329,7 @@ const BASE_GROUPS: DateGroup[] = [
         { name: "Pan amasado", total: 4_800, category: "BreadPastry" },
         { name: "Leche entera", total: 8_340, category: "DairyEggs" },
         { name: "Pechuga de pollo", total: 8_900, category: "MeatSeafood" },
-      ], "matched"),
+      ], { matched: true, shared: true }),
       tx("t2", "Nido Gastronómico", "restaurantes", "store-restaurant", "Villarrica", "15 jun", "13:45", 11_500, 4, "cash", [
         { name: "Menú del día", total: 8_500, category: "PreparedFood" },
         { name: "Bebida", total: 1_200, category: "Beverages" },
@@ -346,7 +348,7 @@ const BASE_GROUPS: DateGroup[] = [
         { name: "Arroz", total: 2_890, category: "Grains" },
         { name: "Aceite", total: 4_200, category: "CookingOils" },
         { name: "Café molido", total: 8_980, category: "Beverages" },
-      ], "shared"),
+      ], { shared: true }),
       tx("t5", "Almacén Doña Rosa", "comercio-barrio", "store-minimarket", "Villarrica", "14 jun", "18:00", 8_800, 3, "cash", [
         { name: "Huevos", total: 3_200, category: "DairyEggs" },
         { name: "Pan de molde", total: 2_100, category: "BreadPastry" },

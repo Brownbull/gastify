@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { PixelIcon } from "@design-system/assets/PixelIcon";
 import { MapPinIcon, XIcon, ShareIcon } from "@design-system/assets/icons";
-import { getCategoryToken } from "@lib/categoryTokens";
 import { Badge } from "@design-system/atoms/Badge";
 import { Button } from "@design-system/atoms/Button";
 import { Modal } from "@design-system/atoms/Modal";
@@ -41,12 +40,11 @@ export interface PurchasesScreenProps {
   platform?: Platform;
 }
 
-/** time · location (date is the group header). */
+/** date · hour · location (no leading icon). */
 function MetaLine({ txn }: { txn: BrowseTransaction }) {
   return (
     <>
-      <PixelIcon name="chart-calendar" size={12} />
-      <span className="text-gt-xs font-bold">{txn.time}</span>
+      <span className="text-gt-xs font-bold">{txn.date} · {txn.time}</span>
       <span className="text-gt-line-strong">·</span>
       <MapPinIcon className="h-3 w-3" />
       <span className="text-gt-xs font-bold">{txn.location}</span>
@@ -74,31 +72,26 @@ function PreviewItems({ txn }: { txn: BrowseTransaction }) {
 
 /**
  * TxnThumbnail — the receipt thumbnail (the store glyph as a placeholder until
- * real receipt photos), with corner status badges: matched → a green Conciliada
- * badge bottom-right (replacing the category icon there); shared → a violet
- * badge upper-left. Non-status rows keep the category icon bottom-right.
+ * real receipt photos), with corner STATUS badges only: shared → a violet badge
+ * upper-left; matched → a green Conciliada badge bottom-right. A txn can show
+ * both. No category icon (the category lives in the row's label).
  */
 function TxnThumbnail({ txn }: { txn: BrowseTransaction }) {
-  const token = getCategoryToken(txn.category);
   return (
     <span className="relative h-12 w-12 shrink-0">
       <span className="grid h-12 w-12 place-items-center overflow-hidden rounded-gt-xl border-2 border-gt-line-strong bg-gt-bg">
         <PixelIcon name={txn.storeIcon} size={32} />
       </span>
-      {txn.status === "shared" ? (
+      {txn.shared ? (
         <span className="absolute -left-1 -top-1 grid h-7 w-7 place-items-center rounded-full border-2 border-gt-bg bg-gt-primary" aria-label="Compartida">
           <ShareIcon className="h-4 w-4 text-white" />
         </span>
       ) : null}
-      {txn.status === "matched" ? (
+      {txn.matched ? (
         <span className="absolute -bottom-1 -right-1 grid h-7 w-7 place-items-center rounded-full border-2 border-gt-bg bg-gt-positive" aria-label="Conciliada">
           <PixelIcon name="scan-statement" size={16} />
         </span>
-      ) : (
-        <span className="absolute -bottom-1 -right-1 grid h-7 w-7 place-items-center rounded-full border-2 border-gt-bg" style={{ backgroundColor: token.color }}>
-          <PixelIcon name={token.icon} size={18} />
-        </span>
-      )}
+      ) : null}
     </span>
   );
 }
@@ -123,8 +116,8 @@ function TxnRow({ txn, onSelect, selectMode, selected, onToggle, onLongPress }: 
         )
       }
       title={txn.merchant}
-      meta={<MetaLine txn={txn} />}
-      tags={<CategoryChip category={txn.category} size="sm" />}
+      meta={<CategoryChip category={txn.category} size="sm" />}
+      tags={<span className="flex flex-wrap items-center gap-gt-4 text-gt-ink-2"><MetaLine txn={txn} /></span>}
       trailing={<span className="font-gt-display text-gt-md font-extrabold text-gt-ink">{clp(txn.total)}</span>}
       detailLabel={`${txn.itemCount} ${txn.itemCount === 1 ? "ítem" : "ítems"}`}
       detail={<PreviewItems txn={txn} />}
