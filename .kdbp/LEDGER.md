@@ -5148,6 +5148,10 @@ NOTE: USER (on flows-spending--spending) reworked the donut + treemap click mode
 ## 2026-06-25 — reflect icon/count model in standalone SpendingScreen story [1adc5ce]  [MOCKUPS]
 GATES: gates ✅ · types ✅ · build ✅ · storybook 222/222 · Playwright proof
 NOTE: USER — follow-up to [1603007]: the standalone Features/Spending/Screens/SpendingScreen story's count pills were inert (GastosInShell only wired onOpenCategory). Mirrored the Flows/Spending routing — +onOpenHistory → transactions(Compras filtered to L1) / items(Productos) overlay, CategoryDetail "Ver todas" → transactions list, overlay precedence history > detail > scan(FAB). Now the count pills route the same as the flow. Verified the standalone story's "15 transacciones — ver" → Movimientos · Supermercados (9 boletas · $165.750). PLAN.md untouched (mockup lane).
+
+## 2026-06-25 — standardize flow-story titles under Flows/ [a894b68]  [MOCKUPS]
+GATES: gates ✅ · types ✅ · build ✅ · storybook 222/222
+NOTE: USER chose "polish & close the mockups". (1) Flow-title standardization: AuthFlow ("Features/Auth/Screens/AuthFlow" → "Flows/Auth") + SettingsFlow ("Features/Settings/Screens/SettingsFlow" → "Flows/Settings") so all four journey stories share the Flows/* namespace (Scan/Spending were already there). Title-only; story-baseline coverage HELD (40/40) — the subview/auth-screen references are file-based (a .stories.tsx referencing them), not title-based. Handoff §4 updated. STORY IDs changed: features-auth-screens-authflow--* → flows-auth--*; features-settings-screens-settingsflow--* → flows-settings--{menu,profile,subscription,…}. (2) IconButton consolidation of the square h-12 w-12 X footer buttons — NOT DONE (correctly): IconButton is rounded-pill (circle), the X buttons are rounded-gt-xl SQUARES by design to pair with the adjacent square CTA; consolidating would change their shape (regression, not cleanup). === MOCKUP PROJECT (PLAN-MOCKUPS Phases 1–10) FUNCTIONALLY COMPLETE: atoms/molecules/organisms/screens/flows ✅ · gates ✅ · handoff ✅ · 76 components · 40 screens · 4 flows · 222 storybook tests. Next lane (user's call): web/ integration · mobile/ token adapter · mockup-only product-flag decisions. === PLAN.md untouched (mockup lane).
 - 2026-06-24 16:37 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/historial/screens/HistorialScreen.tsx
 - 2026-06-24 16:38 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/historial/screens/HistorialScreen.tsx
 - 2026-06-24 16:38 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/compras/screens/ComprasScreen.tsx
@@ -5337,3 +5341,47 @@ VERIFIED: web 137 tests + tsc + vite build green; web npm audit-high clean; ruff
 - 2026-06-25 16:03 | Edit | /home/khujta/projects/apps/gastify/docs/runbooks/PRODUCTION-TEST-USER.md
 - 2026-06-25 16:03 | Write | /home/khujta/.claude/projects/-home-khujta-projects-apps-gastify/memory/project_railway_vite_build_args.md
 - 2026-06-25 16:03 | Edit | /home/khujta/.claude/projects/-home-khujta-projects-apps-gastify/memory/MEMORY.md
+- 2026-06-25 16:20 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/auth/screens/AuthFlow.stories.tsx
+- 2026-06-25 16:20 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/settings/screens/SettingsFlow.stories.tsx
+- 2026-06-25 16:20 | Edit | /home/khujta/projects/apps/gastify/docs/mockups/HANDOFF.md
+- 2026-06-25 16:41 | Write | /home/khujta/projects/apps/gastify/docs/mockups/WEB-MIGRATION.md
+- 2026-06-25 16:43 | Edit | /home/khujta/.claude/projects/-home-khujta-projects-apps-gastify/memory/project_design_lab_mockups.md
+- 2026-06-25 16:44 | Edit | /home/khujta/.claude/projects/-home-khujta-projects-apps-gastify/memory/MEMORY.md
+
+## 2026-06-25 16:58 — PLAN COMPLETED: RATE-LIMIT mvp+ent tiers (D96 tier/quota + limiter infra + ENT abuse-hardening)
+ARCHIVE: .kdbp/archive/completed_PLAN_2026-06-25_rate-limit-tier-quota.md
+PHASES COMPLETED: 5 of 5
+
+## 2026-06-25 16:58 — PLAN CREATED: Web Migration — Playful Geometric design system from design-lab/ into the live web/ app
+PHASES: 11 | COMPLEXITY: med-high overall | MATURITY: mvp
+TIERS: mvp × 7, ent × 4, scale × 0 | PROTOTYPES: 0
+DECISIONS: D98 (consolidated per-phase tier slate + D-A/D-B/D-C architecture decisions)
+HTML_ARTIFACT: none
+BRANCH: feat/web-migration (off the real tip; 305 commits ahead of stale local main)
+- 2026-06-25 17:12 | Write | /home/khujta/projects/apps/gastify/web/scripts/generate-tokens-css.mjs
+- 2026-06-25 17:12 | Edit | /home/khujta/projects/apps/gastify/web/package.json
+
+## 2026-06-25 17:30 — [b01d2fc] feat(web): W1 token foundation — Playful Geometric palette + gt-* utilities
+FINDINGS: 1 (0 critical, 0 high, 1 medium, 0 low)
+ACTIONS: 1:update-structure (added web/scripts/**/*.mjs allowed pattern, mirrors design-lab/scripts)
+DEFERRED: none
+
+## 2026-06-25 17:30 — PHASE EXEC COMPLETE: Phase 1 — W1 · Token foundation
+TIER: mvp
+TASKS: 6 (T1 tokens+generator · T2 global.css swap+fonts · T3 theme collapse · T4 token-check+CI · T5 verify · T6 Playwright proof), 1 commit (b01d2fc)
+DEVIATIONS: 0 structural, 1 minor (settings e2e theme-toggle test removed — direct consequence of dropping the switcher; orphaned i18n theme keys left for the Wf sweep)
+VERIFIED: tsc + vite build green; vitest 137/137; eslint 0 errors (88 pre-existing warnings); check:token-classes green (100 files); Playwright /sign-in recolor proof desktop+mobile — gastify violet-on-cream + Outfit confirmed.
+RUNTIME EVIDENCE: tests/web-e2e/proof/w1-token-foundation/{sign-in-desktop,sign-in-mobile}.png (local vite :5188 staging-e2e mode). Protected-route visual proof deferred to production verify at /gabe-push (no local backend; D97).
+- 2026-06-25 17:32 | Write | /home/khujta/.claude/projects/-home-khujta-projects-apps-gastify/memory/project_web_e2e_clean_port.md
+- 2026-06-25 17:33 | Edit | /home/khujta/.claude/projects/-home-khujta-projects-apps-gastify/memory/MEMORY.md
+
+## 2026-06-25 17:35 — PHASE 1 REVIEW: W1 · Token foundation
+VERDICT: APPROVE
+FINDINGS: 4 total (0 critical, 0 high, 1 medium, 3 low)
+COVERAGE: MEDIUM — CSS/token changes inherently unit-test-free; behavioral change (theme removal) covered by build + updated e2e + 137 vitest green
+CONFIDENCE: 84/100
+DEFERRED: P90 (orphaned i18n theme keys → Wf sweep)
+ALIGNMENT: ALIGNED (W1 token-foundation diff + epic-opening KDBP scaffolding)
+TIER: mvp | DRIFT: none
+TICK: ✅
+NOTES: blast radius verified clean (0 dangling theme-API consumers, 0 dead data-theme/.dark writes). Accepted: M#1 runtime-evidence-partial (sign-in proven; protected-route recolor planned for production verify at /gabe-push). Dismissed: L#3 stale localStorage theme keys (harmless), L#4 Google-Fonts CDN (standard, mirrors design-lab, Enterprise-gate).

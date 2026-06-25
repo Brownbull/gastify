@@ -4,14 +4,10 @@ import { useAuth } from "@/hooks/useAuth";
 import { useI18n } from "@/hooks/useI18n";
 import { SUPPORTED_LOCALES, type SupportedLocale } from "@/lib/i18n";
 import { apiClient } from "@/lib/api";
-import { useUiStore, type ColorTheme, type ThemeMode } from "@/stores/uiStore";
 
 export const Route = createFileRoute("/settings")({
   component: SettingsPage,
 });
-
-const COLOR_THEMES: ColorTheme[] = ["normal", "professional", "mono"];
-const THEME_MODES: ThemeMode[] = ["light", "dark"];
 
 function SettingsPage() {
   const { t } = useI18n();
@@ -25,7 +21,7 @@ function SettingsPage() {
       <CurrencySection />
       <DateFormatSection />
       <LearnedMappingsSection />
-      <AppearanceSection />
+      <LanguageSection />
       <DataSection />
       <AccountSection />
     </div>
@@ -263,55 +259,12 @@ function LearnedMappingsSection() {
   );
 }
 
-function AppearanceSection() {
+function LanguageSection() {
   const { t, locale, setLocale } = useI18n();
-  const colorTheme = useUiStore((s) => s.colorTheme);
-  const themeMode = useUiStore((s) => s.themeMode);
-  const setColorTheme = useUiStore((s) => s.setColorTheme);
-  const setThemeMode = useUiStore((s) => s.setThemeMode);
-
-  const themeLabels: Record<ColorTheme, string> = {
-    normal: t("settings.theme.normal"),
-    professional: t("settings.theme.professional"),
-    mono: t("settings.theme.mono"),
-  };
-
-  const modeLabels: Record<ThemeMode, string> = {
-    light: t("settings.mode.light"),
-    dark: t("settings.mode.dark"),
-  };
 
   return (
-    <SectionCard title={t("settings.appearance")}>
-      <FieldRow label={t("settings.colorTheme")}>
-        <select
-          value={colorTheme}
-          onChange={(e) => setColorTheme(e.target.value as ColorTheme)}
-          className="rounded-md border bg-transparent px-3 py-1.5 text-sm"
-          style={{ borderColor: "var(--border-light)", color: "var(--text-primary)" }}
-        >
-          {COLOR_THEMES.map((theme) => (
-            <option key={theme} value={theme}>
-              {themeLabels[theme]}
-            </option>
-          ))}
-        </select>
-      </FieldRow>
-      <FieldRow label={t("settings.themeMode")}>
-        <select
-          value={themeMode}
-          onChange={(e) => setThemeMode(e.target.value as ThemeMode)}
-          className="rounded-md border bg-transparent px-3 py-1.5 text-sm"
-          style={{ borderColor: "var(--border-light)", color: "var(--text-primary)" }}
-        >
-          {THEME_MODES.map((mode) => (
-            <option key={mode} value={mode}>
-              {modeLabels[mode]}
-            </option>
-          ))}
-        </select>
-      </FieldRow>
-      <FieldRow label={t("locale.label")}>
+    <SectionCard title={t("locale.label")}>
+      <div className="flex items-center justify-end">
         <select
           value={locale}
           onChange={(e) => setLocale(e.target.value as SupportedLocale)}
@@ -324,7 +277,7 @@ function AppearanceSection() {
             </option>
           ))}
         </select>
-      </FieldRow>
+      </div>
     </SectionCard>
   );
 }

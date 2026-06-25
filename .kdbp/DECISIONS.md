@@ -2753,3 +2753,36 @@ cross-check the LLM's merchant/total/date against the signed SII data when a QR 
 **Alternatives considered.** Keep staging running (rejected: cost + maintenance for zero current value); pause stateless services only and keep the 3 Postgres (rejected: Postgres is the memory cost and can't sleep); keep staging as the test target but add the prod test login (rejected: defeats the cost saving and the user wants production as source of truth).
 
 **Status:** accepted (reversible — "until we decide otherwise"). **Affects:** `docs/runbooks/ENVIRONMENTS.md` (operating-mode banner + gate-order override), `RAILWAY-STAGING-TEARDOWN.md`, `PRODUCTION-TEST-USER.md`, and the Gabe Review-after-staging gate behavior. Suspends the "production guarded until staging green" stance for the D33–D40-era runtime gating while active.
+
+## D98 — Web Migration epic: depth/theme/rollout + per-phase tier slate (2026-06-25)
+
+**Context.** New real-app PLAN.md epic — migrate the Playful Geometric design system (built in `design-lab/`, Phases 1–10) into the live `web/` app. View-only: TanStack Query hooks, `lib/api.ts`, i18n, firebase, zustand stores all stay; design-lab screens are presentational and wire to existing hooks. Supersedes the completed rate-limit epic (archived `.kdbp/archive/completed_PLAN_2026-06-25_rate-limit-tier-quota.md`). `PLAN-MOCKUPS.md` untouched.
+
+**Architecture decisions (user-confirmed 2026-06-25):**
+- **D-A · Depth = Full adoption, sequenced.** Adopt the geometric grammar + port design-lab components/screens, not palette-only. Rationale: web styles via 721 inline `var(--*)` whose names match the Playful Geometric tokens, so a `:root` swap auto-recolors the whole app at W1 (the palette-only result as a free checkpoint) — but the grammar (2px ink borders, hard zero-blur offset shadows, extrabold Outfit, framed surfaces, pill chips, underline inputs, pixel icons) is real component work the 76-component system exists to deliver. Sequenced full-adoption contains palette-only as W1, then continues — strictly dominates.
+- **D-B · Theme = Single Playful Geometric theme, defer dark.** Drop the warm 3-theme (normal/professional/mono) × light/dark switcher (6 live schemes today). design-lab is single-theme (DM-1) and light-only — no dark tokens exist. Keeping the switcher contradicts the identity and multiplies every screen's work ×6. Accepted cost: dark-mode regression (re-addable later as a token extension; flag to users).
+- **D-C · Rollout = Incremental, phase-by-phase.** Each phase shippable with its own Playwright visual proof → `/gabe-review` → `/gabe-commit` → `/gabe-push`. Coherent in-between (all violet/cream from W1), per-screen rollback. Big-bang rejected: one unreviewable PR with no per-screen visual proof.
+
+**Per-phase tier decisions** (base tier per phase; no per-dim overrides; consolidated entry — all phases reference D98):
+
+| Phase | Tier | Reason |
+|-------|------|--------|
+| W1 Token foundation | mvp | Small mechanical diff, whole-app leverage; prove nothing renders broken. Default MVP pick per U2. |
+| W2 App shell + nav | mvp | Core navigation in new grammar; IA 11→4 + Router adaptation. Default MVP. |
+| W3 Settings + Notifications | mvp | Lowest-risk screens; establishes screen-port playbook. Default MVP. |
+| W4 Transactions (list+detail+new) | mvp | Core daily-use CRUD; DM-7 decomposition ports reusable molecules. Default MVP. |
+| W5 Items browse | mvp | Search + infinite scroll; reuses W4 molecules. Default MVP. |
+| W6 Scan (single+batch+statements) | **ent** | Highest-interaction, SSE-stateful, multi-step with error/reconcile edge cases; MVP happy-path-only would leak broken states. Ent = full state + error coverage + journey proof. |
+| W7 Analytics — trends + spending | **ent** | Heaviest visual port (3 chart engines), interactive drill-downs; MVP would ship fragile/inaccessible charts. Ent = responsive + a11y + interaction fidelity. |
+| W8 Reports | mvp | DM-34 static snapshots (never regenerated) — simpler than live analytics. Default MVP. |
+| W9 Groups | mvp | Standard list/detail/invite/share CRUD on existing group hooks. Default MVP. |
+| W10 Dashboard (index) | **ent** | Landing screen (highest polish bar) composing the heaviest analytics; the app's first impression. Ent = pixel-fidelity + responsive + a11y. |
+| Wf Cleanup + visual-regression sweep | **ent** | QA capstone; regression rigor IS the deliverable — full VR matrix × viewports + e2e + CI gate. |
+
+**Tier distribution:** mvp × 7, ent × 4, scale × 0. Prototypes: 0. No `dim_overrides` on any phase.
+
+**Δ deferred by MVP choice (the 7 mvp phases):** edge-case + a11y + responsive-stress coverage deferred to per-screen Playwright happy-path proof; acceptable at mvp maturity for view-only ports. **Review trigger to escalate any mvp screen phase:** when a ported screen shows responsive breakage or a11y failure in the Wf regression sweep, or when real users report it.
+
+**Verification model.** Per D97 (production-direct) staging is retired — per-screen proof = Playwright screenshots on the local dev server vs the design-lab Storybook reference, + production verify via `/gabe-push`. BEHAVIOR.md B2's Railway-staging gate is superseded by D97 for this epic.
+
+**Status:** accepted.

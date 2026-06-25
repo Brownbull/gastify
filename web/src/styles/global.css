@@ -1,230 +1,28 @@
 @import "tailwindcss";
+@import "./tokens.css";
 
 /* ================================================================
-   Theme System — 3 color themes × light/dark
-   Ported from legacy BoletApp (index.html CSS custom properties).
-   Switching: data-theme="professional"|"mono" on <html>, .dark class.
-   Default (no data-theme): Normal (warm palette).
+   Playful Geometric — single theme (DM-1).
+
+   Token VALUES + the `gt-*` @theme namespace live in ./tokens.css
+   (generated from shared/design-tokens.ts — never hand-edit; run
+   `npm run generate:tokens`). The ~721 inline `var(--*)` usages across
+   web/src recolor automatically because the var NAMES are unchanged
+   from the prior warm theme — only the values swapped.
+
+   The old warm 3-theme (normal/professional/mono) × light/dark switcher
+   was dropped (D-B): single light theme, dark deferred. design-lab has
+   no dark tokens; re-add later as a token extension if wanted.
    ================================================================ */
 
 :root {
-  --font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
-
-  /* Normal theme — light mode (warm, Ni No Kuni palette) */
-  --bg: #f5f0e8;
-  --bg-secondary: #ffffff;
-  --bg-tertiary: #f1dbb6;
-  --surface: #ffffff;
-  --primary: #4a7c59;
-  --primary-hover: #3d6b4a;
-  --primary-light: #d4e5d9;
-  --secondary: #5b8fa8;
-  --accent: #e8a87c;
-  --success: #7d9b5f;
-  --warning: #f59e0b;
-  --error: #ef4444;
-  --text-primary: #2d3a4a;
-  --text-secondary: #4a5568;
-  --text-tertiary: #7d9b5f;
-  --border-light: #e3bba1;
-  --border-medium: #d4a574;
-
-  --chart-1: #4a7c59;
-  --chart-2: #f59e0b;
-  --chart-3: #8b5cf6;
-  --chart-4: #9ca3af;
-  --chart-5: #5b8fa8;
-  --chart-6: #e8a87c;
-
-  --positive-primary: #3d8c5a;
-  --positive-bg: #e8f5ec;
-  --negative-primary: #b85c4a;
-  --negative-bg: #f8ebe8;
-  --neutral-primary: #7a7268;
-  --neutral-bg: #f4f2f0;
-
-  /* Legacy compat aliases */
+  /* Legacy compat aliases — heavily used inline (--border/--text-muted/--text
+     account for ~342 of the inline usages). Re-pointed at the Playful
+     Geometric base vars defined in tokens.css. */
   --text: var(--text-primary);
   --text-muted: var(--text-tertiary);
   --border: var(--border-light);
 }
-
-.dark {
-  /* Normal theme — dark mode */
-  --bg: #1a2420;
-  --bg-secondary: #243028;
-  --bg-tertiary: #2d3d32;
-  --surface: #243028;
-  --primary: #6b9e7a;
-  --primary-hover: #5a8a68;
-  --primary-light: #2d3d32;
-  --secondary: #7ba8be;
-  --accent: #d4a574;
-  --success: #8fbf9c;
-  --warning: #fbbf24;
-  --error: #f87171;
-  --text-primary: #e8e4dc;
-  --text-secondary: #b8c4a8;
-  --text-tertiary: #6b8b5f;
-  --border-light: #3d4d42;
-  --border-medium: #4d5d52;
-
-  --chart-1: #6b9e7a;
-  --chart-2: #fbbf24;
-  --chart-3: #a78bfa;
-  --chart-4: #71717a;
-  --chart-5: #7ba8be;
-  --chart-6: #d4a574;
-
-  --positive-primary: #7cc494;
-  --positive-bg: #1a3828;
-  --negative-primary: #d4948a;
-  --negative-bg: #3a2420;
-  --neutral-primary: #b8b0a8;
-  --neutral-bg: #2a2824;
-}
-
-/* Professional theme — light mode (cool blue) */
-[data-theme="professional"] {
-  --bg: #f8fafc;
-  --bg-secondary: #ffffff;
-  --bg-tertiary: #f1f5f9;
-  --surface: #ffffff;
-  --primary: #2563eb;
-  --primary-hover: #1d4ed8;
-  --primary-light: #dbeafe;
-  --secondary: #64748b;
-  --accent: #0ea5e9;
-  --success: #22c55e;
-  --warning: #f59e0b;
-  --error: #ef4444;
-  --text-primary: #0f172a;
-  --text-secondary: #475569;
-  --text-tertiary: #94a3b8;
-  --border-light: #e2e8f0;
-  --border-medium: #cbd5e1;
-
-  --chart-1: #2563eb;
-  --chart-2: #22c55e;
-  --chart-3: #f59e0b;
-  --chart-4: #ef4444;
-  --chart-5: #8b5cf6;
-  --chart-6: #ec4899;
-
-  --positive-primary: #16a34a;
-  --positive-bg: #dcfce7;
-  --negative-primary: #dc2626;
-  --negative-bg: #fee2e2;
-  --neutral-primary: #64748b;
-  --neutral-bg: #f1f5f9;
-}
-
-/* Professional theme — dark mode */
-[data-theme="professional"].dark {
-  --bg: #0f172a;
-  --bg-secondary: #1e293b;
-  --bg-tertiary: #334155;
-  --surface: #1e293b;
-  --primary: #3b82f6;
-  --primary-hover: #2563eb;
-  --primary-light: #1e3a5f;
-  --secondary: #94a3b8;
-  --accent: #38bdf8;
-  --success: #4ade80;
-  --warning: #fbbf24;
-  --error: #f87171;
-  --text-primary: #f1f5f9;
-  --text-secondary: #cbd5e1;
-  --text-tertiary: #64748b;
-  --border-light: #334155;
-  --border-medium: #475569;
-
-  --chart-1: #3b82f6;
-  --chart-2: #4ade80;
-  --chart-3: #fbbf24;
-  --chart-4: #f87171;
-  --chart-5: #a78bfa;
-  --chart-6: #f472b6;
-
-  --positive-primary: #4ade80;
-  --positive-bg: #14532d;
-  --negative-primary: #f87171;
-  --negative-bg: #7f1d1d;
-  --neutral-primary: #94a3b8;
-  --neutral-bg: #334155;
-}
-
-/* Mono theme — light mode (minimal grayscale) */
-[data-theme="mono"] {
-  --bg: #fafafa;
-  --bg-secondary: #ffffff;
-  --bg-tertiary: #f4f4f5;
-  --surface: #ffffff;
-  --primary: #18181b;
-  --primary-hover: #27272a;
-  --primary-light: #f4f4f5;
-  --secondary: #52525b;
-  --accent: #52525b;
-  --success: #22c55e;
-  --warning: #f59e0b;
-  --error: #ef4444;
-  --text-primary: #18181b;
-  --text-secondary: #52525b;
-  --text-tertiary: #a1a1aa;
-  --border-light: #e4e4e7;
-  --border-medium: #d4d4d8;
-
-  --chart-1: #18181b;
-  --chart-2: #52525b;
-  --chart-3: #71717a;
-  --chart-4: #a1a1aa;
-  --chart-5: #d4d4d8;
-  --chart-6: #52525b;
-
-  --positive-primary: #3a8c70;
-  --positive-bg: #e4f2ec;
-  --negative-primary: #a05858;
-  --negative-bg: #f4e8e8;
-  --neutral-primary: #686870;
-  --neutral-bg: #f0f0f2;
-}
-
-/* Mono theme — dark mode */
-[data-theme="mono"].dark {
-  --bg: #09090b;
-  --bg-secondary: #18181b;
-  --bg-tertiary: #27272a;
-  --surface: #18181b;
-  --primary: #3f3f46;
-  --primary-hover: #52525b;
-  --primary-light: #27272a;
-  --secondary: #a1a1aa;
-  --accent: #a1a1aa;
-  --success: #4ade80;
-  --warning: #fbbf24;
-  --error: #f87171;
-  --text-primary: #fafafa;
-  --text-secondary: #d4d4d8;
-  --text-tertiary: #71717a;
-  --border-light: #27272a;
-  --border-medium: #3f3f46;
-
-  --chart-1: #3f3f46;
-  --chart-2: #a1a1aa;
-  --chart-3: #71717a;
-  --chart-4: #52525b;
-  --chart-5: #d4d4d8;
-  --chart-6: #a1a1aa;
-
-  --positive-primary: #78c0a8;
-  --positive-bg: #1a3830;
-  --negative-primary: #c89898;
-  --negative-bg: #382828;
-  --neutral-primary: #a8a8b0;
-  --neutral-bg: #2a2a30;
-}
-
-/* ================================================================ */
 
 * {
   margin: 0;
