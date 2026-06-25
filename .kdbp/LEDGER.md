@@ -5140,6 +5140,10 @@ NOTE: USER — Phase-10 flow stories (gates→FLOWS→handoff→mobile). scan→
 ## 2026-06-25 — Phase 10 handoff doc (web+mobile) + consolidation map [9beb2a1]  [MOCKUPS]
 GATES: docs only · prior gates/flows green (storybook 222/222)
 NOTE: USER — Phase-10 capstone, audience = web + mobile (AskUserQuestion). docs/mockups/HANDOFF.md covers: (1) token system — shared/design-tokens.ts → generate:tokens → tokens.css → gt-*; the 7 @theme namespaces + counts; the gt-1 silent no-op gotcha now guarded by check:token-classes. (2) component inventory — 76 (21 atoms/46 molecules/7 organisms/2 assets); Button variants primary·secondary·success·danger·ghost × sm·md·lg. (3) 40 screens / 9 features + flow stories (Flows/Scan, Flows/Spending, AuthFlow, SettingsFlow; DM-5 4-tab+FAB nav). (4) run commands + gates + load-bearing decisions. (5) WEB port: lift tokens + gt-* verbatim, run check:token-classes in web CI, lift the presentational design-system, swap fixtures→data at the screen boundary keeping the host-owns-state props. (6) MOBILE token adapter: mobile/src/providers/ThemeProvider.tsx STILL runs the PRE-DM-1 warm/professional/mono×light/dark palette, does NOT consume shared/design-tokens, and has no NativeWind → re-point it at @shared/design-tokens `colors` (collapse to the single Playful Geometric theme; add the new positive/negative/neutral roles its ThemeColors lacks); spacing/radius/fontSize consumed as plain RN StyleSheet numbers; the hard zero-blur offset shadow needs per-platform translation (known drift). (7) consolidation map (token/utility/component/screen/gate → web vs mobile) + known gaps. Discovered+documented a flow-title inconsistency (Scan/Spending under Flows/ but Auth/Settings under Features/.../Screens — flagged for a later standardize pass). PHASE-10 STATUS: gates ✅ · flows ✅ · handoff ✅. PLAN.md untouched (mockup lane).
+
+## 2026-06-25 — Dona/Mapa interaction rework: icon→detail, count→history [1603007]  [MOCKUPS]
+GATES: gates ✅ · types ✅ · build ✅ · storybook 222/222 · Playwright proof (icon / transactions / items)
+NOTE: USER (on flows-spending--spending) reworked the donut + treemap click model — the two click targets SWAP roles. (1) a section's ICON (donut legend LEFT IconTile, or the treemap cell's icon-label region — NOT the cell body) now opens the section DETAIL report (CategoryDetailScreen) — previously the count pill's job. (2) a section's COUNT pill no longer opens the detail; it opens that section's HISTORY filtered by the count toggle: transactions → the Compras list filtered to that L1 category (e.g. Supermercados → 9 boletas · $165.750); items → Productos (ItemsBrowse) under the section header. The cell BODY still drills the taxonomy (unchanged); the drill chevron + wedge-select unchanged. Plumbing: DonutLegend +onIconClick (wraps the left IconTile in a button); TreemapCell +onIconClick (icon/label → stopPropagation detail click; tiny cells + the "Más" fold stay drill-only); Treemap passthrough; TrendsRepresentations now routes onIconClick→onOpenCategory and onCountClick→onOpenHistory(id, countMode) for BOTH diagrams (countMode lives in TrendsRepresentations so it tags the entity type); SpendingScreen threads +onOpenHistory. Flows/Spending rewired to 3 overlay targets (detail via icon, Compras-filtered via transactions count, Productos via items count); CategoryDetail's "Ver todas" also routes to the transactions list. LIMITATION (documented in the story + handoff): items history is keyed by item-category in the fixtures, not the L1 rubro, so the items view shows the Productos list under the section header — the real L1→item filter is a backend join. Verified all 3 via Playwright (aria "Ver detalle de Supermercados" / "15 transacciones — ver" / "87 ítems — ver"). PLAN.md untouched (mockup lane).
 - 2026-06-24 16:37 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/historial/screens/HistorialScreen.tsx
 - 2026-06-24 16:38 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/historial/screens/HistorialScreen.tsx
 - 2026-06-24 16:38 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/compras/screens/ComprasScreen.tsx
@@ -5239,3 +5243,38 @@ NOTE: USER — Phase-10 capstone, audience = web + mobile (AskUserQuestion). doc
 - 2026-06-25 11:31 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/scan/components/ReconcileGroup.tsx
 - 2026-06-25 11:57 | Write | /home/khujta/projects/apps/gastify/design-lab/scripts/check-token-classes.mjs
 - 2026-06-25 12:26 | Write | /home/khujta/projects/apps/gastify/docs/mockups/HANDOFF.md
+- 2026-06-25 12:31 | Write | /home/khujta/projects/apps/gastify/docs/runbooks/RAILWAY-STAGING-TEARDOWN.md
+- 2026-06-25 12:31 | Edit | /home/khujta/projects/apps/gastify/docs/runbooks/ENVIRONMENTS.md
+- 2026-06-25 12:31 | Edit | /home/khujta/projects/apps/gastify/docs/runbooks/RAILWAY-STAGING-SETUP.md
+- 2026-06-25 12:37 | Write | /home/khujta/projects/apps/gastify/web/src/lib/prodTestAuth.ts
+- 2026-06-25 12:37 | Edit | /home/khujta/projects/apps/gastify/web/src/hooks/useAuth.tsx
+- 2026-06-25 12:38 | Edit | /home/khujta/projects/apps/gastify/web/src/hooks/useAuth.tsx
+- 2026-06-25 12:38 | Edit | /home/khujta/projects/apps/gastify/web/src/hooks/useAuth.tsx
+- 2026-06-25 12:38 | Edit | /home/khujta/projects/apps/gastify/web/src/hooks/useAuth.tsx
+- 2026-06-25 12:38 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/DonutLegend.tsx
+- 2026-06-25 12:38 | Edit | /home/khujta/projects/apps/gastify/web/src/routes/sign-in.tsx
+- 2026-06-25 12:38 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/DonutLegend.tsx
+- 2026-06-25 12:38 | Edit | /home/khujta/projects/apps/gastify/web/src/routes/sign-in.tsx
+- 2026-06-25 12:38 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/DonutLegend.tsx
+- 2026-06-25 12:39 | Edit | /home/khujta/projects/apps/gastify/web/src/routes/sign-in.tsx
+- 2026-06-25 12:39 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/TreemapCell.tsx
+- 2026-06-25 12:39 | Edit | /home/khujta/projects/apps/gastify/web/src/routes/sign-in.tsx
+- 2026-06-25 12:39 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/TreemapCell.tsx
+- 2026-06-25 12:39 | Edit | /home/khujta/projects/apps/gastify/web/src/hooks/useAuth.test.tsx
+- 2026-06-25 12:39 | Edit | /home/khujta/projects/apps/gastify/web/src/hooks/useAuth.test.tsx
+- 2026-06-25 12:39 | Edit | /home/khujta/projects/apps/gastify/web/src/hooks/useAuth.test.tsx
+- 2026-06-25 12:39 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/molecules/TreemapCell.tsx
+- 2026-06-25 12:39 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/organisms/Treemap.tsx
+- 2026-06-25 12:40 | Edit | /home/khujta/projects/apps/gastify/web/.env.production.example
+- 2026-06-25 12:40 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/organisms/Treemap.tsx
+- 2026-06-25 12:40 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/organisms/Treemap.tsx
+- 2026-06-25 12:40 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/spending/components/TrendsRepresentations.tsx
+- 2026-06-25 12:40 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/spending/components/TrendsRepresentations.tsx
+- 2026-06-25 12:40 | Write | /home/khujta/projects/apps/gastify/docs/runbooks/PRODUCTION-TEST-USER.md
+- 2026-06-25 12:40 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/spending/components/TrendsRepresentations.tsx
+- 2026-06-25 12:40 | Edit | /home/khujta/projects/apps/gastify/docs/runbooks/ENVIRONMENTS.md
+- 2026-06-25 12:40 | Edit | /home/khujta/projects/apps/gastify/docs/runbooks/RAILWAY-STAGING-TEARDOWN.md
+- 2026-06-25 12:41 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/spending/screens/SpendingScreen.tsx
+- 2026-06-25 12:41 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/spending/screens/SpendingScreen.tsx
+- 2026-06-25 12:41 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/spending/screens/SpendingScreen.tsx
+- 2026-06-25 12:42 | Write | /home/khujta/projects/apps/gastify/design-lab/src/features/spending/screens/SpendingFlow.stories.tsx
