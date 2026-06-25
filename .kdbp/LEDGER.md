@@ -5112,6 +5112,10 @@ NOTE: USER — revise features + audit vs use cases (2 parallel Explore surveys:
 ## 2026-06-25 — review-feedback: recon popup, home Tendencia-only, status-alert icon [6ab86eb·1ac3669·6531d12]  [MOCKUPS]
 GATES: storybook 212/212 · types ✅ · build ✅
 NOTE: USER feedback on 3 URLs. (1) Home [6ab86eb]: dropped the treemap entirely — removed the Mapa/Tendencia toggle + rep state + MonthTreemapCard import; "Este mes" breakdown = MonthTrendCard title="Tendencia" only (MonthTreemapCard component+story kept, unused on home). (2) Matched/shared popup [1ac3669]: tapping a Conciliada/Compartida row now opens TxnLockPopup FIRST (PurchasesScreen.stories onSelectTxn → t.status ? setLockTxn : setDetailTxn; popup rendered as a fragment sibling of AppScaffold) — explains the lock + shows the PAIR: matched → derived credit-card statement line (CMR Falabella · UPPERCASE merchant · clp + "Monto exacto/Fecha cercana" pills); shared → GroupAvatar "Familia González" + "Compartida por ti". "Ver transacción" → setDetailTxn(lockTxn) (locked detail). (3) status-alert icon [6531d12]: status-alert.png was MISSING (never in the 4-icon status-* regen) → needs-review banner / item-flag "Marcada" pill / consent audit all showed a broken img. GENERATED via the locked-style scripts/generate-icons.cjs (PixelLab SDK, secret from `claude mcp list`, 64x64 no-bg single-black-outline warm-flat) — subject "round warning alert sign, white exclamation inside a filled amber circle" → public/pixel-icons/status-alert.png (4073B); now renders everywhere. PLAN.md untouched (mockup lane).
+
+## 2026-06-25 — transaction-row redesign [8efa4ec · c1be65f]  [MOCKUPS]
+GATES: storybook 212/212 · types ✅ · build ✅
+NOTE: USER row-feedback (2 commits). [8efa4ec] conciliada/shared as THUMBNAIL CORNER BADGES not text pills: new TxnThumbnail (store glyph = receipt-photo placeholder) — shared→violet ShareIcon upper-left, matched→green scan-statement bottom-right; dropped StatusPill. [c1be65f] consolidation + reorg: BrowseTransaction status→matched?/shared? booleans (a txn can be BOTH; t1=both, t4=shared); tx builder param status→flags{matched,shared}. TxnLockPopup = ONE consolidated screen (LinkRow helper): renders CONCILIADA CON (statement line) AND/OR COMPARTIDA EN (group) sections — both when both apply; title "Conciliada y compartida"; either corner badge opens the same popup (onSelectTxn → matched||shared ? setLockTxn). Removed the category icon overlay from the thumbnail (category now only the row chip). Row text reordered via CompactRow slots: title=merchant, meta=CategoryChip (below title), tags=MetaLine wrapped (below category); MetaLine now "{date} · {time} · 📍{location}" with the chart-calendar icon REMOVED. PurchasesScreen.stories locked reason = matched?"matched":"shared". Playwright: rows (Líder both badges) + popup (both sections). PLAN.md untouched (mockup lane).
 - 2026-06-24 16:37 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/historial/screens/HistorialScreen.tsx
 - 2026-06-24 16:38 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/historial/screens/HistorialScreen.tsx
 - 2026-06-24 16:38 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/compras/screens/ComprasScreen.tsx
@@ -5191,3 +5195,13 @@ NOTE: USER feedback on 3 URLs. (1) Home [6ab86eb]: dropped the treemap entirely 
 - 2026-06-25 10:00 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/home/screens/HomeScreen.tsx
 - 2026-06-25 10:00 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/home/screens/HomeScreen.tsx
 - 2026-06-25 10:01 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/home/screens/HomeScreen.tsx
+- 2026-06-25 10:31 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/purchases/screens/PurchasesScreen.tsx
+- 2026-06-25 10:31 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/purchases/screens/PurchasesScreen.tsx
+- 2026-06-25 10:32 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/purchases/screens/PurchasesScreen.tsx
+- 2026-06-25 10:39 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/lib/browseFixtures.ts
+- 2026-06-25 10:39 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/lib/browseFixtures.ts
+- 2026-06-25 10:40 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/lib/browseFixtures.ts
+- 2026-06-25 10:40 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/lib/browseFixtures.ts
+- 2026-06-25 10:40 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/purchases/screens/PurchasesScreen.tsx
+- 2026-06-25 10:41 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/purchases/screens/PurchasesScreen.tsx
+- 2026-06-25 10:41 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/purchases/screens/PurchasesScreen.tsx
