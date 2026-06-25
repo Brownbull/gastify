@@ -5318,3 +5318,4 @@ CI: 11/14 pass; 3 FAIL — all pre-existing branch debt, unrelated to 2a7b4be:
   - SCA Audit: pip-audit backend dep CVEs (aiohttp/starlette/pypdf/cryptography/...)
   - ALL Web checks (Build/Lint/Test/Typecheck) PASS — the test-login change is clean.
 MERGE: held pending user decision (do not merge over red CI unilaterally).
+- 2026-06-25 15:22 | Edit | /home/khujta/projects/apps/gastify/mobile/package.json
