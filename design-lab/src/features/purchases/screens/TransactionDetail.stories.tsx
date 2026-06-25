@@ -42,3 +42,27 @@ export const Supermercado: Story = {
     );
   },
 };
+
+/** Locked — matched to a statement line (read-only; edit it by deleting the reconciliation). */
+export const Matched: Story = {
+  render: (_args, { globals }) => {
+    const platform = platformFromGlobals(globals);
+    return (
+      <AppSurface platform={platform}>
+        <TransactionDetail txn={SUPERMARKET_TXN} platform={platform} locked={{ reason: "matched" }} onBack={() => {}} />
+      </AppSurface>
+    );
+  },
+};
+
+/** Locked — shared into a group (read-only). */
+export const Shared: Story = {
+  render: (_args, { globals }) => {
+    const platform = platformFromGlobals(globals);
+    return (
+      <AppSurface platform={platform}>
+        <TransactionDetail txn={sampleTxn} platform={platform} locked={{ reason: "shared", groupName: "Familia González" }} onBack={() => {}} />
+      </AppSurface>
+    );
+  },
+};

@@ -30,6 +30,8 @@ export interface EditableItemProps {
   onChange: (patch: Partial<TxnItem>) => void;
   onDelete: () => void;
   onPickCategory: () => void;
+  /** display-only: the collapsed row is not tappable (locked transactions). */
+  readOnly?: boolean;
 }
 
 /**
@@ -40,7 +42,7 @@ export interface EditableItemProps {
  * total — plus cancel · delete · accept. Shared by the scan review and the
  * saved-transaction detail.
  */
-export function EditableItem({ item, currency, editing, onEnterEdit, onCommit, onCancelEdit, onChange, onDelete, onPickCategory }: EditableItemProps) {
+export function EditableItem({ item, currency, editing, onEnterEdit, onCommit, onCancelEdit, onChange, onDelete, onPickCategory, readOnly = false }: EditableItemProps) {
   const cur = getCurrency(currency);
   const total = item.unitPrice * item.units; // derived, read-only
 
@@ -56,25 +58,32 @@ export function EditableItem({ item, currency, editing, onEnterEdit, onCommit, o
 
   // collapsed — whole row taps into edit; no trailing icon.
   if (!editing) {
+    const content = (
+      <>
+        <span className="min-w-0 flex-1">
+          <span className="block truncate font-gt-display text-gt-md font-extrabold text-gt-ink">{item.name}</span>
+          <span className="mt-gt-2 flex min-w-0 items-center gap-gt-6">
+            <CategoryChip category={item.category} size="sm" />
+            {item.subcategory ? (
+              <span className="truncate font-gt-display text-gt-xs font-extrabold" style={{ color: getCategoryToken(item.category).color }}>
+                {item.subcategory}
+              </span>
+            ) : null}
+          </span>
+        </span>
+        <span className="flex shrink-0 flex-col items-end">
+          <span className="font-gt-display text-gt-md font-extrabold text-gt-ink">{formatMoney(total, currency)}</span>
+          <span className="text-gt-xs font-medium text-gt-ink-2">{formatMoney(item.unitPrice, currency)} ×{item.units}</span>
+        </span>
+      </>
+    );
     return (
       <li>
-        <button type="button" onClick={onEnterEdit} className="flex w-full items-center gap-gt-10 px-gt-12 py-gt-10 text-left transition hover:bg-gt-bg-3">
-          <span className="min-w-0 flex-1">
-            <span className="block truncate font-gt-display text-gt-md font-extrabold text-gt-ink">{item.name}</span>
-            <span className="mt-gt-2 flex min-w-0 items-center gap-gt-6">
-              <CategoryChip category={item.category} size="sm" />
-              {item.subcategory ? (
-                <span className="truncate font-gt-display text-gt-xs font-extrabold" style={{ color: getCategoryToken(item.category).color }}>
-                  {item.subcategory}
-                </span>
-              ) : null}
-            </span>
-          </span>
-          <span className="flex shrink-0 flex-col items-end">
-            <span className="font-gt-display text-gt-md font-extrabold text-gt-ink">{formatMoney(total, currency)}</span>
-            <span className="text-gt-xs font-medium text-gt-ink-2">{formatMoney(item.unitPrice, currency)} ×{item.units}</span>
-          </span>
-        </button>
+        {readOnly ? (
+          <div className="flex w-full items-center gap-gt-10 px-gt-12 py-gt-10">{content}</div>
+        ) : (
+          <button type="button" onClick={onEnterEdit} className="flex w-full items-center gap-gt-10 px-gt-12 py-gt-10 text-left transition hover:bg-gt-bg-3">{content}</button>
+        )}
       </li>
     );
   }

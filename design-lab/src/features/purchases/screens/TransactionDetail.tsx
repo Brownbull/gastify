@@ -14,6 +14,8 @@ import { CurrencyPicker } from "@design-system/molecules/CurrencyPicker";
 import { SegmentedToggle } from "@design-system/atoms/SegmentedToggle";
 import { Modal } from "@design-system/atoms/Modal";
 import { Button } from "@design-system/atoms/Button";
+import { Badge } from "@design-system/atoms/Badge";
+import { PixelIcon } from "@design-system/assets/PixelIcon";
 import type { Platform } from "@design-system/organisms/AppSurface";
 import { sampleTxn, type TxnCadence, type TxnDetail, type TxnItem } from "@lib/transactionFixtures";
 import { CASH, SAMPLE_CARDS } from "@lib/paymentMethods";
@@ -38,12 +40,14 @@ export interface TransactionDetailProps {
   onSave?: () => void;
   /** confirmed deletion — the host removes the transaction + closes the detail. */
   onDelete?: () => void;
+  /** locked (read-only) — a statement-matched or group-shared transaction. */
+  locked?: { reason: "matched" | "shared"; groupName?: string };
   platform?: Platform;
 }
 
 const PAYMENT_METHODS = [CASH, ...SAMPLE_CARDS];
 
-export function TransactionDetail({ txn = sampleTxn, onBack, onSave, onDelete, platform = "mobile" }: TransactionDetailProps) {
+export function TransactionDetail({ txn = sampleTxn, onBack, onSave, onDelete, locked, platform = "mobile" }: TransactionDetailProps) {
   // editable transaction-level fields (tap to edit, like the scan review).
   const [merchant, setMerchant] = useState<string>(txn.merchant);
   const [category, setCategory] = useState<string>(txn.category);
@@ -111,11 +115,18 @@ export function TransactionDetail({ txn = sampleTxn, onBack, onSave, onDelete, p
         onChange={(patch) => setItem(gi, ii, patch)}
         onDelete={() => deleteItem(gi, ii)}
         onPickCategory={() => setItemCatKey(key)}
+        readOnly={!!locked}
       />
     );
   };
   // desktop: cap + center the single column (it never fills the wide pane).
   const contentMax = platform === "desktop" ? "44rem" : undefined;
+  // a locked txn (matched to a statement line / shared into a group) is read-only.
+  const lockMeta = locked
+    ? locked.reason === "matched"
+      ? { badge: "Conciliada", icon: "scan-statement", title: "Conciliada con tu cartola", body: "Está vinculada a una línea de tu estado de cuenta. Elimina esa conciliación para poder editarla." }
+      : { badge: "Compartida", icon: "action-split", title: `Compartida en ${locked.groupName ?? "un grupo"}`, body: "Las transacciones compartidas en un grupo no se pueden editar." }
+    : null;
 
   return (
     <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden bg-gt-bg">
@@ -123,24 +134,40 @@ export function TransactionDetail({ txn = sampleTxn, onBack, onSave, onDelete, p
 
       <div className="min-h-0 flex-1 overflow-y-auto px-gt-16 pb-gt-16">
         <div className="mx-auto flex w-full flex-col gap-gt-16 pt-gt-12" style={{ maxWidth: contentMax }}>
+          {/* lock banner — read-only because matched to a statement / shared in a group */}
+          {lockMeta ? (
+            <div className="flex items-start gap-gt-10 rounded-gt-xl border-2 border-gt-line-strong bg-gt-bg-3 px-gt-12 py-gt-10">
+              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-gt-lg border-2 border-gt-line-strong bg-gt-surface">
+                <PixelIcon name={lockMeta.icon} size={24} />
+              </span>
+              <span className="flex min-w-0 flex-1 flex-col gap-gt-1">
+                <span className="flex flex-wrap items-center gap-gt-6">
+                  <span className="font-gt-display text-gt-sm font-extrabold text-gt-ink">{lockMeta.title}</span>
+                  <Badge tone="neutral">{lockMeta.badge}</Badge>
+                </span>
+                <span className="text-gt-xs font-medium text-gt-ink-2">{lockMeta.body}</span>
+              </span>
+            </div>
+          ) : null}
+
           <MerchantHeader
             txn={txn}
             merchantValue={merchant}
-            onMerchantChange={setMerchant}
+            onMerchantChange={locked ? undefined : setMerchant}
             categoryId={category}
-            onCategoryClick={() => setCatOpen(true)}
+            onCategoryClick={locked ? undefined : () => setCatOpen(true)}
             paymentId={payment}
-            onPaymentClick={() => setPayOpen(true)}
+            onPaymentClick={locked ? undefined : () => setPayOpen(true)}
             cadenceId={cadence}
-            onCadenceClick={() => setCadenceOpen(true)}
+            onCadenceClick={locked ? undefined : () => setCadenceOpen(true)}
             location={location}
-            onLocationClick={() => setLocOpen(true)}
+            onLocationClick={locked ? undefined : () => setLocOpen(true)}
             date={date}
-            onDateClick={() => setDateOpen(true)}
+            onDateClick={locked ? undefined : () => setDateOpen(true)}
             time={time}
-            onTimeClick={() => setTimeOpen(true)}
+            onTimeClick={locked ? undefined : () => setTimeOpen(true)}
             currencyValue={currency}
-            onCurrencyClick={() => setCurOpen(true)}
+            onCurrencyClick={locked ? undefined : () => setCurOpen(true)}
           />
 
           {/* view toggle — Original (receipt order, as the image) vs Por grupo (L3 familia) */}
@@ -174,10 +201,19 @@ export function TransactionDetail({ txn = sampleTxn, onBack, onSave, onDelete, p
         </div>
       </div>
 
-      {/* sticky footer: delete + the total folded into the save CTA */}
+      {/* sticky footer: locked → read-only total bar; else delete + save CTA */}
       <div className="shrink-0 border-t-2 border-gt-line bg-gt-surface px-gt-16 py-gt-12">
         <div className="mx-auto w-full" style={{ maxWidth: contentMax }}>
-          <TransactionTotal total={total} itemCount={itemCount} onSave={onSave} onDelete={() => setConfirmDelete(true)} saveLabel="Guardar" format={fmt} />
+          {locked ? (
+            <div className="flex items-center justify-between rounded-gt-xl border-2 border-gt-line-strong bg-gt-bg-3 px-gt-16 py-gt-10">
+              <span className="flex items-center gap-gt-4 font-gt-display text-gt-sm font-extrabold text-gt-ink-3">
+                <PixelIcon name={lockMeta?.icon ?? "scan-statement"} size={18} /> {itemCount} ítem{itemCount === 1 ? "" : "s"} · solo lectura
+              </span>
+              <span className="font-gt-display text-gt-xl font-extrabold text-gt-ink">{fmt(total)}</span>
+            </div>
+          ) : (
+            <TransactionTotal total={total} itemCount={itemCount} onSave={onSave} onDelete={() => setConfirmDelete(true)} saveLabel="Guardar" format={fmt} />
+          )}
         </div>
       </div>
 
