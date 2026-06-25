@@ -64,6 +64,11 @@ export function EditableItem({ item, currency, editing, onEnterEdit, onCommit, o
           <span className="block truncate font-gt-display text-gt-md font-extrabold text-gt-ink">{item.name}</span>
           <span className="mt-gt-2 flex min-w-0 items-center gap-gt-6">
             <CategoryChip category={item.category} size="sm" />
+            {item.flagged ? (
+              <span className="inline-flex shrink-0 items-center gap-gt-2 rounded-gt-pill border-2 border-gt-warning bg-gt-bg-3 px-gt-4 py-gt-0 font-gt-display text-gt-xs font-extrabold text-gt-warning">
+                <PixelIcon name="status-alert" size={13} /> Marcada
+              </span>
+            ) : null}
             {item.subcategory ? (
               <span className="truncate font-gt-display text-gt-xs font-extrabold" style={{ color: getCategoryToken(item.category).color }}>
                 {item.subcategory}
@@ -123,6 +128,23 @@ export function EditableItem({ item, currency, editing, onEnterEdit, onCommit, o
             <span className="rounded-gt-md border-2 border-gt-line bg-gt-surface px-gt-8 py-gt-2 font-gt-display text-gt-sm font-extrabold text-gt-ink-2">{formatMoney(total, currency)}</span>
           </label>
         </div>
+
+        {/* personal flag (REQ-11) — excluded from analytics + groups; total unchanged */}
+        <button
+          type="button"
+          aria-pressed={!!item.flagged}
+          onClick={() => onChange({ flagged: !item.flagged })}
+          className={`flex items-center gap-gt-8 rounded-gt-lg border-2 px-gt-10 py-gt-6 text-left transition ${item.flagged ? "border-gt-warning bg-gt-surface" : "border-gt-line bg-gt-surface hover:bg-gt-bg-3"}`}
+        >
+          <PixelIcon name="status-alert" size={20} className="shrink-0" />
+          <span className="min-w-0 flex-1">
+            <span className="block font-gt-display text-gt-xs font-extrabold text-gt-ink">{item.flagged ? "Ítem marcado" : "Marcar ítem"}</span>
+            <span className="block text-[10px] font-medium text-gt-ink-3">Alergias, dieta… — se excluye de los análisis y de los grupos.</span>
+          </span>
+          <span className={`grid h-5 w-5 shrink-0 place-items-center rounded-gt-md border-2 ${item.flagged ? "border-gt-warning bg-gt-warning text-white" : "border-gt-line-strong bg-gt-surface"}`}>
+            {item.flagged ? <span className="text-[10px] font-extrabold leading-none">✓</span> : null}
+          </span>
+        </button>
 
         <div className="grid grid-cols-3 gap-gt-8">
           <button type="button" aria-label="Cancelar" onClick={onCancelEdit} className="flex h-10 items-center justify-center rounded-gt-lg border-2 border-gt-line-strong bg-gt-surface text-gt-ink shadow-gt-xs transition hover:-translate-y-0.5">

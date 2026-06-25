@@ -19,6 +19,12 @@ export interface TxnItem {
    * prominent color (no chip/icon). Display-only; not user-editable. May be absent.
    */
   subcategory?: string;
+  /**
+   * User flag (REQ-11) — a personal marker (allergy / dieta / seguimiento).
+   * Visible only in your own views and EXCLUDED from every aggregation surface
+   * (analytics, cohort, shared-group views). Does not change the boleta total.
+   */
+  flagged?: boolean;
 }
 
 export interface TxnGroup {

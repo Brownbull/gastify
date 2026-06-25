@@ -43,6 +43,22 @@ export const Supermercado: Story = {
   },
 };
 
+/** One line item carries a personal flag (REQ-11) — "Marcada", excluded from analytics. */
+const FLAGGED_TXN = {
+  ...sampleTxn,
+  groups: sampleTxn.groups.map((g, gi) => (gi === 0 ? { ...g, items: g.items.map((it, ii) => (ii === 0 ? { ...it, flagged: true } : it)) } : g)),
+};
+export const Flagged: Story = {
+  render: (_args, { globals }) => {
+    const platform = platformFromGlobals(globals);
+    return (
+      <AppSurface platform={platform}>
+        <TransactionDetail txn={FLAGGED_TXN} platform={platform} onBack={() => {}} onSave={() => {}} onDelete={() => {}} />
+      </AppSurface>
+    );
+  },
+};
+
 /** Locked — matched to a statement line (read-only; edit it by deleting the reconciliation). */
 export const Matched: Story = {
   render: (_args, { globals }) => {
