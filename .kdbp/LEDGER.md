@@ -5424,3 +5424,12 @@ ALIGNMENT: ALIGNED
 TIER: mvp | DRIFT: none
 TICK: ✅
 NOTES: M#1 hardcoded Spanish aria-labels → deferred P91. Dismissed: L#2 dead fixture defaults (always overridden), L#3 empty FAB cost line, L#4 untested nav switch arms (trivial navigate calls). Nested-<button> bug found+fixed during exec (AvatarCircle).
+
+## 2026-06-25 22:32 — MERGE+DEPLOY: PR #5 (W1) → main → production
+PR: #5 MERGED (merge commit 1c5062c). W1 token foundation live on production.
+PROD VERIFY: gastify-web-production HTTP 200; deployed CSS :root --primary:#8b5cf6 (violet) — recolor confirmed live (not old green).
+PHASE 1: W1 COMPLETE — Exec ✅ Review ✅ Commit ✅ Push ✅. DEPLOYMENTS P87.
+
+## 2026-06-25 22:32 — PUSH feat/web-migration -> main (W2 PR)
+PR: https://github.com/Brownbull/gastify/pull/6 (#6, OPEN) — W2 app shell, delta vs main = W2 + bookkeeping (W1 already merged).
+CI: all web + security green; backend/mobile tests finishing. NOT merged — W2 ship is the user's next call.
