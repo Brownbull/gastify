@@ -9,7 +9,7 @@ import type { ScanPhase } from "@lib/scanFixtures";
  * each stage; the platform toolbar switches mobile/tablet/desktop.
  */
 const meta: Meta<typeof ScanProcessingScreen> = {
-  title: "Features/Scan/ScanProcessingScreen",
+  title: "Features/Scan/Screens/ScanProcessingScreen",
   component: ScanProcessingScreen,
   parameters: { layout: "centered" },
   tags: ["autodocs"],

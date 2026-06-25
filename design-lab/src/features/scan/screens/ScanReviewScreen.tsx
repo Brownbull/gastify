@@ -131,7 +131,7 @@ export function ScanReviewScreen({ receipt: initialReceipt = SAMPLE_RECEIPT, pay
           {review ? (
             <div className="flex items-start gap-gt-10 rounded-gt-xl border-2 border-gt-warning bg-gt-bg-3 px-gt-12 py-gt-10">
               <PixelIcon name="status-alert" size={24} className="shrink-0" />
-              <span className="flex min-w-0 flex-1 flex-col gap-gt-1">
+              <span className="flex min-w-0 flex-1 flex-col gap-gt-2">
                 <span className="font-gt-display text-gt-sm font-extrabold text-gt-ink">{review.kind === "math" ? "Los montos no cuadran" : "Revisa los datos extraídos"}</span>
                 <span className="text-gt-xs font-medium text-gt-ink-2">
                   {review.kind === "math"

@@ -35,7 +35,7 @@ export function MemberActionsSheet({
         <div className="flex flex-col gap-gt-12">
           <div className="flex items-center gap-gt-12">
             <MemberAvatar name={member.displayName} color={member.color} size="md" />
-            <span className="flex min-w-0 flex-1 flex-col gap-gt-1">
+            <span className="flex min-w-0 flex-1 flex-col gap-gt-2">
               <span className="truncate font-gt-display text-gt-md font-extrabold text-gt-ink">{member.displayName}</span>
               <span className="text-gt-xs font-bold text-gt-ink-2">{member.sharesDetail ? "Comparte el detalle" : "Solo totales"}</span>
             </span>

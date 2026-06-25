@@ -127,7 +127,7 @@ export function AddCardForm({ open, onClose, initial, defaultable = false, initi
         {defaultable ? (
           <div className="flex items-center gap-gt-10 rounded-gt-xl border-2 border-gt-line-strong bg-gt-bg-3 px-gt-12 py-gt-10">
             <PixelIcon name="scan-success" size={24} className="shrink-0" />
-            <span className="flex min-w-0 flex-1 flex-col gap-gt-1">
+            <span className="flex min-w-0 flex-1 flex-col gap-gt-2">
               <span className="font-gt-display text-gt-sm font-extrabold text-gt-ink">Método predeterminado</span>
               <span className="text-gt-xs font-medium text-gt-ink-3">Se preselecciona al registrar un gasto.</span>
             </span>

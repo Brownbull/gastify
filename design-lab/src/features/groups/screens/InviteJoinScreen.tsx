@@ -60,7 +60,7 @@ export function InviteJoinScreen({ group, inviterName = "Un miembro", expired = 
                 <p className="text-gt-sm font-bold text-gt-ink-3">
                   <span className="font-extrabold text-gt-ink">{inviterName}</span> te invitó a unirte a
                 </p>
-                <h2 className="pt-gt-1 font-gt-display text-gt-2xl font-extrabold text-gt-ink">{group.name}</h2>
+                <h2 className="pt-gt-2 font-gt-display text-gt-2xl font-extrabold text-gt-ink">{group.name}</h2>
               </div>
               <div className="flex flex-col items-center gap-gt-4">
                 <MemberCluster members={group.members} max={5} />

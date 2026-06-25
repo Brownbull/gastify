@@ -71,7 +71,7 @@ export function TxnLockPopup({ txn, onClose, onOpenDetail }: { txn: BrowseTransa
                   <span className="grid h-10 w-10 shrink-0 place-items-center rounded-gt-lg border-2 border-gt-line-strong bg-gt-surface">
                     <PixelIcon name="scan-statement" size={22} />
                   </span>
-                  <span className="flex min-w-0 flex-1 flex-col gap-gt-1">
+                  <span className="flex min-w-0 flex-1 flex-col gap-gt-2">
                     <span className="truncate font-gt-display text-gt-sm font-extrabold text-gt-ink">CMR Falabella · {txn.merchant.toUpperCase()}</span>
                     <span className="text-gt-xs font-medium text-gt-ink-3">Cartola · {txn.date}</span>
                   </span>
@@ -91,7 +91,7 @@ export function TxnLockPopup({ txn, onClose, onOpenDetail }: { txn: BrowseTransa
               <LinkRow icon="action-split" label="compartida en" />
               <div className="flex items-center gap-gt-10 rounded-gt-xl border-2 border-gt-line-strong bg-gt-primary-soft px-gt-12 py-gt-10 shadow-gt-xs">
                 <GroupAvatar icon="🏡" color="#7B6EF6" size="sm" />
-                <span className="flex min-w-0 flex-1 flex-col gap-gt-1">
+                <span className="flex min-w-0 flex-1 flex-col gap-gt-2">
                   <span className="truncate font-gt-display text-gt-sm font-extrabold text-gt-ink">Familia González</span>
                   <span className="text-gt-xs font-medium text-gt-ink-3">Compartida por ti</span>
                 </span>

@@ -15,7 +15,7 @@ function ToggleRow({ icon, title, subtitle, checked, onChange, disabled }: { ico
       <span className="grid h-11 w-11 shrink-0 place-items-center">
         <PixelIcon name={icon} size={36} />
       </span>
-      <span className="flex min-w-0 flex-1 flex-col gap-gt-1">
+      <span className="flex min-w-0 flex-1 flex-col gap-gt-2">
         <span className="font-gt-display text-gt-md font-extrabold text-gt-ink">{title}</span>
         <span className="text-gt-sm font-medium text-gt-ink-3">{subtitle}</span>
       </span>
@@ -30,7 +30,7 @@ function ActionRow({ icon, title, subtitle, action }: { icon: string; title: str
       <span className="grid h-11 w-11 shrink-0 place-items-center">
         <PixelIcon name={icon} size={36} />
       </span>
-      <span className="flex min-w-0 flex-1 flex-col gap-gt-1">
+      <span className="flex min-w-0 flex-1 flex-col gap-gt-2">
         <span className="font-gt-display text-gt-md font-extrabold text-gt-ink">{title}</span>
         <span className="text-gt-sm font-medium text-gt-ink-3">{subtitle}</span>
       </span>

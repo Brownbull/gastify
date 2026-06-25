@@ -45,7 +45,7 @@ function RuleRow({ rule, onForget }: { rule: MemoryRule; onForget: (id: string) 
       <span className="grid h-11 w-11 shrink-0 place-items-center">
         <PixelIcon name={rule.icon} size={36} />
       </span>
-      <span className="flex min-w-0 flex-1 flex-col gap-gt-1">
+      <span className="flex min-w-0 flex-1 flex-col gap-gt-2">
         <span className="truncate font-gt-display text-gt-md font-extrabold text-gt-ink">{rule.name}</span>
         <span className="truncate text-gt-sm font-medium text-gt-ink-3">Se clasifica como {rule.category}</span>
       </span>
@@ -75,7 +75,7 @@ function MemorySection({
 }) {
   return (
     <>
-      <div className="flex flex-col gap-gt-1">
+      <div className="flex flex-col gap-gt-2">
         <SettingsGroupHeading>{heading}</SettingsGroupHeading>
         <p className="px-gt-4 text-gt-xs font-medium text-gt-ink-3">{caption}</p>
       </div>
@@ -120,7 +120,7 @@ export function MemorySubview({ onBack }: { onBack?: () => void }) {
           <span className="grid h-11 w-11 shrink-0 place-items-center">
             <PixelIcon name="settings-memory" size={36} />
           </span>
-          <span className="flex min-w-0 flex-1 flex-col gap-gt-1">
+          <span className="flex min-w-0 flex-1 flex-col gap-gt-2">
             <span className="font-gt-display text-gt-md font-extrabold text-gt-ink">Aprender de mis correcciones</span>
             <span className="text-gt-sm font-medium text-gt-ink-3">Mejora la categorización con el tiempo</span>
           </span>
@@ -153,7 +153,7 @@ export function MemorySubview({ onBack }: { onBack?: () => void }) {
             <span className="grid h-11 w-11 shrink-0 place-items-center">
               <PixelIcon name="action-delete" size={36} />
             </span>
-            <span className="flex min-w-0 flex-1 flex-col gap-gt-1">
+            <span className="flex min-w-0 flex-1 flex-col gap-gt-2">
               <span className="font-gt-display text-gt-md font-extrabold text-gt-negative">Olvidar todo</span>
               <span className="text-gt-sm font-medium text-gt-ink-3">Borra todas las reglas aprendidas</span>
             </span>

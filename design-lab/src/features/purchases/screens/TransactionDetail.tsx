@@ -140,7 +140,7 @@ export function TransactionDetail({ txn = sampleTxn, onBack, onSave, onDelete, l
               <span className="grid h-10 w-10 shrink-0 place-items-center rounded-gt-lg border-2 border-gt-line-strong bg-gt-surface">
                 <PixelIcon name={lockMeta.icon} size={24} />
               </span>
-              <span className="flex min-w-0 flex-1 flex-col gap-gt-1">
+              <span className="flex min-w-0 flex-1 flex-col gap-gt-2">
                 <span className="flex flex-wrap items-center gap-gt-6">
                   <span className="font-gt-display text-gt-sm font-extrabold text-gt-ink">{lockMeta.title}</span>
                   <Badge tone="neutral">{lockMeta.badge}</Badge>

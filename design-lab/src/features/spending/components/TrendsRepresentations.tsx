@@ -145,7 +145,7 @@ export function TrendsRepresentations({ rep, onOpenCategory }: { rep: SpendRepre
             <span className={`truncate font-gt-display text-gt-xs font-extrabold ${sankeySel ? "" : "text-gt-ink-3"}`} style={{ maxWidth: 120 }}>
               {sankeySel ? (sankeySel.kind === "node" ? sankeySel.label : `${sankeySel.sourceLabel ?? ""} › ${sankeySel.targetLabel ?? ""}`) : "Total"}
             </span>
-            <span className="flex shrink-0 flex-col items-end gap-gt-1">
+            <span className="flex shrink-0 flex-col items-end gap-gt-2">
               <span className={`font-gt-display text-gt-md font-extrabold ${sankeySel ? "" : "text-gt-ink"}`}>{sankeySel ? sankeySel.percent : "100%"}</span>
               <span className={`font-gt-display text-gt-sm font-extrabold ${sankeySel ? "" : "text-gt-ink-2"}`}>{sankeySel ? sankeySel.amountK : clpK(TOTAL_SPEND)}</span>
             </span>

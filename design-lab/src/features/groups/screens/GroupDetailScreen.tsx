@@ -43,7 +43,7 @@ function MemberRow({ member, visibilityEnabled, onManage }: { member: GroupMembe
   const inner = (
     <>
       <MemberAvatar name={member.displayName} color={member.color} size="md" />
-      <span className="flex min-w-0 flex-1 flex-col gap-gt-1">
+      <span className="flex min-w-0 flex-1 flex-col gap-gt-2">
         <span className="truncate font-gt-display text-gt-md font-extrabold text-gt-ink">{member.displayName}</span>
         <span className="text-gt-xs font-bold text-gt-ink-2">{sharesNow ? "Comparte el detalle" : "Solo totales"}</span>
       </span>
@@ -152,7 +152,7 @@ export function GroupDetailScreen({ group, onBack, onShare, onLeave, onDelete, p
               {canManageMembers ? (
                 <div className="flex items-center gap-gt-10 px-gt-12 py-gt-10">
                   <PixelIcon name="shield-finance" size={28} className="shrink-0" />
-                  <span className="flex min-w-0 flex-1 flex-col gap-gt-1">
+                  <span className="flex min-w-0 flex-1 flex-col gap-gt-2">
                     <span className="font-gt-display text-gt-md font-extrabold text-gt-ink">Mostrar gastos individuales</span>
                     <span className="text-gt-xs font-medium text-gt-ink-3">Los miembros ven el detalle de cada uno, no solo los totales.</span>
                   </span>
@@ -162,7 +162,7 @@ export function GroupDetailScreen({ group, onBack, onShare, onLeave, onDelete, p
               {me ? (
                 <div className="flex items-center gap-gt-10 px-gt-12 py-gt-10">
                   <MemberAvatar name={me.displayName} color={me.color} size="md" />
-                  <span className="flex min-w-0 flex-1 flex-col gap-gt-1">
+                  <span className="flex min-w-0 flex-1 flex-col gap-gt-2">
                     <span className="font-gt-display text-gt-md font-extrabold text-gt-ink">Compartir el detalle de mis gastos</span>
                     <span className="text-gt-xs font-medium text-gt-ink-3">{g.memberVisibilityEnabled ? "Otros ven tus ítems, no solo el total." : "Se aplicará si el grupo muestra gastos individuales."}</span>
                   </span>

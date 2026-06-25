@@ -3,7 +3,7 @@ import { emptyHome, sampleHome } from "../model/HomeScreenModel";
 import { MonthTreemapCard } from "./MonthTreemapCard";
 
 const meta = {
-  title: "Features/Home/Components/Month Treemap Card",
+  title: "Features/Home/Components/MonthTreemapCard",
   component: MonthTreemapCard,
   parameters: {
     layout: "padded",

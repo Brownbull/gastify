@@ -9,7 +9,7 @@ import { AppSurface, platformFromGlobals } from "@design-system/organisms/AppSur
  * platform toolbar to switch mobile/tablet/desktop.
  */
 const meta: Meta<typeof ScanCaptureScreen> = {
-  title: "Features/Scan/ScanCaptureScreen",
+  title: "Features/Scan/Screens/ScanCaptureScreen",
   component: ScanCaptureScreen,
   parameters: { layout: "centered" },
   tags: ["autodocs"],

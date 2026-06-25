@@ -17,7 +17,7 @@ function GravityRow({ c }: { c: GravityCenter }) {
       <span className="grid h-10 w-10 shrink-0 place-items-center rounded-gt-lg border-2 border-gt-line-strong" style={{ backgroundColor: token.tint }}>
         <PixelIcon name={token.icon} size={24} />
       </span>
-      <span className="flex min-w-0 flex-1 flex-col gap-gt-1">
+      <span className="flex min-w-0 flex-1 flex-col gap-gt-2">
         <span className="truncate font-gt-display text-gt-sm font-extrabold text-gt-ink">{token.label}</span>
         <span className={`inline-flex w-fit items-center gap-gt-2 rounded-gt-pill border-2 px-gt-6 py-gt-0 font-gt-display text-gt-xs font-extrabold ${grew ? "border-gt-negative bg-gt-negative-bg text-gt-negative" : "border-gt-positive bg-gt-positive-bg text-gt-positive"}`}>
           <span aria-hidden="true">{grew ? "▲" : "▼"}</span> {ratio.toFixed(1)}× vs tu promedio
@@ -36,7 +36,7 @@ export function GravityCentersCard({ centers = SAMPLE_GRAVITY }: { centers?: Gra
         <span className="grid h-10 w-10 shrink-0 place-items-center rounded-gt-lg border-2 border-gt-line-strong bg-gt-bg-3">
           <PixelIcon name="status-info" size={24} />
         </span>
-        <span className="flex min-w-0 flex-1 flex-col gap-gt-1">
+        <span className="flex min-w-0 flex-1 flex-col gap-gt-2">
           <h3 className="font-gt-display text-gt-lg font-extrabold text-gt-ink">Centros de gravedad</h3>
           <p className="text-gt-xs font-medium text-gt-ink-3">Categorías muy por encima o por debajo de tu promedio de los últimos 3 meses.</p>
         </span>

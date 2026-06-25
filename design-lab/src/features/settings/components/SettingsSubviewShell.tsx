@@ -29,7 +29,7 @@ export function SettingsGroupHeading({ children }: { children: ReactNode }) {
 export function SettingsField({ label, hint, children }: { label: string; hint?: string; children: ReactNode }) {
   return (
     <div className="flex flex-col gap-gt-6">
-      <span className="flex flex-col gap-gt-1 px-gt-2">
+      <span className="flex flex-col gap-gt-2 px-gt-2">
         <span className="font-gt-display text-gt-sm font-bold text-gt-ink-2">{label}</span>
         {hint ? <span className="text-gt-xs font-medium text-gt-ink-3">{hint}</span> : null}
       </span>

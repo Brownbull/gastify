@@ -53,7 +53,7 @@ export function PrivacySubview({ onBack }: { onBack?: () => void }) {
         <SettingsGroupHeading>Tus datos</SettingsGroupHeading>
         <div className="grid grid-cols-2 gap-gt-8 rounded-gt-2xl border-2 border-gt-line-strong bg-gt-surface p-gt-12 shadow-gt-sm">
           {SUMMARY.map((s) => (
-            <div key={s.label} className="flex flex-col gap-gt-1 rounded-gt-lg bg-gt-bg-3 px-gt-10 py-gt-8">
+            <div key={s.label} className="flex flex-col gap-gt-2 rounded-gt-lg bg-gt-bg-3 px-gt-10 py-gt-8">
               <span className="font-gt-display text-gt-xl font-extrabold text-gt-ink">{s.value}</span>
               <span className="text-gt-xs font-bold uppercase tracking-wide text-gt-ink-3">{s.label}</span>
             </div>
@@ -68,7 +68,7 @@ export function PrivacySubview({ onBack }: { onBack?: () => void }) {
               <span className="grid h-11 w-11 shrink-0 place-items-center">
                 <PixelIcon name={p.icon} size={34} />
               </span>
-              <span className="flex min-w-0 flex-1 flex-col gap-gt-1">
+              <span className="flex min-w-0 flex-1 flex-col gap-gt-2">
                 <span className="font-gt-display text-gt-md font-extrabold text-gt-ink">{p.title}</span>
                 <span className="text-gt-xs font-medium text-gt-ink-3">{p.body}</span>
               </span>
@@ -81,7 +81,7 @@ export function PrivacySubview({ onBack }: { onBack?: () => void }) {
         <SettingsGroupHeading>Tus derechos</SettingsGroupHeading>
         <button type="button" onClick={() => setAuditOpen(true)} className="flex w-full items-center gap-gt-12 rounded-gt-lg px-gt-4 py-gt-10 text-left transition hover:bg-gt-bg-3">
           <span className="grid h-11 w-11 shrink-0 place-items-center"><PixelIcon name="status-info" size={34} /></span>
-          <span className="flex min-w-0 flex-1 flex-col gap-gt-1">
+          <span className="flex min-w-0 flex-1 flex-col gap-gt-2">
             <span className="font-gt-display text-gt-md font-extrabold text-gt-ink">Registro de actividad</span>
             <span className="text-gt-sm font-medium text-gt-ink-3">Historial de tus consentimientos</span>
           </span>
@@ -89,7 +89,7 @@ export function PrivacySubview({ onBack }: { onBack?: () => void }) {
         </button>
         <div className="flex items-center gap-gt-12 px-gt-4 py-gt-10">
           <span className="grid h-11 w-11 shrink-0 place-items-center"><PixelIcon name="chart-export" size={34} /></span>
-          <span className="flex min-w-0 flex-1 flex-col gap-gt-1">
+          <span className="flex min-w-0 flex-1 flex-col gap-gt-2">
             <span className="font-gt-display text-gt-md font-extrabold text-gt-ink">Exportar mis datos</span>
             <span className="text-gt-sm font-medium text-gt-ink-3">Descarga todo en JSON (portabilidad)</span>
           </span>
@@ -103,7 +103,7 @@ export function PrivacySubview({ onBack }: { onBack?: () => void }) {
           className="mt-gt-8 flex w-full items-center gap-gt-12 rounded-gt-lg px-gt-4 py-gt-10 text-left transition duration-150 ease-gt-bounce hover:bg-gt-negative/10"
         >
           <span className="grid h-11 w-11 shrink-0 place-items-center"><PixelIcon name="action-delete" size={34} /></span>
-          <span className="flex min-w-0 flex-1 flex-col gap-gt-1">
+          <span className="flex min-w-0 flex-1 flex-col gap-gt-2">
             <span className="font-gt-display text-gt-md font-extrabold text-gt-negative">Eliminar mi cuenta</span>
             <span className="text-gt-sm font-medium text-gt-ink-3">Borra todos tus datos de forma permanente</span>
           </span>

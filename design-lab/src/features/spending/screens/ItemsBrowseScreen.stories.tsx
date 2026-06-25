@@ -3,7 +3,7 @@ import { ItemsBrowseScreen } from "./ItemsBrowseScreen";
 import { AppSurface, platformFromGlobals } from "@design-system/organisms/AppSurface";
 
 const meta: Meta<typeof ItemsBrowseScreen> = {
-  title: "Features/Spending/ItemsBrowseScreen",
+  title: "Features/Spending/Screens/ItemsBrowseScreen",
   component: ItemsBrowseScreen,
   parameters: { layout: "centered" },
   tags: ["autodocs"],

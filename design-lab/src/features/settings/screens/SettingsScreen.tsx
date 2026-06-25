@@ -88,7 +88,7 @@ function SettingsRow({ row, onSelect }: { row: SettingsRowData; onSelect?: (key:
       <span className="grid h-11 w-11 shrink-0 place-items-center">
         {row.svg ?? (row.icon ? <PixelIcon name={row.icon} size={36} /> : null)}
       </span>
-      <span className="flex min-w-0 flex-1 flex-col gap-gt-1">
+      <span className="flex min-w-0 flex-1 flex-col gap-gt-2">
         <span className={`truncate font-gt-display text-gt-md font-extrabold ${danger ? "text-gt-negative" : "text-gt-ink"}`}>{row.label}</span>
         <span className="truncate text-gt-sm font-medium text-gt-ink-3">{row.subtitle}</span>
       </span>

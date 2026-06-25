@@ -12,7 +12,7 @@ const Filler = () => (
 );
 
 const meta = {
-  title: "Design System/Organisms/App Surface",
+  title: "Design System/Organisms/AppSurface",
   component: AppSurface,
   parameters: {
     docs: {

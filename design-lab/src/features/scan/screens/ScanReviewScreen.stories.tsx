@@ -10,7 +10,7 @@ import { AppSurface, platformFromGlobals } from "@design-system/organisms/AppSur
  * 2-column action row (X cancel · wide Guardar). Platform toolbar switches device.
  */
 const meta: Meta<typeof ScanReviewScreen> = {
-  title: "Features/Scan/ScanReviewScreen",
+  title: "Features/Scan/Screens/ScanReviewScreen",
   component: ScanReviewScreen,
   parameters: { layout: "centered" },
   tags: ["autodocs"],

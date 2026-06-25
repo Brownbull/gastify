@@ -138,7 +138,7 @@ export function SubscriptionSubview({ onBack }: { onBack?: () => void }) {
           <span className="grid h-11 w-11 shrink-0 place-items-center">
             <PixelIcon name={isPro ? "credit-super" : "credit-normal"} size={36} />
           </span>
-          <span className="flex min-w-0 flex-1 flex-col gap-gt-1">
+          <span className="flex min-w-0 flex-1 flex-col gap-gt-2">
             <span className="font-gt-display text-gt-md font-extrabold text-gt-ink">{isPro ? "Plan Pro" : "Plan Gratis"}</span>
             <span className="truncate text-gt-sm font-medium text-gt-ink-3">
               {isPro ? "Suscripción activa (simulada)" : "Escaneos limitados cada mes"}
@@ -154,7 +154,7 @@ export function SubscriptionSubview({ onBack }: { onBack?: () => void }) {
             <span className="grid h-11 w-11 shrink-0 place-items-center">
               <PixelIcon name="nav-scan" size={36} />
             </span>
-            <span className="flex min-w-0 flex-1 flex-col gap-gt-1">
+            <span className="flex min-w-0 flex-1 flex-col gap-gt-2">
               <span className="font-gt-display text-gt-md font-extrabold text-gt-ink">Escaneos ilimitados</span>
               <span className="text-gt-sm font-medium text-gt-ink-3">Escanea todas las boletas que quieras</span>
             </span>

@@ -293,7 +293,7 @@ export function LimitsSubview({ onBack }: { onBack?: () => void }) {
           <span className="grid h-11 w-11 shrink-0 place-items-center">
             <PixelIcon name="fin-budget" size={36} />
           </span>
-          <span className="flex min-w-0 flex-1 flex-col gap-gt-1">
+          <span className="flex min-w-0 flex-1 flex-col gap-gt-2">
             <span className="font-gt-display text-gt-md font-extrabold text-gt-ink">Límites mensuales</span>
             <span className="text-gt-sm font-medium text-gt-ink-3">Avísame cuando me acerque a un límite</span>
           </span>
@@ -318,7 +318,7 @@ export function LimitsSubview({ onBack }: { onBack?: () => void }) {
             </button>
 
             {/* per familia (L3) with nested L4 breakdown */}
-            <div className="flex flex-col gap-gt-1">
+            <div className="flex flex-col gap-gt-2">
               <SettingsGroupHeading>Por familia</SettingsGroupHeading>
               <p className="px-gt-4 text-gt-xs font-medium text-gt-ink-3">El límite se fija por familia (L3); abajo se detalla el gasto por categoría (L4).</p>
             </div>

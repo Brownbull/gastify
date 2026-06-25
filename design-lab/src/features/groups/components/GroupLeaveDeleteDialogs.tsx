@@ -24,7 +24,7 @@ export function LeaveGroupDialog({ open, groupName, onClose, onLeave }: { open: 
       <span className={`mt-px grid h-5 w-5 shrink-0 place-items-center rounded-gt-pill border-2 ${active ? "border-gt-primary bg-gt-primary" : "border-gt-line-strong bg-gt-surface"}`}>
         {active ? <span className="h-2 w-2 rounded-gt-pill bg-gt-surface" /> : null}
       </span>
-      <span className="flex min-w-0 flex-1 flex-col gap-gt-1">
+      <span className="flex min-w-0 flex-1 flex-col gap-gt-2">
         <span className="font-gt-display text-gt-sm font-extrabold text-gt-ink">{title}</span>
         <span className="text-gt-xs font-medium text-gt-ink-2">{body}</span>
       </span>

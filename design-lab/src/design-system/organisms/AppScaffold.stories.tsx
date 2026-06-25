@@ -13,7 +13,7 @@ import { ScanModeChooserScreen } from "@features/scan/screens/ScanModeChooserScr
  * switch tabs from the nav. Use the platform toolbar for mobile/tablet/desktop.
  */
 const meta: Meta = {
-  title: "Design System/Organisms/App Scaffold",
+  title: "Design System/Organisms/AppScaffold",
   // fullscreen (not centered) so the desktop frame's w-full/max-w-1280 gets real
   // width — a centered wrapper collapses it and cramps the SideNav+content split.
   parameters: { layout: "fullscreen" },
