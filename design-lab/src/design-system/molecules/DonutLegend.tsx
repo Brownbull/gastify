@@ -28,7 +28,9 @@ export interface DonutLegendProps {
   /** whether a row can drill further (false → no chevron). */
   canDrill?: (id: string) => boolean;
   onDrill?: (id: string) => void;
-  /** tap the count pill (→ transactions/items for that section). */
+  /** tap the LEFT category icon → that section's detail report. */
+  onIconClick?: (id: string) => void;
+  /** tap the count pill → that section's transactions/items in history. */
   onCountClick?: (id: string) => void;
   /** bump to replay the staggered row entrance (drill / show-more / level change). */
   animKey?: number;
@@ -46,6 +48,7 @@ export function DonutLegend({
   compact = false,
   canDrill,
   onDrill,
+  onIconClick,
   onCountClick,
   animKey = 0,
   className = "",
@@ -63,6 +66,15 @@ export function DonutLegend({
             <div className={`flex items-start gap-gt-8 rounded-gt-xl p-gt-8 transition-colors ${isSel ? "bg-gt-primary-soft" : "hover:bg-gt-bg-3"}`}>
               {compact ? (
                 <span className="h-3 w-3 shrink-0 self-center rounded-gt-pill border-2 border-gt-line-strong" style={{ backgroundColor: color }} />
+              ) : onIconClick ? (
+                <button
+                  type="button"
+                  onClick={() => onIconClick(seg.id)}
+                  aria-label={`Ver detalle de ${token.label}`}
+                  className="shrink-0 self-center rounded-gt-lg transition duration-150 ease-gt-bounce hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-gt-primary/30"
+                >
+                  <IconTile icon={token.icon} tint={token.tint} size="md" />
+                </button>
               ) : (
                 <IconTile icon={token.icon} tint={token.tint} size="md" className="self-center" />
               )}

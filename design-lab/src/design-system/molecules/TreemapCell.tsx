@@ -28,9 +28,11 @@ export interface TreemapCellProps {
   color: string;
   /** text color on the fill (ink for light fills). */
   textColor?: string;
-  /** drill into this category (fires on a click anywhere except the count pill). */
+  /** drill into this category (fires on a click anywhere except the icon/label + count pill). */
   onClick?: () => void;
-  /** tap the count pill → that section's transactions/items (does NOT drill). */
+  /** tap the icon/label → that section's detail report (does NOT drill). */
+  onIconClick?: () => void;
+  /** tap the count pill → that section's transactions/items in history (does NOT drill). */
   onCountClick?: () => void;
   className?: string;
   style?: React.CSSProperties;
@@ -47,6 +49,7 @@ export function TreemapCell({
   color,
   textColor = "#1E293B",
   onClick,
+  onIconClick,
   onCountClick,
   className = "",
   style,
@@ -111,17 +114,30 @@ export function TreemapCell({
   const ringStroke = isCompact ? 2 : isMainCell ? 4 : 3;
   return (
     <div {...cellProps} className={`${base} flex-col justify-between ${pad} ${className}`}>
-      <span className="flex min-w-0 items-center gap-gt-6">
-        <Icon size={iconSize} />
-        <span className="flex min-w-0 items-center gap-gt-4 truncate font-gt-body text-gt-sm font-extrabold">
-          {name}
-          {isMas ? (
-            <span className="grid h-4 min-w-4 place-items-center rounded-full px-gt-4 font-extrabold" style={{ border: `1.5px solid ${textColor}`, fontSize: 10 }}>
-              {datum.categoryCount}
-            </span>
-          ) : null}
+      {onIconClick && !isMas ? (
+        // icon/label is its own action (→ section detail); the rest of the cell drills
+        <button
+          type="button"
+          onClick={(e) => { e.stopPropagation(); onIconClick(); }}
+          aria-label={`Ver detalle de ${name}`}
+          className="flex min-w-0 items-center gap-gt-6 self-start rounded-gt-md text-left transition hover:brightness-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gt-primary/40"
+        >
+          <Icon size={iconSize} />
+          <span className="min-w-0 truncate font-gt-body text-gt-sm font-extrabold">{name}</span>
+        </button>
+      ) : (
+        <span className="flex min-w-0 items-center gap-gt-6">
+          <Icon size={iconSize} />
+          <span className="flex min-w-0 items-center gap-gt-4 truncate font-gt-body text-gt-sm font-extrabold">
+            {name}
+            {isMas ? (
+              <span className="grid h-4 min-w-4 place-items-center rounded-full px-gt-4 font-extrabold" style={{ border: `1.5px solid ${textColor}`, fontSize: 10 }}>
+                {datum.categoryCount}
+              </span>
+            ) : null}
+          </span>
         </span>
-      </span>
+      )}
       <span className="flex items-end justify-between gap-gt-4">
         {/* count pill (separate action) over the amount, left; % ring bottom-right */}
         <span className="flex min-w-0 flex-col items-start gap-gt-2">

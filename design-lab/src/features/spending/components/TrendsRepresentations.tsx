@@ -67,7 +67,17 @@ function ShowMore({ canExpand, canCollapse, otroCount, onExpand, onCollapse }: {
   );
 }
 
-export function TrendsRepresentations({ rep, onOpenCategory }: { rep: SpendRepresentation; onOpenCategory?: (id: string) => void }) {
+export function TrendsRepresentations({
+  rep,
+  onOpenCategory,
+  onOpenHistory,
+}: {
+  rep: SpendRepresentation;
+  /** a section's ICON (donut legend / treemap cell) → its detail report. */
+  onOpenCategory?: (id: string) => void;
+  /** a section's COUNT pill → its transactions/items in history (entity per the count toggle). */
+  onOpenHistory?: (id: string, mode: CountMode) => void;
+}) {
   // ONE drill path shared by the donut + treemap (two views of the same data).
   const [donutPath, setDonutPath] = useState<{ id: string; label: string }[]>([]);
   const [countMode, setCountMode] = useState<CountMode>("transactions");
@@ -187,7 +197,8 @@ export function TrendsRepresentations({ rep, onOpenCategory }: { rep: SpendRepre
               colorFor={categoryColor}
               canDrill={canDrill}
               onDrill={drill}
-              onCountClick={onOpenCategory}
+              onIconClick={onOpenCategory}
+              onCountClick={(id) => onOpenHistory?.(id, countMode)}
               animKey={animKey}
               className="w-full"
             />
@@ -199,7 +210,7 @@ export function TrendsRepresentations({ rep, onOpenCategory }: { rep: SpendRepre
           <div className="relative flex min-h-0 flex-1 flex-col gap-gt-10">
             {/* key re-mounts the treemap on drill/show-more change → replays the fade */}
             <div key={animKey} className="gt-anim-fade min-h-0 flex-1">
-              <Treemap data={treemapGroup.display} countMode={countMode} tint={0.5} height="100%" inkBorder onCellClick={drill} onCountClick={onOpenCategory} />
+              <Treemap data={treemapGroup.display} countMode={countMode} tint={0.5} height="100%" inkBorder onCellClick={drill} onIconClick={onOpenCategory} onCountClick={(id) => onOpenHistory?.(id, countMode)} />
             </div>
             {donutPath.length > 0 ? (
               <button

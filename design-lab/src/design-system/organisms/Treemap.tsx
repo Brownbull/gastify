@@ -35,9 +35,11 @@ export interface TreemapProps {
   /** override the step-height — a px number, or a CSS string ("100%") to fill a
    * flex parent (adaptive to the screen height). */
   height?: number | string;
-  /** drill into a cell's category (click anywhere except the count pill). */
+  /** drill into a cell's category (click anywhere except the icon/label + count pill). */
   onCellClick?: (id: string) => void;
-  /** tap a cell's count pill → that section's transactions/items (no drill). */
+  /** tap a cell's icon/label → that section's detail report (no drill). */
+  onIconClick?: (id: string) => void;
+  /** tap a cell's count pill → that section's transactions/items in history (no drill). */
   onCountClick?: (id: string) => void;
   className?: string;
 }
@@ -46,7 +48,7 @@ export interface TreemapProps {
 // Re-exported here for back-compat with existing Treemap imports.
 export { GT_CHART_HEX, hexA, tokenTrueColor, DIAGRAM_TINT, tokenTrueTint, tokenTrueSoftColor } from "@lib/diagramSkin";
 
-export function Treemap({ data, countMode = "transactions", tint = DIAGRAM_TINT, colorFor, textColor, gutter = 2, inkBorder = false, height: heightProp, onCellClick, onCountClick, className = "" }: TreemapProps) {
+export function Treemap({ data, countMode = "transactions", tint = DIAGRAM_TINT, colorFor, textColor, gutter = 2, inkBorder = false, height: heightProp, onCellClick, onIconClick, onCountClick, className = "" }: TreemapProps) {
   const fill = colorFor ?? tokenTrueTint(tint);
   const ref = useRef<HTMLDivElement>(null);
   // measure the rendered box so the squarify uses the REAL aspect ratio (cells
@@ -107,6 +109,7 @@ export function Treemap({ data, countMode = "transactions", tint = DIAGRAM_TINT,
               color={fill(d.id, i)}
               textColor={textColor}
               onClick={() => onCellClick?.(d.id)}
+              onIconClick={onIconClick ? () => onIconClick(d.id) : undefined}
               onCountClick={() => onCountClick?.(d.id)}
               className={`h-full w-full ${inkBorder ? "border border-gt-line-strong" : ""}`}
             />

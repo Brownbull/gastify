@@ -3,6 +3,7 @@ import type { Platform } from "@design-system/organisms/AppSurface";
 import { PeriodControl, LATEST_PERIOD_INDEX } from "@design-system/molecules/PeriodControl";
 import { TrendsRepresentations, type SpendRepresentation } from "../components/TrendsRepresentations";
 import { type ReportPeriod } from "@lib/reportTimeframeFixtures";
+import { type CountMode } from "@lib/analyticsFixtures";
 
 /**
  * SpendingScreen (Phase 9) — the spending-analytics tab, content-only for
@@ -16,11 +17,13 @@ export interface SpendingScreenProps {
   platform?: Platform;
   /** active spending representation — controlled by the header switcher in the host. */
   rep: SpendRepresentation;
-  /** a category's count pill was tapped — open its detail (host-owned overlay). */
+  /** a section's ICON (donut/treemap) was tapped — open its detail report (host-owned overlay). */
   onOpenCategory?: (id: string) => void;
+  /** a section's COUNT pill was tapped — open its transactions/items in history (host-owned overlay). */
+  onOpenHistory?: (id: string, mode: CountMode) => void;
 }
 
-export function SpendingScreen({ platform = "mobile", rep, onOpenCategory }: SpendingScreenProps) {
+export function SpendingScreen({ platform = "mobile", rep, onOpenCategory, onOpenHistory }: SpendingScreenProps) {
   const [dimension, setDimension] = useState<ReportPeriod>("monthly");
   const [anchorIndex, setAnchorIndex] = useState(LATEST_PERIOD_INDEX);
   const contentMax = platform === "desktop" ? "60rem" : undefined;
@@ -28,7 +31,7 @@ export function SpendingScreen({ platform = "mobile", rep, onOpenCategory }: Spe
   return (
     <div className="mx-auto flex h-full w-full flex-col gap-gt-12 pt-gt-4" style={{ maxWidth: contentMax }}>
       <PeriodControl dimension={dimension} onDimensionChange={setDimension} anchorIndex={anchorIndex} onAnchorChange={setAnchorIndex} />
-      <TrendsRepresentations rep={rep} onOpenCategory={onOpenCategory} />
+      <TrendsRepresentations rep={rep} onOpenCategory={onOpenCategory} onOpenHistory={onOpenHistory} />
     </div>
   );
 }
