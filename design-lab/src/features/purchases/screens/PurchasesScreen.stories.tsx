@@ -8,6 +8,7 @@ import { ScanModeChooserScreen } from "@features/scan/screens/ScanModeChooserScr
 import { PurchasesScreen } from "./PurchasesScreen";
 import { TransactionDetail } from "./TransactionDetail";
 import { NewTransactionScreen } from "./NewTransactionScreen";
+import { TxnLockPopup } from "../components/TxnLockPopup";
 import { pickDetailFor } from "../model/detailFixtures";
 
 /**
@@ -32,6 +33,7 @@ function ComprasInShell({ platform }: { platform: Platform }) {
   const [filterOpen, setFilterOpen] = useState(false);
   const [selection, setSelection] = useState<FilterSelection>({});
   const [detailTxn, setDetailTxn] = useState<BrowseTransaction | null>(null);
+  const [lockTxn, setLockTxn] = useState<BrowseTransaction | null>(null);
 
   const sheet = (
     <FilterSheet
@@ -71,16 +73,26 @@ function ComprasInShell({ platform }: { platform: Platform }) {
   ) : undefined;
 
   return (
-    <AppScaffold
-      platform={platform}
-      active="purchases"
-      title="Compras"
-      bleed
-      onScan={selectMode ? undefined : () => setScanOpen(true)}
-      overlay={overlay}
-    >
-      <PurchasesScreen platform={platform} selection={selection} onOpenFilter={() => setFilterOpen(true)} onSelectTxn={setDetailTxn} onSelectModeChange={setSelectMode} />
-    </AppScaffold>
+    <>
+      <AppScaffold
+        platform={platform}
+        active="purchases"
+        title="Compras"
+        bleed
+        onScan={selectMode ? undefined : () => setScanOpen(true)}
+        overlay={overlay}
+      >
+        <PurchasesScreen
+          platform={platform}
+          selection={selection}
+          onOpenFilter={() => setFilterOpen(true)}
+          onSelectTxn={(t) => (t.status ? setLockTxn(t) : setDetailTxn(t))}
+          onSelectModeChange={setSelectMode}
+        />
+      </AppScaffold>
+      {/* matched/shared → explain the lock + the linked statement line/group first */}
+      <TxnLockPopup txn={lockTxn} onClose={() => setLockTxn(null)} onOpenDetail={() => { setDetailTxn(lockTxn); setLockTxn(null); }} />
+    </>
   );
 }
 
