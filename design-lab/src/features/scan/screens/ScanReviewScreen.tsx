@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { AppHeader } from "@design-system/organisms/Nav";
 import { PixelIcon } from "@design-system/assets/PixelIcon";
+import { Button } from "@design-system/atoms/Button";
 import { CategoryChip } from "@design-system/molecules/CategoryChip";
 import { PaymentChip } from "@design-system/molecules/PaymentChip";
 import { PaymentPicker } from "@design-system/molecules/PaymentPicker";
@@ -193,11 +194,11 @@ export function ScanReviewScreen({ receipt: initialReceipt = SAMPLE_RECEIPT, pay
           <button type="button" aria-label="Cancelar" onClick={onCancel} className="grid h-12 w-12 place-items-center rounded-gt-xl border-2 border-gt-line-strong bg-gt-surface text-gt-ink shadow-gt-xs transition hover:-translate-y-0.5">
             <span className="font-gt-display text-gt-xl font-extrabold leading-none">✕</span>
           </button>
-          <button type="button" aria-label="Guardar transacción" onClick={() => (corrections.length > 0 ? setConfirming(true) : onSave?.())} className="flex h-12 w-full items-center justify-center gap-gt-8 rounded-gt-xl border-2 border-gt-line-strong bg-gt-positive px-gt-12 font-gt-display font-extrabold text-white shadow-gt-sm transition hover:-translate-y-0.5">
+          <Button variant="success" size="lg" fullWidth aria-label="Guardar transacción" onClick={() => (corrections.length > 0 ? setConfirming(true) : onSave?.())}>
             <span className="text-gt-sm uppercase tracking-wide text-white/80">Total</span>
             <span className="truncate text-gt-lg">{formatMoney(total, receipt.currency)}</span>
             <PixelIcon name="scan-success" size={24} className="shrink-0" />
-          </button>
+          </Button>
         </div>
       </div>
 

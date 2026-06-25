@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { AppHeader } from "@design-system/organisms/Nav";
 import { PixelIcon } from "@design-system/assets/PixelIcon";
+import { Button } from "@design-system/atoms/Button";
 import { PaymentChip } from "@design-system/molecules/PaymentChip";
 import { PaymentPicker } from "@design-system/molecules/PaymentPicker";
 import { SAMPLE_CARDS, type PaymentMethod } from "@lib/paymentMethods";
@@ -146,16 +147,10 @@ export function ScanStatementUploadScreen({ initialFile = false, superCredits = 
 
       {/* footer — Iniciar escaneo (gated on file + consent) */}
       <div className="shrink-0 border-t-2 border-gt-line-strong bg-gt-surface px-gt-16 pb-gt-32 pt-gt-12">
-        <button
-          type="button"
-          disabled={!canScan}
-          onClick={() => onScan?.(cardId)}
-          className="flex h-12 w-full items-center justify-center gap-gt-8 rounded-gt-xl border-2 border-gt-line-strong font-gt-display text-gt-md font-extrabold text-white shadow-gt-sm transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0"
-          style={{ backgroundColor: VIOLET }}
-        >
+        <Button variant="primary" size="lg" fullWidth disabled={!canScan} onClick={() => onScan?.(cardId)}>
           <PixelIcon name="scan-statement" size={24} />
           Iniciar escaneo
-        </button>
+        </Button>
       </div>
 
       {/* card picker — the settled full-screen PaymentPicker (rows per card) */}

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { AppHeader } from "@design-system/organisms/Nav";
 import { PixelIcon } from "@design-system/assets/PixelIcon";
+import { Button } from "@design-system/atoms/Button";
 import { CategoryChip } from "@design-system/molecules/CategoryChip";
 import { StatementSteps } from "../components/StatementSteps";
 import { ReconcileGroup } from "../components/ReconcileGroup";
@@ -178,10 +179,10 @@ export function ScanStatementConfirmScreen({ items = SAMPLE_OUTCOME, onBack, onC
 
       {/* footer — the commit */}
       <div className="shrink-0 border-t-2 border-gt-line-strong bg-gt-surface px-gt-16 pb-gt-32 pt-gt-12">
-        <button type="button" onClick={onConfirm} className="flex h-12 w-full items-center justify-center gap-gt-8 rounded-gt-xl border-2 border-gt-line-strong bg-gt-positive font-gt-display text-gt-md font-extrabold text-white shadow-gt-sm transition hover:-translate-y-0.5">
+        <Button variant="success" size="lg" fullWidth onClick={onConfirm}>
           <PixelIcon name="scan-success" size={24} />
           Confirmar y guardar
-        </button>
+        </Button>
       </div>
 
       {/* cancel-the-scan confirmation (triggered by the header X) */}

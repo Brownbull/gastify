@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { PixelIcon } from "@design-system/assets/PixelIcon";
+import { Button } from "@design-system/atoms/Button";
 import { ChevronLeftIcon } from "@design-system/assets/icons";
 
 export interface Correction {
@@ -150,14 +151,10 @@ export function ScanSaveConfirmScreen({ corrections, onConfirm, onBack }: ScanSa
           >
             <span className="font-gt-display text-gt-xl font-extrabold leading-none">✕</span>
           </button>
-          <button
-            type="button"
-            onClick={handleConfirm}
-            className="flex h-12 w-full items-center justify-center gap-gt-8 rounded-gt-xl border-2 border-gt-line-strong bg-gt-positive font-gt-display text-gt-md font-extrabold text-white shadow-gt-sm transition hover:-translate-y-0.5"
-          >
+          <Button variant="success" size="lg" fullWidth onClick={handleConfirm}>
             <PixelIcon name="scan-success" size={24} />
             Confirmar y guardar
-          </button>
+          </Button>
         </div>
       </div>
     </div>

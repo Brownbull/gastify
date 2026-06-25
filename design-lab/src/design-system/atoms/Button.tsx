@@ -3,9 +3,14 @@ import type { ButtonHTMLAttributes, ReactNode } from "react";
 /**
  * Button — Playful Geometric grammar (DM-1): ink border, hard offset shadow,
  * extrabold, bounce-press on hover (lift + deeper shadow), settle on active.
+ *
+ * Variants are action ROLES (decoupled from token names): `primary` = main/violet,
+ * `secondary` = surface, `success` = confirm/commit (emerald, the positive token),
+ * `danger` = destructive (error red), `ghost` = bare. `lg` is the tall (h-12)
+ * full-width footer CTA used across the scan flow.
  */
-export type ButtonVariant = "primary" | "secondary" | "ghost" | "danger";
-export type ButtonSize = "sm" | "md";
+export type ButtonVariant = "primary" | "secondary" | "ghost" | "danger" | "success";
+export type ButtonSize = "sm" | "md" | "lg";
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
@@ -23,6 +28,7 @@ const base =
 const variantClasses: Record<ButtonVariant, string> = {
   primary: "bg-gt-primary text-white",
   secondary: "bg-gt-surface text-gt-ink",
+  success: "bg-gt-positive text-white",
   danger: "bg-gt-error text-white",
   ghost:
     "border-transparent bg-transparent text-gt-ink-2 shadow-none hover:translate-y-0 hover:bg-gt-bg-3 hover:text-gt-ink hover:shadow-none",
@@ -31,6 +37,7 @@ const variantClasses: Record<ButtonVariant, string> = {
 const sizeClasses: Record<ButtonSize, string> = {
   sm: "px-gt-12 py-gt-6 text-gt-sm",
   md: "px-gt-16 py-gt-10 text-gt-md",
+  lg: "h-12 px-gt-16 text-gt-md",
 };
 
 export function Button({

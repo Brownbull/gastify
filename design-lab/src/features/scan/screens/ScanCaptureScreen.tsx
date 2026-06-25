@@ -1,5 +1,6 @@
 import { AppHeader } from "@design-system/organisms/Nav";
 import { PixelIcon } from "@design-system/assets/PixelIcon";
+import { Button } from "@design-system/atoms/Button";
 
 /**
  * ScanCaptureScreen (DM-42) — simple-scan capture, screen 1 of the single-scan
@@ -35,22 +36,14 @@ export function ScanCaptureScreen({ onTakePhoto, onPickFile, onBack }: ScanCaptu
 
       {/* source choice — one row, two columns: gallery (left) · take photo (right) */}
       <div className="grid grid-cols-2 gap-gt-10 border-t-2 border-gt-line bg-gt-surface px-gt-16 pb-gt-32 pt-gt-16">
-        <button
-          type="button"
-          onClick={onPickFile}
-          className="flex w-full items-center justify-center gap-gt-8 rounded-gt-xl border-2 border-gt-line-strong bg-gt-surface py-gt-12 font-gt-display text-gt-md font-extrabold text-gt-ink shadow-gt-xs transition duration-150 ease-gt-bounce hover:-translate-y-0.5 hover:shadow-gt-sm"
-        >
+        <Button variant="secondary" size="lg" fullWidth onClick={onPickFile}>
           <PixelIcon name="action-gallery" size={26} />
           Galería
-        </button>
-        <button
-          type="button"
-          onClick={onTakePhoto}
-          className="flex w-full items-center justify-center gap-gt-8 rounded-gt-xl border-2 border-gt-line-strong bg-gt-primary py-gt-12 font-gt-display text-gt-md font-extrabold text-white shadow-gt-sm transition duration-150 ease-gt-bounce hover:-translate-y-0.5 hover:shadow-gt-md"
-        >
+        </Button>
+        <Button variant="primary" size="lg" fullWidth onClick={onTakePhoto}>
           <PixelIcon name="action-camera" size={26} />
           Tomar foto
-        </button>
+        </Button>
       </div>
     </div>
   );

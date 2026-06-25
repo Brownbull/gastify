@@ -16,8 +16,8 @@ const meta = {
   tags: ["autodocs"],
   args: { children: "Guardar", variant: "primary", size: "md" },
   argTypes: {
-    variant: { control: "radio", options: ["primary", "secondary", "ghost", "danger"] },
-    size: { control: "radio", options: ["sm", "md"] },
+    variant: { control: "radio", options: ["primary", "secondary", "success", "ghost", "danger"] },
+    size: { control: "radio", options: ["sm", "md", "lg"] },
   },
 } satisfies Meta<typeof Button>;
 
@@ -32,21 +32,26 @@ export const AllVariants: Story = {
       <div className="flex flex-wrap items-center gap-3">
         <Button variant="primary">Guardar</Button>
         <Button variant="secondary">Editar</Button>
+        <Button variant="success">Confirmar</Button>
         <Button variant="ghost">Cancelar</Button>
         <Button variant="danger">Eliminar</Button>
       </div>
       <div className="flex flex-wrap items-center gap-3">
         <Button variant="primary" size="sm">Guardar</Button>
         <Button variant="secondary" size="sm">Editar</Button>
+        <Button variant="success" size="sm">Confirmar</Button>
         <Button variant="ghost" size="sm">Cancelar</Button>
         <Button variant="danger" size="sm">Eliminar</Button>
       </div>
       <div className="flex flex-wrap items-center gap-3">
         <Button variant="primary" disabled>Guardar</Button>
         <Button variant="secondary" disabled>Editar</Button>
+        <Button variant="success" disabled>Confirmar</Button>
         <Button variant="danger" disabled>Eliminar</Button>
       </div>
-      <Button variant="primary" fullWidth>Escanear boleta</Button>
+      {/* lg = the tall full-width footer CTA used across the scan flow */}
+      <Button variant="primary" size="lg" fullWidth>Escanear boleta</Button>
+      <Button variant="success" size="lg" fullWidth>Confirmar y guardar</Button>
     </div>
   ),
 };

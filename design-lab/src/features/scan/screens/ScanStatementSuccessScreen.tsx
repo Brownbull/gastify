@@ -1,4 +1,5 @@
 import { PixelIcon } from "@design-system/assets/PixelIcon";
+import { Button } from "@design-system/atoms/Button";
 import {
   SAMPLE_OUTCOME,
   SAMPLE_STATEMENT,
@@ -72,23 +73,14 @@ export function ScanStatementSuccessScreen({
 
       {/* exits */}
       <div className="flex shrink-0 flex-col gap-gt-8 border-t-2 border-gt-line-strong bg-gt-surface px-gt-16 pb-gt-32 pt-gt-12">
-        <button
-          type="button"
-          onClick={onViewTransactions}
-          className="flex h-12 w-full items-center justify-center gap-gt-8 rounded-gt-xl border-2 border-gt-line-strong bg-gt-surface font-gt-display text-gt-md font-extrabold text-gt-ink shadow-gt-xs transition hover:-translate-y-0.5"
-        >
+        <Button variant="secondary" size="lg" fullWidth onClick={onViewTransactions}>
           <PixelIcon name="fin-receipt" size={22} />
           Ver transacciones
-        </button>
-        <button
-          type="button"
-          onClick={onHome}
-          className="flex h-12 w-full items-center justify-center gap-gt-8 rounded-gt-xl border-2 border-gt-line-strong font-gt-display text-gt-md font-extrabold text-white shadow-gt-sm transition hover:-translate-y-0.5"
-          style={{ backgroundColor: "var(--primary)" }}
-        >
+        </Button>
+        <Button variant="primary" size="lg" fullWidth onClick={onHome}>
           <PixelIcon name="nav-home" size={22} />
           Volver al inicio
-        </button>
+        </Button>
       </div>
     </div>
   );

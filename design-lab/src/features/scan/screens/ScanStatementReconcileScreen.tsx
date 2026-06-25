@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { AppHeader } from "@design-system/organisms/Nav";
 import { PixelIcon } from "@design-system/assets/PixelIcon";
+import { Button } from "@design-system/atoms/Button";
 import { ArrowLeftIcon } from "@design-system/assets/icons";
 import { CategoryChip } from "@design-system/molecules/CategoryChip";
 import { StatementSteps } from "../components/StatementSteps";
@@ -337,10 +338,10 @@ export function ScanStatementReconcileScreen({ items = SAMPLE_RECONCILE, onBack,
 
       {/* footer — advance to Confirmar (step 4). NOT a commit. */}
       <div className="shrink-0 border-t-2 border-gt-line-strong bg-gt-surface px-gt-16 pb-gt-32 pt-gt-12">
-        <button type="button" onClick={onContinue} className="flex h-12 w-full items-center justify-center gap-gt-8 rounded-gt-xl border-2 border-gt-line-strong font-gt-display text-gt-md font-extrabold text-white shadow-gt-sm transition hover:-translate-y-0.5" style={{ backgroundColor: "var(--primary)" }}>
+        <Button variant="primary" size="lg" fullWidth onClick={onContinue}>
           Revisar y confirmar
           <span aria-hidden="true" className="h-2.5 w-2.5 -rotate-45 border-b-2 border-r-2 border-white" />
-        </button>
+        </Button>
       </div>
 
       {/* category picker (grouped by L1) — shared across every editable row */}
