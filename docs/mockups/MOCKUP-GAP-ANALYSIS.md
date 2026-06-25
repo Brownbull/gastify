@@ -38,14 +38,14 @@ Legend: ✅ mocked · 🟡 partial · ❌ missing in mockups.
 4. ✅ **Share a transaction into a group** — Built: ShareTransactionSheet wired into "Compartir gasto".
 5. ✅ **Group join flow** — `/invite/:token`. Built: InviteJoinScreen (preview / join / expired).
 6. ✅ **Group management actions** — Built: member promote/demote/remove, leave (keep-vs-delete), delete group, visibility + consent toggles.
-7. **Locked-transaction states** — a statement-**matched** txn (badge, 409 on edit) and a **shared** txn (banner, read-only) collapse the editable detail to read-only. Our detail is always editable.
-8. **Batch operations on the transaction list** — select-all + per-row checkboxes → batch delete + batch category reassign.
-9. **Line-item flagging** — flag/unflag a line item (allergy/dietary/insight); excluded from all aggregates.
-10. **Insights / gravity-center alerts** — the ranked concentration list (categories >1.5× or <0.5× of trailing baseline), richer than the single home insight card.
-11. **Privacy / consent management** — per-processing-purpose consent toggles + data-access summary + audit log (a real privacy settings surface).
-12. **Home dashboard parity** — the real home leads with a category **donut** + **time-series** chart + gravity alerts; our Inicio is lighter (treemap + 1 insight + recents).
-13. **Statements list** screen + password-protected-PDF prompt.
-14. Minor states: insufficient-credit error, scan-disabled-in-group-scope notice.
+7. ✅ **Locked-transaction states** — matched/shared → read-only detail. Built (TransactionDetail `locked`, commit f1e5012).
+8. ✅ **Batch operations on the transaction list** — select mode + batch delete / re-categorize. Built (8cd1e96).
+9. ✅ **Line-item flagging** — flag/unflag a line item, excluded from aggregates. Built (f817d2d).
+10. ✅ **Insights / gravity-center alerts** — ranked concentration list on Inicio. Built (52571bb).
+11. ✅ **Privacy / consent management** — per-purpose consent toggles + data-access summary + audit log. Built (PrivacySubview, c87fff9).
+12. **Home dashboard parity** — the real home leads with a category **donut** + **time-series** chart; our Inicio now has the treemap + gravity centers + insight + recents (donut/time-series still lighter). _Partially addressed by #10._
+13. ✅ **Statements list** screen + password-protected note. Built (StatementsListScreen, 115625c).
+14. Minor states: insufficient-credit error, scan-disabled-in-group-scope notice. _Open._
 
 ## Mockup-only / not backed by the app (flag — decide keep-aspirational vs needs-backend)
 
