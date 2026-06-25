@@ -2786,3 +2786,15 @@ cross-check the LLM's merchant/total/date against the signed SII data when a QR 
 **Verification model.** Per D97 (production-direct) staging is retired — per-screen proof = Playwright screenshots on the local dev server vs the design-lab Storybook reference, + production verify via `/gabe-push`. BEHAVIOR.md B2's Railway-staging gate is superseded by D97 for this epic.
 
 **Status:** accepted.
+
+## D99 — W2 nav IA = 4 tabs (Inicio·Compras·Gastos·Historial) + Perfil-as-avatar + ScanFab (2026-06-25)
+
+**Context.** W2 (Web Migration app shell) had to resolve an internal conflict in the design-lab handoff: HANDOFF §4 lists the 4 bottom tabs as Inicio·Compras·Gastos·**Perfil**, but the as-built design-lab `Nav` component (DM-5 as-coded) uses Inicio·Compras·Gastos·**Historial** with **Perfil reached from a top-right avatar dropdown** (not a tab).
+
+**Decision (user-confirmed 2026-06-25, "Option A").** Web adopts the **as-built Nav**: bottom tabs = **Inicio·Compras·Gastos·Historial**; **scan = FAB** (not a tab); **Perfil = top-right avatar dropdown** (ProfileMenu). Least port friction (lift the component as-coded) and matches what was reviewed in Storybook.
+
+**Route mapping (the 11→4 IA):** Inicio→`/` · Compras→`/transactions` · Gastos→`/trends` · Historial→`/items`. ScanFab modes → `/scan` (single) · `/scan-batch` (batch) · `/statements` (statement). Perfil dropdown → `/notifications` · `/reports` · `/groups` · `/statements` · `/settings` · sign-out. Notifications also via the header bell.
+
+**Consequence for W3–W10.** Every screen phase places its route within this IA; secondary routes (reports/statements/groups/notifications) live in the Perfil menu, not the tab bar. Scope switcher stays web's existing GroupSwitcher (design-lab's ScopeTrigger/ScopeMenu not ported).
+
+**Status:** accepted.
