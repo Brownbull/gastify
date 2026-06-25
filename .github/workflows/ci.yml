@@ -45,6 +45,7 @@ jobs:
           cache-dependency-path: web/package-lock.json
       - run: npm ci --legacy-peer-deps
       - run: npm run lint
+      - run: npm run check:token-classes
 
   web-test:
     name: Web Test

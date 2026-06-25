@@ -94,6 +94,7 @@
 | `web/src/styles/*.css` | Global styles + design tokens | MVP |
 | `web/src/assets/**` | Static assets (images, icons) | MVP |
 | `web/public/**` | Public static assets | MVP |
+| `web/scripts/**/*.mjs` | Web build tooling — token-CSS generator + token-class check (mirrors design-lab/scripts) | MVP |
 
 ### Mobile App (Expo + React Native + Firebase Auth)
 

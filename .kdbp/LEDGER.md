@@ -5344,3 +5344,19 @@ VERIFIED: web 137 tests + tsc + vite build green; web npm audit-high clean; ruff
 - 2026-06-25 16:20 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/auth/screens/AuthFlow.stories.tsx
 - 2026-06-25 16:20 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/settings/screens/SettingsFlow.stories.tsx
 - 2026-06-25 16:20 | Edit | /home/khujta/projects/apps/gastify/docs/mockups/HANDOFF.md
+- 2026-06-25 16:41 | Write | /home/khujta/projects/apps/gastify/docs/mockups/WEB-MIGRATION.md
+- 2026-06-25 16:43 | Edit | /home/khujta/.claude/projects/-home-khujta-projects-apps-gastify/memory/project_design_lab_mockups.md
+- 2026-06-25 16:44 | Edit | /home/khujta/.claude/projects/-home-khujta-projects-apps-gastify/memory/MEMORY.md
+
+## 2026-06-25 16:58 — PLAN COMPLETED: RATE-LIMIT mvp+ent tiers (D96 tier/quota + limiter infra + ENT abuse-hardening)
+ARCHIVE: .kdbp/archive/completed_PLAN_2026-06-25_rate-limit-tier-quota.md
+PHASES COMPLETED: 5 of 5
+
+## 2026-06-25 16:58 — PLAN CREATED: Web Migration — Playful Geometric design system from design-lab/ into the live web/ app
+PHASES: 11 | COMPLEXITY: med-high overall | MATURITY: mvp
+TIERS: mvp × 7, ent × 4, scale × 0 | PROTOTYPES: 0
+DECISIONS: D98 (consolidated per-phase tier slate + D-A/D-B/D-C architecture decisions)
+HTML_ARTIFACT: none
+BRANCH: feat/web-migration (off the real tip; 305 commits ahead of stale local main)
+- 2026-06-25 17:12 | Write | /home/khujta/projects/apps/gastify/web/scripts/generate-tokens-css.mjs
+- 2026-06-25 17:12 | Edit | /home/khujta/projects/apps/gastify/web/package.json

@@ -1,9 +1,10 @@
 import { test, expect, type Page } from "@playwright/test";
 
 /**
- * Web settings journey — theme switching, profile display, account actions.
- * Proves the /settings route renders, theme switching applies CSS changes,
- * and the sign-out button is accessible from settings.
+ * Web settings journey — profile display, language switching, account actions.
+ * Proves the /settings route renders, the language section is present, and the
+ * sign-out button is accessible from settings. (The warm 3-theme × light/dark
+ * switcher was removed in W1 — single Playful Geometric light theme, DM-1/D-B.)
  */
 
 async function signInWithTestAuth(page: Page): Promise<void> {
@@ -13,7 +14,7 @@ async function signInWithTestAuth(page: Page): Promise<void> {
 }
 
 test.describe("Settings page", () => {
-  test("renders settings with profile, appearance, and account sections", async ({
+  test("renders settings with profile, language, and account sections", async ({
     page,
   }) => {
     await signInWithTestAuth(page);
@@ -23,76 +24,11 @@ test.describe("Settings page", () => {
       timeout: 15_000,
     });
     await expect(page.getByText(/profile|perfil/i).first()).toBeVisible();
-    await expect(page.getByText(/appearance|apariencia/i).first()).toBeVisible();
+    await expect(page.getByText(/idioma|language/i).first()).toBeVisible();
     await expect(page.getByText(/account|cuenta/i).first()).toBeVisible();
 
     await page.screenshot({
       path: "tests/web-e2e/proof/settings/01-settings-loaded.png",
-    });
-  });
-
-  test("switches color theme and mode", async ({ page }) => {
-    await signInWithTestAuth(page);
-    await page.goto("/settings");
-
-    const main = page.getByRole("main");
-    await expect(main.getByText(/appearance|apariencia/i)).toBeVisible({
-      timeout: 15_000,
-    });
-
-    const initialBg = await page.evaluate(() =>
-      getComputedStyle(document.documentElement).getPropertyValue("--bg").trim(),
-    );
-
-    // The theme select is the first <select> inside <main> (not the sidebar language picker)
-    const themeSelect = main.locator("select").first();
-    await themeSelect.selectOption("professional");
-
-    const afterProfessional = await page.evaluate(() =>
-      getComputedStyle(document.documentElement).getPropertyValue("--bg").trim(),
-    );
-    expect(afterProfessional).not.toBe(initialBg);
-
-    await page.screenshot({
-      path: "tests/web-e2e/proof/settings/02-theme-professional.png",
-    });
-
-    // Switch to Mono theme
-    await themeSelect.selectOption("mono");
-
-    const afterMono = await page.evaluate(() =>
-      getComputedStyle(document.documentElement).getPropertyValue("--bg").trim(),
-    );
-    expect(afterMono).not.toBe(afterProfessional);
-
-    await page.screenshot({
-      path: "tests/web-e2e/proof/settings/03-theme-mono.png",
-    });
-
-    // Toggle dark mode (second select in main)
-    const modeSelect = main.locator("select").nth(1);
-    await modeSelect.selectOption("dark");
-
-    const isDark = await page.evaluate(() =>
-      document.documentElement.classList.contains("dark"),
-    );
-    expect(isDark).toBe(true);
-
-    await page.screenshot({
-      path: "tests/web-e2e/proof/settings/04-theme-mono-dark.png",
-    });
-
-    // Restore Normal + light
-    await themeSelect.selectOption("normal");
-    await modeSelect.selectOption("light");
-
-    const restored = await page.evaluate(() =>
-      getComputedStyle(document.documentElement).getPropertyValue("--bg").trim(),
-    );
-    expect(restored).toBe(initialBg);
-
-    await page.screenshot({
-      path: "tests/web-e2e/proof/settings/05-theme-restored.png",
     });
   });
 
@@ -101,7 +37,7 @@ test.describe("Settings page", () => {
     await page.goto("/settings");
 
     const main = page.getByRole("main");
-    await expect(main.getByText(/appearance|apariencia/i)).toBeVisible({
+    await expect(main.getByText(/idioma|language/i)).toBeVisible({
       timeout: 15_000,
     });
 
