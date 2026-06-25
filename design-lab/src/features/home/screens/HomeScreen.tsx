@@ -3,8 +3,10 @@ import { PixelIcon } from "@design-system/assets/PixelIcon";
 import { Badge } from "@design-system/atoms/Badge";
 import { StatusCard } from "@design-system/molecules/StatusCard";
 import { PeriodNav } from "@design-system/molecules/PeriodNav";
+import { SegmentedToggle } from "@design-system/atoms/SegmentedToggle";
 import type { Platform } from "@design-system/organisms/AppSurface";
 import { MonthTreemapCard } from "../components/MonthTreemapCard";
+import { MonthTrendCard } from "../components/MonthTrendCard";
 import { GravityCentersCard } from "../components/GravityCentersCard";
 import { RecentTransactionsCard } from "../components/RecentTransactionsCard";
 import { sampleHome, type HomeScreenModel } from "../model/HomeScreenModel";
@@ -65,6 +67,7 @@ function InicioSkeleton({ platform }: { platform: Platform }) {
 
 export function HomeScreen({ model = sampleHome, loading = false, platform = "mobile" }: HomeScreenProps) {
   const [monthIdx, setMonthIdx] = useState(MONTHS.length - 1);
+  const [rep, setRep] = useState<"map" | "trend">("map");
 
   if (loading) return <InicioSkeleton platform={platform} />;
 
@@ -77,7 +80,20 @@ export function HomeScreen({ model = sampleHome, loading = false, platform = "mo
       {model.insight.body}
     </StatusCard>
   ) : null;
-  const treemap = <MonthTreemapCard blocks={model.treemap} />;
+  // "Este mes" breakdown — a Mapa (treemap) / Tendencia (monthly trend) switcher.
+  const breakdown = (
+    <section className="flex flex-col gap-gt-10">
+      <div className="flex items-center justify-between gap-gt-8">
+        <h3 className="text-gt-lg font-extrabold text-gt-ink">Este mes</h3>
+        <SegmentedToggle
+          segments={[{ id: "map", label: "Mapa" }, { id: "trend", label: "Tendencia" }]}
+          value={rep}
+          onChange={(v) => setRep(v as "map" | "trend")}
+        />
+      </div>
+      {rep === "map" ? <MonthTreemapCard blocks={model.treemap} title={null} /> : <MonthTrendCard title={null} />}
+    </section>
+  );
   const gravity = <GravityCentersCard />;
   const recent = <RecentTransactionsCard transactions={model.recent} />;
 
@@ -106,7 +122,7 @@ export function HomeScreen({ model = sampleHome, loading = false, platform = "mo
         ) : (
           hero
         )}
-        {treemap}
+        {breakdown}
         {gravity}
         {recent}
       </div>
@@ -118,7 +134,7 @@ export function HomeScreen({ model = sampleHome, loading = false, platform = "mo
       {topBar}
       {hero}
       {insight}
-      {treemap}
+      {breakdown}
       {gravity}
       {recent}
     </div>

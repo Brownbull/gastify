@@ -8,10 +8,10 @@ import type { TreemapBlock } from "../model/HomeScreenModel";
  * full section width; only the hero + insight keep an elevated container.
  * Reference: docs/mockups/screens/gastify-dashboard.html.
  */
-export function MonthTreemapCard({ blocks }: { blocks: TreemapBlock[] }) {
+export function MonthTreemapCard({ blocks, title = "Este Mes" }: { blocks: TreemapBlock[]; title?: string | null }) {
   return (
     <section className="flex flex-col gap-gt-10">
-      <h3 className="text-gt-lg font-extrabold text-gt-ink">Este Mes</h3>
+      {title ? <h3 className="text-gt-lg font-extrabold text-gt-ink">{title}</h3> : null}
       {blocks.length === 0 ? (
         <div className="flex h-44 flex-col items-center justify-center gap-3 rounded-gt-xl border-2 border-dashed border-gt-line text-center">
           <p className="text-gt-md text-gt-ink-3">Aún no hay gastos este mes</p>
