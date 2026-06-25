@@ -5,6 +5,8 @@ import { AppScaffold } from "@design-system/organisms/AppScaffold";
 import type { NavScope } from "@design-system/organisms/Nav";
 import { GroupAvatar } from "@design-system/atoms/GroupAvatar";
 import { MemberCluster } from "../components/MemberCluster";
+import { ShareTransactionsScreen } from "./ShareTransactionsScreen";
+import { ScanModeChooserScreen } from "@features/scan/screens/ScanModeChooserScreen";
 import { SAMPLE_GROUPS } from "../model/groupFixtures";
 import { clp } from "@lib/transactionFixtures";
 
@@ -83,6 +85,55 @@ export const Default: Story = {
     return (
       <AppSurface platform={platform}>
         <Demo platform={platform} />
+      </AppSurface>
+    );
+  },
+};
+
+/**
+ * The add action is scope-aware: in a GROUP scope the FAB opens the full-page
+ * "Compartir gastos" flow (you share existing personal transactions — you can't
+ * scan straight into a group); in Personal it opens the normal scan chooser.
+ * Default scope is Familia González — tap the FAB; switch to Personal via the
+ * logo to see the chooser instead.
+ */
+function AddInScopeDemo({ platform }: { platform: Platform }) {
+  const [scopeId, setScopeId] = useState("g-familia");
+  const [active, setActive] = useState("home");
+  const [addOpen, setAddOpen] = useState(false);
+  const scope = SCOPES.find((s) => s.id === scopeId) ?? PERSONAL;
+  const group = SAMPLE_GROUPS.find((g) => g.id === scopeId);
+  const close = () => setAddOpen(false);
+  return (
+    <AppScaffold
+      platform={platform}
+      active={active}
+      onSelect={setActive}
+      scope={scope}
+      scopes={SCOPES}
+      onScopeSelect={(id) => { setScopeId(id); close(); }}
+      onScan={() => setAddOpen(true)}
+      overlay={
+        addOpen ? (
+          group ? (
+            <ShareTransactionsScreen groupName={group.name} platform={platform} onBack={close} onShared={() => {}} />
+          ) : (
+            <ScanModeChooserScreen onClose={close} onSingle={close} onStatement={close} onManual={close} />
+          )
+        ) : undefined
+      }
+    >
+      <ScopeContent scopeId={scopeId} />
+    </AppScaffold>
+  );
+}
+
+export const AddInScope: Story = {
+  render: (_a, { globals }) => {
+    const platform = platformFromGlobals(globals);
+    return (
+      <AppSurface platform={platform}>
+        <AddInScopeDemo platform={platform} />
       </AppSurface>
     );
   },

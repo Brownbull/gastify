@@ -11,7 +11,8 @@ import { CompactRow, CompactRowList } from "@design-system/molecules/CompactRowL
 import { ThumbnailBadge } from "@design-system/molecules/ThumbnailBadge";
 import { InviteSheet } from "../components/InviteSheet";
 import { MemberActionsSheet } from "../components/MemberActionsSheet";
-import { ShareTransactionSheet } from "../components/ShareTransactionSheet";
+import { ShareTransactionsScreen } from "./ShareTransactionsScreen";
+import { type ShareableTxn } from "../model/shareFixtures";
 import { LeaveGroupDialog, DeleteGroupDialog } from "../components/GroupLeaveDeleteDialogs";
 import { ROLE_LABEL, ROLE_TONE, type Group, type GroupMember, type GroupRole } from "../model/groupFixtures";
 import { clp } from "@lib/transactionFixtures";
@@ -78,11 +79,16 @@ export function GroupDetailScreen({ group, onBack, onShare, onLeave, onDelete, p
   const setVisibility = (v: boolean) => setG((p) => ({ ...p, memberVisibilityEnabled: v }));
   const setMyConsent = (v: boolean) => setG((p) => ({ ...p, members: p.members.map((m) => (m.isYou ? { ...m, sharesDetail: v } : m)) }));
   // share a personal transaction into the group → prepend it to the feed as yours.
-  const shareTxn = (t: { id: string; merchant: string; total: number; category?: string; storeIcon: string }) => {
+  // a confirmed batch share from the full-page screen → prepend to the feed as yours.
+  const shareTxns = (shared: ShareableTxn[]) => {
+    if (shared.length === 0) return;
     setG((p) => ({
       ...p,
-      sharedTotal: p.sharedTotal + t.total,
-      sharedTxns: [{ id: `shared-${t.id}-${p.sharedTxns.length}`, date: "hoy", merchant: t.merchant, total: t.total, currency: "CLP", sharedByName: "Tú", isOwn: true, category: t.category ?? "otros", storeIcon: t.storeIcon }, ...p.sharedTxns],
+      sharedTotal: p.sharedTotal + shared.reduce((s, t) => s + t.total, 0),
+      sharedTxns: [
+        ...shared.map((t, i) => ({ id: `shared-${t.id}-${p.sharedTxns.length + i}`, date: t.date, merchant: t.merchant, total: t.total, currency: "CLP", sharedByName: "Tú", isOwn: true, category: t.category, storeIcon: t.storeIcon })),
+        ...p.sharedTxns,
+      ],
     }));
     onShare?.();
   };
@@ -93,6 +99,11 @@ export function GroupDetailScreen({ group, onBack, onShare, onLeave, onDelete, p
   const itemized = g.memberVisibilityEnabled ? g.sharedTxns : g.sharedTxns.filter((t) => t.isOwn);
   const hidden = g.memberVisibilityEnabled ? [] : g.sharedTxns.filter((t) => !t.isOwn);
   const hiddenTotal = hidden.reduce((s, t) => s + t.total, 0);
+
+  // "Compartir gasto" opens the full-page share flow (replaces this detail).
+  if (shareOpen) {
+    return <ShareTransactionsScreen groupName={g.name} platform={platform} onBack={() => setShareOpen(false)} onShared={shareTxns} />;
+  }
 
   return (
     <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden bg-gt-bg">
@@ -218,7 +229,6 @@ export function GroupDetailScreen({ group, onBack, onShare, onLeave, onDelete, p
       </div>
 
       <InviteSheet open={inviteOpen} onClose={() => setInviteOpen(false)} group={g} />
-      <ShareTransactionSheet open={shareOpen} groupName={g.name} onClose={() => setShareOpen(false)} onShare={shareTxn} />
       <MemberActionsSheet
         member={actionMember}
         canPromote={actionMember ? canPromote(actionMember) : false}
