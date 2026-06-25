@@ -21,7 +21,7 @@ export const Default: Story = {
     const platform = platformFromGlobals(globals);
     return (
       <AppSurface platform={platform}>
-        <NewTransactionScreen platform={platform} onBack={() => {}} onCreate={() => {}} />
+        <NewTransactionScreen platform={platform} onCancel={() => {}} onCreate={() => {}} />
       </AppSurface>
     );
   },

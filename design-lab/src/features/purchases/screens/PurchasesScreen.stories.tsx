@@ -51,7 +51,7 @@ function ComprasInShell({ platform }: { platform: Platform }) {
   const overlay = detailTxn ? (
     <TransactionDetail txn={pickDetailFor(detailTxn)} platform={platform} onBack={() => setDetailTxn(null)} onDelete={() => setDetailTxn(null)} />
   ) : newOpen ? (
-    <NewTransactionScreen platform={platform} onBack={() => setNewOpen(false)} onCreate={() => setNewOpen(false)} />
+    <NewTransactionScreen platform={platform} onCancel={() => setNewOpen(false)} onCreate={() => setNewOpen(false)} />
   ) : filterOpen ? (
     platform === "desktop" ? (
       <div className="flex h-full w-full justify-center bg-gt-ink/30 px-gt-16 py-gt-16">

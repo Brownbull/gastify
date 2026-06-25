@@ -10,6 +10,8 @@ import { LocationPicker } from "@design-system/molecules/LocationPicker";
 import { DatePicker } from "@design-system/molecules/DatePicker";
 import { TimePicker } from "@design-system/molecules/TimePicker";
 import { CurrencyPicker } from "@design-system/molecules/CurrencyPicker";
+import { Modal } from "@design-system/atoms/Modal";
+import { Button } from "@design-system/atoms/Button";
 import type { Platform } from "@design-system/organisms/AppSurface";
 import { type TxnCadence, type TxnDetail, type TxnItem } from "@lib/transactionFixtures";
 import { CASH, SAMPLE_CARDS } from "@lib/paymentMethods";
@@ -35,7 +37,8 @@ const BLANK_TXN: TxnDetail = {
 };
 
 export interface NewTransactionScreenProps {
-  onBack?: () => void;
+  /** dismiss the form (the header X / a confirmed discard). */
+  onCancel?: () => void;
   /** confirmed create — the host saves the transaction + closes the form. */
   onCreate?: () => void;
   platform?: Platform;
@@ -49,7 +52,8 @@ export interface NewTransactionScreenProps {
  * folds the live total into a "Crear" CTA. Items are optional — a total-only
  * transaction is valid.
  */
-export function NewTransactionScreen({ onBack, onCreate, platform = "mobile" }: NewTransactionScreenProps) {
+export function NewTransactionScreen({ onCancel, onCreate, platform = "mobile" }: NewTransactionScreenProps) {
+  const [confirmCancel, setConfirmCancel] = useState(false);
   const [merchant, setMerchant] = useState("");
   const [category, setCategory] = useState("otros");
   const [cadence, setCadence] = useState<TxnCadence>("one-time");
@@ -99,10 +103,13 @@ export function NewTransactionScreen({ onBack, onCreate, platform = "mobile" }: 
   const fmt = (n: number) => formatMoney(n, currency);
   const itemCatTarget = itemCatIdx != null ? items[itemCatIdx] : null;
   const contentMax = platform === "desktop" ? "44rem" : undefined;
+  // anything entered? a dirty form confirms before discarding; an empty one just closes.
+  const dirty = merchant.trim() !== "" || items.length > 0 || category !== "otros" || location !== "—" || payment !== CASH.id;
+  const requestCancel = () => (dirty ? setConfirmCancel(true) : onCancel?.());
 
   return (
     <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden bg-gt-bg">
-      <AppHeader variant="detail" title="Nueva transacción" onBack={onBack} />
+      <AppHeader variant="detail" title="Nueva transacción" onClose={requestCancel} />
 
       <div className="min-h-0 flex-1 overflow-y-auto px-gt-16 pb-gt-16">
         <div className="mx-auto flex w-full flex-col gap-gt-16 pt-gt-12" style={{ maxWidth: contentMax }}>
@@ -198,6 +205,23 @@ export function NewTransactionScreen({ onBack, onCreate, platform = "mobile" }: 
       <DatePicker open={dateOpen} onClose={() => setDateOpen(false)} value={date} onSelect={setDate} />
       <TimePicker open={timeOpen} onClose={() => setTimeOpen(false)} value={time} onSelect={setTime} />
       <CurrencyPicker open={curOpen} onClose={() => setCurOpen(false)} selected={currency} onSelect={setCurrency} />
+
+      {/* discard-confirm — guards an accidental cancel once the form is dirty */}
+      <Modal
+        open={confirmCancel}
+        onClose={() => setConfirmCancel(false)}
+        title="¿Descartar transacción?"
+        footer={
+          <div className="flex justify-end gap-gt-8">
+            <Button variant="ghost" size="sm" onClick={() => setConfirmCancel(false)}>Seguir editando</Button>
+            <Button variant="danger" size="sm" onClick={() => { setConfirmCancel(false); onCancel?.(); }}>Descartar</Button>
+          </div>
+        }
+      >
+        <p className="font-gt-body text-gt-sm leading-relaxed text-gt-ink-2">
+          Perderás los datos que ingresaste. Esta transacción no se guardará.
+        </p>
+      </Modal>
     </div>
   );
 }
