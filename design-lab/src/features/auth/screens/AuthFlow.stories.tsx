@@ -6,12 +6,12 @@ import { SignUpScreen } from "./SignUpScreen";
 import { SignInScreen } from "./SignInScreen";
 
 /**
- * Features/Auth/Screens/AuthFlow — the app's entry experience. `Flow` is the live
- * path (landing → sign-up ⇄ sign-in); the rest show each screen alone. The
- * landing is responsive — switch the platform toolbar for the desktop layout.
+ * Flows/Auth — the app's entry experience. `Flow` is the live path
+ * (landing → sign-up ⇄ sign-in); the rest show each screen alone. The landing is
+ * responsive — switch the platform toolbar for the desktop layout.
  */
 const meta: Meta = {
-  title: "Features/Auth/Screens/AuthFlow",
+  title: "Flows/Auth",
   parameters: { layout: "fullscreen" },
 };
 

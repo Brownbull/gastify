@@ -10,7 +10,7 @@ import { AppSurface, platformFromGlobals } from "@design-system/organisms/AppSur
  * privacidad (`PrivacySubview`) also have their own focused component stories.
  */
 const meta: Meta<typeof SettingsFlow> = {
-  title: "Features/Settings/Screens/SettingsFlow",
+  title: "Flows/Settings",
   component: SettingsFlow,
   parameters: { layout: "centered" },
   tags: ["autodocs"],

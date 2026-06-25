@@ -84,12 +84,10 @@ Atomic-design layers under `design-lab/src/design-system/`:
 | history | 1 | items history |
 | notifications | 1 | notifications |
 
-**Flow / journey stories** compose the journeys end-to-end inside the device frame:
-`Flows/Scan` (SingleScan · StatementScan · unified Escanear), `Flows/Spending`
-(dashboard→drill→list), plus `Features/Auth/Screens/AuthFlow` and
-`Features/Settings/Screens/SettingsFlow` (menu + deep-linked subviews). *Note: flow-story
-titling isn't uniform yet — Scan/Spending live under `Flows/`, Auth/Settings under their
-feature; worth standardizing under `Flows/` in a later pass.*
+**Flow / journey stories** (all under `Flows/*`) compose the journeys end-to-end inside
+the device frame: `Flows/Scan` (SingleScan · StatementScan · unified Escanear),
+`Flows/Spending` (dashboard→drill→list), `Flows/Auth` (landing → sign-up ⇄ sign-in), and
+`Flows/Settings` (menu + deep-linked subviews).
 
 Navigation (DM-5): **4-tab bottom nav** (Inicio · Compras · Gastos · Perfil) + **scan FAB** (desktop next to title / mobile-tablet bottom-right). Escanear is the FAB, not a tab.
 
