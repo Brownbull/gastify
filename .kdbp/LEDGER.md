@@ -5330,3 +5330,6 @@ VERIFIED: backend 943 pass/88% cov; pip-audit clean; npm audit-high clean; mobil
 - "Backend Test" job failed on `ruff format --check` (not pytest) → reformatted test_group_hardening.py.
 - "SCA Audit" job also runs web `npm audit` → undici high (TLS bypass et al., newly published); pinned undici ^7.28.0 (jsdom test-env transitive, not shipped).
 VERIFIED: web 137 tests + tsc + vite build green; web npm audit-high clean; ruff format --check clean.
+- 2026-06-25 15:55 | Write | /tmp/claude-1000/-home-khujta-projects-apps-gastify/5dd2ff51-a253-4a0a-ad11-7fe2bffdb43d/scratchpad/verify-prod-login.mjs
+- 2026-06-25 15:55 | Edit | /tmp/claude-1000/-home-khujta-projects-apps-gastify/5dd2ff51-a253-4a0a-ad11-7fe2bffdb43d/scratchpad/verify-prod-login.mjs
+- 2026-06-25 15:59 | Edit | /home/khujta/projects/apps/gastify/web/Dockerfile
