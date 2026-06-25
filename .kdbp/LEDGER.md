@@ -5385,3 +5385,11 @@ ALIGNMENT: ALIGNED (W1 token-foundation diff + epic-opening KDBP scaffolding)
 TIER: mvp | DRIFT: none
 TICK: ✅
 NOTES: blast radius verified clean (0 dangling theme-API consumers, 0 dead data-theme/.dark writes). Accepted: M#1 runtime-evidence-partial (sign-in proven; protected-route recolor planned for production verify at /gabe-push). Dismissed: L#3 stale localStorage theme keys (harmless), L#4 Google-Fonts CDN (standard, mirrors design-lab, Enterprise-gate).
+- 2026-06-25 17:49 | Write | /tmp/claude-1000/-home-khujta-projects-apps-gastify/54614bed-7177-4b86-813f-86de68955392/scratchpad/w1-pr-body.md
+
+## 2026-06-25 17:50 — PUSH feat/web-migration -> main (PR)
+PR: https://github.com/Brownbull/gastify/pull/5 (#5, OPEN, mergeable)
+CI: running at push — Web Build ✅ + Web Lint ✅ (incl. new check:token-classes); Web Test/Typecheck + backend/mobile pending
+PROMOTION: N/A — production-direct (D97); staging promotion suspended. PR NOT merged: production deploy awaits user confirmation (merge → main → Railway prod).
+DEPLOYMENTS: P86 (added row to .kdbp/DEPLOYMENTS.md)
+NOTE: branch pushed to origin/feat/web-migration (not direct-to-main); Push column stays ⬜ until merged + prod-verified.
