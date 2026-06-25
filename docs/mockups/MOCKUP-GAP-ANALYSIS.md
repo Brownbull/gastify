@@ -51,17 +51,17 @@ Legend: ✅ mocked · 🟡 partial · ❌ missing in mockups.
 
 Cross-checked every documented use case (PLAN-MOCKUPS, SCOPE, UI-FEATURE-INVENTORY, the completed feature-parity / insights / statement plans) against the current 95-story mockup surface. Coverage is high; the genuinely-missing pieces:
 
-**Screens / views still missing**
-- **Temporal trend chart ("Tendencia")** — spend over time (weeks/months/quarters/years, bar/line). Gastos has the 3 *distribution* reps (Dona/Mapa/Flujo) + Reportes (cards + within-period sparklines), but no spend-over-time series chart. This is the app's "Trends/Tendencia series" view. _The most notable missing view (also = open gap #12)._
-- **Single-scan failure + retry** state and **insufficient-credit error** (ScanProcessingScreen has uploading/processing/ready only — no `failed`), plus the **scan-disabled-in-group-scope** notice. _( = open gap #14)._
+**Screens / views still missing** → BUILT (2026-06-25)
+- ✅ **Temporal trend chart ("Tendencia")** — Home "Este mes" now has a Mapa/Tendencia switcher; Tendencia = MonthTrendCard monthly bar chart. (commit 2nd-round)
+- ✅ **Single-scan failure + retry** + **insufficient-credit** — ScanProcessingScreen `failed` phase (read-error → Reintentar / credits → Mejorar a Pro). **Scan-disabled-in-group** is handled by the scope-aware add (group FAB → share screen).
 
-**Options missing on existing screens**
-- **Matched/shared badge on transaction LIST rows** — only the *detail* shows the locked state; the Compras rows don't flag reconciled/shared txns.
-- **Delete-statement action** on the statements list (the unlock note exists, no affordance).
-- **Mark-as-unread** on a notification (only mark-read + delete exist).
-- **Scan review "needs review" / math-warning** banner (math-gate fail / low confidence on a single scan).
-- **Donut dimension toggle** (by store-category vs by item) — partial.
-- **USD-equivalent display** (FX shadow) — not surfaced anywhere (nice-to-have).
+**Options missing on existing screens** → BUILT (2026-06-25)
+- ✅ **Matched/shared badge on transaction LIST rows** — Conciliada/Compartida pill; the row opens the locked detail.
+- ✅ **Delete-statement action** — trash + confirm (unlock note).
+- ✅ **Mark-as-unread** — tapping a notification toggles read/unread.
+- ✅ **Scan review needs-review/math-warning** banner (`review` prop, math / confidence).
+- ⏭ **Donut dimension toggle** (by store-category vs by item) — DEFERRED: needs an item-category spend axis not in the fixtures.
+- ✅ **USD-equivalent** (FX shadow) — "≈ US$X" under the transaction-detail total (Currency.usdRate + toUsd).
 
 **Intentionally deferred (not gaps)** — batch scan (deferred by user), cohort benchmarking + boleta-QR (post-MVP).
 

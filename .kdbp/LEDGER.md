@@ -5104,6 +5104,10 @@ NOTE: USER — tackle the remaining gap-analysis gaps (#7-13). #7 LOCKED [f1e501
 ## 2026-06-25 — statements menu access + mobile long-press batch [d776226]  [MOCKUPS]
 GATES: storybook 208/208 (+1 StatementsListScreen FromAvatar) · types ✅ · build ✅
 NOTE: USER feedback. (1) Statements access: added {key:"statements",label:"Cartolas",icon:"scan-statement"} to PROFILE_MENU (Nav.tsx) between Grupos+Ajustes — now in the avatar dropdown everywhere. StatementsListScreen FromAvatar story wires onProfileSelect("statements")→list overlay (same pattern as Settings/Groups FromAvatar). (2) Mobile batch: new useLongPress hook (design-system/hooks — pointer-based, 450ms, cancels on >10px move, consumeClick() suppresses the trailing click). CompactRow +onLongPress (attaches onPointerDown/Up/Leave/Move + guarded onClick to the stretched-link overlay button). PurchasesScreen TxnRow +onLongPress; long-press a row when !selectMode && platform!=="desktop" → startSelectionWith(id) (setSelectMode+select that id). Desktop keeps the "Seleccionar" button. Playwright (hasTouch + mouse.down/hold650/up): long-press Nido Gastronómico → "1 seleccionada" + batch bar. Story: features-scan-screens-statementslistscreen--from-avatar. PLAN.md untouched (mockup lane).
+
+## 2026-06-25 — audit round 2 follow-through [ee3c024·c978a3b·97e6dbc·3260c2e·3382afc·+trend]  [MOCKUPS]
+GATES: storybook 209→211→212 (per group) · types ✅ · build ✅
+NOTE: USER — revise features + audit vs use cases (2 parallel Explore surveys: current 95-story inventory vs use-cases/PLAN-MOCKUPS), then build the gaps in 3 groups. (Note: PLAN-MOCKUPS.md checkboxes are STALE — built in the design-lab lane, tracked via LEDGER [MOCKUPS].) GROUP 1 minor options: matched/shared list badge [ee3c024] (BrowseTransaction +status; StatusPill Conciliada/Compartida; t1=matched/t4=shared; tap→locked detail). Statement delete [c978a3b] (StatementRow trash + confirm w/ unlock note, local items state). Notification mark-unread [c978a3b] (tap toggles read↔unread, markRead→toggleRead). Scan needs-review banner [97e6dbc] (ScanReviewScreen `review`={math|confidence} amber banner; NeedsReview story). USD-equivalent [3260c2e] (Currency.usdRate + toUsd; "≈ US$X" under TransactionDetail total). DEFERRED donut dimension toggle (needs item-category spend axis, not in fixtures). GROUP 2 scan errors [3382afc]: ScanPhase +"failed"; ScanProcessingScreen failed phase w/ failReason read("No pudimos leer"→Reintentar/scan-retry) | credits("Sin créditos"→Mejorar a Pro/credit-super) + Cancelar; Failed/InsufficientCredits stories. scan-disabled-in-group = covered by scope-aware add. GROUP 3 Tendencia: Home "Este mes" gains a Mapa/Tendencia SegmentedToggle; Tendencia=MonthTrendCard (monthly bar chart, current highlighted, value labels clpK, trailing avg) over trendFixtures MONTHLY_TREND; MonthTreemapCard/MonthTrendCard take title?:string|null so the section header owns it. Gap doc audit-round-2 updated (all built except donut toggle deferred). Stories: features-purchases-screens-transactiondetail--default(usd), features-scan-scanprocessingscreen--{failed,insufficient-credits}, features-scan-scanreviewscreen--needs-review, features-home-components-monthtrendcard--default. PLAN.md untouched (mockup lane).
 - 2026-06-24 16:37 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/historial/screens/HistorialScreen.tsx
 - 2026-06-24 16:38 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/historial/screens/HistorialScreen.tsx
 - 2026-06-24 16:38 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/compras/screens/ComprasScreen.tsx
@@ -5166,3 +5170,20 @@ NOTE: USER feedback. (1) Statements access: added {key:"statements",label:"Carto
 - 2026-06-24 21:29 | Write | /home/khujta/projects/apps/gastify/design-lab/src/features/settings/screens/PrivacySubview.tsx
 - 2026-06-24 21:30 | Write | /home/khujta/projects/apps/gastify/design-lab/src/features/settings/screens/PrivacySubview.stories.tsx
 - 2026-06-24 21:36 | Edit | /home/khujta/projects/apps/gastify/docs/mockups/MOCKUP-GAP-ANALYSIS.md
+- 2026-06-25 09:39 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/scan/screens/StatementsListScreen.tsx
+- 2026-06-25 09:39 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/scan/screens/StatementsListScreen.tsx
+- 2026-06-25 09:39 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/scan/screens/StatementsListScreen.tsx
+- 2026-06-25 09:40 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/scan/screens/StatementsListScreen.tsx
+- 2026-06-25 09:40 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/scan/screens/StatementsListScreen.tsx
+- 2026-06-25 09:41 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/notifications/screens/NotificationsScreen.tsx
+- 2026-06-25 09:42 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/notifications/screens/NotificationsScreen.tsx
+- 2026-06-25 09:45 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/scan/screens/ScanReviewScreen.tsx
+- 2026-06-25 09:45 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/scan/screens/ScanReviewScreen.tsx
+- 2026-06-25 09:45 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/scan/screens/ScanReviewScreen.tsx
+- 2026-06-25 09:45 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/scan/screens/ScanReviewScreen.stories.tsx
+- 2026-06-25 09:59 | Write | /home/khujta/projects/apps/gastify/design-lab/src/features/home/model/trendFixtures.ts
+- 2026-06-25 09:59 | Write | /home/khujta/projects/apps/gastify/design-lab/src/features/home/components/MonthTrendCard.tsx
+- 2026-06-25 10:00 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/home/components/MonthTreemapCard.tsx
+- 2026-06-25 10:00 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/home/screens/HomeScreen.tsx
+- 2026-06-25 10:00 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/home/screens/HomeScreen.tsx
+- 2026-06-25 10:01 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/features/home/screens/HomeScreen.tsx
