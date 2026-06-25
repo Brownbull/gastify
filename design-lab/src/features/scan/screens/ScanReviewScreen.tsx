@@ -41,6 +41,8 @@ import {
 export interface ScanReviewScreenProps {
   receipt?: ScanReceipt;
   payment?: string;
+  /** the extraction flagged the scan for review — math gate failed / low confidence. */
+  review?: { kind: "math" | "confidence" };
   onSave?: () => void;
   onCancel?: () => void;
 }
@@ -66,7 +68,7 @@ function collectCorrections(orig: ScanReceipt, cur: ScanReceipt): Correction[] {
   return out;
 }
 
-export function ScanReviewScreen({ receipt: initialReceipt = SAMPLE_RECEIPT, payment: initialPayment = "falabella", onSave, onCancel }: ScanReviewScreenProps) {
+export function ScanReviewScreen({ receipt: initialReceipt = SAMPLE_RECEIPT, payment: initialPayment = "falabella", review, onSave, onCancel }: ScanReviewScreenProps) {
   const [original] = useState<ScanReceipt>(initialReceipt);
   const [receipt, setReceipt] = useState<ScanReceipt>(initialReceipt);
   const [payment, setPayment] = useState<string>(initialPayment);
@@ -125,6 +127,21 @@ export function ScanReviewScreen({ receipt: initialReceipt = SAMPLE_RECEIPT, pay
 
       <div className="min-h-0 flex-1 overflow-y-auto px-gt-16 pb-gt-16">
         <div className="flex flex-col gap-gt-12 pt-gt-12">
+          {/* needs-review banner — math gate failed / low extraction confidence */}
+          {review ? (
+            <div className="flex items-start gap-gt-10 rounded-gt-xl border-2 border-gt-warning bg-gt-bg-3 px-gt-12 py-gt-10">
+              <PixelIcon name="status-alert" size={24} className="shrink-0" />
+              <span className="flex min-w-0 flex-1 flex-col gap-gt-1">
+                <span className="font-gt-display text-gt-sm font-extrabold text-gt-ink">{review.kind === "math" ? "Los montos no cuadran" : "Revisa los datos extraídos"}</span>
+                <span className="text-gt-xs font-medium text-gt-ink-2">
+                  {review.kind === "math"
+                    ? "La suma de los ítems no coincide con el total de la boleta. Corrígelo antes de guardar."
+                    : "No pudimos leer algunos campos con seguridad. Verifica el comercio, el total y los ítems."}
+                </span>
+              </span>
+            </div>
+          ) : null}
+
           {/* editable establishment header */}
           <div className="flex items-start gap-gt-12 border-b-2 border-gt-line pb-gt-12">
             <ThumbnailBadge icon={receipt.storeIcon} category={receipt.category} size="md" />

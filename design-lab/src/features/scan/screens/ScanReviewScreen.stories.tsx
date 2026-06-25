@@ -27,3 +27,13 @@ export const Default: Story = {
     </AppSurface>
   ),
 };
+
+/** Flagged for review — the math gate failed (sum of items ≠ total). */
+export const NeedsReview: Story = {
+  args: { review: { kind: "math" } },
+  render: (args, { globals }) => (
+    <AppSurface platform={platformFromGlobals(globals)}>
+      <ScanReviewScreen {...args} />
+    </AppSurface>
+  ),
+};
