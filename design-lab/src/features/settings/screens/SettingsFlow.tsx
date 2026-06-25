@@ -33,8 +33,8 @@ const SUBVIEWS: Record<string, ComponentType<SubviewProps>> = {
   data: PrivacySubview,
 };
 
-export function SettingsFlow({ onClose }: { onClose?: () => void }) {
-  const [sub, setSub] = useState<string | null>(null);
+export function SettingsFlow({ onClose, initialSub = null }: { onClose?: () => void; initialSub?: string | null }) {
+  const [sub, setSub] = useState<string | null>(initialSub);
   const Sub = sub ? SUBVIEWS[sub] : undefined;
   if (Sub) return <Sub onBack={() => setSub(null)} />;
   return <SettingsScreen onBack={onClose} onSelect={(k) => (SUBVIEWS[k] ? setSub(k) : undefined)} />;
