@@ -5310,3 +5310,11 @@ PR: https://github.com/Brownbull/gastify/pull/4 (99 commits; NOT merged)
 CI: running (watch in progress)
 PROMOTION: N/A (PR open; merge triggers prod web+api redeploy)
 DEPLOYMENTS: P7 (added row to .kdbp/DEPLOYMENTS.md)
+
+## 2026-06-25 14:34 — CI RESULT PR #4 (feat/phase6-items-reports)
+CI: 11/14 pass; 3 FAIL — all pre-existing branch debt, unrelated to 2a7b4be:
+  - Backend Test: tests/test_group_hardening.py::test_full_lifecycle_delete_then_readd_makes_a_new_copy (409≠204)
+  - Mobile Audit: npm audit high (transitive ws DoS via expo)
+  - SCA Audit: pip-audit backend dep CVEs (aiohttp/starlette/pypdf/cryptography/...)
+  - ALL Web checks (Build/Lint/Test/Typecheck) PASS — the test-login change is clean.
+MERGE: held pending user decision (do not merge over red CI unilaterally).
