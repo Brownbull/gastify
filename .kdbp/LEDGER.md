@@ -5393,3 +5393,9 @@ CI: running at push — Web Build ✅ + Web Lint ✅ (incl. new check:token-clas
 PROMOTION: N/A — production-direct (D97); staging promotion suspended. PR NOT merged: production deploy awaits user confirmation (merge → main → Railway prod).
 DEPLOYMENTS: P86 (added row to .kdbp/DEPLOYMENTS.md)
 NOTE: branch pushed to origin/feat/web-migration (not direct-to-main); Push column stays ⬜ until merged + prod-verified.
+- 2026-06-25 18:08 | Write | /home/khujta/projects/apps/gastify/web/src/components/shell/Nav.tsx
+- 2026-06-25 18:11 | Edit | /home/khujta/projects/apps/gastify/web/src/components/shell/Nav.tsx
+- 2026-06-25 18:11 | Write | /home/khujta/projects/apps/gastify/web/src/components/AppLayout.tsx
+- 2026-06-25 18:19 | Edit | /home/khujta/projects/apps/gastify/web/src/components/shell/Nav.tsx
+- 2026-06-25 18:19 | Edit | /home/khujta/projects/apps/gastify/web/src/components/shell/Nav.tsx
+- 2026-06-25 18:19 | Edit | /home/khujta/projects/apps/gastify/web/src/components/shell/Nav.tsx

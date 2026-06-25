@@ -10,6 +10,9 @@ export const messages = {
   es: {
     "app.name": "Gastify",
     "nav.dashboard": "Inicio",
+    "nav.purchases": "Compras",
+    "nav.spending": "Gastos",
+    "nav.history": "Historial",
     "nav.scan": "Escanear",
     "nav.statements": "Estados",
     "nav.transactions": "Movimientos",
@@ -227,6 +230,9 @@ export const messages = {
   en: {
     "app.name": "Gastify",
     "nav.dashboard": "Dashboard",
+    "nav.purchases": "Purchases",
+    "nav.spending": "Spending",
+    "nav.history": "History",
     "nav.scan": "Scan",
     "nav.statements": "Statements",
     "nav.transactions": "Transactions",
@@ -444,6 +450,9 @@ export const messages = {
   pt: {
     "app.name": "Gastify",
     "nav.dashboard": "Inicio",
+    "nav.purchases": "Compras",
+    "nav.spending": "Gastos",
+    "nav.history": "Histórico",
     "nav.scan": "Escanear",
     "nav.statements": "Faturas",
     "nav.transactions": "Transacoes",
