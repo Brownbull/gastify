@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { PixelIcon } from "@design-system/assets/PixelIcon";
-import { MapPinIcon, XIcon } from "@design-system/assets/icons";
+import { MapPinIcon, XIcon, ShareIcon } from "@design-system/assets/icons";
+import { getCategoryToken } from "@lib/categoryTokens";
 import { Badge } from "@design-system/atoms/Badge";
 import { Button } from "@design-system/atoms/Button";
 import { Modal } from "@design-system/atoms/Modal";
@@ -8,7 +9,6 @@ import { SearchRow } from "@design-system/molecules/SearchRow";
 import { SectionFade } from "@design-system/atoms/SectionFade";
 import { CategoryChip } from "@design-system/molecules/CategoryChip";
 import { CompactRow, CompactRowList } from "@design-system/molecules/CompactRowList";
-import { ThumbnailBadge } from "@design-system/molecules/ThumbnailBadge";
 import { Pagination } from "@design-system/molecules/Pagination";
 import { GroupedCategoryPicker } from "@design-system/molecules/GroupedCategoryPicker";
 import type { Platform } from "@design-system/organisms/AppSurface";
@@ -72,12 +72,33 @@ function PreviewItems({ txn }: { txn: BrowseTransaction }) {
   );
 }
 
-/** reconciled / shared lock pill, shown under the category on a row. */
-function StatusPill({ status }: { status: "matched" | "shared" }) {
-  const matched = status === "matched";
+/**
+ * TxnThumbnail — the receipt thumbnail (the store glyph as a placeholder until
+ * real receipt photos), with corner status badges: matched → a green Conciliada
+ * badge bottom-right (replacing the category icon there); shared → a violet
+ * badge upper-left. Non-status rows keep the category icon bottom-right.
+ */
+function TxnThumbnail({ txn }: { txn: BrowseTransaction }) {
+  const token = getCategoryToken(txn.category);
   return (
-    <span className={`inline-flex items-center gap-gt-2 rounded-gt-pill border-2 px-gt-6 py-gt-0 font-gt-display text-gt-xs font-extrabold ${matched ? "border-gt-positive bg-gt-positive-bg text-gt-positive" : "border-gt-primary bg-gt-primary-soft text-gt-primary"}`}>
-      <PixelIcon name={matched ? "scan-statement" : "action-split"} size={13} /> {matched ? "Conciliada" : "Compartida"}
+    <span className="relative h-12 w-12 shrink-0">
+      <span className="grid h-12 w-12 place-items-center overflow-hidden rounded-gt-xl border-2 border-gt-line-strong bg-gt-bg">
+        <PixelIcon name={txn.storeIcon} size={32} />
+      </span>
+      {txn.status === "shared" ? (
+        <span className="absolute -left-1 -top-1 grid h-7 w-7 place-items-center rounded-full border-2 border-gt-bg bg-gt-primary" aria-label="Compartida">
+          <ShareIcon className="h-4 w-4 text-white" />
+        </span>
+      ) : null}
+      {txn.status === "matched" ? (
+        <span className="absolute -bottom-1 -right-1 grid h-7 w-7 place-items-center rounded-full border-2 border-gt-bg bg-gt-positive" aria-label="Conciliada">
+          <PixelIcon name="scan-statement" size={16} />
+        </span>
+      ) : (
+        <span className="absolute -bottom-1 -right-1 grid h-7 w-7 place-items-center rounded-full border-2 border-gt-bg" style={{ backgroundColor: token.color }}>
+          <PixelIcon name={token.icon} size={18} />
+        </span>
+      )}
     </span>
   );
 }
@@ -95,15 +116,15 @@ function TxnRow({ txn, onSelect, selectMode, selected, onToggle, onLongPress }: 
             <span className={`grid h-6 w-6 shrink-0 place-items-center rounded-gt-md border-2 transition-colors duration-150 ${selected ? "border-gt-primary bg-gt-primary text-white" : "border-gt-line-strong bg-gt-surface"}`}>
               {selected ? <span className="font-gt-display text-gt-xs font-extrabold leading-none">✓</span> : null}
             </span>
-            <ThumbnailBadge icon={txn.storeIcon} category={txn.category} />
+            <TxnThumbnail txn={txn} />
           </span>
         ) : (
-          <ThumbnailBadge icon={txn.storeIcon} category={txn.category} />
+          <TxnThumbnail txn={txn} />
         )
       }
       title={txn.merchant}
       meta={<MetaLine txn={txn} />}
-      tags={<><CategoryChip category={txn.category} size="sm" />{txn.status ? <StatusPill status={txn.status} /> : null}</>}
+      tags={<CategoryChip category={txn.category} size="sm" />}
       trailing={<span className="font-gt-display text-gt-md font-extrabold text-gt-ink">{clp(txn.total)}</span>}
       detailLabel={`${txn.itemCount} ${txn.itemCount === 1 ? "ítem" : "ítems"}`}
       detail={<PreviewItems txn={txn} />}
