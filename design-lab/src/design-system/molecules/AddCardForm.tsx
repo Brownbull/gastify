@@ -20,6 +20,8 @@ export interface AddCardFormProps {
   /** show the "Método predeterminado" toggle. */
   defaultable?: boolean;
   initialDefault?: boolean;
+  /** when set (edit mode), show an "Archivar" action — disabled while default. */
+  onArchive?: () => void;
   onSave: (card: PaymentMethod, makeDefault?: boolean) => void;
 }
 
@@ -27,7 +29,7 @@ function slug(s: string): string {
   return s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "card";
 }
 
-export function AddCardForm({ open, onClose, initial, defaultable = false, initialDefault = false, onSave }: AddCardFormProps) {
+export function AddCardForm({ open, onClose, initial, defaultable = false, initialDefault = false, onArchive, onSave }: AddCardFormProps) {
   const editing = initial != null;
   const [alias, setAlias] = useState("");
   const [icon, setIcon] = useState<string>(CARD_ICON_CHOICES[0]);
@@ -130,6 +132,21 @@ export function AddCardForm({ open, onClose, initial, defaultable = false, initi
               <span className="text-gt-xs font-medium text-gt-ink-3">Se preselecciona al registrar un gasto.</span>
             </span>
             <Switch checked={makeDefault} onChange={setMakeDefault} label="Método predeterminado" />
+          </div>
+        ) : null}
+
+        {/* archive (edit mode only) — can't archive your default method */}
+        {onArchive ? (
+          <div className="flex flex-col gap-gt-2">
+            <button
+              type="button"
+              disabled={makeDefault}
+              onClick={() => { onArchive(); onClose(); }}
+              className="flex w-full items-center justify-center gap-gt-6 rounded-gt-xl border-2 border-gt-negative/40 bg-gt-negative/10 px-gt-12 py-gt-10 font-gt-display text-gt-sm font-extrabold text-gt-negative transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0"
+            >
+              <PixelIcon name="action-delete" size={18} /> Archivar tarjeta
+            </button>
+            {makeDefault ? <p className="px-gt-4 text-center text-gt-xs font-medium text-gt-ink-3">Quita "Predeterminada" para poder archivar.</p> : null}
           </div>
         ) : null}
       </div>
