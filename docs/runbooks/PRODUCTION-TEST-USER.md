@@ -62,6 +62,14 @@ of an existing account. Record the credentials in your secret store — they are
 > Because prod reuses the `gastify-staging` Firebase project, the web config from
 > `web/.env.staging-e2e` can be reused verbatim.
 
+> **Build-arg gotcha (verified 2026-06-25):** `VITE_*` are inlined by Vite at
+> **build time**. `web/Dockerfile` is a Dockerfile build, so Railway's service
+> variables only reach `vite build` if the Dockerfile **declares them as `ARG`**
+> (and exports to `ENV`). The Dockerfile now does this for all 8 `VITE_*` keys —
+> if you add a new `VITE_*`, add a matching `ARG`/`ENV` line or it bakes as
+> `undefined` and the SPA ships blank. Setting the var on the service alone is
+> NOT enough.
+
 Set on `gastify-web-production` (then redeploy — `VITE_*` is inlined at **build
 time** via `web/Dockerfile`):
 
@@ -85,15 +93,32 @@ calls fail. Add it and redeploy the API:
 GASTIFY_CORS_ORIGINS=["https://gastify-web-production-production.up.railway.app","http://localhost:5173","http://localhost:5174"]
 ```
 
-> Email/password sign-in (`signInWithEmailAndPassword`) does **not** require the
-> web domain to be in Firebase "Authorized domains" — that only gates OAuth
-> popup/redirect (Google). So the test login works without touching authorized
-> domains; add the prod web domain there only if you also want Google sign-in.
+### 5. Allow the prod web domain in the Firebase API key + authorized domains
 
-### 5. Log in
+> **Verified 2026-06-25:** the rendered form submitted, but the Firebase call was
+> rejected with
+> `auth/requests-from-referer-https://gastify-web-production-production.up.railway.app-are-blocked`
+> (HTTP 403). The `gastify-staging` Firebase **Web API key** has HTTP-referrer
+> restrictions that don't include the prod web domain, so **every** Firebase call
+> (incl. email/password) from that origin is blocked — this is a Google Cloud
+> Console setting, not a code change.
+
+Fix (Google Cloud Console, `gastify-staging` project):
+
+1. APIs & Services → Credentials → the **Browser key (auto created by Firebase)** /
+   Web API key → Application restrictions → **HTTP referrers** → add:
+   `https://gastify-web-production-production.up.railway.app/*`
+   (keep the existing staging/localhost entries).
+2. Firebase console → Authentication → Settings → **Authorized domains** → add
+   `gastify-web-production-production.up.railway.app` (required for Google
+   sign-in's popup/redirect; harmless for email/password).
+
+Changes propagate within a few minutes; no redeploy needed.
+
+### 6. Log in
 
 Open the production sign-in page. Below "Sign in with Google" an email/password
-form now appears. Enter the test credentials → you're in.
+form appears. Enter the test credentials → you're in.
 
 ## Disable when done
 

@@ -5333,3 +5333,7 @@ VERIFIED: web 137 tests + tsc + vite build green; web npm audit-high clean; ruff
 - 2026-06-25 15:55 | Write | /tmp/claude-1000/-home-khujta-projects-apps-gastify/5dd2ff51-a253-4a0a-ad11-7fe2bffdb43d/scratchpad/verify-prod-login.mjs
 - 2026-06-25 15:55 | Edit | /tmp/claude-1000/-home-khujta-projects-apps-gastify/5dd2ff51-a253-4a0a-ad11-7fe2bffdb43d/scratchpad/verify-prod-login.mjs
 - 2026-06-25 15:59 | Edit | /home/khujta/projects/apps/gastify/web/Dockerfile
+- 2026-06-25 16:02 | Edit | /home/khujta/projects/apps/gastify/docs/runbooks/PRODUCTION-TEST-USER.md
+- 2026-06-25 16:03 | Edit | /home/khujta/projects/apps/gastify/docs/runbooks/PRODUCTION-TEST-USER.md
+- 2026-06-25 16:03 | Write | /home/khujta/.claude/projects/-home-khujta-projects-apps-gastify/memory/project_railway_vite_build_args.md
+- 2026-06-25 16:03 | Edit | /home/khujta/.claude/projects/-home-khujta-projects-apps-gastify/memory/MEMORY.md
