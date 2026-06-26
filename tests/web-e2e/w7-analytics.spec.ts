@@ -36,9 +36,10 @@ test.describe("W7 analytics — geometric chart-engine swap (real seeded prod da
     await page.waitForTimeout(800);
     await page.screenshot({ path: `${SHOTS}/trends-treemap-desktop.png`, fullPage: false });
 
-    // Flujo — ECharts Sankey.
+    // Flujo — ECharts Sankey. Generous wait: the first Flujo load cold-optimizes
+    // the tree-shaken echarts/core + subpath deps in the Vite dev server (Wf/P97).
     await page.getByTestId("repr-pill-flow").click();
-    await page.getByTestId("sankey-chart").waitFor({ timeout: 15_000 });
+    await page.getByTestId("sankey-chart").waitFor({ timeout: 30_000 });
     await page.waitForTimeout(1600); // ECharts layout + entrance animation
     await page.screenshot({ path: `${SHOTS}/trends-sankey-desktop.png`, fullPage: false });
   });

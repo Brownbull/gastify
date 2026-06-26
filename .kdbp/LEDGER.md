@@ -5688,3 +5688,16 @@ CI: web + SCA + security all green; Backend/Mobile Test finishing (web-only chan
 PROMOTION: N/A — D97 production-direct. User confirmed the prod-deploy merge.
 DEPLOYMENTS: P96 (W10 merge #14). Live-verified: prod bundle flipped AFJnAe1p→DwJChxYp, deployed-prod boots clean.
 PLAN: Phase 10 Push ✅ — W10 COMPLETE (Exec/Review/Commit/Push all ✅). Current Phase advanced to Phase 11 (Wf · Cleanup + visual-regression sweep, tier ent). 10 of 11 phases shipped to production — every screen of the live web app is now Playful Geometric.
+- 2026-06-26 11:22 | Edit | /home/khujta/projects/apps/gastify/tests/web-e2e/w7-analytics.spec.ts
+
+## 2026-06-26 11:25 — [commit] Wf · Cleanup + visual-regression sweep
+AUDIT (wf-cleanup-audit workflow, 3 parallel): the W1-W10 port cleaned as it went — NO dead warm CSS, NO theme-switcher store/component remnants, NO superseded components, ZERO unimported modules (every src module has ≥1 importer; AppLayout/SpendTimeSeries/Recharts all still live). Only confirmed dead code = the 24 orphaned theme/appearance i18n keys.
+CLEANUP DONE:
+- P90: removed 24 dead theme keys (settings.appearance/colorTheme/themeMode/theme.{normal,professional,mono}/mode.{light,dark}) × es/en/pt from i18n.ts. MessageKey derives from en → auto-narrows; i18n.test "every locale same key set" stays green.
+- P97: ECharts tree-shake — SankeyChart now imports echarts/core + register([SankeyChart, SVGRenderer, TooltipComponent]) via echarts-for-react/esm/core (NOT lib/core — the CJS path default-exports {default:fn} and breaks Vite dev with "Element type is invalid"; the esm/core path is the proper ESM default). Lazy chart chunk 1138KB/378KB gz → 508KB/172KB gz (~54% smaller).
+- P93: transactions.new.tsx add-item dashed border raw var()→ border-2 border-dashed border-gt-line-strong utilities (only raw var() in the W4 routes — now zero).
+VISUAL-REGRESSION SWEEP: all 10 geometric proof specs (w1..w10) run vs LIVE prod API on prod-e2e :5174 → 25/25 GREEN (sign-in, app shell, settings/notifications, transactions list/detail/new, items, scan/batch/statements, trends donut/treemap/Sankey, reports list/detail, groups, dashboard). The whole live web app renders Playful Geometric correctly. (w7 sankey waitFor bumped 15s→30s: the tree-shaken echarts subpaths cold-optimize on first Flujo load in the Vite dev server.)
+VERIFY: tsc clean, check:token-classes green (112 files), vite build OK (Sankey chunk halved), vitest 137/137, eslint 0 errors.
+DEFERRED (kept open, beyond the cleanup-sweep): P91/P92/P96 (i18n a11y/title passes — a coherent follow-up i18n batch; P96 risks the 430-line -statements.test), P94 (per-category item icons), P95 (SSE data-state proof — needs in-flight data), P98/P99/P101/P102 (design-lab fidelity enhancements), P100 (groups e2e prod-env gap — needs user-A seeding). Audit suggested P91/P92/P94/P96 as Wf-now but they're an i18n/cosmetic pass best done together with care.
+COVERAGE GAPS (noted, not blocking): /invite/:token has no geometric proof; mobile sub-states missing for settings/txn-detail/txn-new/scan-batch/statements/groups + trends-treemap/sankey-mobile + reports-detail-mobile + notifications-desktop.
+PLAN: Phase 11 Exec ✅ Commit ✅ (Review/Push pending). ALL 11 PHASES BUILT.
