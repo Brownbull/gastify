@@ -1,4 +1,5 @@
 import { useCallback, useRef, useState, type DragEvent } from "react";
+import { IconTile } from "@/components/ui/IconTile";
 
 const ALLOWED_TYPES = new Set([
   "image/jpeg",
@@ -105,40 +106,28 @@ export function FileUpload({ onFileSelected, disabled = false }: FileUploadProps
         }}
         aria-label="Upload receipt image"
         aria-disabled={disabled}
-        className="flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed p-12 transition-colors"
-        style={{
-          borderColor: dragActive
-            ? "var(--primary)"
+        className={`flex flex-col items-center justify-center gap-gt-8 rounded-gt-2xl border-2 border-dashed p-gt-32 text-center transition duration-150 ease-gt-bounce ${
+          dragActive
+            ? "border-gt-primary bg-gt-primary-soft"
             : validationError
-              ? "var(--error, #ef4444)"
-              : "var(--border)",
-          backgroundColor: dragActive
-            ? "var(--primary-light)"
-            : "var(--surface)",
-          opacity: disabled ? 0.5 : 1,
-          cursor: disabled ? "not-allowed" : "pointer",
-        }}
+              ? "border-gt-error bg-gt-surface"
+              : "border-gt-line-strong bg-gt-surface hover:-translate-y-0.5 hover:border-gt-primary"
+        } ${disabled ? "opacity-50" : ""}`}
+        style={{ cursor: disabled ? "not-allowed" : "pointer" }}
       >
-        <span className="mb-3 text-4xl">📷</span>
-        <p
-          className="mb-1 text-sm font-medium"
-          style={{ color: "var(--text)" }}
-        >
-          {dragActive
-            ? "Drop your receipt here"
-            : "Drag & drop a receipt image"}
+        <IconTile size="hero">
+          <span className="text-4xl leading-none">📷</span>
+        </IconTile>
+        <p className="font-gt-display text-gt-md font-extrabold text-gt-ink">
+          {dragActive ? "Drop your receipt here" : "Drag & drop a receipt image"}
         </p>
-        <p className="text-xs" style={{ color: "var(--text-muted)" }}>
+        <p className="text-gt-xs font-medium text-gt-ink-3">
           or click to browse — JPEG, PNG, WebP, HEIC (max 20 MB)
         </p>
       </div>
 
       {validationError && (
-        <p
-          className="text-sm"
-          role="alert"
-          style={{ color: "var(--error, #ef4444)" }}
-        >
+        <p className="text-gt-sm font-bold text-gt-error" role="alert">
           {validationError}
         </p>
       )}

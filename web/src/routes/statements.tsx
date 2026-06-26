@@ -17,6 +17,9 @@ import {
 } from "@/hooks/useStatements";
 import { useStatementStream } from "@/hooks/useStatementStream";
 import { useStatementStore } from "@/stores/statementStore";
+import { Card } from "@/components/ui/Card";
+import { Button } from "@/components/ui/Button";
+import { Badge } from "@/components/ui/Badge";
 import type { components } from "@/lib/api-types";
 
 export const Route = createFileRoute("/statements")({
@@ -25,6 +28,9 @@ export const Route = createFileRoute("/statements")({
 
 type CardAlias = components["schemas"]["CardAliasResponse"];
 type StatementRecord = components["schemas"]["StatementRecordResponse"];
+
+const inputClass =
+  "w-full rounded-gt-lg border-2 border-gt-line bg-gt-surface px-gt-10 py-gt-8 text-gt-sm font-bold text-gt-ink focus-visible:outline-none focus-visible:border-gt-line-strong";
 
 function StatementsPage() {
   useStatementStream();
@@ -90,35 +96,29 @@ function StatementsPage() {
   const activeItems = reconciliation?.[activeBucket] ?? [];
 
   return (
-    <div className="space-y-6">
-      <header className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+    <div className="space-y-gt-16">
+      <header className="flex flex-col gap-gt-6 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1
-            className="text-2xl font-semibold"
-            style={{ color: "var(--text)" }}
-          >
-            Statements
-          </h1>
-          <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
+          <h1 className="font-gt-display text-gt-4xl font-extrabold text-gt-ink">Statements</h1>
+          <p className="mt-gt-2 text-gt-sm font-medium text-gt-ink-2">
             Upload credit-card PDFs, reconcile them against receipt transactions,
             and review unmatched rows before creating anything new.
           </p>
         </div>
-        <button
-          type="button"
+        <Button
+          variant="secondary"
+          size="sm"
           onClick={() => {
             resetStatement();
             resetUploadInputs();
           }}
-          className="rounded-md border px-3 py-2 text-sm font-medium"
-          style={{ borderColor: "var(--border)", color: "var(--text)" }}
         >
           New scan
-        </button>
+        </Button>
       </header>
 
-      <div className="grid gap-5 xl:grid-cols-[380px_minmax(0,1fr)]">
-        <div className="space-y-5">
+      <div className="grid gap-gt-16 xl:grid-cols-[380px_minmax(0,1fr)]">
+        <div className="space-y-gt-16">
           <UploadPanel
             aliases={aliasesQuery.data ?? []}
             aliasesLoading={aliasesQuery.isLoading}
@@ -147,7 +147,7 @@ function StatementsPage() {
           />
         </div>
 
-        <main className="space-y-5">
+        <main className="space-y-gt-16">
           <StatusPanel
             statement={statement}
             phase={phase}
@@ -223,27 +223,21 @@ function UploadPanel({
   }
 
   return (
-    <section
-      className="space-y-4 rounded-lg border p-4"
-      style={{ backgroundColor: "var(--surface)", borderColor: "var(--border)" }}
-    >
+    <Card className="space-y-gt-12">
       <div>
-        <h2 className="text-base font-semibold" style={{ color: "var(--text)" }}>
-          Upload statement
-        </h2>
-        <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
+        <h2 className="font-gt-display text-gt-md font-extrabold text-gt-ink">Upload statement</h2>
+        <p className="text-gt-sm font-medium text-gt-ink-2">
           Consent is required before every statement scan.
         </p>
       </div>
 
-      <form className="space-y-4" onSubmit={onSubmit}>
-        <label className="block space-y-1 text-sm">
-          <span style={{ color: "var(--text-secondary)" }}>Card alias</span>
+      <form className="space-y-gt-12" onSubmit={onSubmit}>
+        <label className="block space-y-gt-2">
+          <span className="text-gt-xs font-extrabold uppercase tracking-wide text-gt-ink-3">Card alias</span>
           <select
             value={selectedAliasId}
             onChange={(event) => onAliasChange(event.target.value)}
-            className="w-full rounded-md border bg-transparent px-3 py-2"
-            style={{ borderColor: "var(--border)", color: "var(--text)" }}
+            className={inputClass}
             disabled={aliasesLoading || disabled}
           >
             <option value="">No alias</option>
@@ -255,16 +249,9 @@ function UploadPanel({
           </select>
         </label>
 
-        <label
-          className="block cursor-pointer rounded-lg border border-dashed p-4"
-          style={{ borderColor: "var(--border)" }}
-        >
-          <span className="block text-sm font-medium" style={{ color: "var(--text)" }}>
-            PDF file
-          </span>
-          <span className="block text-xs" style={{ color: "var(--text-muted)" }}>
-            {fileLabel}
-          </span>
+        <label className="block cursor-pointer rounded-gt-xl border-2 border-dashed border-gt-line-strong bg-gt-surface p-gt-12 transition hover:border-gt-primary">
+          <span className="block font-gt-display text-gt-sm font-extrabold text-gt-ink">PDF file</span>
+          <span className="block text-gt-xs font-medium text-gt-ink-3">{fileLabel}</span>
           <input
             key={fileInputResetKey}
             type="file"
@@ -275,57 +262,49 @@ function UploadPanel({
           />
         </label>
 
-        <label className="block space-y-1 text-sm">
-          <span style={{ color: "var(--text-secondary)" }}>
+        <label className="block space-y-gt-2">
+          <span className="text-gt-xs font-extrabold uppercase tracking-wide text-gt-ink-3">
             Password, if encrypted
           </span>
           <input
             type="password"
             value={password}
             onChange={(event) => onPasswordChange(event.target.value)}
-            className="w-full rounded-md border bg-transparent px-3 py-2"
-            style={{ borderColor: "var(--border)", color: "var(--text)" }}
+            className={inputClass}
             disabled={disabled}
             autoComplete="off"
           />
         </label>
 
-        <label className="flex items-start gap-3 text-sm">
+        <label className="flex items-start gap-gt-8 text-gt-sm">
           <input
             type="checkbox"
             checked={consentAccepted}
             onChange={(event) => onConsentChange(event.target.checked)}
-            className="mt-1"
+            className="mt-1 h-5 w-5 accent-gt-primary"
             disabled={disabled}
           />
-          <span style={{ color: "var(--text-secondary)" }}>
+          <span className="font-medium text-gt-ink-2">
             I consent to AI processing if this statement cannot be handled by
             the deterministic parser. This applies only to this scan.
           </span>
         </label>
 
         {selectedAlias && (
-          <p className="text-xs" style={{ color: "var(--text-muted)" }}>
-            Alias selected: {selectedAlias.name}
-          </p>
+          <p className="text-gt-xs font-medium text-gt-ink-3">Alias selected: {selectedAlias.name}</p>
         )}
 
         {errorMessage && (
-          <p role="alert" className="text-sm" style={{ color: "var(--error)" }}>
+          <p role="alert" className="text-gt-sm font-bold text-gt-error">
             {errorMessage}
           </p>
         )}
 
-        <button
-          type="submit"
-          disabled={!canSubmit}
-          className="w-full rounded-md px-4 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
-          style={{ backgroundColor: "var(--primary)" }}
-        >
+        <Button type="submit" fullWidth disabled={!canSubmit}>
           Start statement scan
-        </button>
+        </Button>
       </form>
-    </section>
+    </Card>
   );
 }
 
@@ -342,46 +321,34 @@ function AliasPanel({ aliases }: { aliases: readonly CardAlias[] }) {
   }
 
   return (
-    <section
-      className="space-y-4 rounded-lg border p-4"
-      style={{ backgroundColor: "var(--surface)", borderColor: "var(--border)" }}
-    >
+    <Card className="space-y-gt-12">
       <div>
-        <h2 className="text-base font-semibold" style={{ color: "var(--text)" }}>
-          Card aliases
-        </h2>
-        <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
+        <h2 className="font-gt-display text-gt-md font-extrabold text-gt-ink">Card aliases</h2>
+        <p className="text-gt-sm font-medium text-gt-ink-2">
           Use labels only. Do not enter card numbers, CVV, or expiry.
         </p>
       </div>
 
-      <form className="flex gap-2" onSubmit={submitAlias}>
+      <form className="flex gap-gt-6" onSubmit={submitAlias}>
         <input
           value={name}
           onChange={(event) => setName(event.target.value)}
           placeholder="Personal credit"
-          className="min-w-0 flex-1 rounded-md border bg-transparent px-3 py-2 text-sm"
-          style={{ borderColor: "var(--border)", color: "var(--text)" }}
+          className={`${inputClass} min-w-0 flex-1`}
         />
-        <button
-          type="submit"
-          className="rounded-md px-3 py-2 text-sm font-medium text-white"
-          style={{ backgroundColor: "var(--primary)" }}
-        >
+        <Button type="submit" size="sm">
           Add
-        </button>
+        </Button>
       </form>
 
-      <div className="space-y-2">
+      <div className="space-y-gt-6">
         {aliases.length === 0 ? (
-          <p className="text-sm" style={{ color: "var(--text-muted)" }}>
-            No aliases yet.
-          </p>
+          <p className="text-gt-sm font-medium text-gt-ink-3">No aliases yet.</p>
         ) : (
           aliases.map((alias) => <AliasRow key={alias.id} alias={alias} />)
         )}
       </div>
-    </section>
+    </Card>
   );
 }
 
@@ -403,25 +370,20 @@ function AliasRow({ alias }: { alias: CardAlias }) {
   }
 
   return (
-    <div
-      className="flex items-center gap-2 rounded-md border px-3 py-2"
-      style={{ borderColor: "var(--border)" }}
-    >
+    <div className="flex items-center gap-gt-6 rounded-gt-lg border-2 border-gt-line px-gt-10 py-gt-8">
       {editing ? (
         <input
           value={name}
           onChange={(event) => setName(event.target.value)}
           onBlur={() => void save()}
-          className="min-w-0 flex-1 bg-transparent text-sm"
-          style={{ color: "var(--text)" }}
+          className="min-w-0 flex-1 bg-transparent text-gt-sm font-bold text-gt-ink outline-none"
           autoFocus
         />
       ) : (
         <button
           type="button"
           onClick={() => setEditing(true)}
-          className="min-w-0 flex-1 truncate text-left text-sm"
-          style={{ color: "var(--text)" }}
+          className="min-w-0 flex-1 truncate text-left text-gt-sm font-bold text-gt-ink"
         >
           {alias.name}
         </button>
@@ -429,8 +391,7 @@ function AliasRow({ alias }: { alias: CardAlias }) {
       <button
         type="button"
         onClick={() => void archiveAlias.mutateAsync()}
-        className="rounded-md px-2 py-1 text-xs"
-        style={{ color: "var(--text-muted)" }}
+        className="rounded-gt-md px-gt-6 py-gt-2 text-gt-xs font-bold text-gt-ink-3 hover:text-gt-ink"
       >
         Archive
       </button>
@@ -452,54 +413,36 @@ function RecentStatementsPanel({
   onSelect,
 }: RecentStatementsPanelProps) {
   return (
-    <section
-      className="space-y-3 rounded-lg border p-4"
-      style={{ backgroundColor: "var(--surface)", borderColor: "var(--border)" }}
-    >
-      <h2 className="text-base font-semibold" style={{ color: "var(--text)" }}>
-        Recent statements
-      </h2>
+    <Card className="space-y-gt-10">
+      <h2 className="font-gt-display text-gt-md font-extrabold text-gt-ink">Recent statements</h2>
       {isLoading ? (
-        <p className="text-sm" style={{ color: "var(--text-muted)" }}>
-          Loading statements...
-        </p>
+        <p className="text-gt-sm font-medium text-gt-ink-3">Loading statements...</p>
       ) : statements.length === 0 ? (
-        <p className="text-sm" style={{ color: "var(--text-muted)" }}>
-          No statement scans yet.
-        </p>
+        <p className="text-gt-sm font-medium text-gt-ink-3">No statement scans yet.</p>
       ) : (
-        <div className="space-y-2">
+        <div className="space-y-gt-6">
           {statements.map((statement) => (
             <button
               key={statement.id}
               type="button"
               onClick={() => onSelect(statement)}
-              className="w-full rounded-md border px-3 py-2 text-left"
-              style={{
-                borderColor:
-                  activeStatementId === statement.id
-                    ? "var(--primary)"
-                    : "var(--border)",
-                backgroundColor:
-                  activeStatementId === statement.id
-                    ? "var(--primary-light)"
-                    : "transparent",
-              }}
+              className={`w-full rounded-gt-lg border-2 px-gt-10 py-gt-8 text-left transition ${
+                activeStatementId === statement.id
+                  ? "border-gt-line-strong bg-gt-primary-soft"
+                  : "border-gt-line bg-gt-surface hover:border-gt-line-strong"
+              }`}
             >
-              <span
-                className="block truncate text-sm font-medium"
-                style={{ color: "var(--text)" }}
-              >
+              <span className="block truncate text-gt-sm font-extrabold text-gt-ink">
                 {statement.original_filename}
               </span>
-              <span className="text-xs" style={{ color: "var(--text-muted)" }}>
+              <span className="text-gt-xs font-bold text-gt-ink-3">
                 {statement.status.replaceAll("_", " ")}
               </span>
             </button>
           ))}
         </div>
       )}
-    </section>
+    </Card>
   );
 }
 
@@ -526,98 +469,66 @@ function StatusPanel({
   onPasswordChange,
   onPasswordSubmit,
 }: StatusPanelProps) {
+  const warnPhase =
+    phase === "failed" || phase === "password_required" || phase === "password_invalid";
+
   return (
-    <section
-      className="rounded-lg border p-5"
-      style={{ backgroundColor: "var(--surface)", borderColor: "var(--border)" }}
-    >
+    <Card>
       {!statement ? (
-        <div className="space-y-2">
-          <h2 className="text-lg font-semibold" style={{ color: "var(--text)" }}>
-            Statement reconciliation
-          </h2>
-          <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
+        <div className="space-y-gt-4">
+          <h2 className="font-gt-display text-gt-lg font-extrabold text-gt-ink">Statement reconciliation</h2>
+          <p className="text-gt-sm font-medium text-gt-ink-2">
             Upload a PDF to extract statement lines and compare them with your
             saved receipt transactions.
           </p>
         </div>
       ) : (
-        <div className="space-y-4">
-          <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">
+        <div className="space-y-gt-12">
+          <div className="flex flex-col gap-gt-2 sm:flex-row sm:items-start sm:justify-between">
             <div>
-              <h2
-                className="text-lg font-semibold"
-                style={{ color: "var(--text)" }}
-              >
+              <h2 className="font-gt-display text-gt-lg font-extrabold text-gt-ink">
                 {statement.original_filename}
               </h2>
-              <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
+              <p className="text-gt-sm font-medium text-gt-ink-2">
                 {statement.status.replaceAll("_", " ")}
               </p>
             </div>
-            <span
-              className="rounded-md px-2 py-1 text-xs font-medium"
-              style={{
-                backgroundColor: "var(--primary-light)",
-                color: "var(--primary)",
-              }}
-            >
-              {phase.replaceAll("_", " ")}
-            </span>
+            <Badge tone={warnPhase ? "warning" : "primary"}>{phase.replaceAll("_", " ")}</Badge>
           </div>
 
           <div>
-            <div
-              className="h-2 overflow-hidden rounded-full"
-              style={{ backgroundColor: "var(--border)" }}
-            >
+            <div className="h-3 overflow-hidden rounded-gt-pill border-2 border-gt-line-strong bg-gt-bg-3">
               <div
-                className="h-full rounded-full transition-all"
-                style={{
-                  width: `${Math.max(0, Math.min(progressPct, 100))}%`,
-                  backgroundColor:
-                    phase === "failed" ||
-                    phase === "password_required" ||
-                    phase === "password_invalid"
-                      ? "var(--warning)"
-                      : "var(--primary)",
-                }}
+                className={`h-full rounded-gt-pill transition-all ${warnPhase ? "bg-gt-warning" : "bg-gt-primary"}`}
+                style={{ width: `${Math.max(0, Math.min(progressPct, 100))}%` }}
               />
             </div>
-            <p className="mt-1 text-xs" style={{ color: "var(--text-muted)" }}>
-              {progressPct}% complete
-            </p>
+            <p className="mt-gt-2 text-gt-xs font-bold text-gt-ink-3">{progressPct}% complete</p>
           </div>
 
           {(phase === "password_required" || phase === "password_invalid") && (
-            <form className="flex flex-col gap-2 sm:flex-row" onSubmit={onPasswordSubmit}>
+            <form className="flex flex-col gap-gt-6 sm:flex-row" onSubmit={onPasswordSubmit}>
               <input
                 type="password"
                 value={password}
                 onChange={(event) => onPasswordChange(event.target.value)}
                 placeholder="Statement password"
-                className="min-w-0 flex-1 rounded-md border bg-transparent px-3 py-2 text-sm"
-                style={{ borderColor: "var(--border)", color: "var(--text)" }}
+                className={`${inputClass} min-w-0 flex-1`}
                 autoComplete="off"
               />
-              <button
-                type="submit"
-                disabled={processPending}
-                className="rounded-md px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
-                style={{ backgroundColor: "var(--primary)" }}
-              >
+              <Button type="submit" size="sm" disabled={processPending}>
                 Unlock and process
-              </button>
+              </Button>
             </form>
           )}
 
           {(errorMessage || processError) && (
-            <p role="alert" className="text-sm" style={{ color: "var(--error)" }}>
+            <p role="alert" className="text-gt-sm font-bold text-gt-error">
               {processError ?? errorMessage}
             </p>
           )}
         </div>
       )}
-    </section>
+    </Card>
   );
 }

@@ -32,41 +32,24 @@ export function ScanProgress() {
   if (phase === "idle" || phase === "failed") return null;
 
   return (
-    <div className="space-y-4">
+    <section className="space-y-gt-12 rounded-gt-2xl border-2 border-gt-line-strong bg-gt-surface p-gt-16 shadow-gt-md">
       <div className="flex items-center justify-between">
-        <h2
-          className="text-lg font-semibold"
-          style={{ color: "var(--text)" }}
-        >
+        <h2 className="font-gt-display text-gt-lg font-extrabold text-gt-ink">
           {phase === "uploading" ? "Uploading..." : "Scanning Receipt"}
         </h2>
         {progressPct > 0 && (
-          <span
-            className="text-sm font-medium"
-            style={{ color: "var(--text-secondary)" }}
-          >
-            {progressPct}%
-          </span>
+          <span className="font-gt-display text-gt-sm font-extrabold text-gt-primary">{progressPct}%</span>
         )}
       </div>
 
       {phase === "uploading" && (
-        <div
-          className="h-2 overflow-hidden rounded-full"
-          style={{ backgroundColor: "var(--border)" }}
-        >
-          <div
-            className="h-full animate-pulse rounded-full"
-            style={{
-              backgroundColor: "var(--primary)",
-              width: "60%",
-            }}
-          />
+        <div className="h-3 overflow-hidden rounded-gt-pill border-2 border-gt-line-strong bg-gt-bg-3">
+          <div className="h-full animate-pulse rounded-gt-pill bg-gt-primary" style={{ width: "60%" }} />
         </div>
       )}
 
       {phase !== "uploading" && (
-        <div className="space-y-2">
+        <div className="space-y-gt-2">
           {STAGES.map((stage) => {
             const status = getStageStatus(stage.phase, phase);
             return (
@@ -80,7 +63,7 @@ export function ScanProgress() {
           })}
         </div>
       )}
-    </div>
+    </section>
   );
 }
 
@@ -92,26 +75,13 @@ interface StageRowProps {
 
 function StageRow({ label, description, status }: StageRowProps) {
   return (
-    <div className="flex items-center gap-3 py-1">
+    <div className="flex items-center gap-gt-8 py-gt-2">
       <StageIndicator status={status} />
       <div>
-        <p
-          className="text-sm font-medium"
-          style={{
-            color:
-              status === "pending"
-                ? "var(--text-muted)"
-                : "var(--text)",
-          }}
-        >
+        <p className={`text-gt-sm font-extrabold ${status === "pending" ? "text-gt-ink-3" : "text-gt-ink"}`}>
           {label}
         </p>
-        <p
-          className="text-xs"
-          style={{ color: "var(--text-muted)" }}
-        >
-          {description}
-        </p>
+        <p className="text-gt-xs font-medium text-gt-ink-3">{description}</p>
       </div>
     </div>
   );
@@ -120,34 +90,17 @@ function StageRow({ label, description, status }: StageRowProps) {
 function StageIndicator({ status }: { status: "done" | "active" | "pending" }) {
   if (status === "done") {
     return (
-      <div
-        className="flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold text-white"
-        style={{ backgroundColor: "var(--success, #22c55e)" }}
-      >
+      <div className="grid h-7 w-7 shrink-0 place-items-center rounded-gt-pill border-2 border-gt-line-strong bg-gt-primary text-gt-xs font-extrabold text-white">
         ✓
       </div>
     );
   }
   if (status === "active") {
     return (
-      <div
-        className="flex h-6 w-6 items-center justify-center rounded-full"
-        style={{
-          backgroundColor: "var(--primary-light)",
-          border: "2px solid var(--primary)",
-        }}
-      >
-        <div
-          className="h-2 w-2 animate-pulse rounded-full"
-          style={{ backgroundColor: "var(--primary)" }}
-        />
+      <div className="grid h-7 w-7 shrink-0 place-items-center rounded-gt-pill border-2 border-gt-line-strong bg-gt-primary-soft shadow-gt-xs">
+        <div className="h-2.5 w-2.5 animate-pulse rounded-gt-pill bg-gt-primary" />
       </div>
     );
   }
-  return (
-    <div
-      className="h-6 w-6 rounded-full border-2"
-      style={{ borderColor: "var(--border)" }}
-    />
-  );
+  return <div className="h-7 w-7 shrink-0 rounded-gt-pill border-2 border-gt-line" />;
 }

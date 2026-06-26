@@ -1,4 +1,5 @@
 import { useScanStore } from "@/stores/scanStore";
+import { Button } from "@/components/ui/Button";
 
 interface ErrorConfig {
   title: string;
@@ -87,57 +88,25 @@ export function ScanError({ onRetry }: ScanErrorProps) {
 
   return (
     <div
-      className="rounded-xl border p-6"
-      style={{
-        backgroundColor: "var(--surface)",
-        borderColor: "var(--error, #ef4444)",
-      }}
+      className="rounded-gt-2xl border-2 border-gt-error bg-gt-surface p-gt-16 shadow-gt-md"
       role="alert"
     >
-      <div className="mb-4 flex items-start gap-3">
-        <span className="text-2xl">⚠️</span>
+      <div className="mb-gt-12 flex items-start gap-gt-8">
+        <span className="text-2xl leading-none">⚠️</span>
         <div>
-          <h3
-            className="text-base font-semibold"
-            style={{ color: "var(--text)" }}
-          >
-            {config.title}
-          </h3>
-          <p
-            className="mt-1 text-sm"
-            style={{ color: "var(--text-secondary)" }}
-          >
-            {config.description}
-          </p>
+          <h3 className="font-gt-display text-gt-md font-extrabold text-gt-ink">{config.title}</h3>
+          <p className="mt-gt-2 text-gt-sm font-medium text-gt-ink-2">{config.description}</p>
           {errorMessage && errorMessage !== config.description && (
-            <p
-              className="mt-2 text-xs"
-              style={{ color: "var(--text-muted)" }}
-            >
-              Detail: {errorMessage}
-            </p>
+            <p className="mt-gt-4 text-gt-xs font-medium text-gt-ink-3">Detail: {errorMessage}</p>
           )}
         </div>
       </div>
 
-      <div className="flex gap-3">
-        <button
-          onClick={onRetry}
-          className="rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors"
-          style={{ backgroundColor: "var(--primary)" }}
-        >
-          {config.action}
-        </button>
-        <button
-          onClick={reset}
-          className="rounded-lg px-4 py-2 text-sm font-medium transition-colors"
-          style={{
-            color: "var(--text-secondary)",
-            backgroundColor: "var(--border)",
-          }}
-        >
+      <div className="flex gap-gt-8">
+        <Button onClick={onRetry}>{config.action}</Button>
+        <Button variant="secondary" onClick={reset}>
           Cancel
-        </button>
+        </Button>
       </div>
     </div>
   );
