@@ -5493,3 +5493,14 @@ FINDINGS: 0 critical · lint 0 errors/89 warnings (pre-existing react-refresh) �
 SCOPE: web/src/routes/transactions.index.tsx (list), transactions.new.tsx (new), transactions.$transactionId.tsx (detail) — restyled to Playful Geometric (Card/Button/Badge/IconTile + gt-* + geometric inputs). All logic, TanStack Query wiring, inline-edit behavior, and testids preserved (add-transaction-link, batch-*, filter-source/matched, select-all-checkbox, select-txn-{id}, txn-matched-badge, manual-*, shared-lock-badge/banner). Legacy txn specs' selectors (title="Click to edit", (edited), USD equivalent, Urgency, item names) verified intact.
 RUNTIME PROOF: tests/web-e2e/w4-transactions.spec.ts 4/4 GREEN vs LIVE prod API + user B's ~101 seeded txns (list desktop+mobile, detail w/ real items + flag pills, new form). Screenshots: tests/web-e2e/proof/w4-transactions/{list-desktop,list-mobile,detail-desktop,new-desktop}.png — visually confirmed geometric grammar (ink borders, hard shadows, violet primary, extrabold Outfit, cream canvas).
 PLAN: Phase 4 Exec ✅ Commit ✅ (Review/Push pending).
+- 2026-06-25 19:45 | Write | /tmp/claude-1000/-home-khujta-projects-apps-gastify/54614bed-7177-4b86-813f-86de68955392/scratchpad/w4-commit-msg.txt
+
+## 2026-06-25 19:50 — PHASE 4 REVIEW: W4 · Transactions (list+detail+new)
+VERDICT: APPROVE
+FINDINGS: 2 total (0 critical, 0 high, 0 medium, 2 low) — F1 raw var() in new.tsx:204 (Add-item dashed border); F2 detail summary-Card density when receipt-type Badge wraps. Both Scale-gate cosmetics.
+COVERAGE: HIGH — vitest 137/137 + w4-transactions Playwright 4/4 with screenshots; restyle preserved all tested behavior + testids (legacy spec selectors verified).
+CONFIDENCE: 96/100
+DEFERRED: P93 (F1 raw var → Wf cleanup sweep). F2 dismissed (cosmetic, session-only).
+ALIGNMENT: ALIGNED — 3 changed routes = exactly W4 scope; 2 specs = proof artifacts.
+TIER: mvp | DRIFT: none
+TICK: ✅ (Phase 4 Review)
