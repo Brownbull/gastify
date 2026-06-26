@@ -56,6 +56,9 @@ export function GroupAvatar({ icon, color, size = 28, className }: GroupAvatarPr
         height: size,
         borderRadius: "9999px",
         backgroundColor: color ?? DEFAULT_GROUP_COLOR,
+        // Geometric framing (W9): 2px ink border + tiny hard offset shadow.
+        border: "2px solid var(--color-gt-line-strong)",
+        boxShadow: "1px 1px 0 0 var(--color-gt-line-strong)",
         fontSize: Math.round(size * 0.56),
         lineHeight: 1,
         flexShrink: 0,

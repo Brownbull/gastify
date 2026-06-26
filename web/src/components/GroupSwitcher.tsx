@@ -51,18 +51,17 @@ export function GroupSwitcher() {
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-label={t("group.switcher")}
-        className="flex w-full items-center justify-between gap-2 rounded-lg border px-3 py-2 text-left text-sm"
-        style={{ borderColor: "var(--border)", color: "var(--text-secondary)" }}
+        className="flex w-full items-center justify-between gap-gt-6 rounded-gt-lg border-2 border-gt-line-strong bg-gt-surface px-gt-10 py-gt-6 text-left text-gt-sm font-bold text-gt-ink-2 shadow-gt-xs transition hover:bg-gt-bg-3"
       >
-        <span className="flex min-w-0 items-center gap-2">
+        <span className="flex min-w-0 items-center gap-gt-6">
           {activeScope.kind === "group" ? (
             <GroupAvatar icon={activeGroup?.icon} color={activeGroup?.color} size={20} />
           ) : (
             <span aria-hidden>👤</span>
           )}
-          <span className="truncate font-medium">{label}</span>
+          <span className="truncate font-extrabold text-gt-ink">{label}</span>
         </span>
-        <span aria-hidden style={{ color: "var(--text-muted)" }}>
+        <span aria-hidden className="text-gt-ink-3">
           ▾
         </span>
       </button>
@@ -70,8 +69,7 @@ export function GroupSwitcher() {
       {open && (
         <div
           role="listbox"
-          className="absolute left-0 right-0 z-30 mt-1 overflow-hidden rounded-lg border shadow-lg"
-          style={{ backgroundColor: "var(--surface)", borderColor: "var(--border)" }}
+          className="absolute left-0 right-0 z-30 mt-gt-2 overflow-hidden rounded-gt-xl border-2 border-gt-line-strong bg-gt-surface shadow-gt-md"
         >
           <ScopeOption
             label={t("group.personal")}
@@ -83,10 +81,7 @@ export function GroupSwitcher() {
             }}
           />
           {groups && groups.length > 0 && (
-            <p
-              className="px-3 pb-1 pt-2 text-xs font-semibold uppercase tracking-wide"
-              style={{ color: "var(--text-muted)" }}
-            >
+            <p className="px-gt-10 pb-gt-2 pt-gt-6 text-gt-xs font-extrabold uppercase tracking-wide text-gt-ink-3">
               {t("group.myGroups")}
             </p>
           )}
@@ -106,8 +101,7 @@ export function GroupSwitcher() {
           <Link
             to="/groups"
             onClick={() => setOpen(false)}
-            className="block border-t px-3 py-2 text-sm font-medium"
-            style={{ borderColor: "var(--border)", color: "var(--primary)" }}
+            className="block border-t-2 border-gt-line px-gt-10 py-gt-6 text-gt-sm font-extrabold text-gt-primary"
           >
             {t("group.manage")}
           </Link>
@@ -132,18 +126,16 @@ function ScopeOption({ label, icon, meta, selected, onSelect }: ScopeOptionProps
       role="option"
       aria-selected={selected}
       onClick={onSelect}
-      className="flex w-full items-center justify-between gap-2 px-3 py-2 text-left text-sm transition-colors hover:bg-(--primary-light)"
-      style={{
-        color: selected ? "var(--primary)" : "var(--text-secondary)",
-        backgroundColor: selected ? "var(--primary-light)" : undefined,
-      }}
+      className={`flex w-full items-center justify-between gap-gt-6 px-gt-10 py-gt-6 text-left text-gt-sm font-bold transition ${
+        selected ? "bg-gt-primary-soft text-gt-primary" : "text-gt-ink-2 hover:bg-gt-bg-3"
+      }`}
     >
-      <span className="flex min-w-0 items-center gap-2">
+      <span className="flex min-w-0 items-center gap-gt-6">
         <span aria-hidden>{icon}</span>
         <span className="truncate">{label}</span>
       </span>
       {meta && (
-        <span aria-hidden className="shrink-0 text-xs" style={{ color: "var(--text-muted)" }}>
+        <span aria-hidden className="shrink-0 text-gt-xs font-bold text-gt-ink-3">
           {meta}
         </span>
       )}

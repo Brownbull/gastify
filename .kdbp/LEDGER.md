@@ -5623,3 +5623,32 @@ DEFERRED: P99 (reports fidelity polish → Wf).
 ALIGNMENT: ALIGNED — 2 files = W8 scope; presentation-only (all testids/aria/hooks/i18n/drill preserved per the understand-workflow contract).
 TIER: mvp | DRIFT: none
 TICK: ✅ (Phase 8 Review)
+
+## 2026-06-26 10:32 — PUSH feat/web-migration -> main (W8 PR #12, MERGED)
+PR: https://github.com/Brownbull/gastify/pull/12 (#12) — MERGED to main (4463453). Delta: W7 deploy bk + W8 + W8 review bk.
+CI: web + SCA + security all green; Backend/Mobile Test finishing (web-only change, unaffected). 0 failures. Web Test stable (W7's asyncUtilTimeout fix held).
+PROMOTION: N/A — D97 production-direct. User confirmed the prod-deploy merge.
+DEPLOYMENTS: P94 (W8 merge #12). Live-verified: prod bundle flipped DMv-_VxO→DFxu8LNU, deployed-prod boots clean.
+PLAN: Phase 8 Push ✅ — W8 COMPLETE (Exec/Review/Commit/Push all ✅). Current Phase advanced to Phase 9 (W9 · Groups, tier mvp). 8 of 11 phases shipped to production.
+- 2026-06-26 10:34 | Write | /home/khujta/projects/apps/gastify/web/src/routes/groups.tsx
+- 2026-06-26 10:35 | Edit | /home/khujta/projects/apps/gastify/web/src/components/GroupAvatar.tsx
+- 2026-06-26 10:35 | Edit | /home/khujta/projects/apps/gastify/web/src/components/GroupSwitcher.tsx
+- 2026-06-26 10:35 | Edit | /home/khujta/projects/apps/gastify/web/src/components/GroupSwitcher.tsx
+- 2026-06-26 10:36 | Edit | /home/khujta/projects/apps/gastify/web/src/components/GroupSwitcher.tsx
+- 2026-06-26 10:36 | Edit | /home/khujta/projects/apps/gastify/web/src/components/ShareToGroupButton.tsx
+
+## 2026-06-26 10:45 — [commit] W9 · Groups geometric port
+SCOPE: web/src/routes/groups.tsx (646→geometric: create-group form, group cards w/ ink-framed GroupAvatar, detail panel = AvatarSection/InviteSection/MemberRoster/VisibilitySection/ConsentControl/GroupTransactionsSection/GroupActions, geometric leave dialog) + GroupAvatar.tsx (2px ink border + hard shadow on the accent disc, emoji kept as text child) + GroupSwitcher.tsx (geometric button + listbox + options) + ShareToGroupButton.tsx (geometric select + button). PRESENTATION-ONLY: every testid (incl. dynamic group-icon-choice-*/group-color-choice-*/member-role-*/member-role-toggle-*/member-remove-*/group-txn-row), native input/button/select elements (textbox/button/combobox/checkbox roles), aria-expanded on card toggle, role=dialog+aria-label on leave dialog, role=listbox/option on switcher, aria-pressed on choices, the {member_count} {members} concat, all t("group.*") keys + hooks + field names — preserved verbatim per the understand-workflow contract.
+VERIFY: tsc clean, check:token-classes green (112 files), vite build OK, vitest 137/137, eslint 0 errors.
+PROOF: tests/web-e2e/w9-groups.spec.ts 1/1 GREEN vs LIVE prod API (user A, self-cleaning) — creates a group via the geometric create-group-form (textbox+button), the geometric card appears, expands via aria-expanded toggle → group-avatar-section detail panel, screenshots, deletes via group-delete-button+confirm. Screenshot groups-detail-desktop.png confirms geometric (ink-framed avatars, icon/color choice grids, divided MEMBERS card, geometric buttons). CONTRACT NOTE: the existing groups.spec.ts 2/3 failed BUT environmentally (both timed out on `a[href^="/transactions/"]` = needs a personal txn to share; user A has ~0 prod txns — seeded data is on user B), NOT a W9 regression; the failed runs also left orphan E2E groups on prod user A (cleanup deferred → P100).
+PLAN: Phase 9 Exec ✅ Commit ✅ (Review/Push pending).
+
+## 2026-06-26 10:48 — PHASE 9 REVIEW: W9 · Groups
+VERDICT: APPROVE
+FINDINGS: 2 total (0 critical, 0 high, 1 medium, 1 low) — F1 groups e2e prod-environment gap (multi-user share flows need user-A txn seeding + prod cleanup script); F2 groups design-lab fidelity (MemberCluster, role badges, separate screens).
+COVERAGE: MEDIUM-HIGH — vitest 137/137 + w9-groups.spec live (create→expand→detail→delete); presentation-only change (classNames), wiring/behavior identical. groups.spec multi-user flows env-blocked (not a regression).
+CONFIDENCE: 86/100
+DEFERRED: P100 (groups e2e prod-env gap), P101 (groups design-lab fidelity → Wf).
+ALIGNMENT: ALIGNED — 4 files = W9 scope; full testid/aria/role/i18n/hook contract preserved per understand-workflow.
+TIER: mvp | DRIFT: none
+TICK: ✅ (Phase 9 Review)
