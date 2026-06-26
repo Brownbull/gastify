@@ -5585,3 +5585,13 @@ DEPS: +echarts@6.1.0 +echarts-for-react@3.0.6 (research GO — native ESM, no re
 VERIFY: tsc clean, check:token-classes green (112 files), vite build OK (echarts lazy chunk), vitest 137/137, eslint 0 errors. Contract preserved: all trends testids (period-stepper/prev/label/next, temporal-bar, temporal-pill-*, level-bar, level-pill-*, trends-no-series) + chart testids; new repr-pill-* / treemap / treemap-cell / sankey-chart.
 PROOF: tests/web-e2e/w7-analytics.spec.ts — Dona·Mapa·Flujo desktop + donut mobile vs LIVE prod API + user B's seeded analytics. Screenshots trends-{donut,treemap,sankey}-desktop.png all GREEN: donut 5 proportional wedges + count-up; treemap squarified (Minimarket 37% … Wholesale 10%); ECharts Sankey 3-level flow (L1 industries → L2 store types → L3 item families) with source-colored ribbons. (First desktop run flaked on cold Vite echarts dev-optimize >15s; passes warm.) Completes W7 Exec.
 PLAN: Phase 7 Exec ✅ Commit ✅ (Review/Push pending).
+
+## 2026-06-26 09:35 — PHASE 7 REVIEW: W7 · Analytics (chart-engine swap)
+VERDICT: APPROVE
+FINDINGS: 2 total (0 critical, 0 high, 1 medium, 1 low) — F1 echarts full-import 378KB-gzip lazy chunk (tree-shake available); F2 analytics fidelity follow-ups (SpendTimeSeries still Recharts, slice-drill, treemap icons, Sankey icon-overlay).
+COVERAGE: MEDIUM-HIGH — vitest 137/137 (renders the donut) + all THREE representations live-proven via Playwright screenshots vs user B's seeded analytics (donut/treemap/sankey).
+CONFIDENCE: 88/100
+DEFERRED: P97 (echarts tree-shake, scale/medium), P98 (analytics fidelity polish, mvp/low → Wf).
+ALIGNMENT: ALIGNED — full chart-engine swap (the user-chosen path); 12 files = W7 scope.
+TIER: ent | DRIFT: none (view-only presentation-engine swap; insights data-layer untouched)
+TICK: ✅ (Phase 7 Review)
