@@ -47,24 +47,19 @@ function ScanPage() {
   if (inGroupMode) return <PersonalOnlyNotice />;
 
   return (
-    <div className="mx-auto max-w-xl space-y-6">
+    <div className="mx-auto max-w-xl space-y-gt-16">
       <div>
-        <h1
-          className="text-2xl font-semibold"
-          style={{ color: "var(--text)" }}
-        >
-          Scan Receipt
-        </h1>
-        <p
-          className="mt-1 text-sm"
-          style={{ color: "var(--text-secondary)" }}
-        >
+        <h1 className="font-gt-display text-gt-4xl font-extrabold text-gt-ink">Scan Receipt</h1>
+        <p className="mt-gt-2 text-gt-sm font-medium text-gt-ink-2">
           Upload a receipt image to extract transaction data.
         </p>
         {quota.data && (
-          <p className="mt-1 text-xs" data-testid="scan-quota" style={{ color: "var(--text-muted)" }}>
+          <span
+            className="mt-gt-6 inline-flex items-center gap-gt-4 rounded-gt-pill border-2 border-gt-line-strong bg-gt-bg-3 px-gt-10 py-gt-2 text-gt-xs font-extrabold text-gt-ink-2"
+            data-testid="scan-quota"
+          >
             {quota.data.features.scan.used}/{quota.data.features.scan.limit}
-          </p>
+          </span>
         )}
       </div>
 

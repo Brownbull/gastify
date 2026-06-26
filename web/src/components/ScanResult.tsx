@@ -1,4 +1,7 @@
 import { useScanStore } from "@/stores/scanStore";
+import { Card } from "@/components/ui/Card";
+import { Button } from "@/components/ui/Button";
+import { Badge, type BadgeTone } from "@/components/ui/Badge";
 
 const LOW_CONFIDENCE_THRESHOLD = 0.6;
 
@@ -34,125 +37,57 @@ export function ScanResult() {
 
   if (!hasDetailedResult) {
     return (
-      <div
-        className="space-y-4 rounded-xl border p-6"
-        style={{
-          backgroundColor: "var(--surface)",
-          borderColor: "var(--success, #22c55e)",
-        }}
-      >
-        <div className="flex items-center gap-3">
-          <span
-            className="flex h-10 w-10 items-center justify-center rounded-full text-lg text-white"
-            style={{ backgroundColor: "var(--success, #22c55e)" }}
-          >
+      <Card className="space-y-gt-12 !border-gt-positive">
+        <div className="flex items-center gap-gt-8">
+          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-gt-pill border-2 border-gt-line-strong bg-gt-positive text-gt-lg font-extrabold text-gt-ink">
             ✓
           </span>
           <div>
-            <h3
-              className="text-lg font-semibold"
-              style={{ color: "var(--text)" }}
-            >
-              Scan Complete
-            </h3>
-            <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
+            <h3 className="font-gt-display text-gt-lg font-extrabold text-gt-ink">Scan Complete</h3>
+            <p className="text-gt-sm font-medium text-gt-ink-2">
               Your receipt has been processed. View it in the transaction ledger.
             </p>
           </div>
         </div>
-        <div className="flex gap-3 pt-2">
-          <button
-            onClick={reset}
-            className="rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors"
-            style={{ backgroundColor: "var(--primary)" }}
-          >
-            Scan Another
-          </button>
-        </div>
-      </div>
+        <Button onClick={reset}>Scan Another</Button>
+      </Card>
     );
   }
 
   return (
-    <div
-      className="space-y-4 rounded-xl border p-6"
-      style={{
-        backgroundColor: "var(--surface)",
-        borderColor: isLowConfidence
-          ? "var(--warning, #f59e0b)"
-          : "var(--success, #22c55e)",
-      }}
-    >
-      <div className="flex items-start justify-between">
-        <h3
-          className="text-lg font-semibold"
-          style={{ color: "var(--text)" }}
-        >
-          Scan Complete
-        </h3>
+    <Card className={`space-y-gt-12 ${isLowConfidence ? "!border-gt-warning" : "!border-gt-positive"}`}>
+      <div className="flex items-start justify-between gap-gt-8">
+        <h3 className="font-gt-display text-gt-lg font-extrabold text-gt-ink">Scan Complete</h3>
         <ConfidenceBadge score={result?.confidence_score} />
       </div>
 
       {isLowConfidence && (
-        <div
-          className="rounded-lg border p-3"
-          style={{
-            backgroundColor: "color-mix(in srgb, var(--warning, #f59e0b) 10%, transparent)",
-            borderColor: "var(--warning, #f59e0b)",
-          }}
-          role="alert"
-        >
-          <p
-            className="text-sm font-medium"
-            style={{ color: "var(--warning, #f59e0b)" }}
-          >
+        <div className="rounded-gt-lg border-2 border-gt-warning bg-gt-warning/10 p-gt-10" role="alert">
+          <p className="text-gt-sm font-extrabold text-gt-ink">
             Low confidence scan — please review the extracted data carefully
           </p>
-          <p className="mt-1 text-xs" style={{ color: "var(--text-muted)" }}>
+          <p className="mt-gt-2 text-gt-xs font-medium text-gt-ink-2">
             Some fields may be inaccurate. Edit any incorrect values before saving.
           </p>
         </div>
       )}
 
       {hasMajorReconciliationWarning && (
-        <div
-          className="rounded-lg border p-3"
-          style={{
-            backgroundColor: "color-mix(in srgb, var(--warning, #f59e0b) 10%, transparent)",
-            borderColor: "var(--warning, #f59e0b)",
-          }}
-          role="alert"
-        >
-          <p
-            className="text-sm font-medium"
-            style={{ color: "var(--warning, #f59e0b)" }}
-          >
-            Receipt math needs review
-          </p>
+        <div className="rounded-gt-lg border-2 border-gt-warning bg-gt-warning/10 p-gt-10" role="alert">
+          <p className="text-gt-sm font-extrabold text-gt-ink">Receipt math needs review</p>
         </div>
       )}
 
       {isNewMerchant && (
-        <div
-          className="rounded-lg border p-3"
-          style={{
-            backgroundColor: "var(--primary-light)",
-            borderColor: "var(--primary)",
-          }}
-        >
-          <p
-            className="text-sm font-medium"
-            style={{ color: "var(--primary)" }}
-          >
-            First scan at this merchant
-          </p>
-          <p className="mt-1 text-xs" style={{ color: "var(--text-muted)" }}>
+        <div className="rounded-gt-lg border-2 border-gt-primary bg-gt-primary-soft p-gt-10">
+          <p className="text-gt-sm font-extrabold text-gt-primary">First scan at this merchant</p>
+          <p className="mt-gt-2 text-gt-xs font-medium text-gt-ink-2">
             Confirm the merchant name and category — they'll be remembered for future scans.
           </p>
         </div>
       )}
 
-      <dl className="grid grid-cols-2 gap-x-4 gap-y-2">
+      <dl className="grid grid-cols-2 gap-x-gt-12 gap-y-gt-8">
         {result!.merchant_name && (
           <ResultField label="Merchant" value={result!.merchant_name} />
         )}
@@ -192,26 +127,20 @@ export function ScanResult() {
 
       {result!.line_items && result!.line_items.length > 0 && (
         <div>
-          <h4
-            className="mb-2 text-sm font-medium"
-            style={{ color: "var(--text-secondary)" }}
-          >
+          <h4 className="mb-gt-6 text-gt-xs font-extrabold uppercase tracking-wide text-gt-ink-3">
             Line Items ({result!.line_items.length})
           </h4>
-          <div className="space-y-1">
+          <div className="space-y-gt-2">
             {result!.line_items.map((item, idx) => (
               <div
                 key={idx}
-                className="flex justify-between gap-4 rounded-lg px-3 py-2 text-sm"
-                style={{ backgroundColor: "var(--background, #f9fafb)" }}
+                className="flex justify-between gap-gt-12 rounded-gt-lg border-2 border-gt-line bg-gt-bg-3 px-gt-10 py-gt-6 text-gt-sm"
               >
-                <div>
-                  <span style={{ color: "var(--text)" }}>
-                    {item.qty != null && item.qty > 1 ? `${item.qty}× ` : ""}
-                    {item.name}
-                  </span>
-                </div>
-                <span className="font-medium" style={{ color: "var(--text)" }}>
+                <span className="font-bold text-gt-ink">
+                  {item.qty != null && item.qty > 1 ? `${item.qty}× ` : ""}
+                  {item.name}
+                </span>
+                <span className="shrink-0 font-extrabold tabular-nums text-gt-ink">
                   {result!.currency_code
                     ? formatMinorAmount(item.total_price, result!.currency_code)
                     : item.total_price.toFixed(0)}
@@ -222,28 +151,15 @@ export function ScanResult() {
         </div>
       )}
 
-      <div className="flex gap-3 pt-2">
-        <button
-          onClick={() => {
-            reset();
-          }}
-          className="rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors"
-          style={{ backgroundColor: "var(--primary)" }}
-        >
+      <div className="flex gap-gt-8">
+        <Button variant="success" onClick={() => reset()}>
           Save Transaction
-        </button>
-        <button
-          onClick={reset}
-          className="rounded-lg px-4 py-2 text-sm font-medium transition-colors"
-          style={{
-            color: "var(--text-secondary)",
-            backgroundColor: "var(--border)",
-          }}
-        >
+        </Button>
+        <Button variant="secondary" onClick={reset}>
           Discard
-        </button>
+        </Button>
       </div>
-    </div>
+    </Card>
   );
 }
 
@@ -254,22 +170,11 @@ function ConfidenceBadge({ score }: { score?: number }) {
   const isLow = score < LOW_CONFIDENCE_THRESHOLD;
   const isMedium = score >= LOW_CONFIDENCE_THRESHOLD && score < 0.85;
 
-  const color = isLow
-    ? "var(--error, #ef4444)"
-    : isMedium
-      ? "var(--warning, #f59e0b)"
-      : "var(--success, #22c55e)";
+  const tone: BadgeTone = isLow ? "negative" : isMedium ? "warning" : "positive";
 
   return (
-    <span
-      className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium"
-      style={{
-        color,
-        backgroundColor: `color-mix(in srgb, ${color} 15%, transparent)`,
-      }}
-      title={`Scan confidence: ${pct}%`}
-    >
-      {pct}% confidence
+    <span title={`Scan confidence: ${pct}%`} className="shrink-0">
+      <Badge tone={tone}>{pct}% confidence</Badge>
     </span>
   );
 }
@@ -277,15 +182,8 @@ function ConfidenceBadge({ score }: { score?: number }) {
 function ResultField({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <dt className="text-xs" style={{ color: "var(--text-muted)" }}>
-        {label}
-      </dt>
-      <dd
-        className="text-sm font-medium"
-        style={{ color: "var(--text)" }}
-      >
-        {value}
-      </dd>
+      <dt className="text-gt-xs font-extrabold uppercase tracking-wide text-gt-ink-3">{label}</dt>
+      <dd className="text-gt-sm font-bold text-gt-ink">{value}</dd>
     </div>
   );
 }

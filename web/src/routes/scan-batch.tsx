@@ -96,9 +96,8 @@ function BatchScanPage() {
   if (quota.data?.enforced && quota.data.features.batch.limit === 0) {
     return (
       <p
-        className="mx-auto max-w-xl rounded-lg border p-6 text-center text-sm"
+        className="mx-auto max-w-xl rounded-gt-2xl border-2 border-gt-line-strong bg-gt-surface p-gt-24 text-center text-gt-sm font-bold text-gt-ink-2 shadow-gt-sm"
         data-testid="batch-premium-notice"
-        style={{ borderColor: "var(--border)", color: "var(--text-secondary)" }}
       >
         {t("batch.premiumOnly")}
       </p>
@@ -106,14 +105,10 @@ function BatchScanPage() {
   }
 
   return (
-    <div className="mx-auto max-w-xl space-y-6" data-testid="batch-scan-page">
+    <div className="mx-auto max-w-xl space-y-gt-16" data-testid="batch-scan-page">
       <div>
-        <h1 className="text-2xl font-semibold" style={{ color: "var(--text)" }}>
-          {t("batch.title")}
-        </h1>
-        <p className="mt-1 text-sm" style={{ color: "var(--text-secondary)" }}>
-          {t("batch.subtitle")}
-        </p>
+        <h1 className="font-gt-display text-gt-4xl font-extrabold text-gt-ink">{t("batch.title")}</h1>
+        <p className="mt-gt-2 text-gt-sm font-medium text-gt-ink-2">{t("batch.subtitle")}</p>
       </div>
 
       {phase === "idle" ? (
