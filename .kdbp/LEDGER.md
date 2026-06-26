@@ -5724,3 +5724,21 @@ AUDIT: two parallel workflows — shell-fidelity-map (wrb22x3qj) + state-fidelit
 SETTINGS HUB (built during the pre-reshape pilot; DF4 content, currently in-shell — reframes to overlay in DF4): rebuilt /settings from flat form → sectioned icon-row hub matching the design-lab SettingsScreen (4 sections, pixel-icon rows + subtitles + chevrons, "Próximamente" on 3 unbacked rows, bottom logout). 6 sub-routes (settings.profile/scanning/preferences/memory/data/help) wired to the real privacy/profile/rectification/mappings/portability/erasure endpoints, all testids preserved. SettingsSubviewShell back-header. +36 i18n keys × es/en/pt.
 VERIFY: tsc clean, token guard 120 files, vitest 137/137 (i18n completeness held), eslint 0 errors, vite build OK, 6 routes registered. E2E 6/6 vs prod-e2e (hub render, row→subscreen→back, logout, currency/mappings re-pointed). Side-by-side proof: tests/web-e2e/proof/wf-settings-fidelity/_sidebyside-live-vs-mockup.png (user-acceptance gate of the corrected process).
 PROCESS CORRECTION: acceptance = side-by-side live⟷Storybook the USER approves, not "tests green" — per screen. Memory: feedback-design-migration-fidelity, feedback-absolute-artifact-paths.
+- 2026-06-26 12:47 | Write | /home/khujta/.claude/projects/-home-khujta-projects-apps-gastify/memory/feedback_report_where_to_check.md
+- 2026-06-26 12:47 | Edit | /home/khujta/.claude/projects/-home-khujta-projects-apps-gastify/memory/MEMORY.md
+- 2026-06-26 12:47 | Write | /home/khujta/.claude/projects/-home-khujta-projects-apps-gastify/memory/project_design_fidelity_epic.md
+- 2026-06-26 12:47 | Edit | /home/khujta/projects/apps/gastify/web/src/components/AppLayout.tsx
+- 2026-06-26 12:48 | Edit | /home/khujta/projects/apps/gastify/web/src/components/AppLayout.tsx
+- 2026-06-26 12:48 | Edit | /home/khujta/projects/apps/gastify/web/src/components/AppLayout.tsx
+- 2026-06-26 12:48 | Edit | /home/khujta/projects/apps/gastify/web/src/components/AppLayout.tsx
+- 2026-06-26 12:48 | Edit | /home/khujta/projects/apps/gastify/web/src/routes/settings.index.tsx
+- 2026-06-26 12:48 | Edit | /home/khujta/projects/apps/gastify/web/src/routes/settings.index.tsx
+
+## 2026-06-26 12:55 — [commit] DF1 · Shell overlay foundation
+ADDED the one missing shell capability — a full-surface overlay slot in AppLayout (route-driven, D100):
+- OVERLAY_ROUTES manifest + isOverlayPath(); when the pathname matches, the route's content renders in the overlay slot instead of <main>.
+- Overlay region lives inside the content-pane wrapper (now `relative`): mobile = `fixed inset-0 z-45` (covers AppHeader z-20 + BottomNav z-30 + ScanFab z-40); desktop = `lg:absolute inset-0` over the content pane ONLY, so the SideNav rail sibling stays visible. ScanFab hidden when an overlay is active. z-scale documented: 20<30<40<45<50(ProfileMenu).
+- Settings hub (settings.index.tsx) gained a back-arrow close (settings-close → router.history.back()) since it's now an overlay.
+PROOF (routed /settings + /settings/* through the slot — better than the planned ReportDetailOverlay re-point, which moves to DF2): tests/web-e2e/proof/wf-settings-fidelity/hub-desktop.png shows SideNav RETAINED + settings over the content pane; hub-mobile.png shows a clean full-surface overlay (no wordmark/groupswitcher/bottomnav/FAB). 4/4 e2e green (settings.spec + wf-settings-fidelity).
+NO FEATURE BEHAVIOR CHANGE: only /settings* routes through the slot; every other route still renders in <main> with the nav (isOverlay guard is conservative). URLs/back-button preserved (route-driven). VERIFY: tsc clean, token 120 files, vitest 137/137, eslint 0 errors, build OK.
+PLAN: DF1 Exec ✅ Commit ✅ (Review/Push pending). Current Phase → DF2.

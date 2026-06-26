@@ -31,6 +31,17 @@ function tabKeyForPath(pathname: string): string {
 }
 
 /**
+ * Routes that render as a full-surface OVERLAY (DF1, D100) instead of inside the
+ * nav-framed <main>: mobile covers the whole frame; desktop covers the content
+ * pane only (SideNav stays). These remain real routes — URLs / back-button /
+ * deep-links are preserved. Grown one family at a time across DF2–DF5.
+ */
+const OVERLAY_ROUTES = ["/settings"];
+function isOverlayPath(pathname: string): boolean {
+  return OVERLAY_ROUTES.some((p) => pathname === p || pathname.startsWith(`${p}/`));
+}
+
+/**
  * The Playful Geometric app shell (W2, DM-5): desktop SideNav + mobile AppHeader
  * + 4-tab BottomNav + ScanFab + Perfil avatar dropdown. View-only — wraps the
  * existing data wiring (useAuth, GroupSwitcher/scope, NotificationBell, i18n).
@@ -49,6 +60,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   const displayName = email || "Usuario";
   const initials = (email[0] ?? "U").toUpperCase();
   const activeKey = tabKeyForPath(pathname);
+  const isOverlay = isOverlayPath(pathname);
 
   const tabs: NavTab[] = [
     { key: "home", icon: "nav-home", label: t("nav.dashboard") },
@@ -144,7 +156,7 @@ export function AppLayout({ children }: AppLayoutProps) {
         belowNav={<GroupSwitcher />}
       />
 
-      <div className="flex min-h-screen flex-1 flex-col">
+      <div className="relative flex min-h-screen flex-1 flex-col">
         <AppHeader
           className="sticky top-0 z-20 border-b-2 border-gt-line-strong lg:hidden"
           variant="home"
@@ -159,14 +171,27 @@ export function AppLayout({ children }: AppLayoutProps) {
           onProfile={toggleMenu}
         />
 
-        <main className="flex-1 px-4 py-5 pb-28 sm:px-6 lg:p-8">{children}</main>
+        <main className="flex-1 px-4 py-5 pb-28 sm:px-6 lg:p-8">{isOverlay ? null : children}</main>
+
+        {/* Full-surface overlay slot (DF1, D100): mobile = fixed over the whole
+            frame (covers header z-20 + bottomnav z-30 + fab z-40); desktop =
+            absolute over THIS content pane only, so the SideNav sibling stays. */}
+        {isOverlay ? (
+          <div
+            data-testid="app-overlay"
+            className="fixed inset-0 z-45 overflow-y-auto bg-gt-bg lg:absolute"
+          >
+            <div className="min-h-full px-4 py-5 pb-28 sm:px-6 lg:p-8">{children}</div>
+          </div>
+        ) : null}
       </div>
 
       <div className="fixed bottom-0 left-0 right-0 z-30 lg:hidden">
         <BottomNav active={activeKey} items={tabs} onSelect={goTab} />
       </div>
 
-      <ScanFab placement="corner" modes={scanModes} onModeSelect={onScanMode} />
+      {/* Focused (overlay) screens have no FAB. */}
+      {!isOverlay ? <ScanFab placement="corner" modes={scanModes} onModeSelect={onScanMode} /> : null}
 
       {menuOpen ? (
         <>

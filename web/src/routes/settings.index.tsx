@@ -1,10 +1,10 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, useRouter } from "@tanstack/react-router";
 import { type ReactNode } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useI18n } from "@/hooks/useI18n";
 import { type MessageKey } from "@/lib/i18n";
 import { PixelIcon } from "@/components/shell/PixelIcon";
-import { LogOutIcon } from "@/components/shell/icons";
+import { ChevronLeftIcon, LogOutIcon } from "@/components/shell/icons";
 import { Badge } from "@/components/ui/Badge";
 
 export const Route = createFileRoute("/settings/")({
@@ -124,9 +124,22 @@ function SettingsRow({ row }: { row: SettingsRowData }) {
 
 function SettingsHub() {
   const { t } = useI18n();
+  const router = useRouter();
   return (
     <div className="mx-auto w-full max-w-2xl">
-      <h1 className="px-gt-4 pb-gt-12 font-gt-display text-gt-4xl font-extrabold text-gt-ink">{t("settings.title")}</h1>
+      {/* Overlay close: back arrow dismisses the settings overlay (DF1). */}
+      <div className="flex items-center gap-gt-8 pb-gt-12">
+        <button
+          type="button"
+          aria-label={t("common.back")}
+          data-testid="settings-close"
+          onClick={() => router.history.back()}
+          className="grid h-9 w-9 shrink-0 place-items-center rounded-gt-lg text-gt-ink transition hover:-translate-x-0.5"
+        >
+          <ChevronLeftIcon className="h-7 w-7" />
+        </button>
+        <h1 className="font-gt-display text-gt-4xl font-extrabold text-gt-ink">{t("settings.title")}</h1>
+      </div>
       <div className="flex flex-col gap-gt-16">
         {GROUPS.map((g) => (
           <section key={g.heading} className="flex flex-col gap-gt-4">
