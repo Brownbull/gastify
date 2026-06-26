@@ -29,7 +29,7 @@ Migrate the **Playful Geometric** design system from `design-lab/` into the live
 | 8 | W8 · Reports | `reports` route ↔ ReportCard/ReportDetail/ReportViewer; DM-34 static point-in-time snapshots, 4 timeframes (weekly/monthly/quarterly/annual). | mvp | med | ✅ | ✅ | ✅ | ✅ |
 | 9 | W9 · Groups | Groups, GroupDetail, InviteJoin, ShareTransactions; multi-user surfaces wired to existing group hooks. | mvp | med | ✅ | ✅ | ✅ | ✅ |
 | 10 | W10 · Dashboard (index) | HomeScreen: month treemap/trend + gravity-center insights; the landing screen — done last so every component exists. | ent | high | ✅ | ✅ | ✅ | ✅ |
-| 11 | Wf · Cleanup + visual-regression sweep | Remove dead warm-palette CSS + theme switcher + superseded web components; full Playwright visual-regression across routes × (mobile/desktop); update e2e; confirm `check:token-classes` in CI. | ent | med-high | ✅ | ⬜ | ✅ | ⬜ |
+| 11 | Wf · Cleanup + visual-regression sweep | Remove dead warm-palette CSS + theme switcher + superseded web components; full Playwright visual-regression across routes × (mobile/desktop); update e2e; confirm `check:token-classes` in CI. | ent | med-high | ✅ | ✅ | ✅ | ⬜ |
 
 <!-- Exec is written by /gabe-execute: ⬜ not started, 🔄 in progress, ✅ complete -->
 <!-- Review/Commit/Push auto-ticked by /gabe-review, /gabe-commit, /gabe-push -->

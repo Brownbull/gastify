@@ -5701,3 +5701,13 @@ VERIFY: tsc clean, check:token-classes green (112 files), vite build OK (Sankey 
 DEFERRED (kept open, beyond the cleanup-sweep): P91/P92/P96 (i18n a11y/title passes — a coherent follow-up i18n batch; P96 risks the 430-line -statements.test), P94 (per-category item icons), P95 (SSE data-state proof — needs in-flight data), P98/P99/P101/P102 (design-lab fidelity enhancements), P100 (groups e2e prod-env gap — needs user-A seeding). Audit suggested P91/P92/P94/P96 as Wf-now but they're an i18n/cosmetic pass best done together with care.
 COVERAGE GAPS (noted, not blocking): /invite/:token has no geometric proof; mobile sub-states missing for settings/txn-detail/txn-new/scan-batch/statements/groups + trends-treemap/sankey-mobile + reports-detail-mobile + notifications-desktop.
 PLAN: Phase 11 Exec ✅ Commit ✅ (Review/Push pending). ALL 11 PHASES BUILT.
+
+## 2026-06-26 11:30 — PHASE 11 REVIEW: Wf · Cleanup + visual-regression sweep
+VERDICT: APPROVE
+FINDINGS: 2 total (0 critical, 0 high, 0 medium, 2 low) — F1 i18n/cosmetic "Wf-now" suggestions (P91/P92/P94/P96) deferred to a follow-up i18n+polish batch (already tracked open); F2 visual-regression coverage gaps (/invite no proof, some mobile sub-states).
+COVERAGE: HIGH — 25/25 geometric visual-regression sweep (w1..w10 vs live prod) + vitest 137/137 + the audit confirmed no dead code beyond the 24 removed keys.
+CONFIDENCE: 92/100
+DEFERRED: no NEW rows — F1/F2 map to already-open P91/P92/P94/P95/P96/P98-P102 (the polish/i18n/fidelity/prod-env follow-up backlog). P90/P93/P97 RESOLVED in this phase.
+ALIGNMENT: ALIGNED — the Wf deliverables (dead-code removal + visual-regression sweep + check:token-classes confirmation) all met.
+TIER: ent | DRIFT: none
+TICK: ✅ (Phase 11 Review)
