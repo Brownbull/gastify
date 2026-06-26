@@ -5642,3 +5642,13 @@ SCOPE: web/src/routes/groups.tsx (646→geometric: create-group form, group card
 VERIFY: tsc clean, check:token-classes green (112 files), vite build OK, vitest 137/137, eslint 0 errors.
 PROOF: tests/web-e2e/w9-groups.spec.ts 1/1 GREEN vs LIVE prod API (user A, self-cleaning) — creates a group via the geometric create-group-form (textbox+button), the geometric card appears, expands via aria-expanded toggle → group-avatar-section detail panel, screenshots, deletes via group-delete-button+confirm. Screenshot groups-detail-desktop.png confirms geometric (ink-framed avatars, icon/color choice grids, divided MEMBERS card, geometric buttons). CONTRACT NOTE: the existing groups.spec.ts 2/3 failed BUT environmentally (both timed out on `a[href^="/transactions/"]` = needs a personal txn to share; user A has ~0 prod txns — seeded data is on user B), NOT a W9 regression; the failed runs also left orphan E2E groups on prod user A (cleanup deferred → P100).
 PLAN: Phase 9 Exec ✅ Commit ✅ (Review/Push pending).
+
+## 2026-06-26 10:48 — PHASE 9 REVIEW: W9 · Groups
+VERDICT: APPROVE
+FINDINGS: 2 total (0 critical, 0 high, 1 medium, 1 low) — F1 groups e2e prod-environment gap (multi-user share flows need user-A txn seeding + prod cleanup script); F2 groups design-lab fidelity (MemberCluster, role badges, separate screens).
+COVERAGE: MEDIUM-HIGH — vitest 137/137 + w9-groups.spec live (create→expand→detail→delete); presentation-only change (classNames), wiring/behavior identical. groups.spec multi-user flows env-blocked (not a regression).
+CONFIDENCE: 86/100
+DEFERRED: P100 (groups e2e prod-env gap), P101 (groups design-lab fidelity → Wf).
+ALIGNMENT: ALIGNED — 4 files = W9 scope; full testid/aria/role/i18n/hook contract preserved per understand-workflow.
+TIER: mvp | DRIFT: none
+TICK: ✅ (Phase 9 Review)
