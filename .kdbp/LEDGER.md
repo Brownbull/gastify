@@ -5531,3 +5531,10 @@ DEFERRED: P94 (F1 per-category icons + F2 total-count → Wf polish). F2 noted w
 ALIGNMENT: ALIGNED — items.tsx = exactly W5 scope; spec = proof artifact.
 TIER: mvp | DRIFT: none
 TICK: ✅ (Phase 5 Review)
+
+## 2026-06-25 23:12 — PUSH feat/web-migration -> main (W5 PR #9, MERGED)
+PR: https://github.com/Brownbull/gastify/pull/9 (#9) — MERGED to main (7a3d3de). 3-commit delta (96ce95c W4-deploy-bk + 09a3391 W5 + 557caa2 W5-review-bk).
+CI: web + security 12/12 green at merge (Web Build·Lint·Test·Typecheck + Secret/GitGuardian/Custom Gates); Backend/Mobile Test still finishing (web-only change, unaffected). 0 failures.
+PROMOTION: N/A — D97 production-direct. User confirmed the prod-deploy merge.
+DEPLOYMENTS: P91 (W5 merge #9). Live-verified: prod bundle flipped Bd0dkS7v→DC7H52QQ (W5 markers item-other + color-mix present), deployed-prod boots clean.
+PLAN: Phase 5 Push ✅ — W5 COMPLETE (Exec/Review/Commit/Push all ✅).
