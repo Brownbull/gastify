@@ -24,8 +24,11 @@ export function useCountUp(
 
   useEffect(() => {
     if (reduced() || duration <= 0) {
-      setValue(target);
-      return;
+      // snap on the next frame (keeps the setState out of the synchronous effect body)
+      raf.current = requestAnimationFrame(() => setValue(target));
+      return () => {
+        if (raf.current) cancelAnimationFrame(raf.current);
+      };
     }
     let start: number | null = null;
     const tick = (ts: number) => {

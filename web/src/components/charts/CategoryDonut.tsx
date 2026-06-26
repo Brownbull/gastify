@@ -43,58 +43,89 @@ function segPath(rO: number, rI: number, a0: number, a1: number): string {
   return `M ${x0o} ${y0o} A ${rO} ${rO} 0 ${large} 1 ${x1o} ${y1o} L ${x1i} ${y1i} A ${rI} ${rI} 0 ${large} 0 ${x0i} ${y0i} Z`;
 }
 
-export default function CategoryDonut({ slices, currency, onSliceClick }: CategoryDonutProps) {
-  const { t } = useI18n();
-  const [selected, setSelected] = useState<string | null>(null);
-  const [mounted, setMounted] = useState(false);
+interface Wedge {
+  slice: ChartSlice;
+  i: number;
+  d: string;
+  isSel: boolean;
+}
 
-  const total = slices.reduce((sum, slice) => sum + slice.valueMinor, 0);
-  const animatedTotal = useCountUp(total, { animKey: slices.length });
-
-  // Staggered entrance: wedges fade in clockwise once mounted.
-  useEffect(() => {
-    setMounted(false);
-    const id = requestAnimationFrame(() => setMounted(true));
-    return () => cancelAnimationFrame(id);
-  }, [slices]);
-
-  const painted = slices.filter((s) => s.percent > 0);
+/** Pure layout — cumulative angles into wedge paths (plain fn: mutable acc is fine). */
+function buildWedges(painted: ChartSlice[], selected: string | null): Wedge[] {
   let acc = 0;
-  const wedges = painted.map((slice, i) => {
+  return painted.map((slice, i) => {
     const sweep = (slice.percent / 100) * 360;
     const a0 = acc;
     const a1 = acc + Math.max(0.5, sweep - GAP_DEG);
     acc += sweep;
     const isSel = selected === slice.categoryKey;
-    const interactive = !slice.isOther && Boolean(onSliceClick) && slice.drillable !== false;
-    return { slice, i, d: segPath(isSel ? R_OUTER + POP_OUT : R_OUTER, R_INNER, a0, a1), isSel, interactive };
+    return { slice, i, d: segPath(isSel ? R_OUTER + POP_OUT : R_OUTER, R_INNER, a0, a1), isSel };
   });
+}
 
-  function handleSlice(slice: ChartSlice, interactive: boolean) {
+/** The SVG ring — keyed by the parent so it remounts (re-staggers) on data change. */
+function DonutRing({
+  painted,
+  selected,
+  label,
+  onSlice,
+}: {
+  painted: ChartSlice[];
+  selected: string | null;
+  label: string;
+  onSlice: (slice: ChartSlice) => void;
+}) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setMounted(true));
+    return () => cancelAnimationFrame(id);
+  }, []);
+
+  return (
+    <svg viewBox="-6 -6 132 132" className="h-full w-full" role="img" aria-label={label}>
+      {buildWedges(painted, selected).map(({ slice, i, d, isSel }) => (
+        <path
+          key={slice.categoryKey}
+          d={d}
+          fill={slice.colorVar}
+          data-testid={`donut-segment-${slice.categoryKey}`}
+          onClick={() => onSlice(slice)}
+          style={{
+            opacity: !mounted ? 0 : selected != null && !isSel ? 0.4 : 1,
+            transition: "opacity 280ms ease-out, d 200ms ease-out",
+            transitionDelay: mounted ? `${i * 60}ms` : "0ms",
+            cursor: "pointer",
+          }}
+        />
+      ))}
+    </svg>
+  );
+}
+
+export default function CategoryDonut({ slices, currency, onSliceClick }: CategoryDonutProps) {
+  const { t } = useI18n();
+  const [selected, setSelected] = useState<string | null>(null);
+
+  const total = slices.reduce((sum, slice) => sum + slice.valueMinor, 0);
+  const animatedTotal = useCountUp(total, { animKey: slices.length });
+  const painted = slices.filter((s) => s.percent > 0);
+  const ringKey = painted.map((s) => s.categoryKey).join("|");
+
+  function handleSlice(slice: ChartSlice) {
     setSelected((cur) => (cur === slice.categoryKey ? null : slice.categoryKey));
-    if (interactive) onSliceClick?.(slice);
+    if (!slice.isOther && onSliceClick && slice.drillable !== false) onSliceClick(slice);
   }
 
   return (
     <div data-testid="category-donut">
       <div className="relative mx-auto" style={{ height: 240, maxWidth: 320 }}>
-        <svg viewBox="-6 -6 132 132" className="h-full w-full" role="img" aria-label={t("trends.distribution")}>
-          {wedges.map(({ slice, i, d, isSel, interactive }) => (
-            <path
-              key={`${slice.categoryKey}-${slices.length}`}
-              d={d}
-              fill={slice.colorVar}
-              data-testid={`donut-segment-${slice.categoryKey}`}
-              onClick={() => handleSlice(slice, interactive)}
-              style={{
-                opacity: !mounted ? 0 : selected != null && !isSel ? 0.4 : 1,
-                transition: "opacity 280ms ease-out, d 200ms ease-out",
-                transitionDelay: mounted ? `${i * 60}ms` : "0ms",
-                cursor: "pointer",
-              }}
-            />
-          ))}
-        </svg>
+        <DonutRing
+          key={ringKey}
+          painted={painted}
+          selected={selected}
+          label={t("trends.distribution")}
+          onSlice={handleSlice}
+        />
         <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center">
           <span className="text-gt-xs font-extrabold uppercase tracking-wide text-gt-ink-3">
             {t("dashboard.totalSpend")}
@@ -117,7 +148,7 @@ export default function CategoryDonut({ slices, currency, onSliceClick }: Catego
               <button
                 type="button"
                 disabled={!interactive}
-                onClick={() => interactive && handleSlice(slice, true)}
+                onClick={() => interactive && handleSlice(slice)}
                 className="flex w-full items-center gap-gt-8 rounded-gt-md px-gt-4 py-gt-2 text-left text-gt-sm transition enabled:hover:bg-gt-bg-3"
                 style={{ cursor: interactive ? "pointer" : "default" }}
               >
