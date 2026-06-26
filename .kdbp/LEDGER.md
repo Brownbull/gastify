@@ -5504,3 +5504,13 @@ DEFERRED: P93 (F1 raw var → Wf cleanup sweep). F2 dismissed (cosmetic, session
 ALIGNMENT: ALIGNED — 3 changed routes = exactly W4 scope; 2 specs = proof artifacts.
 TIER: mvp | DRIFT: none
 TICK: ✅ (Phase 4 Review)
+- 2026-06-25 21:07 | Write | /tmp/claude-1000/-home-khujta-projects-apps-gastify/54614bed-7177-4b86-813f-86de68955392/scratchpad/w4-pr-body.md
+
+## 2026-06-25 19:55 — PUSH feat/web-migration -> main (W4 PR #8, MERGED)
+PR: https://github.com/Brownbull/gastify/pull/8 (#8) — MERGED to main (a215a29). Clean 2-commit delta (3345b0a W4 + e6e6bc4 bookkeeping) since #7 already merged.
+CI: 14/14 all green (Web Build·Lint·Test·Typecheck + Backend Test·Typecheck + Mobile Test·Typecheck·Audit·API-Drift + SCA + Secret Scan + GitGuardian + Custom Gates).
+PROMOTION: N/A — D97 production-direct, staging retired; direct push + PR-to-main. User confirmed the prod-deploy merge (not auto-merged).
+DEPLOYMENTS: P90 (W4 merge #8); also backfilled P89 (W3 merge #7 row was missed at its merge time).
+PLAN: Phase 4 Push ✅ — W4 COMPLETE (Exec/Review/Commit/Push all ✅). Live-prod render verification follows.
+- 2026-06-25 22:03 | Write | /tmp/claude-1000/-home-khujta-projects-apps-gastify/54614bed-7177-4b86-813f-86de68955392/scratchpad/prod-verify.config.ts
+- 2026-06-25 22:03 | Write | /tmp/claude-1000/-home-khujta-projects-apps-gastify/54614bed-7177-4b86-813f-86de68955392/scratchpad/prod-verify.spec.ts
