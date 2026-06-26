@@ -5514,3 +5514,10 @@ DEPLOYMENTS: P90 (W4 merge #8); also backfilled P89 (W3 merge #7 row was missed 
 PLAN: Phase 4 Push ✅ — W4 COMPLETE (Exec/Review/Commit/Push all ✅). Live-prod render verification follows.
 - 2026-06-25 22:03 | Write | /tmp/claude-1000/-home-khujta-projects-apps-gastify/54614bed-7177-4b86-813f-86de68955392/scratchpad/prod-verify.config.ts
 - 2026-06-25 22:03 | Write | /tmp/claude-1000/-home-khujta-projects-apps-gastify/54614bed-7177-4b86-813f-86de68955392/scratchpad/prod-verify.spec.ts
+- 2026-06-25 23:00 | Write | /home/khujta/projects/apps/gastify/tests/web-e2e/w5-items.spec.ts
+
+## 2026-06-25 23:05 — [commit] W5 · Items browse geometric port
+FINDINGS: 0 critical · lint 0 errors/90 warnings (pre-existing react-refresh) · types clean · vitest 137/137 · check:token-classes green (108 files) · vite build OK
+SCOPE: web/src/routes/items.tsx restyled to Playful Geometric (Card + IconTile rows + EmptyState + geometric FilterBar/chips/Button). PRAGMATIC restyle: matches design-lab HistoryItemRow grammar (category-tinted IconTile lead via color-mix + name + merchant·date meta + amount) but keeps the web's FLAT item→transaction model — the design-lab per-product expand/purchase-history aggregation is a data-layer change, deferred (out of mvp view-only scope, same stance as W4's picker decomposition). All logic, useItems wiring, i18n t() calls, and testids preserved (items-screen, items-search-input, items-filter-merchant/category, items-active-filters, items-chip-{key}, items-clear-all, items-row, items-load-more, items-empty, items-empty-filtered). Per-category item icons deferred (uniform item-other + category tint).
+RUNTIME PROOF: tests/web-e2e/w5-items.spec.ts 3/3 GREEN vs LIVE prod API + user B's seeded item data (list desktop+mobile, search→empty-filtered→clear-chip). Screenshots: tests/web-e2e/proof/w5-items/{items-desktop,items-mobile,items-empty-filtered}.png — visually confirmed geometric (category-tinted IconTiles, grouped divide-y Card, geometric EmptyState + active chip).
+PLAN: Phase 5 Exec ✅ Commit ✅ (Review/Push pending).
