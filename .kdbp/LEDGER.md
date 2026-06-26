@@ -5613,3 +5613,13 @@ VERIFY: tsc clean, check:token-classes green (112 files), vite build OK, vitest 
 PROOF: tests/web-e2e/w8-reports.spec.ts 3/3 GREEN vs LIVE prod API + user B's seeded data (reports list desktop+mobile, detail overlay hero+insight+breakdown). Screenshots reports-list-desktop.png (Week/Month/Quarter/Year toggle + breakdown donut + monthly trend-chip cards) + report-detail-overlay-desktop.png (modal: hero CLP 95,869 ▼26%, 💡 insight, 🏆 highlights, By-store/By-item donuts + group cards w/ sparklines).
 UNDERSTAND: built from the w8-reports-understand workflow (2 parallel extractors: design-lab reports blueprint + the exact web testid/aria/hook/i18n preservation contract).
 PLAN: Phase 8 Exec ✅ Commit ✅ (Review/Push pending).
+
+## 2026-06-26 10:25 — PHASE 8 REVIEW: W8 · Reports
+VERDICT: APPROVE
+FINDINGS: 1 total (0 critical, 0 high, 0 medium, 1 low) — F1 reports design-lab fidelity follow-ups (category-tinted group cards, DM-32 story carousel, ReportViewer step-selector/share).
+COVERAGE: HIGH — vitest 137/137 (renders ReportDetailOverlay + reports) + 3 Playwright proofs (list desktop+mobile, detail overlay) vs user B's seeded data.
+CONFIDENCE: 94/100
+DEFERRED: P99 (reports fidelity polish → Wf).
+ALIGNMENT: ALIGNED — 2 files = W8 scope; presentation-only (all testids/aria/hooks/i18n/drill preserved per the understand-workflow contract).
+TIER: mvp | DRIFT: none
+TICK: ✅ (Phase 8 Review)
