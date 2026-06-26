@@ -5504,3 +5504,30 @@ DEFERRED: P93 (F1 raw var → Wf cleanup sweep). F2 dismissed (cosmetic, session
 ALIGNMENT: ALIGNED — 3 changed routes = exactly W4 scope; 2 specs = proof artifacts.
 TIER: mvp | DRIFT: none
 TICK: ✅ (Phase 4 Review)
+- 2026-06-25 21:07 | Write | /tmp/claude-1000/-home-khujta-projects-apps-gastify/54614bed-7177-4b86-813f-86de68955392/scratchpad/w4-pr-body.md
+
+## 2026-06-25 19:55 — PUSH feat/web-migration -> main (W4 PR #8, MERGED)
+PR: https://github.com/Brownbull/gastify/pull/8 (#8) — MERGED to main (a215a29). Clean 2-commit delta (3345b0a W4 + e6e6bc4 bookkeeping) since #7 already merged.
+CI: 14/14 all green (Web Build·Lint·Test·Typecheck + Backend Test·Typecheck + Mobile Test·Typecheck·Audit·API-Drift + SCA + Secret Scan + GitGuardian + Custom Gates).
+PROMOTION: N/A — D97 production-direct, staging retired; direct push + PR-to-main. User confirmed the prod-deploy merge (not auto-merged).
+DEPLOYMENTS: P90 (W4 merge #8); also backfilled P89 (W3 merge #7 row was missed at its merge time).
+PLAN: Phase 4 Push ✅ — W4 COMPLETE (Exec/Review/Commit/Push all ✅). Live-prod render verification follows.
+- 2026-06-25 22:03 | Write | /tmp/claude-1000/-home-khujta-projects-apps-gastify/54614bed-7177-4b86-813f-86de68955392/scratchpad/prod-verify.config.ts
+- 2026-06-25 22:03 | Write | /tmp/claude-1000/-home-khujta-projects-apps-gastify/54614bed-7177-4b86-813f-86de68955392/scratchpad/prod-verify.spec.ts
+- 2026-06-25 23:00 | Write | /home/khujta/projects/apps/gastify/tests/web-e2e/w5-items.spec.ts
+
+## 2026-06-25 23:05 — [commit] W5 · Items browse geometric port
+FINDINGS: 0 critical · lint 0 errors/90 warnings (pre-existing react-refresh) · types clean · vitest 137/137 · check:token-classes green (108 files) · vite build OK
+SCOPE: web/src/routes/items.tsx restyled to Playful Geometric (Card + IconTile rows + EmptyState + geometric FilterBar/chips/Button). PRAGMATIC restyle: matches design-lab HistoryItemRow grammar (category-tinted IconTile lead via color-mix + name + merchant·date meta + amount) but keeps the web's FLAT item→transaction model — the design-lab per-product expand/purchase-history aggregation is a data-layer change, deferred (out of mvp view-only scope, same stance as W4's picker decomposition). All logic, useItems wiring, i18n t() calls, and testids preserved (items-screen, items-search-input, items-filter-merchant/category, items-active-filters, items-chip-{key}, items-clear-all, items-row, items-load-more, items-empty, items-empty-filtered). Per-category item icons deferred (uniform item-other + category tint).
+RUNTIME PROOF: tests/web-e2e/w5-items.spec.ts 3/3 GREEN vs LIVE prod API + user B's seeded item data (list desktop+mobile, search→empty-filtered→clear-chip). Screenshots: tests/web-e2e/proof/w5-items/{items-desktop,items-mobile,items-empty-filtered}.png — visually confirmed geometric (category-tinted IconTiles, grouped divide-y Card, geometric EmptyState + active chip).
+PLAN: Phase 5 Exec ✅ Commit ✅ (Review/Push pending).
+
+## 2026-06-25 23:08 — PHASE 5 REVIEW: W5 · Items browse
+VERDICT: APPROVE
+FINDINGS: 2 total (0 critical, 0 high, 0 medium, 2 low) — F1 uniform item-other icon (per-category icons deferred); F2 count strip shows loaded/paginated count not total match. Both Scale-gate cosmetics.
+COVERAGE: HIGH — vitest 137/137 + w5-items Playwright 3/3 (list desktop+mobile, search→empty-filtered→clear-chip); restyle preserved all logic, useItems wiring, i18n t(), and testids.
+CONFIDENCE: 96/100
+DEFERRED: P94 (F1 per-category icons + F2 total-count → Wf polish). F2 noted within P94.
+ALIGNMENT: ALIGNED — items.tsx = exactly W5 scope; spec = proof artifact.
+TIER: mvp | DRIFT: none
+TICK: ✅ (Phase 5 Review)
