@@ -5538,3 +5538,11 @@ CI: web + security 12/12 green at merge (Web Build·Lint·Test·Typecheck + Secr
 PROMOTION: N/A — D97 production-direct. User confirmed the prod-deploy merge.
 DEPLOYMENTS: P91 (W5 merge #9). Live-verified: prod bundle flipped Bd0dkS7v→DC7H52QQ (W5 markers item-other + color-mix present), deployed-prod boots clean.
 PLAN: Phase 5 Push ✅ — W5 COMPLETE (Exec/Review/Commit/Push all ✅).
+- 2026-06-26 00:19 | Write | /home/khujta/projects/apps/gastify/web/src/components/StatementReconciliationPanel.tsx
+- 2026-06-26 00:20 | Write | /home/khujta/projects/apps/gastify/web/src/routes/statements.tsx
+
+## 2026-06-26 00:25 — [commit] W6 · Statements + reconciliation geometric port (2 of 2)
+FINDINGS: 0 critical · tsc clean · check:token-classes green (108 files) · vite build OK · vitest 137/137 (incl. 430-line -statements.test) · eslint 0 errors
+SCOPE: web/src/routes/statements.tsx (623→geometric: Upload/Alias/Recent panels + StatusPanel as Cards, geometric inputs, dashed PDF dropzone, Badge phase, progress bars, Button) + web/src/components/StatementReconciliationPanel.tsx (geometric metrics tiles + pill bucket tabs + bordered table + Badge warning/edited tones + Button add-transaction). View-only; SSE hook (useStatementStream) + all reconcile/upload/alias logic + text strings preserved (statements not i18n'd — hardcoded English kept per standing rule). Completes W6 Exec (scan+batch landed in 2ce3895).
+RUNTIME PROOF: tests/web-e2e/w6-scan-statements.spec.ts 4/4 GREEN vs LIVE prod API (user B): /scan idle dropzone (desktop+mobile), /scan-batch, /statements 2-col upload+status. Screenshots: tests/web-e2e/proof/w6-scan-statements/ — geometric grammar confirmed (IconTile-framed camera dropzone, ink-bordered Cards, dashed PDF zone, violet buttons). Idle/upload states proven; SSE progress/result/reconciliation-bucket states need an in-flight scan.
+PLAN: Phase 6 Exec ✅ Commit ✅ (Review/Push pending).
