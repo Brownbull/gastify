@@ -17,10 +17,12 @@ export interface SelectProps {
   value: string;
   onChange: (value: string) => void;
   options: SelectOption[];
+  /** greys the trigger + blocks opening (coming-soon placeholders, D101). */
+  disabled?: boolean;
   className?: string;
 }
 
-export function Select({ value, onChange, options, className = "" }: SelectProps) {
+export function Select({ value, onChange, options, disabled = false, className = "" }: SelectProps) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -46,13 +48,14 @@ export function Select({ value, onChange, options, className = "" }: SelectProps
         type="button"
         aria-haspopup="listbox"
         aria-expanded={open}
+        disabled={disabled}
         onClick={() => setOpen((o) => !o)}
-        className="flex w-full items-center justify-between gap-gt-8 rounded-gt-lg border-2 border-gt-line-strong bg-gt-surface px-gt-12 py-gt-8 font-gt-display text-gt-md font-extrabold text-gt-ink shadow-gt-xs transition duration-150 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-gt-primary/25"
+        className={`flex w-full items-center justify-between gap-gt-8 rounded-gt-lg border-2 border-gt-line-strong bg-gt-surface px-gt-12 py-gt-8 font-gt-display text-gt-md font-extrabold text-gt-ink shadow-gt-xs transition duration-150 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-gt-primary/25 disabled:cursor-default ${disabled ? "opacity-55" : ""}`}
       >
         <span className="truncate">{selected?.label ?? "—"}</span>
         <ChevronDownIcon className={`h-4 w-4 shrink-0 text-gt-ink-3 transition-transform duration-150 ${open ? "rotate-180" : ""}`} />
       </button>
-      {open ? (
+      {open && !disabled ? (
         <ul
           role="listbox"
           className="absolute inset-x-0 top-full z-20 mt-gt-2 overflow-hidden rounded-gt-lg border-2 border-gt-line-strong bg-gt-surface shadow-gt-md"

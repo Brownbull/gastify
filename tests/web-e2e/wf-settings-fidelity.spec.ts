@@ -29,9 +29,9 @@ test.describe("Wf settings fidelity — geometric hub (real prod)", () => {
     await page.waitForTimeout(500);
     await page.screenshot({ path: `${SHOTS}/hub-mobile.png`, fullPage: true });
 
-    // Preferencias sub-screen (language + date) — the back-header pattern.
+    // Preferencias sub-screen (language + date toggles + coming-soon appearance).
     await page.getByTestId("settings-row-preferences").click();
-    await page.getByTestId("settings-date-format").waitFor({ timeout: 15_000 });
+    await page.getByTestId("settings-back").waitFor({ timeout: 15_000 });
     await page.waitForTimeout(400);
     await page.screenshot({ path: `${SHOTS}/sub-preferences-mobile.png`, fullPage: true });
 

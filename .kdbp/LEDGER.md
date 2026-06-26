@@ -5742,3 +5742,25 @@ ADDED the one missing shell capability — a full-surface overlay slot in AppLay
 PROOF (routed /settings + /settings/* through the slot — better than the planned ReportDetailOverlay re-point, which moves to DF2): tests/web-e2e/proof/wf-settings-fidelity/hub-desktop.png shows SideNav RETAINED + settings over the content pane; hub-mobile.png shows a clean full-surface overlay (no wordmark/groupswitcher/bottomnav/FAB). 4/4 e2e green (settings.spec + wf-settings-fidelity).
 NO FEATURE BEHAVIOR CHANGE: only /settings* routes through the slot; every other route still renders in <main> with the nav (isOverlay guard is conservative). URLs/back-button preserved (route-driven). VERIFY: tsc clean, token 120 files, vitest 137/137, eslint 0 errors, build OK.
 PLAN: DF1 Exec ✅ Commit ✅ (Review/Push pending). Current Phase → DF2.
+- 2026-06-26 13:07 | Write | /home/khujta/.claude/projects/-home-khujta-projects-apps-gastify/memory/feedback_implement_all_mockups.md
+- 2026-06-26 13:07 | Edit | /home/khujta/.claude/projects/-home-khujta-projects-apps-gastify/memory/MEMORY.md
+- 2026-06-26 13:28 | Edit | /home/khujta/projects/apps/gastify/web/vite.config.ts
+- 2026-06-26 13:28 | Edit | /home/khujta/projects/apps/gastify/web/tsconfig.app.json
+- 2026-06-26 13:29 | Edit | /home/khujta/projects/apps/gastify/web/tsconfig.app.json
+- 2026-06-26 13:30 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/atoms/SegmentedToggle.tsx
+- 2026-06-26 13:30 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/atoms/SegmentedToggle.tsx
+- 2026-06-26 13:31 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/atoms/SegmentedToggle.tsx
+- 2026-06-26 13:31 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/atoms/SegmentedToggle.tsx
+- 2026-06-26 13:31 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/atoms/Select.tsx
+- 2026-06-26 13:31 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/atoms/Select.tsx
+- 2026-06-26 13:31 | Edit | /home/khujta/projects/apps/gastify/design-lab/src/design-system/atoms/Select.tsx
+- 2026-06-26 13:31 | Edit | /home/khujta/projects/apps/gastify/web/src/routes/settings.preferences.tsx
+
+## 2026-06-26 13:35 — [commit] Settings fidelity: reuse design-lab components (D102) + coming-soon policy (D101)
+PIVOT (D102): the settings rebuild kept drifting because components were HAND-PORTED instead of reused. Wired web to consume the design-lab as its component library — aliases @design-system/@design-lab/@shared in web vite.config + tsconfig.app.json. PROVEN: web tsc clean + vite build green importing the REAL @design-system/atoms/SegmentedToggle + Select; deleted the hand-ported web copies (ui/SegmentedToggle.tsx, ui/Select.tsx). Extended the real atoms with a non-breaking `disabled` prop for coming-soon placeholders (Storybook default false → smoke tests unaffected).
+POLICY (D101, user): implement ALL mockups; wire what's backed, coming-soon placeholder + register (docs/mockups/COMING-SOON-REGISTRY.md) for unbuilt; never discard from Storybook. Reframes D-B (theme/appearance controls return as coming-soon placeholders).
+SETTINGS AUDIT (workflow w6bbogii1, 10 subviews): settings ~35% done — hub ~90% faithful (my "avatar"/"badge" gaps were wrong), but the 6 stub subviews are far from the rich designs + 4 subviews unbuilt. Punch-list informs the rebuild order.
+PREFERENCES (first subview, partial): rebuilt to the design (General: idioma + formato de fecha WIRED as SegmentedToggle + live date preview; Apariencia: modo/paleta/color/tipografía/tamaño as coming-soon placeholders CS-1..5) — now using the REAL design-lab SegmentedToggle/Select. Still uses web's recreated SettingsSubviewShell — next step swaps that + the hub to the real design-lab primitives/screens. +20 prefs i18n keys × es/en/pt.
+i18n CAVEAT: design-lab screens hardcode Spanish; web supplies i18n copy to the imported components (visual from design-lab, copy from web's i18n).
+VERIFY: tsc clean, token guard, vitest 137/137, eslint 0 errors, vite build green.
+NEXT: swap web's SettingsSubviewShell + hub rows to the real design-lab primitives/screens (prop-ified for data+i18n), then each subview, per-screen acceptance.

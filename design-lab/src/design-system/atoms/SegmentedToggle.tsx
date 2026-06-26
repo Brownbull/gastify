@@ -30,6 +30,8 @@ export interface SegmentedToggleProps<T extends string = string> {
   shape?: SegmentShape;
   /** stretch the track + segments to full width (equal flex). */
   fill?: boolean;
+  /** greys the whole control + blocks interaction (coming-soon placeholders, D101). */
+  disabled?: boolean;
   /**
    * fill style: the same rounded active pill, but it expands to fill the track
    * to its border — drops the inset padding that leaves white around the pill.
@@ -64,6 +66,7 @@ export function SegmentedToggle<T extends string = string>({
   shape = "pill",
   fill = false,
   flush = false,
+  disabled = false,
   label,
   className = "",
 }: SegmentedToggleProps<T>) {
@@ -77,7 +80,8 @@ export function SegmentedToggle<T extends string = string>({
     <div
       role="tablist"
       aria-label={label}
-      className={`inline-flex ${fill ? "w-full" : ""} items-stretch border-2 border-gt-line-strong bg-gt-surface shadow-gt-sm ${trackRadius} ${trackExtra} ${className}`}
+      aria-disabled={disabled || undefined}
+      className={`inline-flex ${fill ? "w-full" : ""} items-stretch border-2 border-gt-line-strong bg-gt-surface shadow-gt-sm ${trackRadius} ${trackExtra} ${disabled ? "opacity-55" : ""} ${className}`}
     >
       {segments.map((seg) => {
         const isActive = seg.id === value;
@@ -87,11 +91,12 @@ export function SegmentedToggle<T extends string = string>({
             type="button"
             role="tab"
             aria-selected={isActive}
+            disabled={disabled}
             title={seg.title ?? seg.label}
             onClick={() => onChange(seg.id)}
-            className={`inline-flex items-center justify-center font-gt-display font-extrabold leading-none transition duration-150 ease-gt-bounce focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-gt-primary/25 ${s.seg} ${s.gap} ${segRadius} ${
+            className={`inline-flex items-center justify-center font-gt-display font-extrabold leading-none transition duration-150 ease-gt-bounce focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-gt-primary/25 disabled:cursor-default ${s.seg} ${s.gap} ${segRadius} ${
               fill ? "flex-1" : ""
-            } ${isActive ? activeTone[tone] : "text-gt-ink-2 hover:bg-gt-bg-3 hover:text-gt-ink"}`}
+            } ${isActive ? activeTone[tone] : "text-gt-ink-2"} ${!disabled && !isActive ? "hover:bg-gt-bg-3 hover:text-gt-ink" : ""}`}
           >
             {seg.icon}
             {seg.label ? <span className="truncate">{seg.label}</span> : null}

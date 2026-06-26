@@ -2818,3 +2818,35 @@ cross-check the LLM's merchant/total/date against the signed SII data when a QR 
 **Process correction (from the W1–Wf miss):** acceptance = a side-by-side live⟷Storybook the USER approves, not "tests green" — applied per screen. See [[feedback-design-migration-fidelity]].
 
 **Status:** accepted.
+
+## D101 — Implement ALL design-lab mockups in the live app; unbuilt features → "coming soon" placeholder + registered to build later; never discard from Storybook (2026-06-26)
+
+**Context.** Finishing settings to true fidelity surfaced that the design-lab subviews show features the live app deliberately lacks or never built: theme/dark-mode/palette/typography/font-size (cut in W1 by D-B), profile photo/phone/name-edit + Google linked-account card, and entire Subscription/Cards/Limits screens. This forced the question of how faithful to be when the design exceeds the product.
+
+**Decision (user policy, 2026-06-26).** The goal is to implement the FULL mockup UI for every screen/subview in the live app — **nothing from the Storybook is discarded or simplified away.**
+- **Wire** every element that is backed by real live data/endpoints.
+- **Unbuilt elements/features** render the mockup UI as a non-functional **"coming soon" / "próximamente"** placeholder (visually present per the design, clearly flagged + disabled) **and are registered** in `docs/mockups/COMING-SOON-REGISTRY.md` to build later.
+- **Never omit/discard** a Storybook element.
+- **Flag notable gaps** (whole unbuilt features) to the user, but the default — no waiting — is the coming-soon placeholder + registry entry.
+
+**Reframes D-B.** The theme/appearance controls D-B cut (dark mode, palette, typography, font size) return to the UI **as coming-soon placeholders** — not rebuilt (still single light theme), not omitted. The Wf deletion of those i18n keys may need partial restoration for the placeholder labels.
+
+**Consequence.** Settings rebuild = build all 10 subviews' full mockup UI; wire the backed parts; coming-soon + register the rest. The same policy governs every DF-epic screen. Supersedes the earlier "wire+omit" option floated in D100's reconciliation.
+
+**Status:** accepted.
+
+## D102 — Web consumes the design-lab as its shared component library; stop recreating components (2026-06-26)
+
+**Context.** The settings rebuild kept drifting because the assistant HAND-PORTED design-lab components (SegmentedToggle, Select, the subview shell, the hub rows) instead of reusing them. Recreation reintroduces exactly the per-pixel drift (chevron size, spacing, toggle style) the design-lab exists to prevent — the user (correctly) called this out: "you are trying to recreate everything from scratch instead of taking what was there." The design-lab atoms/molecules import ONLY `react` (+ echarts for the Sankey) — no stores/fixtures — and web already shares `shared/design-tokens.ts` + serves `/pixel-icons/`, so direct reuse is clean.
+
+**Decision (user-confirmed 2026-06-26).** Web imports the REAL design-lab components instead of copies.
+- Added aliases to `web/vite.config.ts` + `web/tsconfig.app.json`: `@design-system` → `../design-lab/src/design-system`, `@design-lab` → `../design-lab/src`, `@shared` → `../shared`. (`include` stays `["src"]` — imported design-lab files are type-checked transitively, NOT force-compiled wholesale.)
+- **Atoms/molecules/layout primitives** (SegmentedToggle, Select, SettingsRow, SettingsSubviewShell, SettingsField, PixelIcon, Badge, AppHeader…) are imported directly. Hand-ported copies are deleted.
+- **Screens** (fixture-hardcoded) are prop-ified — data + handlers lifted to props with the fixtures as Storybook defaults (smoke tests stay pixel-identical) — and reused. The design-lab is editable as the shared source (extend, never recreate); e.g. `disabled` was added to SegmentedToggle/Select for coming-soon placeholders (D101) — non-breaking, default false.
+- **i18n caveat:** design-lab screens hardcode Spanish copy. To keep web's es/en/pt, copy is supplied by web (the imported layout primitives take label props/children; whole-screen reuse passes i18n labels as props). Visual fidelity comes from the real components; copy comes from web's i18n.
+
+**Proven.** Web `tsc -b` clean + `vite build` green importing the real `@design-system/atoms/SegmentedToggle` + `Select`; ported copies removed.
+
+**Consequence.** Supersedes the port-and-recreate method. All DF-epic screens reuse real design-lab components; the only web-authored part is data/handler/i18n wiring. A future cleanup may promote `design-system` to `shared/` so web doesn't depend on the design-lab app's `src`.
+
+**Status:** accepted.

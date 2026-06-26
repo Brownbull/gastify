@@ -10,6 +10,11 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      // Consume the design-lab as the shared component library (D102): web
+      // imports the REAL design-lab components/screens instead of recreating them.
+      "@design-system": path.resolve(__dirname, "../design-lab/src/design-system"),
+      "@design-lab": path.resolve(__dirname, "../design-lab/src"),
+      "@shared": path.resolve(__dirname, "../shared"),
     },
   },
   server: {
