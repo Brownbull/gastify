@@ -5623,3 +5623,10 @@ DEFERRED: P99 (reports fidelity polish → Wf).
 ALIGNMENT: ALIGNED — 2 files = W8 scope; presentation-only (all testids/aria/hooks/i18n/drill preserved per the understand-workflow contract).
 TIER: mvp | DRIFT: none
 TICK: ✅ (Phase 8 Review)
+
+## 2026-06-26 10:32 — PUSH feat/web-migration -> main (W8 PR #12, MERGED)
+PR: https://github.com/Brownbull/gastify/pull/12 (#12) — MERGED to main (4463453). Delta: W7 deploy bk + W8 + W8 review bk.
+CI: web + SCA + security all green; Backend/Mobile Test finishing (web-only change, unaffected). 0 failures. Web Test stable (W7's asyncUtilTimeout fix held).
+PROMOTION: N/A — D97 production-direct. User confirmed the prod-deploy merge.
+DEPLOYMENTS: P94 (W8 merge #12). Live-verified: prod bundle flipped DMv-_VxO→DFxu8LNU, deployed-prod boots clean.
+PLAN: Phase 8 Push ✅ — W8 COMPLETE (Exec/Review/Commit/Push all ✅). Current Phase advanced to Phase 9 (W9 · Groups, tier mvp). 8 of 11 phases shipped to production.
