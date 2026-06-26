@@ -5556,3 +5556,42 @@ DEFERRED: P95 (SSE data-state proof, ent/medium → targeted proof or Ladle rend
 ALIGNMENT: ALIGNED — 10 files = exactly W6 scope (scan+batch+statements+reconciliation+proof spec).
 TIER: ent | DRIFT: none (view-only restyle; SSE hooks untouched)
 TICK: ✅ (Phase 6 Review — WARNING permits tick; no unresolved CRITICAL/HIGH above gate)
+
+## 2026-06-26 00:38 — PUSH feat/web-migration -> main (W6 PR #10, MERGED)
+PR: https://github.com/Brownbull/gastify/pull/10 (#10) — MERGED to main (81eef6e). 4-commit delta (e26810e W5-deploy-bk + 2ce3895 W6-scan+batch + 306d992 W6-statements + 4a8db3d W6-review-bk).
+CI: 14/14 all green (Web Build·Lint·Test·Typecheck + Backend Test·Typecheck + Mobile Test·Typecheck·Audit·API-Drift + SCA + Secret Scan + GitGuardian + Custom Gates). 0 failures.
+PROMOTION: N/A — D97 production-direct. User confirmed the prod-deploy merge.
+DEPLOYMENTS: P92 (W6 merge #10). Live-verified: prod bundle flipped DC7H52QQ→DQRG07aM (W6 scan/statements code present), deployed-prod boots clean.
+PLAN: Phase 6 Push ✅ — W6 COMPLETE (Exec/Review/Commit/Push all ✅). Current Phase advanced to Phase 7 (W7 · Analytics).
+
+## 2026-06-26 00:42 — W7 scope decision (user-confirmed): FULL chart-engine swap
+DECISION: W7 Analytics takes the original-plan path, NOT the pragmatic restyle. Install ECharts; rewrite CategoryDonut → design-lab hand-built donut/treemap; add an ECharts Sankey; port drill + count-up (DM-10); restyle the trends route. This is the single biggest structural change in the Web Migration epic (new heavy dep + chart-render rewrite), unlike the view-only restyles of W4–W6. Current web analytics = trends.tsx (251) + charts/{CategoryDonut(115), SpendTimeSeries(115), Sparkline(77)} on Recharts 2.15.4 (ECharts not installed). Recharts was pinned at 2.15.4 (P48, Vite/es-toolkit) — the swap to ECharts/hand-built sidesteps that. Data-layer (hooks/api) stays; this is a presentation-engine swap. Paced in sub-batches (deps+donut → treemap → Sankey → trends route), each verified + proven against user B's seeded analytics data.
+- 2026-06-26 09:08 | Write | /home/khujta/projects/apps/gastify/web/src/lib/useCountUp.ts
+- 2026-06-26 09:09 | Write | /home/khujta/projects/apps/gastify/web/src/components/charts/CategoryDonut.tsx
+- 2026-06-26 09:11 | Write | /home/khujta/projects/apps/gastify/tests/web-e2e/w7-analytics.spec.ts
+
+## 2026-06-26 09:15 — [commit] W7 sub-batch 1 of 4: hand-built donut (chart-engine swap begins)
+SCOPE: web/src/lib/useCountUp.ts (ported from design-lab, react-only) + web/src/components/charts/CategoryDonut.tsx rewritten Recharts→hand-built SVG (polar/segPath arc math, viewBox -6 -6 132 132, R_out 58 / R_in 44, 0.6% gaps, count-up center total, selection pop-out + dim, staggered clockwise entrance). Contract preserved EXACTLY: default export, props {slices:ChartSlice[], currency, onSliceClick?}, testids category-donut/donut-total/donut-legend/donut-legend-item, wedge fill = slice.colorVar (--chart-N). No charting lib in the donut now (Recharts still used by SpendTimeSeries until sub-batch 4).
+VERIFY: tsc clean, check:token-classes green (109 files), vite build OK, vitest 137/137, eslint 0 errors.
+PROOF: tests/web-e2e/w7-analytics.spec.ts 2/2 GREEN vs LIVE prod API + user B's seeded analytics (/trends donut desktop+mobile). Screenshot trends-donut-desktop.png — 5 proportional wedges (Minimarket 36.8% … Wholesale 10.1%), count-up "CLP 95,869", legend with swatch/name/amount/%. The SVG arc geometry renders correctly with real data.
+UNDERSTAND: built from the w7-donut-understand workflow (4 parallel extractors: donut geometry, verbatim utils, web data-wiring contract, ECharts go/no-go). ECharts verdict = GO (echarts@6.1.0 + echarts-for-react@3.0.6, native ESM, no recharts/es-toolkit Vite issue, React 19 peerDeps OK) — install deferred to sub-batch 3 (Sankey). Blueprint: .kdbp/W7-BLUEPRINT.md.
+NEXT: sub-batch 2 treemap (squarified layout), 3 Sankey (ECharts), 4 trends route (Dona/Mapa/Flujo switcher) + full W7 proof.
+- 2026-06-26 09:15 | Write | /home/khujta/projects/apps/gastify/web/src/lib/treemapLayout.ts
+- 2026-06-26 09:16 | Write | /home/khujta/projects/apps/gastify/web/src/components/charts/Treemap.tsx
+
+## 2026-06-26 09:30 — [commit] W7 sub-batches 2-4: treemap + ECharts Sankey + Dona/Mapa/Flujo route (chart-engine swap COMPLETE)
+SCOPE: web/src/lib/treemapLayout.ts (squarify, ported verbatim, zero-dep) + web/src/components/charts/Treemap.tsx (density-adaptive geometric cells, soft color-mix tint) + web/src/components/charts/SankeyChart.tsx (echarts@6.1.0 + echarts-for-react@3.0.6, SVG renderer, tree→nodes/links L1→L3, colors resolved from --chart-N tokens) + web/src/routes/trends.tsx rewritten geometric with the Dona·Mapa·Flujo RepresentationBar switcher (wires donut/treemap/sankey) + geometric TemporalBar/LevelBar/period-stepper + i18n keys (trends.repr.donut/treemap/flow es/en/pt). CategoryDonut + useCountUp refactored for the new react-hooks lint rules (pure buildWedges helper, inner DonutRing with async rAF entrance, async reduced-motion snap). SpendTimeSeries kept on Recharts (time-series, not one of the 3 distribution representations) inside a geometric Card.
+DEPS: +echarts@6.1.0 +echarts-for-react@3.0.6 (research GO — native ESM, no recharts/es-toolkit Vite hazard; bundles to a lazy 378KB-gzip SankeyChart chunk, only loaded on Flujo). 2 pre-existing js-yaml/redocly moderate vulns unrelated.
+VERIFY: tsc clean, check:token-classes green (112 files), vite build OK (echarts lazy chunk), vitest 137/137, eslint 0 errors. Contract preserved: all trends testids (period-stepper/prev/label/next, temporal-bar, temporal-pill-*, level-bar, level-pill-*, trends-no-series) + chart testids; new repr-pill-* / treemap / treemap-cell / sankey-chart.
+PROOF: tests/web-e2e/w7-analytics.spec.ts — Dona·Mapa·Flujo desktop + donut mobile vs LIVE prod API + user B's seeded analytics. Screenshots trends-{donut,treemap,sankey}-desktop.png all GREEN: donut 5 proportional wedges + count-up; treemap squarified (Minimarket 37% … Wholesale 10%); ECharts Sankey 3-level flow (L1 industries → L2 store types → L3 item families) with source-colored ribbons. (First desktop run flaked on cold Vite echarts dev-optimize >15s; passes warm.) Completes W7 Exec.
+PLAN: Phase 7 Exec ✅ Commit ✅ (Review/Push pending).
+
+## 2026-06-26 09:35 — PHASE 7 REVIEW: W7 · Analytics (chart-engine swap)
+VERDICT: APPROVE
+FINDINGS: 2 total (0 critical, 0 high, 1 medium, 1 low) — F1 echarts full-import 378KB-gzip lazy chunk (tree-shake available); F2 analytics fidelity follow-ups (SpendTimeSeries still Recharts, slice-drill, treemap icons, Sankey icon-overlay).
+COVERAGE: MEDIUM-HIGH — vitest 137/137 (renders the donut) + all THREE representations live-proven via Playwright screenshots vs user B's seeded analytics (donut/treemap/sankey).
+CONFIDENCE: 88/100
+DEFERRED: P97 (echarts tree-shake, scale/medium), P98 (analytics fidelity polish, mvp/low → Wf).
+ALIGNMENT: ALIGNED — full chart-engine swap (the user-chosen path); 12 files = W7 scope.
+TIER: ent | DRIFT: none (view-only presentation-engine swap; insights data-layer untouched)
+TICK: ✅ (Phase 7 Review)
