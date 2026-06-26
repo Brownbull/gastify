@@ -28,7 +28,7 @@ Migrate the **Playful Geometric** design system from `design-lab/` into the live
 | 7 | W7 · Analytics — trends + spending | Heaviest port: SpendingScreen (donut/treemap/sankey), CategoryDetail, `trends` route; recharts → design-lab hand-built donut/treemap + ECharts Sankey; drill + count-up interactions (DM-10); responsive + a11y. | ent | high | ✅ | ✅ | ✅ | ✅ |
 | 8 | W8 · Reports | `reports` route ↔ ReportCard/ReportDetail/ReportViewer; DM-34 static point-in-time snapshots, 4 timeframes (weekly/monthly/quarterly/annual). | mvp | med | ✅ | ✅ | ✅ | ✅ |
 | 9 | W9 · Groups | Groups, GroupDetail, InviteJoin, ShareTransactions; multi-user surfaces wired to existing group hooks. | mvp | med | ✅ | ✅ | ✅ | ✅ |
-| 10 | W10 · Dashboard (index) | HomeScreen: month treemap/trend + gravity-center insights; the landing screen — done last so every component exists. | ent | high | ✅ | ✅ | ✅ | ⬜ |
+| 10 | W10 · Dashboard (index) | HomeScreen: month treemap/trend + gravity-center insights; the landing screen — done last so every component exists. | ent | high | ✅ | ✅ | ✅ | ✅ |
 | 11 | Wf · Cleanup + visual-regression sweep | Remove dead warm-palette CSS + theme switcher + superseded web components; full Playwright visual-regression across routes × (mobile/desktop); update e2e; confirm `check:token-classes` in CI. | ent | med-high | ⬜ | ⬜ | ⬜ | ⬜ |
 
 <!-- Exec is written by /gabe-execute: ⬜ not started, 🔄 in progress, ✅ complete -->
@@ -219,7 +219,7 @@ decisions_entry: D98
 
 ## Current Phase
 
-Phase 10: W10 · Dashboard (index) (tier ent)
+Phase 11: Wf · Cleanup + visual-regression sweep (tier ent)
 
 ## Dependencies
 
