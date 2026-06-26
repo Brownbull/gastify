@@ -20,12 +20,9 @@ export function ShareToGroupButton({ transactionId }: { transactionId: string })
   return (
     <div
       data-testid="share-to-group"
-      className="flex flex-wrap items-center gap-2 rounded-xl border p-3"
-      style={{ borderColor: "var(--border)", backgroundColor: "var(--surface)" }}
+      className="flex flex-wrap items-center gap-gt-8 rounded-gt-2xl border-2 border-gt-line-strong bg-gt-surface p-gt-12 shadow-gt-sm"
     >
-      <span className="text-sm font-medium" style={{ color: "var(--text-secondary)" }}>
-        {t("group.shareToGroup")}
-      </span>
+      <span className="text-gt-sm font-extrabold text-gt-ink-2">{t("group.shareToGroup")}</span>
       <select
         value={groupId}
         onChange={(event) => {
@@ -34,8 +31,7 @@ export function ShareToGroupButton({ transactionId }: { transactionId: string })
           setGroupId(event.target.value);
         }}
         aria-label={t("group.shareToGroup")}
-        className="rounded-lg border bg-transparent px-2 py-1 text-sm"
-        style={{ borderColor: "var(--border)", color: "var(--text-secondary)" }}
+        className="rounded-gt-lg border-2 border-gt-line bg-gt-surface px-gt-8 py-gt-6 text-gt-sm font-bold text-gt-ink focus-visible:outline-none focus-visible:border-gt-line-strong"
       >
         <option value="">—</option>
         {groups.map((group) => (
@@ -48,14 +44,12 @@ export function ShareToGroupButton({ transactionId }: { transactionId: string })
         type="button"
         disabled={!groupId || share.isPending || share.isSuccess}
         onClick={() => share.mutate({ groupId, transactionId })}
-        className="rounded-lg px-3 py-1.5 text-sm font-medium disabled:opacity-50"
-        style={{ backgroundColor: "var(--primary)", color: "white" }}
+        className="rounded-gt-lg border-2 border-gt-line-strong bg-gt-primary px-gt-12 py-gt-6 font-gt-display text-gt-sm font-extrabold text-white shadow-gt-xs transition hover:-translate-y-0.5 disabled:translate-y-0 disabled:opacity-50"
       >
         {share.isSuccess ? t("group.shared") : t("group.share")}
       </button>
       {share.isError && (
-        <span className="text-xs" role="alert" data-testid="share-error"
-              style={{ color: "var(--danger, #dc2626)" }}>
+        <span className="text-gt-xs font-bold text-gt-error" role="alert" data-testid="share-error">
           {t("group.shareError")}
         </span>
       )}
