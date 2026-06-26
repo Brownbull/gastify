@@ -5546,3 +5546,13 @@ FINDINGS: 0 critical · tsc clean · check:token-classes green (108 files) · vi
 SCOPE: web/src/routes/statements.tsx (623→geometric: Upload/Alias/Recent panels + StatusPanel as Cards, geometric inputs, dashed PDF dropzone, Badge phase, progress bars, Button) + web/src/components/StatementReconciliationPanel.tsx (geometric metrics tiles + pill bucket tabs + bordered table + Badge warning/edited tones + Button add-transaction). View-only; SSE hook (useStatementStream) + all reconcile/upload/alias logic + text strings preserved (statements not i18n'd — hardcoded English kept per standing rule). Completes W6 Exec (scan+batch landed in 2ce3895).
 RUNTIME PROOF: tests/web-e2e/w6-scan-statements.spec.ts 4/4 GREEN vs LIVE prod API (user B): /scan idle dropzone (desktop+mobile), /scan-batch, /statements 2-col upload+status. Screenshots: tests/web-e2e/proof/w6-scan-statements/ — geometric grammar confirmed (IconTile-framed camera dropzone, ink-bordered Cards, dashed PDF zone, violet buttons). Idle/upload states proven; SSE progress/result/reconciliation-bucket states need an in-flight scan.
 PLAN: Phase 6 Exec ✅ Commit ✅ (Review/Push pending).
+
+## 2026-06-26 00:30 — PHASE 6 REVIEW: W6 · Scan (single+batch+statements)
+VERDICT: WARNING
+FINDINGS: 2 total (0 critical, 0 high, 1 medium, 1 low) — F1 SSE data-state visual proof deferred (idle/upload proven + unit-rendered; live in-flight states not screenshotted); F2 scan/statements hardcoded English (pre-existing).
+COVERAGE: MEDIUM — vitest 137/137 unit-renders the SSE-state components with mock data + idle/upload runtime proof (w6-scan-statements 4/4); live-data SSE screenshots deferred.
+CONFIDENCE: 84/100
+DEFERRED: P95 (SSE data-state proof, ent/medium → targeted proof or Ladle render), P96 (scan/statements i18n, mvp/low → Wf/i18n sweep).
+ALIGNMENT: ALIGNED — 10 files = exactly W6 scope (scan+batch+statements+reconciliation+proof spec).
+TIER: ent | DRIFT: none (view-only restyle; SSE hooks untouched)
+TICK: ✅ (Phase 6 Review — WARNING permits tick; no unresolved CRITICAL/HIGH above gate)
