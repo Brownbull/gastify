@@ -5556,3 +5556,10 @@ DEFERRED: P95 (SSE data-state proof, ent/medium → targeted proof or Ladle rend
 ALIGNMENT: ALIGNED — 10 files = exactly W6 scope (scan+batch+statements+reconciliation+proof spec).
 TIER: ent | DRIFT: none (view-only restyle; SSE hooks untouched)
 TICK: ✅ (Phase 6 Review — WARNING permits tick; no unresolved CRITICAL/HIGH above gate)
+
+## 2026-06-26 00:38 — PUSH feat/web-migration -> main (W6 PR #10, MERGED)
+PR: https://github.com/Brownbull/gastify/pull/10 (#10) — MERGED to main (81eef6e). 4-commit delta (e26810e W5-deploy-bk + 2ce3895 W6-scan+batch + 306d992 W6-statements + 4a8db3d W6-review-bk).
+CI: 14/14 all green (Web Build·Lint·Test·Typecheck + Backend Test·Typecheck + Mobile Test·Typecheck·Audit·API-Drift + SCA + Secret Scan + GitGuardian + Custom Gates). 0 failures.
+PROMOTION: N/A — D97 production-direct. User confirmed the prod-deploy merge.
+DEPLOYMENTS: P92 (W6 merge #10). Live-verified: prod bundle flipped DC7H52QQ→DQRG07aM (W6 scan/statements code present), deployed-prod boots clean.
+PLAN: Phase 6 Push ✅ — W6 COMPLETE (Exec/Review/Commit/Push all ✅). Current Phase advanced to Phase 7 (W7 · Analytics).
