@@ -5659,3 +5659,15 @@ CI: web + SCA + security all green; Backend/Mobile Test finishing (web-only chan
 PROMOTION: N/A — D97 production-direct. User confirmed the prod-deploy merge.
 DEPLOYMENTS: P95 (W9 merge #13). Live-verified: prod bundle flipped DFxu8LNU→AFJnAe1p, deployed-prod boots clean.
 PLAN: Phase 9 Push ✅ — W9 COMPLETE (Exec/Review/Commit/Push all ✅). Current Phase advanced to Phase 10 (W10 · Dashboard, tier ent — the landing screen, done last so all components exist). 9 of 11 phases shipped to production.
+- 2026-06-26 10:54 | Edit | /home/khujta/projects/apps/gastify/web/src/routes/index.tsx
+- 2026-06-26 10:54 | Edit | /home/khujta/projects/apps/gastify/web/src/routes/index.tsx
+- 2026-06-26 10:54 | Edit | /home/khujta/projects/apps/gastify/web/src/routes/index.tsx
+- 2026-06-26 10:55 | Write | /home/khujta/projects/apps/gastify/web/src/components/insights/widgets.tsx
+- 2026-06-26 10:55 | Edit | /home/khujta/projects/apps/gastify/web/src/components/insights/widgets.tsx
+
+## 2026-06-26 11:05 — [commit] W10 · Dashboard geometric port (the landing screen)
+SCOPE: web/src/routes/index.tsx (dashboard: scope banner, header+PeriodStepper+viewTrends, SummaryStats, top-categories Card w/ W7 donut + DimensionToggle + DrillBreadcrumb, "what's shifting" GravityCenters, ExcludedItems, voided/empty branches) + web/src/components/insights/widgets.tsx (SHARED — SummaryStats/DimensionToggle/DrillBreadcrumb/CategoryList/GravityCenters/ExcludedItems/PeriodStepper/ChartFallback/InsightsSkeleton all geometric; also retroactively geometric-izes reports' imported PeriodStepper). PRESENTATION-ONLY: <h1> "Dashboard" heading, PeriodStepper month input aria-label="Month", DimensionToggle role=group/aria-pressed/"By store"/"By item", DrillBreadcrumb drill-breadcrumb testid + "All categories" button + aria-current, the CategoryDonut legend 2nd-span-is-label drill structure (W7-preserved), all testids (total-spend, dashboard-scope-banner/voided/empty, donut-error/empty), i18n keys (6 English values locked), gravity growth=negative/shrink=positive semantics — all preserved per the W10 contract.
+VERIFY: tsc clean, check:token-classes green (112 files), vite build OK, vitest 137/137 (incl. -index.test.tsx dashboard drill L1→L4 + total-spend contract), eslint 0 errors.
+PROOF: tests/web-e2e/w10-dashboard.spec.ts 2/2 GREEN vs LIVE prod API + user B's seeded data (desktop+mobile). Screenshot dashboard-desktop.png: geometric header + 3 SummaryStats tiles (TOTAL SPEND 121,964 / 13 / 33) + Top-categories Card (W7 donut + By-store/By-item) + "What's shifting" gravity card (Corner Store ▲ GROWTH red 1.58×, Open Market/Wholesale ▼ SHRINK green) — inverted spending-semantics pills correct.
+UNDERSTAND: built from the w10-dashboard-understand workflow (2 parallel extractors: design-lab HomeScreen blueprint + the dashboard/shared-widgets testid/aria/hook contract across 3 specs).
+PLAN: Phase 10 Exec ✅ Commit ✅ (Review/Push pending). 10 of 11 phases built.

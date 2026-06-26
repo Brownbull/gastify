@@ -38,35 +38,25 @@ function DashboardPage() {
   const activeScope = useUiStore((s) => s.activeScope);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-gt-16">
       {activeScope.kind === "group" && (
         <p
           data-testid="dashboard-scope-banner"
-          className="rounded-lg px-3 py-2 text-sm font-semibold"
-          style={{ backgroundColor: "var(--primary-light)", color: "var(--primary)" }}
+          className="rounded-gt-xl border-2 border-gt-line-strong bg-gt-primary-soft px-gt-12 py-gt-8 text-gt-sm font-extrabold text-gt-primary"
         >
           🏠 {t("group.activeBanner")}: {activeScope.name}
         </p>
       )}
-      <header className="flex flex-wrap items-end justify-between gap-3">
+      <header className="flex flex-wrap items-end justify-between gap-gt-10">
         <div>
-          <h1 className="text-2xl font-semibold" style={{ color: "var(--text)" }}>
-            {t("dashboard.title")}
-          </h1>
-          <p className="text-sm" style={{ color: "var(--text-muted)" }}>
-            {t("dashboard.subtitle")}
-          </p>
+          <h1 className="font-gt-display text-gt-4xl font-extrabold text-gt-ink">{t("dashboard.title")}</h1>
+          <p className="mt-gt-2 text-gt-sm font-medium text-gt-ink-2">{t("dashboard.subtitle")}</p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-gt-8">
           <PeriodStepper period={period} atCurrent={atCurrent} onChange={setPeriod} />
           <Link
             to="/trends"
-            className="rounded-md border px-3 py-1.5 text-sm font-medium"
-            style={{
-              borderColor: "var(--border)",
-              color: "var(--primary)",
-              backgroundColor: "var(--surface)",
-            }}
+            className="rounded-gt-lg border-2 border-gt-line-strong bg-gt-surface px-gt-12 py-gt-6 text-gt-sm font-extrabold text-gt-primary shadow-gt-xs transition hover:bg-gt-bg-3"
           >
             {t("dashboard.viewTrends")}
           </Link>
@@ -76,20 +66,8 @@ function DashboardPage() {
       {isLoading && <InsightsSkeleton />}
 
       {error && (
-        <div
-          className="rounded-lg border p-6 text-center"
-          style={{
-            borderColor: "var(--negative-primary)",
-            backgroundColor: "var(--negative-bg)",
-          }}
-          role="alert"
-        >
-          <p
-            className="text-sm font-medium"
-            style={{ color: "var(--negative-primary)" }}
-          >
-            {t("dashboard.loadError")}
-          </p>
+        <div className="rounded-gt-2xl border-2 border-gt-error bg-gt-error/5 p-gt-16 text-center" role="alert">
+          <p className="text-gt-sm font-bold text-gt-error">{t("dashboard.loadError")}</p>
         </div>
       )}
 
@@ -119,13 +97,10 @@ function DashboardContent({ data, period }: { data: MonthlyInsights; period: str
           : "dashboard.voided";
     return (
       <div
-        className="rounded-lg border p-10 text-center"
-        style={{ borderColor: "var(--border)", backgroundColor: "var(--surface)" }}
+        className="rounded-gt-2xl border-2 border-dashed border-gt-line-strong bg-gt-surface p-gt-24 text-center"
         data-testid="dashboard-voided"
       >
-        <p className="text-sm" style={{ color: "var(--text-muted)" }}>
-          {t(reasonKey)}
-        </p>
+        <p className="text-gt-sm font-medium text-gt-ink-3">{t(reasonKey)}</p>
       </div>
     );
   }
@@ -133,13 +108,10 @@ function DashboardContent({ data, period }: { data: MonthlyInsights; period: str
   if (data.transaction_count === 0) {
     return (
       <div
-        className="rounded-lg border p-10 text-center"
-        style={{ borderColor: "var(--border)", backgroundColor: "var(--surface)" }}
+        className="rounded-gt-2xl border-2 border-dashed border-gt-line-strong bg-gt-surface p-gt-24 text-center"
         data-testid="dashboard-empty"
       >
-        <p className="text-sm" style={{ color: "var(--text-muted)" }}>
-          {t("dashboard.empty")}
-        </p>
+        <p className="text-gt-sm font-medium text-gt-ink-3">{t("dashboard.empty")}</p>
       </div>
     );
   }
@@ -152,21 +124,16 @@ function DashboardContent({ data, period }: { data: MonthlyInsights; period: str
     : [];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-gt-16">
       <SummaryStats data={data} />
 
-      <section
-        className="rounded-lg border p-5"
-        style={{ backgroundColor: "var(--surface)", borderColor: "var(--border)" }}
-      >
-        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-          <h2 className="text-sm font-semibold" style={{ color: "var(--text)" }}>
-            {t("dashboard.topCategories")}
-          </h2>
+      <section className="rounded-gt-2xl border-2 border-gt-line-strong bg-gt-surface p-gt-16 shadow-gt-md">
+        <div className="mb-gt-12 flex flex-wrap items-center justify-between gap-gt-10">
+          <h2 className="font-gt-display text-gt-md font-extrabold text-gt-ink">{t("dashboard.topCategories")}</h2>
           <DimensionToggle dimension={dimension} onChange={setDimension} />
         </div>
         {drill.path.length > 0 && (
-          <div className="mb-3">
+          <div className="mb-gt-10">
             <DrillBreadcrumb
               trail={drill.path.map((node) => ({ key: node.key, label: node.label }))}
               onCrumb={drill.jumpTo}
@@ -176,21 +143,12 @@ function DashboardContent({ data, period }: { data: MonthlyInsights; period: str
         )}
         {tree.isLoading && <ChartFallback />}
         {!tree.isLoading && tree.isError && (
-          <p
-            className="py-8 text-center text-sm"
-            style={{ color: "var(--negative-primary)" }}
-            role="alert"
-            data-testid="donut-error"
-          >
+          <p className="py-gt-24 text-center text-gt-sm font-bold text-gt-error" role="alert" data-testid="donut-error">
             {t("dashboard.loadError")}
           </p>
         )}
         {!tree.isLoading && !tree.isError && slices.length === 0 && (
-          <p
-            className="py-8 text-center text-sm"
-            style={{ color: "var(--text-muted)" }}
-            data-testid="donut-empty"
-          >
+          <p className="py-gt-24 text-center text-gt-sm font-medium text-gt-ink-3" data-testid="donut-empty">
             {t("dashboard.empty")}
           </p>
         )}

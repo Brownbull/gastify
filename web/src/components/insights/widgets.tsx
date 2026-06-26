@@ -1,7 +1,8 @@
 /**
  * Insights presentational widgets, extracted from the former /insights route so
- * the dashboard (home) and /trends share one implementation (D68 — dashboard
- * absorbs /insights). All strings go through i18n; colors via theme CSS vars.
+ * the dashboard (home), /trends and /reports share one implementation (D68).
+ * Geometric (W10): gt-* tokens + Playful Geometric framing. All strings go
+ * through i18n; locked surface (testids, aria) preserved per the W10 contract.
  */
 import type { ReactNode } from "react";
 import { useI18n } from "@/hooks/useI18n";
@@ -18,13 +19,11 @@ type ExcludedItem = components["schemas"]["InsightExcludedItemSummary"];
 export function SummaryStats({ data }: { data: MonthlyInsights }) {
   const { t } = useI18n();
   return (
-    <div className="grid gap-4 sm:grid-cols-3">
+    <div className="grid gap-gt-10 sm:grid-cols-3">
       <Stat label={t("dashboard.totalSpend")} testId="total-spend">
         {formatMinorAmount(data.total_spend_minor, data.currency)}
       </Stat>
-      <Stat label={t("dashboard.transactions")}>
-        {data.transaction_count.toLocaleString()}
-      </Stat>
+      <Stat label={t("dashboard.transactions")}>{data.transaction_count.toLocaleString()}</Stat>
       <Stat label={t("dashboard.items")}>{data.item_count.toLocaleString()}</Stat>
     </div>
   );
@@ -40,18 +39,9 @@ function Stat({
   testId?: string;
 }) {
   return (
-    <div
-      className="rounded-lg border p-4"
-      style={{ backgroundColor: "var(--surface)", borderColor: "var(--border)" }}
-    >
-      <p className="text-xs" style={{ color: "var(--text-muted)" }}>
-        {label}
-      </p>
-      <p
-        data-testid={testId}
-        className="mt-1 text-xl font-semibold tabular-nums"
-        style={{ color: "var(--text)" }}
-      >
+    <div className="rounded-gt-xl border-2 border-gt-line-strong bg-gt-surface p-gt-12 shadow-gt-xs">
+      <p className="text-gt-xs font-extrabold uppercase tracking-wide text-gt-ink-3">{label}</p>
+      <p data-testid={testId} className="mt-gt-2 font-gt-display text-gt-xl font-extrabold tabular-nums text-gt-ink">
         {children}
       </p>
     </div>
@@ -73,8 +63,7 @@ export function DimensionToggle({
 
   return (
     <div
-      className="inline-flex rounded-lg border p-0.5 text-xs"
-      style={{ borderColor: "var(--border)" }}
+      className="inline-flex gap-0.5 rounded-gt-pill border-2 border-gt-line-strong bg-gt-surface p-0.5"
       role="group"
       aria-label="Rollup dimension"
     >
@@ -86,11 +75,9 @@ export function DimensionToggle({
             type="button"
             aria-pressed={active}
             onClick={() => onChange(option.value)}
-            className="rounded-md px-3 py-1 font-medium transition-colors"
-            style={{
-              backgroundColor: active ? "var(--primary-light)" : "transparent",
-              color: active ? "var(--primary)" : "var(--text-secondary)",
-            }}
+            className={`rounded-gt-pill px-gt-10 py-gt-4 text-gt-xs font-extrabold transition ${
+              active ? "bg-gt-primary text-white" : "text-gt-ink-2 hover:text-gt-ink"
+            }`}
           >
             {option.label}
           </button>
@@ -113,42 +100,31 @@ export function DrillBreadcrumb({
 }) {
   const { t } = useI18n();
   return (
-    <div className="flex flex-wrap items-center gap-2" data-testid="drill-breadcrumb">
+    <div className="flex flex-wrap items-center gap-gt-6" data-testid="drill-breadcrumb">
       <button
         type="button"
         onClick={onBack}
         aria-label={t("chart.back")}
-        className="rounded-md border px-2 py-1 text-xs font-medium"
-        style={{
-          borderColor: "var(--border)",
-          color: "var(--primary)",
-          backgroundColor: "var(--surface)",
-        }}
+        className="rounded-gt-lg border-2 border-gt-line-strong bg-gt-surface px-gt-8 py-gt-4 text-gt-xs font-extrabold text-gt-primary shadow-gt-xs transition hover:bg-gt-bg-3"
       >
         ‹ {t("chart.back")}
       </button>
-      <nav className="flex flex-wrap items-center gap-1 text-xs" aria-label="Drill path">
-        <button
-          type="button"
-          onClick={() => onCrumb(-1)}
-          className="font-medium hover:underline"
-          style={{ color: "var(--text-secondary)" }}
-        >
+      <nav className="flex flex-wrap items-center gap-gt-4 text-gt-xs" aria-label="Drill path">
+        <button type="button" onClick={() => onCrumb(-1)} className="font-extrabold text-gt-ink-2 hover:underline">
           {t("chart.allCategories")}
         </button>
         {trail.map((crumb, index) => {
           const isLast = index === trail.length - 1;
           return (
-            <span key={crumb.key} className="flex items-center gap-1">
-              <span aria-hidden="true" style={{ color: "var(--text-muted)" }}>
+            <span key={crumb.key} className="flex items-center gap-gt-4">
+              <span aria-hidden="true" className="text-gt-ink-3">
                 ›
               </span>
               <button
                 type="button"
                 onClick={() => onCrumb(index)}
                 aria-current={isLast ? "page" : undefined}
-                className="font-medium hover:underline"
-                style={{ color: isLast ? "var(--text)" : "var(--text-secondary)" }}
+                className={`font-extrabold hover:underline ${isLast ? "text-gt-ink" : "text-gt-ink-2"}`}
               >
                 {crumb.label}
               </button>
@@ -163,51 +139,30 @@ export function DrillBreadcrumb({
 export function CategoryList({ rows }: { rows: CategoryRollup[] }) {
   const { t } = useI18n();
   if (rows.length === 0) {
-    return (
-      <p className="px-5 py-6 text-sm" style={{ color: "var(--text-muted)" }}>
-        {t("insights.noCategories")}
-      </p>
-    );
+    return <p className="px-gt-16 py-gt-16 text-gt-sm font-medium text-gt-ink-3">{t("insights.noCategories")}</p>;
   }
 
   return (
-    <ul className="px-5 py-3">
+    <ul className="divide-y-2 divide-gt-line px-gt-16 py-gt-6">
       {rows.map((row) => (
-        <li
-          key={`${row.dimension}:${row.category_key}`}
-          className="border-b py-3 last:border-b-0"
-          style={{ borderColor: "var(--border)" }}
-        >
-          <div className="flex items-baseline justify-between gap-3">
+        <li key={`${row.dimension}:${row.category_key}`} className="py-gt-10">
+          <div className="flex items-baseline justify-between gap-gt-10">
             <div className="min-w-0">
-              <span className="font-medium" style={{ color: "var(--text)" }}>
-                {row.label}
-              </span>
-              <span className="ml-2 text-xs" style={{ color: "var(--text-muted)" }}>
-                {row.parent_label}
-              </span>
+              <span className="font-bold text-gt-ink">{row.label}</span>
+              <span className="ml-gt-4 text-gt-xs font-medium text-gt-ink-3">{row.parent_label}</span>
             </div>
-            <span className="shrink-0 tabular-nums" style={{ color: "var(--text)" }}>
+            <span className="shrink-0 font-extrabold tabular-nums text-gt-ink">
               {formatMinorAmount(row.total_minor, row.currency)}
             </span>
           </div>
-          <div className="mt-1.5 flex items-center gap-2">
-            <div
-              className="h-1.5 flex-1 overflow-hidden rounded-full"
-              style={{ backgroundColor: "var(--bg-secondary)" }}
-            >
+          <div className="mt-gt-4 flex items-center gap-gt-8">
+            <div className="h-2 flex-1 overflow-hidden rounded-gt-pill border-2 border-gt-line-strong bg-gt-bg-3">
               <div
-                className="h-full rounded-full"
-                style={{
-                  width: `${parsePercent(row.share_of_total_percent)}%`,
-                  backgroundColor: "var(--primary)",
-                }}
+                className="h-full rounded-gt-pill bg-gt-primary"
+                style={{ width: `${parsePercent(row.share_of_total_percent)}%` }}
               />
             </div>
-            <span
-              className="w-12 shrink-0 text-right text-xs tabular-nums"
-              style={{ color: "var(--text-muted)" }}
-            >
+            <span className="w-12 shrink-0 text-right text-gt-xs font-bold tabular-nums text-gt-ink-3">
               {row.share_of_total_percent}%
             </span>
           </div>
@@ -220,46 +175,28 @@ export function CategoryList({ rows }: { rows: CategoryRollup[] }) {
 export function GravityCenters({ centers }: { centers: GravityCenter[] }) {
   const { t } = useI18n();
   return (
-    <section
-      className="rounded-lg border"
-      style={{ backgroundColor: "var(--surface)", borderColor: "var(--border)" }}
-    >
-      <h2
-        className="px-5 pt-4 pb-2 text-sm font-semibold"
-        style={{ color: "var(--text)" }}
-      >
+    <section className="rounded-gt-2xl border-2 border-gt-line-strong bg-gt-surface shadow-gt-sm">
+      <h2 className="px-gt-16 pt-gt-12 pb-gt-6 font-gt-display text-gt-md font-extrabold text-gt-ink">
         {t("dashboard.whatsShifting")}
       </h2>
-      <ul className="px-5 pb-3">
+      <ul className="divide-y-2 divide-gt-line px-gt-16 pb-gt-8">
         {centers.map((center) => {
+          // Spending semantics (inverted): growth = spent more = negative tone.
           const growing = center.direction === "growth";
-          const accent = growing ? "var(--negative-primary)" : "var(--positive-primary)";
+          const toneClass = growing ? "border-gt-negative text-gt-negative" : "border-gt-positive text-gt-positive";
           return (
-            <li
-              key={`${center.dimension}:${center.category_key}`}
-              className="flex items-start gap-3 border-b py-3 last:border-b-0"
-              style={{ borderColor: "var(--border)" }}
-            >
-              <span
-                aria-hidden="true"
-                className="mt-0.5 text-lg leading-none"
-                style={{ color: accent }}
-              >
+            <li key={`${center.dimension}:${center.category_key}`} className="flex items-start gap-gt-8 py-gt-10">
+              <span aria-hidden="true" className={`mt-0.5 text-gt-lg leading-none ${growing ? "text-gt-negative" : "text-gt-positive"}`}>
                 {growing ? "▲" : "▼"}
               </span>
               <div className="min-w-0">
-                <span className="font-medium" style={{ color: "var(--text)" }}>
-                  {center.label}
-                </span>
+                <span className="font-gt-display font-extrabold text-gt-ink">{center.label}</span>
                 <span
-                  className="ml-2 text-xs font-medium uppercase"
-                  style={{ color: accent }}
+                  className={`ml-gt-6 inline-flex items-center rounded-gt-pill border-2 bg-gt-surface px-gt-6 py-gt-2 text-gt-xs font-extrabold uppercase ${toneClass}`}
                 >
                   {growing ? t("insights.growth") : t("insights.shrink")}
                 </span>
-                <p className="text-xs" style={{ color: "var(--text-muted)" }}>
-                  {center.explanation}
-                </p>
+                <p className="text-gt-xs font-medium text-gt-ink-3">{center.explanation}</p>
               </div>
             </li>
           );
@@ -272,27 +209,16 @@ export function GravityCenters({ centers }: { centers: GravityCenter[] }) {
 export function ExcludedItems({ items }: { items: ExcludedItem[] }) {
   const { t } = useI18n();
   return (
-    <section
-      className="rounded-lg border p-5"
-      style={{ backgroundColor: "var(--surface)", borderColor: "var(--border)" }}
-    >
-      <h2 className="text-sm font-semibold" style={{ color: "var(--text)" }}>
-        {t("insights.excludedTitle")}
-      </h2>
-      <p className="mt-1 text-xs" style={{ color: "var(--text-muted)" }}>
-        {t("insights.excludedDesc")}
-      </p>
-      <ul className="mt-3 space-y-1.5">
+    <section className="rounded-gt-2xl border-2 border-gt-line-strong bg-gt-surface p-gt-16 shadow-gt-sm">
+      <h2 className="font-gt-display text-gt-md font-extrabold text-gt-ink">{t("insights.excludedTitle")}</h2>
+      <p className="mt-gt-2 text-gt-xs font-medium text-gt-ink-3">{t("insights.excludedDesc")}</p>
+      <ul className="mt-gt-8 space-y-gt-4">
         {items.map((item) => (
-          <li
-            key={item.flag_kind}
-            className="flex items-center justify-between text-sm"
-            style={{ color: "var(--text-secondary)" }}
-          >
+          <li key={item.flag_kind} className="flex items-center justify-between text-gt-sm font-bold text-gt-ink-2">
             <span className="capitalize">
               {item.flag_kind.replace("_", " ")} ({item.item_count})
             </span>
-            <span className="tabular-nums">
+            <span className="font-extrabold tabular-nums text-gt-ink">
               {formatMinorAmount(item.total_minor, item.currency)}
             </span>
           </li>
@@ -312,19 +238,15 @@ export function PeriodStepper({
   onChange: (period: string) => void;
 }) {
   const { t } = useI18n();
-  const buttonStyle = {
-    borderColor: "var(--border)",
-    backgroundColor: "var(--surface)",
-    color: "var(--text)",
-  };
+  const stepBtn =
+    "grid h-9 w-9 place-items-center rounded-gt-lg border-2 border-gt-line-strong bg-gt-surface text-gt-sm font-extrabold text-gt-ink shadow-gt-xs transition hover:bg-gt-bg-3 disabled:opacity-40";
   return (
-    <div className="flex items-center gap-1">
+    <div className="flex items-center gap-gt-4">
       <button
         type="button"
         aria-label={t("dashboard.prevMonth")}
         onClick={() => onChange(shiftPeriod(period, -1))}
-        className="rounded-md border px-2 py-1.5 text-sm"
-        style={buttonStyle}
+        className={stepBtn}
       >
         ‹
       </button>
@@ -335,20 +257,14 @@ export function PeriodStepper({
         onChange={(e) => {
           if (e.target.value) onChange(e.target.value);
         }}
-        className="rounded-md border px-2 py-1 text-sm"
-        style={{
-          borderColor: "var(--border)",
-          backgroundColor: "var(--bg-secondary)",
-          color: "var(--text)",
-        }}
+        className="rounded-gt-lg border-2 border-gt-line bg-gt-surface px-gt-8 py-gt-6 text-gt-sm font-bold text-gt-ink focus-visible:outline-none focus-visible:border-gt-line-strong"
       />
       <button
         type="button"
         aria-label={t("dashboard.nextMonth")}
         disabled={atCurrent}
         onClick={() => onChange(shiftPeriod(period, 1))}
-        className="rounded-md border px-2 py-1.5 text-sm disabled:opacity-40"
-        style={buttonStyle}
+        className={stepBtn}
       >
         ›
       </button>
@@ -357,31 +273,18 @@ export function PeriodStepper({
 }
 
 export function ChartFallback() {
-  return (
-    <div
-      className="h-64 animate-pulse rounded-lg"
-      style={{ backgroundColor: "var(--bg-secondary)" }}
-      aria-busy="true"
-    />
-  );
+  return <div className="h-64 animate-pulse rounded-gt-2xl border-2 border-gt-line bg-gt-bg-3" aria-busy="true" />;
 }
 
 export function InsightsSkeleton() {
   return (
-    <div className="space-y-6" aria-busy="true" aria-label="Loading insights">
-      <div className="grid gap-4 sm:grid-cols-3">
+    <div className="space-y-gt-16" aria-busy="true" aria-label="Loading insights">
+      <div className="grid gap-gt-10 sm:grid-cols-3">
         {Array.from({ length: 3 }, (_, i) => (
-          <div
-            key={i}
-            className="h-20 animate-pulse rounded-lg border"
-            style={{ backgroundColor: "var(--surface)", borderColor: "var(--border)" }}
-          />
+          <div key={i} className="h-20 animate-pulse rounded-gt-xl border-2 border-gt-line bg-gt-bg-3" />
         ))}
       </div>
-      <div
-        className="h-64 animate-pulse rounded-lg border"
-        style={{ backgroundColor: "var(--surface)", borderColor: "var(--border)" }}
-      />
+      <div className="h-64 animate-pulse rounded-gt-2xl border-2 border-gt-line bg-gt-bg-3" />
     </div>
   );
 }
