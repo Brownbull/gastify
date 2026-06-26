@@ -5595,3 +5595,10 @@ DEFERRED: P97 (echarts tree-shake, scale/medium), P98 (analytics fidelity polish
 ALIGNMENT: ALIGNED — full chart-engine swap (the user-chosen path); 12 files = W7 scope.
 TIER: ent | DRIFT: none (view-only presentation-engine swap; insights data-layer untouched)
 TICK: ✅ (Phase 7 Review)
+
+## 2026-06-26 09:50 — PUSH feat/web-migration -> main (W7 PR #11, MERGED)
+PR: https://github.com/Brownbull/gastify/pull/11 (#11) — MERGED to main (999b01e). Delta: W6 deploy bk + W7 kickoff/donut/treemap-sankey-route/review bk + the CI-flake fix (2c16090).
+CI: web + SCA + security all green (Web Build·Lint·Test·Typecheck + SCA Audit + Secret/GitGuardian/Custom Gates); Backend/Mobile Test finishing (web-only change, unaffected). 0 failures. NOTE: first run flaked on Web Test (donut findByTestId 1054ms > 1000ms default on slow CI); fixed via asyncUtilTimeout=5000 (2c16090), re-run green.
+PROMOTION: N/A — D97 production-direct. User confirmed the prod-deploy merge.
+DEPLOYMENTS: P93 (W7 merge #11). Live-verified: prod bundle flipped DQRG07aM→DMv-_VxO (W7 treemap+repr-pill markers present), deployed-prod boots clean.
+PLAN: Phase 7 Push ✅ — W7 COMPLETE (Exec/Review/Commit/Push all ✅). Current Phase advanced to Phase 8 (W8 · Reports, tier mvp). 7 of 11 phases shipped to production.
