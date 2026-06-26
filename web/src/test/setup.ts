@@ -1,5 +1,12 @@
 import "@testing-library/jest-dom/vitest";
+import { configure } from "@testing-library/react";
 import { vi } from "vitest";
+
+// CI runners are ~10× slower than local; the 1000ms default findBy/waitFor
+// timeout is too tight for lazy-loaded (Suspense) chart components — give a
+// generous ceiling so slow-CI lazy renders don't flake (tests still resolve fast
+// locally; this is a ceiling, not a delay).
+configure({ asyncUtilTimeout: 5000 });
 
 // Node.js 22+ provides a built-in localStorage via --localstorage-file that can
 // shadow JSDOM's Storage implementation with a broken stub (missing .clear, etc.).
