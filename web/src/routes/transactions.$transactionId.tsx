@@ -9,6 +9,8 @@ import {
 import { useStoreCategories } from "@/hooks/useCategories";
 import { formatMinorAmount, formatDate } from "@/lib/format";
 import { ShareToGroupButton } from "@/components/ShareToGroupButton";
+import { Card } from "@/components/ui/Card";
+import { Badge } from "@/components/ui/Badge";
 import type { components } from "@/lib/api-types";
 
 type TransactionDetail = components["schemas"]["TransactionDetail"];
@@ -20,6 +22,9 @@ const FLAG_OPTIONS: { kind: ItemFlagKind; label: string }[] = [
 ];
 
 type ToggleFlag = (item: TransactionItemResponse, kind: ItemFlagKind) => void;
+
+const inputClass =
+  "rounded-gt-lg border-2 border-gt-line bg-gt-surface px-gt-10 py-gt-6 text-gt-sm font-bold text-gt-ink focus-visible:outline-none focus-visible:border-gt-line-strong";
 
 export const Route = createFileRoute("/transactions/$transactionId")({
   component: TransactionDetailPage,
@@ -43,23 +48,13 @@ function TransactionDetailPage() {
 
   if (error) {
     return (
-      <div className="space-y-4">
+      <div className="space-y-gt-12">
         <BackLink />
         <div
-          className="rounded-lg border p-6 text-center"
-          style={{
-            borderColor: "var(--error)",
-            backgroundColor:
-              "color-mix(in srgb, var(--error) 10%, transparent)",
-          }}
+          className="rounded-gt-xl border-2 border-gt-error bg-gt-error/5 px-gt-16 py-gt-12 text-center"
           role="alert"
         >
-          <p
-            className="text-sm font-medium"
-            style={{ color: "var(--error)" }}
-          >
-            {error.message}
-          </p>
+          <p className="text-gt-sm font-bold text-gt-error">{error.message}</p>
         </div>
       </div>
     );
@@ -72,15 +67,15 @@ function TransactionDetailPage() {
   const locked = txn.is_shared;
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-4">
+    <div className="space-y-gt-16">
+      <div className="flex items-start gap-gt-12">
         <BackLink />
-        <div>
-          <div className="flex items-center gap-2">
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-gt-8">
             <EditableText
               value={txn.merchant}
               onSave={(v) => mutation.mutate({ merchant: v })}
-              className="text-2xl font-semibold"
+              className="font-gt-display text-gt-2xl font-extrabold text-gt-ink"
               editedAt={txn.merchant_user_edited_at}
               locked={locked}
             />
@@ -100,12 +95,7 @@ function TransactionDetailPage() {
       {locked && (
         <div
           data-testid="shared-lock-banner"
-          className="flex items-start gap-2 rounded-lg border px-4 py-3 text-sm"
-          style={{
-            borderColor: "var(--primary)",
-            backgroundColor: "var(--primary-light)",
-            color: "var(--primary)",
-          }}
+          className="flex items-start gap-gt-8 rounded-gt-xl border-2 border-gt-primary bg-gt-primary-soft px-gt-16 py-gt-12 text-gt-sm font-bold text-gt-primary"
         >
           <span aria-hidden>🔒</span>
           <span>
@@ -116,26 +106,7 @@ function TransactionDetailPage() {
       )}
 
       {mutation.error && (
-        <div
-          className="flex items-center justify-between rounded-lg border px-4 py-3"
-          style={{
-            borderColor: "var(--error)",
-            backgroundColor:
-              "color-mix(in srgb, var(--error) 10%, transparent)",
-          }}
-          role="alert"
-        >
-          <p className="text-sm" style={{ color: "var(--error)" }}>
-            {mutation.error.message}
-          </p>
-          <button
-            onClick={() => mutation.reset()}
-            className="text-xs font-medium underline"
-            style={{ color: "var(--error)" }}
-          >
-            Dismiss
-          </button>
-        </div>
+        <DismissibleError message={mutation.error.message} onDismiss={() => mutation.reset()} />
       )}
 
       <SummaryCard
@@ -145,26 +116,7 @@ function TransactionDetailPage() {
       />
 
       {flagMutation.error && (
-        <div
-          className="flex items-center justify-between rounded-lg border px-4 py-3"
-          style={{
-            borderColor: "var(--error)",
-            backgroundColor:
-              "color-mix(in srgb, var(--error) 10%, transparent)",
-          }}
-          role="alert"
-        >
-          <p className="text-sm" style={{ color: "var(--error)" }}>
-            {flagMutation.error.message}
-          </p>
-          <button
-            onClick={() => flagMutation.reset()}
-            className="text-xs font-medium underline"
-            style={{ color: "var(--error)" }}
-          >
-            Dismiss
-          </button>
-        </div>
+        <DismissibleError message={flagMutation.error.message} onDismiss={() => flagMutation.reset()} />
       )}
 
       {txn.items.length > 0 && (
@@ -186,36 +138,43 @@ function BackLink() {
   return (
     <Link
       to="/transactions"
-      className="inline-flex items-center gap-1 text-sm font-medium"
-      style={{ color: "var(--primary)" }}
+      aria-label="Back to transactions"
+      className="grid h-10 w-10 shrink-0 place-items-center rounded-gt-lg border-2 border-gt-line-strong bg-gt-surface text-gt-lg font-extrabold text-gt-ink shadow-gt-xs transition hover:bg-gt-bg-3"
     >
-      <span aria-hidden="true">&larr;</span> Back
+      <span aria-hidden="true">&larr;</span>
     </Link>
+  );
+}
+
+function DismissibleError({ message, onDismiss }: { message: string; onDismiss: () => void }) {
+  return (
+    <div
+      className="flex items-center justify-between gap-gt-8 rounded-gt-xl border-2 border-gt-error bg-gt-error/5 px-gt-16 py-gt-12"
+      role="alert"
+    >
+      <p className="text-gt-sm font-bold text-gt-error">{message}</p>
+      <button
+        onClick={onDismiss}
+        className="shrink-0 text-gt-xs font-extrabold uppercase tracking-wide text-gt-error underline"
+      >
+        Dismiss
+      </button>
+    </div>
   );
 }
 
 function StatementMatchedBadge() {
   return (
-    <span
-      data-testid="txn-matched-badge"
-      className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium"
-      style={{ color: "var(--success, #15803d)", backgroundColor: "var(--success-light, #dcfce7)" }}
-      title="Matched against a card statement"
-    >
-      ✓ Matched
+    <span data-testid="txn-matched-badge" title="Matched against a card statement">
+      <Badge tone="positive">✓ Matched</Badge>
     </span>
   );
 }
 
 function SharedLockBadge() {
   return (
-    <span
-      data-testid="shared-lock-badge"
-      className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium"
-      style={{ color: "var(--primary)", backgroundColor: "var(--primary-light)" }}
-      title="Shared to a group — contents locked"
-    >
-      🔒 Shared
+    <span data-testid="shared-lock-badge" title="Shared to a group — contents locked">
+      <Badge tone="primary">🔒 Shared</Badge>
     </span>
   );
 }
@@ -234,88 +193,61 @@ function SummaryCard({
     txn.store_category_user_edited_at != null;
 
   return (
-    <div
-      className="grid gap-4 rounded-lg border p-5 sm:grid-cols-2 lg:grid-cols-4"
-      style={{
-        backgroundColor: "var(--surface)",
-        borderColor: "var(--border)",
-      }}
-    >
-      <Field label="Total">
-        <span className="text-lg font-semibold tabular-nums">
-          {formatMinorAmount(txn.total_minor, txn.currency)}
-        </span>
-      </Field>
-
-      <Field label="USD equivalent">
-        <span className="tabular-nums">
-          {txn.amount_usd_minor != null
-            ? formatMinorAmount(txn.amount_usd_minor, "USD")
-            : "—"}
-        </span>
-        {txn.fx_rate_to_usd && (
-          <span
-            className="text-xs"
-            style={{ color: "var(--text-muted)" }}
-          >
-            {" "}
-            @ {txn.fx_rate_to_usd}
-          </span>
-        )}
-      </Field>
-
-      <Field label="Merchant">
-        <span>{txn.merchant}</span>
-        {isEdited && (
-          <span
-            className="ml-1.5 text-xs"
-            style={{ color: "var(--secondary)" }}
-            title="User edited"
-          >
-            (edited)
-          </span>
-        )}
-        {txn.alias && (
-          <span
-            className="ml-1.5 text-xs"
-            style={{ color: "var(--text-muted)" }}
-          >
-            {txn.alias}
-          </span>
-        )}
-      </Field>
-
-      <EditableCategory
-        value={txn.store_category_id ?? undefined}
-        onSave={onCategoryChange}
-        editedAt={txn.store_category_user_edited_at}
-        locked={locked}
-      />
-
-      <Field label="Receipt type">
-        {txn.receipt_type ? (
-          <span
-            className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium"
-            style={{
-              color: "var(--primary)",
-              backgroundColor: "var(--primary-light)",
-            }}
-          >
-            {txn.receipt_type}
-          </span>
-        ) : (
-          <span style={{ color: "var(--text-muted)" }}>—</span>
-        )}
-      </Field>
-
-      {txn.country && (
-        <Field label="Location">
-          <span>
-            {txn.city ? `${txn.city}, ${txn.country}` : txn.country}
+    <Card>
+      <div className="grid gap-gt-16 sm:grid-cols-2 lg:grid-cols-4">
+        <Field label="Total">
+          <span className="font-gt-display text-gt-xl font-extrabold tabular-nums text-gt-ink">
+            {formatMinorAmount(txn.total_minor, txn.currency)}
           </span>
         </Field>
-      )}
-    </div>
+
+        <Field label="USD equivalent">
+          <span className="font-bold tabular-nums text-gt-ink">
+            {txn.amount_usd_minor != null
+              ? formatMinorAmount(txn.amount_usd_minor, "USD")
+              : "—"}
+          </span>
+          {txn.fx_rate_to_usd && (
+            <span className="text-gt-xs font-medium text-gt-ink-3"> @ {txn.fx_rate_to_usd}</span>
+          )}
+        </Field>
+
+        <Field label="Merchant">
+          <span className="font-bold text-gt-ink">{txn.merchant}</span>
+          {isEdited && (
+            <span className="ml-gt-2 text-gt-xs font-bold text-gt-secondary" title="User edited">
+              (edited)
+            </span>
+          )}
+          {txn.alias && (
+            <span className="ml-gt-2 text-gt-xs font-medium text-gt-ink-3">{txn.alias}</span>
+          )}
+        </Field>
+
+        <EditableCategory
+          value={txn.store_category_id ?? undefined}
+          onSave={onCategoryChange}
+          editedAt={txn.store_category_user_edited_at}
+          locked={locked}
+        />
+
+        <Field label="Receipt type">
+          {txn.receipt_type ? (
+            <Badge tone="primary">{txn.receipt_type}</Badge>
+          ) : (
+            <span className="font-bold text-gt-ink-3">—</span>
+          )}
+        </Field>
+
+        {txn.country && (
+          <Field label="Location">
+            <span className="font-bold text-gt-ink">
+              {txn.city ? `${txn.city}, ${txn.country}` : txn.country}
+            </span>
+          </Field>
+        )}
+      </div>
+    </Card>
   );
 }
 
@@ -327,11 +259,11 @@ function Field({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col gap-0.5">
-      <span className="text-xs" style={{ color: "var(--text-muted)" }}>
+    <div className="flex flex-col gap-gt-2">
+      <span className="text-gt-xs font-extrabold uppercase tracking-wide text-gt-ink-3">
         {label}
       </span>
-      <div style={{ color: "var(--text)" }}>{children}</div>
+      <div className="text-gt-sm">{children}</div>
     </div>
   );
 }
@@ -346,101 +278,61 @@ function ItemsTable({
   flagPending: boolean;
 }) {
   return (
-    <div
-      className="overflow-x-auto rounded-lg border"
-      style={{
-        backgroundColor: "var(--surface)",
-        borderColor: "var(--border)",
-      }}
-    >
-      <div className="px-5 pt-4 pb-2">
-        <h2
-          className="text-sm font-semibold"
-          style={{ color: "var(--text)" }}
-        >
+    <Card padded={false}>
+      <div className="px-gt-16 pt-gt-12 pb-gt-8">
+        <h2 className="font-gt-display text-gt-md font-extrabold text-gt-ink">
           Line items ({txn.items.length})
         </h2>
-        <p className="text-xs" style={{ color: "var(--text-muted)" }}>
+        <p className="text-gt-xs font-medium text-gt-ink-3">
           Flag an item to keep it out of your monthly insights — it stays here.
         </p>
       </div>
-      <table className="w-full text-sm">
-        <thead>
-          <tr
-            className="border-b text-left"
-            style={{ borderColor: "var(--border)" }}
-          >
-            <th
-              scope="col"
-              className="px-5 py-2 font-medium"
-              style={{ color: "var(--text-muted)" }}
-            >
-              Item
-            </th>
-            <th
-              scope="col"
-              className="hidden px-5 py-2 text-center font-medium sm:table-cell"
-              style={{ color: "var(--text-muted)" }}
-            >
-              Qty
-            </th>
-            <th
-              scope="col"
-              className="hidden px-5 py-2 text-right font-medium sm:table-cell"
-              style={{ color: "var(--text-muted)" }}
-            >
-              Unit price
-            </th>
-            <th
-              scope="col"
-              className="px-5 py-2 text-right font-medium"
-              style={{ color: "var(--text-muted)" }}
-            >
-              Total
-            </th>
-            <th
-              scope="col"
-              className="hidden px-5 py-2 font-medium md:table-cell"
-              style={{ color: "var(--text-muted)" }}
-            >
-              Category
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {txn.items.map((item) => (
-            <ItemRow
-              key={item.id}
-              item={item}
-              currency={txn.currency}
-              onToggleFlag={onToggleFlag}
-              flagPending={flagPending}
-            />
-          ))}
-        </tbody>
-        <tfoot>
-          <tr
-            className="border-t font-medium"
-            style={{ borderColor: "var(--border)" }}
-          >
-            <td
-              className="px-5 py-3"
-              colSpan={3}
-              style={{ color: "var(--text)" }}
-            >
-              Total
-            </td>
-            <td
-              className="px-5 py-3 text-right tabular-nums"
-              style={{ color: "var(--text)" }}
-            >
-              {formatMinorAmount(txn.total_minor, txn.currency)}
-            </td>
-            <td className="hidden md:table-cell" />
-          </tr>
-        </tfoot>
-      </table>
-    </div>
+      <div className="overflow-x-auto">
+        <table className="w-full text-gt-sm">
+          <thead>
+            <tr className="border-b-2 border-gt-line text-left">
+              <th scope="col" className="px-gt-16 py-gt-8 text-gt-xs font-extrabold uppercase tracking-wide text-gt-ink-3">
+                Item
+              </th>
+              <th scope="col" className="hidden px-gt-16 py-gt-8 text-center text-gt-xs font-extrabold uppercase tracking-wide text-gt-ink-3 sm:table-cell">
+                Qty
+              </th>
+              <th scope="col" className="hidden px-gt-16 py-gt-8 text-right text-gt-xs font-extrabold uppercase tracking-wide text-gt-ink-3 sm:table-cell">
+                Unit price
+              </th>
+              <th scope="col" className="px-gt-16 py-gt-8 text-right text-gt-xs font-extrabold uppercase tracking-wide text-gt-ink-3">
+                Total
+              </th>
+              <th scope="col" className="hidden px-gt-16 py-gt-8 text-gt-xs font-extrabold uppercase tracking-wide text-gt-ink-3 md:table-cell">
+                Category
+              </th>
+            </tr>
+          </thead>
+          <tbody className="divide-y-2 divide-gt-line">
+            {txn.items.map((item) => (
+              <ItemRow
+                key={item.id}
+                item={item}
+                currency={txn.currency}
+                onToggleFlag={onToggleFlag}
+                flagPending={flagPending}
+              />
+            ))}
+          </tbody>
+          <tfoot>
+            <tr className="border-t-2 border-gt-line">
+              <td className="px-gt-16 py-gt-12 font-gt-display font-extrabold text-gt-ink" colSpan={3}>
+                Total
+              </td>
+              <td className="px-gt-16 py-gt-12 text-right font-gt-display font-extrabold tabular-nums text-gt-ink">
+                {formatMinorAmount(txn.total_minor, txn.currency)}
+              </td>
+              <td className="hidden md:table-cell" />
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </Card>
   );
 }
 
@@ -456,7 +348,7 @@ function ItemFlagControls({
   const flags = item.flags ?? [];
 
   return (
-    <div className="mt-1 flex flex-wrap gap-1.5">
+    <div className="mt-gt-4 flex flex-wrap gap-gt-4">
       {FLAG_OPTIONS.map((option) => {
         const active = flags.includes(option.kind);
         return (
@@ -466,12 +358,11 @@ function ItemFlagControls({
             aria-pressed={active}
             disabled={flagPending}
             onClick={() => onToggleFlag(item, option.kind)}
-            className="rounded-full border px-2 py-0.5 text-xs font-medium transition-colors disabled:opacity-50"
-            style={{
-              borderColor: active ? "var(--primary)" : "var(--border)",
-              backgroundColor: active ? "var(--primary-light)" : "transparent",
-              color: active ? "var(--primary)" : "var(--text-muted)",
-            }}
+            className={`rounded-gt-pill border-2 px-gt-8 py-gt-2 text-gt-xs font-extrabold transition disabled:opacity-50 ${
+              active
+                ? "border-gt-line-strong bg-gt-primary text-white"
+                : "border-gt-line bg-gt-surface text-gt-ink-3 hover:border-gt-line-strong"
+            }`}
             title={
               active
                 ? `Remove ${option.label.toLowerCase()} flag`
@@ -503,19 +394,12 @@ function ItemRow({
     item.item_category_user_edited_at != null;
 
   return (
-    <tr
-      className="border-b last:border-b-0"
-      style={{ borderColor: "var(--border)" }}
-    >
-      <td className="px-5 py-2.5" style={{ color: "var(--text)" }}>
-        <div>
+    <tr>
+      <td className="px-gt-16 py-gt-10">
+        <div className="font-bold text-gt-ink">
           {item.name}
           {isEdited && (
-            <span
-              className="ml-1.5 text-xs"
-              style={{ color: "var(--secondary)" }}
-              title="User edited"
-            >
+            <span className="ml-gt-2 text-gt-xs font-bold text-gt-secondary" title="User edited">
               (edited)
             </span>
           )}
@@ -526,30 +410,18 @@ function ItemRow({
           flagPending={flagPending}
         />
       </td>
-      <td
-        className="hidden px-5 py-2.5 text-center tabular-nums sm:table-cell"
-        style={{ color: "var(--text-muted)" }}
-      >
+      <td className="hidden px-gt-16 py-gt-10 text-center font-bold tabular-nums text-gt-ink-3 sm:table-cell">
         {item.qty ?? "—"}
       </td>
-      <td
-        className="hidden px-5 py-2.5 text-right tabular-nums sm:table-cell"
-        style={{ color: "var(--text-muted)" }}
-      >
+      <td className="hidden px-gt-16 py-gt-10 text-right font-bold tabular-nums text-gt-ink-3 sm:table-cell">
         {item.unit_price_minor != null
           ? formatMinorAmount(item.unit_price_minor, currency)
           : "—"}
       </td>
-      <td
-        className="px-5 py-2.5 text-right tabular-nums"
-        style={{ color: "var(--text)" }}
-      >
+      <td className="px-gt-16 py-gt-10 text-right font-bold tabular-nums text-gt-ink">
         {formatMinorAmount(item.total_price_minor, currency)}
       </td>
-      <td
-        className="hidden px-5 py-2.5 md:table-cell"
-        style={{ color: "var(--text-muted)" }}
-      >
+      <td className="hidden px-gt-16 py-gt-10 font-medium text-gt-ink-3 md:table-cell">
         {item.subcategory ?? "—"}
       </td>
     </tr>
@@ -562,28 +434,15 @@ function ImagesSection({
   images: components["schemas"]["TransactionImageResponse"][];
 }) {
   return (
-    <div
-      className="rounded-lg border p-5"
-      style={{
-        backgroundColor: "var(--surface)",
-        borderColor: "var(--border)",
-      }}
-    >
-      <h2
-        className="mb-3 text-sm font-semibold"
-        style={{ color: "var(--text)" }}
-      >
-        Receipt images ({images.length})
-      </h2>
-      <div className="flex flex-wrap gap-3">
+    <Card title={`Receipt images (${images.length})`}>
+      <div className="flex flex-wrap gap-gt-10">
         {images.map((img) => (
           <a
             key={img.id}
             href={img.image_url}
             target="_blank"
             rel="noopener noreferrer"
-            className="block overflow-hidden rounded-lg border transition-opacity hover:opacity-80"
-            style={{ borderColor: "var(--border)" }}
+            className="block overflow-hidden rounded-gt-lg border-2 border-gt-line-strong shadow-gt-xs transition hover:opacity-80"
           >
             <img
               src={img.image_url}
@@ -594,7 +453,7 @@ function ImagesSection({
           </a>
         ))}
       </div>
-    </div>
+    </Card>
   );
 }
 
@@ -607,23 +466,11 @@ function MetadataSection({ txn }: { txn: TransactionDetail }) {
   if (!hasProcessingMeta) return null;
 
   return (
-    <details
-      className="rounded-lg border"
-      style={{
-        backgroundColor: "var(--surface)",
-        borderColor: "var(--border)",
-      }}
-    >
-      <summary
-        className="cursor-pointer px-5 py-3 text-sm font-medium"
-        style={{ color: "var(--text-secondary)" }}
-      >
+    <details className="overflow-hidden rounded-gt-2xl border-2 border-gt-line-strong bg-gt-surface shadow-gt-sm">
+      <summary className="cursor-pointer px-gt-16 py-gt-12 font-gt-display text-gt-sm font-extrabold text-gt-ink-2">
         Processing metadata
       </summary>
-      <div
-        className="grid gap-3 border-t px-5 py-4 sm:grid-cols-2 lg:grid-cols-4"
-        style={{ borderColor: "var(--border)" }}
-      >
+      <div className="grid gap-gt-12 border-t-2 border-gt-line px-gt-16 py-gt-12 sm:grid-cols-2 lg:grid-cols-4">
         {txn.scan_duration_ms != null && (
           <MetaField label="Scan duration" value={`${txn.scan_duration_ms}ms`} />
         )}
@@ -652,16 +499,11 @@ function MetadataSection({ txn }: { txn: TransactionDetail }) {
 
 function MetaField({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex flex-col gap-0.5">
-      <span className="text-xs" style={{ color: "var(--text-muted)" }}>
+    <div className="flex flex-col gap-gt-2">
+      <span className="text-gt-xs font-extrabold uppercase tracking-wide text-gt-ink-3">
         {label}
       </span>
-      <span
-        className="text-sm tabular-nums"
-        style={{ color: "var(--text-secondary)" }}
-      >
-        {value}
-      </span>
+      <span className="text-gt-sm font-bold tabular-nums text-gt-ink-2">{value}</span>
     </div>
   );
 }
@@ -687,25 +529,20 @@ function EditableCategory({
   if (locked) {
     return (
       <Field label="Category">
-        <span style={{ color: "var(--text)" }}>{currentLabel}</span>
+        <span className="font-bold text-gt-ink">{currentLabel}</span>
       </Field>
     );
   }
 
   return (
     <Field label="Category">
-      <div className="flex items-center gap-1.5">
+      <div className="flex items-center gap-gt-4">
         <select
           value={value ?? ""}
           onChange={(e) => {
             if (e.target.value) onSave(e.target.value);
           }}
-          className="rounded-md border px-2 py-0.5 text-sm"
-          style={{
-            borderColor: "var(--border)",
-            backgroundColor: "var(--bg-secondary)",
-            color: "var(--text)",
-          }}
+          className={inputClass}
           title="Click to change category"
         >
           <option value="" disabled>
@@ -719,8 +556,7 @@ function EditableCategory({
         </select>
         {editedAt != null && (
           <span
-            className="text-xs"
-            style={{ color: "var(--secondary)" }}
+            className="text-gt-xs font-bold text-gt-secondary"
             title={`Edited ${new Date(editedAt).toLocaleString()}`}
           >
             (edited)
@@ -761,11 +597,7 @@ function EditableText({
   }, [editing]);
 
   if (locked) {
-    return (
-      <span className={`${className} px-1`} style={{ color: "var(--text)" }}>
-        {value}
-      </span>
-    );
+    return <span className={`${className} px-gt-2`}>{value}</span>;
   }
 
   const commit = () => {
@@ -793,12 +625,7 @@ function EditableText({
             setEditing(false);
           }
         }}
-        className={`${className} rounded border px-1 outline-none`}
-        style={{
-          borderColor: "var(--primary)",
-          backgroundColor: "var(--bg-secondary)",
-          color: "var(--text)",
-        }}
+        className={`${className} rounded-gt-md border-2 border-gt-primary bg-gt-surface px-gt-4 outline-none`}
       />
     );
   }
@@ -807,15 +634,13 @@ function EditableText({
     <button
       type="button"
       onClick={() => setEditing(true)}
-      className={`${className} cursor-pointer rounded px-1 text-left transition-colors hover:bg-[var(--primary-light)]`}
-      style={{ color: "var(--text)" }}
+      className={`${className} cursor-pointer rounded-gt-md border-2 border-transparent px-gt-2 text-left transition hover:border-gt-line hover:bg-gt-primary-soft`}
       title="Click to edit"
     >
       {value}
       {editedAt != null && (
         <span
-          className="ml-1.5 text-xs font-normal"
-          style={{ color: "var(--secondary)" }}
+          className="ml-gt-2 text-gt-xs font-bold text-gt-secondary"
           title={`Edited ${new Date(editedAt).toLocaleString()}`}
         >
           (edited)
@@ -851,9 +676,7 @@ function EditableDate({
 
   if (locked) {
     return (
-      <span className="px-1 text-sm" style={{ color: "var(--text-secondary)" }}>
-        {formatDate(value)}
-      </span>
+      <span className="px-gt-2 text-gt-sm font-bold text-gt-ink-2">{formatDate(value)}</span>
     );
   }
 
@@ -881,12 +704,7 @@ function EditableDate({
             setEditing(false);
           }
         }}
-        className="rounded border px-1 text-sm outline-none"
-        style={{
-          borderColor: "var(--primary)",
-          backgroundColor: "var(--bg-secondary)",
-          color: "var(--text)",
-        }}
+        className="rounded-gt-md border-2 border-gt-primary bg-gt-surface px-gt-4 text-gt-sm font-bold outline-none"
       />
     );
   }
@@ -895,8 +713,7 @@ function EditableDate({
     <button
       type="button"
       onClick={() => setEditing(true)}
-      className="cursor-pointer rounded px-1 text-left text-sm transition-colors hover:bg-[var(--primary-light)]"
-      style={{ color: "var(--text-secondary)" }}
+      className="mt-gt-2 cursor-pointer rounded-gt-md border-2 border-transparent px-gt-2 text-left text-gt-sm font-bold text-gt-ink-2 transition hover:border-gt-line hover:bg-gt-primary-soft"
       title="Click to edit date"
     >
       {formatDate(value)}
@@ -906,73 +723,34 @@ function EditableDate({
 
 function DetailSkeleton() {
   return (
-    <div
-      className="space-y-6"
-      aria-busy="true"
-      aria-label="Loading transaction"
-    >
-      <div className="flex items-center gap-4">
-        <div
-          className="h-4 w-12 animate-pulse rounded"
-          style={{ backgroundColor: "var(--border)" }}
-        />
-        <div className="space-y-2">
-          <div
-            className="h-6 w-48 animate-pulse rounded"
-            style={{ backgroundColor: "var(--border)" }}
-          />
-          <div
-            className="h-4 w-32 animate-pulse rounded"
-            style={{ backgroundColor: "var(--border)" }}
-          />
+    <div className="space-y-gt-16" aria-busy="true" aria-label="Loading transaction">
+      <div className="flex items-center gap-gt-12">
+        <div className="h-10 w-10 shrink-0 animate-pulse rounded-gt-lg bg-gt-bg-3" />
+        <div className="space-y-gt-6">
+          <div className="h-6 w-48 animate-pulse rounded-gt-md bg-gt-bg-3" />
+          <div className="h-4 w-32 animate-pulse rounded-gt-md bg-gt-bg-3" />
         </div>
       </div>
-      <div
-        className="rounded-lg border p-5"
-        style={{
-          backgroundColor: "var(--surface)",
-          borderColor: "var(--border)",
-        }}
-      >
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <Card>
+        <div className="grid gap-gt-16 sm:grid-cols-2 lg:grid-cols-4">
           {Array.from({ length: 4 }, (_, i) => (
-            <div key={i} className="space-y-2">
-              <div
-                className="h-3 w-16 animate-pulse rounded"
-                style={{ backgroundColor: "var(--border)" }}
-              />
-              <div
-                className="h-5 w-28 animate-pulse rounded"
-                style={{ backgroundColor: "var(--border)" }}
-              />
+            <div key={i} className="space-y-gt-6">
+              <div className="h-3 w-16 animate-pulse rounded-gt-md bg-gt-bg-3" />
+              <div className="h-5 w-28 animate-pulse rounded-gt-md bg-gt-bg-3" />
             </div>
           ))}
         </div>
-      </div>
-      <div
-        className="rounded-lg border p-5"
-        style={{
-          backgroundColor: "var(--surface)",
-          borderColor: "var(--border)",
-        }}
-      >
-        {Array.from({ length: 5 }, (_, i) => (
-          <div
-            key={i}
-            className="flex items-center gap-4 border-b py-3 last:border-b-0"
-            style={{ borderColor: "var(--border)" }}
-          >
-            <div
-              className="h-4 w-40 animate-pulse rounded"
-              style={{ backgroundColor: "var(--border)" }}
-            />
-            <div
-              className="ml-auto h-4 w-20 animate-pulse rounded"
-              style={{ backgroundColor: "var(--border)" }}
-            />
-          </div>
-        ))}
-      </div>
+      </Card>
+      <Card padded={false}>
+        <div className="divide-y-2 divide-gt-line">
+          {Array.from({ length: 5 }, (_, i) => (
+            <div key={i} className="flex items-center gap-gt-16 px-gt-16 py-gt-12">
+              <div className="h-4 w-40 animate-pulse rounded-gt-md bg-gt-bg-3" />
+              <div className="ml-auto h-4 w-20 animate-pulse rounded-gt-md bg-gt-bg-3" />
+            </div>
+          ))}
+        </div>
+      </Card>
     </div>
   );
 }
