@@ -5602,3 +5602,14 @@ CI: web + SCA + security all green (Web Build·Lint·Test·Typecheck + SCA Audit
 PROMOTION: N/A — D97 production-direct. User confirmed the prod-deploy merge.
 DEPLOYMENTS: P93 (W7 merge #11). Live-verified: prod bundle flipped DQRG07aM→DMv-_VxO (W7 treemap+repr-pill markers present), deployed-prod boots clean.
 PLAN: Phase 7 Push ✅ — W7 COMPLETE (Exec/Review/Commit/Push all ✅). Current Phase advanced to Phase 8 (W8 · Reports, tier mvp). 7 of 11 phases shipped to production.
+- 2026-06-26 10:13 | Edit | /home/khujta/projects/apps/gastify/web/src/routes/reports.tsx
+- 2026-06-26 10:14 | Edit | /home/khujta/projects/apps/gastify/web/src/routes/reports.tsx
+- 2026-06-26 10:15 | Write | /home/khujta/projects/apps/gastify/web/src/components/reports/ReportDetailOverlay.tsx
+- 2026-06-26 10:16 | Write | /home/khujta/projects/apps/gastify/tests/web-e2e/w8-reports.spec.ts
+
+## 2026-06-26 10:20 — [commit] W8 · Reports geometric port
+SCOPE: web/src/routes/reports.tsx + web/src/components/reports/ReportDetailOverlay.tsx restyled to Playful Geometric (geometric sections/cards, GranularityToggle pill bar, TrendChip pills, geometric report-card rows; the detail overlay = ink-bordered modal over gt-ink/45 backdrop + geometric Hero/InsightBlock/Highlights/GroupBreakdown/GroupCard). PRESENTATION-ONLY: every testid, aria-pressed/role=dialog/aria-modal/aria-labelledby/id, hooks, i18n keys, and the onViewTransactions drill preserved (per the understand-workflow contract). The breakdown donuts are the W7 hand-built CategoryDonut (auto-geometric). Sparklines unchanged (report-detail-sparkline testid intact).
+VERIFY: tsc clean, check:token-classes green (112 files), vite build OK, vitest 137/137 (ReportDetailOverlay.test + reports tests green — testids preserved), eslint 0 errors.
+PROOF: tests/web-e2e/w8-reports.spec.ts 3/3 GREEN vs LIVE prod API + user B's seeded data (reports list desktop+mobile, detail overlay hero+insight+breakdown). Screenshots reports-list-desktop.png (Week/Month/Quarter/Year toggle + breakdown donut + monthly trend-chip cards) + report-detail-overlay-desktop.png (modal: hero CLP 95,869 ▼26%, 💡 insight, 🏆 highlights, By-store/By-item donuts + group cards w/ sparklines).
+UNDERSTAND: built from the w8-reports-understand workflow (2 parallel extractors: design-lab reports blueprint + the exact web testid/aria/hook/i18n preservation contract).
+PLAN: Phase 8 Exec ✅ Commit ✅ (Review/Push pending).

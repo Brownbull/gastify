@@ -191,17 +191,13 @@ function ReportsPage() {
   const hasDistribution = slices.length > 0;
 
   return (
-    <div className="space-y-6" data-testid="reports-screen">
-      <header className="flex flex-wrap items-end justify-between gap-3">
+    <div className="space-y-gt-16" data-testid="reports-screen">
+      <header className="flex flex-wrap items-end justify-between gap-gt-10">
         <div>
-          <h1 className="text-2xl font-semibold" style={{ color: "var(--text)" }}>
-            {t("reports.title")}
-          </h1>
-          <p className="text-sm" style={{ color: "var(--text-muted)" }}>
-            {t("reports.subtitle")}
-          </p>
+          <h1 className="font-gt-display text-gt-4xl font-extrabold text-gt-ink">{t("reports.title")}</h1>
+          <p className="mt-gt-2 text-gt-sm font-medium text-gt-ink-2">{t("reports.subtitle")}</p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-gt-8">
           <GranularityToggle value={granularity} onChange={setGranularity} />
           <PeriodStepper period={period} atCurrent={atCurrent} onChange={setPeriod} />
         </div>
@@ -211,20 +207,15 @@ function ReportsPage() {
       {isMonthly && (
         <section
           data-testid="reports-breakdown"
-          className="rounded-lg border p-5"
-          style={{ backgroundColor: "var(--surface)", borderColor: "var(--border)" }}
+          className="rounded-gt-2xl border-2 border-gt-line-strong bg-gt-surface p-gt-16 shadow-gt-md"
         >
-          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-            <h2 className="text-sm font-semibold" style={{ color: "var(--text)" }}>
-              {periodLabel(period)}
-            </h2>
+          <div className="mb-gt-12 flex flex-wrap items-center justify-between gap-gt-10">
+            <h2 className="font-gt-display text-gt-md font-extrabold text-gt-ink">{periodLabel(period)}</h2>
             <DimensionToggle dimension={dimension} onChange={setDimension} />
           </div>
           {monthly.isLoading && <InsightsSkeleton />}
           {!monthly.isLoading && !hasDistribution && (
-            <p className="py-8 text-center text-sm" style={{ color: "var(--text-muted)" }}>
-              {t("reports.empty")}
-            </p>
+            <p className="py-gt-24 text-center text-gt-sm font-medium text-gt-ink-3">{t("reports.empty")}</p>
           )}
           {!monthly.isLoading && hasDistribution && monthly.data && (
             <Suspense fallback={<ChartFallback />}>
@@ -235,24 +226,19 @@ function ReportsPage() {
       )}
 
       {/* Report cards at the selected granularity (the trend history) */}
-      <section className="space-y-2" data-testid="reports-monthly-section">
-        <h2 className="text-sm font-semibold" style={{ color: "var(--text)" }}>
-          {t(SECTION_KEY[granularity])}
-        </h2>
+      <section className="space-y-gt-8" data-testid="reports-monthly-section">
+        <h2 className="font-gt-display text-gt-md font-extrabold text-gt-ink">{t(SECTION_KEY[granularity])}</h2>
         {series.isLoading ? (
           <InsightsSkeleton />
         ) : !hasSpend ? (
           <div
-            className="rounded-lg border p-8 text-center"
+            className="rounded-gt-2xl border-2 border-dashed border-gt-line-strong bg-gt-surface p-gt-24 text-center"
             data-testid="reports-empty"
-            style={{ backgroundColor: "var(--surface)", borderColor: "var(--border)" }}
           >
-            <p className="text-sm" style={{ color: "var(--text-muted)" }}>
-              {t("reports.empty")}
-            </p>
+            <p className="text-gt-sm font-medium text-gt-ink-3">{t("reports.empty")}</p>
           </div>
         ) : (
-          <ul className="space-y-2">
+          <ul className="space-y-gt-8">
             {cards.map((card) => (
               <ReportCardView
                 key={card.period}
@@ -304,25 +290,19 @@ function ReportCardView({
         disabled={!onSelect}
         onClick={onSelect}
         aria-pressed={focused}
-        className="flex w-full items-center justify-between gap-3 rounded-lg border p-4 text-left transition-colors hover:bg-(--primary-light)"
-        style={{
-          backgroundColor: focused ? "var(--primary-light)" : "var(--surface)",
-          borderColor: focused ? "var(--primary)" : "var(--border)",
-        }}
+        className={`flex w-full items-center justify-between gap-gt-10 rounded-gt-xl border-2 p-gt-12 text-left shadow-gt-xs transition enabled:hover:bg-gt-bg-3 disabled:cursor-default ${
+          focused ? "border-gt-line-strong bg-gt-primary-soft" : "border-gt-line-strong bg-gt-surface"
+        }`}
       >
         <div className="min-w-0">
-          <p className="font-medium" style={{ color: "var(--text)" }}>
-            {periodLabel(card.period)}
-          </p>
-          <p className="text-xs" style={{ color: "var(--text-muted)" }}>
+          <p className="font-gt-display text-gt-md font-extrabold text-gt-ink">{periodLabel(card.period)}</p>
+          <p className="text-gt-xs font-bold text-gt-ink-3">
             {card.count} {t("reports.transactions")}
           </p>
         </div>
-        <div className="flex items-center gap-3">
-          {card.trend && (
-            <TrendChip trend={card.trend} deltaPct={card.deltaPct} />
-          )}
-          <span className="text-sm font-semibold tabular-nums" style={{ color: "var(--text)" }}>
+        <div className="flex items-center gap-gt-10">
+          {card.trend && <TrendChip trend={card.trend} deltaPct={card.deltaPct} />}
+          <span className="font-gt-display text-gt-md font-extrabold tabular-nums text-gt-ink">
             {formatMinorAmount(card.total, currency)}
           </span>
         </div>
@@ -333,14 +313,17 @@ function ReportCardView({
 
 function TrendChip({ trend, deltaPct }: { trend: Trend; deltaPct: number | null }) {
   const arrow = trend === "up" ? "▲" : trend === "down" ? "▼" : "■";
-  const color =
-    trend === "up" ? "var(--error)" : trend === "down" ? "var(--success, #16a34a)" : "var(--text-muted)";
+  const toneClass =
+    trend === "up"
+      ? "border-gt-error text-gt-error"
+      : trend === "down"
+        ? "border-gt-positive text-gt-positive"
+        : "border-gt-line text-gt-ink-3";
   const pct = deltaPct != null ? `${Math.abs(Math.round(deltaPct))}%` : "";
   return (
     <span
       data-testid={`reports-trend-${trend}`}
-      className="inline-flex items-center gap-1 text-xs font-medium"
-      style={{ color }}
+      className={`inline-flex items-center gap-gt-2 rounded-gt-pill border-2 bg-gt-surface px-gt-8 py-gt-2 text-gt-xs font-extrabold ${toneClass}`}
     >
       <span aria-hidden>{arrow}</span>
       {pct}
@@ -364,8 +347,7 @@ function GranularityToggle({
   ];
   return (
     <div
-      className="inline-flex rounded-lg border p-0.5 text-xs"
-      style={{ borderColor: "var(--border)" }}
+      className="inline-flex gap-0.5 rounded-gt-pill border-2 border-gt-line-strong bg-gt-surface p-0.5"
       role="group"
       aria-label="Report granularity"
     >
@@ -378,11 +360,9 @@ function GranularityToggle({
             data-testid={`reports-granularity-${option.value}`}
             aria-pressed={active}
             onClick={() => onChange(option.value)}
-            className="rounded-md px-3 py-1 font-medium transition-colors"
-            style={{
-              backgroundColor: active ? "var(--primary-light)" : "transparent",
-              color: active ? "var(--primary)" : "var(--text-secondary)",
-            }}
+            className={`rounded-gt-pill px-gt-10 py-gt-4 text-gt-xs font-extrabold transition ${
+              active ? "bg-gt-primary text-white" : "text-gt-ink-2 hover:text-gt-ink"
+            }`}
           >
             {option.label}
           </button>
