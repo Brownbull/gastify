@@ -13,7 +13,8 @@ async function signIn(page: Page): Promise<void> {
 }
 
 async function currencySelect(page: Page) {
-  await page.goto("/settings");
+  // Currency now lives in the Escaneo sub-screen of the settings hub (Wf-fidelity port).
+  await page.goto("/settings/scanning");
   const select = page.getByTestId("settings-currency-select");
   await expect(select).toBeVisible({ timeout: 20_000 });
   await expect(select).toBeEnabled({ timeout: 20_000 }); // profile loaded

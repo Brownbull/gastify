@@ -22,8 +22,15 @@ import { Route as ItemsRouteImport } from "./routes/items"
 import { Route as GroupsRouteImport } from "./routes/groups"
 import { Route as IndexRouteImport } from "./routes/index"
 import { Route as TransactionsIndexRouteImport } from "./routes/transactions.index"
+import { Route as SettingsIndexRouteImport } from "./routes/settings.index"
 import { Route as TransactionsNewRouteImport } from "./routes/transactions.new"
 import { Route as TransactionsTransactionIdRouteImport } from "./routes/transactions.$transactionId"
+import { Route as SettingsScanningRouteImport } from "./routes/settings.scanning"
+import { Route as SettingsProfileRouteImport } from "./routes/settings.profile"
+import { Route as SettingsPreferencesRouteImport } from "./routes/settings.preferences"
+import { Route as SettingsMemoryRouteImport } from "./routes/settings.memory"
+import { Route as SettingsHelpRouteImport } from "./routes/settings.help"
+import { Route as SettingsDataRouteImport } from "./routes/settings.data"
 import { Route as InviteTokenRouteImport } from "./routes/invite.$token"
 
 const TrendsRoute = TrendsRouteImport.update({
@@ -91,6 +98,11 @@ const TransactionsIndexRoute = TransactionsIndexRouteImport.update({
   path: "/",
   getParentRoute: () => TransactionsRoute,
 } as any)
+const SettingsIndexRoute = SettingsIndexRouteImport.update({
+  id: "/",
+  path: "/",
+  getParentRoute: () => SettingsRoute,
+} as any)
 const TransactionsNewRoute = TransactionsNewRouteImport.update({
   id: "/new",
   path: "/new",
@@ -102,6 +114,36 @@ const TransactionsTransactionIdRoute =
     path: "/$transactionId",
     getParentRoute: () => TransactionsRoute,
   } as any)
+const SettingsScanningRoute = SettingsScanningRouteImport.update({
+  id: "/scanning",
+  path: "/scanning",
+  getParentRoute: () => SettingsRoute,
+} as any)
+const SettingsProfileRoute = SettingsProfileRouteImport.update({
+  id: "/profile",
+  path: "/profile",
+  getParentRoute: () => SettingsRoute,
+} as any)
+const SettingsPreferencesRoute = SettingsPreferencesRouteImport.update({
+  id: "/preferences",
+  path: "/preferences",
+  getParentRoute: () => SettingsRoute,
+} as any)
+const SettingsMemoryRoute = SettingsMemoryRouteImport.update({
+  id: "/memory",
+  path: "/memory",
+  getParentRoute: () => SettingsRoute,
+} as any)
+const SettingsHelpRoute = SettingsHelpRouteImport.update({
+  id: "/help",
+  path: "/help",
+  getParentRoute: () => SettingsRoute,
+} as any)
+const SettingsDataRoute = SettingsDataRouteImport.update({
+  id: "/data",
+  path: "/data",
+  getParentRoute: () => SettingsRoute,
+} as any)
 const InviteTokenRoute = InviteTokenRouteImport.update({
   id: "/invite/$token",
   path: "/invite/$token",
@@ -116,14 +158,21 @@ export interface FileRoutesByFullPath {
   "/reports": typeof ReportsRoute
   "/scan": typeof ScanRoute
   "/scan-batch": typeof ScanBatchRoute
-  "/settings": typeof SettingsRoute
+  "/settings": typeof SettingsRouteWithChildren
   "/sign-in": typeof SignInRoute
   "/statements": typeof StatementsRoute
   "/transactions": typeof TransactionsRouteWithChildren
   "/trends": typeof TrendsRoute
   "/invite/$token": typeof InviteTokenRoute
+  "/settings/data": typeof SettingsDataRoute
+  "/settings/help": typeof SettingsHelpRoute
+  "/settings/memory": typeof SettingsMemoryRoute
+  "/settings/preferences": typeof SettingsPreferencesRoute
+  "/settings/profile": typeof SettingsProfileRoute
+  "/settings/scanning": typeof SettingsScanningRoute
   "/transactions/$transactionId": typeof TransactionsTransactionIdRoute
   "/transactions/new": typeof TransactionsNewRoute
+  "/settings/": typeof SettingsIndexRoute
   "/transactions/": typeof TransactionsIndexRoute
 }
 export interface FileRoutesByTo {
@@ -134,13 +183,19 @@ export interface FileRoutesByTo {
   "/reports": typeof ReportsRoute
   "/scan": typeof ScanRoute
   "/scan-batch": typeof ScanBatchRoute
-  "/settings": typeof SettingsRoute
   "/sign-in": typeof SignInRoute
   "/statements": typeof StatementsRoute
   "/trends": typeof TrendsRoute
   "/invite/$token": typeof InviteTokenRoute
+  "/settings/data": typeof SettingsDataRoute
+  "/settings/help": typeof SettingsHelpRoute
+  "/settings/memory": typeof SettingsMemoryRoute
+  "/settings/preferences": typeof SettingsPreferencesRoute
+  "/settings/profile": typeof SettingsProfileRoute
+  "/settings/scanning": typeof SettingsScanningRoute
   "/transactions/$transactionId": typeof TransactionsTransactionIdRoute
   "/transactions/new": typeof TransactionsNewRoute
+  "/settings": typeof SettingsIndexRoute
   "/transactions": typeof TransactionsIndexRoute
 }
 export interface FileRoutesById {
@@ -152,14 +207,21 @@ export interface FileRoutesById {
   "/reports": typeof ReportsRoute
   "/scan": typeof ScanRoute
   "/scan-batch": typeof ScanBatchRoute
-  "/settings": typeof SettingsRoute
+  "/settings": typeof SettingsRouteWithChildren
   "/sign-in": typeof SignInRoute
   "/statements": typeof StatementsRoute
   "/transactions": typeof TransactionsRouteWithChildren
   "/trends": typeof TrendsRoute
   "/invite/$token": typeof InviteTokenRoute
+  "/settings/data": typeof SettingsDataRoute
+  "/settings/help": typeof SettingsHelpRoute
+  "/settings/memory": typeof SettingsMemoryRoute
+  "/settings/preferences": typeof SettingsPreferencesRoute
+  "/settings/profile": typeof SettingsProfileRoute
+  "/settings/scanning": typeof SettingsScanningRoute
   "/transactions/$transactionId": typeof TransactionsTransactionIdRoute
   "/transactions/new": typeof TransactionsNewRoute
+  "/settings/": typeof SettingsIndexRoute
   "/transactions/": typeof TransactionsIndexRoute
 }
 export interface FileRouteTypes {
@@ -178,8 +240,15 @@ export interface FileRouteTypes {
     | "/transactions"
     | "/trends"
     | "/invite/$token"
+    | "/settings/data"
+    | "/settings/help"
+    | "/settings/memory"
+    | "/settings/preferences"
+    | "/settings/profile"
+    | "/settings/scanning"
     | "/transactions/$transactionId"
     | "/transactions/new"
+    | "/settings/"
     | "/transactions/"
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -190,13 +259,19 @@ export interface FileRouteTypes {
     | "/reports"
     | "/scan"
     | "/scan-batch"
-    | "/settings"
     | "/sign-in"
     | "/statements"
     | "/trends"
     | "/invite/$token"
+    | "/settings/data"
+    | "/settings/help"
+    | "/settings/memory"
+    | "/settings/preferences"
+    | "/settings/profile"
+    | "/settings/scanning"
     | "/transactions/$transactionId"
     | "/transactions/new"
+    | "/settings"
     | "/transactions"
   id:
     | "__root__"
@@ -213,8 +288,15 @@ export interface FileRouteTypes {
     | "/transactions"
     | "/trends"
     | "/invite/$token"
+    | "/settings/data"
+    | "/settings/help"
+    | "/settings/memory"
+    | "/settings/preferences"
+    | "/settings/profile"
+    | "/settings/scanning"
     | "/transactions/$transactionId"
     | "/transactions/new"
+    | "/settings/"
     | "/transactions/"
   fileRoutesById: FileRoutesById
 }
@@ -226,7 +308,7 @@ export interface RootRouteChildren {
   ReportsRoute: typeof ReportsRoute
   ScanRoute: typeof ScanRoute
   ScanBatchRoute: typeof ScanBatchRoute
-  SettingsRoute: typeof SettingsRoute
+  SettingsRoute: typeof SettingsRouteWithChildren
   SignInRoute: typeof SignInRoute
   StatementsRoute: typeof StatementsRoute
   TransactionsRoute: typeof TransactionsRouteWithChildren
@@ -327,6 +409,13 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof TransactionsIndexRouteImport
       parentRoute: typeof TransactionsRoute
     }
+    "/settings/": {
+      id: "/settings/"
+      path: "/"
+      fullPath: "/settings/"
+      preLoaderRoute: typeof SettingsIndexRouteImport
+      parentRoute: typeof SettingsRoute
+    }
     "/transactions/new": {
       id: "/transactions/new"
       path: "/new"
@@ -341,6 +430,48 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof TransactionsTransactionIdRouteImport
       parentRoute: typeof TransactionsRoute
     }
+    "/settings/scanning": {
+      id: "/settings/scanning"
+      path: "/scanning"
+      fullPath: "/settings/scanning"
+      preLoaderRoute: typeof SettingsScanningRouteImport
+      parentRoute: typeof SettingsRoute
+    }
+    "/settings/profile": {
+      id: "/settings/profile"
+      path: "/profile"
+      fullPath: "/settings/profile"
+      preLoaderRoute: typeof SettingsProfileRouteImport
+      parentRoute: typeof SettingsRoute
+    }
+    "/settings/preferences": {
+      id: "/settings/preferences"
+      path: "/preferences"
+      fullPath: "/settings/preferences"
+      preLoaderRoute: typeof SettingsPreferencesRouteImport
+      parentRoute: typeof SettingsRoute
+    }
+    "/settings/memory": {
+      id: "/settings/memory"
+      path: "/memory"
+      fullPath: "/settings/memory"
+      preLoaderRoute: typeof SettingsMemoryRouteImport
+      parentRoute: typeof SettingsRoute
+    }
+    "/settings/help": {
+      id: "/settings/help"
+      path: "/help"
+      fullPath: "/settings/help"
+      preLoaderRoute: typeof SettingsHelpRouteImport
+      parentRoute: typeof SettingsRoute
+    }
+    "/settings/data": {
+      id: "/settings/data"
+      path: "/data"
+      fullPath: "/settings/data"
+      preLoaderRoute: typeof SettingsDataRouteImport
+      parentRoute: typeof SettingsRoute
+    }
     "/invite/$token": {
       id: "/invite/$token"
       path: "/invite/$token"
@@ -350,6 +481,30 @@ declare module "@tanstack/react-router" {
     }
   }
 }
+
+interface SettingsRouteChildren {
+  SettingsDataRoute: typeof SettingsDataRoute
+  SettingsHelpRoute: typeof SettingsHelpRoute
+  SettingsMemoryRoute: typeof SettingsMemoryRoute
+  SettingsPreferencesRoute: typeof SettingsPreferencesRoute
+  SettingsProfileRoute: typeof SettingsProfileRoute
+  SettingsScanningRoute: typeof SettingsScanningRoute
+  SettingsIndexRoute: typeof SettingsIndexRoute
+}
+
+const SettingsRouteChildren: SettingsRouteChildren = {
+  SettingsDataRoute: SettingsDataRoute,
+  SettingsHelpRoute: SettingsHelpRoute,
+  SettingsMemoryRoute: SettingsMemoryRoute,
+  SettingsPreferencesRoute: SettingsPreferencesRoute,
+  SettingsProfileRoute: SettingsProfileRoute,
+  SettingsScanningRoute: SettingsScanningRoute,
+  SettingsIndexRoute: SettingsIndexRoute,
+}
+
+const SettingsRouteWithChildren = SettingsRoute._addFileChildren(
+  SettingsRouteChildren,
+)
 
 interface TransactionsRouteChildren {
   TransactionsTransactionIdRoute: typeof TransactionsTransactionIdRoute
@@ -375,7 +530,7 @@ const rootRouteChildren: RootRouteChildren = {
   ReportsRoute: ReportsRoute,
   ScanRoute: ScanRoute,
   ScanBatchRoute: ScanBatchRoute,
-  SettingsRoute: SettingsRoute,
+  SettingsRoute: SettingsRouteWithChildren,
   SignInRoute: SignInRoute,
   StatementsRoute: StatementsRoute,
   TransactionsRoute: TransactionsRouteWithChildren,

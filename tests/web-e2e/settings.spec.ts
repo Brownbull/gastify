@@ -1,10 +1,10 @@
 import { test, expect, type Page } from "@playwright/test";
 
 /**
- * Web settings journey — profile display, language switching, account actions.
- * Proves the /settings route renders, the language section is present, and the
- * sign-out button is accessible from settings. (The warm 3-theme × light/dark
- * switcher was removed in W1 — single Playful Geometric light theme, DM-1/D-B.)
+ * Web settings journey — the geometric hub (Wf-fidelity port): /settings is now a
+ * sectioned icon-row navigation hub; each backed row pushes a sub-screen route.
+ * Proves the hub renders, a row navigates into its sub-screen, and the sign-out
+ * (logout) row is accessible from the hub.
  */
 
 async function signInWithTestAuth(page: Page): Promise<void> {
@@ -13,40 +13,43 @@ async function signInWithTestAuth(page: Page): Promise<void> {
   await expect(page).toHaveURL(/\/$/, { timeout: 30_000 });
 }
 
-test.describe("Settings page", () => {
-  test("renders settings with profile, language, and account sections", async ({
-    page,
-  }) => {
+test.describe("Settings hub", () => {
+  test("renders the sectioned hub and navigates into a sub-screen", async ({ page }) => {
     await signInWithTestAuth(page);
     await page.goto("/settings");
 
     await expect(page.getByRole("heading", { name: /settings|ajustes/i })).toBeVisible({
       timeout: 15_000,
     });
-    await expect(page.getByText(/profile|perfil/i).first()).toBeVisible();
-    await expect(page.getByText(/idioma|language/i).first()).toBeVisible();
-    await expect(page.getByText(/account|cuenta/i).first()).toBeVisible();
+    // Section headings + key rows.
+    await expect(page.getByText(/cuenta|account/i).first()).toBeVisible();
+    await expect(page.getByTestId("settings-row-profile")).toBeVisible();
+    await expect(page.getByTestId("settings-row-preferences")).toBeVisible();
+
+    // Tapping a backed row pushes its sub-screen route.
+    await page.getByTestId("settings-row-profile").click();
+    await expect(page).toHaveURL(/\/settings\/profile$/, { timeout: 10_000 });
+    await expect(page.getByText(/correo|email/i).first()).toBeVisible({ timeout: 10_000 });
+
+    // Back returns to the hub.
+    await page.getByTestId("settings-back").click();
+    await expect(page).toHaveURL(/\/settings$/, { timeout: 10_000 });
 
     await page.screenshot({
-      path: "tests/web-e2e/proof/settings/01-settings-loaded.png",
+      path: "tests/web-e2e/proof/settings/01-settings-hub.png",
     });
   });
 
-  test("sign-out button is accessible from settings", async ({ page }) => {
+  test("the logout row is accessible from the hub", async ({ page }) => {
     await signInWithTestAuth(page);
     await page.goto("/settings");
 
-    const main = page.getByRole("main");
-    await expect(main.getByText(/idioma|language/i)).toBeVisible({
-      timeout: 15_000,
-    });
-
-    // Scope to the sign-out button inside <main> (not the sidebar one)
-    const signOutButton = main.getByRole("button", { name: /sign out|cerrar/i });
-    await expect(signOutButton).toBeVisible();
+    const logout = page.getByTestId("settings-row-logout");
+    await expect(logout).toBeVisible({ timeout: 15_000 });
+    await expect(logout).toHaveText(/sign out|cerrar/i);
 
     await page.screenshot({
-      path: "tests/web-e2e/proof/settings/06-sign-out-visible.png",
+      path: "tests/web-e2e/proof/settings/06-logout-visible.png",
     });
   });
 });

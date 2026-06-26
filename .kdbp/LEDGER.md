@@ -5711,3 +5711,16 @@ DEFERRED: no NEW rows — F1/F2 map to already-open P91/P92/P94/P95/P96/P98-P102
 ALIGNMENT: ALIGNED — the Wf deliverables (dead-code removal + visual-regression sweep + check:token-classes confirmation) all met.
 TIER: ent | DRIFT: none
 TICK: ✅ (Phase 11 Review)
+- 2026-06-26 11:33 | Write | /home/khujta/.claude/projects/-home-khujta-projects-apps-gastify/memory/feedback_design_migration_fidelity.md
+- 2026-06-26 11:34 | Edit | /home/khujta/.claude/projects/-home-khujta-projects-apps-gastify/memory/MEMORY.md
+- 2026-06-26 12:03 | Write | /home/khujta/.claude/projects/-home-khujta-projects-apps-gastify/memory/feedback_absolute_artifact_paths.md
+- 2026-06-26 12:03 | Edit | /home/khujta/.claude/projects/-home-khujta-projects-apps-gastify/memory/MEMORY.md
+
+## 2026-06-26 12:10 — [commit] Design Fidelity epic kickoff + settings hub content
+TRIGGER: user caught a systematic fidelity gap — the W1-Wf "port" recolored existing screens but did NOT rebuild them to the design-lab screen designs (Settings side-by-side: live flat form vs mockup icon-row hub). User then made the load-bearing call: the Storybook is presentational-only and does NOT encode the app's real state needs (scan's multi-step SSE needed real URLs + backend endpoints); the functional layer must be preserved.
+PLAN: opened Epic 2 "Design Fidelity" (DF1-DF6) per D100; Current Phase = DF1 (shell overlay foundation). Wf Push (PR #15) PARKED.
+DECISION: D100 — rebuild screens to the Storybook reference via a route-driven overlay model, reconciled with the existing state/URL layer. Route-driven overlays default; state-driven exceptions = ReportDetailOverlay/GroupDetailPanel/ProfileMenu. Desktop = adopt SideNav-rail grammar on web's lg: breakpoint (content-pane-only overlay, SideNav stays), not the device frame. Overlays unmount on route change. User sub-decisions: filters→URL in-epic, unsaved-changes guard, notifications full-surface overlay from avatar.
+AUDIT: two parallel workflows — shell-fidelity-map (wrb22x3qj) + state-fidelity-reconcile (wlfe3lucd, 6-area functional/state/URL audit). Full plan: docs/mockups/STATE-FIDELITY-PLAN.md.
+SETTINGS HUB (built during the pre-reshape pilot; DF4 content, currently in-shell — reframes to overlay in DF4): rebuilt /settings from flat form → sectioned icon-row hub matching the design-lab SettingsScreen (4 sections, pixel-icon rows + subtitles + chevrons, "Próximamente" on 3 unbacked rows, bottom logout). 6 sub-routes (settings.profile/scanning/preferences/memory/data/help) wired to the real privacy/profile/rectification/mappings/portability/erasure endpoints, all testids preserved. SettingsSubviewShell back-header. +36 i18n keys × es/en/pt.
+VERIFY: tsc clean, token guard 120 files, vitest 137/137 (i18n completeness held), eslint 0 errors, vite build OK, 6 routes registered. E2E 6/6 vs prod-e2e (hub render, row→subscreen→back, logout, currency/mappings re-pointed). Side-by-side proof: tests/web-e2e/proof/wf-settings-fidelity/_sidebyside-live-vs-mockup.png (user-acceptance gate of the corrected process).
+PROCESS CORRECTION: acceptance = side-by-side live⟷Storybook the USER approves, not "tests green" — per screen. Memory: feedback-design-migration-fidelity, feedback-absolute-artifact-paths.

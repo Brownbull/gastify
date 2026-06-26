@@ -2798,3 +2798,23 @@ cross-check the LLM's merchant/total/date against the signed SII data when a QR 
 **Consequence for W3–W10.** Every screen phase places its route within this IA; secondary routes (reports/statements/groups/notifications) live in the Perfil menu, not the tab bar. Scope switcher stays web's existing GroupSwitcher (design-lab's ScopeTrigger/ScopeMenu not ported).
 
 **Status:** accepted.
+
+## D100 — Design Fidelity epic: rebuild screens to the Storybook reference via a route-driven overlay model, reconciled with the existing state/URL functional layer (2026-06-26)
+
+**Context.** W1–Wf delivered the token/grammar layer (palette, gt-* utilities, geometric atoms) but ported each screen as a **restyle-in-place**, NOT a rebuild to the design-lab screen designs. The user caught the systematic gap via a Settings side-by-side: live `/settings` was a flat form, the mockup is a sectioned icon-row navigation hub. The divergence is app-wide. Root cause (see [[feedback-design-migration-fidelity]]): the plan's "port screens" was resolved silently as "recolor", and no guard compared output to the mockup. The user then made the load-bearing observation: **the Storybook is a presentational demo and does NOT encode the app's real state needs** (scan's multi-step SSE states deliberately needed real URLs + backend endpoints). The functional layer is already correct and must be preserved.
+
+**Decision (user-confirmed 2026-06-26).** Open a **Design Fidelity** epic that rebuilds screens to the design-lab reference. Governing principle: **functional layer = behavior truth (preserve); Storybook = visual-grammar truth (apply on top); route-vs-state-overlay decided PER FEATURE by real needs, never blanket.** Backed by a 6-area functional/state audit + reconciliation (workflow `state-fidelity-reconcile`). Full per-feature plan: `docs/mockups/STATE-FIDELITY-PLAN.md`.
+
+**Architecture:**
+- **Shell gains ONE new capability — an overlay slot** in AppLayout. Desktop = `absolute inset-0` over the **content pane only** (SideNav rail ALWAYS stays); mobile = `fixed inset-0` over the whole frame (hides BottomNav + AppHeader). Adopt the design-lab SideNav-rail grammar on web's existing `lg:` breakpoint — do NOT reproduce the fixed device-frame (extends WEB-MIGRATION precedent).
+- **Route-driven overlays are the DEFAULT.** The screens the Storybook wants full-surface (scan, batch, statements, transaction detail, new, invite, settings subviews, notifications) are exactly the ones already depending on a URL/SSE-token/multi-step flow — so route-backed overlays preserve deep-link, back-button, reload-resume, EventSource lifetime, and share paths at zero behavioral cost.
+- **State-driven (no-URL) exceptions, explicit:** ReportDetailOverlay (non-resumable lightbox over the grid), GroupDetailPanel (expand-in-place), ProfileMenu (avatar dropdown). Dashboard/Trends stay inline with local drill state.
+- **Overlays UNMOUNT on route change** (never `display:none`) — SSE teardown + scan-batch Blob-URL cleanup depend on unmount. A single documented z-scale governs overlay vs ProfileMenu/AppHeader/FAB/BottomNav/ReportDetailOverlay. `activeScope` stays global (zustand + localStorage → RLS).
+
+**User sub-decisions:** (1) local-only filter promotions (transactions/items/notifications) → **included in this epic** as validated URL search params; (2) **add an unsaved-changes guard** for `/transactions/new` + `/statements` upload (overlay eases accidental dismissal); (3) **notifications open as a full-surface overlay from the avatar** (route kept).
+
+**Sequence:** (1) shell overlay foundation + re-point ReportDetailOverlay as proof; (2) inline re-skins (dashboard/trends/groups/items); (3) route-backed overlays w/o SSE (txn detail/new/invite); (4) settings + notifications (folds in the already-built hub); (5) SSE families last, one at a time (scan→batch→statements); (6) filter→URL promotions.
+
+**Process correction (from the W1–Wf miss):** acceptance = a side-by-side live⟷Storybook the USER approves, not "tests green" — applied per screen. See [[feedback-design-migration-fidelity]].
+
+**Status:** accepted.

@@ -30,7 +30,14 @@ Migrate the **Playful Geometric** design system from `design-lab/` into the live
 | 9 | W9 · Groups | Groups, GroupDetail, InviteJoin, ShareTransactions; multi-user surfaces wired to existing group hooks. | mvp | med | ✅ | ✅ | ✅ | ✅ |
 | 10 | W10 · Dashboard (index) | HomeScreen: month treemap/trend + gravity-center insights; the landing screen — done last so every component exists. | ent | high | ✅ | ✅ | ✅ | ✅ |
 | 11 | Wf · Cleanup + visual-regression sweep | Remove dead warm-palette CSS + theme switcher + superseded web components; full Playwright visual-regression across routes × (mobile/desktop); update e2e; confirm `check:token-classes` in CI. | ent | med-high | ✅ | ✅ | ✅ | ⬜ |
+| 12 | DF1 · Shell overlay foundation | **Epic 2: Design Fidelity (D100).** Add the AppLayout overlay slot: desktop = `absolute inset-0` over content pane (SideNav stays), mobile = `fixed inset-0` full-frame, on web's `lg:` breakpoint; document the z-scale; re-point the existing ReportDetailOverlay onto it as proof-of-pattern. No feature behavior changes. Route-driven default. Ref: `docs/mockups/STATE-FIDELITY-PLAN.md`. | ent | med-high | 🔄 | ⬜ | ⬜ | ⬜ |
+| 13 | DF2 · Inline re-skins | Rebuild Dashboard `/`, Trends `/trends`, Groups list + GroupDetailPanel, Items `/items` to the design-lab screen designs — inline (nav-framed), local drill/expand state kept. Pure visual grammar vs real data + side-by-side acceptance per screen. | mvp | med | ⬜ | ⬜ | ⬜ | ⬜ |
+| 14 | DF3 · Route-backed overlays (no SSE) | Transaction detail `/transactions/$id`, New `/transactions/new`, Invite `/invite/$token` → full-surface route overlays; add the unsaved-changes guard (new + statement upload). Prove deep-link / back-button / share survive. | ent | med-high | ⬜ | ⬜ | ⬜ | ⬜ |
+| 15 | DF4 · Settings + Notifications overlays | Route `/settings` + `/settings/*` and `/notifications` through the overlay slot (notifications full-surface from avatar). Folds in the already-built settings hub + 6 subviews; verify per-subview deep-link + reload. | mvp | med | ⬜ | ⬜ | ⬜ | ⬜ |
+| 16 | DF5 · SSE families (one at a time) | Scan `/scan` → Batch `/scan-batch` → Statements `/statements` through the overlay slot, one at a time; each proves EventSource lifetime + retry/backoff + queue/Blob-URL + cache-invalidation cleanup on unmount. Highest risk, last. | ent | high | ⬜ | ⬜ | ⬜ | ⬜ |
+| 17 | DF6 · Filter → URL promotions | Promote transactions-list extra filters, items filter+cursor, notifications cursor to validated URL search params (resumable deep-links). | mvp | med | ⬜ | ⬜ | ⬜ | ⬜ |
 
+<!-- Epic 1 (Web Migration W1–Wf) delivered the token/grammar layer; Wf Push (PR #15) is PARKED pending the DF epic. Epic 2 (Design Fidelity DF1–DF6, D100) rebuilds screens to the Storybook reference + adds the overlay model, preserving the functional/state layer. -->
 <!-- Exec is written by /gabe-execute: ⬜ not started, 🔄 in progress, ✅ complete -->
 <!-- Review/Commit/Push auto-ticked by /gabe-review, /gabe-commit, /gabe-push -->
 <!-- A phase is complete when all four status columns are ✅ -->
@@ -219,7 +226,7 @@ decisions_entry: D98
 
 ## Current Phase
 
-Phase 11: Wf · Cleanup + visual-regression sweep (tier ent)
+Phase 12: DF1 · Shell overlay foundation (tier ent) — Epic 2 Design Fidelity (D100). Wf Push (PR #15) parked.
 
 ## Dependencies
 

@@ -54,8 +54,8 @@ test("a merchant edit appears under learned mappings and can be deleted", async 
   }
   expect(taught).toBe(true);
 
-  // The mapping shows in settings; delete it; the row disappears.
-  await page.goto("/settings");
+  // The mapping shows in settings → Mi memoria; delete it; the row disappears.
+  await page.goto("/settings/memory");
   const section = page.getByTestId("learned-mappings-section");
   await expect(section).toBeVisible({ timeout: 20_000 });
   const row = section.locator("div.justify-between").filter({ hasText: target });
