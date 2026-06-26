@@ -5563,3 +5563,6 @@ CI: 14/14 all green (Web Build·Lint·Test·Typecheck + Backend Test·Typecheck 
 PROMOTION: N/A — D97 production-direct. User confirmed the prod-deploy merge.
 DEPLOYMENTS: P92 (W6 merge #10). Live-verified: prod bundle flipped DC7H52QQ→DQRG07aM (W6 scan/statements code present), deployed-prod boots clean.
 PLAN: Phase 6 Push ✅ — W6 COMPLETE (Exec/Review/Commit/Push all ✅). Current Phase advanced to Phase 7 (W7 · Analytics).
+
+## 2026-06-26 00:42 — W7 scope decision (user-confirmed): FULL chart-engine swap
+DECISION: W7 Analytics takes the original-plan path, NOT the pragmatic restyle. Install ECharts; rewrite CategoryDonut → design-lab hand-built donut/treemap; add an ECharts Sankey; port drill + count-up (DM-10); restyle the trends route. This is the single biggest structural change in the Web Migration epic (new heavy dep + chart-render rewrite), unlike the view-only restyles of W4–W6. Current web analytics = trends.tsx (251) + charts/{CategoryDonut(115), SpendTimeSeries(115), Sparkline(77)} on Recharts 2.15.4 (ECharts not installed). Recharts was pinned at 2.15.4 (P48, Vite/es-toolkit) — the swap to ECharts/hand-built sidesteps that. Data-layer (hooks/api) stays; this is a presentation-engine swap. Paced in sub-batches (deps+donut → treemap → Sankey → trends route), each verified + proven against user B's seeded analytics data.
