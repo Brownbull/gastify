@@ -5827,3 +5827,10 @@ CL 346 comunas -> 125 curated cities (16 regional capitals + major cities + tour
 
 ## 2026-06-29 23:45 — STEP 1 live-scan proof (prompt-lab)
 Added dev-only candidate receipt-extraction-location; ran 3 live Gemini scans via the prompt-lab (real Chilean receipt fixtures: copec, cafe-2001, super_lider). ALL extracted country=CL + city=Villarrica. Proves LOCATION extraction works end-to-end on real receipts. Reconciliation canonicalizes "VILLARRICA"->"Villarrica" (in the 125-city list — the tourism town kept distinct per user). Production receipt-extraction-current already carries the same LOCATION block (effectively promoted + now lab-validated). Key auto-loaded from backend/.env.staging GOOGLE_API_KEY.
+- 2026-06-30 00:07 | Edit | /home/khujta/projects/apps/gastify/docs/mockups/COMING-SOON-REGISTRY.md
+- 2026-06-30 00:08 | Edit | /home/khujta/projects/apps/gastify/docs/mockups/COMING-SOON-REGISTRY.md
+
+## 2026-06-30 00:51 — prompt baseline pass (receipt-extraction-location), 18 baselined cases
+RESULT: 8 pass / 5 minor_review / 5 significant_failure; cost $0.012. Promotion contract BLOCKED (5 significant + 18 != 14 required).
+LOCATION VERDICT: NO REGRESSION. (1) Location extracted correctly on all 18 (CL→Villarrica/Pucón, US→Orlando, GB→London, FR→Paris; correctly null on receipts w/o a city). (2) All 5 significant failures are totals/items dimensions (final total, item count, unit price, discount) — the scoring gates (transaction + reconstruction) do not include country/city, so LOCATION cannot move the score. Several (estacionamiento, super_lider_arrugado) are named in the prompt-lab's own pre-location issue map.
+CONCLUSION: the LOCATION addition is validated + safe in production (neutral + works). The 5 significant_failure are a PRE-EXISTING base-prompt extraction-quality matter (the un-refined production prompt vs the refined v2-evidence candidate), decoupled from the location feature. Do NOT block the location work on the general prompt-quality bar; promote a refined+LOCATION prompt in the separate prompt-quality workstream when ready.
