@@ -5834,3 +5834,17 @@ Added dev-only candidate receipt-extraction-location; ran 3 live Gemini scans vi
 RESULT: 8 pass / 5 minor_review / 5 significant_failure; cost $0.012. Promotion contract BLOCKED (5 significant + 18 != 14 required).
 LOCATION VERDICT: NO REGRESSION. (1) Location extracted correctly on all 18 (CL→Villarrica/Pucón, US→Orlando, GB→London, FR→Paris; correctly null on receipts w/o a city). (2) All 5 significant failures are totals/items dimensions (final total, item count, unit price, discount) — the scoring gates (transaction + reconstruction) do not include country/city, so LOCATION cannot move the score. Several (estacionamiento, super_lider_arrugado) are named in the prompt-lab's own pre-location issue map.
 CONCLUSION: the LOCATION addition is validated + safe in production (neutral + works). The 5 significant_failure are a PRE-EXISTING base-prompt extraction-quality matter (the un-refined production prompt vs the refined v2-evidence candidate), decoupled from the location feature. Do NOT block the location work on the general prompt-quality bar; promote a refined+LOCATION prompt in the separate prompt-quality workstream when ready.
+- 2026-06-30 01:14 | Write | /tmp/claude-1000/-home-khujta-projects-apps-gastify/54614bed-7177-4b86-813f-86de68955392/scratchpad/blast_radius.py
+- 2026-06-30 01:36 | Write | /tmp/claude-1000/-home-khujta-projects-apps-gastify/54614bed-7177-4b86-813f-86de68955392/scratchpad/corpus_inventory.py
+- 2026-06-30 01:57 | Edit | /home/khujta/projects/apps/gastify/backend/app/prompts/values.py
+- 2026-06-30 01:59 | Edit | /home/khujta/projects/apps/gastify/backend/app/prompts/receipt/extraction.py
+- 2026-06-30 01:59 | Edit | /home/khujta/projects/apps/gastify/backend/app/prompts/receipt/extraction.py
+- 2026-06-30 02:03 | Edit | /home/khujta/projects/apps/gastify/backend/app/schemas/scan.py
+- 2026-06-30 02:03 | Edit | /home/khujta/projects/apps/gastify/backend/app/schemas/scan.py
+- 2026-06-30 02:04 | Edit | /home/khujta/projects/apps/gastify/backend/app/services/coalesce.py
+- 2026-06-30 02:04 | Edit | /home/khujta/projects/apps/gastify/backend/app/prompts/receipt/extraction.py
+- 2026-06-30 02:15 | Edit | /home/khujta/projects/apps/gastify/backend/app/prompts/receipt/extraction.py
+- 2026-06-30 02:15 | Edit | /home/khujta/projects/apps/gastify/backend/app/prompts/receipt/extraction.py
+- 2026-06-30 02:32 | Edit | /home/khujta/projects/apps/gastify/backend/app/services/coalesce.py
+- 2026-06-30 02:32 | Edit | /home/khujta/projects/apps/gastify/backend/app/services/coalesce.py
+- 2026-06-30 02:33 | Edit | /home/khujta/projects/apps/gastify/backend/app/prompts/receipt/extraction.py

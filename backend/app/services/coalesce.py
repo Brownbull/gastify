@@ -105,7 +105,7 @@ _VISIBLE_TOTAL_LABEL_PATTERN = re.compile(
 )
 _VISIBLE_TOTAL_EXCLUDE_PATTERN = re.compile(
     r"(?i)\b("
-    r"subtotal|sub\s*total|iva|tax|vat|gst|neto|taxable|base\s*imponible|"
+    r"subtotal|sub\s*total|iva|ivac|tax|vat|tva|gst|hst|mwst|neto|taxable|base\s*imponible|"
     r"cash|efectivo|card|visa|mastercard|payment|paid|tender|change|balance|"
     r"pago|pagado|vuelto|saldo|tarjeta|terminal|pos|rut|r\.?u\.?t\.?|"
     r"folio|boleta|factura|documento|receipt\s*no|phone|telefono|tel[eé]fono|"
@@ -241,6 +241,7 @@ def coalesce_extraction(
         currency_code=currency,
         country=country,
         city=city,
+        date_format_ambiguous=getattr(result, "date_format_ambiguous", False),
         total_amount=total,
         tax_amount=tax,
         discount_amount=discount,
@@ -470,6 +471,9 @@ def find_visible_total_candidates(source_lines: list[str], currency: str) -> lis
         if not line or not _VISIBLE_TOTAL_LABEL_PATTERN.search(line):
             continue
         if _VISIBLE_TOTAL_EXCLUDE_PATTERN.search(line):
+            continue
+        if "%" in line:
+            # A tax-rate line such as `TOTAL IVAC (19.0%)` is never the grand total.
             continue
         label_match = _VISIBLE_TOTAL_LABEL_PATTERN.search(line)
         tail = line[label_match.end() :] if label_match else line

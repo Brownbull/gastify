@@ -26,10 +26,23 @@ SUPPORTED_RECEIPT_CURRENCY_CODES: tuple[str, ...] = (
     "BRL",
     "CAD",
     "AUD",
+    "NZD",
 )
 PRIMARY_RECEIPT_CURRENCY_CODES: tuple[str, ...] = ("USD", "EUR", "GBP", "CLP", "JPY")
+# Minor-unit exponent partitions the supported set. The receipt prompt's money
+# rules are keyed on this exponent (not on country/locale), so the two lists below
+# MUST together cover SUPPORTED_RECEIPT_CURRENCY_CODES.
 ZERO_DECIMAL_RECEIPT_CURRENCY_CODES: tuple[str, ...] = ("CLP", "JPY", "KRW")
-DECIMAL_RECEIPT_CURRENCY_CODES: tuple[str, ...] = ("USD", "EUR", "GBP")
+DECIMAL_RECEIPT_CURRENCY_CODES: tuple[str, ...] = (
+    "USD",
+    "EUR",
+    "GBP",
+    "MXN",
+    "BRL",
+    "CAD",
+    "AUD",
+    "NZD",
+)
 
 V4_TAXONOMY_PROMPT = render_v4_taxonomy_prompt()
 V4_ITEM_TAXONOMY_PROMPT = render_v4_item_taxonomy_prompt()

@@ -185,6 +185,14 @@ class RawGeminiExtractionResult(BaseModel):
             "City/comuna/town of the purchase as printed on the receipt. Null if not visible."
         ),
     )
+    date_format_ambiguous: bool = Field(
+        default=False,
+        description=(
+            "True when the date is numeric and its day/month order cannot be determined from "
+            "on-receipt evidence; transaction_date is then returned exactly as printed for a "
+            "downstream deterministic resolver to interpret using the user's date-format setting."
+        ),
+    )
     total_amount: Decimal | None = Field(
         default=None,
         description=(
@@ -222,6 +230,14 @@ class GeminiExtractionResult(BaseModel):
         default=None,
         description=(
             "City/comuna/town of the purchase as printed on the receipt. Null if not visible."
+        ),
+    )
+    date_format_ambiguous: bool = Field(
+        default=False,
+        description=(
+            "True when the date is numeric and its day/month order could not be determined "
+            "from on-receipt evidence; transaction_date is the date exactly as printed, for a "
+            "downstream resolver to interpret using the user's date-format setting."
         ),
     )
     total_amount: Decimal = Field(
