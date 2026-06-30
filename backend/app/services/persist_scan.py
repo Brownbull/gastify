@@ -20,10 +20,12 @@ from app.agents.store_categorization import categorize_store
 from app.config import settings
 from app.models.reference import Currency, ItemCategory, StoreCategory
 from app.models.transaction import Transaction, TransactionImage, TransactionItem
+from app.models.user import OwnershipScopeMember, User
 from app.prompts import active_prompt_version
 from app.services.coalesce import to_minor_units
 from app.services.fx import FxServiceError, compute_usd_shadow, get_fx_rate
 from app.services.llm_costs import estimate_llm_cost_usd
+from app.services.locations import resolve_scan_location
 from app.services.mappings import (
     ItemMemory,
     MerchantMemory,
@@ -62,6 +64,25 @@ class _StoreCategorySelection:
     latency_ms: float = 0.0
 
 
+async def scope_owner_default_location(
+    db: AsyncSession, ownership_scope_id: uuid.UUID | None
+) -> tuple[str | None, str | None]:
+    """The scope owner's settings default location — the scan-location fallback."""
+    if ownership_scope_id is None:
+        return None, None
+    row = await db.execute(
+        select(User.default_country, User.default_city)
+        .join(OwnershipScopeMember, OwnershipScopeMember.user_id == User.id)
+        .where(
+            OwnershipScopeMember.ownership_scope_id == ownership_scope_id,
+            OwnershipScopeMember.role == "owner",
+        )
+        .limit(1)
+    )
+    result = row.first()
+    return (result.default_country, result.default_city) if result else (None, None)
+
+
 async def persist_scan_result(
     db: AsyncSession,
     scan: Scan,
@@ -70,8 +91,15 @@ async def persist_scan_result(
     verdict: MathReconciliationVerdict,
     review_level: ScanReviewLevel = "none",
     review_signals: list[ScanReviewSignal] | None = None,
+    default_country: str | None = None,
+    default_city: str | None = None,
 ) -> Transaction:
-    """Create Transaction + LineItems + Image from a completed scan pipeline."""
+    """Create Transaction + LineItems + Image from a completed scan pipeline.
+
+    ``default_country``/``default_city`` are the scope owner's settings default
+    location (loaded by the caller); they are the scan-location reconciliation
+    fallback when the receipt has no determinable location.
+    """
     ext = extraction.extraction
     currency_code = ext.currency_code
     tx_date = _parse_date(ext.transaction_date)
@@ -145,12 +173,23 @@ async def persist_scan_result(
         item_names=effective_item_names,
     )
 
+    # Reconcile the receipt's extracted location against the caller-supplied settings
+    # default (4-case rule in services/locations.py): receipt wins; else capital/default.
+    resolved_country, resolved_city = resolve_scan_location(
+        country=ext.country,
+        city=ext.city,
+        default_country=default_country,
+        default_city=default_city,
+    )
+
     tx_id = uuid.uuid4()
     tx = Transaction(
         id=tx_id,
         ownership_scope_id=scan.ownership_scope_id,
         transaction_date=tx_date,
         merchant=effective_merchant,
+        country=resolved_country,
+        city=resolved_city,
         store_category_id=store_selection.category_id,
         store_category_source=store_selection.source,
         store_category_confidence=store_selection.confidence,

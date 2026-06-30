@@ -91,6 +91,8 @@ class ProfileResponse(BaseModel):
     display_name: str | None
     email: str | None
     default_currency: str
+    default_country: str | None = None
+    default_city: str | None = None
     date_format: str
     locale: str | None
 
@@ -99,6 +101,8 @@ class RectificationRequest(BaseModel):
     display_name: str | None = None
     email: str | None = None
     default_currency: str | None = Field(default=None, max_length=3)
+    default_country: str | None = Field(default=None, max_length=2)
+    default_city: str | None = Field(default=None, max_length=120)
     date_format: Literal["dd/MM/yyyy", "MM/dd/yyyy"] | None = None
     locale: str | None = None
 

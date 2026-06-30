@@ -35,6 +35,8 @@ def _extraction(
     currency: str = "CLP",
     items: list[tuple[str, str]] | None = None,
     discount: str | None = None,
+    country: str | None = None,
+    city: str | None = None,
 ) -> ExtractionResult:
     if items is None:
         items = [("Leche", "2990"), ("Pan", "13000")]
@@ -42,6 +44,8 @@ def _extraction(
         merchant_name="Jumbo",
         transaction_date="2026-05-12",
         currency_code=currency,
+        country=country,
+        city=city,
         total_amount=Decimal(total),
         discount_amount=Decimal(discount) if discount else None,
         line_items=[LineItemExtraction(name=n, total_price=Decimal(p)) for n, p in items],
@@ -291,6 +295,65 @@ class TestPersistScanResult:
         assert tx.scan_review_level == "none"
         assert tx.scan_review_signals == []
         assert db.add.call_count == 5  # 1 tx + 2 items + 2 images (full + thumbnail)
+
+    @pytest.mark.asyncio
+    async def test_writes_reconciled_scan_location(self):
+        def _fresh_db() -> AsyncMock:
+            currency_row = MagicMock()
+            currency_row.scalar_one_or_none.return_value = MagicMock(exponent=0)
+            cat_rows = MagicMock()
+            cat_rows.scalars.return_value = [
+                MagicMock(key="DairyEggs", id=uuid.uuid4()),
+                MagicMock(key="BreadPastry", id=uuid.uuid4()),
+            ]
+            db = AsyncMock()
+            db.execute = AsyncMock(side_effect=[currency_row, cat_rows])
+            db.add = MagicMock()
+            db.flush = AsyncMock()
+            return db
+
+        with (
+            patch(
+                "app.services.persist_scan.get_fx_rate",
+                new_callable=AsyncMock,
+                side_effect=__import__(
+                    "app.services.fx", fromlist=["FxServiceError"]
+                ).FxServiceError("skip"),
+            ),
+            patch(
+                "app.services.persist_scan.lookup_merchant_mapping",
+                new_callable=AsyncMock,
+                return_value=None,
+            ),
+            patch(
+                "app.services.persist_scan.batch_lookup_item_mappings",
+                new_callable=AsyncMock,
+                return_value={},
+            ),
+        ):
+            # Receipt location present + valid -> it wins (case 1).
+            located = await persist_scan_result(
+                db=_fresh_db(),
+                scan=_mock_scan(),
+                extraction=_extraction(country="CL", city="Santiago"),
+                categorization=_categorization(),
+                verdict=_verdict(),
+                default_country="US",
+                default_city="New York",
+            )
+            # Receipt carries no location -> fall back to the settings default (case 4).
+            fallback = await persist_scan_result(
+                db=_fresh_db(),
+                scan=_mock_scan(),
+                extraction=_extraction(),
+                categorization=_categorization(),
+                verdict=_verdict(),
+                default_country="US",
+                default_city="New York",
+            )
+
+        assert (located.country, located.city) == ("CL", "Santiago")
+        assert (fallback.country, fallback.city) == ("US", "New York")
 
     @pytest.mark.asyncio
     async def test_persists_receipt_recurrence_hint(self):

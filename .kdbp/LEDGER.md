@@ -5803,3 +5803,19 @@ NEXT: Scanning subview (Escaneo) — rebuild to design-lab reference, wire real 
 - 2026-06-29 22:32 | Edit | /home/khujta/projects/apps/gastify/backend/app/services/coalesce.py
 - 2026-06-29 22:33 | Edit | /home/khujta/projects/apps/gastify/backend/app/prompts/receipt/extraction.py
 - 2026-06-29 22:33 | Edit | /home/khujta/projects/apps/gastify/backend/app/prompts/receipt/extraction.py
+
+## 2026-06-29 22:41 — [3e1162b] feat(web): Scanning subview to design-lab reference
+SCOPE: settings/Escaneo rebuilt — currency Select WIRED (default_currency); Ubicación + Indicador-país coming-soon (CS-8/9); Select gains testId hook; currency-switch e2e rewritten for the custom Select. tsc/i18n/lint green, currency-switch e2e pass.
+
+## 2026-06-29 22:41 — [ca466c7] feat(scan): extract country + city from receipts (location step 1)
+SCOPE: country (ISO alpha-2) + city added to Raw/GeminiExtractionResult (now in PydanticAI output_type → enforced), LOCATION prompt section, coalesce carry-through + normalization, extraction_complete log. ruff/mypy clean, 138 scan tests. E2E (Gemini fills location) pending live scan — no API key in dev env.
+NEXT (step 2): regions location dataset (NA/CA/SA/EU/AU+Oceania: ISO country → capital + rich cities; CL comunas→346 from legacy) + 4-case reconciliation in persist → transaction.country/city (needs default_country/city migration).
+- 2026-06-29 22:44 | Write | /home/khujta/projects/apps/gastify/backend/app/services/locations.py
+- 2026-06-29 22:45 | Write | /home/khujta/projects/apps/gastify/backend/tests/test_locations.py
+- 2026-06-29 22:46 | Write | /tmp/claude-1000/-home-khujta-projects-apps-gastify/54614bed-7177-4b86-813f-86de68955392/scratchpad/build_locations.py
+- 2026-06-29 22:47 | Write | /tmp/claude-1000/-home-khujta-projects-apps-gastify/54614bed-7177-4b86-813f-86de68955392/scratchpad/official_346.py
+- 2026-06-29 22:47 | Edit | /tmp/claude-1000/-home-khujta-projects-apps-gastify/54614bed-7177-4b86-813f-86de68955392/scratchpad/build_locations.py
+- 2026-06-29 22:47 | Edit | /tmp/claude-1000/-home-khujta-projects-apps-gastify/54614bed-7177-4b86-813f-86de68955392/scratchpad/build_locations.py
+
+## 2026-06-29 23:11 — STEP 2 (location reconciliation) — pre-commit
+SCOPE: app/reference/locations.json (49 countries, ISO->{name,capital,cities}, CL 346 comunas; lifted from BoletApp + capitals + adversarial audit, 2 comuna fixes) + app/services/locations.py (4-case resolve_scan_location + known_countries/cities_of) + migration 043 (users.default_country/default_city) + consent schema + privacy rectification handler (country validated vs dataset, 422) + persist_scan default params + scan_worker scope-owner lookup -> transaction.country/city. Tests: 11 locations + 1 persist wiring + 2 rectification. ruff/mypy clean, full backend suite 961 green.

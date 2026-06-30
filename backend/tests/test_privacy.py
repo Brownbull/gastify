@@ -46,6 +46,30 @@ async def test_rectification_updates_user(client):
 
 
 @pytest.mark.asyncio
+async def test_rectification_sets_default_location(client):
+    resp = await client.post(
+        "/api/v1/privacy/rectification",
+        json={"default_country": "cl", "default_city": "Santiago"},
+    )
+    assert resp.status_code == 200
+    assert set(resp.json()["updated_fields"]) >= {"default_country", "default_city"}
+
+    profile = await client.get("/api/v1/privacy/profile")
+    body = profile.json()
+    assert body["default_country"] == "CL"  # normalized to uppercase server-side
+    assert body["default_city"] == "Santiago"
+
+
+@pytest.mark.asyncio
+async def test_rectification_unknown_country_returns_422(client):
+    resp = await client.post(
+        "/api/v1/privacy/rectification",
+        json={"default_country": "ZZ"},
+    )
+    assert resp.status_code == 422
+
+
+@pytest.mark.asyncio
 async def test_rectification_empty_body_updates_nothing(client):
     resp = await client.post(
         "/api/v1/privacy/rectification",

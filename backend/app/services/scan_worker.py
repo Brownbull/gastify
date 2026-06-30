@@ -29,7 +29,7 @@ from app.services.boleta import BoletaParseError, decode_boleta_barcode, parse_t
 from app.services.llm_costs import estimate_llm_cost_usd
 from app.services.math_gate import reconcile
 from app.services.notifications import notify_scan_terminal
-from app.services.persist_scan import persist_scan_result
+from app.services.persist_scan import persist_scan_result, scope_owner_default_location
 from app.services.scan_e2e_fixtures import E2EScanFixtureCase, fixture_case_for_scan_image
 from app.services.scan_errors import (
     PermanentScanError,
@@ -504,6 +504,9 @@ async def _run_stage2(
     async with async_session() as db:
         try:
             await set_session_ownership_scope(db, ownership_scope_id)
+            default_country, default_city = await scope_owner_default_location(
+                db, ownership_scope_id
+            )
             transaction = await persist_scan_result(
                 db=db,
                 scan=scan,
@@ -512,6 +515,8 @@ async def _run_stage2(
                 verdict=verdict,
                 review_level=review_level,
                 review_signals=review_signals,
+                default_country=default_country,
+                default_city=default_city,
             )
             # Durably link the scan to its transaction in the SAME commit as the
             # transaction creation (atomic; covers both the completed and needs_review

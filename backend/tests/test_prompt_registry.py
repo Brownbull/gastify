@@ -45,7 +45,7 @@ def test_active_prompt_version_contains_both_prompts_and_model():
         model="gemini-2.5-flash-lite",
     )
 
-    assert "receipt-extraction-current@2026-05-26.0" in version
+    assert "receipt-extraction-current@2026-06-29.0" in version
     assert "item-categorization-current@2026-05-18.1" in version
     assert "store-categorization-current@2026-05-19.1" in version
     assert "gemini-2.5-flash-lite" in version
