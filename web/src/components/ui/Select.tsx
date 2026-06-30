@@ -66,7 +66,7 @@ export function Select({ value, onChange, options, disabled = false, testId, cla
       {open && !disabled ? (
         <ul
           role="listbox"
-          className="absolute inset-x-0 top-full z-20 mt-gt-2 overflow-hidden rounded-gt-lg border-2 border-gt-line-strong bg-gt-surface shadow-gt-md"
+          className="absolute inset-x-0 top-full z-20 mt-gt-2 max-h-72 overflow-y-auto rounded-gt-lg border-2 border-gt-line-strong bg-gt-surface shadow-gt-md"
         >
           {options.map((o) => {
             const sel = o.value === value;

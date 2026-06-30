@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useI18n } from "@/hooks/useI18n";
 import { apiClient } from "@/lib/api";
+import { useLocations } from "@/hooks/useLocations";
 import { SettingsSubviewShell, SettingsField } from "@/components/settings/SettingsSubviewShell";
 import { Select } from "@/components/ui/Select";
 import { SegmentedToggle } from "@/components/ui/SegmentedToggle";
@@ -13,21 +14,30 @@ export const Route = createFileRoute("/settings/scanning")({
 const noop = () => {};
 
 /**
- * Escaneo subview — rebuilt to the design-lab reference: the defaults used when
- * scanning a receipt. Moneda de escaneo is WIRED (default_currency via
- * /privacy/rectification, persisted server-side). Ubicación predeterminada +
- * Indicador de país extranjero have no backing yet, so they render as coming-soon
- * placeholders per D101 (CS-8 / CS-9 in COMING-SOON-REGISTRY.md).
+ * Escaneo subview — the defaults used when scanning a receipt. Moneda de escaneo,
+ * País + Ciudad predeterminados are all WIRED: default_currency / default_country /
+ * default_city via /privacy/rectification (persisted), with the country/city
+ * options served by /reference/locations. The default location is the scan-location
+ * reconciliation fallback when a receipt has no determinable location (D103).
+ * Indicador de país extranjero is not backed yet → coming-soon (CS-9, D101).
  */
 function ScanningSubview() {
   const { t } = useI18n();
-  const [current, setCurrent] = useState<string | null>(null);
-  const [saving, setSaving] = useState(false);
+  const locations = useLocations();
+  const [currency, setCurrency] = useState<string | null>(null);
+  const [country, setCountry] = useState<string>("");
+  const [city, setCity] = useState<string>("");
+  const [savingCurrency, setSavingCurrency] = useState(false);
+  const [savingLocation, setSavingLocation] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
     apiClient.GET("/api/v1/privacy/profile").then(({ data }) => {
-      if (!cancelled && data) setCurrent(data.default_currency);
+      if (!cancelled && data) {
+        setCurrency(data.default_currency);
+        setCountry(data.default_country ?? "");
+        setCity(data.default_city ?? "");
+      }
     });
     return () => {
       cancelled = true;
@@ -35,23 +45,61 @@ function ScanningSubview() {
   }, []);
 
   const onCurrencyChange = async (code: string) => {
-    setSaving(true);
-    const previous = current;
-    setCurrent(code);
+    setSavingCurrency(true);
+    const previous = currency;
+    setCurrency(code);
     const { error } = await apiClient.POST("/api/v1/privacy/rectification", {
       body: { default_currency: code },
     });
-    setSaving(false);
-    if (error) setCurrent(previous);
+    setSavingCurrency(false);
+    if (error) setCurrency(previous);
   };
+
+  // Picking a country resets the city — the old city belongs to another country.
+  const onCountryChange = async (code: string) => {
+    setSavingLocation(true);
+    const prevCountry = country;
+    const prevCity = city;
+    setCountry(code);
+    setCity("");
+    const { error } = await apiClient.POST("/api/v1/privacy/rectification", {
+      body: { default_country: code, default_city: null },
+    });
+    setSavingLocation(false);
+    if (error) {
+      setCountry(prevCountry);
+      setCity(prevCity);
+    }
+  };
+
+  const onCityChange = async (value: string) => {
+    setSavingLocation(true);
+    const previous = city;
+    setCity(value);
+    const { error } = await apiClient.POST("/api/v1/privacy/rectification", {
+      body: { default_city: value },
+    });
+    setSavingLocation(false);
+    if (error) setCity(previous);
+  };
+
+  const countryOptions = (locations.data?.countries ?? []).map((c) => ({
+    value: c.code,
+    label: c.name,
+  }));
+  const cityOptions = ((country && locations.data?.cities[country]) || []).map((c) => ({
+    value: c,
+    label: c,
+  }));
+  const locationsLoading = locations.isLoading || currency === null;
 
   return (
     <SettingsSubviewShell title={t("settings.row.scanning")}>
       <SettingsField label={t("settings.scanning.currency")} hint={t("settings.scanning.currencyHint")}>
         <Select
           testId="settings-currency-select"
-          disabled={current === null || saving}
-          value={current ?? "CLP"}
+          disabled={currency === null || savingCurrency}
+          value={currency ?? "CLP"}
           onChange={(v) => void onCurrencyChange(v)}
           options={[
             { value: "CLP", label: t("settings.scanning.currencyCLP") },
@@ -61,17 +109,23 @@ function ScanningSubview() {
         />
       </SettingsField>
 
-      <SettingsField label={t("settings.scanning.location")} hint={t("settings.scanning.locationHint")} comingSoon>
+      <SettingsField label={t("settings.scanning.country")} hint={t("settings.scanning.locationHint")}>
         <Select
-          disabled
-          value="santiago"
-          onChange={noop}
-          options={[
-            { value: "santiago", label: "Santiago, Chile" },
-            { value: "villarrica", label: "Villarrica, Chile" },
-            { value: "vina", label: "Viña del Mar, Chile" },
-            { value: "concepcion", label: "Concepción, Chile" },
-          ]}
+          testId="settings-country-select"
+          disabled={locationsLoading || savingLocation}
+          value={country}
+          onChange={(v) => void onCountryChange(v)}
+          options={countryOptions}
+        />
+      </SettingsField>
+
+      <SettingsField label={t("settings.scanning.city")}>
+        <Select
+          testId="settings-city-select"
+          disabled={!country || locationsLoading || savingLocation}
+          value={city}
+          onChange={(v) => void onCityChange(v)}
+          options={cityOptions}
         />
       </SettingsField>
 

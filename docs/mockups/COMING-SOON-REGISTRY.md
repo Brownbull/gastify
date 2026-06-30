@@ -12,7 +12,6 @@
 | CS-3 | Settings · Preferencias | Color de fuente (Colorido/Simple) | No font-color setting | ✅ disabled SegmentedToggle | Needs an ink-vs-accent text mode + persisted pref |
 | CS-6 | Settings · Perfil | Cambiar foto (avatar upload) | No avatar/photo storage or upload path | ✅ disabled ghost button | Needs photo upload + storage + user.photoURL write |
 | CS-7 | Settings · Perfil | Editar nombre + Guardar cambios | No profile-write endpoint (name/email read-only from Firebase) | ✅ disabled Nombre input + disabled "Guardar cambios" | Needs a profile-update endpoint (or Firebase updateProfile wiring) |
-| CS-8 | Settings · Escaneo | Ubicación predeterminada | No `default_location` field on the user model / rectification API | ✅ disabled Select (Santiago…) | Needs a default-location field on the profile + write endpoint + use it in scan fallback |
 | CS-9 | Settings · Escaneo | Indicador de país extranjero (Código/Bandera) | No setting; transactions don't render a foreign-country indicator yet | ✅ disabled SegmentedToggle | Needs a persisted display pref + wiring into the transactions/list rendering |
 
 ## Intentionally dropped from mockups (NOT coming-soon)
@@ -31,3 +30,4 @@ Mockup elements that started as coming-soon placeholders and are now fully built
 |-----|------------------|---------|----------|------|
 | CS-4 | Settings · Preferencias | Tipografía (Outfit/Space Grotesk) | Persisted font-family pref (uiStore → lib/appearance → `<html data-font>`; global.css re-points `--font-family`/`--font-display`) | 2026-06-29 (user direction) |
 | CS-5 | Settings · Preferencias | Tamaño de fuente (Pequeño/Normal/Grande) | Persisted font-size pref — 3 steps (~0.88x / 1x / 1.15x); `<html data-fontsize="small"\|"large">` overrides the inlined text-gt-* utilities in global.css. (Mockup had 2; extended to 3 per user direction.) | 2026-06-29 (user direction) |
+| CS-8 | Settings · Escaneo | Ubicación predeterminada | País + Ciudad selectors (options from `/reference/locations`; `default_country`/`default_city` persisted via rectification, migration 043). The mockup's single location Select became a country + dependent-city pair (D103). Doubles as the scan-location reconciliation fallback. | 2026-06-30 (D103) |
