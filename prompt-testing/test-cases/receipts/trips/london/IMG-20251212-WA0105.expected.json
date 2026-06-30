@@ -1,0 +1,37 @@
+{
+  "metadata": {
+    "testId": "IMG-20251212-WA0105",
+    "storeType": "retail",
+    "difficulty": "easy",
+    "region": "GB",
+    "source": "manual-v3-audit-2026-06-30",
+    "truthVersion": "2026-06-30.audit-v1",
+    "notes": "Ground-truth baseline transcribed from the receipt image during the P108 v3 audit (v3 matched cleanly)."
+  },
+  "aiExtraction": {
+    "merchant": "Adidas",
+    "date": "2025-05-20",
+    "time": null,
+    "total": 16500,
+    "currency": "GBP",
+    "category": null,
+    "country": "GB",
+    "city": "London",
+    "items": [
+      {
+        "name": "ULTRABOOST 5X M MER CBLACK/SEMIR",
+        "unitPrice": 16500,
+        "totalPrice": 16500,
+        "quantity": 1,
+        "category": null,
+        "subcategory": null
+      }
+    ],
+    "aiMetadata": {
+      "receiptType": "retail",
+      "confidence": 1,
+      "source": "manual visual inspection (v3 audit)"
+    }
+  },
+  "corrections": {}
+}

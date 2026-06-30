@@ -1,0 +1,37 @@
+{
+  "metadata": {
+    "testId": "IMG-20251212-WA0107",
+    "storeType": "retail",
+    "difficulty": "easy",
+    "region": "GB",
+    "source": "manual-v3-audit-2026-06-30",
+    "truthVersion": "2026-06-30.audit-v1",
+    "notes": "Ground-truth baseline transcribed from the receipt image during the P108 v3 audit (v3 matched cleanly)."
+  },
+  "aiExtraction": {
+    "merchant": "Science Museum Store",
+    "date": "2025-05-26",
+    "time": null,
+    "total": 1200,
+    "currency": "GBP",
+    "category": null,
+    "country": "GB",
+    "city": "London",
+    "items": [
+      {
+        "name": "World's Smallest Plasma Ball",
+        "unitPrice": 1200,
+        "totalPrice": 1200,
+        "quantity": 1,
+        "category": null,
+        "subcategory": null
+      }
+    ],
+    "aiMetadata": {
+      "receiptType": "retail",
+      "confidence": 1,
+      "source": "manual visual inspection (v3 audit)"
+    }
+  },
+  "corrections": {}
+}

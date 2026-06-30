@@ -39,6 +39,20 @@ ZERO_EXPONENT_CURRENCIES = frozenset(
 
 CLP_THOUSANDS_SEPARATORS = frozenset({"CLP"})
 INCLUDED_TAX_CURRENCIES = frozenset({"CLP"})
+# When the model cannot read a country but the currency uniquely identifies one, infer it
+# (P108 audit: GBP receipts from Tesco/M&S returned country=null). USD/EUR are intentionally
+# absent — they are multi-country, so they stay null rather than guessing.
+SINGLE_COUNTRY_CURRENCIES = {
+    "CLP": "CL",
+    "GBP": "GB",
+    "JPY": "JP",
+    "KRW": "KR",
+    "MXN": "MX",
+    "BRL": "BR",
+    "CAD": "CA",
+    "AUD": "AU",
+    "NZD": "NZ",
+}
 CURRENCY_EXPONENTS = {
     "CLP": 0,
     "JPY": 0,
@@ -232,6 +246,10 @@ def coalesce_extraction(
         if len(raw_country) == 2 and raw_country.isalpha() and raw_country.lower() not in _NULLISH
         else None
     )
+    if country is None:
+        # Deterministic fallback: a single-country currency pins the country even when the
+        # model could not read an address (P108: GBP -> GB on Tesco/M&S). USD/EUR stay null.
+        country = SINGLE_COUNTRY_CURRENCIES.get(currency)
     raw_city = (result.city or "").strip()
     city = raw_city if raw_city and raw_city.lower() not in _NULLISH else None
 

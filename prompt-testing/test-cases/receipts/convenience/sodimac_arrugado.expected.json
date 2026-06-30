@@ -1,0 +1,61 @@
+{
+  "metadata": {
+    "testId": "sodimac_arrugado",
+    "storeType": "hardware",
+    "difficulty": "medium",
+    "region": "CL",
+    "source": "manual-v3-audit-2026-06-30",
+    "truthVersion": "2026-06-30.audit-v1",
+    "notes": "Ground-truth baseline transcribed from the receipt image during the P108 v3 audit (v3 matched cleanly)."
+  },
+  "aiExtraction": {
+    "merchant": "SODIMAC S.A.",
+    "date": "2025-09-06",
+    "time": null,
+    "total": 16740,
+    "currency": "CLP",
+    "category": null,
+    "country": "CL",
+    "city": "VILLARRICA",
+    "items": [
+      {
+        "name": "CONECTOR RIEGO FLEXIBLE 1/2\"",
+        "unitPrice": 2690,
+        "totalPrice": 2690,
+        "quantity": 1,
+        "category": null,
+        "subcategory": null
+      },
+      {
+        "name": "UNION RAPIDA PLASTICA 1/2",
+        "unitPrice": 1190,
+        "totalPrice": 3570,
+        "quantity": 3,
+        "category": null,
+        "subcategory": null
+      },
+      {
+        "name": "CONEC RAP PLAS 1/2 XHI 1/2-3/",
+        "unitPrice": 1790,
+        "totalPrice": 1790,
+        "quantity": 1,
+        "category": null,
+        "subcategory": null
+      },
+      {
+        "name": "CONECTOR 1/2\" HI 3/4\"-1\" BRON",
+        "unitPrice": 8690,
+        "totalPrice": 8690,
+        "quantity": 1,
+        "category": null,
+        "subcategory": null
+      }
+    ],
+    "aiMetadata": {
+      "receiptType": "boleta",
+      "confidence": 1,
+      "source": "manual visual inspection (v3 audit)"
+    }
+  },
+  "corrections": {}
+}

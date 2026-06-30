@@ -5861,3 +5861,12 @@ CHANGE: policy v2 (near_miss_item_delta_minor_units=5, near_miss_item_delta_rati
 VALIDATION (re-scored v3 cache, no Gemini): test_villarrica significant->minor (3-peso slip); US/descuentos + wtf stay significant (real failures). 3 -> 2 significant; no genuine masked. 3 TDD tests.
 RESOLVED: P103.
 - 2026-06-30 13:21 | Edit | /home/khujta/projects/apps/gastify/backend/app/services/scan_worker.py
+
+## 2026-06-30 13:27 — [45687b3] feat(scan): wire user-home currency fallback + ambiguous-date resolver (P104, P105)
+CHECKS: lint pass, types 0, tests 975 passed. Adversarial review (4 finders -> 1 confirmed HIGH, fixed).
+P104: extract_receipt home_currency injection + _run_stage1 scope-owner currency load (wrapped: DB fault -> CLP, no scan stranding). coalesce CLP floor kept.
+P105: persist_scan._resolve_transaction_date + _parse_date_by_format (ambiguous date -> owner date_format dd/MM vs MM/dd); fixes latent _parse_date->today() data-loss. Threaded via widened scope_owner_settings -> _run_stage2 (all pipelines).
+TESTS: 15 new (11 resolver, 2 injection, 1 stage1-fault). REVIEW HIGH: stage1 settings-load was outside the try -> a transient DB fault stranded the scan in SUBMITTED forever; wrapped to degrade to CLP.
+RESOLVED: P104, P105.
+- 2026-06-30 14:02 | Edit | /home/khujta/projects/apps/gastify/backend/app/services/coalesce.py
+- 2026-06-30 14:02 | Edit | /home/khujta/projects/apps/gastify/backend/app/services/coalesce.py

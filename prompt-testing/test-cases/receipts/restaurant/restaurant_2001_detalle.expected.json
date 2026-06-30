@@ -1,0 +1,53 @@
+{
+  "metadata": {
+    "testId": "restaurant_2001_detalle",
+    "storeType": "restaurant",
+    "difficulty": "medium",
+    "region": "CL",
+    "source": "manual-v3-audit-2026-06-30",
+    "truthVersion": "2026-06-30.audit-v1",
+    "notes": "Ground-truth baseline transcribed from the receipt image during the P108 v3 audit (v3 matched cleanly)."
+  },
+  "aiExtraction": {
+    "merchant": "SOCIEDAD CAFE 2001 LIMITADA",
+    "date": "2025-11-03",
+    "time": null,
+    "total": 23700,
+    "currency": "CLP",
+    "category": null,
+    "country": "CL",
+    "city": "Villarrica",
+    "items": [
+      {
+        "name": "Lomo Tomate Mayo",
+        "unitPrice": 8600,
+        "totalPrice": 8600,
+        "quantity": 1,
+        "category": null,
+        "subcategory": null
+      },
+      {
+        "name": "Ch Italiano",
+        "unitPrice": 10400,
+        "totalPrice": 10400,
+        "quantity": 1,
+        "category": null,
+        "subcategory": null
+      },
+      {
+        "name": "Italiano",
+        "unitPrice": 4700,
+        "totalPrice": 4700,
+        "quantity": 1,
+        "category": null,
+        "subcategory": null
+      }
+    ],
+    "aiMetadata": {
+      "receiptType": "restaurant",
+      "confidence": 1,
+      "source": "manual visual inspection (v3 audit)"
+    }
+  },
+  "corrections": {}
+}
