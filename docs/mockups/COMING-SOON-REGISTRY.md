@@ -12,3 +12,13 @@
 | CS-3 | Settings · Preferencias | Color de fuente (Colorido/Simple) | No font-color setting | ✅ disabled SegmentedToggle | Needs an ink-vs-accent text mode + persisted pref |
 | CS-4 | Settings · Preferencias | Tipografía (Outfit/Space Grotesk) | Single typeface only; no switcher | ✅ disabled Select | Needs runtime font-family swap + persisted pref |
 | CS-5 | Settings · Preferencias | Tamaño de fuente (Normal/Pequeño) | No font-size/scale setting | ✅ disabled SegmentedToggle | Needs a root font-scale + persisted pref |
+| CS-6 | Settings · Perfil | Cambiar foto (avatar upload) | No avatar/photo storage or upload path | ✅ disabled ghost button | Needs photo upload + storage + user.photoURL write |
+| CS-7 | Settings · Perfil | Editar nombre + Guardar cambios | No profile-write endpoint (name/email read-only from Firebase) | ✅ disabled Nombre input + disabled "Guardar cambios" | Needs a profile-update endpoint (or Firebase updateProfile wiring) |
+
+## Intentionally dropped from mockups (NOT coming-soon)
+
+These mockup elements are deliberately **not built and not placeholdered** — a product decision, recorded so they are not silently re-added when porting the design.
+
+| Screen / subview | Element | Decision + rationale | Date |
+|------------------|---------|----------------------|------|
+| Settings · Perfil | Teléfono (+56 …) | **Dropped — do not collect.** Data minimization / privacy: we choose not to store users' phone numbers, so the field is removed entirely rather than shown as coming-soon. | 2026-06-29 (user direction) |

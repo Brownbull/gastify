@@ -4,8 +4,8 @@ import { useI18n } from "@/hooks/useI18n";
 import { type SupportedLocale } from "@/lib/i18n";
 import { apiClient } from "@/lib/api";
 import { SettingsSubviewShell, SettingsField, SettingsGroupHeading } from "@/components/settings/SettingsSubviewShell";
-import { SegmentedToggle } from "@design-system/atoms/SegmentedToggle";
-import { Select } from "@design-system/atoms/Select";
+import { SegmentedToggle } from "@/components/ui/SegmentedToggle";
+import { Select } from "@/components/ui/Select";
 
 export const Route = createFileRoute("/settings/preferences")({
   component: PreferencesSubview,

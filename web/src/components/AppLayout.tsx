@@ -181,7 +181,9 @@ export function AppLayout({ children }: AppLayoutProps) {
             data-testid="app-overlay"
             className="fixed inset-0 z-45 overflow-y-auto bg-gt-bg lg:absolute"
           >
-            <div className="min-h-full px-4 py-5 pb-28 sm:px-6 lg:p-8">{children}</div>
+            {/* No pb-28 here: the overlay hides the bottom nav, so the extra
+                bottom clearance would just be dead space after the last row. */}
+            <div className="min-h-full px-4 py-5 sm:px-6 lg:p-8">{children}</div>
           </div>
         ) : null}
       </div>

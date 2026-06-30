@@ -24,16 +24,19 @@
   --border: var(--border-light);
 }
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body {
-  font-family: var(--font-family);
-  background-color: var(--bg);
-  color: var(--text-primary);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+/* NOTE: the hand-written `* { margin:0; padding:0; box-sizing:border-box }` reset
+   that used to live here was REMOVED — it was UN-LAYERED, so it beat every
+   `@layer utilities` rule (CSS: un-layered > any layer), silently collapsing all
+   `px-gt-*`/`py-gt-*` padding to 0 across the app (gap/colors survived). Tailwind's
+   own preflight already applies the identical reset inside `@layer base`, where it
+   correctly loses to utilities. Keep app base styles in `@layer base` so utilities
+   always win. */
+@layer base {
+  body {
+    font-family: var(--font-family);
+    background-color: var(--bg);
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
 }

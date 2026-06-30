@@ -5764,3 +5764,7 @@ PREFERENCES (first subview, partial): rebuilt to the design (General: idioma + f
 i18n CAVEAT: design-lab screens hardcode Spanish; web supplies i18n copy to the imported components (visual from design-lab, copy from web's i18n).
 VERIFY: tsc clean, token guard, vitest 137/137, eslint 0 errors, vite build green.
 NEXT: swap web's SettingsSubviewShell + hub rows to the real design-lab primitives/screens (prop-ified for data+i18n), then each subview, per-screen acceptance.
+- 2026-06-29 20:00 | Edit | /home/khujta/projects/apps/gastify/web/src/styles/global.css
+- 2026-06-29 20:50 | Edit | /home/khujta/projects/apps/gastify/web/src/routes/settings.index.tsx
+- 2026-06-29 20:50 | Edit | /home/khujta/projects/apps/gastify/web/src/routes/settings.index.tsx
+- 2026-06-29 20:54 | Edit | /home/khujta/projects/apps/gastify/web/src/components/AppLayout.tsx

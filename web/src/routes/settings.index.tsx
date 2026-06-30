@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate, useRouter } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { type ReactNode } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useI18n } from "@/hooks/useI18n";
@@ -124,16 +124,17 @@ function SettingsRow({ row }: { row: SettingsRowData }) {
 
 function SettingsHub() {
   const { t } = useI18n();
-  const router = useRouter();
+  const navigate = useNavigate();
   return (
     <div className="mx-auto w-full max-w-2xl">
-      {/* Overlay close: back arrow dismisses the settings overlay (DF1). */}
+      {/* Settings-hub back always returns to the home screen (not history.back,
+          which lands on whatever route you came from). */}
       <div className="flex items-center gap-gt-8 pb-gt-12">
         <button
           type="button"
           aria-label={t("common.back")}
           data-testid="settings-close"
-          onClick={() => router.history.back()}
+          onClick={() => void navigate({ to: "/" })}
           className="grid h-9 w-9 shrink-0 place-items-center rounded-gt-lg text-gt-ink transition hover:-translate-x-0.5"
         >
           <ChevronLeftIcon className="h-7 w-7" />
