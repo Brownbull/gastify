@@ -5819,3 +5819,8 @@ NEXT (step 2): regions location dataset (NA/CA/SA/EU/AU+Oceania: ISO country →
 
 ## 2026-06-29 23:11 — STEP 2 (location reconciliation) — pre-commit
 SCOPE: app/reference/locations.json (49 countries, ISO->{name,capital,cities}, CL 346 comunas; lifted from BoletApp + capitals + adversarial audit, 2 comuna fixes) + app/services/locations.py (4-case resolve_scan_location + known_countries/cities_of) + migration 043 (users.default_country/default_city) + consent schema + privacy rectification handler (country validated vs dataset, 422) + persist_scan default params + scan_worker scope-owner lookup -> transaction.country/city. Tests: 11 locations + 1 persist wiring + 2 rectification. ruff/mypy clean, full backend suite 961 green.
+- 2026-06-29 23:19 | Write | /tmp/claude-1000/-home-khujta-projects-apps-gastify/54614bed-7177-4b86-813f-86de68955392/scratchpad/cl-cities.json
+- 2026-06-29 23:20 | Edit | /home/khujta/projects/apps/gastify/backend/tests/test_locations.py
+
+## 2026-06-29 23:26 — consolidate Chile to cities (user direction)
+CL 346 comunas -> 125 curated cities (16 regional capitals + major cities + tourism towns; Greater Santiago collapsed to one "Santiago"). Consistent with the other 48 countries (all cities). Capital stays Santiago; reconciliation's "city not in DB -> capital" rule collapses comuna-level receipts (e.g. "Las Condes" -> Santiago). User confirmed granularity + the capital-fallback behavior. Load test invariant loosened 346 -> city-range. 55 location/persist/privacy tests green.

@@ -103,7 +103,10 @@ def test_cities_of_returns_country_cities() -> None:
 def test_shipped_dataset_invariants() -> None:
     data = location_dataset()
     assert len(data) >= 40, "expected the curated operating-region coverage"
-    assert len(data["CL"]["cities"]) == 346, "Chile must carry all 346 official comunas"
+    assert data["CL"]["capital"] == "Santiago"
+    # Chile is stored as CITIES (not its 346 administrative comunas), consistent with
+    # every other country in the dataset.
+    assert 40 <= len(data["CL"]["cities"]) <= 200, "Chile carries a curated city list"
     for code, entry in data.items():
         assert re.fullmatch(r"[A-Z]{2}", code), f"non ISO-alpha-2 key: {code}"
         assert entry["name"] and entry["capital"] and entry["cities"], f"{code}: empty field"
