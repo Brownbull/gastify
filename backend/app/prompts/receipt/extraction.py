@@ -184,4 +184,14 @@ PROMPTS: tuple[PromptDefinition, ...] = (
         user_prompt=RECEIPT_STRUCTURE_USER_PROMPT,
         notes="Dev-only evidence-rich candidate for raw/processed prompt-lab comparison.",
     ),
+    PromptDefinition(
+        id="receipt-extraction-location",
+        kind="receipt-extraction",
+        name="Receipt extraction + location candidate",
+        version="2026-06-29.location-dev.1",
+        status="dev-only",
+        system_prompt=RECEIPT_STRUCTURE_CURRENT,
+        user_prompt=RECEIPT_STRUCTURE_USER_PROMPT,
+        notes="Dev-only candidate validating country (ISO-2) + city extraction via the prompt-lab.",
+    ),
 )

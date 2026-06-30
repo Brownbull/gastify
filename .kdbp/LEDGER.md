@@ -5824,3 +5824,6 @@ SCOPE: app/reference/locations.json (49 countries, ISO->{name,capital,cities}, C
 
 ## 2026-06-29 23:26 — consolidate Chile to cities (user direction)
 CL 346 comunas -> 125 curated cities (16 regional capitals + major cities + tourism towns; Greater Santiago collapsed to one "Santiago"). Consistent with the other 48 countries (all cities). Capital stays Santiago; reconciliation's "city not in DB -> capital" rule collapses comuna-level receipts (e.g. "Las Condes" -> Santiago). User confirmed granularity + the capital-fallback behavior. Load test invariant loosened 346 -> city-range. 55 location/persist/privacy tests green.
+
+## 2026-06-29 23:45 — STEP 1 live-scan proof (prompt-lab)
+Added dev-only candidate receipt-extraction-location; ran 3 live Gemini scans via the prompt-lab (real Chilean receipt fixtures: copec, cafe-2001, super_lider). ALL extracted country=CL + city=Villarrica. Proves LOCATION extraction works end-to-end on real receipts. Reconciliation canonicalizes "VILLARRICA"->"Villarrica" (in the 125-city list — the tourism town kept distinct per user). Production receipt-extraction-current already carries the same LOCATION block (effectively promoted + now lab-validated). Key auto-loaded from backend/.env.staging GOOGLE_API_KEY.
