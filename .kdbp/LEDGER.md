@@ -5883,3 +5883,12 @@ FOLLOW-UPS: +P109 (discount/promo + reconciliation, subsumes P107), +P110 (date 
 - 2026-06-30 16:46 | Edit | /home/khujta/projects/apps/gastify/web/src/lib/i18n.ts
 - 2026-06-30 16:47 | Edit | /home/khujta/projects/apps/gastify/tests/web-e2e/learned-mappings.spec.ts
 - 2026-06-30 17:27 | Edit | /home/khujta/projects/apps/gastify/.gitignore
+- 2026-06-30 17:29 | Edit | /home/khujta/projects/apps/gastify/web/src/routes/settings.help.tsx
+- 2026-06-30 17:29 | Edit | /home/khujta/projects/apps/gastify/web/src/routes/settings.memory.tsx
+- 2026-06-30 17:29 | Edit | /home/khujta/projects/apps/gastify/docs/mockups/COMING-SOON-REGISTRY.md
+
+## 2026-06-30 17:32 — [2b85285] feat(web): settings subview fidelity — Profile/Help/Memory/Data + atoms
+CHECKS: ✅ lint(0) ✅ types(0) ✅ tests(145/145 web vitest) — mvp
+FINDINGS: 2 low, 0 critical (accepted: Layer-4 mockup-INDEX not bumped — registry CS rows don't change INDEX inventory; i18n.ts >800 — pre-existing translation dict, CHECK-5 below activation)
+ACTIONS: accept(both low)
+SCOPE: DF settings fidelity — rebuilt Profile (name-edit wired)/Help (stub→full)/Memory (mappings+category resolution)/Data (consent+privacy) to design-lab reference; vendored Switch/Modal/Pagination atoms; +useMappings/useConsent/useDataAccess/useItemCategories hooks; registered CS-10..CS-14. Net-new Subscription/Cards/Limits + adversarial review + Playwright proof still pending before push.

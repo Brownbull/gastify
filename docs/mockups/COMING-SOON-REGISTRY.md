@@ -17,6 +17,11 @@
 | CS-12 | Settings · Ayuda | Política de privacidad | No backend privacy-policy endpoint | ✅ link opens Modal with placeholder copy (marked "ejemplo") | Needs a privacy-policy text source |
 | CS-13 | Settings · Ayuda | Contacto y soporte | No contact/support endpoint or form | ✅ link opens Modal with placeholder copy (support email) | Needs a contact form / support-inbox integration |
 | CS-14 | Settings · Mi memoria | Aprender de mis correcciones (toggle) | No backend flag to disable learning — gastify always learns from corrections today | ✅ disabled Switch (on) + "Próximamente" badge | Needs a user-level learning_enabled flag + a gate in the categorization pipeline |
+| CS-15 | Settings · Suscripción | Mejorar a Pro (self-serve upgrade) | No payment gateway wired (billing.set_tier is internal/admin only) | ✅ upgrade card + benefits live; "Mejorar a Pro" opens an honest "coming soon" Modal | Needs a payment-gateway integration + a self-serve checkout/webhook → set_tier |
+| CS-16 | Settings · Mis tarjetas | Color + icono por tarjeta | card_aliases stores only {name, archived_at} — no color/icon fields | ✅ list/add/rename/archive wired; cards render a fixed icon | Needs color + icon columns on card_aliases + the AddCardForm picker |
+| CS-17 | Settings · Mis tarjetas | Método predeterminado + Efectivo (cash) | No cash entity and no default-method flag in the backend | ✅ omitted (cards-only) | Needs a payment-method/default model (cash + default selection) beyond card_aliases |
+| CS-18 | Settings · Mis tarjetas | Restaurar tarjeta archivada | Archive (DELETE) is one-way — no un-archive endpoint (PATCH 404s on archived) | ✅ archive wired; archived cards hidden (no restore) | Needs an un-archive endpoint (clear archived_at) |
+| CS-19 | Settings · Límites | Límites de gasto por categoría | No spending-limit / budget endpoint exists in the backend | ✅ full preview screen (master toggle + per-category budget cards + usage bars) with illustrative values + "Próximamente"/"Vista previa" framing | Needs a budget model (per-category monthly limits) + spend aggregation + threshold alerts |
 
 ## Intentionally dropped from mockups (NOT coming-soon)
 

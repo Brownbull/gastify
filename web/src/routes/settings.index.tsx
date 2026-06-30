@@ -14,6 +14,9 @@ export const Route = createFileRoute("/settings/")({
 /** valid navigation targets for a settings row. */
 type SettingsTarget =
   | "/settings/profile"
+  | "/settings/subscription"
+  | "/settings/cards"
+  | "/settings/limits"
   | "/settings/scanning"
   | "/settings/preferences"
   | "/settings/memory"
@@ -44,15 +47,15 @@ const GROUPS: SettingsGroup[] = [
     heading: "settings.section.account",
     rows: [
       { key: "profile", label: "settings.row.profile", sub: "settings.sub.profile", icon: "snowshoe-face-wave", to: "/settings/profile" },
-      { key: "subscription", label: "settings.row.subscription", sub: "settings.sub.subscription", icon: "credit-super", comingSoon: true },
-      { key: "cards", label: "settings.row.cards", sub: "settings.sub.cards", icon: "card-blue", comingSoon: true },
+      { key: "subscription", label: "settings.row.subscription", sub: "settings.sub.subscription", icon: "credit-super", to: "/settings/subscription" },
+      { key: "cards", label: "settings.row.cards", sub: "settings.sub.cards", icon: "card-blue", to: "/settings/cards" },
       { key: "notifications", label: "settings.row.notifications", sub: "settings.sub.notifications", icon: "nav-alerts", to: "/notifications" },
     ],
   },
   {
     heading: "settings.section.preferences",
     rows: [
-      { key: "limits", label: "settings.row.limits", sub: "settings.sub.limits", icon: "fin-budget", comingSoon: true },
+      { key: "limits", label: "settings.row.limits", sub: "settings.sub.limits", icon: "fin-budget", to: "/settings/limits" },
       { key: "scanning", label: "settings.row.scanning", sub: "settings.sub.scanning", icon: "nav-scan", to: "/settings/scanning" },
       { key: "preferences", label: "settings.row.preferences", sub: "settings.sub.preferences", icon: "settings-sliders", to: "/settings/preferences" },
     ],
