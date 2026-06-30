@@ -26,6 +26,8 @@ from app.services.persist_scan import (
     _estimate_total_cost,
     _get_usd_shadow,
     _parse_date,
+    _parse_date_by_format,
+    _resolve_transaction_date,
     persist_scan_result,
 )
 
@@ -108,6 +110,48 @@ class TestParseDate:
     def test_empty_string_returns_today(self):
         result = _parse_date("")
         assert result == date.today()
+
+
+class TestParseDateByFormat:
+    def test_day_first_format(self):
+        assert _parse_date_by_format("05/06/2023", "dd/MM/yyyy") == date(2023, 6, 5)
+
+    def test_month_first_format_inverts(self):
+        # Same string, opposite order -> the setting drives the interpretation.
+        assert _parse_date_by_format("05/06/2023", "MM/dd/yyyy") == date(2023, 5, 6)
+
+    def test_separator_normalization(self):
+        assert _parse_date_by_format("05-06-2023", "dd/MM/yyyy") == date(2023, 6, 5)
+        assert _parse_date_by_format("05.06.2023", "dd/MM/yyyy") == date(2023, 6, 5)
+
+    def test_two_digit_year_maps_to_2000s(self):
+        assert _parse_date_by_format("05/06/23", "dd/MM/yyyy") == date(2023, 6, 5)
+
+    def test_invalid_day_falls_back_to_today(self):
+        assert _parse_date_by_format("32/01/2023", "dd/MM/yyyy") == date.today()
+
+    def test_malformed_two_part_falls_back_to_today(self):
+        assert _parse_date_by_format("05/06", "dd/MM/yyyy") == date.today()
+
+    def test_garbage_falls_back_to_today(self):
+        assert _parse_date_by_format("abc", "dd/MM/yyyy") == date.today()
+
+
+class TestResolveTransactionDate:
+    def test_ambiguous_uses_user_format(self):
+        # date_format_ambiguous -> parse the printed date with the owner's setting.
+        assert _resolve_transaction_date("05/06/2023", True, "dd/MM/yyyy") == date(2023, 6, 5)
+        assert _resolve_transaction_date("05/06/2023", True, "MM/dd/yyyy") == date(2023, 5, 6)
+
+    def test_ambiguous_without_user_format_defaults_day_first(self):
+        assert _resolve_transaction_date("05/06/2023", True, None) == date(2023, 6, 5)
+
+    def test_not_ambiguous_uses_iso_parse(self):
+        # Determinable dates arrive already normalized to YYYY-MM-DD.
+        assert _resolve_transaction_date("2023-06-05", False, "MM/dd/yyyy") == date(2023, 6, 5)
+
+    def test_not_ambiguous_malformed_falls_back_to_today(self):
+        assert _resolve_transaction_date("05/06/2023", False, "dd/MM/yyyy") == date.today()
 
 
 class TestEstimateTotalCost:

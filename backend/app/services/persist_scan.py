@@ -64,14 +64,27 @@ class _StoreCategorySelection:
     latency_ms: float = 0.0
 
 
-async def scope_owner_default_location(
+async def scope_owner_settings(
     db: AsyncSession, ownership_scope_id: uuid.UUID | None
-) -> tuple[str | None, str | None]:
-    """The scope owner's settings default location — the scan-location fallback."""
+) -> tuple[str | None, str | None, str, str]:
+    """The scope owner's scan-relevant settings.
+
+    Returns ``(default_country, default_city, default_currency, date_format)``.
+    Location is the scan-location reconciliation fallback (D103); default_currency
+    is the home-currency fallback injected into the extraction prompt (P104); and
+    date_format resolves an ambiguous receipt date deterministically (P105). The
+    currency/format defaults mirror the User model server-defaults so a missing
+    owner still yields valid values.
+    """
     if ownership_scope_id is None:
-        return None, None
+        return None, None, "CLP", "dd/MM/yyyy"
     row = await db.execute(
-        select(User.default_country, User.default_city)
+        select(
+            User.default_country,
+            User.default_city,
+            User.default_currency,
+            User.date_format,
+        )
         .join(OwnershipScopeMember, OwnershipScopeMember.user_id == User.id)
         .where(
             OwnershipScopeMember.ownership_scope_id == ownership_scope_id,
@@ -80,7 +93,14 @@ async def scope_owner_default_location(
         .limit(1)
     )
     result = row.first()
-    return (result.default_country, result.default_city) if result else (None, None)
+    if result is None:
+        return None, None, "CLP", "dd/MM/yyyy"
+    return (
+        result.default_country,
+        result.default_city,
+        result.default_currency or "CLP",
+        result.date_format or "dd/MM/yyyy",
+    )
 
 
 async def persist_scan_result(
@@ -93,16 +113,23 @@ async def persist_scan_result(
     review_signals: list[ScanReviewSignal] | None = None,
     default_country: str | None = None,
     default_city: str | None = None,
+    user_date_format: str | None = None,
 ) -> Transaction:
     """Create Transaction + LineItems + Image from a completed scan pipeline.
 
     ``default_country``/``default_city`` are the scope owner's settings default
     location (loaded by the caller); they are the scan-location reconciliation
-    fallback when the receipt has no determinable location.
+    fallback when the receipt has no determinable location. ``user_date_format``
+    is the scope owner's date-format preference, used to deterministically resolve
+    a date the model flagged as ambiguous (P105).
     """
     ext = extraction.extraction
     currency_code = ext.currency_code
-    tx_date = _parse_date(ext.transaction_date)
+    tx_date = _resolve_transaction_date(
+        ext.transaction_date,
+        getattr(ext, "date_format_ambiguous", False),
+        user_date_format,
+    )
 
     total_minor = to_minor_units(ext.total_amount, currency_code)
     discount_total_minor = (
@@ -409,6 +436,50 @@ def _parse_date(date_str: str) -> date:
     try:
         return date.fromisoformat(date_str)
     except (ValueError, TypeError):
+        return date.today()
+
+
+def _resolve_transaction_date(
+    raw_date: str,
+    date_format_ambiguous: bool,
+    user_date_format: str | None,
+) -> date:
+    """Resolve transaction_date, honouring the model's ambiguity flag (P105).
+
+    When the model could not determine the day/month order it returns the date as
+    printed and sets ``date_format_ambiguous``; we then parse it with the scope
+    owner's configured ``date_format``. Otherwise the date is already YYYY-MM-DD
+    (or null) and the standard ISO parse applies.
+    """
+    if date_format_ambiguous:
+        return _parse_date_by_format(raw_date, user_date_format or "dd/MM/yyyy")
+    return _parse_date(raw_date)
+
+
+def _parse_date_by_format(date_str: str, format_spec: str) -> date:
+    """Parse a printed date using a day/month-order format like ``dd/MM/yyyy``.
+
+    Separators are normalised and the day/month/year positions are read from the
+    format spec, so both ``dd/MM/yyyy`` and ``MM/dd/yyyy`` resolve correctly. A
+    2-digit year maps to 20xx. Anything unparseable logs a warning and falls back
+    to today (parity with ``_parse_date``).
+    """
+    normalized = (date_str or "").strip().replace("-", "/").replace(".", "/")
+    parts = [p for p in normalized.split("/") if p.strip()]
+    fmt_parts = format_spec.lower().split("/")
+    if len(parts) != 3 or len(fmt_parts) != 3:
+        logger.warning("ambiguous_date_unresolved", raw_date=date_str, date_format=format_spec)
+        return date.today()
+    try:
+        positions = {fp[0]: i for i, fp in enumerate(fmt_parts) if fp}
+        day = int(parts[positions["d"]])
+        month = int(parts[positions["m"]])
+        year = int(parts[positions["y"]])
+        if year < 100:
+            year += 2000
+        return date(year, month, day)
+    except (ValueError, KeyError, IndexError):
+        logger.warning("ambiguous_date_unresolved", raw_date=date_str, date_format=format_spec)
         return date.today()
 
 

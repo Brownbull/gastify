@@ -5854,3 +5854,10 @@ CHECKS: lint pass, types 0 errors, tests 958 passed, coverage/shape skipped (mvp
 FINDINGS: 0 blocking. CHECK 6 matched P104-P107 (this commit's own documented follow-ups — acknowledged, not pre-existing debt).
 ACTIONS: none (all pass). Promotion: receipt-extraction-current system_prompt -> RECEIPT_STRUCTURE_V3_GENERAL @2026-06-30.0.
 DEFERRED: +P103 (eval de-noise) +P104 (currency injection) +P105 (date resolver) +P106 (deep exponent refactor) +P107 (US promo) +P108 (corpus +10).
+
+## 2026-06-30 12:58 — [38def7f] feat(prompt-lab): small-discrepancy severity carve-out (P103)
+CHECKS: lint pass, types 0, tests 961 passed. FINDINGS: 0 blocking.
+CHANGE: policy v2 (near_miss_item_delta_minor_units=5, near_miss_item_delta_ratio=0.005); scoring records per-item deltas + near-match counts; item-total/unit-price SEVERITY uses near-match counts only when discrepancy_ratio <= major threshold. Strict gate unchanged.
+VALIDATION (re-scored v3 cache, no Gemini): test_villarrica significant->minor (3-peso slip); US/descuentos + wtf stay significant (real failures). 3 -> 2 significant; no genuine masked. 3 TDD tests.
+RESOLVED: P103.
+- 2026-06-30 13:21 | Edit | /home/khujta/projects/apps/gastify/backend/app/services/scan_worker.py

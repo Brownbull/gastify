@@ -76,10 +76,13 @@ async def extract_receipt(
     scan_date: date | None = None,
     model: str | None = None,
     prompt_id: str | None = None,
+    home_currency: str | None = None,
 ) -> ExtractionResult:
     """Run vision extraction on a receipt image.
 
-    Returns the coalesced extraction result and usage metrics.
+    Returns the coalesced extraction result and usage metrics. ``home_currency``,
+    when provided, is injected as the fallback currency the prompt uses only when
+    the receipt currency cannot be determined from on-receipt evidence (P104).
     """
     prompt = get_prompt(prompt_id or _configured_prompt_id(), kind="receipt-extraction")
     model_name = model or f"google-gla:{settings.gemini_model}"
@@ -97,6 +100,11 @@ async def extract_receipt(
         BinaryContent(data=image_bytes, media_type=content_type),
         prompt.user_prompt or "Extract all data from this receipt image.",
     ]
+    if home_currency:
+        user_prompt.append(
+            f"Fallback currency code: {home_currency}. Use it only when the receipt "
+            "currency cannot be determined from on-receipt evidence."
+        )
     result = await retry_provider_call(
         lambda: agent.run(user_prompt),
         operation_name="receipt_extraction",

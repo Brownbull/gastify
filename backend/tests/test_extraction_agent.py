@@ -98,6 +98,42 @@ class TestExtractReceipt:
             assert result.usage.latency_ms >= 0
 
     @pytest.mark.asyncio
+    async def test_home_currency_injects_fallback_instruction(self, mock_agent_run):
+        with patch("app.agents.extraction._build_agent") as mock_build:
+            mock_agent = AsyncMock()
+            mock_agent.run = AsyncMock(return_value=mock_agent_run)
+            mock_build.return_value = mock_agent
+
+            await extract_receipt(
+                image_bytes=b"fake-jpeg-data",
+                content_type="image/jpeg",
+                home_currency="USD",
+            )
+
+            user_prompt = mock_agent.run.call_args.args[0]
+            fallback = [p for p in user_prompt if isinstance(p, str) and "USD" in p]
+            assert fallback, "expected a fallback-currency instruction mentioning USD"
+            assert "fallback currency" in fallback[0].lower()
+
+    @pytest.mark.asyncio
+    async def test_no_home_currency_omits_fallback_instruction(self, mock_agent_run):
+        with patch("app.agents.extraction._build_agent") as mock_build:
+            mock_agent = AsyncMock()
+            mock_agent.run = AsyncMock(return_value=mock_agent_run)
+            mock_build.return_value = mock_agent
+
+            await extract_receipt(
+                image_bytes=b"fake-jpeg-data",
+                content_type="image/jpeg",
+            )
+
+            user_prompt = mock_agent.run.call_args.args[0]
+            injected = [
+                p for p in user_prompt if isinstance(p, str) and "fallback currency" in p.lower()
+            ]
+            assert not injected
+
+    @pytest.mark.asyncio
     async def test_usage_metrics_support_pydantic_ai_usage_method(self, mock_agent_run):
         mock_agent_run.usage = _mock_usage
 

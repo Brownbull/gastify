@@ -340,6 +340,48 @@ class TestQuotaGracefulDegradation:
         with p[0], p[1], p[2], p[3], p[4], p[5], p[6]:
             assert await process_scan(scan.id) is True
 
+    @pytest.mark.asyncio
+    async def test_stage1_home_currency_load_failure_does_not_strand_scan(self):
+        # P104 hardening: a transient DB fault while loading the owner's home currency
+        # must NOT strand the scan in SUBMITTED — it falls back to CLP and extraction
+        # proceeds. scope_owner_settings is called in stage1 (fails here) and stage2
+        # (succeeds), so the side_effect fails only the first call.
+        scan = _mock_scan()
+        with (
+            patch(f"{_W}.async_session", side_effect=_session_factory(scan)),
+            patch(
+                f"{_W}.scope_owner_settings",
+                new_callable=AsyncMock,
+                side_effect=[
+                    RuntimeError("transient db fault"),
+                    (None, None, "CLP", "dd/MM/yyyy"),
+                ],
+            ),
+            patch(
+                f"{_W}.extract_receipt",
+                new_callable=AsyncMock,
+                return_value=_mock_extraction(),
+            ) as mock_extract,
+            patch(
+                f"{_W}.categorize_items",
+                new_callable=AsyncMock,
+                return_value=_mock_categorization(),
+            ),
+            patch(
+                f"{_W}.persist_scan_result",
+                new_callable=AsyncMock,
+                return_value=_mock_transaction(),
+            ),
+            patch.object(Path, "exists", return_value=True),
+            patch.object(Path, "read_bytes", return_value=b"img"),
+            patch(f"{_W}.settings", **_SETTINGS),
+        ):
+            result = await process_scan(scan.id, ownership_scope_id=uuid.uuid4())
+
+        assert result is True  # completed, not stranded
+        assert mock_extract.await_count == 1
+        assert mock_extract.await_args.kwargs["home_currency"] == "CLP"
+
 
 class TestBoletaShortcut:
     _PAYLOAD = (
