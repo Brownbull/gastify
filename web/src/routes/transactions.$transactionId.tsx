@@ -7,6 +7,9 @@ import {
   type ItemFlagKind,
 } from "@/hooks/useTransactions";
 import { useStoreCategories } from "@/hooks/useCategories";
+import { useProfile } from "@/hooks/useProfile";
+import { useUiStore } from "@/stores/uiStore";
+import { transactionLocationLabel } from "@/lib/locationDisplay";
 import { formatMinorAmount, formatDate } from "@/lib/format";
 import { ShareToGroupButton } from "@/components/ShareToGroupButton";
 import { Card } from "@/components/ui/Card";
@@ -191,6 +194,14 @@ function SummaryCard({
   const isEdited =
     txn.merchant_user_edited_at != null ||
     txn.store_category_user_edited_at != null;
+  const profile = useProfile();
+  const foreignLocationFormat = useUiStore((s) => s.foreignLocationFormat);
+  const locationLabel = transactionLocationLabel(
+    txn.country,
+    txn.city,
+    profile.data?.default_country,
+    foreignLocationFormat,
+  );
 
   return (
     <Card>
@@ -239,11 +250,9 @@ function SummaryCard({
           )}
         </Field>
 
-        {txn.country && (
+        {locationLabel && (
           <Field label="Location">
-            <span className="font-bold text-gt-ink">
-              {txn.city ? `${txn.city}, ${txn.country}` : txn.country}
-            </span>
+            <span className="font-bold text-gt-ink">{locationLabel}</span>
           </Field>
         )}
       </div>

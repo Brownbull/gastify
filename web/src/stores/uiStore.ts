@@ -13,6 +13,11 @@ import {
   type FontFamilyPref,
   type FontSizePref,
 } from "@/lib/appearance";
+import {
+  getStoredForeignFormat,
+  setStoredForeignFormat,
+  type ForeignLocationFormat,
+} from "@/lib/locationDisplay";
 
 /**
  * The scope the whole app reads/writes under (D70). Personal by default; a group
@@ -48,12 +53,14 @@ interface UiState {
   activeScope: ActiveScope;
   fontFamily: FontFamilyPref;
   fontSize: FontSizePref;
+  foreignLocationFormat: ForeignLocationFormat;
   toggleSidebar: () => void;
   setSidebarOpen: (open: boolean) => void;
   setLocale: (locale: SupportedLocale) => void;
   setActiveScope: (scope: ActiveScope) => void;
   setFontFamily: (fontFamily: FontFamilyPref) => void;
   setFontSize: (fontSize: FontSizePref) => void;
+  setForeignLocationFormat: (format: ForeignLocationFormat) => void;
   reset: () => void;
 }
 
@@ -70,6 +77,7 @@ export const useUiStore = create<UiState>()((set, get) => ({
   activeScope: getStoredScope(),
   fontFamily: getStoredFontFamily(),
   fontSize: getStoredFontSize(),
+  foreignLocationFormat: getStoredForeignFormat(),
   toggleSidebar: () => set((s) => ({ sidebarOpen: !s.sidebarOpen })),
   setSidebarOpen: (open) => set({ sidebarOpen: open }),
   setLocale: (locale) => {
@@ -94,10 +102,15 @@ export const useUiStore = create<UiState>()((set, get) => ({
     applyAppearanceToDom(get().fontFamily, fontSize);
     set({ fontSize });
   },
+  setForeignLocationFormat: (foreignLocationFormat) => {
+    setStoredForeignFormat(foreignLocationFormat);
+    set({ foreignLocationFormat });
+  },
   reset: () => {
     localStorage.removeItem(STORAGE_KEY_SCOPE);
     setStoredFontFamily("outfit");
     setStoredFontSize("normal");
+    setStoredForeignFormat("code");
     applyAppearanceToDom("outfit", "normal");
     set({
       sidebarOpen: false,
@@ -105,6 +118,7 @@ export const useUiStore = create<UiState>()((set, get) => ({
       activeScope: PERSONAL_SCOPE,
       fontFamily: "outfit",
       fontSize: "normal",
+      foreignLocationFormat: "code",
     });
   },
 }));

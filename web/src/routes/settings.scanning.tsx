@@ -6,12 +6,12 @@ import { useLocations } from "@/hooks/useLocations";
 import { SettingsSubviewShell, SettingsField } from "@/components/settings/SettingsSubviewShell";
 import { Select } from "@/components/ui/Select";
 import { SegmentedToggle } from "@/components/ui/SegmentedToggle";
+import { useUiStore } from "@/stores/uiStore";
+import { type ForeignLocationFormat } from "@/lib/locationDisplay";
 
 export const Route = createFileRoute("/settings/scanning")({
   component: ScanningSubview,
 });
-
-const noop = () => {};
 
 /**
  * Escaneo subview — the defaults used when scanning a receipt. Moneda de escaneo,
@@ -19,11 +19,15 @@ const noop = () => {};
  * default_city via /privacy/rectification (persisted), with the country/city
  * options served by /reference/locations. The default location is the scan-location
  * reconciliation fallback when a receipt has no determinable location (D103).
- * Indicador de país extranjero is not backed yet → coming-soon (CS-9, D101).
+ * Indicador de país extranjero is WIRED: a persisted display pref
+ * (uiStore.foreignLocationFormat) the transaction views read to show a FOREIGN
+ * country (country != the user's default_country) as its ISO code or flag emoji.
  */
 function ScanningSubview() {
   const { t } = useI18n();
   const locations = useLocations();
+  const foreignLocationFormat = useUiStore((s) => s.foreignLocationFormat);
+  const setForeignLocationFormat = useUiStore((s) => s.setForeignLocationFormat);
   const [currency, setCurrency] = useState<string | null>(null);
   const [country, setCountry] = useState<string>("");
   const [city, setCity] = useState<string>("");
@@ -129,17 +133,16 @@ function ScanningSubview() {
         />
       </SettingsField>
 
-      <SettingsField label={t("settings.scanning.foreign")} hint={t("settings.scanning.foreignHint")} comingSoon>
+      <SettingsField label={t("settings.scanning.foreign")} hint={t("settings.scanning.foreignHint")}>
         <SegmentedToggle
           fill
           flush
-          disabled
           segments={[
             { id: "code", label: t("settings.scanning.foreignCode") },
             { id: "flag", label: t("settings.scanning.foreignFlag") },
           ]}
-          value="code"
-          onChange={noop}
+          value={foreignLocationFormat}
+          onChange={(id) => setForeignLocationFormat(id as ForeignLocationFormat)}
         />
       </SettingsField>
     </SettingsSubviewShell>
