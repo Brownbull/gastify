@@ -29,7 +29,7 @@ from app.services.boleta import BoletaParseError, decode_boleta_barcode, parse_t
 from app.services.llm_costs import estimate_llm_cost_usd
 from app.services.math_gate import reconcile
 from app.services.notifications import notify_scan_terminal
-from app.services.persist_scan import persist_scan_result
+from app.services.persist_scan import persist_scan_result, scope_owner_settings
 from app.services.scan_e2e_fixtures import E2EScanFixtureCase, fixture_case_for_scan_image
 from app.services.scan_errors import (
     PermanentScanError,
@@ -390,11 +390,25 @@ async def _run_stage1(
     image_bytes = await asyncio.to_thread(image_path.read_bytes)
     await _emit(scan_id, "image_processed", "load_image", 5, data={"size_bytes": len(image_bytes)})
 
+    home_currency = "CLP"
+    if ownership_scope_id is not None:
+        try:
+            async with async_session() as db:
+                await set_session_ownership_scope(db, ownership_scope_id)
+                _, _, home_currency, _ = await scope_owner_settings(db, ownership_scope_id)
+        except Exception:
+            # The home-currency hint is best-effort (P104); a settings-load fault must
+            # not strand the scan in SUBMITTED. Log and continue with the CLP default —
+            # extraction proceeds and its own errors are settled by the try below.
+            log.warning("home_currency_load_failed", exc_info=True)
+            home_currency = "CLP"
+
     try:
         result = await extract_receipt(
             image_bytes=image_bytes,
             content_type=scan.content_type,
             scan_date=scan.submitted_at.date() if scan.submitted_at else None,
+            home_currency=home_currency,
         )
 
         _log_extraction_metrics(result, time.monotonic() - start)
@@ -504,6 +518,9 @@ async def _run_stage2(
     async with async_session() as db:
         try:
             await set_session_ownership_scope(db, ownership_scope_id)
+            default_country, default_city, _, date_format = await scope_owner_settings(
+                db, ownership_scope_id
+            )
             transaction = await persist_scan_result(
                 db=db,
                 scan=scan,
@@ -512,6 +529,9 @@ async def _run_stage2(
                 verdict=verdict,
                 review_level=review_level,
                 review_signals=review_signals,
+                default_country=default_country,
+                default_city=default_city,
+                user_date_format=date_format,
             )
             # Durably link the scan to its transaction in the SAME commit as the
             # transaction creation (atomic; covers both the completed and needs_review

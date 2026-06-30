@@ -62,6 +62,11 @@ class User(Base):
     default_currency: Mapped[str] = mapped_column(
         String(3), ForeignKey("currencies.code"), nullable=False, server_default="CLP"
     )
+    # Default purchase location (settings). Used as the scan-location fallback when a
+    # receipt has no determinable country/city (see services/locations.py). country is
+    # an ISO 3166-1 alpha-2 code; both nullable (a user need not configure one).
+    default_country: Mapped[str | None] = mapped_column(String(2), nullable=True)
+    default_city: Mapped[str | None] = mapped_column(Text, nullable=True)
     locale: Mapped[str] = mapped_column(String, nullable=False, server_default="es")
     ownership_scope_id: Mapped[uuid.UUID] = mapped_column(
         Uuid, ForeignKey("ownership_scopes.id"), nullable=False

@@ -45,7 +45,7 @@ def test_active_prompt_version_contains_both_prompts_and_model():
         model="gemini-2.5-flash-lite",
     )
 
-    assert "receipt-extraction-current@2026-05-26.0" in version
+    assert "receipt-extraction-current@2026-06-30.0" in version
     assert "item-categorization-current@2026-05-18.1" in version
     assert "store-categorization-current@2026-05-19.1" in version
     assert "gemini-2.5-flash-lite" in version
@@ -57,6 +57,8 @@ def test_dev_only_prompt_slots_are_not_default_production_prompts():
     assert {prompt.id for prompt in dev_prompts} == {
         "receipt-extraction-dev-scratch",
         "receipt-extraction-v2-evidence",
+        "receipt-extraction-location",
+        "receipt-extraction-v3-general",
         "item-categorization-dev-scratch",
     }
 

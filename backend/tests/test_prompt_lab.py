@@ -210,7 +210,83 @@ def test_scoring_covers_extraction_categories_and_math_gate():
     assert score.reconstruction_gate["passed"] is True
     assert score.strict_status == "completed"
     assert score.severity_status == "pass"
-    assert score.validation_policy["policy_version"] == "2026-05-20.v1"
+    assert score.validation_policy["policy_version"] == "2026-06-30.v2"
+
+
+def _score_near_miss_case(
+    cable_total_price: str, *, math_passed: bool, discrepancy_ratio: float = 0.0
+):
+    """Three-item CLP receipt; the third item ("Cable", expected 10500) is perturbed."""
+    expected = adapt_legacy_payload(
+        {
+            "aiExtraction": {
+                "merchant": "Jumbo",
+                "date": "2026-05-12",
+                "total": 40500,
+                "currency": "CLP",
+                "items": [
+                    {"name": "Leche", "totalPrice": 10000, "quantity": 1},
+                    {"name": "Pan", "totalPrice": 20000, "quantity": 1},
+                    {"name": "Cable", "totalPrice": 10500, "quantity": 1},
+                ],
+                "aiMetadata": {"confidence": 0.9},
+            }
+        },
+        case_id="supermarket/jumbo",
+    )
+    extraction = GeminiExtractionResult(
+        merchant_name="Jumbo",
+        transaction_date="2026-05-12",
+        currency_code="CLP",
+        total_amount=Decimal("40500"),
+        line_items=[
+            LineItemExtraction(name="Leche", total_price=Decimal("10000")),
+            LineItemExtraction(name="Pan", total_price=Decimal("20000")),
+            LineItemExtraction(name="Cable", total_price=Decimal(cable_total_price)),
+        ],
+        confidence_score=0.95,
+    )
+    categorization = CategorizationResult(
+        assignments=[
+            CategoryAssignment(line_item_index=i, category_key="DairyEggs", confidence=0.9)
+            for i in range(3)
+        ]
+    )
+    return score_prompt_run(
+        expected=expected,
+        extraction=extraction,
+        categorization=categorization,
+        verdict=MathReconciliationVerdict(
+            passed=math_passed,
+            discrepancy_minor_units=0,
+            discrepancy_ratio=discrepancy_ratio,
+        ),
+    )
+
+
+def test_near_miss_item_total_demoted_to_minor_when_math_reconciles():
+    # Cable 10503 vs 10500 — a 3-minor-unit OCR slip on an otherwise-balanced receipt.
+    score = _score_near_miss_case("10503", math_passed=True)
+    assert score.reconstruction_gate["passed"] is False  # strict gate is unchanged
+    assert score.reconstruction_gate["item_total_matches_by_name"] == 2
+    assert score.reconstruction_gate["item_total_near_matches_by_name"] == 3
+    assert score.severity_status == "minor_review"  # carve-out demotes the tiny slip
+
+
+def test_large_item_delta_stays_significant_even_when_math_reconciles():
+    # Cable 5000 vs 10500 — far beyond the near-miss tolerance; not forgiven.
+    score = _score_near_miss_case("5000", math_passed=True)
+    assert score.reconstruction_gate["item_total_near_matches_by_name"] == 2
+    assert score.severity_status == "significant_failure"
+    assert (
+        "significant: item total matches by name below policy threshold" in score.severity_reasons
+    )
+
+
+def test_near_miss_stays_significant_when_reconstruction_is_majorly_discrepant():
+    # Same 3-unit slip, but the whole receipt is majorly discrepant (ratio 0.4) — no carve-out.
+    score = _score_near_miss_case("10503", math_passed=False, discrepancy_ratio=0.4)
+    assert score.severity_status == "significant_failure"
 
 
 def test_scoring_separates_transaction_and_reconstruction_gates():

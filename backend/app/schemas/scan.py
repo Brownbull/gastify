@@ -172,6 +172,27 @@ class RawGeminiExtractionResult(BaseModel):
     merchant_name: str
     transaction_date: str
     currency_code: str
+    country: str | None = Field(
+        default=None,
+        description=(
+            "ISO 3166-1 alpha-2 country code of the purchase (e.g. CL, US, AR), inferred from "
+            "visible receipt text, language, address, or tax-id format. Null if not determinable."
+        ),
+    )
+    city: str | None = Field(
+        default=None,
+        description=(
+            "City/comuna/town of the purchase as printed on the receipt. Null if not visible."
+        ),
+    )
+    date_format_ambiguous: bool = Field(
+        default=False,
+        description=(
+            "True when the date is numeric and its day/month order cannot be determined from "
+            "on-receipt evidence; transaction_date is then returned exactly as printed for a "
+            "downstream deterministic resolver to interpret using the user's date-format setting."
+        ),
+    )
     total_amount: Decimal | None = Field(
         default=None,
         description=(
@@ -198,6 +219,27 @@ class GeminiExtractionResult(BaseModel):
     merchant_name: str
     transaction_date: str
     currency_code: str
+    country: str | None = Field(
+        default=None,
+        description=(
+            "ISO 3166-1 alpha-2 country code of the purchase (e.g. CL, US, AR), inferred from "
+            "visible receipt text, language, address, or tax-id format. Null if not determinable."
+        ),
+    )
+    city: str | None = Field(
+        default=None,
+        description=(
+            "City/comuna/town of the purchase as printed on the receipt. Null if not visible."
+        ),
+    )
+    date_format_ambiguous: bool = Field(
+        default=False,
+        description=(
+            "True when the date is numeric and its day/month order could not be determined "
+            "from on-receipt evidence; transaction_date is the date exactly as printed, for a "
+            "downstream resolver to interpret using the user's date-format setting."
+        ),
+    )
     total_amount: Decimal = Field(
         description=(
             "Integer minor-unit grand total. Example: CLP 102.052 -> 102052, USD $48.50 -> 4850."

@@ -26,6 +26,8 @@ from app.services.persist_scan import (
     _estimate_total_cost,
     _get_usd_shadow,
     _parse_date,
+    _parse_date_by_format,
+    _resolve_transaction_date,
     persist_scan_result,
 )
 
@@ -35,6 +37,8 @@ def _extraction(
     currency: str = "CLP",
     items: list[tuple[str, str]] | None = None,
     discount: str | None = None,
+    country: str | None = None,
+    city: str | None = None,
 ) -> ExtractionResult:
     if items is None:
         items = [("Leche", "2990"), ("Pan", "13000")]
@@ -42,6 +46,8 @@ def _extraction(
         merchant_name="Jumbo",
         transaction_date="2026-05-12",
         currency_code=currency,
+        country=country,
+        city=city,
         total_amount=Decimal(total),
         discount_amount=Decimal(discount) if discount else None,
         line_items=[LineItemExtraction(name=n, total_price=Decimal(p)) for n, p in items],
@@ -104,6 +110,48 @@ class TestParseDate:
     def test_empty_string_returns_today(self):
         result = _parse_date("")
         assert result == date.today()
+
+
+class TestParseDateByFormat:
+    def test_day_first_format(self):
+        assert _parse_date_by_format("05/06/2023", "dd/MM/yyyy") == date(2023, 6, 5)
+
+    def test_month_first_format_inverts(self):
+        # Same string, opposite order -> the setting drives the interpretation.
+        assert _parse_date_by_format("05/06/2023", "MM/dd/yyyy") == date(2023, 5, 6)
+
+    def test_separator_normalization(self):
+        assert _parse_date_by_format("05-06-2023", "dd/MM/yyyy") == date(2023, 6, 5)
+        assert _parse_date_by_format("05.06.2023", "dd/MM/yyyy") == date(2023, 6, 5)
+
+    def test_two_digit_year_maps_to_2000s(self):
+        assert _parse_date_by_format("05/06/23", "dd/MM/yyyy") == date(2023, 6, 5)
+
+    def test_invalid_day_falls_back_to_today(self):
+        assert _parse_date_by_format("32/01/2023", "dd/MM/yyyy") == date.today()
+
+    def test_malformed_two_part_falls_back_to_today(self):
+        assert _parse_date_by_format("05/06", "dd/MM/yyyy") == date.today()
+
+    def test_garbage_falls_back_to_today(self):
+        assert _parse_date_by_format("abc", "dd/MM/yyyy") == date.today()
+
+
+class TestResolveTransactionDate:
+    def test_ambiguous_uses_user_format(self):
+        # date_format_ambiguous -> parse the printed date with the owner's setting.
+        assert _resolve_transaction_date("05/06/2023", True, "dd/MM/yyyy") == date(2023, 6, 5)
+        assert _resolve_transaction_date("05/06/2023", True, "MM/dd/yyyy") == date(2023, 5, 6)
+
+    def test_ambiguous_without_user_format_defaults_day_first(self):
+        assert _resolve_transaction_date("05/06/2023", True, None) == date(2023, 6, 5)
+
+    def test_not_ambiguous_uses_iso_parse(self):
+        # Determinable dates arrive already normalized to YYYY-MM-DD.
+        assert _resolve_transaction_date("2023-06-05", False, "MM/dd/yyyy") == date(2023, 6, 5)
+
+    def test_not_ambiguous_malformed_falls_back_to_today(self):
+        assert _resolve_transaction_date("05/06/2023", False, "dd/MM/yyyy") == date.today()
 
 
 class TestEstimateTotalCost:
@@ -285,12 +333,71 @@ class TestPersistScanResult:
             )
 
         assert tx is not None
-        assert "receipt-extraction-current@2026-05-26.0" in tx.prompt_version
+        assert "receipt-extraction-current@2026-06-30.0" in tx.prompt_version
         assert "item-categorization-current@2026-05-18.1" in tx.prompt_version
         assert "store-categorization-current@2026-05-19.1" in tx.prompt_version
         assert tx.scan_review_level == "none"
         assert tx.scan_review_signals == []
         assert db.add.call_count == 5  # 1 tx + 2 items + 2 images (full + thumbnail)
+
+    @pytest.mark.asyncio
+    async def test_writes_reconciled_scan_location(self):
+        def _fresh_db() -> AsyncMock:
+            currency_row = MagicMock()
+            currency_row.scalar_one_or_none.return_value = MagicMock(exponent=0)
+            cat_rows = MagicMock()
+            cat_rows.scalars.return_value = [
+                MagicMock(key="DairyEggs", id=uuid.uuid4()),
+                MagicMock(key="BreadPastry", id=uuid.uuid4()),
+            ]
+            db = AsyncMock()
+            db.execute = AsyncMock(side_effect=[currency_row, cat_rows])
+            db.add = MagicMock()
+            db.flush = AsyncMock()
+            return db
+
+        with (
+            patch(
+                "app.services.persist_scan.get_fx_rate",
+                new_callable=AsyncMock,
+                side_effect=__import__(
+                    "app.services.fx", fromlist=["FxServiceError"]
+                ).FxServiceError("skip"),
+            ),
+            patch(
+                "app.services.persist_scan.lookup_merchant_mapping",
+                new_callable=AsyncMock,
+                return_value=None,
+            ),
+            patch(
+                "app.services.persist_scan.batch_lookup_item_mappings",
+                new_callable=AsyncMock,
+                return_value={},
+            ),
+        ):
+            # Receipt location present + valid -> it wins (case 1).
+            located = await persist_scan_result(
+                db=_fresh_db(),
+                scan=_mock_scan(),
+                extraction=_extraction(country="CL", city="Santiago"),
+                categorization=_categorization(),
+                verdict=_verdict(),
+                default_country="US",
+                default_city="New York",
+            )
+            # Receipt carries no location -> fall back to the settings default (case 4).
+            fallback = await persist_scan_result(
+                db=_fresh_db(),
+                scan=_mock_scan(),
+                extraction=_extraction(),
+                categorization=_categorization(),
+                verdict=_verdict(),
+                default_country="US",
+                default_city="New York",
+            )
+
+        assert (located.country, located.city) == ("CL", "Santiago")
+        assert (fallback.country, fallback.city) == ("US", "New York")
 
     @pytest.mark.asyncio
     async def test_persists_receipt_recurrence_hint(self):

@@ -2798,3 +2798,90 @@ cross-check the LLM's merchant/total/date against the signed SII data when a QR 
 **Consequence for W3–W10.** Every screen phase places its route within this IA; secondary routes (reports/statements/groups/notifications) live in the Perfil menu, not the tab bar. Scope switcher stays web's existing GroupSwitcher (design-lab's ScopeTrigger/ScopeMenu not ported).
 
 **Status:** accepted.
+
+## D100 — Design Fidelity epic: rebuild screens to the Storybook reference via a route-driven overlay model, reconciled with the existing state/URL functional layer (2026-06-26)
+
+**Context.** W1–Wf delivered the token/grammar layer (palette, gt-* utilities, geometric atoms) but ported each screen as a **restyle-in-place**, NOT a rebuild to the design-lab screen designs. The user caught the systematic gap via a Settings side-by-side: live `/settings` was a flat form, the mockup is a sectioned icon-row navigation hub. The divergence is app-wide. Root cause (see [[feedback-design-migration-fidelity]]): the plan's "port screens" was resolved silently as "recolor", and no guard compared output to the mockup. The user then made the load-bearing observation: **the Storybook is a presentational demo and does NOT encode the app's real state needs** (scan's multi-step SSE states deliberately needed real URLs + backend endpoints). The functional layer is already correct and must be preserved.
+
+**Decision (user-confirmed 2026-06-26).** Open a **Design Fidelity** epic that rebuilds screens to the design-lab reference. Governing principle: **functional layer = behavior truth (preserve); Storybook = visual-grammar truth (apply on top); route-vs-state-overlay decided PER FEATURE by real needs, never blanket.** Backed by a 6-area functional/state audit + reconciliation (workflow `state-fidelity-reconcile`). Full per-feature plan: `docs/mockups/STATE-FIDELITY-PLAN.md`.
+
+**Architecture:**
+- **Shell gains ONE new capability — an overlay slot** in AppLayout. Desktop = `absolute inset-0` over the **content pane only** (SideNav rail ALWAYS stays); mobile = `fixed inset-0` over the whole frame (hides BottomNav + AppHeader). Adopt the design-lab SideNav-rail grammar on web's existing `lg:` breakpoint — do NOT reproduce the fixed device-frame (extends WEB-MIGRATION precedent).
+- **Route-driven overlays are the DEFAULT.** The screens the Storybook wants full-surface (scan, batch, statements, transaction detail, new, invite, settings subviews, notifications) are exactly the ones already depending on a URL/SSE-token/multi-step flow — so route-backed overlays preserve deep-link, back-button, reload-resume, EventSource lifetime, and share paths at zero behavioral cost.
+- **State-driven (no-URL) exceptions, explicit:** ReportDetailOverlay (non-resumable lightbox over the grid), GroupDetailPanel (expand-in-place), ProfileMenu (avatar dropdown). Dashboard/Trends stay inline with local drill state.
+- **Overlays UNMOUNT on route change** (never `display:none`) — SSE teardown + scan-batch Blob-URL cleanup depend on unmount. A single documented z-scale governs overlay vs ProfileMenu/AppHeader/FAB/BottomNav/ReportDetailOverlay. `activeScope` stays global (zustand + localStorage → RLS).
+
+**User sub-decisions:** (1) local-only filter promotions (transactions/items/notifications) → **included in this epic** as validated URL search params; (2) **add an unsaved-changes guard** for `/transactions/new` + `/statements` upload (overlay eases accidental dismissal); (3) **notifications open as a full-surface overlay from the avatar** (route kept).
+
+**Sequence:** (1) shell overlay foundation + re-point ReportDetailOverlay as proof; (2) inline re-skins (dashboard/trends/groups/items); (3) route-backed overlays w/o SSE (txn detail/new/invite); (4) settings + notifications (folds in the already-built hub); (5) SSE families last, one at a time (scan→batch→statements); (6) filter→URL promotions.
+
+**Process correction (from the W1–Wf miss):** acceptance = a side-by-side live⟷Storybook the USER approves, not "tests green" — applied per screen. See [[feedback-design-migration-fidelity]].
+
+**Status:** accepted.
+
+## D101 — Implement ALL design-lab mockups in the live app; unbuilt features → "coming soon" placeholder + registered to build later; never discard from Storybook (2026-06-26)
+
+**Context.** Finishing settings to true fidelity surfaced that the design-lab subviews show features the live app deliberately lacks or never built: theme/dark-mode/palette/typography/font-size (cut in W1 by D-B), profile photo/phone/name-edit + Google linked-account card, and entire Subscription/Cards/Limits screens. This forced the question of how faithful to be when the design exceeds the product.
+
+**Decision (user policy, 2026-06-26).** The goal is to implement the FULL mockup UI for every screen/subview in the live app — **nothing from the Storybook is discarded or simplified away.**
+- **Wire** every element that is backed by real live data/endpoints.
+- **Unbuilt elements/features** render the mockup UI as a non-functional **"coming soon" / "próximamente"** placeholder (visually present per the design, clearly flagged + disabled) **and are registered** in `docs/mockups/COMING-SOON-REGISTRY.md` to build later.
+- **Never omit/discard** a Storybook element.
+- **Flag notable gaps** (whole unbuilt features) to the user, but the default — no waiting — is the coming-soon placeholder + registry entry.
+
+**Reframes D-B.** The theme/appearance controls D-B cut (dark mode, palette, typography, font size) return to the UI **as coming-soon placeholders** — not rebuilt (still single light theme), not omitted. The Wf deletion of those i18n keys may need partial restoration for the placeholder labels.
+
+**Consequence.** Settings rebuild = build all 10 subviews' full mockup UI; wire the backed parts; coming-soon + register the rest. The same policy governs every DF-epic screen. Supersedes the earlier "wire+omit" option floated in D100's reconciliation.
+
+**Status:** accepted.
+
+## D102 — Web consumes the design-lab as its shared component library; stop recreating components (2026-06-26)
+
+**Context.** The settings rebuild kept drifting because the assistant HAND-PORTED design-lab components (SegmentedToggle, Select, the subview shell, the hub rows) instead of reusing them. Recreation reintroduces exactly the per-pixel drift (chevron size, spacing, toggle style) the design-lab exists to prevent — the user (correctly) called this out: "you are trying to recreate everything from scratch instead of taking what was there." The design-lab atoms/molecules import ONLY `react` (+ echarts for the Sankey) — no stores/fixtures — and web already shares `shared/design-tokens.ts` + serves `/pixel-icons/`, so direct reuse is clean.
+
+**Decision (user-confirmed 2026-06-26).** Web imports the REAL design-lab components instead of copies.
+- Added aliases to `web/vite.config.ts` + `web/tsconfig.app.json`: `@design-system` → `../design-lab/src/design-system`, `@design-lab` → `../design-lab/src`, `@shared` → `../shared`. (`include` stays `["src"]` — imported design-lab files are type-checked transitively, NOT force-compiled wholesale.)
+- **Atoms/molecules/layout primitives** (SegmentedToggle, Select, SettingsRow, SettingsSubviewShell, SettingsField, PixelIcon, Badge, AppHeader…) are imported directly. Hand-ported copies are deleted.
+- **Screens** (fixture-hardcoded) are prop-ified — data + handlers lifted to props with the fixtures as Storybook defaults (smoke tests stay pixel-identical) — and reused. The design-lab is editable as the shared source (extend, never recreate); e.g. `disabled` was added to SegmentedToggle/Select for coming-soon placeholders (D101) — non-breaking, default false.
+- **i18n caveat:** design-lab screens hardcode Spanish copy. To keep web's es/en/pt, copy is supplied by web (the imported layout primitives take label props/children; whole-screen reuse passes i18n labels as props). Visual fidelity comes from the real components; copy comes from web's i18n.
+
+**Proven.** Web `tsc -b` clean + `vite build` green importing the real `@design-system/atoms/SegmentedToggle` + `Select`; ported copies removed.
+
+**Consequence.** Supersedes the port-and-recreate method. All DF-epic screens reuse real design-lab components; the only web-authored part is data/handler/i18n wiring. A future cleanup may promote `design-system` to `shared/` so web doesn't depend on the design-lab app's `src`.
+
+**Status:** accepted.
+
+## D103 — Scan Intelligence: receipt location extraction + reconciliation (2026-06-29)
+
+**Context.** Settings → Escaneo's "Ubicación predeterminada" + "Indicador de país extranjero" were coming-soon. Making them real meant the scan should actually capture a transaction's country/city. Investigation: the receipt prompt never extracted location (only used country as a currency clue), the transaction model already had nullable `country`/`city`, and the user had no default location. BoletApp (legacy) had shipped exactly this (UserPreferences.defaultCountry/defaultCity + foreignLocationFormat + a comunas dataset).
+
+**Decision (user-confirmed 2026-06-29).** New backend+AI feature track (Epic 3, PLAN phase 18).
+- **Extract** country (ISO 3166-1 alpha-2) + city from the receipt via the scan prompt + structured output schema (PydanticAI output_type).
+- **Reconcile** (4-case, user-specified): receipt country+city → use them (unknown city for a known country → that country's capital); country only → capital; city only, or nothing → the user's settings default location.
+- **Dataset** (`app/reference/locations.json`): the operating regions only — North/Central/South America, Europe, Oceania (49 countries), each carrying its capital. **Chile is stored as cities, NOT its 346 administrative comunas** (user direction — comunas too granular; Greater Santiago collapses to one "Santiago"; tourism towns like Villarrica/Pucón kept distinct) → 125 CL cities. Backend-owned static JSON: the reconciliation reads it in-process; an endpoint feeds the settings dropdowns.
+- **Prompt strategy (candidate-first).** Prompt changes go through the prompt-lab as a dev-only candidate, validated (`run`/`compare`/`score`) before promotion to production. The location change was proven via the `receipt-extraction-location` candidate on 6 live Gemini scans (CL/US/UK/FR, all correct ISO country + city); a FULL prompt-lab baseline pass (all baselined cases, scored) must confirm no regression to the transaction/reconstruction gates before formal promotion. (Step 1 shortcut the discipline by editing production directly; this decision formalizes the correct path.)
+
+**Status:** accepted. Backend (extract + reconcile + persist + dataset) done + prompt-lab-proven; remaining = `/locations` endpoint, the full baseline-pass promotion, and the frontend selectors + foreign indicator.
+
+## D104 — Promote the v3 locale-generalized, evidence-first receipt prompt to production (2026-06-30)
+
+**Context.** The D103 baseline pass surfaced 5 significant_failure cases on the production `current` prompt (totals/items, not location). Investigation: (1) a blast-radius analysis proved a naive `unit_price = total÷qty` deterministic rule REGRESSES a discounted multi-buy line (edge-cases/edgeqtytotal CLINDABONE: 1550×8 − 1980 promo = 10420, so total÷qty=1302 ≠ the printed unit 1550) — the correct lever is evidence-capture (read the printed "N X price"), not derivation. (2) An evidence-first prompt (`receipt-extraction-v2-evidence`) already existed and fixed 4/5 by capturing the evidence the existing coalesce consumes. (3) An 8-dimension corpus sweep found both prompts over-fit to Chile/CLP/Spanish exemplars (dot=thousands, IVA-included, cuotas, DD/MM) instead of deterministic signals — even the French EUR receipt uses dot-DECIMAL, disproving "EU = comma-decimal".
+
+**Decision (user-confirmed 2026-06-30).** Promote a new `RECEIPT_STRUCTURE_V3_GENERAL` (= evidence-first v2-evidence, locale-GENERALIZED + LOCATION) into `receipt-extraction-current` (version 2026-06-30.0). Re-key every ambiguous rule on deterministic signals, never country/language:
+- **Money/separators:** keyed on the ISO-4217 minor-unit exponent (values.py ZERO_DECIMAL vs DECIMAL lists, injected). Zero-decimal → strip all separators; exponent-2 → rightmost of `.`/`,` is the decimal. Handles CLP/JPY, USD/GBP, EUR/BRL comma-decimals uniformly.
+- **Quantity multiplier:** pattern-based (`N X price` → total = N×price), exponent applied first; the Chilean `2.000 X 1.090` rule dropped. **Tax:** value test (sum(items)==total → included → null), any label. **Discounts:** by EFFECT not caption. **Line classification:** by ROLE not wording. **Recurrence:** multi-language. **Currency/country:** anchor precedence (ISO code → tax-id → phone → language).
+- **Date (user decision):** extract AS PRINTED when day/month order is undeterminable + set `date_format_ambiguous=true`; a deterministic backend resolver (follow-up) interprets it via the user's date-format setting — the model never guesses DD/MM vs MM/DD.
+- **Currency fallback (user decision):** no CLP default — fall back to the signed-in user's home currency, injected at scan time (follow-up); null until then (coalesce keeps its CLP safety net).
+- **Country output (user decision):** ISO alpha-2; the 20 baseline fixtures normalized from full names (Chile→CL, USA→US, UK→GB). **Currency lists:** +NZD to SUPPORTED, DECIMAL completed (+MXN/BRL/CAD/AUD/NZD).
+
+**Validation.** 18-case baselined prompt-lab pass: systematic multi-qty / ×100 (corrector + finder %/ivac hardening) / voucher fixes hold across runs; location extracted correctly on all 18 (CL/US/GB/FR). Residual significant cases are (a) borderline OCR variance flipping minor↔significant under the sensitive 0.25 by-name threshold (eval noise, not extraction movement), and (b) one consistently-hard US promo receipt (trips/US/descuentos, item-merge 12 vs 15). Promoted on the systematic improvement (production 5 significant → ~1 consistent + noise) per user direction.
+
+**Status:** accepted, promoted. Follow-ups in PENDING (P103–P108): eval de-noising, user-home currency injection, deterministic date resolver, deep raw-amount+exponent refactor, US-promo extraction, corpus expansion.
+
+## D105 — Accept the v3 receipt prompt as functional; BOGO/multi-buy promo reconstruction error is a known, roadmap-deferred limitation (2026-06-30)
+
+**Context.** After D104 (v3 promotion) + eval de-noising (P103) + currency/date wiring (P104/P105) + the deterministic country fallback (P108), measured v3's reconstruction `discrepancy_ratio` (|sum(items) − discount − stated total| / stated total) across 28 real receipts (CL/GB/FR): median 0.0000, p90 0.0705, mean 0.031, max 0.417; **96% within the 0.25 tolerance, 78% near-perfect (≤1%)**. Chile (15 receipts): median 0.0000, max 0.105, **ZERO failures**. The residual error is concentrated in multi-buy/BOGO promo receipts (Publix 0.417, Forbidden Planet 0.190) — a hard vision problem (which paired item is the free one), NOT Chile-specific and NOT a generalization gap.
+
+**Decision (user, 2026-06-30).** Accept v3 as FUNCTIONAL — especially for Chile, the primary market — without further prompt refinement now. Register the BOGO/multi-buy promo reconstruction error as a KNOWN, ACCEPTED limitation, deferred to the roadmap (tracked in PENDING P109, which subsumes P107). Close the prompt-quality refinement workstream and move to implementation. The "do not tailor for Chile" constraint holds: the prompt is locale-generalized; Chile performs best because it is the cleanest, most-represented case, not because of Chile-specific rules.
+
+**Status:** accepted. v3 stays in production. Revisit P109 (BOGO/promo) only if international multi-buy accuracy becomes a roadmap priority.

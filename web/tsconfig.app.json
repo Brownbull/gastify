@@ -24,7 +24,10 @@
 
     /* Path aliases */
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@design-system/*": ["../design-lab/src/design-system/*"],
+      "@design-lab/*": ["../design-lab/src/*"],
+      "@shared/*": ["../shared/*"]
     }
   },
   "include": ["src"],

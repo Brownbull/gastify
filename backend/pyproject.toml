@@ -17,13 +17,16 @@ dependencies = [
     "structlog>=24.0.0",
     "Pillow>=11.0.0",
     "python-multipart>=0.0.18",
-    "pydantic-ai>=1.99.0",
+    "pydantic-ai>=1.102.0,<2.0",
     "google-generativeai>=0.8.0",
     "python-dotenv>=1.0.0",
     "pypdf>=6.13.3,<6.14.0",
     "pymupdf>=1.24.0",
     "defusedxml>=0.7.1",
     "slowapi>=0.1.9",
+    # Security override (CVE-2026-48990): joserfc arrives transitively via firebase-admin;
+    # pin the patched line so the SCA gate (pip-audit) passes.
+    "joserfc>=1.6.7",
 ]
 
 [dependency-groups]

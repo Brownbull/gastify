@@ -39,6 +39,20 @@ ZERO_EXPONENT_CURRENCIES = frozenset(
 
 CLP_THOUSANDS_SEPARATORS = frozenset({"CLP"})
 INCLUDED_TAX_CURRENCIES = frozenset({"CLP"})
+# When the model cannot read a country but the currency uniquely identifies one, infer it
+# (P108 audit: GBP receipts from Tesco/M&S returned country=null). USD/EUR are intentionally
+# absent — they are multi-country, so they stay null rather than guessing.
+SINGLE_COUNTRY_CURRENCIES = {
+    "CLP": "CL",
+    "GBP": "GB",
+    "JPY": "JP",
+    "KRW": "KR",
+    "MXN": "MX",
+    "BRL": "BR",
+    "CAD": "CA",
+    "AUD": "AU",
+    "NZD": "NZ",
+}
 CURRENCY_EXPONENTS = {
     "CLP": 0,
     "JPY": 0,
@@ -63,6 +77,8 @@ CURRENCY_EXPONENTS = {
 }
 
 _RECONCILIATION_TOLERANCE = Decimal(1)
+# Literal strings the model sometimes emits for "no value" — treated as None.
+_NULLISH = frozenset({"null", "none", "n/a", "na", "-", "unknown"})
 _PAYMENT_TENDER_PATTERN = re.compile(
     r"(?i)\b("
     r"credit\s*card|debit\s*card|card\s*(payment|holder|ending|no\.?)?|"
@@ -103,7 +119,7 @@ _VISIBLE_TOTAL_LABEL_PATTERN = re.compile(
 )
 _VISIBLE_TOTAL_EXCLUDE_PATTERN = re.compile(
     r"(?i)\b("
-    r"subtotal|sub\s*total|iva|tax|vat|gst|neto|taxable|base\s*imponible|"
+    r"subtotal|sub\s*total|iva|ivac|tax|vat|tva|gst|hst|mwst|neto|taxable|base\s*imponible|"
     r"cash|efectivo|card|visa|mastercard|payment|paid|tender|change|balance|"
     r"pago|pagado|vuelto|saldo|tarjeta|terminal|pos|rut|r\.?u\.?t\.?|"
     r"folio|boleta|factura|documento|receipt\s*no|phone|telefono|tel[eé]fono|"
@@ -221,10 +237,29 @@ def coalesce_extraction(
     if not items and total > Decimal(0):
         items = [_synthesize_service_line(result, merchant=merchant, total=total)]
 
+    # Location is carried through as the model returned it (lightly normalized); the
+    # deterministic reconciliation against the settings default + the location dataset
+    # happens downstream in the scan worker (Step 2), not here.
+    raw_country = (result.country or "").strip().upper()
+    country = (
+        raw_country
+        if len(raw_country) == 2 and raw_country.isalpha() and raw_country.lower() not in _NULLISH
+        else None
+    )
+    if country is None:
+        # Deterministic fallback: a single-country currency pins the country even when the
+        # model could not read an address (P108: GBP -> GB on Tesco/M&S). USD/EUR stay null.
+        country = SINGLE_COUNTRY_CURRENCIES.get(currency)
+    raw_city = (result.city or "").strip()
+    city = raw_city if raw_city and raw_city.lower() not in _NULLISH else None
+
     return GeminiExtractionResult(
         merchant_name=merchant,
         transaction_date=tx_date,
         currency_code=currency,
+        country=country,
+        city=city,
+        date_format_ambiguous=getattr(result, "date_format_ambiguous", False),
         total_amount=total,
         tax_amount=tax,
         discount_amount=discount,
@@ -454,6 +489,9 @@ def find_visible_total_candidates(source_lines: list[str], currency: str) -> lis
         if not line or not _VISIBLE_TOTAL_LABEL_PATTERN.search(line):
             continue
         if _VISIBLE_TOTAL_EXCLUDE_PATTERN.search(line):
+            continue
+        if "%" in line:
+            # A tax-rate line such as `TOTAL IVAC (19.0%)` is never the grand total.
             continue
         label_match = _VISIBLE_TOTAL_LABEL_PATTERN.search(line)
         tail = line[label_match.end() :] if label_match else line

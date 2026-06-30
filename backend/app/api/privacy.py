@@ -113,6 +113,8 @@ async def get_profile(auth: Auth) -> ProfileResponse:
         display_name=user.display_name,
         email=user.email,
         default_currency=user.default_currency,
+        default_country=user.default_country,
+        default_city=user.default_city,
         date_format=user.date_format,
         locale=user.locale,
     )
@@ -151,6 +153,23 @@ async def rectification(
             )
         user.default_currency = update_data["default_currency"]
         updated_fields.append("default_currency")
+    if "default_country" in update_data:
+        from app.services.locations import location_dataset
+
+        code = update_data["default_country"]
+        if code is not None:
+            code = code.strip().upper()
+            if code not in location_dataset():
+                raise HTTPException(
+                    status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                    detail=f"Unknown country code: {code}",
+                )
+        user.default_country = code or None
+        updated_fields.append("default_country")
+    if "default_city" in update_data:
+        city = update_data["default_city"]
+        user.default_city = city.strip() if city and city.strip() else None
+        updated_fields.append("default_city")
     if "date_format" in update_data:
         user.date_format = update_data["date_format"]
         updated_fields.append("date_format")

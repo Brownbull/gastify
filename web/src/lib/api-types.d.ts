@@ -760,6 +760,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/reference/locations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Locations */
+        get: operations["get_locations_api_v1_reference_locations_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/insights/monthly": {
         parameters: {
             query?: never;
@@ -1865,6 +1882,24 @@ export interface components {
             /** Items */
             items: components["schemas"]["ItemMappingResponse"][];
         };
+        /**
+         * LocationsResponse
+         * @description Static country + city reference data for the settings location pickers.
+         *
+         *     `countries` is [{code, name}] sorted by name; `cities` maps each ISO alpha-2
+         *     code to its city list (Chile = cities, not comunas — see D103). Sourced from
+         *     app/reference/locations.json; the same data backs scan-location reconciliation.
+         */
+        LocationsResponse: {
+            /** Countries */
+            countries: {
+                [key: string]: string;
+            }[];
+            /** Cities */
+            cities: {
+                [key: string]: string[];
+            };
+        };
         /** MarkAllReadResponse */
         MarkAllReadResponse: {
             /** Count */
@@ -2114,6 +2149,10 @@ export interface components {
             email: string | null;
             /** Default Currency */
             default_currency: string;
+            /** Default Country */
+            default_country?: string | null;
+            /** Default City */
+            default_city?: string | null;
             /** Date Format */
             date_format: string;
             /** Locale */
@@ -2221,6 +2260,10 @@ export interface components {
             email?: string | null;
             /** Default Currency */
             default_currency?: string | null;
+            /** Default Country */
+            default_country?: string | null;
+            /** Default City */
+            default_city?: string | null;
             /** Date Format */
             date_format?: ("dd/MM/yyyy" | "MM/dd/yyyy") | null;
             /** Locale */
@@ -4798,6 +4841,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ItemCategoryItem"][];
+                };
+            };
+        };
+    };
+    get_locations_api_v1_reference_locations_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LocationsResponse"];
                 };
             };
         };

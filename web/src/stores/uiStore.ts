@@ -4,6 +4,20 @@ import {
   setPreferredLocale,
   type SupportedLocale,
 } from "@/lib/i18n";
+import {
+  applyAppearanceToDom,
+  getStoredFontFamily,
+  getStoredFontSize,
+  setStoredFontFamily,
+  setStoredFontSize,
+  type FontFamilyPref,
+  type FontSizePref,
+} from "@/lib/appearance";
+import {
+  getStoredForeignFormat,
+  setStoredForeignFormat,
+  type ForeignLocationFormat,
+} from "@/lib/locationDisplay";
 
 /**
  * The scope the whole app reads/writes under (D70). Personal by default; a group
@@ -37,10 +51,16 @@ interface UiState {
   sidebarOpen: boolean;
   locale: SupportedLocale;
   activeScope: ActiveScope;
+  fontFamily: FontFamilyPref;
+  fontSize: FontSizePref;
+  foreignLocationFormat: ForeignLocationFormat;
   toggleSidebar: () => void;
   setSidebarOpen: (open: boolean) => void;
   setLocale: (locale: SupportedLocale) => void;
   setActiveScope: (scope: ActiveScope) => void;
+  setFontFamily: (fontFamily: FontFamilyPref) => void;
+  setFontSize: (fontSize: FontSizePref) => void;
+  setForeignLocationFormat: (format: ForeignLocationFormat) => void;
   reset: () => void;
 }
 
@@ -51,10 +71,13 @@ export type { ActiveScope };
  * entirely by CSS tokens (styles/tokens.css) — there is no runtime theme/mode
  * switching. The warm 3-theme × light/dark switcher was removed in W1 (D-B).
  */
-export const useUiStore = create<UiState>()((set) => ({
+export const useUiStore = create<UiState>()((set, get) => ({
   sidebarOpen: false,
   locale: getPreferredLocale(),
   activeScope: getStoredScope(),
+  fontFamily: getStoredFontFamily(),
+  fontSize: getStoredFontSize(),
+  foreignLocationFormat: getStoredForeignFormat(),
   toggleSidebar: () => set((s) => ({ sidebarOpen: !s.sidebarOpen })),
   setSidebarOpen: (open) => set({ sidebarOpen: open }),
   setLocale: (locale) => {
@@ -69,12 +92,33 @@ export const useUiStore = create<UiState>()((set) => ({
     }
     set({ activeScope });
   },
+  setFontFamily: (fontFamily) => {
+    setStoredFontFamily(fontFamily);
+    applyAppearanceToDom(fontFamily, get().fontSize);
+    set({ fontFamily });
+  },
+  setFontSize: (fontSize) => {
+    setStoredFontSize(fontSize);
+    applyAppearanceToDom(get().fontFamily, fontSize);
+    set({ fontSize });
+  },
+  setForeignLocationFormat: (foreignLocationFormat) => {
+    setStoredForeignFormat(foreignLocationFormat);
+    set({ foreignLocationFormat });
+  },
   reset: () => {
     localStorage.removeItem(STORAGE_KEY_SCOPE);
+    setStoredFontFamily("outfit");
+    setStoredFontSize("normal");
+    setStoredForeignFormat("code");
+    applyAppearanceToDom("outfit", "normal");
     set({
       sidebarOpen: false,
       locale: getPreferredLocale(),
       activeScope: PERSONAL_SCOPE,
+      fontFamily: "outfit",
+      fontSize: "normal",
+      foreignLocationFormat: "code",
     });
   },
 }));

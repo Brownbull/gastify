@@ -6,10 +6,19 @@
  * lazy-load this at the route. No data-layer change; consumes InsightsTreeNode[].
  */
 import { useMemo } from "react";
-import ReactECharts from "echarts-for-react";
+import ReactEChartsCore from "echarts-for-react/esm/core";
+import * as echarts from "echarts/core";
+import { SankeyChart as SankeyChartFeature } from "echarts/charts";
+import { TooltipComponent } from "echarts/components";
+import { SVGRenderer } from "echarts/renderers";
 import { categoryColorVar } from "@/lib/chartData";
 import { formatMinorAmount } from "@/lib/format";
 import type { components } from "@/lib/api-types";
+
+// Tree-shaken ECharts (Wf / P97): register ONLY Sankey + SVG renderer + tooltip
+// instead of importing the full library — drops the lazy chart chunk from
+// ~378KB gzip (full echarts) to ~150KB gzip.
+echarts.use([SankeyChartFeature, TooltipComponent, SVGRenderer]);
 
 type InsightsTreeNode = components["schemas"]["InsightsTreeNode"];
 
@@ -118,7 +127,8 @@ export default function SankeyChart({ roots, currency, maxLevels = 3, height = 3
       data-testid="sankey-chart"
       className="w-full overflow-hidden rounded-gt-xl border-2 border-gt-line-strong bg-gt-surface"
     >
-      <ReactECharts
+      <ReactEChartsCore
+        echarts={echarts}
         option={option}
         style={{ height, width: "100%" }}
         opts={{ renderer: "svg" }}

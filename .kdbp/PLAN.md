@@ -12,7 +12,7 @@ Migrate the **Playful Geometric** design system from `design-lab/` into the live
 - **Maturity:** mvp
 - **Domain:** Smart personal expense tracker — AI receipt scanning, multi-currency analytics, responsive web PWA (rebuild of BoletApp)
 - **Created:** 2026-06-25
-- **Last Updated:** 2026-06-25
+- **Last Updated:** 2026-06-29
 - **Confirmed decisions:** D-A = full adoption (sequenced) · D-B = single theme, defer dark · D-C = incremental, phase-by-phase. Reference: `docs/mockups/WEB-MIGRATION.md`, `docs/mockups/HANDOFF.md`.
 
 ## Phases
@@ -28,9 +28,17 @@ Migrate the **Playful Geometric** design system from `design-lab/` into the live
 | 7 | W7 · Analytics — trends + spending | Heaviest port: SpendingScreen (donut/treemap/sankey), CategoryDetail, `trends` route; recharts → design-lab hand-built donut/treemap + ECharts Sankey; drill + count-up interactions (DM-10); responsive + a11y. | ent | high | ✅ | ✅ | ✅ | ✅ |
 | 8 | W8 · Reports | `reports` route ↔ ReportCard/ReportDetail/ReportViewer; DM-34 static point-in-time snapshots, 4 timeframes (weekly/monthly/quarterly/annual). | mvp | med | ✅ | ✅ | ✅ | ✅ |
 | 9 | W9 · Groups | Groups, GroupDetail, InviteJoin, ShareTransactions; multi-user surfaces wired to existing group hooks. | mvp | med | ✅ | ✅ | ✅ | ✅ |
-| 10 | W10 · Dashboard (index) | HomeScreen: month treemap/trend + gravity-center insights; the landing screen — done last so every component exists. | ent | high | ✅ | ✅ | ✅ | ⬜ |
-| 11 | Wf · Cleanup + visual-regression sweep | Remove dead warm-palette CSS + theme switcher + superseded web components; full Playwright visual-regression across routes × (mobile/desktop); update e2e; confirm `check:token-classes` in CI. | ent | med-high | ⬜ | ⬜ | ⬜ | ⬜ |
+| 10 | W10 · Dashboard (index) | HomeScreen: month treemap/trend + gravity-center insights; the landing screen — done last so every component exists. | ent | high | ✅ | ✅ | ✅ | ✅ |
+| 11 | Wf · Cleanup + visual-regression sweep | Remove dead warm-palette CSS + theme switcher + superseded web components; full Playwright visual-regression across routes × (mobile/desktop); update e2e; confirm `check:token-classes` in CI. | ent | med-high | ✅ | ✅ | ✅ | ⬜ |
+| 12 | DF1 · Shell overlay foundation | **Epic 2: Design Fidelity (D100).** Added the AppLayout overlay slot: desktop = `absolute inset-0` over content pane (SideNav stays), mobile = `fixed inset-0` full-frame, on web's `lg:` breakpoint; z-scale documented (header 20 < bottomnav 30 < fab 40 < overlay 45 < menu 50; FAB hidden when overlay active); route-driven via `OVERLAY_ROUTES`. **Proven by routing `/settings` + `/settings/*` through the slot** (better, more-visible proof than ReportDetailOverlay; that re-point moves to DF2 reports). Ref: `docs/mockups/STATE-FIDELITY-PLAN.md`. | ent | med-high | ✅ | ⬜ | ✅ | ⬜ |
+| 13 | DF2 · Inline re-skins | Rebuild Dashboard `/`, Trends `/trends`, Groups list + GroupDetailPanel, Items `/items` to the design-lab screen designs — inline (nav-framed), local drill/expand state kept. Pure visual grammar vs real data + side-by-side acceptance per screen. | mvp | med | ⬜ | ⬜ | ⬜ | ⬜ |
+| 14 | DF3 · Route-backed overlays (no SSE) | Transaction detail `/transactions/$id`, New `/transactions/new`, Invite `/invite/$token` → full-surface route overlays; add the unsaved-changes guard (new + statement upload). Prove deep-link / back-button / share survive. | ent | med-high | ⬜ | ⬜ | ⬜ | ⬜ |
+| 15 | DF4 · Settings + Notifications overlays | Route `/settings` + `/settings/*` and `/notifications` through the overlay slot (notifications full-surface from avatar). Folds in the already-built settings hub + 6 subviews; verify per-subview deep-link + reload. | mvp | med | ⬜ | ⬜ | ⬜ | ⬜ |
+| 16 | DF5 · SSE families (one at a time) | Scan `/scan` → Batch `/scan-batch` → Statements `/statements` through the overlay slot, one at a time; each proves EventSource lifetime + retry/backoff + queue/Blob-URL + cache-invalidation cleanup on unmount. Highest risk, last. | ent | high | ⬜ | ⬜ | ⬜ | ⬜ |
+| 17 | DF6 · Filter → URL promotions | Promote transactions-list extra filters, items filter+cursor, notifications cursor to validated URL search params (resumable deep-links). | mvp | med | ⬜ | ⬜ | ⬜ | ⬜ |
+| 18 | SL · Scan location intelligence | **New track: Scan Intelligence (D103).** A scan reads its purchase country/city and stores it on the transaction, reconciled against the user's settings default. Backend DONE + prompt-lab proven (extraction, 4-case reconciliation, dataset, persist, 6 live scans CL/US/UK/FR). Remaining: **backend `/locations` endpoint**, the **prompt promotion strategy** (full prompt-lab baseline pass of the location candidate → confirm no extraction regression → formalize promotion), and the **frontend** Scanning country/city selectors + foreign indicator. See Phase Details. | ent | high | 🔄 | ⬜ | 🔄 | ⬜ |
 
+<!-- Epic 1 (Web Migration W1–Wf) delivered the token/grammar layer; Wf Push (PR #15) is PARKED pending the DF epic. Epic 2 (Design Fidelity DF1–DF6, D100) rebuilds screens to the Storybook reference + adds the overlay model, preserving the functional/state layer. Epic 3 (Scan Intelligence, phase 18+, D103) is a backend+AI feature track parallel to the design work. -->
 <!-- Exec is written by /gabe-execute: ⬜ not started, 🔄 in progress, ✅ complete -->
 <!-- Review/Commit/Push auto-ticked by /gabe-review, /gabe-commit, /gabe-push -->
 <!-- A phase is complete when all four status columns are ✅ -->
@@ -217,9 +225,35 @@ decisions_entry: D98
 - **Tier:** ent — QA capstone; regression rigor IS the deliverable: full visual-regression matrix × viewports + e2e + CI gate + dead-code removal.
 - **Trade-offs accepted:** See `DECISIONS.md` D98.
 
+### Phase 18 — SL · Scan location intelligence
+
+```yaml
+phase: 18
+types: [scan, ai-prompt, backend, DB, data-view, user-facing, web]
+phase_tier: ent
+prototype: false
+decisions_entry: D103
+```
+
+**Epic 3 — Scan Intelligence.** A receipt scan reads its purchase country/city and stores it on the transaction, reconciled against the user's settings default: receipt wins → unknown city for a known country uses that country's capital → no country (or nothing) uses the settings default.
+
+**Done (committed):**
+- **Extraction** — `LOCATION` block in the receipt prompt + `country` (ISO-2) / `city` on `Raw`/`GeminiExtractionResult`, part of the PydanticAI output_type (`ca466c7`).
+- **Reconciliation + dataset** — 4-case `resolve_scan_location` (`services/locations.py`) + `app/reference/locations.json` (49 operating-region countries; CL = 125 cities, consolidated from 346 comunas; every country carries its capital) (`dd907ba`, `9a90c3b`).
+- **Persist** — `users.default_country/default_city` (migration 043) + rectification (country validated) + profile read; `scan_worker` loads the scope-owner default → `persist_scan` writes `transaction.country/city` (`dd907ba`).
+- **Prompt-lab proof** — dev-only `receipt-extraction-location` candidate; 6 live Gemini scans (CL ×3 → Villarrica · US → Orlando · UK → London/GB · FR → Paris) all extracted the correct ISO country + city (`c9c1ce4`).
+
+**Remaining tasks (explicit):**
+1. **Backend endpoints** — `GET /api/v1/locations` serving `known_countries()` (code+name) + `cities_of(country)` for the settings dropdowns; auth-gated + cacheable. Rectification + profile already expose `default_country`/`default_city`.
+2. **Prompt promotion strategy** — production `receipt-extraction-current` already carries the `LOCATION` block but bypassed the candidate→promote discipline. Run a FULL prompt-lab baseline pass of `receipt-extraction-location` (all baselined cases, scored) to PROVE the LOCATION addition does NOT regress the transaction/reconstruction gates (totals/items/discounts); then formalize — keep production promoted (now lab-validated) or (strict) revert production to baseline and promote only after the full pass. Future prompt edits go candidate-first via the prompt-lab (`run`/`compare`/`score`).
+3. **Frontend** — Scanning `Ubicación predeterminada` = country + dependent-city selectors (read `/locations`, write via rectification; replaces CS-8 coming-soon); foreign-country indicator Código/Bandera made functional in the transaction views (CS-9) via a persisted display pref + a `country-code → flag-emoji` helper (Unicode, no data).
+
+- **Tier:** ent — touches the AI extraction prompt (regression risk → needs the full prompt-lab pass), a DB migration, the scan hot-path, new endpoints, and new UI. Ent = prompt-lab regression proof + 4-case reconciliation tested + e2e for the selectors.
+- **Trade-offs accepted:** location is best-effort (capital/default fallback when unknown); CL stored as cities not comunas (user direction); the foreign indicator is a display pref over the stored country.
+
 ## Current Phase
 
-Phase 10: W10 · Dashboard (index) (tier ent)
+Phase 18: SL · Scan location intelligence (tier ent) — **Epic 3 Scan Intelligence**, parallel to the design work. Backend extraction + reconciliation + persist + dataset DONE and prompt-lab-proven (6 live scans). Now on the remaining three: the `/locations` endpoint, the prompt promotion strategy (full prompt-lab baseline pass), and the frontend Scanning selectors + foreign indicator. (Design-Fidelity DF2–DF6 remain queued; Wf Push PR #15 parked.)
 
 ## Dependencies
 

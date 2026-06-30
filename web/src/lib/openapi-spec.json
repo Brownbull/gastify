@@ -2201,6 +2201,27 @@
         }
       }
     },
+    "/api/v1/reference/locations": {
+      "get": {
+        "tags": [
+          "reference"
+        ],
+        "summary": "Get Locations",
+        "operationId": "get_locations_api_v1_reference_locations_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LocationsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/insights/monthly": {
       "get": {
         "tags": [
@@ -5030,6 +5051,37 @@
         ],
         "title": "LearnedMappingsResponse"
       },
+      "LocationsResponse": {
+        "properties": {
+          "countries": {
+            "items": {
+              "additionalProperties": {
+                "type": "string"
+              },
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Countries"
+          },
+          "cities": {
+            "additionalProperties": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "type": "object",
+            "title": "Cities"
+          }
+        },
+        "type": "object",
+        "required": [
+          "countries",
+          "cities"
+        ],
+        "title": "LocationsResponse",
+        "description": "Static country + city reference data for the settings location pickers.\n\n`countries` is [{code, name}] sorted by name; `cities` maps each ISO alpha-2\ncode to its city list (Chile = cities, not comunas \u2014 see D103). Sourced from\napp/reference/locations.json; the same data backs scan-location reconciliation."
+      },
       "MarkAllReadResponse": {
         "properties": {
           "count": {
@@ -5611,6 +5663,28 @@
             "type": "string",
             "title": "Default Currency"
           },
+          "default_country": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Default Country"
+          },
+          "default_city": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Default City"
+          },
           "date_format": {
             "type": "string",
             "title": "Date Format"
@@ -5901,6 +5975,30 @@
               }
             ],
             "title": "Default Currency"
+          },
+          "default_country": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 2
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Default Country"
+          },
+          "default_city": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 120
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Default City"
           },
           "date_format": {
             "anyOf": [

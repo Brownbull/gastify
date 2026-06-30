@@ -12,6 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db import get_db
 from app.models.reference import ItemCategory, StoreCategory
+from app.services.locations import known_countries, location_dataset
 
 router = APIRouter(prefix="/reference", tags=["reference"])
 
@@ -60,3 +61,24 @@ async def list_item_categories(db: DB) -> list[ItemCategoryItem]:
     )
     rows = result.scalars().all()
     return [ItemCategoryItem.model_validate(r) for r in rows]
+
+
+class LocationsResponse(BaseModel):
+    """Static country + city reference data for the settings location pickers.
+
+    `countries` is [{code, name}] sorted by name; `cities` maps each ISO alpha-2
+    code to its city list (Chile = cities, not comunas — see D103). Sourced from
+    app/reference/locations.json; the same data backs scan-location reconciliation.
+    """
+
+    countries: list[dict[str, str]]
+    cities: dict[str, list[str]]
+
+
+@router.get("/locations", response_model=LocationsResponse)
+async def get_locations() -> LocationsResponse:
+    data = location_dataset()
+    return LocationsResponse(
+        countries=known_countries(),
+        cities={code: list(entry["cities"]) for code, entry in data.items()},
+    )

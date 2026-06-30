@@ -37,6 +37,27 @@ def _make_result(**overrides) -> GeminiExtractionResult:
     return GeminiExtractionResult(**defaults)
 
 
+class TestCountryFallback:
+    def test_single_country_currency_infers_country_when_null(self):
+        # P108: GBP receipt with no readable address (Tesco/M&S) -> GB.
+        result = _make_result(country=None, currency_code="GBP")
+        assert coalesce_extraction(result).country == "GB"
+
+    def test_clp_infers_cl(self):
+        result = _make_result(country=None, currency_code="CLP")
+        assert coalesce_extraction(result).country == "CL"
+
+    def test_multi_country_currency_stays_null(self):
+        # USD/EUR are multi-country -> never guessed.
+        assert coalesce_extraction(_make_result(country=None, currency_code="USD")).country is None
+        assert coalesce_extraction(_make_result(country=None, currency_code="EUR")).country is None
+
+    def test_explicit_country_is_not_overridden(self):
+        # A country the model DID read wins over the currency fallback.
+        result = _make_result(country="FR", currency_code="GBP")
+        assert coalesce_extraction(result).country == "FR"
+
+
 class TestCoalesceExtraction:
     def test_passthrough_valid_result(self):
         result = _make_result()

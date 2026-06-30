@@ -200,8 +200,7 @@ function NewTransactionPage() {
             type="button"
             data-testid="manual-add-item"
             onClick={() => setItems([...items, { ...EMPTY_ITEM }])}
-            className="flex w-full items-center justify-center gap-gt-6 rounded-gt-xl bg-gt-surface px-gt-12 py-gt-10 font-gt-display text-gt-sm font-extrabold text-gt-primary transition duration-150 ease-gt-bounce hover:-translate-y-0.5 hover:bg-gt-primary-soft"
-            style={{ border: "2px dashed var(--border-medium)" }}
+            className="flex w-full items-center justify-center gap-gt-6 rounded-gt-xl border-2 border-dashed border-gt-line-strong bg-gt-surface px-gt-12 py-gt-10 font-gt-display text-gt-sm font-extrabold text-gt-primary transition duration-150 ease-gt-bounce hover:-translate-y-0.5 hover:bg-gt-primary-soft"
           >
             <span className="text-gt-lg leading-none">+</span> Add item
           </button>
