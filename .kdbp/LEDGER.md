@@ -5780,3 +5780,26 @@ NEXT: make Preferences Tipografía (font family) + Tamaño de fuente functional 
 - 2026-06-29 21:35 | Edit | /home/khujta/projects/apps/gastify/web/src/lib/appearance.ts
 - 2026-06-29 21:35 | Edit | /home/khujta/projects/apps/gastify/web/src/lib/appearance.ts
 - 2026-06-29 21:35 | Edit | /home/khujta/projects/apps/gastify/web/src/styles/global.css
+
+## 2026-06-29 21:44 — [027b7fa] feat(web): functional font-family + font-size prefs (Apariencia)
+FINDINGS: 0 critical, 0 high — lint 0 errors (warnings=low), types clean, vitest 137/137, structure ok (web/src/lib/*.ts), no open deferred on changed files.
+ACTIONS: none (all pass).
+SCOPE: lib/appearance.ts + uiStore fontFamily/fontSize + main initAppearance; Tipografía (Outfit/Space Grotesk) re-points --font-family/--font-display app-wide; Tamaño 3-step (Pequeño/Normal/Grande, ~0.88x/1x/1.15x) via <html data-fontsize> overriding inlined text-gt-* utilities in global.css; +sizeLarge i18n es/en/pt; CS-4/CS-5 graduated in COMING-SOON-REGISTRY. Modo/Paleta/Color-de-fuente stay coming-soon.
+NEXT: Scanning subview (Escaneo) — rebuild to design-lab reference, wire real vs coming-soon.
+- 2026-06-29 21:47 | Edit | /home/khujta/projects/apps/gastify/web/src/components/ui/Select.tsx
+- 2026-06-29 21:47 | Edit | /home/khujta/projects/apps/gastify/web/src/components/ui/Select.tsx
+- 2026-06-29 21:47 | Edit | /home/khujta/projects/apps/gastify/web/src/components/ui/Select.tsx
+- 2026-06-29 21:48 | Write | /home/khujta/projects/apps/gastify/web/src/routes/settings.scanning.tsx
+- 2026-06-29 21:48 | Edit | /home/khujta/projects/apps/gastify/web/src/lib/i18n.ts
+- 2026-06-29 21:49 | Edit | /home/khujta/projects/apps/gastify/web/src/lib/i18n.ts
+- 2026-06-29 21:49 | Edit | /home/khujta/projects/apps/gastify/web/src/lib/i18n.ts
+- 2026-06-29 21:49 | Write | /home/khujta/projects/apps/gastify/tests/web-e2e/currency-switch.spec.ts
+- 2026-06-29 21:50 | Edit | /home/khujta/projects/apps/gastify/docs/mockups/COMING-SOON-REGISTRY.md
+- 2026-06-29 21:50 | Edit | /home/khujta/projects/apps/gastify/web/src/routes/settings.scanning.tsx
+- 2026-06-29 22:31 | Edit | /home/khujta/projects/apps/gastify/backend/app/schemas/scan.py
+- 2026-06-29 22:31 | Edit | /home/khujta/projects/apps/gastify/backend/app/schemas/scan.py
+- 2026-06-29 22:31 | Edit | /home/khujta/projects/apps/gastify/backend/app/services/coalesce.py
+- 2026-06-29 22:32 | Edit | /home/khujta/projects/apps/gastify/backend/app/services/coalesce.py
+- 2026-06-29 22:32 | Edit | /home/khujta/projects/apps/gastify/backend/app/services/coalesce.py
+- 2026-06-29 22:33 | Edit | /home/khujta/projects/apps/gastify/backend/app/prompts/receipt/extraction.py
+- 2026-06-29 22:33 | Edit | /home/khujta/projects/apps/gastify/backend/app/prompts/receipt/extraction.py

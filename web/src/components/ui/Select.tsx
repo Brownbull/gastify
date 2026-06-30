@@ -23,10 +23,12 @@ export interface SelectProps {
   options: SelectOption[];
   /** greys the trigger + blocks opening (coming-soon placeholders, D101). */
   disabled?: boolean;
+  /** test hook: sets data-testid on the trigger + `${testId}-option-${value}` per option. */
+  testId?: string;
   className?: string;
 }
 
-export function Select({ value, onChange, options, disabled = false, className = "" }: SelectProps) {
+export function Select({ value, onChange, options, disabled = false, testId, className = "" }: SelectProps) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -53,6 +55,8 @@ export function Select({ value, onChange, options, disabled = false, className =
         aria-haspopup="listbox"
         aria-expanded={open}
         disabled={disabled}
+        data-testid={testId}
+        data-value={value}
         onClick={() => setOpen((o) => !o)}
         className={`flex w-full items-center justify-between gap-gt-8 rounded-gt-lg border-2 border-gt-line-strong bg-gt-surface px-gt-12 py-gt-8 font-gt-display text-gt-md font-extrabold text-gt-ink shadow-gt-xs transition duration-150 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-gt-primary/25 disabled:cursor-default ${disabled ? "opacity-55" : ""}`}
       >
@@ -72,6 +76,7 @@ export function Select({ value, onChange, options, disabled = false, className =
                   type="button"
                   role="option"
                   aria-selected={sel}
+                  data-testid={testId ? `${testId}-option-${o.value}` : undefined}
                   onClick={() => { onChange(o.value); setOpen(false); }}
                   className={`flex w-full items-center justify-between gap-gt-8 px-gt-12 py-gt-8 text-left font-gt-display text-gt-md font-extrabold transition duration-150 hover:bg-gt-bg-3 ${sel ? "text-gt-primary" : "text-gt-ink"}`}
                 >

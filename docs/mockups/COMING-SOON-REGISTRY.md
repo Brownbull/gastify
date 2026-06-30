@@ -12,6 +12,8 @@
 | CS-3 | Settings · Preferencias | Color de fuente (Colorido/Simple) | No font-color setting | ✅ disabled SegmentedToggle | Needs an ink-vs-accent text mode + persisted pref |
 | CS-6 | Settings · Perfil | Cambiar foto (avatar upload) | No avatar/photo storage or upload path | ✅ disabled ghost button | Needs photo upload + storage + user.photoURL write |
 | CS-7 | Settings · Perfil | Editar nombre + Guardar cambios | No profile-write endpoint (name/email read-only from Firebase) | ✅ disabled Nombre input + disabled "Guardar cambios" | Needs a profile-update endpoint (or Firebase updateProfile wiring) |
+| CS-8 | Settings · Escaneo | Ubicación predeterminada | No `default_location` field on the user model / rectification API | ✅ disabled Select (Santiago…) | Needs a default-location field on the profile + write endpoint + use it in scan fallback |
+| CS-9 | Settings · Escaneo | Indicador de país extranjero (Código/Bandera) | No setting; transactions don't render a foreign-country indicator yet | ✅ disabled SegmentedToggle | Needs a persisted display pref + wiring into the transactions/list rendering |
 
 ## Intentionally dropped from mockups (NOT coming-soon)
 
