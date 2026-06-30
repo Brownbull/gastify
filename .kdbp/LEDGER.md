@@ -5848,3 +5848,9 @@ CONCLUSION: the LOCATION addition is validated + safe in production (neutral + w
 - 2026-06-30 02:32 | Edit | /home/khujta/projects/apps/gastify/backend/app/services/coalesce.py
 - 2026-06-30 02:32 | Edit | /home/khujta/projects/apps/gastify/backend/app/services/coalesce.py
 - 2026-06-30 02:33 | Edit | /home/khujta/projects/apps/gastify/backend/app/prompts/receipt/extraction.py
+
+## 2026-06-30 02:56 — [c5bd8f9] feat(scan): promote v3 locale-generalized evidence-first receipt prompt (D104)
+CHECKS: lint pass, types 0 errors, tests 958 passed, coverage/shape skipped (mvp), structure none, doc-drift none.
+FINDINGS: 0 blocking. CHECK 6 matched P104-P107 (this commit's own documented follow-ups — acknowledged, not pre-existing debt).
+ACTIONS: none (all pass). Promotion: receipt-extraction-current system_prompt -> RECEIPT_STRUCTURE_V3_GENERAL @2026-06-30.0.
+DEFERRED: +P103 (eval de-noise) +P104 (currency injection) +P105 (date resolver) +P106 (deep exponent refactor) +P107 (US promo) +P108 (corpus +10).

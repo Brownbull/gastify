@@ -12,7 +12,7 @@ from typing import Any
 @dataclass(frozen=True)
 class ReceiptValidationPolicy:
     policy_id: str = "receipt-validation-policy"
-    policy_version: str = "2026-05-20.v1"
+    policy_version: str = "2026-06-30.v2"
     math_exact_tolerance_minor_units: int = 1
     major_reconstruction_discrepancy_ratio: float = 0.25
     significant_item_count_delta_ratio: float = 0.25
@@ -20,6 +20,12 @@ class ReceiptValidationPolicy:
     significant_quantity_mismatch_ratio: float = 0.25
     significant_unit_price_mismatch_ratio: float = 0.25
     significant_discount_delta_ratio: float = 0.25
+    # Severity-only carve-out: a by-name item total / unit price that is off by no more than
+    # max(near_miss_item_delta_minor_units, near_miss_item_delta_ratio * expected) is treated as
+    # a match WHEN the whole receipt math reconciles — so a tiny OCR slip on one item of an
+    # otherwise-balanced receipt no longer flips minor -> significant. The strict gate is unchanged.
+    near_miss_item_delta_minor_units: int = 5
+    near_miss_item_delta_ratio: float = 0.005
     discount_delta_denominator: str = "expected_final_total_minor"
 
     def to_dict(self) -> dict[str, str | int | float]:

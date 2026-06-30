@@ -58,7 +58,7 @@ def score_prompt_run(
     transaction_gate = _score_transaction_gate(
         extraction_score, categorization_score, pipeline_score
     )
-    reconstruction_gate = _score_reconstruction_gate(expected, extraction)
+    reconstruction_gate = _score_reconstruction_gate(expected, extraction, policy)
     passed = bool(transaction_gate["passed"]) and bool(reconstruction_gate["passed"])
     severity_status, severity_reasons = _severity_status(
         expected=expected,
@@ -119,6 +119,7 @@ def _score_transaction_gate(
 def _score_reconstruction_gate(
     expected: ExpectedReceipt | None,
     extraction: GeminiExtractionResult,
+    policy: ReceiptValidationPolicy,
 ) -> dict[str, bool | int | float | str | None]:
     if expected is None:
         return {
@@ -136,6 +137,10 @@ def _score_reconstruction_gate(
             "quantity_matches_by_name": None,
             "unit_price_matches_by_name": None,
             "full_item_matches_by_name": None,
+            "item_total_near_matches": None,
+            "unit_price_near_matches": None,
+            "item_total_near_matches_by_name": None,
+            "unit_price_near_matches_by_name": None,
             "single_item_positional_fallback": False,
             "discount_total_match": None,
         }
@@ -143,6 +148,8 @@ def _score_reconstruction_gate(
     quantity_matches = 0
     unit_price_matches = 0
     item_total_matches = 0
+    item_total_near_matches = 0
+    unit_price_near_matches = 0
     full_item_matches = 0
     comparable = min(len(expected.items), len(extraction.line_items))
     for index in range(comparable):
@@ -155,6 +162,8 @@ def _score_reconstruction_gate(
         total_match = expected_item.total_minor == actual_total
         if total_match:
             item_total_matches += 1
+        if total_match or _is_near_miss(actual_total, expected_item.total_minor, policy):
+            item_total_near_matches += 1
         actual_unit = (
             to_minor_units(actual_item.unit_price, extraction.currency_code)
             if actual_item.unit_price is not None
@@ -163,14 +172,18 @@ def _score_reconstruction_gate(
         unit_match = expected_item.unit_minor is None or expected_item.unit_minor == actual_unit
         if unit_match:
             unit_price_matches += 1
+        if unit_match or _is_near_miss(actual_unit, expected_item.unit_minor, policy):
+            unit_price_near_matches += 1
         if total_match and quantity_match and unit_match:
             full_item_matches += 1
 
-    name_matches = _name_aware_item_matches(expected, extraction)
+    name_matches = _name_aware_item_matches(expected, extraction, policy)
     item_total_matches_by_name = sum(1 for match in name_matches if match["total_match"])
     quantity_matches_by_name = sum(1 for match in name_matches if match["quantity_match"])
     unit_price_matches_by_name = sum(1 for match in name_matches if match["unit_match"])
     full_item_matches_by_name = sum(1 for match in name_matches if match["full_match"])
+    item_total_near_matches_by_name = sum(1 for match in name_matches if match["total_near_match"])
+    unit_price_near_matches_by_name = sum(1 for match in name_matches if match["unit_near_match"])
 
     actual_discount_total = (
         to_minor_units(extraction.discount_amount, extraction.currency_code)
@@ -208,6 +221,10 @@ def _score_reconstruction_gate(
         "quantity_matches_by_name": quantity_matches_by_name,
         "unit_price_matches_by_name": unit_price_matches_by_name,
         "full_item_matches_by_name": full_item_matches_by_name,
+        "item_total_near_matches": item_total_near_matches,
+        "unit_price_near_matches": unit_price_near_matches,
+        "item_total_near_matches_by_name": item_total_near_matches_by_name,
+        "unit_price_near_matches_by_name": unit_price_near_matches_by_name,
         "single_item_positional_fallback": single_item_positional_fallback,
         "discount_total_match": discount_total_match,
         "discount_delta_minor": _optional_money_delta(
@@ -249,11 +266,31 @@ def _severity_status(
 
     if expected is not None:
         expected_count = len(expected.items)
+        # Near-miss carve-out for the money gates ONLY when the whole-receipt reconstruction sits
+        # within the major-discrepancy tolerance: a tiny per-item OCR slip on an otherwise-balanced
+        # receipt should not read as significant. The strict gate is unchanged (it is not exact).
+        reconstruction_within_tolerance = (
+            isinstance(discrepancy_ratio, int | float)
+            and not isinstance(discrepancy_ratio, bool)
+            and float(discrepancy_ratio) <= policy.major_reconstruction_discrepancy_ratio
+        )
+        total_name_key, total_pos_key, unit_name_key, unit_pos_key = (
+            (
+                "item_total_near_matches_by_name",
+                "item_total_near_matches",
+                "unit_price_near_matches_by_name",
+                "unit_price_near_matches",
+            )
+            if reconstruction_within_tolerance
+            else (
+                "item_total_matches_by_name",
+                "item_total_matches",
+                "unit_price_matches_by_name",
+                "unit_price_matches",
+            )
+        )
         item_total_matches_for_severity = _severity_match_count(
-            reconstruction_gate,
-            "item_total_matches_by_name",
-            "item_total_matches",
-            expected_count,
+            reconstruction_gate, total_name_key, total_pos_key, expected_count
         )
         quantity_matches_for_severity = _severity_match_count(
             reconstruction_gate,
@@ -262,10 +299,7 @@ def _severity_status(
             expected_count,
         )
         unit_price_matches_for_severity = _severity_match_count(
-            reconstruction_gate,
-            "unit_price_matches_by_name",
-            "unit_price_matches",
-            expected_count,
+            reconstruction_gate, unit_name_key, unit_pos_key, expected_count
         )
         if _ratio_abs(reconstruction_gate.get("item_count_delta"), expected_count) > (
             policy.significant_item_count_delta_ratio
@@ -344,12 +378,14 @@ def _severity_match_count(
 def _name_aware_item_matches(
     expected: ExpectedReceipt,
     extraction: GeminiExtractionResult,
+    policy: ReceiptValidationPolicy,
 ) -> list[dict[str, bool | int | float]]:
     unmatched_indexes = set(range(len(extraction.line_items)))
     matches: list[dict[str, bool | int | float]] = []
     for expected_index, expected_item in enumerate(expected.items):
         best_index = None
         best_rank: tuple[bool, bool, bool, bool, float] | None = None
+        best_totals: tuple[int, int | None] | None = None
         for actual_index in unmatched_indexes:
             actual_item = extraction.line_items[actual_index]
             similarity = _item_name_similarity(expected_item.name, actual_item.name)
@@ -369,9 +405,17 @@ def _name_aware_item_matches(
             if best_rank is None or rank > best_rank:
                 best_rank = rank
                 best_index = actual_index
-        if best_index is None or best_rank is None:
+                best_totals = (actual_total, actual_unit)
+        if best_index is None or best_rank is None or best_totals is None:
             continue
         unmatched_indexes.remove(best_index)
+        actual_total, actual_unit = best_totals
+        total_near_match = bool(best_rank[1]) or _is_near_miss(
+            actual_total, expected_item.total_minor, policy
+        )
+        unit_near_match = bool(best_rank[3]) or _is_near_miss(
+            actual_unit, expected_item.unit_minor, policy
+        )
         matches.append(
             {
                 "expected_index": expected_index,
@@ -381,9 +425,26 @@ def _name_aware_item_matches(
                 "quantity_match": best_rank[2],
                 "unit_match": best_rank[3],
                 "full_match": best_rank[0],
+                "total_near_match": total_near_match,
+                "unit_near_match": unit_near_match,
             }
         )
     return matches
+
+
+def _is_near_miss(
+    actual: int | None,
+    expected: int | None,
+    policy: ReceiptValidationPolicy,
+) -> bool:
+    """A money value within the near-miss tolerance of the expected one (severity-only)."""
+    if actual is None or expected is None:
+        return False
+    tolerance = max(
+        policy.near_miss_item_delta_minor_units,
+        round(policy.near_miss_item_delta_ratio * abs(expected)),
+    )
+    return abs(actual - expected) <= tolerance
 
 
 def _item_name_similarity(expected_name: object, actual_name: object) -> float:
