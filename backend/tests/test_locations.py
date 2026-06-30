@@ -8,6 +8,8 @@ from __future__ import annotations
 
 import re
 
+import pytest
+
 from app.services.locations import (
     cities_of,
     known_countries,
@@ -97,6 +99,19 @@ def test_known_countries_sorted_by_name() -> None:
 def test_cities_of_returns_country_cities() -> None:
     assert cities_of("cl", FIXTURE)[0] == "Santiago"
     assert cities_of("ZZ", FIXTURE) == []
+
+
+# --- /reference/locations endpoint --------------------------------------------
+@pytest.mark.asyncio
+async def test_locations_endpoint(client) -> None:
+    resp = await client.get("/api/v1/reference/locations")
+    assert resp.status_code == 200
+    body = resp.json()
+    codes = {c["code"] for c in body["countries"]}
+    assert {"CL", "US", "FR", "GB"} <= codes
+    assert all("code" in c and "name" in c for c in body["countries"])
+    assert body["cities"]["CL"][0] == "Santiago"
+    assert len(body["cities"]["CL"]) >= 40
 
 
 # --- Shipped dataset invariants (app/reference/locations.json) ----------------
