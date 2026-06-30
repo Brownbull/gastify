@@ -5768,3 +5768,15 @@ NEXT: swap web's SettingsSubviewShell + hub rows to the real design-lab primitiv
 - 2026-06-29 20:50 | Edit | /home/khujta/projects/apps/gastify/web/src/routes/settings.index.tsx
 - 2026-06-29 20:50 | Edit | /home/khujta/projects/apps/gastify/web/src/routes/settings.index.tsx
 - 2026-06-29 20:54 | Edit | /home/khujta/projects/apps/gastify/web/src/components/AppLayout.tsx
+
+## 2026-06-29 21:24 — [889b802] feat(web): settings subview fidelity + gt-padding @layer fix
+FINDINGS: 0 critical, 0 high — lint 0 errors (96 warnings=low), types clean, vitest 137/137, structure ok (web/src/components/**), docs skip, no open deferred on changed files.
+ACTIONS: none (all checks pass).
+DEFERRED: none.
+SCOPE: global.css un-layered-reset removal (app-wide gt-padding @layer fix); settings hub back→Home + overlay pb-28 drop; Profile rebuilt to design-lab (real name/email/linked-account; photo+save coming-soon CS-6/7; Teléfono intentionally dropped — data minimization); SegmentedToggle+Select vendored into web/src/components/ui (web now self-contained, zero external @design-system imports); new Input atom; +6 profile i18n keys es/en/pt.
+NOTE: settings-subview fidelity is under the Design Fidelity epic (D100-D102) but is not strictly DF2 (inline re-skins); PLAN Commit-tick left untouched — a settings-fidelity phase could be formalized via /gabe-plan.
+NEXT: make Preferences Tipografía (font family) + Tamaño de fuente functional (user direction); keep Modo/Paleta/Color de fuente coming-soon.
+- 2026-06-29 21:35 | Edit | /home/khujta/projects/apps/gastify/web/src/lib/appearance.ts
+- 2026-06-29 21:35 | Edit | /home/khujta/projects/apps/gastify/web/src/lib/appearance.ts
+- 2026-06-29 21:35 | Edit | /home/khujta/projects/apps/gastify/web/src/lib/appearance.ts
+- 2026-06-29 21:35 | Edit | /home/khujta/projects/apps/gastify/web/src/styles/global.css

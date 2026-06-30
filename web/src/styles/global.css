@@ -40,3 +40,51 @@
     -moz-osx-font-smoothing: grayscale;
   }
 }
+
+/* ================================================================
+   Appearance preferences (Settings → Preferencias → Apariencia).
+   Keyed off <html> data-attributes set by lib/appearance.ts. Defaults
+   (Outfit / Normal) set no attribute, so the base tokens apply.
+
+   Font family: re-point the root font vars — the gt font utilities
+   (font-gt-body/display) reference var(--font-family)/var(--font-display),
+   so the whole app re-fonts. `--font-alt` is Space Grotesk (already loaded).
+
+   Font size: the text-gt-* utilities bake LITERAL px (Tailwind @theme
+   inline), so a var override can't reach them — we override the utilities
+   themselves under [data-fontsize="small"|"large"]. These rules are
+   intentionally un-layered + scoped to the data-attribute (conditional, not a
+   blanket reset), so they win over the inlined `@layer utilities` values only
+   when small/large is active (Normal = no attribute → base tokens). Small is
+   ~0.88x, Large ~1.15x. Line-heights are unitless (1.5) and scale for free.
+   ================================================================ */
+html[data-font="space"] {
+  --font-family: var(--font-alt);
+  --font-display: var(--font-alt);
+}
+
+html[data-fontsize="small"] .text-gt-xs { font-size: 10px; }
+html[data-fontsize="small"] .text-gt-sm { font-size: 11px; }
+html[data-fontsize="small"] .text-gt-base { font-size: 12px; }
+html[data-fontsize="small"] .text-gt-md { font-size: 12px; }
+html[data-fontsize="small"] .text-gt-lg { font-size: 13px; }
+html[data-fontsize="small"] .text-gt-xl { font-size: 14px; }
+html[data-fontsize="small"] .text-gt-2xl { font-size: 16px; }
+html[data-fontsize="small"] .text-gt-3xl { font-size: 19px; }
+html[data-fontsize="small"] .text-gt-4xl { font-size: 24px; }
+html[data-fontsize="small"] .text-gt-5xl { font-size: 28px; }
+html[data-fontsize="small"] .text-gt-6xl { font-size: 33px; }
+html[data-fontsize="small"] .text-gt-7xl { font-size: 39px; }
+
+html[data-fontsize="large"] .text-gt-xs { font-size: 13px; }
+html[data-fontsize="large"] .text-gt-sm { font-size: 14px; }
+html[data-fontsize="large"] .text-gt-base { font-size: 15px; }
+html[data-fontsize="large"] .text-gt-md { font-size: 16px; }
+html[data-fontsize="large"] .text-gt-lg { font-size: 17px; }
+html[data-fontsize="large"] .text-gt-xl { font-size: 18px; }
+html[data-fontsize="large"] .text-gt-2xl { font-size: 21px; }
+html[data-fontsize="large"] .text-gt-3xl { font-size: 25px; }
+html[data-fontsize="large"] .text-gt-4xl { font-size: 32px; }
+html[data-fontsize="large"] .text-gt-5xl { font-size: 37px; }
+html[data-fontsize="large"] .text-gt-6xl { font-size: 44px; }
+html[data-fontsize="large"] .text-gt-7xl { font-size: 51px; }

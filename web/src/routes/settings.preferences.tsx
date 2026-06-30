@@ -6,6 +6,8 @@ import { apiClient } from "@/lib/api";
 import { SettingsSubviewShell, SettingsField, SettingsGroupHeading } from "@/components/settings/SettingsSubviewShell";
 import { SegmentedToggle } from "@/components/ui/SegmentedToggle";
 import { Select } from "@/components/ui/Select";
+import { useUiStore } from "@/stores/uiStore";
+import { type FontFamilyPref, type FontSizePref } from "@/lib/appearance";
 
 export const Route = createFileRoute("/settings/preferences")({
   component: PreferencesSubview,
@@ -23,13 +25,18 @@ const noop = () => {};
 
 /**
  * Preferencias de la app — General (idioma + formato de fecha, both WIRED) +
- * Apariencia (modo/paleta/color de fuente/tipografía/tamaño). The appearance
- * controls + dark mode were cut by D-B; per D101 they render as coming-soon
- * placeholders (shown, disabled, badged) rather than omitted. Registered in
- * docs/mockups/COMING-SOON-REGISTRY.md.
+ * Apariencia. Tipografía (font family Outfit/Space Grotesk) and Tamaño de fuente
+ * (Normal/Pequeño) are WIRED + persisted via uiStore → lib/appearance (applied as
+ * <html> data-attributes; see global.css). Modo/Paleta/Color de fuente remain
+ * coming-soon (cut by D-B) — shown, disabled, badged per D101 (CS-1..3 in
+ * docs/mockups/COMING-SOON-REGISTRY.md).
  */
 function PreferencesSubview() {
   const { t, locale, setLocale } = useI18n();
+  const fontFamily = useUiStore((s) => s.fontFamily);
+  const fontSize = useUiStore((s) => s.fontSize);
+  const setFontFamily = useUiStore((s) => s.setFontFamily);
+  const setFontSize = useUiStore((s) => s.setFontSize);
   const [dateFormat, setDateFormat] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
@@ -141,11 +148,10 @@ function PreferencesSubview() {
         />
       </SettingsField>
 
-      <SettingsField label={t("settings.prefs.typeface")} comingSoon>
+      <SettingsField label={t("settings.prefs.typeface")}>
         <Select
-          disabled
-          value="outfit"
-          onChange={noop}
+          value={fontFamily}
+          onChange={(v) => setFontFamily(v as FontFamilyPref)}
           options={[
             { value: "outfit", label: "Outfit" },
             { value: "space", label: "Space Grotesk" },
@@ -153,17 +159,17 @@ function PreferencesSubview() {
         />
       </SettingsField>
 
-      <SettingsField label={t("settings.prefs.fontSize")} comingSoon>
+      <SettingsField label={t("settings.prefs.fontSize")}>
         <SegmentedToggle
           fill
           flush
-          disabled
           segments={[
-            { id: "normal", label: t("settings.prefs.sizeNormal") },
             { id: "small", label: t("settings.prefs.sizeSmall") },
+            { id: "normal", label: t("settings.prefs.sizeNormal") },
+            { id: "large", label: t("settings.prefs.sizeLarge") },
           ]}
-          value="normal"
-          onChange={noop}
+          value={fontSize}
+          onChange={(id) => setFontSize(id as FontSizePref)}
         />
       </SettingsField>
     </SettingsSubviewShell>
