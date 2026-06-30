@@ -2850,3 +2850,15 @@ cross-check the LLM's merchant/total/date against the signed SII data when a QR 
 **Consequence.** Supersedes the port-and-recreate method. All DF-epic screens reuse real design-lab components; the only web-authored part is data/handler/i18n wiring. A future cleanup may promote `design-system` to `shared/` so web doesn't depend on the design-lab app's `src`.
 
 **Status:** accepted.
+
+## D103 — Scan Intelligence: receipt location extraction + reconciliation (2026-06-29)
+
+**Context.** Settings → Escaneo's "Ubicación predeterminada" + "Indicador de país extranjero" were coming-soon. Making them real meant the scan should actually capture a transaction's country/city. Investigation: the receipt prompt never extracted location (only used country as a currency clue), the transaction model already had nullable `country`/`city`, and the user had no default location. BoletApp (legacy) had shipped exactly this (UserPreferences.defaultCountry/defaultCity + foreignLocationFormat + a comunas dataset).
+
+**Decision (user-confirmed 2026-06-29).** New backend+AI feature track (Epic 3, PLAN phase 18).
+- **Extract** country (ISO 3166-1 alpha-2) + city from the receipt via the scan prompt + structured output schema (PydanticAI output_type).
+- **Reconcile** (4-case, user-specified): receipt country+city → use them (unknown city for a known country → that country's capital); country only → capital; city only, or nothing → the user's settings default location.
+- **Dataset** (`app/reference/locations.json`): the operating regions only — North/Central/South America, Europe, Oceania (49 countries), each carrying its capital. **Chile is stored as cities, NOT its 346 administrative comunas** (user direction — comunas too granular; Greater Santiago collapses to one "Santiago"; tourism towns like Villarrica/Pucón kept distinct) → 125 CL cities. Backend-owned static JSON: the reconciliation reads it in-process; an endpoint feeds the settings dropdowns.
+- **Prompt strategy (candidate-first).** Prompt changes go through the prompt-lab as a dev-only candidate, validated (`run`/`compare`/`score`) before promotion to production. The location change was proven via the `receipt-extraction-location` candidate on 6 live Gemini scans (CL/US/UK/FR, all correct ISO country + city); a FULL prompt-lab baseline pass (all baselined cases, scored) must confirm no regression to the transaction/reconstruction gates before formal promotion. (Step 1 shortcut the discipline by editing production directly; this decision formalizes the correct path.)
+
+**Status:** accepted. Backend (extract + reconcile + persist + dataset) done + prompt-lab-proven; remaining = `/locations` endpoint, the full baseline-pass promotion, and the frontend selectors + foreign indicator.
