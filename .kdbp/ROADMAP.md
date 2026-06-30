@@ -275,6 +275,7 @@ graph LR
 
 | Date | Version | Change |
 |---|---|---|
+| 2026-06-30 | v1.6 | Scan Intelligence (P18 / D103) receipt-extraction prompt accepted as functional (D105): v3 reconstruction discrepancy median 0%, 96% within tolerance, **0 Chile failures**. KNOWN LIMITATION registered + deferred: multi-buy / BOGO promo receipts (international) carry higher reconstruction error (max ratio 0.42) — tracked in PENDING P109, revisit only if intl multi-buy accuracy becomes a priority. Prompt-quality refinement workstream closed; resume Design Fidelity implementation (DF4+). |
 | 2026-06-11 | v1.5 | P16 completed (all 5 phases, GO attestation signed). P17 DROPPED per D93 — the boleta TED/QR carries no line-item data and item-level tracking is the product differentiator; the LLM stays mandatory per scan, so the bypass saves ~nothing. Preserved as a possible validation-anchor enhancement. |
 | 2026-06-05 | v1.4 | Housekeeping status sync: P6 (Insights + Item Flags) marked completed — shipped to production as the basis of the P13 dashboards. P14 (Items + Reports) shipped (month/quarter/week/year granularity, D77). Frontmatter version bumped 1.3→1.4 to match the 2026-06-02 scope change. P15 (Notification Center) is the next active phase. |
 | 2026-06-02 | v1.4 | Inserted P10-P15 (feature parity with legacy BoletApp) before launch gate. P7→P16, P8→P17, P9→P18. Write-first ordering: settings/themes → batch ops → batch scan → dashboard/charts → items/reports → notifications. Groups deferred. New critical path: P6 → P10-P15 → P16 (launch). |

@@ -5870,3 +5870,10 @@ TESTS: 15 new (11 resolver, 2 injection, 1 stage1-fault). REVIEW HIGH: stage1 se
 RESOLVED: P104, P105.
 - 2026-06-30 14:02 | Edit | /home/khujta/projects/apps/gastify/backend/app/services/coalesce.py
 - 2026-06-30 14:02 | Edit | /home/khujta/projects/apps/gastify/backend/app/services/coalesce.py
+
+## 2026-06-30 14:10 — [021d3ed] feat(scan): currency->country fallback + 4 audited baselines (P108)
+CHECKS: lint pass, types 0, tests 979 passed.
+P108 AUDIT: ran production-v3 on 11 existing unbaselined receipts (CL/GB/FR); parallel audit (1 agent/receipt) vs transcribed ground truth. v3 clean on 4/9 audited.
+REFINEMENT: coalesce SINGLE_COUNTRY_CURRENCIES fallback (GBP->GB ... NZD->NZ) when model country is null; USD/EUR stay null; explicit country wins. 4 tests.
+CORPUS: baselined sodimac/restaurant_2001_detalle/Adidas/Science Museum (all score pass).
+FOLLOW-UPS: +P109 (discount/promo + reconciliation, subsumes P107), +P110 (date hallucination + city inference), +P111 (baseline 7 remaining audited receipts).
