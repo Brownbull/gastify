@@ -5892,3 +5892,8 @@ CHECKS: ✅ lint(0) ✅ types(0) ✅ tests(145/145 web vitest) — mvp
 FINDINGS: 2 low, 0 critical (accepted: Layer-4 mockup-INDEX not bumped — registry CS rows don't change INDEX inventory; i18n.ts >800 — pre-existing translation dict, CHECK-5 below activation)
 ACTIONS: accept(both low)
 SCOPE: DF settings fidelity — rebuilt Profile (name-edit wired)/Help (stub→full)/Memory (mappings+category resolution)/Data (consent+privacy) to design-lab reference; vendored Switch/Modal/Pagination atoms; +useMappings/useConsent/useDataAccess/useItemCategories hooks; registered CS-10..CS-14. Net-new Subscription/Cards/Limits + adversarial review + Playwright proof still pending before push.
+
+## 2026-06-30 19:19 — [401e492] feat(web): settings — Subscription/Cards/Limits + navigable hub
+CHECKS: ✅ lint(0) ✅ types(0) ✅ tests(145/145 web vitest) — mvp
+FINDINGS: 1 low (Layer-4 mockup-INDEX; accepted — CS registry rows + screen builds don't change INDEX inventory)
+SCOPE: 3 net-new settings subviews — Subscription (quota-wired) / Cards (/card-aliases CRUD) / Limits (CS-19 preview); hub rows navigable; +SettingsUsageBar +useCardAliases; CS-15..CS-19 registered. Completes all 7 settings subviews. Adversarial review + Playwright proof next, then push.

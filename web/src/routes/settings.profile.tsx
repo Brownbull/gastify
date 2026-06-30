@@ -82,7 +82,7 @@ function ProfileSubview() {
   const dirty = draft !== null && draft.trim() !== savedName;
 
   const onSave = async () => {
-    if (!dirty || saving) return;
+    if (!dirty || saving || value.trim() === "") return;
     setSaving(true);
     setStatus("idle");
     const { error } = await apiClient.POST("/api/v1/privacy/rectification", {
@@ -147,7 +147,7 @@ function ProfileSubview() {
         <Button
           variant="primary"
           fullWidth
-          disabled={!dirty || saving}
+          disabled={!dirty || saving || value.trim() === ""}
           onClick={() => void onSave()}
         >
           {saving ? t("settings.profile.saving") : t("settings.profile.save")}

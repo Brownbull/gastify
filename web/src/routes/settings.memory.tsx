@@ -5,6 +5,7 @@ import { useI18n } from "@/hooks/useI18n";
 import { apiClient } from "@/lib/api";
 import { useMappings, mappingKeys } from "@/hooks/useMappings";
 import { useStoreCategories, useItemCategories } from "@/hooks/useCategories";
+import { storeCategoryIcon, itemCategoryIcon } from "@/lib/categoryIcon";
 import { Button } from "@/components/ui/Button";
 import { Switch } from "@/components/ui/Switch";
 import { Modal } from "@/components/ui/Modal";
@@ -146,7 +147,7 @@ function MemorySubview() {
       id: m.id,
       kind: "merchant" as const,
       name: m.target_merchant || m.original_merchant,
-      icon: `rubro-${cat?.key ?? "otros"}`,
+      icon: storeCategoryIcon(cat?.key),
       caption: label ? `${classifiedAs} ${label}` : `${m.original_merchant} → ${m.target_merchant}`,
     };
   });
@@ -158,7 +159,7 @@ function MemorySubview() {
       id: it.id,
       kind: "item" as const,
       name: it.target_item || it.original_item,
-      icon: `item-${cat?.key ?? "other"}`,
+      icon: itemCategoryIcon(cat?.key),
       caption: label ? `${classifiedAs} ${label}` : it.original_item,
     };
   });

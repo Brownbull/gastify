@@ -35,6 +35,10 @@ const PURPOSE_META: Record<string, { icon: string; titleKey: MessageKey; bodyKey
   data_sharing: { icon: "chart-donut", titleKey: "settings.data.purposeAnalyticsTitle", bodyKey: "settings.data.purposeAnalyticsBody" },
 };
 
+// Consent grant requires a jurisdiction (Ley 21.719 → Chile is the app's market).
+const CONSENT_JURISDICTION = "CL" as const;
+const CONSENT_VERSION = "1.0";
+
 /**
  * Datos y privacidad — rebuilt to the design-lab PrivacySubview reference (was a
  * 2-control export/delete screen). Grounded on the backend /consent + /privacy
@@ -59,11 +63,12 @@ function DataSubview() {
   const [exporting, setExporting] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [actionError, setActionError] = useState<MessageKey | null>(null);
 
-  const grantedByPurpose = new Map(
-    (consents.data ?? []).map((c) => [c.purpose, c.status === "granted"]),
-  );
-  const grantedCount = (consents.data ?? []).filter((c) => c.status === "granted").length;
+  // GET /consent returns a { consents: [...] } envelope — unwrap before iterating.
+  const consentList = consents.data?.consents ?? [];
+  const grantedByPurpose = new Map(consentList.map((c) => [c.purpose, c.status === "granted"]));
+  const grantedCount = consentList.filter((c) => c.status === "granted").length;
   const activePurposes = (register.data ?? []).filter((p) => p.is_active);
 
   const fmtMonthYear = (iso: string | undefined) =>
@@ -79,18 +84,31 @@ function DataSubview() {
 
   const toggleConsent = async (purpose: string, next: boolean) => {
     setSavingPurpose(purpose);
-    if (next) {
-      await apiClient.POST("/api/v1/consent/{purpose}/grant", { params: { path: { purpose } } });
-    } else {
-      await apiClient.POST("/api/v1/consent/{purpose}/revoke", { params: { path: { purpose } } });
+    setActionError(null);
+    try {
+      // grant requires a ConsentGrant body { jurisdiction, consent_version }; revoke takes none.
+      const { error } = next
+        ? await apiClient.POST("/api/v1/consent/{purpose}/grant", {
+            params: { path: { purpose } },
+            body: { jurisdiction: CONSENT_JURISDICTION, consent_version: CONSENT_VERSION },
+          })
+        : await apiClient.POST("/api/v1/consent/{purpose}/revoke", { params: { path: { purpose } } });
+      if (error) {
+        setActionError("settings.data.consentError");
+        return; // the Switch reflects the cache (unchanged), so nothing to roll back
+      }
+      await queryClient.invalidateQueries({ queryKey: consentKeys.list() });
+      await queryClient.invalidateQueries({ queryKey: dataAccessKeys.all });
+    } catch {
+      setActionError("settings.data.consentError");
+    } finally {
+      setSavingPurpose(null);
     }
-    await queryClient.invalidateQueries({ queryKey: consentKeys.list() });
-    await queryClient.invalidateQueries({ queryKey: dataAccessKeys.all });
-    setSavingPurpose(null);
   };
 
   async function handleExport() {
     setExporting(true);
+    setActionError(null);
     try {
       const { data, error } = await apiClient.GET("/api/v1/privacy/portability");
       if (error) throw new Error(String(error));
@@ -101,6 +119,8 @@ function DataSubview() {
       a.download = `gastify-export-${new Date().toISOString().slice(0, 10)}.json`;
       a.click();
       URL.revokeObjectURL(url);
+    } catch {
+      setActionError("settings.data.exportError");
     } finally {
       setExporting(false);
     }
@@ -108,9 +128,17 @@ function DataSubview() {
 
   async function handleDelete() {
     setDeleting(true);
+    setActionError(null);
     try {
-      await apiClient.POST("/api/v1/privacy/erasure");
+      const { error } = await apiClient.POST("/api/v1/privacy/erasure");
+      if (error) {
+        // Do NOT sign out if erasure failed — the account still exists.
+        setActionError("settings.data.deleteError");
+        return;
+      }
       await signOut();
+    } catch {
+      setActionError("settings.data.deleteError");
     } finally {
       setDeleting(false);
     }
@@ -120,6 +148,12 @@ function DataSubview() {
     <div className="relative flex min-h-0 flex-1 flex-col">
       <SettingsSubviewShell title={t("settings.row.data")}>
         <p className="px-gt-2 text-gt-sm font-medium leading-relaxed text-gt-ink-3">{t("settings.data.intro")}</p>
+
+        {actionError ? (
+          <p className="rounded-gt-lg border-2 border-gt-error bg-gt-error/5 px-gt-12 py-gt-8 text-gt-sm font-bold text-gt-error" role="alert">
+            {t(actionError)}
+          </p>
+        ) : null}
 
         {/* data-access summary (Art 15) */}
         <SettingsGroupHeading>{t("settings.data.sectionData")}</SettingsGroupHeading>
