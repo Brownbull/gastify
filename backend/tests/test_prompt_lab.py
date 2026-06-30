@@ -279,8 +279,7 @@ def test_large_item_delta_stays_significant_even_when_math_reconciles():
     assert score.reconstruction_gate["item_total_near_matches_by_name"] == 2
     assert score.severity_status == "significant_failure"
     assert (
-        "significant: item total matches by name below policy threshold"
-        in score.severity_reasons
+        "significant: item total matches by name below policy threshold" in score.severity_reasons
     )
 
 
