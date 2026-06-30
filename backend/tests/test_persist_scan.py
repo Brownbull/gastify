@@ -285,7 +285,7 @@ class TestPersistScanResult:
             )
 
         assert tx is not None
-        assert "receipt-extraction-current@2026-05-26.0" in tx.prompt_version
+        assert "receipt-extraction-current@2026-06-29.0" in tx.prompt_version
         assert "item-categorization-current@2026-05-18.1" in tx.prompt_version
         assert "store-categorization-current@2026-05-19.1" in tx.prompt_version
         assert tx.scan_review_level == "none"

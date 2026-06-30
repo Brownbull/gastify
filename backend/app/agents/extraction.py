@@ -117,6 +117,8 @@ async def extract_receipt(
         "extraction_complete",
         merchant=coalesced.merchant_name,
         currency=coalesced.currency_code,
+        country=coalesced.country,
+        city=coalesced.city,
         total=str(coalesced.total_amount),
         items=len(coalesced.line_items),
         confidence=coalesced.confidence_score,

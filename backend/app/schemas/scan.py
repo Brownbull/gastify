@@ -172,6 +172,19 @@ class RawGeminiExtractionResult(BaseModel):
     merchant_name: str
     transaction_date: str
     currency_code: str
+    country: str | None = Field(
+        default=None,
+        description=(
+            "ISO 3166-1 alpha-2 country code of the purchase (e.g. CL, US, AR), inferred from "
+            "visible receipt text, language, address, or tax-id format. Null if not determinable."
+        ),
+    )
+    city: str | None = Field(
+        default=None,
+        description=(
+            "City/comuna/town of the purchase as printed on the receipt. Null if not visible."
+        ),
+    )
     total_amount: Decimal | None = Field(
         default=None,
         description=(
@@ -198,6 +211,19 @@ class GeminiExtractionResult(BaseModel):
     merchant_name: str
     transaction_date: str
     currency_code: str
+    country: str | None = Field(
+        default=None,
+        description=(
+            "ISO 3166-1 alpha-2 country code of the purchase (e.g. CL, US, AR), inferred from "
+            "visible receipt text, language, address, or tax-id format. Null if not determinable."
+        ),
+    )
+    city: str | None = Field(
+        default=None,
+        description=(
+            "City/comuna/town of the purchase as printed on the receipt. Null if not visible."
+        ),
+    )
     total_amount: Decimal = Field(
         description=(
             "Integer minor-unit grand total. Example: CLP 102.052 -> 102052, USD $48.50 -> 4850."

@@ -63,6 +63,8 @@ CURRENCY_EXPONENTS = {
 }
 
 _RECONCILIATION_TOLERANCE = Decimal(1)
+# Literal strings the model sometimes emits for "no value" — treated as None.
+_NULLISH = frozenset({"null", "none", "n/a", "na", "-", "unknown"})
 _PAYMENT_TENDER_PATTERN = re.compile(
     r"(?i)\b("
     r"credit\s*card|debit\s*card|card\s*(payment|holder|ending|no\.?)?|"
@@ -221,10 +223,24 @@ def coalesce_extraction(
     if not items and total > Decimal(0):
         items = [_synthesize_service_line(result, merchant=merchant, total=total)]
 
+    # Location is carried through as the model returned it (lightly normalized); the
+    # deterministic reconciliation against the settings default + the location dataset
+    # happens downstream in the scan worker (Step 2), not here.
+    raw_country = (result.country or "").strip().upper()
+    country = (
+        raw_country
+        if len(raw_country) == 2 and raw_country.isalpha() and raw_country.lower() not in _NULLISH
+        else None
+    )
+    raw_city = (result.city or "").strip()
+    city = raw_city if raw_city and raw_city.lower() not in _NULLISH else None
+
     return GeminiExtractionResult(
         merchant_name=merchant,
         transaction_date=tx_date,
         currency_code=currency,
+        country=country,
+        city=city,
         total_amount=total,
         tax_amount=tax,
         discount_amount=discount,

@@ -17,6 +17,13 @@ CURRENCY DETECTION:
 - Return the ISO 4217 currency code (e.g., "{_PRIMARY_CURRENCIES}")
 - Default to "CLP" if you cannot confidently determine the currency
 
+LOCATION:
+- country = the ISO 3166-1 alpha-2 country code of the purchase (e.g. "CL", "US", "AR"),
+  inferred from visible receipt text, language, address, phone/tax-id format, or the merchant.
+  Return null if you cannot determine it. Do NOT guess.
+- city = the city/comuna/town of the purchase exactly as printed on the receipt. Return null
+  when no city is visible. Do NOT invent a city.
+
 AMOUNT FORMAT:
 - Return ALL monetary amount fields as integer minor units with no punctuation, no separators,
   no decimal point, and no currency symbol
@@ -151,11 +158,11 @@ PROMPTS: tuple[PromptDefinition, ...] = (
         id="receipt-extraction-current",
         kind="receipt-extraction",
         name="Current receipt structure extraction",
-        version="2026-05-26.0",
+        version="2026-06-29.0",
         status="production",
         system_prompt=RECEIPT_STRUCTURE_CURRENT,
         user_prompt=RECEIPT_STRUCTURE_USER_PROMPT,
-        notes="Current production receipt structure prompt.",
+        notes="Current production receipt prompt (2026-06-29: +LOCATION country/city).",
     ),
     PromptDefinition(
         id="receipt-extraction-dev-scratch",
