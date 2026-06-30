@@ -12,6 +12,11 @@
 | CS-3 | Settings · Preferencias | Color de fuente (Colorido/Simple) | No font-color setting | ✅ disabled SegmentedToggle | Needs an ink-vs-accent text mode + persisted pref |
 | CS-6 | Settings · Perfil | Cambiar foto (avatar upload) | No avatar/photo storage or upload path | ✅ disabled ghost button | Needs photo upload + storage + user.photoURL write |
 | CS-7 | Settings · Perfil | Editar nombre + Guardar cambios | No profile-write endpoint (name/email read-only from Firebase) | ✅ disabled Nombre input + disabled "Guardar cambios" | Needs a profile-update endpoint (or Firebase updateProfile wiring) |
+| CS-10 | Settings · Ayuda | Instalar App (PWA install) | No PWA in web (no manifest / service worker / beforeinstallprompt) | ✅ disabled primary button + "Próximamente" caption | Needs vite-plugin-pwa + manifest + service worker + beforeinstallprompt handler |
+| CS-11 | Settings · Ayuda | Términos y condiciones | No backend legal-content endpoint | ✅ link opens Modal with placeholder copy (marked "ejemplo") | Needs a legal-text source (static bundle or CMS endpoint) |
+| CS-12 | Settings · Ayuda | Política de privacidad | No backend privacy-policy endpoint | ✅ link opens Modal with placeholder copy (marked "ejemplo") | Needs a privacy-policy text source |
+| CS-13 | Settings · Ayuda | Contacto y soporte | No contact/support endpoint or form | ✅ link opens Modal with placeholder copy (support email) | Needs a contact form / support-inbox integration |
+| CS-14 | Settings · Mi memoria | Aprender de mis correcciones (toggle) | No backend flag to disable learning — gastify always learns from corrections today | ✅ disabled Switch (on) + "Próximamente" badge | Needs a user-level learning_enabled flag + a gate in the categorization pipeline |
 
 ## Intentionally dropped from mockups (NOT coming-soon)
 

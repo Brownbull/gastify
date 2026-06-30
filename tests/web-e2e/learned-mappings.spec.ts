@@ -58,7 +58,7 @@ test("a merchant edit appears under learned mappings and can be deleted", async 
   await page.goto("/settings/memory");
   const section = page.getByTestId("learned-mappings-section");
   await expect(section).toBeVisible({ timeout: 20_000 });
-  const row = section.locator("div.justify-between").filter({ hasText: target });
+  const row = section.locator("[data-testid^='mapping-row-']").filter({ hasText: target });
   await expect(row).toBeVisible({ timeout: 20_000 });
   await row.locator("[data-testid^='mapping-delete-']").click();
   await expect(row).toHaveCount(0, { timeout: 15_000 });

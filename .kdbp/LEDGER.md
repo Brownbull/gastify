@@ -5877,3 +5877,9 @@ P108 AUDIT: ran production-v3 on 11 existing unbaselined receipts (CL/GB/FR); pa
 REFINEMENT: coalesce SINGLE_COUNTRY_CURRENCIES fallback (GBP->GB ... NZD->NZ) when model country is null; USD/EUR stay null; explicit country wins. 4 tests.
 CORPUS: baselined sodimac/restaurant_2001_detalle/Adidas/Science Museum (all score pass).
 FOLLOW-UPS: +P109 (discount/promo + reconciliation, subsumes P107), +P110 (date hallucination + city inference), +P111 (baseline 7 remaining audited receipts).
+- 2026-06-30 16:46 | Write | /home/khujta/projects/apps/gastify/web/src/routes/settings.memory.tsx
+- 2026-06-30 16:46 | Edit | /home/khujta/projects/apps/gastify/web/src/lib/i18n.ts
+- 2026-06-30 16:46 | Edit | /home/khujta/projects/apps/gastify/web/src/lib/i18n.ts
+- 2026-06-30 16:46 | Edit | /home/khujta/projects/apps/gastify/web/src/lib/i18n.ts
+- 2026-06-30 16:47 | Edit | /home/khujta/projects/apps/gastify/tests/web-e2e/learned-mappings.spec.ts
+- 2026-06-30 17:27 | Edit | /home/khujta/projects/apps/gastify/.gitignore

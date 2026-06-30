@@ -1,6 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { useI18n } from "@/hooks/useI18n";
+import { useProfile, profileKeys } from "@/hooks/useProfile";
+import { apiClient } from "@/lib/api";
 import { PixelIcon } from "@/components/shell/PixelIcon";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
@@ -41,26 +45,66 @@ function GoogleGlyph() {
 
 /**
  * Perfil subview — rebuilt to the design-lab reference: centered avatar header,
- * a "Cuenta" form (name / email read-only), the Google-linked-account row, and a
- * full-width save. Real data is wired where the app backs it (email, display
- * name, linked account); editing — photo and saving changes — is not yet backed,
- * so those affordances render as disabled placeholders per the implement-all-
- * mockups policy (D101). The mockup's Teléfono field is intentionally DROPPED
- * (not coming-soon): we choose not to collect/store phone numbers — data
+ * a "Cuenta" form (editable name / read-only email), the Google-linked-account
+ * row, and a full-width save.
+ *
+ * WIRED: the display name reads from the backend profile (GET /privacy/profile,
+ * useProfile) — falling back to the Firebase displayName until that settles — and
+ * "Guardar cambios" persists it via POST /privacy/rectification (display_name),
+ * then invalidates the profile cache so every consumer refreshes. The save is
+ * dirty-gated with saving/saved/error feedback.
+ *
+ * COMING-SOON (D101): "Cambiar foto" stays a disabled placeholder — there is no
+ * photo-storage/upload path (CS-6). The mockup's Teléfono field is intentionally
+ * DROPPED (not coming-soon): we choose not to collect phone numbers — data
  * minimization (see COMING-SOON-REGISTRY § Intentionally dropped).
  */
 function ProfileSubview() {
   const { user } = useAuth();
   const { t } = useI18n();
-  const email = user?.email ?? "—";
-  const displayName = user?.displayName ?? "";
+  const profile = useProfile();
+  const queryClient = useQueryClient();
+
+  const email = profile.data?.email ?? user?.email ?? "—";
+  // The persisted display name is the baseline; fall back to the Firebase
+  // displayName only until the backend profile loads / when it is unset.
+  const savedName =
+    (profile.data?.display_name ?? "").trim() || (user?.displayName ?? "").trim();
+
+  // `draft` is null until the user edits; the displayed value derives from the
+  // saved name otherwise, so a profile refetch never clobbers an in-progress edit
+  // (value is computed during render — no set-state-in-effect seeding).
+  const [draft, setDraft] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [status, setStatus] = useState<"idle" | "saved" | "error">("idle");
+
+  const value = draft ?? savedName;
+  const dirty = draft !== null && draft.trim() !== savedName;
+
+  const onSave = async () => {
+    if (!dirty || saving) return;
+    setSaving(true);
+    setStatus("idle");
+    const { error } = await apiClient.POST("/api/v1/privacy/rectification", {
+      body: { display_name: value.trim() },
+    });
+    setSaving(false);
+    if (error) {
+      setStatus("error");
+      return;
+    }
+    setStatus("saved");
+    setDraft(null); // fall back to the refetched saved name
+    await queryClient.invalidateQueries({ queryKey: profileKeys.all });
+  };
 
   return (
     <SettingsSubviewShell title={t("settings.profile")}>
       {/* Centered avatar header — layout-only wrapper, no border/shadow. */}
       <div className="flex flex-col items-center gap-gt-6">
         <div
-          className="grid h-22 w-22 place-items-center rounded-gt-pill border-2 border-gt-line-strong bg-gt-surface"
+          className="grid place-items-center rounded-gt-pill border-2 border-gt-line-strong bg-gt-surface"
+          style={{ width: 88, height: 88 }}
         >
           <PixelIcon name="cat-snowshoe-v2" size={64} alt={t("settings.profile")} />
         </div>
@@ -72,7 +116,16 @@ function ProfileSubview() {
       {/* Cuenta form */}
       <SettingsGroupHeading>{t("settings.section.account")}</SettingsGroupHeading>
       <SettingsField label={t("settings.displayName")}>
-        <Input aria-label={t("settings.displayName")} value={displayName} placeholder="—" disabled readOnly />
+        <Input
+          aria-label={t("settings.displayName")}
+          value={value}
+          placeholder="—"
+          disabled={profile.isLoading}
+          onChange={(e) => {
+            setDraft(e.target.value);
+            if (status !== "idle") setStatus("idle");
+          }}
+        />
       </SettingsField>
       <SettingsField label={t("settings.email")} hint={t("settings.profile.emailHint")}>
         <Input aria-label={t("settings.email")} value={email} disabled readOnly />
@@ -89,10 +142,27 @@ function ProfileSubview() {
         <Badge tone="positive">{t("settings.profile.connected")}</Badge>
       </div>
 
-      {/* Save — editing not yet backed; disabled placeholder (D101). */}
-      <Button variant="primary" fullWidth className="mt-gt-4" disabled>
-        {t("settings.profile.save")}
-      </Button>
+      {/* Save — wired to /privacy/rectification (display_name). */}
+      <div className="mt-gt-4 flex flex-col gap-gt-6">
+        <Button
+          variant="primary"
+          fullWidth
+          disabled={!dirty || saving}
+          onClick={() => void onSave()}
+        >
+          {saving ? t("settings.profile.saving") : t("settings.profile.save")}
+        </Button>
+        {status === "saved" ? (
+          <p className="text-center text-gt-sm font-bold text-gt-success" role="status">
+            {t("settings.profile.saved")}
+          </p>
+        ) : null}
+        {status === "error" ? (
+          <p className="text-center text-gt-sm font-bold text-gt-error" role="alert">
+            {t("settings.profile.saveError")}
+          </p>
+        ) : null}
+      </div>
     </SettingsSubviewShell>
   );
 }
