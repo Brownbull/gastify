@@ -5914,3 +5914,6 @@ Shared Select atom: type-ahead (accent-insensitive, repeat-cycle) + ↑↓/Home/
 
 ## 2026-06-30 20:32 — [62a9fb0] feat(web): settings stage-and-apply (Scanning + Preferences)
 User: stop abusing /rectification per-change → draft + Apply/Discard footer per section (ALL controls in Scanning + Preferences). +useDraft hook (derive-during-render), +SettingsApplyBar. Scanning batches currency/country/city into one rectification call. currency-switch e2e updated + green. tsc 0, vitest 153/153, eslint 0.
+
+## 2026-06-30 20:45 — [7f47c56] fix(web): Modal backdrop covers content-pane/viewport
+Modal portals into [data-testid=app-content-pane] (non-scrolling flex-1 pane wrapper) + fixed inset-0 lg:absolute → dims full content pane on desktop (SideNav excluded, collapse-aware) / full viewport on mobile, not just the subview content box. Fixes all Modal dialogs app-wide. tsc 0, vitest 153/153, eslint 0; desktop proof verified.

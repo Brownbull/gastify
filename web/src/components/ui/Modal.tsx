@@ -1,19 +1,21 @@
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import { XIcon } from "@/components/shell/icons";
 
 /**
  * Modal — reusable popup surface (DM-10). Dimmed backdrop + a centered (or
  * bottom-sheet) geometric panel: 2px ink border, hard shadow, optional title +
- * close X. Esc and backdrop click close it. Built for the payment picker /
- * add-card flows and any future dialog.
+ * close X. Esc and backdrop click close it.
  *
- * Vendored into web from design-lab/src/design-system/atoms/Modal.tsx (D102):
- * the only adaptation is the icon import (web's @/components/shell/icons).
+ * The backdrop covers the whole app SURFACE, not just the box it's declared in:
+ * it PORTALS into the content-pane wrapper (`[data-testid=app-content-pane]`, the
+ * non-scrolling `relative flex-1` sibling of the SideNav) and positions
+ * `fixed inset-0 lg:absolute` — so it dims the entire viewport on mobile and the
+ * entire content pane (SideNav excluded, collapse-aware) on desktop. Falls back to
+ * document.body when there's no app shell.
  *
- * Presentational: render conditionally (`{open && <Modal .../>}`) or pass
- * `open`; closing is the caller's concern via `onClose`. Positions `absolute
- * inset-0` so it fills the nearest positioned ancestor (the settings overlay
- * surface), matching the design-lab framing.
+ * Vendored from design-lab/src/design-system/atoms/Modal.tsx (D102); the portal +
+ * pane-aware positioning are web additions on top of the design-lab surface.
  */
 export type ModalPlacement = "center" | "sheet";
 
@@ -29,6 +31,8 @@ export interface ModalProps {
 }
 
 export function Modal({ open, onClose, title, placement = "center", children, footer, className = "" }: ModalProps) {
+  const [mount, setMount] = useState<HTMLElement | null>(null);
+
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
@@ -36,16 +40,24 @@ export function Modal({ open, onClose, title, placement = "center", children, fo
     return () => window.removeEventListener("keydown", onKey);
   }, [open, onClose]);
 
-  if (!open) return null;
+  useEffect(() => {
+    if (!open) return;
+    // The portal target is a post-mount DOM lookup (the content-pane wrapper isn't
+    // available during render), so it must be resolved from an effect.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setMount((document.querySelector("[data-testid='app-content-pane']") as HTMLElement | null) ?? document.body);
+  }, [open]);
+
+  if (!open || !mount) return null;
 
   const panelPos =
     placement === "sheet"
       ? "absolute inset-x-0 bottom-0 rounded-t-gt-2xl border-x-0 border-b-0"
-      : "rounded-gt-2xl";
+      : "m-gt-16 rounded-gt-2xl";
 
-  return (
+  return createPortal(
     <div
-      className="absolute inset-0 z-50 flex items-end justify-center sm:items-center"
+      className="fixed inset-0 z-50 flex items-end justify-center sm:items-center lg:absolute"
       role="dialog"
       aria-modal="true"
     >
@@ -76,6 +88,7 @@ export function Modal({ open, onClose, title, placement = "center", children, fo
         <div className="min-h-0 flex-1 overflow-y-auto p-gt-16">{children}</div>
         {footer ? <footer className="border-t-2 border-gt-line p-gt-16">{footer}</footer> : null}
       </div>
-    </div>
+    </div>,
+    mount,
   );
 }

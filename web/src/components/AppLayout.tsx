@@ -156,7 +156,7 @@ export function AppLayout({ children }: AppLayoutProps) {
         belowNav={<GroupSwitcher />}
       />
 
-      <div className="relative flex min-h-screen flex-1 flex-col">
+      <div data-testid="app-content-pane" className="relative flex min-h-screen flex-1 flex-col">
         <AppHeader
           className="sticky top-0 z-20 border-b-2 border-gt-line-strong lg:hidden"
           variant="home"
