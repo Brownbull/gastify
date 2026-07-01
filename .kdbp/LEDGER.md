@@ -5924,3 +5924,10 @@ Modal root items-end sm:items-center → items-center (all breakpoints). The ful
 
 ## 2026-06-30 21:09 — [f4ba289] feat(backend): card_aliases icon/color/is_default
 Added icon/color/is_default to card_aliases (model statement.py + migration 044 off 043 + schema + API with atomic single-default-per-scope unset). +test_card_alias_visuals_and_single_default; updated strict-field test. Web openapi regenerated. ruff clean, pytest 980 passed, tsc 0. Frontend full editor + ReportDetailOverlay migration next.
+- 2026-06-30 21:10 | Write | /home/khujta/projects/apps/gastify/web/src/lib/paymentMethods.ts
+- 2026-06-30 21:12 | Write | /home/khujta/projects/apps/gastify/web/src/routes/settings.cards.tsx
+- 2026-06-30 21:15 | Edit | /home/khujta/projects/apps/gastify/web/src/components/settings/SettingsSubviewShell.tsx
+- 2026-06-30 21:16 | Edit | /home/khujta/projects/apps/gastify/web/src/routes/settings.cards.tsx
+
+## 2026-06-30 21:17 — [093316b] feat(web): Cards full editor + master/detail
+Rebuilt Cards to the mockup: full editor (alias + 17-icon picker + 8-color picker + default toggle + live preview + archive) wired to /card-aliases icon/color/is_default; master/detail layout fills the content section (SettingsSubviewShell +wide prop); list rows tinted icon + default badge. +paymentMethods.ts. tsc 0, vitest 153, eslint 0; desktop+mobile proof. ReportDetailOverlay→Modal migration next.
