@@ -5939,3 +5939,5 @@ ReportDetailOverlay now portals into app-content-pane + fixed inset-0 lg:absolut
 
 ## 2026-06-30 21:30 — [01723e6] chore(web): sync routeTree.gen.ts (cards/subscription/limits)
 Tracked TanStack Router registry was missing the 3 newer settings subview routes (files existed; tree not regenerated at their commit). Regenerated + committed so tracked tree matches routes. Generated-only, tsc 0.
+- 2026-06-30 21:31 | Edit | /home/khujta/projects/apps/gastify/docs/mockups/COMING-SOON-REGISTRY.md
+- 2026-06-30 21:31 | Edit | /home/khujta/projects/apps/gastify/docs/mockups/COMING-SOON-REGISTRY.md
