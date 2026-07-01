@@ -213,3 +213,14 @@
 - **Deferred → coming-soon (CS-21):** the aggregated-by-product view (1 row/product + total_spent + expandable purchases) + real "N productos · $total" totals (P94-F2). Needs a new `GET /api/v1/items/aggregated` endpoint; the list stays per-occurrence for now.
 - **Deferred → coming-soon (CS-22):** the Gustify cross-app link slot (the row's left tile shows the item category icon instead).
 - **Deferred (behavior change, NOT built):** the design-lab FilterSheet bottom-sheet — kept the secondary facets (merchant/category/date) as a collapsible "Filtros" panel behind a toggle instead of a new overlay.
+
+## 2026-07-01 — [DF2 Historial hub] faithful port; follow-ups
+**Source:** DF2 Items re-scoped to the design-lab HistoryScreen (I had wrongly ported spending/ItemsBrowseScreen as a flat list). /items is now the Historial HUB.
+- **DONE:** header shows the active-subsection title + the 3-way switcher (Transacciones·Productos·Reportes, ?sub=; logo dropped on /items only); a shared PeriodControl (Sem/Men/Tri/Anu + ‹ period ›, `lib/periodRange.ts`); **Productos** = aggregated products via CLIENT-SIDE aggregation of the period-filtered items (HistoryItemRow: category icon + CategoryChip + total + expandable receipts + "N · $total") — CS-21's aggregated view is thus BUILT with no new backend endpoint. Transacciones = a period-scoped transaction list.
+- **Follow-ups (deferred):**
+  1. **Reportes** subsection currently a link-card into /reports (not the embedded ReportDetail scoped by the shared period) — embed properly.
+  2. **Transacciones** is a simple list, not the full design-lab PurchasesScreen (filters/detail-overlay); enrich.
+  3. **Productos FilterSheet** (category/period/sort facets) not built — search-only for now (the reference has a filter button → FilterSheet; behavior change, deferred).
+  4. **PeriodControl** drag-pad gesture (↔ step, ↕ dimension) not ported — arrows + toggle only.
+  5. **Logo home-only** only enforced on /items; other non-home screens still show the scope-switcher logo (their content owns the title). Making them content-only (header provides the title) is a per-screen DF task.
+  6. Client-side aggregation caps at 600 loaded items/period (runaway guard) — a `GET /items/aggregated` endpoint would remove the cap + move the sum server-side.

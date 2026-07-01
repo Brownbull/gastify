@@ -82,12 +82,13 @@ beforeEach(() => {
   mockUseItems.mockReset();
 });
 
-describe("/items", () => {
-  it("renders item rows", async () => {
-    mockUseItems.mockReturnValue(infinite([ROW]));
+describe("/items — Historial hub (Productos)", () => {
+  it("aggregates line items into product rows", async () => {
+    // Two occurrences of the same product → one aggregated row.
+    mockUseItems.mockReturnValue(infinite([ROW, { ...ROW, id: "i2", transaction_id: "t2", total_minor: 500 }]));
     renderPage();
     expect(await screen.findByTestId("items-screen")).toBeInTheDocument();
-    expect(screen.getAllByTestId("items-row")).toHaveLength(1);
+    expect(screen.getAllByTestId("history-item-row")).toHaveLength(1);
     expect(screen.getByText("Bread")).toBeInTheDocument();
   });
 
@@ -97,15 +98,10 @@ describe("/items", () => {
     expect(await screen.findByTestId("items-empty")).toBeInTheDocument();
   });
 
-  it("adds + removes a filter chip", async () => {
+  it("shows the filtered-empty state when the search matches nothing", async () => {
     mockUseItems.mockReturnValue(infinite([]));
     renderPage();
     await userEvent.type(await screen.findByTestId("items-search-input"), "milk");
-    const chip = await screen.findByTestId("items-chip-search");
-    expect(chip).toBeInTheDocument();
-    await userEvent.click(chip);
-    expect(screen.queryByTestId("items-chip-search")).not.toBeInTheDocument();
-    // A filtered-empty state now (search active, zero rows).
-    expect(screen.getByTestId("items-empty")).toBeInTheDocument();
+    expect(await screen.findByTestId("items-empty-filtered")).toBeInTheDocument();
   });
 });

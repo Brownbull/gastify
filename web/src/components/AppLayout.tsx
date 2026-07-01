@@ -15,6 +15,8 @@ import {
   type ProfileMenuItem,
   type ScanMode,
 } from "@/components/shell/Nav";
+import { HistorySwitcher } from "@/components/history/HistorySwitcher";
+import { HISTORY_SUBS, historySubLabelKey, type HistorySub } from "@/lib/historySubs";
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -62,6 +64,16 @@ export function AppLayout({ children }: AppLayoutProps) {
   const activeKey = tabKeyForPath(pathname);
   const isOverlay = isOverlayPath(pathname);
 
+  // Mobile header: the gastify logo is HOME-ONLY; other screens show their title.
+  // The Historial hub (/items) shows the active-subsection title + the 3-way switcher.
+  const search = useRouterState({ select: (s) => s.location.search as Record<string, unknown> });
+  const isHistory = pathname.startsWith("/items");
+  const historySub: HistorySub = HISTORY_SUBS.includes(search.sub as HistorySub)
+    ? (search.sub as HistorySub)
+    : "products";
+  const headerTitle = isHistory ? t(historySubLabelKey(historySub)) : undefined;
+  const headerActions = isHistory ? <HistorySwitcher active={historySub} /> : undefined;
+
   const tabs: NavTab[] = [
     { key: "home", icon: "nav-home", label: t("nav.dashboard") },
     { key: "purchases", icon: "nav-history", label: t("nav.purchases") },
@@ -81,7 +93,7 @@ export function AppLayout({ children }: AppLayoutProps) {
         void navigate({ to: "/trends" });
         break;
       case "history":
-        void navigate({ to: "/items" });
+        void navigate({ to: "/items", search: { sub: "products" } });
         break;
     }
   };
@@ -164,8 +176,10 @@ export function AppLayout({ children }: AppLayoutProps) {
       <div data-testid="app-content-pane" className="relative flex min-h-screen flex-1 flex-col">
         <AppHeader
           className="sticky top-0 z-20 bg-gt-bg! lg:hidden"
-          variant="home"
-          brand={<GroupSwitcher />}
+          variant={isHistory ? "browse" : "home"}
+          brand={isHistory ? undefined : <GroupSwitcher />}
+          title={headerTitle}
+          actions={headerActions}
           avatarInitials={initials}
           onProfile={toggleMenu}
         />

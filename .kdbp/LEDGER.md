@@ -5997,3 +5997,8 @@ Trimmed mobile header→content spacing (AppHeader pb-gt-10→pb-gt-2, main py-5
 
 ## 2026-07-01 13:44 — [324db3d] feat(web): DF2 Items — design-lab row grammar
 Re-skinned /items to the design-lab HistoryItemRow: per-category icon tiles (itemCategoryIcon, P94-F1) + CategoryChip (localized item-category label) + search band with a Filtros toggle (collapsible facets) + bordered container with an "N productos" strip. New CategoryChip atom. Coming-soon: CS-21 aggregated-by-product view + CS-22 Gustify link. Kept all testids; updated -items.test mock. build 0, vitest 154, eslint 0, guard 153; :5174 desktop+filters+mobile proof. DF2 screen 3 of 4 (Dashboard✓ Items✓; Trends, Groups remain).
+- 2026-07-01 14:57 | Write | /home/khujta/projects/apps/gastify/web/src/lib/periodRange.ts
+- 2026-07-01 14:58 | Write | /home/khujta/projects/apps/gastify/web/src/components/insights/PeriodControl.tsx
+
+## 2026-07-01 15:18 — [8e10866] feat(web): DF2 Historial hub (faithful HistoryScreen port)
+Corrected /items from a flat list to the design-lab HistoryScreen HUB: header active-sub title + 3-way switcher (?sub=, logo dropped on /items); shared PeriodControl (Sem/Men/Tri/Anu + stepper, lib/periodRange); Productos = client-side aggregated products (HistoryItemRow: icon+chip+total+expandable receipts, "N·"); Transacciones = period list; Reportes = link. +history components, PeriodControl, periodRange/historySubs, i18n history.*. -items.test rewritten. Follow-ups in PENDING (Reportes/Transacciones full embed, FilterSheet, drag gesture, logo on other screens). build 0, vitest 154, eslint 0, guard 157; :5174 proof.
