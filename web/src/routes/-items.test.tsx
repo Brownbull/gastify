@@ -24,7 +24,10 @@ vi.mock("@tanstack/react-router", async (importOriginal) => {
   };
 });
 vi.mock("@/hooks/useItems", () => ({ useItems: vi.fn(), itemKeys: { list: () => [] } }));
-vi.mock("@/hooks/useCategories", () => ({ useStoreCategories: () => ({ data: [] }) }));
+vi.mock("@/hooks/useCategories", () => ({
+  useStoreCategories: () => ({ data: [] }),
+  useItemCategories: () => ({ data: [] }),
+}));
 
 import { Route } from "./items";
 import { useItems } from "@/hooks/useItems";

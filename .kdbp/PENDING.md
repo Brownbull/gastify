@@ -206,3 +206,10 @@
 ## 2026-07-01 — [coverage / DF2-Trends] dashboard donut-drill coverage relocated
 **Source:** DF2-Dashboard (feat/df2-inline-reskins). The lean home feed dropped the analytics donut + click-drill (useDonutDrill), so the drill cross-walk regression that lived in `-index.test.tsx` + `dashboard.spec.ts` test 1 was removed with the UI. `useDonutDrill` has NO dedicated hook test, so drill logic is temporarily uncovered.
 **Fix in DF2-Trends:** wire `useDonutDrill` onto `/trends` (interactive donut/treemap drill per the DF2 analysis) and restore the Industry→Store→Family→Item cross-walk e2e there (or add a `useDonutDrill.test.ts` hook unit test). Until then `useDonutDrill` is unused + untested.
+
+## 2026-07-01 — [DF2 Items] per-category item icons DONE; aggregated view + FilterSheet deferred
+**Source:** DF2 Items rebuild (feat/df2-inline-reskins). Re-skinned `/items` to the design-lab HistoryItemRow row grammar.
+- **DONE (P94-F1):** per-category row icons — `itemCategoryIcon(item_category_key)` on a categoryTint'd IconTile + a CategoryChip (localized item-category label via useItemCategories). No more uniform `item-other` glyph.
+- **Deferred → coming-soon (CS-21):** the aggregated-by-product view (1 row/product + total_spent + expandable purchases) + real "N productos · $total" totals (P94-F2). Needs a new `GET /api/v1/items/aggregated` endpoint; the list stays per-occurrence for now.
+- **Deferred → coming-soon (CS-22):** the Gustify cross-app link slot (the row's left tile shows the item category icon instead).
+- **Deferred (behavior change, NOT built):** the design-lab FilterSheet bottom-sheet — kept the secondary facets (merchant/category/date) as a collapsible "Filtros" panel behind a toggle instead of a new overlay.

@@ -5988,3 +5988,12 @@ Removed the header separator (border + white band → seamless bg-gt-bg), the no
 
 ## 2026-07-01 12:57 — [531ea43] fix(web): tighter mobile header gap + clearer/shorter period stepper
 Trimmed mobile header→content spacing (AppHeader pb-gt-10→pb-gt-2, main py-5→pt-2; desktop unchanged). PeriodStepper: ‹ › glyphs → crisp ChevronLeft icons (h-6, rotated for next) + narrower month input (w-36 text-gt-xs, fits longest localized month). Shared → also /trends+/reports. tsc 0, vitest 154, eslint 0, guard 151; :5174 mobile proof.
+- 2026-07-01 13:05 | Edit | /home/khujta/projects/apps/gastify/web/src/components/insights/widgets.tsx
+- 2026-07-01 13:05 | Edit | /home/khujta/projects/apps/gastify/web/src/components/insights/widgets.tsx
+- 2026-07-01 13:31 | Write | /home/khujta/projects/apps/gastify/web/src/components/ui/CategoryChip.tsx
+- 2026-07-01 13:32 | Write | /home/khujta/projects/apps/gastify/web/src/components/ui/SectionFade.tsx
+- 2026-07-01 13:36 | Write | /home/khujta/projects/apps/gastify/web/src/routes/items.tsx
+- 2026-07-01 13:42 | Edit | /home/khujta/projects/apps/gastify/docs/mockups/COMING-SOON-REGISTRY.md
+
+## 2026-07-01 13:44 — [324db3d] feat(web): DF2 Items — design-lab row grammar
+Re-skinned /items to the design-lab HistoryItemRow: per-category icon tiles (itemCategoryIcon, P94-F1) + CategoryChip (localized item-category label) + search band with a Filtros toggle (collapsible facets) + bordered container with an "N productos" strip. New CategoryChip atom. Coming-soon: CS-21 aggregated-by-product view + CS-22 Gustify link. Kept all testids; updated -items.test mock. build 0, vitest 154, eslint 0, guard 153; :5174 desktop+filters+mobile proof. DF2 screen 3 of 4 (Dashboard✓ Items✓; Trends, Groups remain).
