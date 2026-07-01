@@ -5921,3 +5921,6 @@ Modal portals into [data-testid=app-content-pane] (non-scrolling flex-1 pane wra
 
 ## 2026-06-30 20:51 — [cc78bf7] fix(web): Modal center panel on mobile
 Modal root items-end sm:items-center → items-center (all breakpoints). The full-viewport backdrop had left the mobile panel pinned to the bottom edge; now vertically centered. tsc 0, eslint 0; mobile + desktop proof verified.
+
+## 2026-06-30 21:09 — [f4ba289] feat(backend): card_aliases icon/color/is_default
+Added icon/color/is_default to card_aliases (model statement.py + migration 044 off 043 + schema + API with atomic single-default-per-scope unset). +test_card_alias_visuals_and_single_default; updated strict-field test. Web openapi regenerated. ruff clean, pytest 980 passed, tsc 0. Frontend full editor + ReportDetailOverlay migration next.

@@ -5,7 +5,7 @@ from typing import Annotated
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlalchemy import func, select
+from sqlalchemy import func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.deps import Auth
@@ -43,7 +43,15 @@ async def create_card_alias(
     db: DB,
 ) -> CardAliasResponse:
     await _assert_active_name_available(db, auth.ownership_scope_id, body.name)
-    alias = CardAlias(ownership_scope_id=auth.ownership_scope_id, name=body.name)
+    if body.is_default:
+        await _unset_other_defaults(db, auth.ownership_scope_id)
+    alias = CardAlias(
+        ownership_scope_id=auth.ownership_scope_id,
+        name=body.name,
+        icon=body.icon,
+        color=body.color,
+        is_default=body.is_default,
+    )
     db.add(alias)
     await db.commit()
     await db.refresh(alias)
@@ -80,6 +88,15 @@ async def update_card_alias(
             exclude_id=alias.id,
         )
         alias.name = update_data["name"]
+    # `in update_data` (not truthiness) so a client can clear icon/color to null.
+    if "icon" in update_data:
+        alias.icon = update_data["icon"]
+    if "color" in update_data:
+        alias.color = update_data["color"]
+    if "is_default" in update_data and update_data["is_default"] is not None:
+        if update_data["is_default"]:
+            await _unset_other_defaults(db, auth.ownership_scope_id, exclude_id=alias.id)
+        alias.is_default = update_data["is_default"]
 
     await db.commit()
     await db.refresh(alias)
@@ -96,6 +113,27 @@ async def archive_card_alias(
     if alias.archived_at is None:
         alias.archived_at = datetime.now(UTC)
         await db.commit()
+
+
+async def _unset_other_defaults(
+    db: AsyncSession,
+    ownership_scope_id: UUID,
+    *,
+    exclude_id: UUID | None = None,
+) -> None:
+    """Clear the default flag on every other card in this scope — exactly one default
+    per ownership scope. Runs in the caller's transaction (committed with the set)."""
+    stmt = (
+        update(CardAlias)
+        .where(
+            CardAlias.ownership_scope_id == ownership_scope_id,
+            CardAlias.is_default.is_(True),
+        )
+        .values(is_default=False)
+    )
+    if exclude_id is not None:
+        stmt = stmt.where(CardAlias.id != exclude_id)
+    await db.execute(stmt)
 
 
 async def _get_owned_alias(

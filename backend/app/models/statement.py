@@ -8,6 +8,7 @@ from decimal import Decimal
 from sqlalchemy import (
     JSON,
     BigInteger,
+    Boolean,
     CheckConstraint,
     Date,
     DateTime,
@@ -21,6 +22,7 @@ from sqlalchemy import (
     Text,
     UniqueConstraint,
     Uuid,
+    false,
     func,
 )
 from sqlalchemy.dialects.postgresql import JSONB as PG_JSONB
@@ -82,6 +84,12 @@ class CardAlias(Base):
         Uuid, ForeignKey("ownership_scopes.id"), nullable=False
     )
     name: Mapped[str] = mapped_column(Text, nullable=False)
+    # Presentational (no PCI data): a user-picked fin-* pixel-icon name + accent hex
+    # for visual identification, and one default method per scope (preselected on new
+    # transactions). All optional / defaulted so existing rows migrate cleanly.
+    icon: Mapped[str | None] = mapped_column(Text, nullable=True)
+    color: Mapped[str | None] = mapped_column(Text, nullable=True)
+    is_default: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default=false())
     archived_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now()
