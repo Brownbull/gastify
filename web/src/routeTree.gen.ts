@@ -25,12 +25,15 @@ import { Route as TransactionsIndexRouteImport } from "./routes/transactions.ind
 import { Route as SettingsIndexRouteImport } from "./routes/settings.index"
 import { Route as TransactionsNewRouteImport } from "./routes/transactions.new"
 import { Route as TransactionsTransactionIdRouteImport } from "./routes/transactions.$transactionId"
+import { Route as SettingsSubscriptionRouteImport } from "./routes/settings.subscription"
 import { Route as SettingsScanningRouteImport } from "./routes/settings.scanning"
 import { Route as SettingsProfileRouteImport } from "./routes/settings.profile"
 import { Route as SettingsPreferencesRouteImport } from "./routes/settings.preferences"
 import { Route as SettingsMemoryRouteImport } from "./routes/settings.memory"
+import { Route as SettingsLimitsRouteImport } from "./routes/settings.limits"
 import { Route as SettingsHelpRouteImport } from "./routes/settings.help"
 import { Route as SettingsDataRouteImport } from "./routes/settings.data"
+import { Route as SettingsCardsRouteImport } from "./routes/settings.cards"
 import { Route as InviteTokenRouteImport } from "./routes/invite.$token"
 
 const TrendsRoute = TrendsRouteImport.update({
@@ -114,6 +117,11 @@ const TransactionsTransactionIdRoute =
     path: "/$transactionId",
     getParentRoute: () => TransactionsRoute,
   } as any)
+const SettingsSubscriptionRoute = SettingsSubscriptionRouteImport.update({
+  id: "/subscription",
+  path: "/subscription",
+  getParentRoute: () => SettingsRoute,
+} as any)
 const SettingsScanningRoute = SettingsScanningRouteImport.update({
   id: "/scanning",
   path: "/scanning",
@@ -134,6 +142,11 @@ const SettingsMemoryRoute = SettingsMemoryRouteImport.update({
   path: "/memory",
   getParentRoute: () => SettingsRoute,
 } as any)
+const SettingsLimitsRoute = SettingsLimitsRouteImport.update({
+  id: "/limits",
+  path: "/limits",
+  getParentRoute: () => SettingsRoute,
+} as any)
 const SettingsHelpRoute = SettingsHelpRouteImport.update({
   id: "/help",
   path: "/help",
@@ -142,6 +155,11 @@ const SettingsHelpRoute = SettingsHelpRouteImport.update({
 const SettingsDataRoute = SettingsDataRouteImport.update({
   id: "/data",
   path: "/data",
+  getParentRoute: () => SettingsRoute,
+} as any)
+const SettingsCardsRoute = SettingsCardsRouteImport.update({
+  id: "/cards",
+  path: "/cards",
   getParentRoute: () => SettingsRoute,
 } as any)
 const InviteTokenRoute = InviteTokenRouteImport.update({
@@ -164,12 +182,15 @@ export interface FileRoutesByFullPath {
   "/transactions": typeof TransactionsRouteWithChildren
   "/trends": typeof TrendsRoute
   "/invite/$token": typeof InviteTokenRoute
+  "/settings/cards": typeof SettingsCardsRoute
   "/settings/data": typeof SettingsDataRoute
   "/settings/help": typeof SettingsHelpRoute
+  "/settings/limits": typeof SettingsLimitsRoute
   "/settings/memory": typeof SettingsMemoryRoute
   "/settings/preferences": typeof SettingsPreferencesRoute
   "/settings/profile": typeof SettingsProfileRoute
   "/settings/scanning": typeof SettingsScanningRoute
+  "/settings/subscription": typeof SettingsSubscriptionRoute
   "/transactions/$transactionId": typeof TransactionsTransactionIdRoute
   "/transactions/new": typeof TransactionsNewRoute
   "/settings/": typeof SettingsIndexRoute
@@ -187,12 +208,15 @@ export interface FileRoutesByTo {
   "/statements": typeof StatementsRoute
   "/trends": typeof TrendsRoute
   "/invite/$token": typeof InviteTokenRoute
+  "/settings/cards": typeof SettingsCardsRoute
   "/settings/data": typeof SettingsDataRoute
   "/settings/help": typeof SettingsHelpRoute
+  "/settings/limits": typeof SettingsLimitsRoute
   "/settings/memory": typeof SettingsMemoryRoute
   "/settings/preferences": typeof SettingsPreferencesRoute
   "/settings/profile": typeof SettingsProfileRoute
   "/settings/scanning": typeof SettingsScanningRoute
+  "/settings/subscription": typeof SettingsSubscriptionRoute
   "/transactions/$transactionId": typeof TransactionsTransactionIdRoute
   "/transactions/new": typeof TransactionsNewRoute
   "/settings": typeof SettingsIndexRoute
@@ -213,12 +237,15 @@ export interface FileRoutesById {
   "/transactions": typeof TransactionsRouteWithChildren
   "/trends": typeof TrendsRoute
   "/invite/$token": typeof InviteTokenRoute
+  "/settings/cards": typeof SettingsCardsRoute
   "/settings/data": typeof SettingsDataRoute
   "/settings/help": typeof SettingsHelpRoute
+  "/settings/limits": typeof SettingsLimitsRoute
   "/settings/memory": typeof SettingsMemoryRoute
   "/settings/preferences": typeof SettingsPreferencesRoute
   "/settings/profile": typeof SettingsProfileRoute
   "/settings/scanning": typeof SettingsScanningRoute
+  "/settings/subscription": typeof SettingsSubscriptionRoute
   "/transactions/$transactionId": typeof TransactionsTransactionIdRoute
   "/transactions/new": typeof TransactionsNewRoute
   "/settings/": typeof SettingsIndexRoute
@@ -240,12 +267,15 @@ export interface FileRouteTypes {
     | "/transactions"
     | "/trends"
     | "/invite/$token"
+    | "/settings/cards"
     | "/settings/data"
     | "/settings/help"
+    | "/settings/limits"
     | "/settings/memory"
     | "/settings/preferences"
     | "/settings/profile"
     | "/settings/scanning"
+    | "/settings/subscription"
     | "/transactions/$transactionId"
     | "/transactions/new"
     | "/settings/"
@@ -263,12 +293,15 @@ export interface FileRouteTypes {
     | "/statements"
     | "/trends"
     | "/invite/$token"
+    | "/settings/cards"
     | "/settings/data"
     | "/settings/help"
+    | "/settings/limits"
     | "/settings/memory"
     | "/settings/preferences"
     | "/settings/profile"
     | "/settings/scanning"
+    | "/settings/subscription"
     | "/transactions/$transactionId"
     | "/transactions/new"
     | "/settings"
@@ -288,12 +321,15 @@ export interface FileRouteTypes {
     | "/transactions"
     | "/trends"
     | "/invite/$token"
+    | "/settings/cards"
     | "/settings/data"
     | "/settings/help"
+    | "/settings/limits"
     | "/settings/memory"
     | "/settings/preferences"
     | "/settings/profile"
     | "/settings/scanning"
+    | "/settings/subscription"
     | "/transactions/$transactionId"
     | "/transactions/new"
     | "/settings/"
@@ -430,6 +466,13 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof TransactionsTransactionIdRouteImport
       parentRoute: typeof TransactionsRoute
     }
+    "/settings/subscription": {
+      id: "/settings/subscription"
+      path: "/subscription"
+      fullPath: "/settings/subscription"
+      preLoaderRoute: typeof SettingsSubscriptionRouteImport
+      parentRoute: typeof SettingsRoute
+    }
     "/settings/scanning": {
       id: "/settings/scanning"
       path: "/scanning"
@@ -458,6 +501,13 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof SettingsMemoryRouteImport
       parentRoute: typeof SettingsRoute
     }
+    "/settings/limits": {
+      id: "/settings/limits"
+      path: "/limits"
+      fullPath: "/settings/limits"
+      preLoaderRoute: typeof SettingsLimitsRouteImport
+      parentRoute: typeof SettingsRoute
+    }
     "/settings/help": {
       id: "/settings/help"
       path: "/help"
@@ -472,6 +522,13 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof SettingsDataRouteImport
       parentRoute: typeof SettingsRoute
     }
+    "/settings/cards": {
+      id: "/settings/cards"
+      path: "/cards"
+      fullPath: "/settings/cards"
+      preLoaderRoute: typeof SettingsCardsRouteImport
+      parentRoute: typeof SettingsRoute
+    }
     "/invite/$token": {
       id: "/invite/$token"
       path: "/invite/$token"
@@ -483,22 +540,28 @@ declare module "@tanstack/react-router" {
 }
 
 interface SettingsRouteChildren {
+  SettingsCardsRoute: typeof SettingsCardsRoute
   SettingsDataRoute: typeof SettingsDataRoute
   SettingsHelpRoute: typeof SettingsHelpRoute
+  SettingsLimitsRoute: typeof SettingsLimitsRoute
   SettingsMemoryRoute: typeof SettingsMemoryRoute
   SettingsPreferencesRoute: typeof SettingsPreferencesRoute
   SettingsProfileRoute: typeof SettingsProfileRoute
   SettingsScanningRoute: typeof SettingsScanningRoute
+  SettingsSubscriptionRoute: typeof SettingsSubscriptionRoute
   SettingsIndexRoute: typeof SettingsIndexRoute
 }
 
 const SettingsRouteChildren: SettingsRouteChildren = {
+  SettingsCardsRoute: SettingsCardsRoute,
   SettingsDataRoute: SettingsDataRoute,
   SettingsHelpRoute: SettingsHelpRoute,
+  SettingsLimitsRoute: SettingsLimitsRoute,
   SettingsMemoryRoute: SettingsMemoryRoute,
   SettingsPreferencesRoute: SettingsPreferencesRoute,
   SettingsProfileRoute: SettingsProfileRoute,
   SettingsScanningRoute: SettingsScanningRoute,
+  SettingsSubscriptionRoute: SettingsSubscriptionRoute,
   SettingsIndexRoute: SettingsIndexRoute,
 }
 

@@ -5936,3 +5936,6 @@ Rebuilt Cards to the mockup: full editor (alias + 17-icon picker + 8-color picke
 
 ## 2026-06-30 21:29 — [5e21c73] feat(web): reports lightbox content-pane-aware backdrop
 ReportDetailOverlay now portals into app-content-pane + fixed inset-0 lg:absolute (same mechanism as the Modal atom) so on desktop the grey scrim dims only the content pane (SideNav stays lit); mobile still full-viewport. Preserved all testids/role/aria + re-keyed focus-on-open to the portal mount (WCAG). Last ad-hoc dialog folded for backdrop consistency. tsc 0, unit 6/6, eslint 0; desktop+mobile Playwright proof (user B).
+
+## 2026-06-30 21:30 — [01723e6] chore(web): sync routeTree.gen.ts (cards/subscription/limits)
+Tracked TanStack Router registry was missing the 3 newer settings subview routes (files existed; tree not regenerated at their commit). Regenerated + committed so tracked tree matches routes. Generated-only, tsc 0.
