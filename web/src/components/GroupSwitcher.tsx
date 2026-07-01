@@ -1,17 +1,23 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
-import { GroupAvatar } from "@/components/GroupAvatar";
+import { GroupAvatar, DEFAULT_GROUP_COLOR } from "@/components/GroupAvatar";
 import { useGroups } from "@/hooks/useGroups";
 import { useI18n } from "@/hooks/useI18n";
 import { useUiStore } from "@/stores/uiStore";
 
 /**
- * Global personal↔group scope switcher (D70). Picking a group re-points every
- * scope-aware view at it; "Personal" returns to the caller's own scope. If the
- * active group disappears from the user's list (e.g. they were removed), it
- * silently falls back to personal so the app never queries a group it can't read.
+ * Global personal↔group scope switcher (D70), rendered AS the app wordmark/logo
+ * (top-left). In personal scope it shows the "gastify" wordmark; inside a group
+ * it shows the group's name in the group's color (+ its avatar). Clicking it opens
+ * the scope dropdown (Personal + your groups + Manage). Picking a group re-points
+ * every scope-aware view at it; "Personal" returns to the caller's own scope. If
+ * the active group disappears from the user's list it silently falls back to
+ * personal so the app never queries a group it can't read.
+ *
+ * Lives in the SideNav header (desktop; `collapsed` → a compact "g" / avatar mark)
+ * and the AppHeader brand slot (mobile).
  */
-export function GroupSwitcher() {
+export function GroupSwitcher({ collapsed = false }: { collapsed?: boolean }) {
   const { t } = useI18n();
   const activeScope = useUiStore((s) => s.activeScope);
   const setActiveScope = useUiStore((s) => s.setActiveScope);
@@ -39,8 +45,11 @@ export function GroupSwitcher() {
 
   const activeGroup =
     activeScope.kind === "group" ? groups?.find((g) => g.id === activeScope.id) : undefined;
-  const label =
-    activeScope.kind === "group" ? activeScope.name : t("group.personal");
+  const inGroup = activeScope.kind === "group";
+  const groupName = activeGroup?.name ?? (activeScope.kind === "group" ? activeScope.name : "");
+  // In group scope the logo adopts the group's color (falling back to the same
+  // slate the GroupAvatar uses), so "you're in a group" reads at a glance.
+  const groupColor = activeGroup?.color ?? DEFAULT_GROUP_COLOR;
 
   return (
     <div ref={containerRef} className="relative">
@@ -51,25 +60,45 @@ export function GroupSwitcher() {
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-label={t("group.switcher")}
-        className="flex w-full items-center justify-between gap-gt-6 rounded-gt-lg border-2 border-gt-line-strong bg-gt-surface px-gt-10 py-gt-6 text-left text-gt-sm font-bold text-gt-ink-2 shadow-gt-xs transition hover:bg-gt-bg-3"
+        title={inGroup ? groupName : "gastify"}
+        className={`flex items-center gap-gt-6 rounded-gt-lg transition hover:opacity-80 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-gt-primary/25 ${
+          collapsed ? "justify-center" : ""
+        }`}
       >
-        <span className="flex min-w-0 items-center gap-gt-6">
-          {activeScope.kind === "group" ? (
-            <GroupAvatar icon={activeGroup?.icon} color={activeGroup?.color} size={20} />
+        {collapsed ? (
+          inGroup ? (
+            <GroupAvatar icon={activeGroup?.icon} color={groupColor} size={30} />
           ) : (
-            <span aria-hidden>👤</span>
-          )}
-          <span className="truncate font-extrabold text-gt-ink">{label}</span>
-        </span>
-        <span aria-hidden className="text-gt-ink-3">
-          ▾
-        </span>
+            <span className="grid h-8 w-8 place-items-center rounded-gt-md border-2 border-gt-line-strong bg-gt-primary font-gt-display text-gt-md font-extrabold leading-none text-white">
+              g
+            </span>
+          )
+        ) : (
+          <>
+            {inGroup ? (
+              <>
+                <GroupAvatar icon={activeGroup?.icon} color={groupColor} size={24} />
+                <span
+                  className="max-w-34 truncate font-gt-display text-gt-2xl font-extrabold leading-none"
+                  style={{ color: groupColor }}
+                >
+                  {groupName}
+                </span>
+              </>
+            ) : (
+              <span className="font-gt-display text-gt-2xl font-extrabold leading-none text-gt-primary">gastify</span>
+            )}
+            <span aria-hidden className="text-gt-sm font-bold text-gt-ink-3">
+              ▾
+            </span>
+          </>
+        )}
       </button>
 
       {open && (
         <div
           role="listbox"
-          className="absolute left-0 right-0 z-30 mt-gt-2 overflow-hidden rounded-gt-xl border-2 border-gt-line-strong bg-gt-surface shadow-gt-md"
+          className="absolute left-0 top-full z-40 mt-gt-6 w-64 overflow-hidden rounded-gt-xl border-2 border-gt-line-strong bg-gt-surface shadow-gt-md"
         >
           <ScopeOption
             label={t("group.personal")}

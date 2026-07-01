@@ -111,7 +111,9 @@ export interface SideNavProps {
   profileName?: string;
   profileEmail?: string;
   onProfile?: () => void;
-  /** extra content under the nav list (e.g. the GroupSwitcher). */
+  /** replaces the wordmark in the header (e.g. the scope-switcher logo). */
+  brand?: ReactNode;
+  /** extra content under the nav list. */
   belowNav?: ReactNode;
   className?: string;
 }
@@ -130,6 +132,7 @@ export function SideNav({
   profileName = "Rosa",
   profileEmail = "rosa@correo.cl",
   onProfile,
+  brand,
   belowNav,
   className = "",
 }: SideNavProps) {
@@ -138,9 +141,9 @@ export function SideNav({
       aria-label="Navegación principal"
       className={`flex shrink-0 flex-col border-r-2 border-gt-line-strong bg-gt-surface p-gt-12 ${collapsed ? "w-18 items-center" : "w-60"} ${className}`}
     >
-      {/* header: wordmark + the collapse icon top-right */}
-      <div className={`flex items-center ${collapsed ? "justify-center" : "justify-between"} py-gt-8`}>
-        {collapsed ? null : <Wordmark />}
+      {/* header: brand (scope-switcher logo, or wordmark) + the collapse toggle */}
+      <div className={`flex py-gt-8 ${collapsed ? "flex-col items-center gap-gt-8" : "items-center justify-between"}`}>
+        {brand ?? (collapsed ? null : <Wordmark />)}
         <button
           type="button"
           aria-label={collapsed ? "Expandir navegación" : "Contraer navegación"}

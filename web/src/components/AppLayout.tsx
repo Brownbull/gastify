@@ -153,7 +153,7 @@ export function AppLayout({ children }: AppLayoutProps) {
         profileName={displayName}
         profileEmail={email}
         onProfile={toggleMenu}
-        belowNav={<GroupSwitcher />}
+        brand={<GroupSwitcher collapsed={collapsed} />}
       />
 
       <div data-testid="app-content-pane" className="relative flex min-h-screen flex-1 flex-col">
@@ -166,7 +166,7 @@ export function AppLayout({ children }: AppLayoutProps) {
               <LocaleSelect locale={locale} onChange={setLocale} label={t("locale.label")} />
             </>
           }
-          band={<GroupSwitcher />}
+          brand={<GroupSwitcher />}
           avatarInitials={initials}
           onProfile={toggleMenu}
         />

@@ -5962,3 +5962,18 @@ Backend card_aliases change altered OpenAPI; mobile types were stale → Mobile 
 
 ## 2026-06-30 23:53 — [95330a9] feat(web): DF2 dashboard — lean spend-first home feed
 Rebuilt / (index.tsx) to the design-lab HomeScreen: InicioHero + insight StatusCard (CS-20) + MonthTrendCard (6-mo series) + GravityCentersCard (gravity_centers) + RecentTransactionsCard (useTransactions). +categoryTint/formatCompactAmount, +StatusCard atom, home.* i18n es/en/pt. Dropped home donut/drill/summary/excluded (→ /trends+/reports); hero keeps total-spend testid. -index.test rewritten; drill e2e removed (coverage → DF2-Trends, PENDING). build ✓, vitest 154, eslint 0; :5174 user B desktop+mobile proof. First DF2 screen (Dashboard→Trends→Groups→Items).
+- 2026-07-01 12:08 | Edit | /home/khujta/projects/apps/gastify/web/README.md
+- 2026-07-01 12:08 | Edit | /home/khujta/projects/apps/gastify/web/README.md
+- 2026-07-01 12:24 | Edit | /home/khujta/projects/apps/gastify/web/src/components/GroupSwitcher.tsx
+- 2026-07-01 12:24 | Edit | /home/khujta/projects/apps/gastify/web/src/components/GroupSwitcher.tsx
+- 2026-07-01 12:24 | Edit | /home/khujta/projects/apps/gastify/web/src/components/shell/Nav.tsx
+- 2026-07-01 12:24 | Edit | /home/khujta/projects/apps/gastify/web/src/components/shell/Nav.tsx
+- 2026-07-01 12:25 | Edit | /home/khujta/projects/apps/gastify/web/src/components/shell/Nav.tsx
+- 2026-07-01 12:25 | Edit | /home/khujta/projects/apps/gastify/web/src/components/AppLayout.tsx
+- 2026-07-01 12:25 | Edit | /home/khujta/projects/apps/gastify/web/src/components/AppLayout.tsx
+- 2026-07-01 12:29 | Edit | /home/khujta/projects/apps/gastify/web/src/components/GroupSwitcher.tsx
+- 2026-07-01 12:29 | Edit | /home/khujta/projects/apps/gastify/web/src/components/GroupSwitcher.tsx
+- 2026-07-01 12:30 | Edit | /home/khujta/projects/apps/gastify/web/src/components/GroupSwitcher.tsx
+
+## 2026-07-01 12:34 — [d6abbaa] feat(web): group scope switcher folded into the app logo
+Removed the standalone GroupSwitcher bar; the wordmark/logo IS the scope switcher (desktop SideNav header via a new `brand` slot + mobile AppHeader brand). Personal=gastify purple; group=group name in the group color + avatar; click opens the same dropdown. Collapsed rail → compact "g"/avatar. tsc 0, vitest 154, eslint 0, token guard 151; :5174 desktop+mobile proof.
