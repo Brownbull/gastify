@@ -5907,3 +5907,10 @@ CHECKS: tsc 0, vitest 148/148 (+3 categoryIcon tests), eslint 0.
 
 ## 2026-06-30 20:17 — [40b117e] feat(web): Select type-ahead + keyboard nav
 Shared Select atom: type-ahead (accent-insensitive, repeat-cycle) + ↑↓/Home/End/Enter/Esc + aria-activedescendant + scroll-into-view; highlight set in handlers (no set-state-in-effect). Benefits Ciudad/País/currency/preferences. +Select.test.tsx (5). tsc 0, vitest 153/153, eslint 0.
+- 2026-06-30 20:26 | Write | /home/khujta/projects/apps/gastify/web/src/hooks/useDraft.ts
+- 2026-06-30 20:26 | Write | /home/khujta/projects/apps/gastify/web/src/components/settings/SettingsApplyBar.tsx
+- 2026-06-30 20:26 | Write | /home/khujta/projects/apps/gastify/web/src/routes/settings.scanning.tsx
+- 2026-06-30 20:27 | Write | /home/khujta/projects/apps/gastify/web/src/routes/settings.preferences.tsx
+
+## 2026-06-30 20:32 — [62a9fb0] feat(web): settings stage-and-apply (Scanning + Preferences)
+User: stop abusing /rectification per-change → draft + Apply/Discard footer per section (ALL controls in Scanning + Preferences). +useDraft hook (derive-during-render), +SettingsApplyBar. Scanning batches currency/country/city into one rectification call. currency-switch e2e updated + green. tsc 0, vitest 153/153, eslint 0.
