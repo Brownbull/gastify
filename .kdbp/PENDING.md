@@ -202,3 +202,7 @@
 **Finding:** `backend/app/api/card_aliases.py` `_unset_other_defaults` enforces exactly-one-default-per-scope in app code only (an `UPDATE ... WHERE is_default IS TRUE` then set the target true, in the same request txn) — no DB partial-unique index or row lock. Two concurrent same-scope create/patch requests each setting default could interleave and leave two defaults.
 **Why deferred (MVP):** requires a single user to fire two "set default" writes on the same scope truly concurrently — negligible in practice. Data is non-destructive (a spurious second default at worst).
 **Fix when Enterprise:** add a partial unique index `CREATE UNIQUE INDEX ... ON card_aliases (ownership_scope_id) WHERE is_default` (+ handle the write ordering) or `SELECT ... FOR UPDATE` the scope's default row before flipping.
+
+## 2026-07-01 — [coverage / DF2-Trends] dashboard donut-drill coverage relocated
+**Source:** DF2-Dashboard (feat/df2-inline-reskins). The lean home feed dropped the analytics donut + click-drill (useDonutDrill), so the drill cross-walk regression that lived in `-index.test.tsx` + `dashboard.spec.ts` test 1 was removed with the UI. `useDonutDrill` has NO dedicated hook test, so drill logic is temporarily uncovered.
+**Fix in DF2-Trends:** wire `useDonutDrill` onto `/trends` (interactive donut/treemap drill per the DF2 analysis) and restore the Industry→Store→Family→Item cross-walk e2e there (or add a `useDonutDrill.test.ts` hook unit test). Until then `useDonutDrill` is unused + untested.

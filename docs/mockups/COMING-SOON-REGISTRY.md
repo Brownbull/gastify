@@ -21,6 +21,7 @@
 | CS-17 | Settings · Mis tarjetas | Efectivo (cash) como método de pago | No cash entity in the backend — card_aliases are card-only; there is no non-card payment method | ✅ omitted from the cards list (the default-method half is now functional — see Graduated) | Needs a cash payment-method entity distinct from card_aliases (so a purchase can be paid "en efectivo") |
 | CS-18 | Settings · Mis tarjetas | Restaurar tarjeta archivada | Archive (DELETE) is one-way — no un-archive endpoint (PATCH 404s on archived) | ✅ archive wired; archived cards hidden (no restore) | Needs an un-archive endpoint (clear archived_at) |
 | CS-19 | Settings · Límites | Límites de gasto por categoría | No spending-limit / budget endpoint exists in the backend | ✅ full preview screen (master toggle + per-category budget cards + usage bars) with illustrative values + "Próximamente"/"Vista previa" framing | Needs a budget model (per-category monthly limits) + spend aggregation + threshold alerts |
+| CS-20 | Inicio (Dashboard) | Resumen inteligente del mes (insight tip) | No backend generator for a per-month natural-language spending insight/tip | ✅ StatusCard "Resumen del mes" + Próximamente badge + placeholder copy in the hero/insight row | Needs an insight-generation service (rule-based or LLM) producing the month's headline tip from the period's spend + gravity centers |
 
 ## Intentionally dropped from mockups (NOT coming-soon)
 

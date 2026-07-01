@@ -1,11 +1,11 @@
 import { test, type Page } from "@playwright/test";
 
 /**
- * W10 Dashboard visual proof — the geometric port of the landing screen
- * (SummaryStats + the W7 donut + DimensionToggle/DrillBreadcrumb + the
- * "what's shifting" gravity insight), rendered against the LIVE PRODUCTION API
- * with REAL seeded data (user B). Run against a `vite --mode prod-e2e` server on
- * the CORS-allowed port 5174.
+ * Dashboard visual proof — the DF2 lean spend-first home feed (spend hero +
+ * insight StatusCard + 6-month trend + gravity centers + recent-transactions
+ * feed), rendered against the LIVE PRODUCTION API with REAL seeded data (user B).
+ * Run against a `vite --mode prod-e2e` server on the CORS-allowed port 5174.
+ * (The prior W10 donut/DimensionToggle/drill moved to /trends per DF2.)
  */
 const SHOTS = "tests/web-e2e/proof/w10-dashboard";
 
@@ -18,16 +18,16 @@ async function signInAsB(page: Page) {
 
 async function focusSeededMonth(page: Page) {
   await page.goto("/");
-  // Focus a month known to have seeded spend so SummaryStats + the donut render.
+  // Focus a month known to have seeded spend so the hero + gravity render.
   await page.getByLabel("Month", { exact: true }).fill("2026-03");
-  await page.getByTestId("total-spend").waitFor({ timeout: 20_000 });
-  await page.getByTestId("donut-legend").waitFor({ timeout: 20_000 });
+  await page.getByTestId("home-hero").waitFor({ timeout: 20_000 });
+  await page.getByTestId("home-gravity").waitFor({ timeout: 20_000 });
   await page.evaluate(() => document.fonts.ready);
-  await page.waitForTimeout(1400); // donut count-up + stagger settle
+  await page.waitForTimeout(900);
 }
 
-test.describe("W10 dashboard — geometric port (real seeded prod data)", () => {
-  test("dashboard renders SummaryStats + donut + gravity (desktop)", async ({ page }) => {
+test.describe("Dashboard — DF2 lean home feed (real seeded prod data)", () => {
+  test("dashboard renders hero + trend + gravity + recent (desktop)", async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 1400 });
     await signInAsB(page);
     await focusSeededMonth(page);

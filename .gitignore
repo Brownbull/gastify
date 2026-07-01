@@ -165,3 +165,4 @@ design-lab/storybook-static/
 
 # pytest temp working dir
 backend/.pytest-tmp/
+*.tsbuildinfo

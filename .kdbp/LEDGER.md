@@ -5948,3 +5948,17 @@ Pre-ship gate (wfj3s3y39) caught a production build break + 2 Modal a11y defects
 
 ## 2026-06-30 22:33 — [88226d3] fix(mobile): regenerate API types + is_default (CI drift)
 Backend card_aliases change altered OpenAPI; mobile types were stale → Mobile API Drift + Mobile Typecheck would fail on PR #16. Regenerated mobile openapi-spec.json + api-types.d.ts; StatementsScreen passes is_default:false. mobile typecheck 0, jest 255/255, no drift.
+- 2026-06-30 22:54 | Write | /home/khujta/.claude/projects/-home-khujta-projects-apps-gastify/memory/project_web_typecheck_tsc_b.md
+- 2026-06-30 22:54 | Edit | /home/khujta/.claude/projects/-home-khujta-projects-apps-gastify/memory/MEMORY.md
+- 2026-06-30 23:40 | Write | /home/khujta/projects/apps/gastify/web/src/routes/index.tsx
+- 2026-06-30 23:40 | Edit | /home/khujta/projects/apps/gastify/web/src/routes/index.tsx
+- 2026-06-30 23:46 | Write | /home/khujta/projects/apps/gastify/web/src/routes/-index.test.tsx
+- 2026-06-30 23:46 | Edit | /home/khujta/projects/apps/gastify/web/src/routes/-index.test.tsx
+- 2026-06-30 23:49 | Edit | /home/khujta/projects/apps/gastify/tests/web-e2e/w10-dashboard.spec.ts
+- 2026-06-30 23:49 | Edit | /home/khujta/projects/apps/gastify/tests/web-e2e/w10-dashboard.spec.ts
+- 2026-06-30 23:50 | Write | /home/khujta/projects/apps/gastify/tests/web-e2e/dashboard.spec.ts
+- 2026-06-30 23:51 | Edit | /home/khujta/projects/apps/gastify/web/src/components/home/InicioHero.tsx
+- 2026-06-30 23:51 | Edit | /home/khujta/projects/apps/gastify/docs/mockups/COMING-SOON-REGISTRY.md
+
+## 2026-06-30 23:53 — [95330a9] feat(web): DF2 dashboard — lean spend-first home feed
+Rebuilt / (index.tsx) to the design-lab HomeScreen: InicioHero + insight StatusCard (CS-20) + MonthTrendCard (6-mo series) + GravityCentersCard (gravity_centers) + RecentTransactionsCard (useTransactions). +categoryTint/formatCompactAmount, +StatusCard atom, home.* i18n es/en/pt. Dropped home donut/drill/summary/excluded (→ /trends+/reports); hero keeps total-spend testid. -index.test rewritten; drill e2e removed (coverage → DF2-Trends, PENDING). build ✓, vitest 154, eslint 0; :5174 user B desktop+mobile proof. First DF2 screen (Dashboard→Trends→Groups→Items).

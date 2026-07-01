@@ -75,6 +75,11 @@ export function categoryColorVar(categoryKey: string): string {
   return `var(${SERIES_TOKENS[hash % SERIES_TOKENS.length]})`;
 }
 
+/** Soft (~18%) tint of a category's stable color, for icon-tile / disc backgrounds. */
+export function categoryTint(categoryKey: string): string {
+  return `color-mix(in oklab, ${categoryColorVar(categoryKey)} 18%, white)`;
+}
+
 /**
  * Map top-category rollups into donut slices, appending an "Other" remainder
  * slice so the slices sum to `totalSpendMinor` (the API caps rows at 5).

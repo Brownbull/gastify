@@ -1,34 +1,64 @@
-import { lazy, Suspense, useState } from "react";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { useState } from "react";
+import { createFileRoute } from "@tanstack/react-router";
 import {
   currentPeriod,
-  useInsightsTree,
+  periodWindow,
+  useInsightsSeries,
   useMonthlyInsights,
-  type InsightDimension,
 } from "@/hooks/useInsights";
-import { useDonutDrill } from "@/hooks/useDonutDrill";
+import { useTransactions } from "@/hooks/useTransactions";
+import { useProfile } from "@/hooks/useProfile";
 import { useI18n } from "@/hooks/useI18n";
 import { useUiStore } from "@/stores/uiStore";
-import { treeNodesToSlices } from "@/lib/chartData";
-import {
-  SummaryStats,
-  DimensionToggle,
-  DrillBreadcrumb,
-  GravityCenters,
-  ExcludedItems,
-  InsightsSkeleton,
-  PeriodStepper,
-  ChartFallback,
-} from "@/components/insights/widgets";
+import { PeriodStepper } from "@/components/insights/widgets";
+import { InicioHero, type HeroDelta } from "@/components/home/InicioHero";
+import { MonthTrendCard, type TrendBar } from "@/components/home/MonthTrendCard";
+import { GravityCentersCard } from "@/components/home/GravityCentersCard";
+import { RecentTransactionsCard } from "@/components/home/RecentTransactionsCard";
+import { StatusCard } from "@/components/ui/StatusCard";
+import { Badge } from "@/components/ui/Badge";
+import { formatMinorAmount } from "@/lib/format";
 import type { components } from "@/lib/api-types";
 
-const CategoryDonut = lazy(() => import("@/components/charts/CategoryDonut"));
-
 type MonthlyInsights = components["schemas"]["MonthlyInsightsResponse"];
+type SeriesPoint = components["schemas"]["InsightsSeriesPoint"];
 
 export const Route = createFileRoute("/")({
   component: DashboardPage,
 });
+
+/** `2026-06` → "junio 2026" in the active locale. */
+function monthLabel(period: string, locale: string): string {
+  const [year, month] = period.split("-").map(Number);
+  try {
+    return new Intl.DateTimeFormat(locale, { month: "long", year: "numeric" }).format(new Date(year, month - 1, 1));
+  } catch {
+    return period;
+  }
+}
+
+/** `2026-06` → "jun" (short month) in the active locale. */
+function monthShort(period: string, locale: string): string {
+  const [year, month] = period.split("-").map(Number);
+  try {
+    return new Intl.DateTimeFormat(locale, { month: "short" }).format(new Date(year, month - 1, 1)).replace(".", "");
+  } catch {
+    return period.slice(5);
+  }
+}
+
+/** Month-over-month spend delta for the hero badge (inverted: spending less = positive). */
+function deriveDelta(points: SeriesPoint[], period: string): HeroDelta | null {
+  const idx = points.findIndex((p) => p.period === period);
+  if (idx <= 0) return null;
+  const current = points[idx].total_spend_minor;
+  const prior = points[idx - 1].total_spend_minor;
+  if (prior <= 0) return null;
+  const pct = ((current - prior) / prior) * 100;
+  if (!Number.isFinite(pct) || Math.abs(pct) < 0.5) return null;
+  const up = pct > 0; // spent more this month
+  return { tone: up ? "negative" : "positive", label: `${up ? "▲" : "▼"}${Math.abs(pct).toFixed(0)}%` };
+}
 
 function DashboardPage() {
   const { t } = useI18n();
@@ -36,9 +66,11 @@ function DashboardPage() {
   const { data, isLoading, error } = useMonthlyInsights(period);
   const atCurrent = period >= currentPeriod();
   const activeScope = useUiStore((s) => s.activeScope);
+  const profile = useProfile();
+  const firstName = (profile.data?.display_name ?? "").trim().split(/\s+/)[0] || "";
 
   return (
-    <div className="space-y-gt-16">
+    <div className="mx-auto flex w-full max-w-176 flex-col gap-gt-16 lg:max-w-6xl">
       {activeScope.kind === "group" && (
         <p
           data-testid="dashboard-scope-banner"
@@ -47,23 +79,15 @@ function DashboardPage() {
           🏠 {t("group.activeBanner")}: {activeScope.name}
         </p>
       )}
-      <header className="flex flex-wrap items-end justify-between gap-gt-10">
-        <div>
-          <h1 className="font-gt-display text-gt-4xl font-extrabold text-gt-ink">{t("dashboard.title")}</h1>
-          <p className="mt-gt-2 text-gt-sm font-medium text-gt-ink-2">{t("dashboard.subtitle")}</p>
-        </div>
-        <div className="flex flex-wrap items-center gap-gt-8">
-          <PeriodStepper period={period} atCurrent={atCurrent} onChange={setPeriod} />
-          <Link
-            to="/trends"
-            className="rounded-gt-lg border-2 border-gt-line-strong bg-gt-surface px-gt-12 py-gt-6 text-gt-sm font-extrabold text-gt-primary shadow-gt-xs transition hover:bg-gt-bg-3"
-          >
-            {t("dashboard.viewTrends")}
-          </Link>
-        </div>
-      </header>
 
-      {isLoading && <InsightsSkeleton />}
+      <div className="flex flex-wrap items-center justify-between gap-gt-8">
+        <h1 className="font-gt-display text-gt-2xl font-extrabold text-gt-ink">
+          {firstName ? `${t("home.greeting")}, ${firstName}` : t("dashboard.title")}
+        </h1>
+        <PeriodStepper period={period} atCurrent={atCurrent} onChange={setPeriod} />
+      </div>
+
+      {isLoading && <DashboardSkeleton />}
 
       {error && (
         <div className="rounded-gt-2xl border-2 border-gt-error bg-gt-error/5 p-gt-16 text-center" role="alert">
@@ -77,14 +101,10 @@ function DashboardPage() {
 }
 
 function DashboardContent({ data, period }: { data: MonthlyInsights; period: string }) {
-  const { t } = useI18n();
-  const [dimension, setDimension] = useState<InsightDimension>("transaction_category");
-  const tree = useInsightsTree(period, dimension);
-  const drill = useDonutDrill(
-    tree.data?.roots ?? [],
-    tree.data?.total_spend_minor ?? 0,
-    `${period}:${dimension}`,
-  );
+  const { t, locale } = useI18n();
+  const window6 = periodWindow(period, 6);
+  const series = useInsightsSeries(window6.from, window6.to, "month");
+  const recent = useTransactions({});
 
   // A tombstoned (group, month): totals are zeroed server-side and the cause arrives
   // in void_reason — show the explanation, not the generic "scan something" empty state.
@@ -116,61 +136,61 @@ function DashboardContent({ data, period }: { data: MonthlyInsights; period: str
     );
   }
 
-  // The donut renders the current drill level: roots (L1 industries / L3
-  // families) by default, a tapped node's children after drilling. Percentages
-  // are within-parent so each level sums to 100%.
-  const slices = tree.data
-    ? treeNodesToSlices(drill.visibleNodes, drill.parentTotalMinor)
-    : [];
+  const points = series.data?.points ?? [];
+  const bars: TrendBar[] = points.map((p) => ({
+    label: monthShort(p.period, locale),
+    valueMinor: p.total_spend_minor,
+    current: p.period === period,
+  }));
+  const delta = deriveDelta(points, period);
+  const recentTxns = (recent.data?.pages?.[0]?.data ?? []).slice(0, 4);
 
   return (
-    <div className="space-y-gt-16">
-      <SummaryStats data={data} />
+    <>
+      <div className="grid items-start gap-gt-16 lg:grid-cols-[1.4fr_1fr]">
+        <InicioHero
+          total={formatMinorAmount(data.total_spend_minor, data.currency)}
+          delta={delta}
+          monthLabel={monthLabel(period, locale)}
+        />
+        <StatusCard
+          tone="info"
+          className="items-start"
+          title={
+            <span className="flex items-center gap-gt-8">
+              {t("home.insightTitle")}
+              <Badge tone="neutral" className="py-0! text-gt-xs">
+                {t("settings.comingSoon")}
+              </Badge>
+            </span>
+          }
+        >
+          {t("home.insightComingSoon")}
+        </StatusCard>
+      </div>
 
-      <section className="rounded-gt-2xl border-2 border-gt-line-strong bg-gt-surface p-gt-16 shadow-gt-md">
-        <div className="mb-gt-12 flex flex-wrap items-center justify-between gap-gt-10">
-          <h2 className="font-gt-display text-gt-md font-extrabold text-gt-ink">{t("dashboard.topCategories")}</h2>
-          <DimensionToggle dimension={dimension} onChange={setDimension} />
-        </div>
-        {drill.path.length > 0 && (
-          <div className="mb-gt-10">
-            <DrillBreadcrumb
-              trail={drill.path.map((node) => ({ key: node.key, label: node.label }))}
-              onCrumb={drill.jumpTo}
-              onBack={drill.back}
-            />
-          </div>
-        )}
-        {tree.isLoading && <ChartFallback />}
-        {!tree.isLoading && tree.isError && (
-          <p className="py-gt-24 text-center text-gt-sm font-bold text-gt-error" role="alert" data-testid="donut-error">
-            {t("dashboard.loadError")}
-          </p>
-        )}
-        {!tree.isLoading && !tree.isError && slices.length === 0 && (
-          <p className="py-gt-24 text-center text-gt-sm font-medium text-gt-ink-3" data-testid="donut-empty">
-            {t("dashboard.empty")}
-          </p>
-        )}
-        {!tree.isLoading && !tree.isError && slices.length > 0 && tree.data && (
-          <Suspense fallback={<ChartFallback />}>
-            <CategoryDonut
-              slices={slices}
-              currency={tree.data.currency}
-              onSliceClick={(slice) => drill.drillInto(slice.categoryKey)}
-            />
-          </Suspense>
-        )}
-      </section>
+      {bars.length > 0 && (
+        <MonthTrendCard bars={bars} currency={series.data?.currency ?? data.currency} title={t("home.trend")} />
+      )}
 
       {(data.gravity_centers ?? []).length > 0 && (
-        <GravityCenters centers={data.gravity_centers ?? []} />
+        <GravityCentersCard centers={data.gravity_centers ?? []} currency={data.currency} />
       )}
 
-      {(data.excluded_items ?? []).length > 0 && (
-        <ExcludedItems items={data.excluded_items ?? []} />
-      )}
-    </div>
+      <RecentTransactionsCard transactions={recentTxns} />
+    </>
   );
 }
 
+function DashboardSkeleton() {
+  return (
+    <div className="flex flex-col gap-gt-16" aria-busy="true" aria-label="Cargando inicio">
+      <div className="grid gap-gt-16 lg:grid-cols-[1.4fr_1fr]">
+        <div className="h-28 animate-pulse rounded-gt-2xl border-2 border-gt-line bg-gt-bg-3" />
+        <div className="h-28 animate-pulse rounded-gt-2xl border-2 border-gt-line bg-gt-bg-3" />
+      </div>
+      <div className="h-48 animate-pulse rounded-gt-2xl border-2 border-gt-line bg-gt-bg-3" />
+      <div className="h-40 animate-pulse rounded-gt-2xl border-2 border-gt-line bg-gt-bg-3" />
+    </div>
+  );
+}

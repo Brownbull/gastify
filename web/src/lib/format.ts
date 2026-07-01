@@ -30,6 +30,22 @@ export function formatMinorAmount(
   }
 }
 
+/** Compact currency (e.g. "$96k", "US$1.2M") for dense chart labels / bars. */
+export function formatCompactAmount(minorAmount: number, currency: string): string {
+  const exponent = getExponent(currency);
+  const majorAmount = minorAmount / 10 ** exponent;
+  try {
+    return new Intl.NumberFormat(undefined, {
+      style: "currency",
+      currency,
+      notation: "compact",
+      maximumFractionDigits: 1,
+    }).format(majorAmount);
+  } catch {
+    return `${currency} ${majorAmount.toFixed(0)}`;
+  }
+}
+
 export function formatDate(dateStr: string): string {
   try {
     return new Date(dateStr + "T00:00:00").toLocaleDateString(undefined, {
