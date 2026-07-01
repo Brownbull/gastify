@@ -6002,3 +6002,6 @@ Re-skinned /items to the design-lab HistoryItemRow: per-category icon tiles (ite
 
 ## 2026-07-01 15:18 — [8e10866] feat(web): DF2 Historial hub (faithful HistoryScreen port)
 Corrected /items from a flat list to the design-lab HistoryScreen HUB: header active-sub title + 3-way switcher (?sub=, logo dropped on /items); shared PeriodControl (Sem/Men/Tri/Anu + stepper, lib/periodRange); Productos = client-side aggregated products (HistoryItemRow: icon+chip+total+expandable receipts, "N·"); Transacciones = period list; Reportes = link. +history components, PeriodControl, periodRange/historySubs, i18n history.*. -items.test rewritten. Follow-ups in PENDING (Reportes/Transacciones full embed, FilterSheet, drag gesture, logo on other screens). build 0, vitest 154, eslint 0, guard 157; :5174 proof.
+
+## 2026-07-01 15:33 — [c52c493] feat(web): logo home-only — mobile header shows the screen title
+Extended the logo rule: only Inicio shows the gastify logo; every other screen shows its title in the mobile header (AppLayout pathTitleKey → AppHeader browse title). The 6 nav screens hide their own content title on mobile (hidden lg:block; desktop keeps it). -statements test → findAllByRole. tsc 0, vitest 154, eslint 0, guard 157; :5174 proof (transactions/trends).

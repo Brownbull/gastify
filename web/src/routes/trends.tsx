@@ -63,7 +63,7 @@ function TrendsPage() {
   return (
     <div className="space-y-gt-16">
       <header className="flex flex-wrap items-end justify-between gap-gt-10">
-        <div>
+        <div className="hidden lg:block">
           <h1 className="font-gt-display text-gt-4xl font-extrabold text-gt-ink">{t("trends.title")}</h1>
           <p className="mt-gt-2 text-gt-sm font-medium text-gt-ink-2">{t("trends.subtitle")}</p>
         </div>

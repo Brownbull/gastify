@@ -48,7 +48,7 @@ function GroupsPage() {
 
   return (
     <div className="mx-auto max-w-3xl space-y-gt-16">
-      <header>
+      <header className="hidden lg:block">
         <h1 className="font-gt-display text-gt-4xl font-extrabold text-gt-ink">{t("group.title")}</h1>
         <p className="mt-gt-2 text-gt-sm font-medium text-gt-ink-2">{t("group.subtitle")}</p>
       </header>

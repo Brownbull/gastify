@@ -67,7 +67,7 @@ function TransactionsListPage() {
 
   return (
     <div className="space-y-gt-16">
-      <div>
+      <div className="hidden lg:block">
         <h1 className="font-gt-display text-gt-4xl font-extrabold text-gt-ink">Transactions</h1>
         <p className="mt-gt-2 text-gt-sm font-medium text-gt-ink-2">View and manage your expense history.</p>
       </div>

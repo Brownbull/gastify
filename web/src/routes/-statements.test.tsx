@@ -314,7 +314,8 @@ describe("statement route", () => {
     renderApp();
     await signIn();
 
-    expect(await screen.findByRole("heading", { name: "Statements" })).toBeInTheDocument();
+    // "Statements" appears as both the mobile shell-header title and the content h1.
+    expect((await screen.findAllByRole("heading", { name: "Statements" })).length).toBeGreaterThan(0);
     expect(screen.getByRole("button", { name: "Start statement scan" })).toBeDisabled();
 
     await user.selectOptions(screen.getByLabelText("Card alias"), "alias-1");

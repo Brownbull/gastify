@@ -38,7 +38,7 @@ function NotificationsPage() {
   return (
     <div className="space-y-gt-16" data-testid="notifications-screen">
       <div className="flex items-start justify-between gap-gt-12">
-        <div>
+        <div className="hidden lg:block">
           <h1 className="font-gt-display text-gt-4xl font-extrabold text-gt-ink">
             {t("notifications.title")}
           </h1>

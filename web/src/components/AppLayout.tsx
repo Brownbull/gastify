@@ -17,6 +17,21 @@ import {
 } from "@/components/shell/Nav";
 import { HistorySwitcher } from "@/components/history/HistorySwitcher";
 import { HISTORY_SUBS, historySubLabelKey, type HistorySub } from "@/lib/historySubs";
+import type { MessageKey } from "@/lib/i18n";
+
+/** Mobile-header screen title for non-home, non-Historial routes (the gastify logo
+ *  is home-only; these screens hide their own content title on mobile, lg:block). */
+function pathTitleKey(pathname: string): MessageKey {
+  if (pathname.startsWith("/transactions")) return "nav.purchases";
+  if (pathname.startsWith("/trends")) return "nav.spending";
+  if (pathname.startsWith("/reports")) return "nav.reports";
+  if (pathname.startsWith("/notifications")) return "notifications.title";
+  if (pathname.startsWith("/statements")) return "nav.statements";
+  if (pathname.startsWith("/groups")) return "nav.groups";
+  if (pathname.startsWith("/scan-batch")) return "nav.batchScan";
+  if (pathname.startsWith("/scan")) return "nav.scan";
+  return "dashboard.title";
+}
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -67,11 +82,16 @@ export function AppLayout({ children }: AppLayoutProps) {
   // Mobile header: the gastify logo is HOME-ONLY; other screens show their title.
   // The Historial hub (/items) shows the active-subsection title + the 3-way switcher.
   const search = useRouterState({ select: (s) => s.location.search as Record<string, unknown> });
+  const isHome = pathname === "/";
   const isHistory = pathname.startsWith("/items");
   const historySub: HistorySub = HISTORY_SUBS.includes(search.sub as HistorySub)
     ? (search.sub as HistorySub)
     : "products";
-  const headerTitle = isHistory ? t(historySubLabelKey(historySub)) : undefined;
+  const headerTitle = isHistory
+    ? t(historySubLabelKey(historySub))
+    : isHome
+      ? undefined
+      : t(pathTitleKey(pathname));
   const headerActions = isHistory ? <HistorySwitcher active={historySub} /> : undefined;
 
   const tabs: NavTab[] = [
@@ -176,8 +196,8 @@ export function AppLayout({ children }: AppLayoutProps) {
       <div data-testid="app-content-pane" className="relative flex min-h-screen flex-1 flex-col">
         <AppHeader
           className="sticky top-0 z-20 bg-gt-bg! lg:hidden"
-          variant={isHistory ? "browse" : "home"}
-          brand={isHistory ? undefined : <GroupSwitcher />}
+          variant={isHome ? "home" : "browse"}
+          brand={isHome ? <GroupSwitcher /> : undefined}
           title={headerTitle}
           actions={headerActions}
           avatarInitials={initials}

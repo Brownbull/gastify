@@ -98,7 +98,7 @@ function StatementsPage() {
   return (
     <div className="space-y-gt-16">
       <header className="flex flex-col gap-gt-6 sm:flex-row sm:items-end sm:justify-between">
-        <div>
+        <div className="hidden lg:block">
           <h1 className="font-gt-display text-gt-4xl font-extrabold text-gt-ink">Statements</h1>
           <p className="mt-gt-2 text-gt-sm font-medium text-gt-ink-2">
             Upload credit-card PDFs, reconcile them against receipt transactions,
