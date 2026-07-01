@@ -91,10 +91,13 @@ function ScanningSubview() {
     value: c.code,
     label: c.name,
   }));
-  const cityOptions = ((country && locations.data?.cities[country]) || []).map((c) => ({
-    value: c,
-    label: c,
-  }));
+  // Sort cities alphabetically (Spanish locale-aware, accent-insensitive) — the
+  // API returns them capital-first/region-ordered; slice() to avoid mutating the
+  // React Query cache.
+  const cityOptions = ((country && locations.data?.cities[country]) || [])
+    .slice()
+    .sort((a, b) => a.localeCompare(b, "es", { sensitivity: "base" }))
+    .map((c) => ({ value: c, label: c }));
   const locationsLoading = locations.isLoading || currency === null;
 
   return (
