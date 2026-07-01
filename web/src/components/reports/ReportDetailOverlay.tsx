@@ -1,4 +1,5 @@
-import { Suspense, lazy, useEffect, useMemo, useRef } from "react";
+import { Suspense, lazy, useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { Sparkline } from "@/components/charts/Sparkline";
 import { useInsightsTree, useMonthlyInsights, type InsightDimension } from "@/hooks/useInsights";
 import { useI18n } from "@/hooks/useI18n";
@@ -51,21 +52,38 @@ export function ReportDetailOverlay({ card, onClose, onViewTransactions }: Repor
     onCloseRef.current = onClose;
   });
 
-  // Mount-once: Escape closes, and focus moves into the dialog (WCAG 2.4.3).
+  // Portal target: the non-scrolling content pane, so on desktop the greyed
+  // backdrop dims only the content area (the SideNav sibling stays lit) — same
+  // mechanism as the shared Modal atom. Falls back to <body> pre-mount / outside
+  // the app shell (e.g. unit tests render without AppLayout).
+  const [mount, setMount] = useState<HTMLElement | null>(null);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setMount(document.querySelector<HTMLElement>("[data-testid='app-content-pane']") ?? document.body);
+  }, []);
+
+  // Mount-once: Escape closes the dialog.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") onCloseRef.current();
     };
     window.addEventListener("keydown", onKey);
-    panelRef.current?.focus();
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  return (
+  // Move focus into the dialog once the portal has rendered it (WCAG 2.4.3).
+  // Keyed on `mount` so it fires after the panel is in the DOM, not before.
+  useEffect(() => {
+    if (mount) panelRef.current?.focus();
+  }, [mount]);
+
+  if (!mount) return null;
+
+  return createPortal(
     <div
       data-testid="report-detail-overlay"
       onClick={onClose}
-      className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-gt-ink/45 p-4 sm:p-8"
+      className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-gt-ink/45 p-4 sm:p-8 lg:absolute"
     >
       <div
         ref={panelRef}
@@ -118,7 +136,8 @@ export function ReportDetailOverlay({ card, onClose, onViewTransactions }: Repor
           testId="report-detail-item"
         />
       </div>
-    </div>
+    </div>,
+    mount,
   );
 }
 

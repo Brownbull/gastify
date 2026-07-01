@@ -5931,3 +5931,8 @@ Added icon/color/is_default to card_aliases (model statement.py + migration 044 
 
 ## 2026-06-30 21:17 — [093316b] feat(web): Cards full editor + master/detail
 Rebuilt Cards to the mockup: full editor (alias + 17-icon picker + 8-color picker + default toggle + live preview + archive) wired to /card-aliases icon/color/is_default; master/detail layout fills the content section (SettingsSubviewShell +wide prop); list rows tinted icon + default badge. +paymentMethods.ts. tsc 0, vitest 153, eslint 0; desktop+mobile proof. ReportDetailOverlay→Modal migration next.
+- 2026-06-30 21:26 | Edit | /home/khujta/projects/apps/gastify/tests/web-e2e/settings-fidelity-all.spec.ts
+- 2026-06-30 21:27 | Edit | /home/khujta/projects/apps/gastify/tests/web-e2e/settings-fidelity-all.spec.ts
+
+## 2026-06-30 21:29 — [5e21c73] feat(web): reports lightbox content-pane-aware backdrop
+ReportDetailOverlay now portals into app-content-pane + fixed inset-0 lg:absolute (same mechanism as the Modal atom) so on desktop the grey scrim dims only the content pane (SideNav stays lit); mobile still full-viewport. Preserved all testids/role/aria + re-keyed focus-on-open to the portal mount (WCAG). Last ad-hoc dialog folded for backdrop consistency. tsc 0, unit 6/6, eslint 0; desktop+mobile Playwright proof (user B).
