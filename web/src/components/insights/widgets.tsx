@@ -5,6 +5,7 @@
  * through i18n; locked surface (testids, aria) preserved per the W10 contract.
  */
 import type { ReactNode } from "react";
+import { ChevronLeftIcon } from "@/components/shell/icons";
 import { useI18n } from "@/hooks/useI18n";
 import { formatMinorAmount } from "@/lib/format";
 import { parsePercent } from "@/lib/chartData";
@@ -239,7 +240,7 @@ export function PeriodStepper({
 }) {
   const { t } = useI18n();
   const stepBtn =
-    "grid h-9 w-9 place-items-center rounded-gt-lg border-2 border-gt-line-strong bg-gt-surface text-gt-sm font-extrabold text-gt-ink shadow-gt-xs transition hover:bg-gt-bg-3 disabled:opacity-40";
+    "grid h-9 w-9 shrink-0 place-items-center rounded-gt-lg border-2 border-gt-line-strong bg-gt-surface text-gt-ink shadow-gt-xs transition duration-150 ease-gt-bounce hover:-translate-y-0.5 hover:bg-gt-bg-3 disabled:pointer-events-none disabled:opacity-40";
   return (
     <div className="flex items-center gap-gt-4">
       <button
@@ -248,7 +249,7 @@ export function PeriodStepper({
         onClick={() => onChange(shiftPeriod(period, -1))}
         className={stepBtn}
       >
-        ‹
+        <ChevronLeftIcon className="h-6 w-6" />
       </button>
       <input
         type="month"
@@ -257,7 +258,7 @@ export function PeriodStepper({
         onChange={(e) => {
           if (e.target.value) onChange(e.target.value);
         }}
-        className="rounded-gt-lg border-2 border-gt-line bg-gt-surface px-gt-8 py-gt-6 text-gt-sm font-bold text-gt-ink focus-visible:outline-none focus-visible:border-gt-line-strong"
+        className="w-36 rounded-gt-lg border-2 border-gt-line bg-gt-surface px-gt-6 py-gt-6 text-gt-xs font-bold text-gt-ink focus-visible:outline-none focus-visible:border-gt-line-strong"
       />
       <button
         type="button"
@@ -266,7 +267,7 @@ export function PeriodStepper({
         onClick={() => onChange(shiftPeriod(period, 1))}
         className={stepBtn}
       >
-        ›
+        <ChevronLeftIcon className="h-6 w-6 rotate-180" />
       </button>
     </div>
   );

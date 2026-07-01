@@ -170,7 +170,7 @@ export function AppLayout({ children }: AppLayoutProps) {
           onProfile={toggleMenu}
         />
 
-        <main className="flex-1 px-4 py-5 pb-28 sm:px-6 lg:p-8">{isOverlay ? null : children}</main>
+        <main className="flex-1 px-4 pt-2 pb-28 sm:px-6 lg:p-8">{isOverlay ? null : children}</main>
 
         {/* Full-surface overlay slot (DF1, D100): mobile = fixed over the whole
             frame (covers header z-20 + bottomnav z-30 + fab z-40); desktop =

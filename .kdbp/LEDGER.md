@@ -5980,3 +5980,11 @@ Removed the standalone GroupSwitcher bar; the wordmark/logo IS the scope switche
 
 ## 2026-07-01 12:46 — [cf1f206] feat(web): mobile header cleanup
 Removed the header separator (border + white band → seamless bg-gt-bg), the notification bell (→ profile menu, unread as a badge on the item), and the language selector (→ Settings). Renamed the notifications menu item Avisos/Alerts → notifications.title (Notificaciones/Notifications). Dropped unused LocaleSelect+NotificationBell from AppLayout. tsc 0, vitest 154, eslint 0, guard 151; :5174 proof.
+- 2026-07-01 12:52 | Edit | /home/khujta/projects/apps/gastify/web/src/components/insights/widgets.tsx
+- 2026-07-01 12:52 | Edit | /home/khujta/projects/apps/gastify/web/src/components/insights/widgets.tsx
+- 2026-07-01 12:53 | Edit | /home/khujta/projects/apps/gastify/web/src/components/shell/Nav.tsx
+- 2026-07-01 12:53 | Edit | /home/khujta/projects/apps/gastify/web/src/components/AppLayout.tsx
+- 2026-07-01 12:55 | Edit | /home/khujta/projects/apps/gastify/web/src/components/insights/widgets.tsx
+
+## 2026-07-01 12:57 — [531ea43] fix(web): tighter mobile header gap + clearer/shorter period stepper
+Trimmed mobile header→content spacing (AppHeader pb-gt-10→pb-gt-2, main py-5→pt-2; desktop unchanged). PeriodStepper: ‹ › glyphs → crisp ChevronLeft icons (h-6, rotated for next) + narrower month input (w-36 text-gt-xs, fits longest localized month). Shared → also /trends+/reports. tsc 0, vitest 154, eslint 0, guard 151; :5174 mobile proof.

@@ -241,7 +241,7 @@ export function AppHeader({
   const showBack = (variant === "detail" || variant === "settings") && onBack != null;
   return (
     <header className={`flex flex-col bg-gt-surface ${className}`}>
-      <div className="flex items-center gap-gt-8 px-gt-16 pb-gt-10 pt-gt-16">
+      <div className="flex items-center gap-gt-8 px-gt-16 pb-gt-2 pt-gt-16">
         {showBack ? (
           <button
             type="button"
