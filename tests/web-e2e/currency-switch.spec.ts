@@ -28,7 +28,10 @@ async function currencyTrigger(page: Page): Promise<Locator> {
 async function pickCurrency(page: Page, trigger: Locator, code: string): Promise<void> {
   await trigger.click(); // open the listbox
   await page.getByTestId(`settings-currency-select-option-${code}`).click();
-  await expect(trigger).toBeEnabled({ timeout: 10_000 }); // save round-trip done
+  // Changes are now STAGED — apply to persist (settings batch their writes).
+  const apply = page.getByTestId("settings-apply");
+  await apply.click();
+  await expect(apply).toHaveCount(0, { timeout: 10_000 }); // bar disappears once saved
 }
 
 test("currency switch persists across reload, both directions", async ({ page }) => {

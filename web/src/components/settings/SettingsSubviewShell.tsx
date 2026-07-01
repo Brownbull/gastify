@@ -9,11 +9,20 @@ import { useI18n } from "@/hooks/useI18n";
  * back arrow + title row (back returns to the settings hub) over a 42rem column.
  * Ports the design-lab SettingsSubviewShell so all subviews read identically.
  */
-export function SettingsSubviewShell({ title, children }: { title: string; children: ReactNode }) {
+export function SettingsSubviewShell({
+  title,
+  children,
+  wide = false,
+}: {
+  title: string;
+  children: ReactNode;
+  /** widen the column for master/detail subviews (e.g. Cards) — fills the pane on desktop. */
+  wide?: boolean;
+}) {
   const navigate = useNavigate();
   const { t } = useI18n();
   return (
-    <div className="mx-auto w-full max-w-2xl">
+    <div className={`mx-auto w-full ${wide ? "max-w-5xl" : "max-w-2xl"}`}>
       <div className="flex items-center gap-gt-8 pb-gt-16">
         <button
           type="button"

@@ -1,9 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useI18n } from "@/hooks/useI18n";
-import { type SupportedLocale } from "@/lib/i18n";
+import { type MessageKey, type SupportedLocale } from "@/lib/i18n";
 import { apiClient } from "@/lib/api";
+import { useProfile, profileKeys } from "@/hooks/useProfile";
+import { useDraft } from "@/hooks/useDraft";
 import { SettingsSubviewShell, SettingsField, SettingsGroupHeading } from "@/components/settings/SettingsSubviewShell";
+import { SettingsApplyBar } from "@/components/settings/SettingsApplyBar";
 import { SegmentedToggle } from "@/components/ui/SegmentedToggle";
 import { Select } from "@/components/ui/Select";
 import { useUiStore } from "@/stores/uiStore";
@@ -24,12 +28,12 @@ function sampleFormatted(format: string): string {
 const noop = () => {};
 
 /**
- * Preferencias de la app — General (idioma + formato de fecha, both WIRED) +
- * Apariencia. Tipografía (font family Outfit/Space Grotesk) and Tamaño de fuente
- * (Normal/Pequeño) are WIRED + persisted via uiStore → lib/appearance (applied as
- * <html> data-attributes; see global.css). Modo/Paleta/Color de fuente remain
- * coming-soon (cut by D-B) — shown, disabled, badged per D101 (CS-1..3 in
- * docs/mockups/COMING-SOON-REGISTRY.md).
+ * Preferencias de la app — General (idioma + formato de fecha) + Apariencia
+ * (tipografía + tamaño). All active controls are STAGED into a local draft and
+ * only committed on "Aplicar cambios": date format persists via
+ * /privacy/rectification, and idioma / tipografía / tamaño write to uiStore →
+ * lib/appearance. Nothing changes (or previews) until Apply — "Descartar" reverts.
+ * Modo / Paleta / Color de fuente remain coming-soon (cut by D-B; CS-1..3).
  */
 function PreferencesSubview() {
   const { t, locale, setLocale } = useI18n();
@@ -37,31 +41,47 @@ function PreferencesSubview() {
   const fontSize = useUiStore((s) => s.fontSize);
   const setFontFamily = useUiStore((s) => s.setFontFamily);
   const setFontSize = useUiStore((s) => s.setFontSize);
-  const [dateFormat, setDateFormat] = useState<string | null>(null);
+  const profile = useProfile();
+  const queryClient = useQueryClient();
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<MessageKey | null>(null);
 
-  useEffect(() => {
-    let cancelled = false;
-    apiClient.GET("/api/v1/privacy/profile").then(({ data }) => {
-      if (!cancelled && data) setDateFormat(data.date_format);
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  const saved = {
+    locale: locale as string,
+    dateFormat: profile.data?.date_format ?? DATE_LATAM,
+    fontFamily: fontFamily as string,
+    fontSize: fontSize as string,
+  };
+  const { value, dirty, draft, set, reset } = useDraft(saved);
 
-  const onDateChange = async (value: string) => {
-    setSaving(true);
-    const previous = dateFormat;
-    setDateFormat(value);
-    const { error } = await apiClient.POST("/api/v1/privacy/rectification", {
-      body: { date_format: value as "dd/MM/yyyy" | "MM/dd/yyyy" },
-    });
-    setSaving(false);
-    if (error) setDateFormat(previous);
+  const discard = () => {
+    reset();
+    setError(null);
   };
 
-  const activeDate = dateFormat ?? DATE_LATAM;
+  const apply = async () => {
+    setSaving(true);
+    setError(null);
+    let ok = true;
+    if (draft.dateFormat !== undefined && draft.dateFormat !== saved.dateFormat) {
+      const { error: apiError } = await apiClient.POST("/api/v1/privacy/rectification", {
+        body: { date_format: draft.dateFormat as "dd/MM/yyyy" | "MM/dd/yyyy" },
+      });
+      if (apiError) ok = false;
+    }
+    if (ok) {
+      if (draft.locale !== undefined && draft.locale !== saved.locale) setLocale(draft.locale as SupportedLocale);
+      if (draft.fontFamily !== undefined && draft.fontFamily !== saved.fontFamily) setFontFamily(draft.fontFamily as FontFamilyPref);
+      if (draft.fontSize !== undefined && draft.fontSize !== saved.fontSize) setFontSize(draft.fontSize as FontSizePref);
+      await queryClient.invalidateQueries({ queryKey: profileKeys.all });
+      reset();
+    } else {
+      setError("settings.applyError");
+    }
+    setSaving(false);
+  };
+
+  const activeDate = value.dateFormat;
 
   return (
     <SettingsSubviewShell title={t("settings.row.preferences")}>
@@ -77,8 +97,8 @@ function PreferencesSubview() {
             { id: "en", label: "English" },
             { id: "pt", label: "Português" },
           ]}
-          value={locale}
-          onChange={(id) => setLocale(id as SupportedLocale)}
+          value={value.locale}
+          onChange={(id) => set({ locale: id })}
         />
       </SettingsField>
 
@@ -88,13 +108,13 @@ function PreferencesSubview() {
             fill
             flush
             label={t("settings.prefs.dateFormat")}
-            disabled={dateFormat === null || saving}
+            disabled={profile.isLoading || saving}
             segments={[
               { id: DATE_LATAM, label: t("settings.prefs.dateLatam") },
               { id: DATE_US, label: t("settings.prefs.dateUs") },
             ]}
             value={activeDate}
-            onChange={(id) => void onDateChange(id)}
+            onChange={(id) => set({ dateFormat: id })}
           />
           <span className="px-gt-2 text-gt-sm font-medium text-gt-ink-3">
             {t("settings.prefs.dateSample")} →{" "}
@@ -150,8 +170,8 @@ function PreferencesSubview() {
 
       <SettingsField label={t("settings.prefs.typeface")}>
         <Select
-          value={fontFamily}
-          onChange={(v) => setFontFamily(v as FontFamilyPref)}
+          value={value.fontFamily}
+          onChange={(v) => set({ fontFamily: v })}
           options={[
             { value: "outfit", label: "Outfit" },
             { value: "space", label: "Space Grotesk" },
@@ -168,10 +188,19 @@ function PreferencesSubview() {
             { id: "normal", label: t("settings.prefs.sizeNormal") },
             { id: "large", label: t("settings.prefs.sizeLarge") },
           ]}
-          value={fontSize}
-          onChange={(id) => setFontSize(id as FontSizePref)}
+          value={value.fontSize}
+          onChange={(id) => set({ fontSize: id })}
         />
       </SettingsField>
+
+      <SettingsApplyBar
+        dirty={dirty}
+        saving={saving}
+        error={error ? t(error) : null}
+        onApply={() => void apply()}
+        onDiscard={discard}
+        labels={{ apply: t("settings.apply"), applying: t("settings.applying"), discard: t("settings.discard") }}
+      />
     </SettingsSubviewShell>
   );
 }

@@ -5877,3 +5877,74 @@ P108 AUDIT: ran production-v3 on 11 existing unbaselined receipts (CL/GB/FR); pa
 REFINEMENT: coalesce SINGLE_COUNTRY_CURRENCIES fallback (GBP->GB ... NZD->NZ) when model country is null; USD/EUR stay null; explicit country wins. 4 tests.
 CORPUS: baselined sodimac/restaurant_2001_detalle/Adidas/Science Museum (all score pass).
 FOLLOW-UPS: +P109 (discount/promo + reconciliation, subsumes P107), +P110 (date hallucination + city inference), +P111 (baseline 7 remaining audited receipts).
+- 2026-06-30 16:46 | Write | /home/khujta/projects/apps/gastify/web/src/routes/settings.memory.tsx
+- 2026-06-30 16:46 | Edit | /home/khujta/projects/apps/gastify/web/src/lib/i18n.ts
+- 2026-06-30 16:46 | Edit | /home/khujta/projects/apps/gastify/web/src/lib/i18n.ts
+- 2026-06-30 16:46 | Edit | /home/khujta/projects/apps/gastify/web/src/lib/i18n.ts
+- 2026-06-30 16:47 | Edit | /home/khujta/projects/apps/gastify/tests/web-e2e/learned-mappings.spec.ts
+- 2026-06-30 17:27 | Edit | /home/khujta/projects/apps/gastify/.gitignore
+- 2026-06-30 17:29 | Edit | /home/khujta/projects/apps/gastify/web/src/routes/settings.help.tsx
+- 2026-06-30 17:29 | Edit | /home/khujta/projects/apps/gastify/web/src/routes/settings.memory.tsx
+- 2026-06-30 17:29 | Edit | /home/khujta/projects/apps/gastify/docs/mockups/COMING-SOON-REGISTRY.md
+
+## 2026-06-30 17:32 — [2b85285] feat(web): settings subview fidelity — Profile/Help/Memory/Data + atoms
+CHECKS: ✅ lint(0) ✅ types(0) ✅ tests(145/145 web vitest) — mvp
+FINDINGS: 2 low, 0 critical (accepted: Layer-4 mockup-INDEX not bumped — registry CS rows don't change INDEX inventory; i18n.ts >800 — pre-existing translation dict, CHECK-5 below activation)
+ACTIONS: accept(both low)
+SCOPE: DF settings fidelity — rebuilt Profile (name-edit wired)/Help (stub→full)/Memory (mappings+category resolution)/Data (consent+privacy) to design-lab reference; vendored Switch/Modal/Pagination atoms; +useMappings/useConsent/useDataAccess/useItemCategories hooks; registered CS-10..CS-14. Net-new Subscription/Cards/Limits + adversarial review + Playwright proof still pending before push.
+
+## 2026-06-30 19:19 — [401e492] feat(web): settings — Subscription/Cards/Limits + navigable hub
+CHECKS: ✅ lint(0) ✅ types(0) ✅ tests(145/145 web vitest) — mvp
+FINDINGS: 1 low (Layer-4 mockup-INDEX; accepted — CS registry rows + screen builds don't change INDEX inventory)
+SCOPE: 3 net-new settings subviews — Subscription (quota-wired) / Cards (/card-aliases CRUD) / Limits (CS-19 preview); hub rows navigable; +SettingsUsageBar +useCardAliases; CS-15..CS-19 registered. Completes all 7 settings subviews. Adversarial review + Playwright proof next, then push.
+
+## 2026-06-30 19:40 — [3aa7dde] fix(web): settings review remediation (2 crit + 2 high + more)
+ADVERSARIAL REVIEW (wf, 15 agents): 8 confirmed findings, ALL FIXED.
+CRIT: Data /consent envelope unwrap + grant ConsentGrant body (apiClient loose-typed → tsc missed; runtime crash/422). HIGH: Memory broken icons (PascalCase key vs kebab/Spanish icon → SET-guarded lib/categoryIcon + test); Cards save/archive error handling. MED/LOW: Data try/catch + check-before-signOut; Profile blank-name guard.
+CHECKS: tsc 0, vitest 148/148 (+3 categoryIcon tests), eslint 0.
+- 2026-06-30 19:42 | Write | /home/khujta/projects/apps/gastify/tests/web-e2e/settings-fidelity-all.spec.ts
+- 2026-06-30 20:12 | Write | /home/khujta/projects/apps/gastify/web/src/components/ui/Select.tsx
+
+## 2026-06-30 20:17 — [40b117e] feat(web): Select type-ahead + keyboard nav
+Shared Select atom: type-ahead (accent-insensitive, repeat-cycle) + ↑↓/Home/End/Enter/Esc + aria-activedescendant + scroll-into-view; highlight set in handlers (no set-state-in-effect). Benefits Ciudad/País/currency/preferences. +Select.test.tsx (5). tsc 0, vitest 153/153, eslint 0.
+- 2026-06-30 20:26 | Write | /home/khujta/projects/apps/gastify/web/src/hooks/useDraft.ts
+- 2026-06-30 20:26 | Write | /home/khujta/projects/apps/gastify/web/src/components/settings/SettingsApplyBar.tsx
+- 2026-06-30 20:26 | Write | /home/khujta/projects/apps/gastify/web/src/routes/settings.scanning.tsx
+- 2026-06-30 20:27 | Write | /home/khujta/projects/apps/gastify/web/src/routes/settings.preferences.tsx
+
+## 2026-06-30 20:32 — [62a9fb0] feat(web): settings stage-and-apply (Scanning + Preferences)
+User: stop abusing /rectification per-change → draft + Apply/Discard footer per section (ALL controls in Scanning + Preferences). +useDraft hook (derive-during-render), +SettingsApplyBar. Scanning batches currency/country/city into one rectification call. currency-switch e2e updated + green. tsc 0, vitest 153/153, eslint 0.
+
+## 2026-06-30 20:45 — [7f47c56] fix(web): Modal backdrop covers content-pane/viewport
+Modal portals into [data-testid=app-content-pane] (non-scrolling flex-1 pane wrapper) + fixed inset-0 lg:absolute → dims full content pane on desktop (SideNav excluded, collapse-aware) / full viewport on mobile, not just the subview content box. Fixes all Modal dialogs app-wide. tsc 0, vitest 153/153, eslint 0; desktop proof verified.
+- 2026-06-30 20:50 | Edit | /home/khujta/projects/apps/gastify/web/src/components/ui/Modal.tsx
+
+## 2026-06-30 20:51 — [cc78bf7] fix(web): Modal center panel on mobile
+Modal root items-end sm:items-center → items-center (all breakpoints). The full-viewport backdrop had left the mobile panel pinned to the bottom edge; now vertically centered. tsc 0, eslint 0; mobile + desktop proof verified.
+
+## 2026-06-30 21:09 — [f4ba289] feat(backend): card_aliases icon/color/is_default
+Added icon/color/is_default to card_aliases (model statement.py + migration 044 off 043 + schema + API with atomic single-default-per-scope unset). +test_card_alias_visuals_and_single_default; updated strict-field test. Web openapi regenerated. ruff clean, pytest 980 passed, tsc 0. Frontend full editor + ReportDetailOverlay migration next.
+- 2026-06-30 21:10 | Write | /home/khujta/projects/apps/gastify/web/src/lib/paymentMethods.ts
+- 2026-06-30 21:12 | Write | /home/khujta/projects/apps/gastify/web/src/routes/settings.cards.tsx
+- 2026-06-30 21:15 | Edit | /home/khujta/projects/apps/gastify/web/src/components/settings/SettingsSubviewShell.tsx
+- 2026-06-30 21:16 | Edit | /home/khujta/projects/apps/gastify/web/src/routes/settings.cards.tsx
+
+## 2026-06-30 21:17 — [093316b] feat(web): Cards full editor + master/detail
+Rebuilt Cards to the mockup: full editor (alias + 17-icon picker + 8-color picker + default toggle + live preview + archive) wired to /card-aliases icon/color/is_default; master/detail layout fills the content section (SettingsSubviewShell +wide prop); list rows tinted icon + default badge. +paymentMethods.ts. tsc 0, vitest 153, eslint 0; desktop+mobile proof. ReportDetailOverlay→Modal migration next.
+- 2026-06-30 21:26 | Edit | /home/khujta/projects/apps/gastify/tests/web-e2e/settings-fidelity-all.spec.ts
+- 2026-06-30 21:27 | Edit | /home/khujta/projects/apps/gastify/tests/web-e2e/settings-fidelity-all.spec.ts
+
+## 2026-06-30 21:29 — [5e21c73] feat(web): reports lightbox content-pane-aware backdrop
+ReportDetailOverlay now portals into app-content-pane + fixed inset-0 lg:absolute (same mechanism as the Modal atom) so on desktop the grey scrim dims only the content pane (SideNav stays lit); mobile still full-viewport. Preserved all testids/role/aria + re-keyed focus-on-open to the portal mount (WCAG). Last ad-hoc dialog folded for backdrop consistency. tsc 0, unit 6/6, eslint 0; desktop+mobile Playwright proof (user B).
+
+## 2026-06-30 21:30 — [01723e6] chore(web): sync routeTree.gen.ts (cards/subscription/limits)
+Tracked TanStack Router registry was missing the 3 newer settings subview routes (files existed; tree not regenerated at their commit). Regenerated + committed so tracked tree matches routes. Generated-only, tsc 0.
+- 2026-06-30 21:31 | Edit | /home/khujta/projects/apps/gastify/docs/mockups/COMING-SOON-REGISTRY.md
+- 2026-06-30 21:31 | Edit | /home/khujta/projects/apps/gastify/docs/mockups/COMING-SOON-REGISTRY.md
+- 2026-06-30 22:07 | Write | /tmp/claude-1000/-home-khujta-projects-apps-gastify/54614bed-7177-4b86-813f-86de68955392/scratchpad/pr-body-settings-fidelity.md
+
+## 2026-06-30 22:19 — [a54cbd9] fix(web): pre-ship gate — build repair + Modal a11y
+Pre-ship gate (wfj3s3y39) caught a production build break + 2 Modal a11y defects. Fixed: statements.tsx passes is_default:false (openapi-typescript makes default-bearing fields required); Modal gains aria-labelledby→title (+aria-label fallback) and focus-on-open/restore (WCAG 4.1.2+2.4.3), +Modal.test.tsx (3). Learned: web root tsc --noEmit is a no-op (project refs) — use npm run build. LOW single-default race deferred to PENDING. build ✓, vitest 156, eslint 0, backend 980.
+
+## 2026-06-30 22:33 — [88226d3] fix(mobile): regenerate API types + is_default (CI drift)
+Backend card_aliases change altered OpenAPI; mobile types were stale → Mobile API Drift + Mobile Typecheck would fail on PR #16. Regenerated mobile openapi-spec.json + api-types.d.ts; StatementsScreen passes is_default:false. mobile typecheck 0, jest 255/255, no drift.

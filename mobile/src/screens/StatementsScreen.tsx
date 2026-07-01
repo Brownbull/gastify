@@ -137,7 +137,9 @@ export function StatementsScreen() {
   async function submitAlias() {
     const trimmed = newAliasName.trim();
     if (!trimmed) return;
-    const alias = await createAlias.mutateAsync({ name: trimmed });
+    // A statement-reconciliation quick alias is never the default payment method;
+    // is_default is non-optional in the generated create type, so pass it explicitly.
+    const alias = await createAlias.mutateAsync({ name: trimmed, is_default: false });
     setSelectedAliasId(alias.id);
     setNewAliasName("");
   }

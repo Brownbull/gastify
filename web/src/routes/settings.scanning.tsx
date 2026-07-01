@@ -1,9 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useI18n } from "@/hooks/useI18n";
+import { type MessageKey } from "@/lib/i18n";
 import { apiClient } from "@/lib/api";
 import { useLocations } from "@/hooks/useLocations";
+import { useProfile, profileKeys } from "@/hooks/useProfile";
+import { useDraft } from "@/hooks/useDraft";
 import { SettingsSubviewShell, SettingsField } from "@/components/settings/SettingsSubviewShell";
+import { SettingsApplyBar } from "@/components/settings/SettingsApplyBar";
 import { Select } from "@/components/ui/Select";
 import { SegmentedToggle } from "@/components/ui/SegmentedToggle";
 import { useUiStore } from "@/stores/uiStore";
@@ -14,97 +19,80 @@ export const Route = createFileRoute("/settings/scanning")({
 });
 
 /**
- * Escaneo subview — the defaults used when scanning a receipt. Moneda de escaneo,
- * País + Ciudad predeterminados are all WIRED: default_currency / default_country /
- * default_city via /privacy/rectification (persisted), with the country/city
- * options served by /reference/locations. The default location is the scan-location
- * reconciliation fallback when a receipt has no determinable location (D103).
- * Indicador de país extranjero is WIRED: a persisted display pref
- * (uiStore.foreignLocationFormat) the transaction views read to show a FOREIGN
- * country (country != the user's default_country) as its ISO code or flag emoji.
+ * Escaneo subview — the defaults used when scanning a receipt. All four controls
+ * are STAGED: Moneda / País / Ciudad (persisted via /privacy/rectification) and the
+ * foreign-country indicator (uiStore.foreignLocationFormat) update a local draft
+ * and only write on "Aplicar cambios" — batched into a single rectification call —
+ * so changing a dropdown no longer fires a request per keystroke. "Descartar"
+ * reverts. The default location is the scan-location reconciliation fallback (D103).
  */
 function ScanningSubview() {
   const { t } = useI18n();
+  const queryClient = useQueryClient();
   const locations = useLocations();
-  const foreignLocationFormat = useUiStore((s) => s.foreignLocationFormat);
-  const setForeignLocationFormat = useUiStore((s) => s.setForeignLocationFormat);
-  const [currency, setCurrency] = useState<string | null>(null);
-  const [country, setCountry] = useState<string>("");
-  const [city, setCity] = useState<string>("");
-  const [savingCurrency, setSavingCurrency] = useState(false);
-  const [savingLocation, setSavingLocation] = useState(false);
+  const profile = useProfile();
+  const foreign = useUiStore((s) => s.foreignLocationFormat);
+  const setForeign = useUiStore((s) => s.setForeignLocationFormat);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<MessageKey | null>(null);
 
-  useEffect(() => {
-    let cancelled = false;
-    apiClient.GET("/api/v1/privacy/profile").then(({ data }) => {
-      if (!cancelled && data) {
-        setCurrency(data.default_currency);
-        setCountry(data.default_country ?? "");
-        setCity(data.default_city ?? "");
-      }
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  const onCurrencyChange = async (code: string) => {
-    setSavingCurrency(true);
-    const previous = currency;
-    setCurrency(code);
-    const { error } = await apiClient.POST("/api/v1/privacy/rectification", {
-      body: { default_currency: code },
-    });
-    setSavingCurrency(false);
-    if (error) setCurrency(previous);
+  const saved = {
+    currency: profile.data?.default_currency ?? "CLP",
+    country: profile.data?.default_country ?? "",
+    city: profile.data?.default_city ?? "",
+    foreign: foreign as string,
   };
+  const { value, dirty, draft, set, reset } = useDraft(saved);
+
+  const loading = profile.isLoading || locations.isLoading;
+
+  const countryOptions = (locations.data?.countries ?? []).map((c) => ({ value: c.code, label: c.name }));
+  const cityOptions = ((value.country && locations.data?.cities[value.country]) || [])
+    .slice()
+    .sort((a, b) => a.localeCompare(b, "es", { sensitivity: "base" }))
+    .map((c) => ({ value: c, label: c }));
 
   // Picking a country resets the city — the old city belongs to another country.
-  const onCountryChange = async (code: string) => {
-    setSavingLocation(true);
-    const prevCountry = country;
-    const prevCity = city;
-    setCountry(code);
-    setCity("");
-    const { error } = await apiClient.POST("/api/v1/privacy/rectification", {
-      body: { default_country: code, default_city: null },
-    });
-    setSavingLocation(false);
-    if (error) {
-      setCountry(prevCountry);
-      setCity(prevCity);
+  const onCountry = (code: string) => set({ country: code, city: "" });
+
+  const discard = () => {
+    reset();
+    setError(null);
+  };
+
+  const apply = async () => {
+    setSaving(true);
+    setError(null);
+    const body: Record<string, string | null> = {};
+    if (draft.currency !== undefined && draft.currency !== saved.currency) body.default_currency = draft.currency;
+    if (draft.country !== undefined && draft.country !== saved.country) body.default_country = draft.country;
+    if (draft.city !== undefined && draft.city !== saved.city) body.default_city = draft.city || null;
+
+    let ok = true;
+    if (Object.keys(body).length > 0) {
+      const { error: apiError } = await apiClient.POST("/api/v1/privacy/rectification", { body });
+      if (apiError) ok = false;
     }
+    if (ok) {
+      if (draft.foreign !== undefined && draft.foreign !== saved.foreign) {
+        setForeign(draft.foreign as ForeignLocationFormat);
+      }
+      await queryClient.invalidateQueries({ queryKey: profileKeys.all });
+      reset();
+    } else {
+      setError("settings.applyError");
+    }
+    setSaving(false);
   };
-
-  const onCityChange = async (value: string) => {
-    setSavingLocation(true);
-    const previous = city;
-    setCity(value);
-    const { error } = await apiClient.POST("/api/v1/privacy/rectification", {
-      body: { default_city: value },
-    });
-    setSavingLocation(false);
-    if (error) setCity(previous);
-  };
-
-  const countryOptions = (locations.data?.countries ?? []).map((c) => ({
-    value: c.code,
-    label: c.name,
-  }));
-  const cityOptions = ((country && locations.data?.cities[country]) || []).map((c) => ({
-    value: c,
-    label: c,
-  }));
-  const locationsLoading = locations.isLoading || currency === null;
 
   return (
     <SettingsSubviewShell title={t("settings.row.scanning")}>
       <SettingsField label={t("settings.scanning.currency")} hint={t("settings.scanning.currencyHint")}>
         <Select
           testId="settings-currency-select"
-          disabled={currency === null || savingCurrency}
-          value={currency ?? "CLP"}
-          onChange={(v) => void onCurrencyChange(v)}
+          disabled={loading || saving}
+          value={value.currency}
+          onChange={(v) => set({ currency: v })}
           options={[
             { value: "CLP", label: t("settings.scanning.currencyCLP") },
             { value: "USD", label: t("settings.scanning.currencyUSD") },
@@ -116,9 +104,9 @@ function ScanningSubview() {
       <SettingsField label={t("settings.scanning.country")} hint={t("settings.scanning.locationHint")}>
         <Select
           testId="settings-country-select"
-          disabled={locationsLoading || savingLocation}
-          value={country}
-          onChange={(v) => void onCountryChange(v)}
+          disabled={loading || saving}
+          value={value.country}
+          onChange={onCountry}
           options={countryOptions}
         />
       </SettingsField>
@@ -126,9 +114,9 @@ function ScanningSubview() {
       <SettingsField label={t("settings.scanning.city")}>
         <Select
           testId="settings-city-select"
-          disabled={!country || locationsLoading || savingLocation}
-          value={city}
-          onChange={(v) => void onCityChange(v)}
+          disabled={!value.country || loading || saving}
+          value={value.city}
+          onChange={(v) => set({ city: v })}
           options={cityOptions}
         />
       </SettingsField>
@@ -141,10 +129,19 @@ function ScanningSubview() {
             { id: "code", label: t("settings.scanning.foreignCode") },
             { id: "flag", label: t("settings.scanning.foreignFlag") },
           ]}
-          value={foreignLocationFormat}
-          onChange={(id) => setForeignLocationFormat(id as ForeignLocationFormat)}
+          value={value.foreign}
+          onChange={(id) => set({ foreign: id })}
         />
       </SettingsField>
+
+      <SettingsApplyBar
+        dirty={dirty}
+        saving={saving}
+        error={error ? t(error) : null}
+        onApply={() => void apply()}
+        onDiscard={discard}
+        labels={{ apply: t("settings.apply"), applying: t("settings.applying"), discard: t("settings.discard") }}
+      />
     </SettingsSubviewShell>
   );
 }

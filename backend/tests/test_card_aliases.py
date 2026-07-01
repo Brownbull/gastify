@@ -24,8 +24,11 @@ async def test_create_card_alias_is_alias_only(client, engine):
 
     assert resp.status_code == 201
     data = resp.json()
-    assert set(data) == {"id", "name", "created_at", "archived_at"}
+    assert set(data) == {"id", "name", "icon", "color", "is_default", "created_at", "archived_at"}
     assert data["name"] == "CMR Mastercard"
+    assert data["icon"] is None
+    assert data["color"] is None
+    assert data["is_default"] is False
     assert data["archived_at"] is None
 
     rows = await _alias_rows(engine)
@@ -73,6 +76,42 @@ async def test_card_alias_crud_archive_and_reuse_name(client):
 
     reused = await client.post("/api/v1/card-aliases", json={"name": "Visa Nova"})
     assert reused.status_code == 201
+
+
+async def test_card_alias_visuals_and_single_default(client):
+    # create with icon/color + default
+    a = await client.post(
+        "/api/v1/card-aliases",
+        json={"name": "Falabella", "icon": "card-green", "color": "#16a34a", "is_default": True},
+    )
+    assert a.status_code == 201
+    ad = a.json()
+    assert ad["icon"] == "card-green"
+    assert ad["color"] == "#16a34a"
+    assert ad["is_default"] is True
+    a_id = ad["id"]
+
+    # a second default unsets the first (exactly one default per scope)
+    b = await client.post("/api/v1/card-aliases", json={"name": "BCI", "is_default": True})
+    assert b.status_code == 201
+    assert b.json()["is_default"] is True
+    b_id = b.json()["id"]
+
+    by_id = {c["id"]: c for c in (await client.get("/api/v1/card-aliases")).json()}
+    assert by_id[a_id]["is_default"] is False
+    assert by_id[b_id]["is_default"] is True
+
+    # patching the first back to default unsets the second, and updates icon
+    patched = await client.patch(
+        f"/api/v1/card-aliases/{a_id}", json={"is_default": True, "icon": "card-blue"}
+    )
+    assert patched.status_code == 200
+    assert patched.json()["is_default"] is True
+    assert patched.json()["icon"] == "card-blue"
+
+    by_id2 = {c["id"]: c for c in (await client.get("/api/v1/card-aliases")).json()}
+    assert by_id2[a_id]["is_default"] is True
+    assert by_id2[b_id]["is_default"] is False
 
 
 async def test_card_aliases_are_scoped(client, engine):

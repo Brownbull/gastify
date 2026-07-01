@@ -159,5 +159,9 @@ docs/rebuild/FIRESTORE-EXPORT.json
 # Web e2e proof screenshots (regenerable via capture-proof.spec.ts)
 tests/web-e2e/proof/
 tests/web-e2e/test-results/
+tests/web-e2e/tests/
 playwright-report/
 design-lab/storybook-static/
+
+# pytest temp working dir
+backend/.pytest-tmp/
