@@ -5945,3 +5945,6 @@ Tracked TanStack Router registry was missing the 3 newer settings subview routes
 
 ## 2026-06-30 22:19 — [a54cbd9] fix(web): pre-ship gate — build repair + Modal a11y
 Pre-ship gate (wfj3s3y39) caught a production build break + 2 Modal a11y defects. Fixed: statements.tsx passes is_default:false (openapi-typescript makes default-bearing fields required); Modal gains aria-labelledby→title (+aria-label fallback) and focus-on-open/restore (WCAG 4.1.2+2.4.3), +Modal.test.tsx (3). Learned: web root tsc --noEmit is a no-op (project refs) — use npm run build. LOW single-default race deferred to PENDING. build ✓, vitest 156, eslint 0, backend 980.
+
+## 2026-06-30 22:33 — [88226d3] fix(mobile): regenerate API types + is_default (CI drift)
+Backend card_aliases change altered OpenAPI; mobile types were stale → Mobile API Drift + Mobile Typecheck would fail on PR #16. Regenerated mobile openapi-spec.json + api-types.d.ts; StatementsScreen passes is_default:false. mobile typecheck 0, jest 255/255, no drift.

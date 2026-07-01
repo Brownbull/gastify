@@ -1223,6 +1223,15 @@ export interface components {
         CardAliasCreate: {
             /** Name */
             name: string;
+            /** Icon */
+            icon?: string | null;
+            /** Color */
+            color?: string | null;
+            /**
+             * Is Default
+             * @default false
+             */
+            is_default: boolean;
         };
         /** CardAliasResponse */
         CardAliasResponse: {
@@ -1233,6 +1242,15 @@ export interface components {
             id: string;
             /** Name */
             name: string;
+            /** Icon */
+            icon?: string | null;
+            /** Color */
+            color?: string | null;
+            /**
+             * Is Default
+             * @default false
+             */
+            is_default: boolean;
             /**
              * Created At
              * Format: date-time
@@ -1245,6 +1263,12 @@ export interface components {
         CardAliasUpdate: {
             /** Name */
             name?: string | null;
+            /** Icon */
+            icon?: string | null;
+            /** Color */
+            color?: string | null;
+            /** Is Default */
+            is_default?: boolean | null;
         };
         /** ConsentGrant */
         ConsentGrant: {
