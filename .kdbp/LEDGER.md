@@ -5897,3 +5897,13 @@ SCOPE: DF settings fidelity — rebuilt Profile (name-edit wired)/Help (stub→f
 CHECKS: ✅ lint(0) ✅ types(0) ✅ tests(145/145 web vitest) — mvp
 FINDINGS: 1 low (Layer-4 mockup-INDEX; accepted — CS registry rows + screen builds don't change INDEX inventory)
 SCOPE: 3 net-new settings subviews — Subscription (quota-wired) / Cards (/card-aliases CRUD) / Limits (CS-19 preview); hub rows navigable; +SettingsUsageBar +useCardAliases; CS-15..CS-19 registered. Completes all 7 settings subviews. Adversarial review + Playwright proof next, then push.
+
+## 2026-06-30 19:40 — [3aa7dde] fix(web): settings review remediation (2 crit + 2 high + more)
+ADVERSARIAL REVIEW (wf, 15 agents): 8 confirmed findings, ALL FIXED.
+CRIT: Data /consent envelope unwrap + grant ConsentGrant body (apiClient loose-typed → tsc missed; runtime crash/422). HIGH: Memory broken icons (PascalCase key vs kebab/Spanish icon → SET-guarded lib/categoryIcon + test); Cards save/archive error handling. MED/LOW: Data try/catch + check-before-signOut; Profile blank-name guard.
+CHECKS: tsc 0, vitest 148/148 (+3 categoryIcon tests), eslint 0.
+- 2026-06-30 19:42 | Write | /home/khujta/projects/apps/gastify/tests/web-e2e/settings-fidelity-all.spec.ts
+- 2026-06-30 20:12 | Write | /home/khujta/projects/apps/gastify/web/src/components/ui/Select.tsx
+
+## 2026-06-30 20:17 — [40b117e] feat(web): Select type-ahead + keyboard nav
+Shared Select atom: type-ahead (accent-insensitive, repeat-cycle) + ↑↓/Home/End/Enter/Esc + aria-activedescendant + scroll-into-view; highlight set in handlers (no set-state-in-effect). Benefits Ciudad/País/currency/preferences. +Select.test.tsx (5). tsc 0, vitest 153/153, eslint 0.
