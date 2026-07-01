@@ -249,7 +249,7 @@ export function PeriodStepper({
         onClick={() => onChange(shiftPeriod(period, -1))}
         className={stepBtn}
       >
-        <ChevronLeftIcon className="h-6 w-6" />
+        <ChevronLeftIcon className="h-5 w-5" />
       </button>
       <input
         type="month"
@@ -267,7 +267,7 @@ export function PeriodStepper({
         onClick={() => onChange(shiftPeriod(period, 1))}
         className={stepBtn}
       >
-        <ChevronLeftIcon className="h-6 w-6 rotate-180" />
+        <ChevronLeftIcon className="h-5 w-5 rotate-180" />
       </button>
     </div>
   );
