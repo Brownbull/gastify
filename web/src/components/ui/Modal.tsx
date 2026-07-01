@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { XIcon } from "@/components/shell/icons";
 
@@ -23,6 +23,8 @@ export interface ModalProps {
   open: boolean;
   onClose: () => void;
   title?: ReactNode;
+  /** accessible name for the dialog when there is no visible `title` (role=dialog needs a name). */
+  ariaLabel?: string;
   placement?: ModalPlacement;
   children: ReactNode;
   /** footer actions row (optional). */
@@ -30,8 +32,10 @@ export interface ModalProps {
   className?: string;
 }
 
-export function Modal({ open, onClose, title, placement = "center", children, footer, className = "" }: ModalProps) {
+export function Modal({ open, onClose, title, ariaLabel, placement = "center", children, footer, className = "" }: ModalProps) {
   const [mount, setMount] = useState<HTMLElement | null>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const titleId = useId();
 
   useEffect(() => {
     if (!open) return;
@@ -48,6 +52,15 @@ export function Modal({ open, onClose, title, placement = "center", children, fo
     setMount((document.querySelector("[data-testid='app-content-pane']") as HTMLElement | null) ?? document.body);
   }, [open]);
 
+  // Move focus into the dialog on open + restore it to the trigger on close (WCAG
+  // 2.4.3). Keyed on `mount` so focus lands after the portal has rendered the panel.
+  useEffect(() => {
+    if (!open || !mount) return;
+    const previouslyFocused = document.activeElement as HTMLElement | null;
+    panelRef.current?.focus();
+    return () => previouslyFocused?.focus?.();
+  }, [open, mount]);
+
   if (!open || !mount) return null;
 
   const panelPos =
@@ -60,6 +73,8 @@ export function Modal({ open, onClose, title, placement = "center", children, fo
       className="fixed inset-0 z-50 flex items-center justify-center lg:absolute"
       role="dialog"
       aria-modal="true"
+      aria-labelledby={title ? titleId : undefined}
+      aria-label={title ? undefined : ariaLabel}
     >
       {/* backdrop */}
       <button
@@ -70,11 +85,13 @@ export function Modal({ open, onClose, title, placement = "center", children, fo
       />
       {/* panel */}
       <div
-        className={`relative z-10 flex max-h-[90%] w-full max-w-sm flex-col border-2 border-gt-line-strong bg-gt-surface shadow-gt-xl ${panelPos} ${className}`}
+        ref={panelRef}
+        tabIndex={-1}
+        className={`relative z-10 flex max-h-[90%] w-full max-w-sm flex-col border-2 border-gt-line-strong bg-gt-surface shadow-gt-xl outline-none ${panelPos} ${className}`}
       >
         {title ? (
           <header className="flex items-center justify-between gap-gt-8 border-b-2 border-gt-line px-gt-16 py-gt-12">
-            <h3 className="text-gt-lg font-extrabold text-gt-ink">{title}</h3>
+            <h3 id={titleId} className="text-gt-lg font-extrabold text-gt-ink">{title}</h3>
             <button
               type="button"
               aria-label="Cerrar"

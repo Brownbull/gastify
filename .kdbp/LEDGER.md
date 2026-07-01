@@ -5941,3 +5941,7 @@ ReportDetailOverlay now portals into app-content-pane + fixed inset-0 lg:absolut
 Tracked TanStack Router registry was missing the 3 newer settings subview routes (files existed; tree not regenerated at their commit). Regenerated + committed so tracked tree matches routes. Generated-only, tsc 0.
 - 2026-06-30 21:31 | Edit | /home/khujta/projects/apps/gastify/docs/mockups/COMING-SOON-REGISTRY.md
 - 2026-06-30 21:31 | Edit | /home/khujta/projects/apps/gastify/docs/mockups/COMING-SOON-REGISTRY.md
+- 2026-06-30 22:07 | Write | /tmp/claude-1000/-home-khujta-projects-apps-gastify/54614bed-7177-4b86-813f-86de68955392/scratchpad/pr-body-settings-fidelity.md
+
+## 2026-06-30 22:19 — [a54cbd9] fix(web): pre-ship gate — build repair + Modal a11y
+Pre-ship gate (wfj3s3y39) caught a production build break + 2 Modal a11y defects. Fixed: statements.tsx passes is_default:false (openapi-typescript makes default-bearing fields required); Modal gains aria-labelledby→title (+aria-label fallback) and focus-on-open/restore (WCAG 4.1.2+2.4.3), +Modal.test.tsx (3). Learned: web root tsc --noEmit is a no-op (project refs) — use npm run build. LOW single-default race deferred to PENDING. build ✓, vitest 156, eslint 0, backend 980.

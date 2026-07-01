@@ -316,7 +316,9 @@ function AliasPanel({ aliases }: { aliases: readonly CardAlias[] }) {
     event.preventDefault();
     const trimmed = name.trim();
     if (!trimmed) return;
-    await createAlias.mutateAsync({ name: trimmed });
+    // A statement-reconciliation quick alias is never the default payment method;
+    // is_default is non-optional in the generated create type, so pass it explicitly.
+    await createAlias.mutateAsync({ name: trimmed, is_default: false });
     setName("");
   }
 
