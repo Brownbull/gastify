@@ -57,7 +57,7 @@ export function Modal({ open, onClose, title, placement = "center", children, fo
 
   return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-end justify-center sm:items-center lg:absolute"
+      className="fixed inset-0 z-50 flex items-center justify-center lg:absolute"
       role="dialog"
       aria-modal="true"
     >

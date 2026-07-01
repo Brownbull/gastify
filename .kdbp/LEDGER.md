@@ -5917,3 +5917,7 @@ User: stop abusing /rectification per-change → draft + Apply/Discard footer pe
 
 ## 2026-06-30 20:45 — [7f47c56] fix(web): Modal backdrop covers content-pane/viewport
 Modal portals into [data-testid=app-content-pane] (non-scrolling flex-1 pane wrapper) + fixed inset-0 lg:absolute → dims full content pane on desktop (SideNav excluded, collapse-aware) / full viewport on mobile, not just the subview content box. Fixes all Modal dialogs app-wide. tsc 0, vitest 153/153, eslint 0; desktop proof verified.
+- 2026-06-30 20:50 | Edit | /home/khujta/projects/apps/gastify/web/src/components/ui/Modal.tsx
+
+## 2026-06-30 20:51 — [cc78bf7] fix(web): Modal center panel on mobile
+Modal root items-end sm:items-center → items-center (all breakpoints). The full-viewport backdrop had left the mobile panel pinned to the bottom edge; now vertically centered. tsc 0, eslint 0; mobile + desktop proof verified.
