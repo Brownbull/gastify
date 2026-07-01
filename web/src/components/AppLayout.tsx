@@ -1,11 +1,10 @@
 import { useState, type ReactNode } from "react";
 import { useNavigate, useRouterState } from "@tanstack/react-router";
 import { GroupSwitcher } from "@/components/GroupSwitcher";
-import { NotificationBell } from "@/components/NotificationBell";
 import { RateLimitToast } from "@/components/RateLimitToast";
 import { useAuth } from "@/hooks/useAuth";
 import { useI18n } from "@/hooks/useI18n";
-import { SUPPORTED_LOCALES, type SupportedLocale } from "@/lib/i18n";
+import { useUnreadNotificationCount } from "@/hooks/useNotifications";
 import {
   AppHeader,
   BottomNav,
@@ -49,7 +48,8 @@ function isOverlayPath(pathname: string): boolean {
  */
 export function AppLayout({ children }: AppLayoutProps) {
   const { user, signOut } = useAuth();
-  const { t, locale, setLocale } = useI18n();
+  const { t } = useI18n();
+  const { data: unreadCount = 0 } = useUnreadNotificationCount();
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
@@ -107,7 +107,12 @@ export function AppLayout({ children }: AppLayoutProps) {
   };
 
   const profileItems: ProfileMenuItem[] = [
-    { key: "notifications", label: t("nav.notifications"), icon: "nav-alerts" },
+    {
+      key: "notifications",
+      label: t("notifications.title"),
+      icon: "nav-alerts",
+      badge: unreadCount > 0 ? (unreadCount > 99 ? "99+" : String(unreadCount)) : undefined,
+    },
     { key: "reports", label: t("nav.reports"), icon: "chart-pie" },
     { key: "groups", label: t("nav.groups"), icon: "settings-groups" },
     { key: "statements", label: t("nav.statements"), icon: "scan-statement" },
@@ -158,14 +163,8 @@ export function AppLayout({ children }: AppLayoutProps) {
 
       <div data-testid="app-content-pane" className="relative flex min-h-screen flex-1 flex-col">
         <AppHeader
-          className="sticky top-0 z-20 border-b-2 border-gt-line-strong lg:hidden"
+          className="sticky top-0 z-20 bg-gt-bg! lg:hidden"
           variant="home"
-          actions={
-            <>
-              <NotificationBell />
-              <LocaleSelect locale={locale} onChange={setLocale} label={t("locale.label")} />
-            </>
-          }
           brand={<GroupSwitcher />}
           avatarInitials={initials}
           onProfile={toggleMenu}
@@ -211,28 +210,5 @@ export function AppLayout({ children }: AppLayoutProps) {
 
       <RateLimitToast />
     </div>
-  );
-}
-
-interface LocaleSelectProps {
-  locale: SupportedLocale;
-  onChange: (locale: SupportedLocale) => void;
-  label: string;
-}
-
-function LocaleSelect({ locale, onChange, label }: LocaleSelectProps) {
-  return (
-    <select
-      value={locale}
-      aria-label={label}
-      onChange={(event) => onChange(event.target.value as SupportedLocale)}
-      className="rounded-gt-md border-2 border-gt-line bg-gt-surface px-gt-6 py-gt-4 text-gt-xs font-extrabold text-gt-ink-2"
-    >
-      {SUPPORTED_LOCALES.map((supportedLocale) => (
-        <option key={supportedLocale} value={supportedLocale}>
-          {supportedLocale.toUpperCase()}
-        </option>
-      ))}
-    </select>
   );
 }

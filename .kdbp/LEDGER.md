@@ -5977,3 +5977,6 @@ Rebuilt / (index.tsx) to the design-lab HomeScreen: InicioHero + insight StatusC
 
 ## 2026-07-01 12:34 — [d6abbaa] feat(web): group scope switcher folded into the app logo
 Removed the standalone GroupSwitcher bar; the wordmark/logo IS the scope switcher (desktop SideNav header via a new `brand` slot + mobile AppHeader brand). Personal=gastify purple; group=group name in the group color + avatar; click opens the same dropdown. Collapsed rail → compact "g"/avatar. tsc 0, vitest 154, eslint 0, token guard 151; :5174 desktop+mobile proof.
+
+## 2026-07-01 12:46 — [cf1f206] feat(web): mobile header cleanup
+Removed the header separator (border + white band → seamless bg-gt-bg), the notification bell (→ profile menu, unread as a badge on the item), and the language selector (→ Settings). Renamed the notifications menu item Avisos/Alerts → notifications.title (Notificaciones/Notifications). Dropped unused LocaleSelect+NotificationBell from AppLayout. tsc 0, vitest 154, eslint 0, guard 151; :5174 proof.
